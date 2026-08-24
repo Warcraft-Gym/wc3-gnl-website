@@ -1,26 +1,251 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ *
+ *  WC3 GYM — esports design system
+ *  Near-black base, a single electric-red accent, condensed uppercase
+ *  display type, and angular/skewed motifs. Tokens in OKLCH.
+ *
+ *  NOTE: the primary accent token is named `--wg-gold` / `--color-gold`
+ *  for historical reasons but now holds the electric-red accent. Treat
+ *  "gold" throughout the codebase as "primary accent".
+ * ------------------------------------------------------------------ */
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* --- Surfaces (near-black, faint cool tint, layered) --- */
+  --wg-bg: oklch(13% 0.008 265);
+  --wg-bg-deep: oklch(9% 0.006 265);
+  --wg-surface: oklch(16% 0.01 265);
+  --wg-surface-2: oklch(20% 0.012 265);
+  --wg-surface-3: oklch(25% 0.014 265);
+  --wg-line: oklch(28% 0.012 265 / 0.8);
+  --wg-line-strong: oklch(45% 0.02 265 / 0.55);
+
+  /* --- Text --- */
+  --wg-text: oklch(97% 0.006 265);
+  --wg-text-muted: oklch(72% 0.014 265);
+  --wg-text-faint: oklch(55% 0.016 265);
+
+  /* --- Primary accent: electric red. Secondary: cool cyan. --- */
+  --wg-gold: oklch(64% 0.235 27);
+  --wg-gold-deep: oklch(53% 0.21 27);
+  --wg-gold-glow: oklch(64% 0.235 27 / 0.45);
+  --wg-arcane: oklch(74% 0.13 220);
+  --wg-arcane-deep: oklch(64% 0.13 223);
+
+  /* --- Status --- */
+  --wg-live: oklch(70% 0.2 35);
+  --wg-win: oklch(80% 0.18 150);
+  --wg-loss: oklch(64% 0.19 25);
+
+  /* --- Race / faction semantic color --- */
+  --wg-human: oklch(68% 0.15 250);
+  --wg-orc: oklch(63% 0.19 30);
+  --wg-nightelf: oklch(72% 0.15 300);
+  --wg-undead: oklch(78% 0.17 155);
+  --wg-random: oklch(72% 0.02 265);
+
+  /* --- Type --- */
+  --wg-font-display: var(--font-display), "Saira Condensed", ui-sans-serif, system-ui, sans-serif;
+  --wg-font-sans: var(--font-sans), "Saira", ui-sans-serif, system-ui, sans-serif;
+  --wg-font-mono: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
+
+  --wg-text-hero: clamp(3rem, 1rem + 9vw, 8.5rem);
+  --wg-text-display: clamp(2.25rem, 1rem + 5vw, 5rem);
+  --wg-text-title: clamp(1.6rem, 1rem + 2vw, 2.75rem);
+  --wg-text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
+
+  /* --- Rhythm --- */
+  --wg-space-section: clamp(4.5rem, 3rem + 6vw, 9rem);
+  --wg-radius: 3px;
+  --wg-radius-lg: 4px;
+
+  /* --- Angular motif --- */
+  --wg-skew: -11deg;
+  --wg-notch: 12px;
+
+  /* --- Motion --- */
+  --wg-dur-fast: 140ms;
+  --wg-dur: 260ms;
+  --wg-ease: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-bg: var(--wg-bg);
+  --color-bg-deep: var(--wg-bg-deep);
+  --color-surface: var(--wg-surface);
+  --color-surface-2: var(--wg-surface-2);
+  --color-surface-3: var(--wg-surface-3);
+  --color-line: var(--wg-line);
+  --color-line-strong: var(--wg-line-strong);
+
+  --color-fg: var(--wg-text);
+  --color-muted: var(--wg-text-muted);
+  --color-faint: var(--wg-text-faint);
+
+  --color-gold: var(--wg-gold);
+  --color-gold-deep: var(--wg-gold-deep);
+  --color-arcane: var(--wg-arcane);
+  --color-arcane-deep: var(--wg-arcane-deep);
+
+  --color-live: var(--wg-live);
+  --color-win: var(--wg-win);
+  --color-loss: var(--wg-loss);
+
+  --color-human: var(--wg-human);
+  --color-orc: var(--wg-orc);
+  --color-nightelf: var(--wg-nightelf);
+  --color-undead: var(--wg-undead);
+  --color-random: var(--wg-random);
+
+  --font-display: var(--wg-font-display);
+  --font-sans: var(--wg-font-sans);
+  --font-mono: var(--wg-font-mono);
+
+  --radius-DEFAULT: var(--wg-radius);
+  --radius-lg: var(--wg-radius-lg);
+
+  --ease-out-expo: var(--wg-ease);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* ------------------------------------------------------------------ *
+ *  Base
+ * ------------------------------------------------------------------ */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--wg-bg);
+    color: var(--wg-text);
+    font-family: var(--wg-font-sans);
+    font-size: var(--wg-text-base);
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    background-image:
+      radial-gradient(60rem 40rem at 100% -10%, oklch(30% 0.08 128 / 0.14), transparent 55%),
+      radial-gradient(50rem 40rem at -10% 8%, oklch(30% 0.1 352 / 0.1), transparent 55%);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--wg-font-display);
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    line-height: 0.95;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  ::selection {
+    background: var(--wg-gold);
+    color: var(--wg-bg-deep);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--wg-gold);
+    outline-offset: 2px;
+  }
+
+  a {
+    color: inherit;
+    text-decoration: none;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ------------------------------------------------------------------ *
+ *  Utilities & motifs
+ * ------------------------------------------------------------------ */
+@layer utilities {
+  /* Angular hairline used to separate blocks */
+  .rule-gold {
+    background: linear-gradient(90deg, var(--wg-gold), transparent 40%);
+    height: 2px;
+  }
+
+  /* Kicker / eyebrow label — skewed accent tick + mono text */
+  .kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--wg-font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--wg-gold);
+  }
+  .kicker::before {
+    content: "";
+    width: 1.6rem;
+    height: 2px;
+    background: var(--wg-gold);
+    transform: skewX(var(--wg-skew));
+  }
+
+  .tnum {
+    font-family: var(--wg-font-mono);
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+  }
+
+  /* Skewed parallelogram container (esports button/tag motif) */
+  .skew {
+    transform: skewX(var(--wg-skew));
+  }
+  .skew > * {
+    display: inline-block;
+    transform: skewX(calc(var(--wg-skew) * -1));
+  }
+
+  /* Notched corner (clipped) card */
+  .clip-notch {
+    clip-path: polygon(
+      var(--wg-notch) 0,
+      100% 0,
+      100% calc(100% - var(--wg-notch)),
+      calc(100% - var(--wg-notch)) 100%,
+      0 100%,
+      0 var(--wg-notch)
+    );
+  }
+
+  /* Subtle film grain */
+  .grain::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.35;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  }
+
+  .glow-gold {
+    box-shadow: 0 0 0 1px var(--wg-line), 0 0 44px -14px var(--wg-gold-glow);
+  }
+
+  /* Diagonal top edge for section transitions */
+  .edge-slant-top {
+    clip-path: polygon(0 3vw, 100% 0, 100% 100%, 0 100%);
+  }
+
+  @keyframes wg-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+  .live-dot {
+    animation: wg-pulse 1.3s var(--wg-ease) infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
 }
