@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Saira, Saira_Condensed, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { SiteHeader } from "@/components/layout/SiteHeader";
-import { SiteFooter } from "@/components/layout/SiteFooter";
 
 const display = Saira_Condensed({
   variable: "--font-display",
@@ -46,13 +44,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">
-        <SiteHeader />
-        <main id="main" className="flex-1">
-          {children}
-        </main>
-        <SiteFooter />
-      </body>
+      <body className="min-h-full">{children}</body>
     </html>
   );
 }

@@ -34,6 +34,11 @@ yarn-error.log*
 .env*
 !.env.example
 
+# agent skills (vendored tooling, not app code)
+/.agents/
+/.claude/skills/
+/skills-lock.json
+
 # vercel
 .vercel
 
