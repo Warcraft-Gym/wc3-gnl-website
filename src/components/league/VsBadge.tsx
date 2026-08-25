@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 /** Skewed "VS" divider used between two teams. */
@@ -35,7 +34,6 @@ export function TeamPlate({
     md: "size-14 text-sm",
     lg: "size-20 text-xl",
   } as const;
-  const px = { sm: 40, md: 56, lg: 80 } as const;
 
   if (logoUrl) {
     return (
@@ -45,11 +43,11 @@ export function TeamPlate({
           sizes[size],
         )}
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src={logoUrl}
           alt={name ? `${name} logo` : `${tag} logo`}
-          width={px[size]}
-          height={px[size]}
+          loading="lazy"
           className="size-full object-contain p-1"
         />
       </span>

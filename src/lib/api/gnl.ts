@@ -11,6 +11,19 @@ import {
   FIXTURE_LEADERBOARD,
   FIXTURE_BRACKET,
 } from "./fixtures";
+import {
+  pickActiveSeason,
+  mapSeason,
+  deriveWeeks,
+  mapTeams,
+  flattenPlayers,
+  mapFixtures,
+  mapStandings,
+  mapLeaderboard,
+  type RawSeason,
+  type RawTeam,
+  type RawSeries,
+} from "./mappers";
 import type {
   Season,
   Team,
@@ -25,20 +38,23 @@ import type {
 /**
  * Public data access for the Warcraft-Gym site.
  *
- * Each function attempts a live Flask call and gracefully falls back to
- * fixtures. The `live()` mappers are the single adaptation seam: when the
- * backend's JSON is confirmed (backend blueprints: season/team/series/stats),
- * implement the mapping there — the UI never changes. See docs/ARCHITECTURE.md.
+ * Each function calls the GNL FastAPI backend (via the server-only client) and
+ * maps the response to the frontend domain types; on any failure — or when
+ * GNL_API_BASE_URL is unset — it falls back to fixtures. See mappers.ts for the
+ * backend→domain mapping. Bracket is not wired to the backend yet.
  */
 
 export type DataSource = "live" | "fixture";
 
+/** The active (latest) season's raw record — the root of every season-scoped read. */
+async function fetchActiveSeasonRaw(): Promise<RawSeason> {
+  const seasons = await apiGet<RawSeason[]>("/seasons");
+  return pickActiveSeason(seasons);
+}
+
 export async function getActiveSeason(): Promise<Season> {
   const { data } = await withFallback(
-    async () => {
-      await apiGet("/seasons");
-      throw new Error("season mapping not yet wired");
-    },
+    async () => mapSeason(await fetchActiveSeasonRaw()),
     () => FIXTURE_SEASON,
     "getActiveSeason",
   );
@@ -47,10 +63,7 @@ export async function getActiveSeason(): Promise<Season> {
 
 export async function getWeeks(): Promise<{ weeks: Week[]; source: DataSource }> {
   const { data, source } = await withFallback(
-    async () => {
-      await apiGet("/series");
-      throw new Error("weeks mapping not yet wired");
-    },
+    async () => deriveWeeks(mapSeason(await fetchActiveSeasonRaw())),
     () => FIXTURE_WEEKS,
     "getWeeks",
   );
@@ -63,8 +76,9 @@ export async function getFixtures(): Promise<{
 }> {
   const { data, source } = await withFallback(
     async () => {
-      await apiGet("/series");
-      throw new Error("fixtures mapping not yet wired");
+      const s = await fetchActiveSeasonRaw();
+      const series = await apiGet<RawSeries[]>(`/series/season/${s.id}`);
+      return mapFixtures(series);
     },
     () => FIXTURE_FIXTURES,
     "getFixtures",
@@ -100,8 +114,12 @@ export async function getStandings(): Promise<{
 }> {
   const { data, source } = await withFallback(
     async () => {
-      await apiGet("/standings");
-      throw new Error("standings mapping not yet wired");
+      const s = await fetchActiveSeasonRaw();
+      const [teams, series] = await Promise.all([
+        apiGet<RawTeam[]>(`/teams/season/${s.id}`),
+        apiGet<RawSeries[]>(`/series/season/${s.id}`),
+      ]);
+      return mapStandings(teams, mapFixtures(series), s.id);
     },
     () => FIXTURE_STANDINGS,
     "getStandings",
@@ -112,8 +130,9 @@ export async function getStandings(): Promise<{
 export async function getTeams(): Promise<{ teams: Team[]; source: DataSource }> {
   const { data, source } = await withFallback(
     async () => {
-      await apiGet("/teams");
-      throw new Error("teams mapping not yet wired");
+      const s = await fetchActiveSeasonRaw();
+      const teams = await apiGet<RawTeam[]>(`/teams/season/${s.id}`);
+      return mapTeams(teams, s.id);
     },
     () => FIXTURE_TEAMS,
     "getTeams",
@@ -132,8 +151,9 @@ export async function getPlayers(): Promise<{
 }> {
   const { data, source } = await withFallback(
     async () => {
-      await apiGet("/users");
-      throw new Error("users mapping not yet wired");
+      const s = await fetchActiveSeasonRaw();
+      const teams = await apiGet<RawTeam[]>(`/teams/season/${s.id}`);
+      return flattenPlayers(mapTeams(teams, s.id));
     },
     () => FIXTURE_PLAYERS,
     "getPlayers",
@@ -147,8 +167,9 @@ export async function getLeaderboard(): Promise<{
 }> {
   const { data, source } = await withFallback(
     async () => {
-      await apiGet("/stats");
-      throw new Error("leaderboard mapping not yet wired");
+      const s = await fetchActiveSeasonRaw();
+      const series = await apiGet<RawSeries[]>(`/series/season/${s.id}`);
+      return mapLeaderboard(series);
     },
     () => FIXTURE_LEADERBOARD,
     "getLeaderboard",
@@ -160,15 +181,8 @@ export async function getBracket(): Promise<{
   bracket: Bracket;
   source: DataSource;
 }> {
-  const { data, source } = await withFallback(
-    async () => {
-      await apiGet("/draft-series");
-      throw new Error("bracket mapping not yet wired");
-    },
-    () => FIXTURE_BRACKET,
-    "getBracket",
-  );
-  return { bracket: data, source };
+  // Playoff bracket not yet wired to the backend (/draft-series) — fixtures only.
+  return { bracket: FIXTURE_BRACKET, source: "fixture" };
 }
 
 /** Cross-week selectors for the home page. */
