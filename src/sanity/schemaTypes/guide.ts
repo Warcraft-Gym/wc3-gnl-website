@@ -82,6 +82,22 @@ export const guide = defineType({
       of: [
         defineArrayMember({ type: "block" }),
         defineArrayMember({ type: "image" }),
+        defineArrayMember({
+          type: "object",
+          name: "youtube",
+          title: "Video",
+          fields: [
+            defineField({
+              name: "url",
+              type: "url",
+              title: "Video URL (YouTube / Vimeo)",
+            }),
+          ],
+          preview: {
+            select: { url: "url" },
+            prepare: ({ url }) => ({ title: "Video", subtitle: url }),
+          },
+        }),
       ],
     }),
     defineField({

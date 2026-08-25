@@ -4,6 +4,18 @@ import {
 } from "@portabletext/react";
 import { urlFor } from "@/sanity/image";
 
+/** Build an embeddable player URL for a YouTube/Vimeo link, else null. */
+function embedUrl(raw?: string): string | null {
+  if (!raw) return null;
+  const yt =
+    raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/) ||
+    [];
+  if (yt[1]) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
+  const vimeo = raw.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (vimeo?.[1]) return `https://player.vimeo.com/video/${vimeo[1]}`;
+  return null;
+}
+
 /**
  * Renderer for Sanity Portable Text bodies (guides, posts). Handles images,
  * headings, lists, quotes, and links so migrated content renders faithfully.
@@ -13,6 +25,36 @@ const components: PortableTextComponents = {
     // Stray inline nodes the HTML converter can emit at block level — render
     // their text so no content is lost (and silence the console warning).
     span: ({ value }) => <>{(value as { text?: string })?.text ?? ""}</>,
+    youtube: ({ value }) => {
+      const url = (value as { url?: string })?.url;
+      const embed = embedUrl(url);
+      if (!embed) {
+        return url ? (
+          <p>
+            <a
+              href={url}
+              target="_blank"
+              rel="noreferrer"
+              className="text-arcane underline decoration-arcane/40 underline-offset-2 hover:decoration-arcane"
+            >
+              Watch the video
+            </a>
+          </p>
+        ) : null;
+      }
+      return (
+        <figure className="my-7 aspect-video overflow-hidden border border-line bg-bg-deep">
+          <iframe
+            src={embed}
+            title="Video"
+            loading="lazy"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+            className="h-full w-full"
+          />
+        </figure>
+      );
+    },
     image: ({ value }) => {
       if (!value?.asset) return null;
       const src = urlFor(value).width(1400).fit("max").auto("format").url();

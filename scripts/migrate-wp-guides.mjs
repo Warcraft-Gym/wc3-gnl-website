@@ -65,6 +65,11 @@ const compiled = Schema.compile({
               name: "image",
               fields: [{ name: "_sanityAsset", type: "string" }],
             },
+            {
+              type: "object",
+              name: "youtube",
+              fields: [{ name: "url", type: "string" }],
+            },
           ],
         },
       ],
@@ -114,11 +119,55 @@ const linkRule = {
   },
 };
 
+// Return the raw URL if it points to a YouTube/Vimeo video, else null.
+function normalizeVideoUrl(raw = "") {
+  if (/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/.test(raw)) {
+    return raw;
+  }
+  if (/vimeo\.com\/(?:video\/)?\d+/.test(raw)) return raw;
+  return null;
+}
+
+const youtubeRule = {
+  deserialize(el, _next, block) {
+    if (el.tagName?.toLowerCase() !== "iframe") return undefined;
+    const url = normalizeVideoUrl(el.getAttribute("src") || "");
+    if (!url) return undefined;
+    return block({ _type: "youtube", url });
+  },
+};
+
 function cleanBodyHtml(html) {
   const doc = new JSDOM(html).window.document;
   doc
-    .querySelectorAll("script, style, iframe, .sharedaddy, .jp-relatedposts, .wp-block-buttons")
+    .querySelectorAll(
+      // ...plus the "related/suggested guides" widget (Content Views plugin),
+      // which the new site renders itself — it shouldn't be part of the body.
+      'script, style, .sharedaddy, .jp-relatedposts, .wp-block-buttons, [class*="pt-cv"]',
+    )
     .forEach((el) => el.remove());
+  // Drop separators/empties left dangling at the end after removals.
+  for (let el = doc.body.lastElementChild; el; ) {
+    const prev = el.previousElementSibling;
+    const tag = el.tagName.toLowerCase();
+    if (tag === "hr" || ((tag === "p" || tag === "div") && !el.textContent.trim())) {
+      el.remove();
+      el = prev;
+    } else break;
+  }
+  // Turn WordPress oEmbed wrappers into iframes so youtubeRule catches them.
+  doc
+    .querySelectorAll("figure.wp-block-embed, .wp-block-embed, .wp-block-embed__wrapper")
+    .forEach((fig) => {
+      const link = fig.querySelector("a")?.getAttribute("href") || "";
+      const url =
+        normalizeVideoUrl(link) || normalizeVideoUrl((fig.textContent || "").trim());
+      if (url) {
+        const ifr = doc.createElement("iframe");
+        ifr.setAttribute("src", url);
+        fig.replaceWith(ifr);
+      }
+    });
   return doc.body.innerHTML;
 }
 
@@ -172,7 +221,7 @@ async function main() {
     const bodyHtml = cleanBodyHtml(post.content?.rendered || "");
     const blocks = htmlToBlocks(bodyHtml, blockContentType, {
       parseHtml: (html) => new JSDOM(html).window.document,
-      rules: [linkRule, imageRule],
+      rules: [linkRule, imageRule, youtubeRule],
     });
     const excerpt =
       decodeEntities((post.excerpt?.rendered || "").replace(/<[^>]+>/g, "")).slice(0, 260) ||
