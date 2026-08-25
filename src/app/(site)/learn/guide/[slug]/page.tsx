@@ -3,13 +3,11 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { PortableBody } from "@/components/sanity/PortableBody";
+import { urlFor } from "@/sanity/image";
 import { GuideCard } from "@/components/learn/GuideCard";
-import {
-  GUIDES,
-  getGuide,
-  getCategory,
-  guidesByCategory,
-} from "@/lib/learn/data";
+import { getCategory } from "@/lib/learn/data";
+import { getGuides, getGuideBySlug } from "@/lib/learn/guides";
 import { cn } from "@/lib/utils";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -20,25 +18,26 @@ const LEVEL_TONE = {
   advanced: "border-gold/50 text-gold",
 } as const;
 
-export function generateStaticParams() {
-  return GUIDES.map((g) => ({ slug: g.slug }));
+export async function generateStaticParams() {
+  const guides = await getGuides();
+  return guides.map((g) => ({ slug: g.slug }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const guide = getGuide(slug);
+  const guide = await getGuideBySlug(slug);
   if (!guide) return { title: "Guide not found" };
   return { title: guide.title, description: guide.excerpt };
 }
 
 export default async function GuidePage({ params }: Params) {
   const { slug } = await params;
-  const guide = getGuide(slug);
+  const guide = await getGuideBySlug(slug);
   if (!guide) notFound();
 
   const category = getCategory(guide.category);
-  const related = guidesByCategory(guide.category)
-    .filter((g) => g.slug !== guide.slug)
+  const related = (await getGuides())
+    .filter((g) => g.category === guide.category && g.slug !== guide.slug)
     .slice(0, 3);
 
   const date = new Intl.DateTimeFormat("en-GB", {
@@ -79,12 +78,25 @@ export default async function GuidePage({ params }: Params) {
         </Container>
       </div>
 
+      {guide.coverImage ? (
+        <Container className="max-w-3xl pt-10">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={urlFor(guide.coverImage).width(1400).fit("max").auto("format").url()}
+            alt=""
+            className="h-auto w-full border border-line bg-surface"
+          />
+        </Container>
+      ) : null}
+
       <Container className="max-w-3xl py-12">
-        <div className="space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
-          {guide.paragraphs.map((p, i) => (
-            <p key={i}>{p}</p>
-          ))}
-        </div>
+        {guide.body?.length ? (
+          <PortableBody value={guide.body} />
+        ) : (
+          <div className="space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
+            {guide.paragraphs?.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        )}
       </Container>
 
       {related.length ? (

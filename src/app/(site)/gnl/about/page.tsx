@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import { ArrowRight, Swords, GraduationCap, Users2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -45,6 +46,18 @@ export default async function AboutPage() {
         <div className="max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
           <RichText value={about.intro} />
         </div>
+
+        {/* Excellent choice */}
+        <figure className="mt-10 flex justify-center">
+          <Image
+            src="/graphics/excellent-choice.png"
+            alt="Excellent choice"
+            width={1291}
+            height={851}
+            className="h-auto w-full max-w-2xl"
+            sizes="(max-width: 768px) 100vw, 42rem"
+          />
+        </figure>
 
         {/* Why play */}
         <section className="mt-14">

@@ -8,7 +8,8 @@ import { SectionHead } from "@/components/ui/Surface";
 import { ButtonLink } from "@/components/ui/Button";
 import { CategoryCard } from "@/components/learn/CategoryCard";
 import { GuideCard } from "@/components/learn/GuideCard";
-import { LEARN_CATEGORIES, latestGuides, getCategory } from "@/lib/learn/data";
+import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
+import { getLatestGuides } from "@/lib/learn/guides";
 
 export const metadata: Metadata = {
   title: "Learn Warcraft III",
@@ -16,10 +17,10 @@ export const metadata: Metadata = {
     "Level up your Warcraft 3 skills — race guides, creep routes, game mechanics, and build orders for new and returning players.",
 };
 
-export default function LearnPage() {
+export default async function LearnPage() {
   const newPlayers = getCategory("new-players")!;
   const categories = LEARN_CATEGORIES.filter((c) => c.id !== "new-players");
-  const latest = latestGuides(6);
+  const latest = await getLatestGuides(6);
 
   return (
     <>

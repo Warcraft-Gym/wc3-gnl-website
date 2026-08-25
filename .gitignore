@@ -39,6 +39,9 @@ yarn-error.log*
 /.claude/skills/
 /skills-lock.json
 
+# WordPress migration artifact (regenerable; not app source)
+/scripts/wp-guides.ndjson
+
 # vercel
 .vercel
 

@@ -34,7 +34,12 @@ export type Guide = {
   excerpt: string;
   minutes: number;
   publishedAt: string;
-  paragraphs: string[];
+  /** Fixture body (plain paragraphs). */
+  paragraphs?: string[];
+  /** Sanity body (Portable Text blocks). */
+  body?: unknown[];
+  /** Sanity cover image (featured image). */
+  coverImage?: unknown;
 };
 
 export const LEARN_CATEGORIES: LearnCategory[] = [

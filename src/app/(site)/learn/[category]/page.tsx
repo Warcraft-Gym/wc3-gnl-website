@@ -6,11 +6,8 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { GuideCard } from "@/components/learn/GuideCard";
-import {
-  LEARN_CATEGORIES,
-  getCategory,
-  guidesByCategory,
-} from "@/lib/learn/data";
+import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
+import { getGuidesByCategory } from "@/lib/learn/guides";
 
 type Params = { params: Promise<{ category: string }> };
 
@@ -38,7 +35,7 @@ export default async function LearnCategoryPage({ params }: Params) {
   const cat = getCategory(category);
   if (!cat) notFound();
 
-  const guides = guidesByCategory(cat.id);
+  const guides = await getGuidesByCategory(cat.id);
   const TopicIcon =
     cat.kind === "topic"
       ? TOPIC_ICON[cat.id as keyof typeof TOPIC_ICON] ?? Sparkles
