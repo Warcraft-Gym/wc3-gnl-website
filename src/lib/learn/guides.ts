@@ -17,7 +17,8 @@ const LIST_PROJECTION = `{
   level,
   excerpt,
   "minutes": coalesce(readingMinutes, 4),
-  publishedAt
+  publishedAt,
+  coverImage
 }`;
 
 const DETAIL_PROJECTION = `{
