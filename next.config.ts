@@ -11,7 +11,6 @@ const nextConfig: NextConfig = {
       { source: "/teams", destination: "/gnl/teams", permanent: true },
       { source: "/teams/:slug", destination: "/gnl/teams/:slug", permanent: true },
       { source: "/players", destination: "/gnl/leaderboard", permanent: true },
-      { source: "/brackets", destination: "/gnl/brackets", permanent: true },
       { source: "/about", destination: "/gnl/about", permanent: true },
       { source: "/rules", destination: "/gnl/rules", permanent: true },
     ];

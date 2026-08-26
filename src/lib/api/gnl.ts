@@ -9,7 +9,6 @@ import {
   FIXTURE_WEEKS,
   FIXTURE_FIXTURES,
   FIXTURE_LEADERBOARD,
-  FIXTURE_BRACKET,
 } from "./fixtures";
 import {
   pickActiveSeason,
@@ -32,7 +31,6 @@ import type {
   Week,
   TeamFixture,
   LeaderboardRow,
-  Bracket,
 } from "./types";
 
 /**
@@ -41,7 +39,7 @@ import type {
  * Each function calls the GNL FastAPI backend (via the server-only client) and
  * maps the response to the frontend domain types; on any failure — or when
  * GNL_API_BASE_URL is unset — it falls back to fixtures. See mappers.ts for the
- * backend→domain mapping. Bracket is not wired to the backend yet.
+ * backend→domain mapping.
  */
 
 export type DataSource = "live" | "fixture";
@@ -175,14 +173,6 @@ export async function getLeaderboard(): Promise<{
     "getLeaderboard",
   );
   return { rows: data, source };
-}
-
-export async function getBracket(): Promise<{
-  bracket: Bracket;
-  source: DataSource;
-}> {
-  // Playoff bracket not yet wired to the backend (/draft-series) — fixtures only.
-  return { bracket: FIXTURE_BRACKET, source: "fixture" };
 }
 
 /** Cross-week selectors for the home page. */

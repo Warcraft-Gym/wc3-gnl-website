@@ -9,7 +9,6 @@ import type {
   FixtureTeam,
   LeaderboardRow,
   MatchStatus,
-  Bracket,
 } from "./types";
 import type { Race } from "@/lib/utils";
 import { slugify } from "@/lib/utils";
@@ -373,63 +372,3 @@ export const FIXTURE_LEADERBOARD: LeaderboardRow[] = [...FIXTURE_PLAYERS]
     };
   });
 
-export const FIXTURE_BRACKET: Bracket = {
-  name: "GNL 18 Playoffs",
-  rounds: [
-    {
-      name: "Quarterfinals",
-      matches: [
-        {
-          id: 1,
-          round: 1,
-          position: 0,
-          status: "completed",
-          home: { name: "Acolytes Anonymous", score: 3, seed: 1 },
-          away: { name: "Druglords", score: 0, seed: 8 },
-        },
-        {
-          id: 2,
-          round: 1,
-          position: 1,
-          status: "completed",
-          home: { name: "Saul's Angels", score: 3, seed: 4 },
-          away: { name: "Crit Happens", score: 2, seed: 5 },
-        },
-        {
-          id: 3,
-          round: 1,
-          position: 2,
-          status: "live",
-          home: { name: "GNL Bears", score: 2, seed: 3 },
-          away: { name: "Sheepapult", score: 1, seed: 6 },
-        },
-        {
-          id: 4,
-          round: 1,
-          position: 3,
-          status: "scheduled",
-          home: { name: "Moonjuice Moonshiners", seed: 2 },
-          away: { name: "Giggling Goblins", seed: 7 },
-        },
-      ],
-    },
-    {
-      name: "Semifinals",
-      matches: [
-        {
-          id: 5,
-          round: 2,
-          position: 0,
-          status: "scheduled",
-          home: { name: "Acolytes Anonymous", seed: 1 },
-          away: { name: "Saul's Angels", seed: 4 },
-        },
-        { id: 6, round: 2, position: 1, status: "scheduled" },
-      ],
-    },
-    {
-      name: "Grand Final",
-      matches: [{ id: 7, round: 3, position: 0, status: "scheduled" }],
-    },
-  ],
-};

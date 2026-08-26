@@ -30,7 +30,7 @@ export const metadata: Metadata = {
     template: "%s · Warcraft 3 Gym",
   },
   description:
-    "Warcraft 3 Gym is a community-driven competitive league. Follow the Gym Newbie League — standings, schedule, teams, brackets, and fantasy.",
+    "Warcraft 3 Gym is a community-driven competitive league. Follow the Gym Newbie League — standings, schedule, teams, leaderboard, and fantasy.",
   openGraph: {
     title: "Warcraft 3 Gym",
     description: "The community-driven competitive Warcraft III league.",

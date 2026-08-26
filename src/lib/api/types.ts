@@ -111,16 +111,3 @@ export type LeaderboardRow = {
   mmr?: number;
 };
 
-export type BracketMatch = {
-  id: number;
-  round: number;
-  position: number;
-  status: MatchStatus;
-  home?: { name: string; score?: number; seed?: number };
-  away?: { name: string; score?: number; seed?: number };
-};
-
-export type Bracket = {
-  name: string;
-  rounds: { name: string; matches: BracketMatch[] }[];
-};
