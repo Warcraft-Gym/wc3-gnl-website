@@ -5,7 +5,7 @@ import { PostCard } from "@/components/blog/PostCard";
 import { getPosts } from "@/lib/content";
 
 export const metadata: Metadata = {
-  title: "Blog",
+  title: "Latest News",
   description: "News, recaps, guides and announcements from the Warcraft 3 Gym.",
 };
 
@@ -17,7 +17,7 @@ export default async function BlogPage() {
     <>
       <PageHeader
         kicker="From the desk"
-        title="The Gym Blog"
+        title="Latest News"
         lead="Recaps, roster news, strategy guides, and everything happening across the league."
       />
       <Container className="py-12">
