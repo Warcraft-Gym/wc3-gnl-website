@@ -10,6 +10,8 @@ import type {
   MatchStatus,
   StandingRow,
   LeaderboardRow,
+  FantasyEntry,
+  FantasyPick,
 } from "./types";
 import { slugify, raceOf, isLive } from "@/lib/utils";
 
@@ -80,6 +82,22 @@ export interface RawCareerStat {
   series_lost?: number;
   series_winrate?: number;
   user?: { race?: string };
+}
+export interface RawFantasyTeam {
+  id: number;
+  name: string;
+  season_id: number;
+  captain_id?: number;
+  drafted_race?: string;
+  player_points?: number;
+  bench_points?: number;
+  team_points?: number;
+  race_points?: number;
+  bet_points?: number;
+  total_points?: number;
+  captain?: RawPlayer & { country?: string };
+  drafted_team?: RawTeamLite;
+  drafted_players?: RawPlayer[];
 }
 
 const logoUrl = (teamId: number) => `${BASE}/teams/${teamId}/image`;
@@ -326,4 +344,58 @@ export function mapLeaderboard(raw: RawCareerStat[]): LeaderboardRow[] {
   );
   rows.forEach((r, i) => (r.rank = i + 1));
   return rows;
+}
+
+// --- fantasy (managers' drafted squads for a season, ranked by total points) ---
+export function mapFantasy(
+  raw: RawFantasyTeam[],
+  seasonId: number,
+): FantasyEntry[] {
+  const entries: FantasyEntry[] = raw
+    .filter((t) => t.season_id === seasonId)
+    .map((t) => {
+      const captainId = t.captain?.id ?? t.captain_id;
+      const roster: FantasyPick[] = (t.drafted_players ?? []).map((p) => ({
+        id: p.id,
+        name: p.name,
+        race: raceOf(p.race),
+        isCaptain: p.id === captainId,
+      }));
+      const team = t.drafted_team;
+      return {
+        rank: 0,
+        id: t.id,
+        name: t.name,
+        captain: t.captain
+          ? {
+              id: t.captain.id,
+              name: t.captain.name,
+              race: raceOf(t.captain.race),
+              country: t.captain.country,
+            }
+          : undefined,
+        draftedTeam: team
+          ? {
+              id: team.id,
+              name: team.long_name || team.name,
+              tag: team.name,
+              logoUrl: logoUrl(team.id),
+            }
+          : undefined,
+        draftedRace: raceOf(t.drafted_race),
+        breakdown: {
+          player: t.player_points ?? 0,
+          bench: t.bench_points ?? 0,
+          team: t.team_points ?? 0,
+          race: t.race_points ?? 0,
+          bet: t.bet_points ?? 0,
+        },
+        total: t.total_points ?? 0,
+        roster,
+      };
+    });
+
+  entries.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
+  entries.forEach((e, i) => (e.rank = i + 1));
+  return entries;
 }

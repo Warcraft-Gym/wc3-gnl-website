@@ -9,6 +9,7 @@ import type {
   FixtureTeam,
   LeaderboardRow,
   MatchStatus,
+  FantasyEntry,
 } from "./types";
 import type { Race } from "@/lib/utils";
 import { slugify } from "@/lib/utils";
@@ -372,3 +373,56 @@ export const FIXTURE_LEADERBOARD: LeaderboardRow[] = [...FIXTURE_PLAYERS]
     };
   });
 
+
+// --- Fantasy standings (deterministic managers drafting fixture teams). ---
+const FANTASY_MANAGERS = [
+  "Micro Managers",
+  "Creep Route Cartel",
+  "Tower Rush Inc.",
+  "Expansion Enjoyers",
+  "Hero XP Hoarders",
+  "Base Trade Believers",
+];
+
+export const FIXTURE_FANTASY: FantasyEntry[] = FANTASY_MANAGERS.map(
+  (name, i) => {
+    const team = FIXTURE_TEAMS[i % FIXTURE_TEAMS.length];
+    const roster = team.players.slice(0, 6);
+    const captain = roster[0];
+    const player = 130 - i * 12;
+    const bench = 60 - i * 6;
+    const team_ = 120 - i * 10;
+    const race = 55 - i * 5;
+    const bet = 25 - i * 3;
+    return {
+      rank: i + 1,
+      id: 900 + i,
+      name,
+      captain: captain
+        ? {
+            id: captain.id,
+            name: captain.name,
+            race: captain.race,
+            country: captain.country,
+          }
+        : undefined,
+      draftedTeam: {
+        id: team.id,
+        name: team.name,
+        tag: team.tag ?? makeTag(team.name),
+        logoUrl: team.logoUrl,
+      },
+      draftedRace: (["orc", "human", "nightelf", "undead", "random"] as Race[])[
+        i % 5
+      ],
+      breakdown: { player, bench, team: team_, race, bet },
+      total: player + bench + team_ + race + bet,
+      roster: roster.map((p) => ({
+        id: p.id,
+        name: p.name,
+        race: p.race,
+        isCaptain: p.id === captain?.id,
+      })),
+    };
+  },
+);

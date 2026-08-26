@@ -111,3 +111,33 @@ export type LeaderboardRow = {
   mmr?: number;
 };
 
+/** A drafted pick on a fantasy squad. */
+export type FantasyPick = {
+  id: number;
+  name: string;
+  race: Player["race"];
+  isCaptain: boolean;
+};
+
+/** How a fantasy squad's total is composed. */
+export type FantasyBreakdown = {
+  player: number;
+  bench: number;
+  team: number;
+  race: number;
+  bet: number;
+};
+
+/** One manager's fantasy squad, ranked within a season. */
+export type FantasyEntry = {
+  rank: number;
+  id: number;
+  name: string;
+  captain?: { id: number; name: string; race: Player["race"]; country?: string };
+  draftedTeam?: { id: number; name: string; tag: string; logoUrl?: string };
+  draftedRace: Player["race"];
+  breakdown: FantasyBreakdown;
+  total: number;
+  roster: FantasyPick[];
+};
+

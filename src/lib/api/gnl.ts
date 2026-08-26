@@ -9,6 +9,7 @@ import {
   FIXTURE_WEEKS,
   FIXTURE_FIXTURES,
   FIXTURE_LEADERBOARD,
+  FIXTURE_FANTASY,
 } from "./fixtures";
 import {
   pickActiveSeason,
@@ -19,10 +20,12 @@ import {
   mapFixtures,
   mapStandings,
   mapLeaderboard,
+  mapFantasy,
   type RawSeason,
   type RawTeam,
   type RawSeries,
   type RawCareerStat,
+  type RawFantasyTeam,
 } from "./mappers";
 import type {
   Season,
@@ -32,6 +35,7 @@ import type {
   Week,
   TeamFixture,
   LeaderboardRow,
+  FantasyEntry,
 } from "./types";
 
 /**
@@ -176,6 +180,24 @@ export async function getLeaderboard(): Promise<{
     "getLeaderboard",
   );
   return { rows: data, source };
+}
+
+export async function getFantasy(): Promise<{
+  entries: FantasyEntry[];
+  source: DataSource;
+}> {
+  const { data, source } = await withFallback(
+    async () => {
+      const s = await fetchActiveSeasonRaw();
+      const teams = await apiGet<RawFantasyTeam[]>("/fantasy/teams", {
+        query: { limit: 500 },
+      });
+      return mapFantasy(teams, s.id);
+    },
+    () => FIXTURE_FANTASY,
+    "getFantasy",
+  );
+  return { entries: data, source };
 }
 
 /** Cross-week selectors for the home page. */
