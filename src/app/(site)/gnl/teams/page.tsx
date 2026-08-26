@@ -5,6 +5,8 @@ import { TeamCard } from "@/components/league/TeamCard";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { getActiveSeason, getTeams } from "@/lib/api/gnl";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Teams",
   description: "The teams competing in the current GNL season.",

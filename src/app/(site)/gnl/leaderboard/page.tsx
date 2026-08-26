@@ -5,6 +5,8 @@ import { LeaderboardTable } from "@/components/league/LeaderboardTable";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { getActiveSeason, getLeaderboard } from "@/lib/api/gnl";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Leaderboard",
   description: "Individual player rankings across the current GNL season.",

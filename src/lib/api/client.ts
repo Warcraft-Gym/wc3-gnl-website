@@ -58,22 +58,29 @@ export async function apiGet<T = unknown>(
   const headers: Record<string, string> = { Accept: "application/json" };
   if (SERVICE_TOKEN) headers.Authorization = `Bearer ${SERVICE_TOKEN}`;
 
-  let res: Response;
-  try {
-    res = await fetch(url, { headers, next: { revalidate } });
-  } catch (cause) {
-    throw new ApiError(
-      `Network error calling ${path}: ${(cause as Error).message}`,
-      undefined,
-      path,
-    );
+  // Retry transient failures (network errors, 5xx) — the backend is serverless
+  // and can cold-start, especially under a burst of build/render fetches.
+  const MAX_ATTEMPTS = 3;
+  let lastError: ApiError = new ApiError(`Request failed for ${path}`, undefined, path);
+  for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+    try {
+      const res = await fetch(url, { headers, next: { revalidate } });
+      if (res.ok) return (await res.json()) as T;
+      lastError = new ApiError(`API ${res.status} for ${path}`, res.status, path);
+      if (res.status < 500) throw lastError; // client errors won't fix on retry
+    } catch (cause) {
+      if (cause instanceof ApiError && cause.status && cause.status < 500) throw cause;
+      lastError = new ApiError(
+        `Network error calling ${path}: ${(cause as Error).message}`,
+        undefined,
+        path,
+      );
+    }
+    if (attempt < MAX_ATTEMPTS) {
+      await new Promise((r) => setTimeout(r, 250 * attempt));
+    }
   }
-
-  if (!res.ok) {
-    throw new ApiError(`API ${res.status} for ${path}`, res.status, path);
-  }
-
-  return (await res.json()) as T;
+  throw lastError;
 }
 
 /**

@@ -8,6 +8,8 @@ import { StandingsTable } from "@/components/league/StandingsTable";
 import { TeamCard } from "@/components/league/TeamCard";
 import { PostCard } from "@/components/blog/PostCard";
 import {
+
+export const dynamic = "force-dynamic";
   getActiveSeason,
   getStandings,
   getFixtures,

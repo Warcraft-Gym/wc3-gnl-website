@@ -5,6 +5,8 @@ import { StandingsTable } from "@/components/league/StandingsTable";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { getActiveSeason, getStandings } from "@/lib/api/gnl";
 
+export const dynamic = "force-dynamic";
+
 export const metadata: Metadata = {
   title: "Standings",
   description: "The GNL team ladder — wins, losses, map differential and points.",
