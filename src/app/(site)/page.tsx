@@ -8,8 +8,6 @@ import { StandingsTable } from "@/components/league/StandingsTable";
 import { TeamCard } from "@/components/league/TeamCard";
 import { PostCard } from "@/components/blog/PostCard";
 import {
-
-export const dynamic = "force-dynamic";
   getActiveSeason,
   getStandings,
   getFixtures,
@@ -17,6 +15,8 @@ export const dynamic = "force-dynamic";
   splitFixtures,
 } from "@/lib/api/gnl";
 import { getLatestPosts } from "@/lib/content";
+
+export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const [season, standings, fixtureData, teamData, posts] = await Promise.all([
