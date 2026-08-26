@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
-import { PostBody } from "@/components/blog/PostBody";
+import { PortableBody } from "@/components/sanity/PortableBody";
 import { PostCard } from "@/components/blog/PostCard";
 import { getPosts, getPostBySlug } from "@/lib/content";
 
@@ -101,7 +101,13 @@ export default async function PostPage({ params }: Params) {
       ) : null}
 
       <Container className="max-w-3xl py-12">
-        <PostBody post={post} />
+        {post.portableText?.length ? (
+          <PortableBody value={post.portableText} />
+        ) : (
+          <div className="space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
+            {post.paragraphs?.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        )}
       </Container>
 
       {related.length ? (

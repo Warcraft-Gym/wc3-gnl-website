@@ -68,7 +68,28 @@ export const post = defineType({
     defineField({
       name: "body",
       type: "array",
-      of: [defineArrayMember({ type: "block" }), defineArrayMember({ type: "image" })],
+      of: [
+        defineArrayMember({ type: "block" }),
+        defineArrayMember({ type: "image" }),
+        defineArrayMember({
+          type: "object",
+          name: "youtube",
+          title: "Video",
+          fields: [
+            defineField({ name: "url", type: "url", title: "Video URL" }),
+          ],
+          preview: {
+            select: { url: "url" },
+            prepare: ({ url }) => ({ title: "Video", subtitle: url }),
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: "legacyId",
+      title: "Legacy WordPress ID",
+      type: "string",
+      readOnly: true,
     }),
   ],
   preview: {

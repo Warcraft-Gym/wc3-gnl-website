@@ -41,6 +41,7 @@ yarn-error.log*
 
 # WordPress migration artifact (regenerable; not app source)
 /scripts/wp-guides.ndjson
+/scripts/wp-news.ndjson
 
 # vercel
 .vercel
