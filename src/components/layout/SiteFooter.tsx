@@ -62,11 +62,6 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
-              <Link href="/learn" className="uppercase tracking-wide text-muted hover:text-gold">
-                Learn
-              </Link>
-            </li>
-            <li>
               <Link href="/blog" className="uppercase tracking-wide text-muted hover:text-gold">
                 News
               </Link>
