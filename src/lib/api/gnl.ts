@@ -22,6 +22,7 @@ import {
   type RawSeason,
   type RawTeam,
   type RawSeries,
+  type RawCareerStat,
 } from "./mappers";
 import type {
   Season,
@@ -166,8 +167,10 @@ export async function getLeaderboard(): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchActiveSeasonRaw();
-      const series = await apiGet<RawSeries[]>(`/series/season/${s.id}`);
-      return mapLeaderboard(series);
+      const stats = await apiGet<RawCareerStat[]>("/stats/career", {
+        query: { season_id: s.id },
+      });
+      return mapLeaderboard(stats);
     },
     () => FIXTURE_LEADERBOARD,
     "getLeaderboard",

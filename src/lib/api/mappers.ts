@@ -72,6 +72,15 @@ export interface RawSeries {
   player2: RawPlayer;
   match: RawMatch;
 }
+export interface RawCareerStat {
+  user_id: number;
+  player_name: string;
+  rating?: number;
+  series_won?: number;
+  series_lost?: number;
+  series_winrate?: number;
+  user?: { race?: string };
+}
 
 const logoUrl = (teamId: number) => `${BASE}/teams/${teamId}/image`;
 const played = (a: number, b: number) => a > 0 || b > 0;
@@ -290,53 +299,30 @@ export function mapStandings(
   return rows;
 }
 
-// --- leaderboard (derived from series results) ---
-export function mapLeaderboard(raw: RawSeries[]): LeaderboardRow[] {
-  type Acc = { player: RawPlayer; wins: number; losses: number };
-  const agg = new Map<number, Acc>();
-  const ensure = (p: RawPlayer): Acc => {
-    let a = agg.get(p.id);
-    if (!a) {
-      a = { player: p, wins: 0, losses: 0 };
-      agg.set(p.id, a);
-    }
-    return a;
-  };
-
-  for (const s of raw) {
-    if (!played(s.player1_score, s.player2_score)) continue;
-    const a = ensure(s.player1);
-    const b = ensure(s.player2);
-    if (s.player1_score > s.player2_score) {
-      a.wins++;
-      b.losses++;
-    } else if (s.player2_score > s.player1_score) {
-      b.wins++;
-      a.losses++;
-    }
-  }
-
-  const rows: LeaderboardRow[] = [...agg.values()].map((x) => {
-    const p = x.wins + x.losses;
+// --- leaderboard (backend's official career stats — all players) ---
+export function mapLeaderboard(raw: RawCareerStat[]): LeaderboardRow[] {
+  const rows: LeaderboardRow[] = raw.map((r) => {
+    const wins = r.series_won ?? 0;
+    const losses = r.series_lost ?? 0;
     return {
       rank: 0,
       player: {
-        id: x.player.id,
-        name: x.player.name,
-        slug: slugify(x.player.name),
-        race: raceOf(x.player.race),
+        id: r.user_id,
+        name: r.player_name,
+        slug: slugify(r.player_name),
+        race: raceOf(r.user?.race),
         teamName: undefined,
       },
-      played: p,
-      wins: x.wins,
-      losses: x.losses,
-      winrate: p ? Math.round((x.wins / p) * 100) : 0,
-      mmr: x.player.mmr,
+      played: wins + losses,
+      wins,
+      losses,
+      winrate: Math.round(r.series_winrate ?? 0),
+      mmr: r.rating,
     };
   });
 
   rows.sort(
-    (a, b) => b.wins - a.wins || b.winrate - a.winrate || (b.mmr ?? 0) - (a.mmr ?? 0),
+    (a, b) => (b.mmr ?? 0) - (a.mmr ?? 0) || b.wins - a.wins || b.winrate - a.winrate,
   );
   rows.forEach((r, i) => (r.rank = i + 1));
   return rows;
