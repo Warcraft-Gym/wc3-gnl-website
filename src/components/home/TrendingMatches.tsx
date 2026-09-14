@@ -25,15 +25,15 @@ export function TrendingMatches({
   const [tab, setTab] = useState<Tab>("all");
 
   const sets: Record<Tab, TeamFixture[]> = {
-    all: [...live, ...upcoming, ...results].slice(0, 6),
-    upcoming: [...live, ...upcoming].slice(0, 6),
-    results: results.slice(0, 6),
+    all: [...live, ...upcoming, ...results].slice(0, 5),
+    upcoming: [...live, ...upcoming].slice(0, 5),
+    results: results.slice(0, 5),
   };
   const shown = sets[tab];
 
   return (
     <div>
-      <div className="mb-8 flex flex-wrap gap-2">
+      <div className="mb-6 flex flex-wrap gap-2">
         {TABS.map((t) => (
           <button
             key={t.key}
@@ -41,27 +41,25 @@ export function TrendingMatches({
             onClick={() => setTab(t.key)}
             aria-pressed={tab === t.key}
             className={cn(
-              "skew border px-5 py-2 font-display text-sm font-bold uppercase tracking-wider transition-colors",
+              "rounded border px-5 py-2 font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] transition-colors",
               tab === t.key
-                ? "border-gold bg-gold text-bg-deep"
-                : "border-line text-muted hover:border-gold/60 hover:text-gold",
+                ? "btn-gold border-transparent"
+                : "border-line bg-surface/40 text-muted hover:border-gold/60 hover:text-gold",
             )}
           >
-            <span className="[transform:skewX(calc(var(--wg-skew)*-1))]">
-              {t.label}
-            </span>
+            {t.label}
           </button>
         ))}
       </div>
 
       {shown.length ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-3">
           {shown.map((f) => (
             <FixtureCard key={f.id} fixture={f} />
           ))}
         </div>
       ) : (
-        <p className="border border-dashed border-line px-5 py-10 text-center text-sm text-faint">
+        <p className="rounded border border-dashed border-line px-5 py-10 text-center text-sm text-faint">
           Nothing here right now — check back soon.
         </p>
       )}

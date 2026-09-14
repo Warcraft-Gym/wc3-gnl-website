@@ -4,28 +4,26 @@ import { cn } from "@/lib/utils";
 type Variant = "primary" | "ghost" | "outline";
 type Size = "sm" | "md" | "lg";
 
-// Skewed parallelogram; inner span counter-skews so text stays upright.
+// Blizzard-style CTA: squared corners, serif uppercase label, burnished gold
+// gradient for the primary action.
 const base =
-  "group/btn inline-flex items-center justify-center font-display font-bold uppercase tracking-wider whitespace-nowrap " +
-  "transition-[background-color,box-shadow,color,transform] duration-[var(--wg-dur-fast)] ease-[var(--ease-out-expo)] " +
-  "[transform:skewX(var(--wg-skew))] hover:[transform:skewX(var(--wg-skew))_translateY(-1px)] active:translate-y-0 " +
+  "inline-flex items-center justify-center gap-2 rounded font-display font-bold uppercase tracking-[0.08em] whitespace-nowrap " +
+  "transition-[background-color,border-color,box-shadow,color,transform] duration-[var(--wg-dur-fast)] ease-[var(--ease-out-expo)] " +
+  "hover:-translate-y-px active:translate-y-0 " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold " +
   "disabled:opacity-50 disabled:pointer-events-none";
 
-const inner = "inline-block [transform:skewX(calc(var(--wg-skew)*-1))]";
-
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-gold text-bg-deep hover:shadow-[0_0_36px_-6px_var(--wg-gold-glow)]",
+  primary: "btn-gold",
   outline:
-    "border-2 border-gold/60 text-gold hover:border-gold hover:bg-gold/10",
-  ghost: "text-muted hover:text-gold hover:bg-surface-2",
+    "border border-gold/50 bg-surface/40 text-gold hover:border-gold hover:bg-gold/10",
+  ghost: "text-muted hover:text-gold hover:bg-surface-2/70",
 };
 
 const sizes: Record<Size, string> = {
-  sm: "h-8 px-4 text-xs",
-  md: "h-11 px-6 text-sm",
-  lg: "h-14 px-9 text-base",
+  sm: "h-9 px-4 text-[0.72rem]",
+  md: "h-11 px-6 text-[0.8rem]",
+  lg: "h-14 px-9 text-[0.95rem]",
 };
 
 type CommonProps = {
@@ -47,7 +45,7 @@ export function Button({
       className={cn(base, variants[variant], sizes[size], className)}
       {...rest}
     >
-      <span className={cn(inner, "flex items-center gap-2")}>{children}</span>
+      {children}
     </button>
   );
 }
@@ -71,7 +69,7 @@ export function ButtonLink({
         className={cn(base, variants[variant], sizes[size], className)}
         {...rest}
       >
-        <span className={cn(inner, "flex items-center gap-2")}>{children}</span>
+        {children}
       </a>
     );
   }
@@ -81,7 +79,7 @@ export function ButtonLink({
       className={cn(base, variants[variant], sizes[size], className)}
       {...rest}
     >
-      <span className={cn(inner, "flex items-center gap-2")}>{children}</span>
+      {children}
     </Link>
   );
 }

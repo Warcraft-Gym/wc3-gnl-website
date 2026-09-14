@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 
-/** Angular surface panel — the core visual unit. Optional notched corner. */
+/** Translucent warm panel — the core visual unit. `notch` is kept for
+ *  call-site compatibility and now just rounds the corners a little more. */
 export function Surface({
   className,
   children,
@@ -17,10 +18,10 @@ export function Surface({
   return (
     <Tag
       className={cn(
-        "relative border border-line bg-surface/85",
+        "panel",
         notch && "clip-notch",
         interactive &&
-          "transition-[border-color,background-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/60 hover:bg-surface-2/85",
+          "transition-[border-color,background-color,transform,box-shadow] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50 hover:shadow-[0_0_0_1px_var(--wg-line-strong),0_16px_40px_-18px_var(--wg-gold-glow)]",
         className,
       )}
     >
@@ -64,7 +65,7 @@ export function SectionHead({
       <div className="max-w-2xl">
         {kicker ? <Kicker className="mb-3">{kicker}</Kicker> : null}
         <h2 className="text-[length:var(--wg-text-title)]">{title}</h2>
-        {lead ? <p className="mt-3 normal-case text-muted">{lead}</p> : null}
+        {lead ? <p className="mt-3 text-muted">{lead}</p> : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}
     </div>

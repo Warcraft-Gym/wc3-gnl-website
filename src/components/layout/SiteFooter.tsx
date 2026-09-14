@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Code2, Tv, MessageCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { Wordmark } from "./Wordmark";
+import { KeyArt } from "@/components/ui/KeyArt";
 import { GNL_NAV } from "./nav-items";
 
 const SOCIAL = [
@@ -12,9 +13,10 @@ const SOCIAL = [
 
 export function SiteFooter() {
   return (
-    <footer className="relative mt-[var(--wg-space-section)] border-t border-line/70 bg-bg-deep/60">
-      <div className="rule-gold" aria-hidden />
-      <Container className="grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
+    <footer className="keyart keyart-dark relative">
+      <KeyArt src="/keyart/section-sparks.jpg" position="center top" overlay="strong" />
+      <div className="rivets relative z-10" aria-hidden />
+      <Container className="relative z-10 grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <Wordmark />
           <p className="mt-4 max-w-xs text-sm text-muted">
@@ -29,7 +31,7 @@ export function SiteFooter() {
                 aria-label={label}
                 target="_blank"
                 rel="noreferrer"
-                className="grid size-9 place-items-center border border-line text-muted transition-colors hover:border-gold hover:text-gold"
+                className="grid size-9 place-items-center rounded border border-line bg-surface/60 text-muted transition-colors hover:border-gold hover:text-gold"
               >
                 <Icon size={16} />
               </a>
@@ -44,7 +46,7 @@ export function SiteFooter() {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className="uppercase tracking-wide text-muted transition-colors hover:text-gold"
+                  className="text-muted transition-colors hover:text-gold"
                 >
                   {item.label}
                 </Link>
@@ -57,12 +59,17 @@ export function SiteFooter() {
           <p className="kicker mb-4">Community</p>
           <ul className="space-y-2.5 text-sm">
             <li>
-              <Link href="/dashboard" className="uppercase tracking-wide text-muted hover:text-gold">
+              <Link href="/dashboard" className="text-muted hover:text-gold">
                 Player Dashboard
               </Link>
             </li>
             <li>
-              <Link href="/blog" className="uppercase tracking-wide text-muted hover:text-gold">
+              <Link href="/learn" className="text-muted hover:text-gold">
+                Learn
+              </Link>
+            </li>
+            <li>
+              <Link href="/blog" className="text-muted hover:text-gold">
                 News
               </Link>
             </li>
@@ -71,7 +78,7 @@ export function SiteFooter() {
                 href="https://discord.gg/7HUyQAKQ8p"
                 target="_blank"
                 rel="noreferrer"
-                className="uppercase tracking-wide text-muted hover:text-gold"
+                className="text-muted hover:text-gold"
               >
                 Discord
               </a>
@@ -80,7 +87,7 @@ export function SiteFooter() {
         </nav>
       </Container>
 
-      <Container className="flex flex-col gap-2 border-t border-line/50 py-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
+      <Container className="relative z-10 flex flex-col gap-2 border-t border-line/50 py-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
         <p>© {new Date().getFullYear()} Warcraft 3 Gym. Community project.</p>
         <p>
           Not affiliated with or endorsed by Blizzard Entertainment. Warcraft is a

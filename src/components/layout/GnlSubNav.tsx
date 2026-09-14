@@ -9,9 +9,9 @@ import { cn } from "@/lib/utils";
 export function GnlSubNav({ seasonShortName }: { seasonShortName: string }) {
   const pathname = usePathname();
   return (
-    <div className="sticky top-16 z-40 border-b border-line/70 bg-bg-deep/85 backdrop-blur-lg">
+    <div className="sticky top-[var(--wg-header-h)] z-40 border-b border-line/70 bg-bg/80 backdrop-blur-lg">
       <Container className="flex items-center gap-4">
-        <span className="skew hidden shrink-0 bg-gold px-3 py-1 font-display text-sm font-extrabold uppercase tracking-wider text-bg-deep sm:inline-block">
+        <span className="btn-gold hidden shrink-0 rounded px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em] sm:inline-block">
           <span>{seasonShortName}</span>
         </span>
         <nav
@@ -27,9 +27,9 @@ export function GnlSubNav({ seasonShortName }: { seasonShortName: string }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "whitespace-nowrap border-b-2 px-3 py-3 font-display text-sm font-bold uppercase tracking-wide transition-colors",
+                  "whitespace-nowrap border-b-2 px-3 py-3 text-sm font-bold transition-colors",
                   active
-                    ? "border-gold text-gold"
+                    ? "border-gold text-fg"
                     : "border-transparent text-muted hover:text-fg",
                 )}
               >

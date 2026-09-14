@@ -1,28 +1,37 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-/** Angular esports wordmark: skewed accent plate + condensed lockup. */
-export function Wordmark({ className }: { className?: string }) {
+/** Emblem + serif lockup, in the spirit of the game-icon / title pairing
+ *  in Blizzard's nav bar. */
+export function Wordmark({
+  className,
+  compact = false,
+}: {
+  className?: string;
+  compact?: boolean;
+}) {
   return (
     <Link
       href="/"
       aria-label="Warcraft 3 Gym — home"
-      className={cn("group inline-flex items-center gap-2.5", className)}
+      className={cn("group inline-flex items-center gap-3", className)}
     >
       <span
         aria-hidden
-        className="skew grid size-9 place-items-center bg-gold font-display text-lg font-extrabold text-bg-deep transition-shadow group-hover:shadow-[0_0_24px_-4px_var(--wg-gold-glow)]"
+        className="btn-gold grid size-10 shrink-0 place-items-center rounded font-display text-[0.95rem] font-extrabold tracking-tight"
       >
-        <span>W3</span>
+        W3
       </span>
-      <span className="flex flex-col leading-none">
-        <span className="font-display text-lg font-extrabold uppercase tracking-tight text-fg">
-          Warcraft&nbsp;3
+      {compact ? null : (
+        <span className="flex flex-col leading-none">
+          <span className="font-display text-[0.95rem] font-bold uppercase tracking-[0.12em] text-fg">
+            Warcraft&nbsp;3
+          </span>
+          <span className="mt-1 font-display text-[0.6rem] font-bold uppercase tracking-[0.42em] text-gold">
+            Gym
+          </span>
         </span>
-        <span className="mt-0.5 font-mono text-[0.6rem] font-bold uppercase tracking-[0.44em] text-gold">
-          Gym
-        </span>
-      </span>
+      )}
     </Link>
   );
 }

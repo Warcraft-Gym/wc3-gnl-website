@@ -9,7 +9,7 @@ export function DesktopNav() {
   const pathname = usePathname();
   return (
     <nav
-      className="hidden items-center gap-1 md:flex"
+      className="hidden items-center gap-0.5 md:flex"
       aria-label="Main navigation"
     >
       {PRIMARY_NAV.map((item) => {
@@ -19,12 +19,12 @@ export function DesktopNav() {
             pathname.startsWith(item.href) ||
             (item.label === "League" && pathname.startsWith("/gnl")));
 
+        // Plain sans links like the official nav; the active one carries a
+        // small gold underline.
         const cls = cn(
-          "relative px-3 py-2 font-display text-sm font-bold uppercase tracking-wider transition-colors",
-          "after:absolute after:inset-x-3 after:-bottom-px after:h-0.5 after:origin-left after:scale-x-0 after:bg-gold after:transition-transform after:duration-[var(--wg-dur)] after:ease-[var(--ease-out-expo)]",
-          active
-            ? "text-gold after:scale-x-100"
-            : "text-muted hover:text-fg hover:after:scale-x-100",
+          "relative rounded px-3 py-2 text-[0.95rem] font-bold transition-colors",
+          "after:absolute after:inset-x-3 after:-bottom-0.5 after:h-0.5 after:rounded-full after:bg-gold after:opacity-0 after:transition-opacity after:duration-[var(--wg-dur)]",
+          active ? "text-fg after:opacity-100" : "text-muted hover:text-fg",
         );
 
         if (item.external) {

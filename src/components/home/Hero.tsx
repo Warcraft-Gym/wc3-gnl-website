@@ -1,9 +1,14 @@
-import { ArrowRight, Swords } from "lucide-react";
+import { ArrowRight, MessageCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
-import { Kicker } from "@/components/ui/Surface";
+import { KeyArt } from "@/components/ui/KeyArt";
 import type { Season } from "@/lib/api/types";
 
+const DISCORD_URL = "https://discord.gg/7HUyQAKQ8p";
+
+/** Full-bleed, centred hero in the style of the official Reforged page:
+ *  gold-foil title lockup → serif headline → grey kicker → gold CTA →
+ *  small platform note. Painted atmosphere comes from `.keyart`. */
 export function Hero({
   season,
   stats,
@@ -11,78 +16,64 @@ export function Hero({
   season: Season;
   stats: { teams: number; players: number; live: number };
 }) {
+  const note = [
+    `${stats.teams} teams`,
+    `${stats.players} players`,
+    stats.live > 0 ? `${stats.live} live now` : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <section className="grain relative overflow-hidden border-b border-line/70">
-      {/* Layered atmosphere */}
+    <section className="keyart grain overflow-hidden">
+      {/* Masthead key art. The composition has its light in the centre, so
+          the lockup sits on it directly; a soft vignette keeps the copy legible. */}
+      <KeyArt src="/keyart/hero-masthead.jpg" position="center 30%" priority overlay="none" />
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-80"
+        className="pointer-events-none absolute inset-0 z-[1]"
         style={{
           backgroundImage:
-            "radial-gradient(44rem 32rem at 82% 6%, var(--wg-gold-glow), transparent 62%)",
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 -z-10 opacity-[0.12] [mask-image:linear-gradient(to_bottom,black,transparent_85%)]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(115deg, var(--wg-line) 0 1px, transparent 1px 58px)",
+            "radial-gradient(58rem 38rem at 50% 48%, rgba(0,0,0,.72), rgba(0,0,0,.25) 55%, transparent 75%)," +
+            "linear-gradient(180deg, rgba(0,0,0,.7) 0%, rgba(0,0,0,0) 24%, rgba(0,0,0,0) 68%, rgba(0,0,0,.95) 100%)",
         }}
       />
 
-      <Container className="relative py-20 sm:py-28 lg:py-32">
-        <div className="max-w-4xl">
-          <Kicker className="mb-6">
-            <Swords size={13} /> {season.name}
-          </Kicker>
+      <Container className="relative z-10 flex min-h-[calc(100svh-var(--wg-header-h))] flex-col items-center justify-center py-20 text-center sm:py-24">
+        {/* Title lockup */}
+        <p className="font-display text-[clamp(2.75rem,1rem+6.5vw,6rem)] font-extrabold leading-none tracking-[0.02em] text-foil">
+          Warcraft III
+        </p>
+        <p className="mt-2 font-display text-[clamp(0.85rem,0.6rem+1vw,1.35rem)] font-bold uppercase tracking-[0.55em] text-gold [text-shadow:0_0_24px_var(--wg-gold-glow)]">
+          Gym
+        </p>
 
-          <h1 className="text-[length:var(--wg-text-hero)] font-extrabold leading-[0.88]">
-            The community
-            <br />
-            <span className="text-gold [text-shadow:0_0_50px_var(--wg-gold-glow)]">
-              Warcraft III
-            </span>{" "}
-            league
-          </h1>
+        <h1 className="mt-10 max-w-3xl text-[length:var(--wg-text-hero)] font-semibold text-fg [text-shadow:0_3px_28px_rgba(0,0,0,.85)]">
+          Forge your legend on the ladder
+        </h1>
 
-          <p className="mt-7 max-w-xl text-lg text-muted">
-            Built by players, for players. Follow the ladder, schedule your
-            matches, watch the games, and climb the Gym Newbie League — all in one
-            place.
-          </p>
+        <p className="mt-5 text-[1.1rem] font-normal uppercase tracking-[0.18em] text-muted sm:text-[1.25rem]">
+          Community Warcraft III league · {season.name}
+        </p>
 
-          <div className="mt-9 flex flex-wrap items-center gap-3">
-            <ButtonLink href="/dashboard" size="lg">
-              Enter the Dashboard <ArrowRight size={18} />
-            </ButtonLink>
-            <ButtonLink href="/gnl/schedule" variant="outline" size="lg">
-              View Schedule
-            </ButtonLink>
-          </div>
-
-          {/* Stat readout */}
-          <dl className="mt-14 grid max-w-lg grid-cols-3 gap-px overflow-hidden border border-line bg-line">
-            {[
-              { k: "Teams", v: stats.teams },
-              { k: "Players", v: stats.players },
-              { k: "Live now", v: stats.live, accent: stats.live > 0 },
-            ].map((s) => (
-              <div key={s.k} className="bg-surface/90 px-5 py-4">
-                <dt className="font-mono text-[0.6rem] font-bold uppercase tracking-[0.2em] text-faint">
-                  {s.k}
-                </dt>
-                <dd
-                  className={`tnum mt-1 font-display text-3xl font-extrabold ${
-                    s.accent ? "text-live" : "text-fg"
-                  }`}
-                >
-                  {String(s.v).padStart(2, "0")}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+          <ButtonLink href="/dashboard" size="lg">
+            Join the League <ArrowRight size={18} />
+          </ButtonLink>
+          <ButtonLink href="/gnl/schedule" variant="outline" size="lg">
+            View Schedule
+          </ButtonLink>
         </div>
+
+        <p className="mt-12 text-sm text-muted">{note}</p>
+        <a
+          href={DISCORD_URL}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-3 inline-flex items-center gap-2 font-display text-[0.8rem] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:text-fg"
+        >
+          <MessageCircle size={16} /> Organised on Discord
+        </a>
       </Container>
     </section>
   );

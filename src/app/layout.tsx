@@ -1,19 +1,21 @@
 import type { Metadata } from "next";
-import { Saira, Saira_Condensed, JetBrains_Mono } from "next/font/google";
+import { Cinzel, Lato, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const display = Saira_Condensed({
+// Cinzel is the closest open face to Friz Quadrata (the Warcraft display
+// type); Lato is what the official site uses for body copy.
+const display = Cinzel({
   variable: "--font-display",
   subsets: ["latin"],
   display: "swap",
-  weight: ["600", "700", "800"],
+  weight: ["400", "600", "700", "800"],
 });
 
-const sans = Saira({
+const sans = Lato({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "700"],
 });
 
 const mono = JetBrains_Mono({
