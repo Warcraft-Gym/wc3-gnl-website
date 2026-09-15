@@ -102,6 +102,9 @@ export type TeamFixture = {
 };
 
 export type LeaderboardRow = {
+  /** Stable row identity. Historical players may have no user account, so
+   *  this is the career-stat record id, not the player id. */
+  id: number;
   rank: number;
   player: Pick<Player, "id" | "name" | "slug" | "race" | "teamName">;
   played: number;

@@ -28,10 +28,18 @@ const DAY = 86_400_000;
 export interface RawSeason {
   id: number;
   name: string;
-  number_weeks: number;
+  /** Number of play rounds (weeks). The live backend sends `round_count`;
+   *  `number_weeks` is kept for older payloads. */
+  round_count?: number;
+  number_weeks?: number;
+  series_per_round?: number;
   series_per_week?: number;
   start_date?: string;
   end_date?: string;
+  /** e.g. "GNL" — combined with the season number for the short name. */
+  league_short_name?: string;
+  /** e.g. "signups" | "running" | "complete" */
+  phase?: string;
 }
 export interface RawPlayer {
   id: number;
@@ -75,7 +83,10 @@ export interface RawSeries {
   match: RawMatch;
 }
 export interface RawCareerStat {
-  user_id: number;
+  /** Career-stat record id — always present and unique. */
+  id: number;
+  /** Linked user account; null for historical players without one. */
+  user_id: number | null;
   player_name: string;
   rating?: number;
   series_won?: number;
@@ -111,9 +122,15 @@ export function pickActiveSeason(raw: RawSeason[]): RawSeason {
   )[0];
 }
 
+/** "Season 18" + league "GNL" → "GNL 18"; otherwise the season name. */
+function shortSeasonName(s: RawSeason): string {
+  const num = s.name.match(/\d+/)?.[0];
+  return s.league_short_name && num ? `${s.league_short_name} ${num}` : s.name;
+}
+
 export function mapSeason(s: RawSeason): Season {
   const start = ms(s.start_date);
-  const total = s.number_weeks || 1;
+  const total = s.round_count || s.number_weeks || 1;
   let currentWeek = total;
   if (!Number.isNaN(start)) {
     currentWeek = Math.min(
@@ -124,9 +141,9 @@ export function mapSeason(s: RawSeason): Season {
   return {
     id: s.id,
     name: s.name,
-    shortName: s.name,
+    shortName: shortSeasonName(s),
     slug: slugify(s.name),
-    isActive: true,
+    isActive: s.phase ? s.phase !== "complete" : true,
     currentWeek,
     totalWeeks: total,
     startDate: s.start_date,
@@ -323,9 +340,10 @@ export function mapLeaderboard(raw: RawCareerStat[]): LeaderboardRow[] {
     const wins = r.series_won ?? 0;
     const losses = r.series_lost ?? 0;
     return {
+      id: r.id,
       rank: 0,
       player: {
-        id: r.user_id,
+        id: r.user_id ?? -r.id,
         name: r.player_name,
         slug: slugify(r.player_name),
         race: raceOf(r.user?.race),

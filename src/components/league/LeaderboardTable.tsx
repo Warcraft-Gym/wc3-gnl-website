@@ -22,7 +22,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
             const top = row.rank <= 3;
             return (
               <tr
-                key={row.player.id}
+                key={row.id}
                 className="border-b border-line/50 transition-colors last:border-0 hover:bg-surface-2/50"
               >
                 <td className="px-4 py-3 text-center">

@@ -357,6 +357,7 @@ export const FIXTURE_LEADERBOARD: LeaderboardRow[] = [...FIXTURE_PLAYERS]
     const wins = Math.max(3, 13 - i);
     const losses = played - wins;
     return {
+      id: p.id,
       rank: i + 1,
       player: {
         id: p.id,

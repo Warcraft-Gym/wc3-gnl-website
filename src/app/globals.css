@@ -61,7 +61,7 @@
   /* Sticky header footprint (top inset + bar height); see SiteHeader.
      --wg-subnav-h is the GNL section nav that stacks under it. */
   --wg-header-h: 72px;
-  --wg-subnav-h: 48px;
+  --wg-subnav-h: 54px; /* 6px gap + 48px bar */
 
   /* --- Legacy angular motif, neutralised (plates become rounded) --- */
   --wg-skew: 0deg;
