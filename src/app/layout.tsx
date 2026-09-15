@@ -28,14 +28,15 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://warcraft3.gym"),
   title: {
-    default: "Warcraft 3 Gym — The community league for competitive WC3",
+    default: "Warcraft 3 Gym — Learn Warcraft III & compete in the GNL",
     template: "%s · Warcraft 3 Gym",
   },
   description:
-    "Warcraft 3 Gym is a community-driven competitive league. Follow the Gym Newbie League — standings, schedule, teams, leaderboard, and fantasy.",
+    "Free Warcraft III guides for every race, plus the Gym Newbie League (GNL): a community team tournament with weekly best-of-three series, standings, leaderboard and fantasy.",
   openGraph: {
     title: "Warcraft 3 Gym",
-    description: "The community-driven competitive Warcraft III league.",
+    description:
+      "Learn Warcraft III with free guides, then compete in the Gym Newbie League.",
     type: "website",
   },
 };

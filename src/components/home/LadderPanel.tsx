@@ -30,8 +30,9 @@ export function LadderPanel({
           {season.shortName} standings
         </h3>
         <p className="mt-3 text-sm text-muted">
-          Every week each team plays a series of solo best-of-threes. Results
-          feed straight into the table — top four go through.
+          The GNL is a team tournament played one-on-one: every week each
+          team faces another in a set of solo best-of-three series. Results
+          feed straight into the table, and the top four go to the playoffs.
         </p>
         <ul className="mt-5 space-y-1.5 text-sm text-muted">
           {SCORING.map((s) => (

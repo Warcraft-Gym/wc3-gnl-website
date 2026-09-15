@@ -8,6 +8,8 @@ import { TrendingMatches } from "@/components/home/TrendingMatches";
 import { NewsFeatureCard } from "@/components/home/NewsFeatureCard";
 import { LadderPanel } from "@/components/home/LadderPanel";
 import { TeamMedallions } from "@/components/home/TeamMedallions";
+import { LearnRaces } from "@/components/home/LearnRaces";
+import { DISCORD_URL } from "@/lib/links";
 import {
   getActiveSeason,
   getStandings,
@@ -21,8 +23,9 @@ export const dynamic = "force-dynamic";
 
 /* Homepage composed as a stack of full-bleed painted sections separated by
  * riveted strips, mirroring the official Warcraft III page:
- * hero → "this week" (headline + panel) → news (feature cards) →
- * the ladder (edition-style panel) → teams (blue, medallions) → CTA. */
+ * hero → "this week" in the GNL (headline + panel) → learn WC3 (blue,
+ * race medallions) → news (feature cards) → the ladder (edition-style
+ * panel) → teams (crest medallions) → CTA. */
 export default async function HomePage() {
   const [season, standings, fixtureData, teamData, posts] = await Promise.all([
     getActiveSeason(),
@@ -52,14 +55,17 @@ export default async function HomePage() {
         <KeyArt src="/keyart/section-sparks.jpg" overlay="none" />
         <Container className="relative z-10 grid grid-cols-[minmax(0,1fr)] items-center gap-10 py-[var(--wg-space-section)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] lg:gap-14">
           <div>
-            <p className="kicker">Week {season.currentWeek}</p>
+            <p className="kicker">
+              {season.shortName} · Week {season.currentWeek} of {season.totalWeeks}
+            </p>
             <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-              This week in the league
+              This week in the GNL
             </h2>
             <p className="mt-5 max-w-md text-lg text-muted">
-              Live, upcoming and completed fixtures across the{" "}
-              {season.shortName} season. Every series is a best-of-three —
-              follow along or jump in.
+              The Gym Newbie League is our team tournament: {teamData.teams.length}{" "}
+              captain-drafted teams, a weekly round of solo best-of-three
+              series, and playoffs for the top four. Here&apos;s what&apos;s live,
+              upcoming and just finished.
             </p>
             <div className="mt-7">
               <ButtonLink href="/gnl/schedule" variant="outline" size="md">
@@ -75,14 +81,29 @@ export default async function HomePage() {
 
       <Rivets />
 
+      {/* Learn Warcraft III — blue "races" section */}
+      <section className="keyart keyart-blue">
+        <KeyArt
+          src="/keyart/feature-night-elf.jpg"
+          position="70% center"
+          overlay="none"
+          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.55)_45%,black_100%)] opacity-70"
+        />
+        <Container className="relative z-10 py-[var(--wg-space-section)]">
+          <LearnRaces />
+        </Container>
+      </section>
+
+      <Rivets />
+
       {/* Latest news — centred heading + three feature cards */}
       <section className="keyart keyart-dark">
         <Container className="relative z-10 py-[var(--wg-space-section)]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-[length:var(--wg-text-display)]">Latest news</h2>
             <p className="mt-4 text-lg text-muted">
-              Recaps, roster moves, strategy guides and announcements from the
-              Gym.
+              Season recaps, sign-ups for the next GNL, replay of the month and
+              fresh guides from the Gym.
             </p>
           </div>
           <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
@@ -117,24 +138,27 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* Teams — blue atmosphere, medallion row */}
-      <section className="keyart keyart-blue">
+      {/* Teams — crest medallion row over the orc-vs-human art */}
+      <section className="keyart">
         <KeyArt
-          src="/keyart/feature-night-elf.jpg"
-          position="70% center"
+          src="/keyart/feature-orc-vs-human.jpg"
+          position="60% center"
           overlay="none"
-          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.55)_45%,black_100%)] opacity-70"
+          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.5)_45%,black_100%)] opacity-60"
         />
         <Container className="relative z-10 py-[var(--wg-space-section)]">
           <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-14">
             <div>
-              <h2 className="text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-                Teams
+              <p className="kicker">{season.shortName}</p>
+              <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+                The teams
               </h2>
               <p className="mt-5 max-w-sm text-lg text-muted">
                 {teamData.teams.length} rosters drafted by captains for{" "}
-                {season.shortName}. Pick a crest to see the players, their
-                races, and every match they&apos;ve played.
+                {season.shortName}. Captains and coaches are community
+                veterans who draft balanced teams, so every player faces
+                opponents at their own level. Pick a crest to see the players,
+                their races and every series they&apos;ve played.
               </p>
               <div className="mt-7">
                 <ButtonLink href="/gnl/teams" variant="outline">
@@ -164,23 +188,20 @@ export default async function HomePage() {
             />
             <p className="kicker justify-center">Open to everyone</p>
             <h2 className="mt-3 text-[length:var(--wg-text-display)]">
-              Ready to climb?
+              Ready to play?
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">
-              The Gym Newbie League is built for improving players. Sign up,
-              draft in, and play your first competitive season — no pressure,
-              all growth.
+              New to Warcraft III? Start with the beginner guides. Ready to
+              compete? Sign-ups for each GNL season open on the Gym Discord —
+              skill level doesn&apos;t matter, every player gets drafted onto
+              a team with a captain and coaches behind them.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/dashboard" size="lg">
+              <ButtonLink href={DISCORD_URL} size="lg">
                 Join the league <ArrowRight size={18} />
               </ButtonLink>
-              <ButtonLink
-                href="/blog/newbie-guide-first-season"
-                variant="outline"
-                size="lg"
-              >
-                Read the newbie guide
+              <ButtonLink href="/learn/new-players" variant="outline" size="lg">
+                Start learning
               </ButtonLink>
             </div>
           </div>

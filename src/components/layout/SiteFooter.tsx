@@ -1,14 +1,25 @@
 import Link from "next/link";
-import { Code2, Tv, MessageCircle } from "lucide-react";
+import { Code2, Play, MessageCircle } from "lucide-react";
+import { DISCORD_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";
 import { Container } from "@/components/ui/Container";
 import { Wordmark } from "./Wordmark";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { GNL_NAV } from "./nav-items";
 
+/** lucide dropped brand marks, so X gets a tiny inline glyph. */
+function XIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden>
+      <path d="M17.5 3h3l-7.2 8.2L21.8 21h-6.4l-4.6-6-5.3 6H2.5l7.7-8.8L2 3h6.5l4.2 5.5L17.5 3Zm-1.1 16.2h1.7L7.3 4.7H5.5l10.9 14.5Z" />
+    </svg>
+  );
+}
+
 const SOCIAL = [
-  { href: "https://github.com/Warcraft-Gym", label: "GitHub", Icon: Code2 },
-  { href: "https://discord.gg/7HUyQAKQ8p", label: "Discord", Icon: MessageCircle },
-  { href: "https://twitch.tv", label: "Twitch", Icon: Tv },
+  { href: DISCORD_URL, label: "Discord", Icon: MessageCircle },
+  { href: YOUTUBE_URL, label: "YouTube", Icon: Play },
+  { href: X_URL, label: "X (Twitter)", Icon: XIcon },
+  { href: GITHUB_URL, label: "GitHub", Icon: Code2 },
 ];
 
 export function SiteFooter() {
@@ -20,8 +31,8 @@ export function SiteFooter() {
         <div>
           <Wordmark />
           <p className="mt-4 max-w-xs text-sm text-muted">
-            A community-driven competitive Warcraft III league. Built by players,
-            for players.
+            Free Warcraft III guides and the Gym Newbie League — a community
+            tournament for players who want to improve.
           </p>
           <div className="mt-5 flex gap-2">
             {SOCIAL.map(({ href, label, Icon }) => (
@@ -75,7 +86,7 @@ export function SiteFooter() {
             </li>
             <li>
               <a
-                href="https://discord.gg/7HUyQAKQ8p"
+                href={DISCORD_URL}
                 target="_blank"
                 rel="noreferrer"
                 className="text-muted hover:text-gold"

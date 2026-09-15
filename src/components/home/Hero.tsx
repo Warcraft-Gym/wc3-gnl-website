@@ -2,9 +2,8 @@ import { ArrowRight, MessageCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { KeyArt } from "@/components/ui/KeyArt";
+import { DISCORD_URL } from "@/lib/links";
 import type { Season } from "@/lib/api/types";
-
-const DISCORD_URL = "https://discord.gg/7HUyQAKQ8p";
 
 /** Full-bleed, centred hero in the style of the official Reforged page:
  *  gold-foil title lockup → serif headline → grey kicker → gold CTA →
@@ -25,7 +24,7 @@ export function Hero({
     .join(" · ");
 
   return (
-    <section className="keyart grain overflow-hidden">
+    <section className="keyart grain -mt-[var(--wg-header-h)] overflow-hidden">
       {/* Masthead key art. The composition has its light in the centre, so
           the lockup sits on it directly; a soft vignette keeps the copy legible. */}
       <KeyArt src="/keyart/hero-masthead.jpg" position="center 30%" priority overlay="none" />
@@ -39,7 +38,7 @@ export function Hero({
         }}
       />
 
-      <Container className="relative z-10 flex min-h-[calc(100svh-var(--wg-header-h))] flex-col items-center justify-center py-20 text-center sm:py-24">
+      <Container className="relative z-10 flex min-h-[100svh] flex-col items-center justify-center pb-20 pt-[calc(var(--wg-header-h)+4rem)] text-center sm:pb-24">
         {/* Title lockup */}
         <p className="font-display text-[clamp(2.75rem,1rem+6.5vw,6rem)] font-extrabold leading-none tracking-[0.02em] text-foil">
           Warcraft III
@@ -49,19 +48,19 @@ export function Hero({
         </p>
 
         <h1 className="mt-10 max-w-3xl text-[length:var(--wg-text-hero)] font-semibold text-fg [text-shadow:0_3px_28px_rgba(0,0,0,.85)]">
-          Forge your legend on the ladder
+          Learn the game. Compete in the league.
         </h1>
 
         <p className="mt-5 text-[1.1rem] font-normal uppercase tracking-[0.18em] text-muted sm:text-[1.25rem]">
-          Community Warcraft III league · {season.name}
+          Free Warcraft III guides · {season.name}
         </p>
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <ButtonLink href="/dashboard" size="lg">
+          <ButtonLink href={DISCORD_URL} size="lg">
             Join the League <ArrowRight size={18} />
           </ButtonLink>
-          <ButtonLink href="/gnl/schedule" variant="outline" size="lg">
-            View Schedule
+          <ButtonLink href="/learn/new-players" variant="outline" size="lg">
+            Start Learning
           </ButtonLink>
         </div>
 

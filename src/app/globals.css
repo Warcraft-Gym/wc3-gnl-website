@@ -58,8 +58,10 @@
   --wg-space-section: clamp(4.5rem, 3rem + 6vw, 8.5rem);
   --wg-radius: 4px;
   --wg-radius-lg: 6px;
-  /* Sticky header footprint (top inset + bar height); see SiteHeader */
+  /* Sticky header footprint (top inset + bar height); see SiteHeader.
+     --wg-subnav-h is the GNL section nav that stacks under it. */
   --wg-header-h: 72px;
+  --wg-subnav-h: 48px;
 
   /* --- Legacy angular motif, neutralised (plates become rounded) --- */
   --wg-skew: 0deg;

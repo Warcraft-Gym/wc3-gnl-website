@@ -1,3 +1,5 @@
+import { DISCORD_URL } from "@/lib/links";
+
 export type NavItem = { href: string; label: string; external?: boolean };
 
 /** Primary site header nav. */
@@ -5,7 +7,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/gnl/schedule", label: "League" },
   { href: "/learn", label: "Learn" },
   { href: "/blog", label: "News" },
-  { href: "https://discord.gg/7HUyQAKQ8p", label: "Discord", external: true },
+  { href: DISCORD_URL, label: "Discord", external: true },
 ];
 
 /** Secondary GNL section nav (rendered inside /gnl). */
