@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { ArrowUpRight, Crown, Play, Video } from "lucide-react";
-import { DiscordIcon } from "@/components/ui/DiscordIcon";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import { DISCORD_URL, YOUTUBE_URL } from "@/lib/links";
 
 const TILES = [
   {
-    Icon: DiscordIcon,
+    art: "/graphics/coaching-replay-2.png",
     title: "Coaching & replay reviews",
     body: "Volunteer coaches from grass league to semi-pro review your replays, answer questions and run practice sessions. Just ask in the Discord.",
     href: DISCORD_URL,
@@ -13,7 +13,7 @@ const TILES = [
     external: true,
   },
   {
-    Icon: Crown,
+    art: "/graphics/king-of-the-hill-2.png",
     title: "King of the Hill nights",
     body: "Casual community events where one player holds the hill and everyone lines up to knock them off. Low stakes, high fun, open to all.",
     href: "/blog",
@@ -21,7 +21,7 @@ const TILES = [
     external: false,
   },
   {
-    Icon: Video,
+    art: "/graphics/replay-of-month-2.png",
     title: "Replay of the month",
     body: "The community picks the best game each month — clutch base trades, hero snipes, comebacks — and the coaches break it down.",
     href: "/blog",
@@ -29,7 +29,7 @@ const TILES = [
     external: false,
   },
   {
-    Icon: Play,
+    art: "/graphics/casts-youtube-2.png",
     title: "Casts on YouTube",
     body: "League series and community games cast live by Gym members, with VODs on the channel if you missed the night.",
     href: YOUTUBE_URL,
@@ -38,15 +38,26 @@ const TILES = [
   },
 ];
 
-/** Four panels describing what the community does beyond the guides. */
+/** Four panels describing what the community does beyond the guides, each
+ *  with its painted emblem. */
 export function CommunityTiles() {
   return (
     <ul className="grid gap-4 sm:grid-cols-2">
-      {TILES.map(({ Icon, title, body, href, cta, external }) => {
+      {TILES.map(({ art, title, body, href, cta, external }) => {
         const inner = (
           <>
-            <span className="grid size-11 shrink-0 place-items-center rounded-lg border border-gold/30 bg-surface-2 text-gold">
-              <Icon size={20} />
+            <span className="relative block size-20 shrink-0 transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:scale-105">
+              <span
+                aria-hidden
+                className="absolute inset-[10%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-40 blur-lg transition-opacity duration-[var(--wg-dur)] group-hover:opacity-90"
+              />
+              <Image
+                src={art}
+                alt=""
+                fill
+                sizes="80px"
+                className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,.8)]"
+              />
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">
