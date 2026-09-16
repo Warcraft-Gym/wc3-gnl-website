@@ -1,0 +1,78 @@
+import "server-only";
+import { randomUUID } from "node:crypto";
+import { createClient } from "next-sanity";
+import { slugify } from "@/lib/utils";
+import type { BuildSubmission } from "./submission";
+
+/**
+ * Writes a public submission to Sanity as a *draft* build order. Drafts are
+ * invisible to the site and show up under "Pending review" in the Studio,
+ * where an editor publishes (or deletes) them — that's the approval queue.
+ *
+ * Needs SANITY_API_WRITE_TOKEN (Editor scope). Never exposed to the browser.
+ */
+
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
+const apiVersion = process.env.SANITY_API_VERSION ?? "2024-10-01";
+const token = process.env.SANITY_API_WRITE_TOKEN;
+
+export function canAcceptSubmissions(): boolean {
+  return Boolean(projectId && token);
+}
+
+const key = () => randomUUID().slice(0, 12);
+
+/** Plain text → Portable Text: one block per paragraph, blank-line separated. */
+function toPortableText(text?: string) {
+  if (!text) return undefined;
+  const paragraphs = text
+    .split(/\n\s*\n/)
+    .map((p) => p.replace(/\s*\n\s*/g, " ").trim())
+    .filter(Boolean);
+  if (!paragraphs.length) return undefined;
+  return paragraphs.map((p) => ({
+    _type: "block",
+    _key: key(),
+    style: "normal",
+    markDefs: [],
+    children: [{ _type: "span", _key: key(), text: p, marks: [] }],
+  }));
+}
+
+export async function createBuildDraft(data: BuildSubmission): Promise<{ id: string; slug: string }> {
+  if (!projectId || !token) throw new Error("Submissions are not configured");
+
+  const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
+  const slug = `${slugify(data.title)}-${key().slice(0, 4)}`;
+  const id = `drafts.${randomUUID()}`;
+
+  await client.create({
+    _id: id,
+    _type: "buildOrder",
+    title: data.title,
+    slug: { _type: "slug", current: slug },
+    race: data.race,
+    vsRace: data.vsRace,
+    difficulty: data.difficulty,
+    patch: data.patch || undefined,
+    tags: data.tags,
+    summary: data.summary,
+    author: data.author,
+    authorDiscord: data.authorDiscord || undefined,
+    sourceUrl: data.sourceUrl || undefined,
+    featured: false,
+    publishedAt: new Date().toISOString(),
+    steps: data.steps.map((s) => ({
+      _type: "step",
+      _key: key(),
+      time: s.time || undefined,
+      supply: s.supply,
+      instruction: s.instruction,
+      icon: s.icon || undefined,
+    })),
+    description: toPortableText(data.description),
+  });
+
+  return { id, slug };
+}
