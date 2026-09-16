@@ -91,18 +91,6 @@ export interface RawSeries {
   player2: RawPlayer;
   match: RawMatch;
 }
-export interface RawCareerStat {
-  /** Career-stat record id — always present and unique. */
-  id: number;
-  /** Linked user account; null for historical players without one. */
-  user_id: number | null;
-  player_name: string;
-  rating?: number;
-  series_won?: number;
-  series_lost?: number;
-  series_winrate?: number;
-  user?: { race?: string };
-}
 export interface RawFantasyTeam {
   id: number;
   name: string;
@@ -131,7 +119,7 @@ const ms = (iso?: string) => (iso ? Date.parse(iso) : NaN);
 // --- season / weeks ---
 export function pickActiveSeason(raw: RawSeason[]): RawSeason {
   return [...raw].sort(
-    (a, b) => (ms(b.start_date) || b.id) - (ms(a.start_date) || a.id),
+    (a, b) => (ms(b.start_date) || 0) - (ms(a.start_date) || 0) || b.id - a.id,
   )[0];
 }
 
@@ -347,41 +335,12 @@ export function mapStandings(
   return rows;
 }
 
-// --- leaderboard (backend's official career stats — all players) ---
-export function mapLeaderboard(raw: RawCareerStat[]): LeaderboardRow[] {
-  const rows: LeaderboardRow[] = raw.map((r) => {
-    const wins = r.series_won ?? 0;
-    const losses = r.series_lost ?? 0;
-    return {
-      id: r.id,
-      rank: 0,
-      player: {
-        id: r.user_id ?? -r.id,
-        name: r.player_name,
-        slug: slugify(r.player_name),
-        race: raceOf(r.user?.race),
-        teamName: undefined,
-      },
-      played: wins + losses,
-      wins,
-      losses,
-      winrate: Math.round(r.series_winrate ?? 0),
-      mmr: r.rating,
-    };
-  });
-
-  rows.sort(
-    (a, b) => (b.mmr ?? 0) - (a.mmr ?? 0) || b.wins - a.wins || b.winrate - a.winrate,
-  );
-  rows.forEach((r, i) => (r.rank = i + 1));
-  return rows;
-}
-
 /** The selected event's player record, read from its team rosters. */
 export function mapEventLeaderboard(
   teams: RawTeam[],
   eventId: number,
 ): LeaderboardRow[] {
+  const seen = new Set<number>();
   const rows = teams.flatMap((team) => {
     const long = team.long_name || team.name;
     const roster = team.player_by_season?.[String(eventId)] ?? [];
@@ -407,13 +366,15 @@ export function mapEventLeaderboard(
         mmr: player.mmr,
       };
     });
+  }).filter((row) => {
+    if (seen.has(row.id)) return false;
+    seen.add(row.id);
+    return true;
   });
 
   rows.sort(
     (a, b) =>
-      (b.mmr ?? 0) - (a.mmr ?? 0) ||
-      b.wins - a.wins ||
-      b.winrate - a.winrate,
+      b.wins - a.wins || b.winrate - a.winrate || (b.mmr ?? 0) - (a.mmr ?? 0),
   );
   rows.forEach((row, index) => (row.rank = index + 1));
   return rows;

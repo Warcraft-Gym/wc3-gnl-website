@@ -98,9 +98,7 @@ export async function withFallback<T>(
   try {
     return { data: await live(), source: "live" };
   } catch (err) {
-    if (process.env.NODE_ENV !== "production") {
-      console.warn(`[gnl] ${label}: falling back to fixtures —`, String(err));
-    }
+    console.warn(`[gnl] ${label}: falling back to fixtures —`, String(err));
     return { data: fallback(), source: "fixture" };
   }
 }
