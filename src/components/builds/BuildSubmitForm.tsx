@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, CheckCircle2, ChevronDown, Plus, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
 import { TagInput } from "./TagInput";
@@ -172,15 +172,18 @@ export function BuildSubmitForm() {
 
       <div className="min-w-0 space-y-8">
         {/* Guidance */}
-        <div className="rounded border border-gold/30 bg-gold/5 px-5 py-4 text-sm text-muted">
-          <p className="kicker mb-2">What makes a good submission</p>
-          <ul className="grid gap-1 sm:grid-cols-2">
-            <li>· One opening, not a whole game plan — 10 to 20 steps is typical.</li>
-            <li>· Times from the in-game clock, so the play-along timer is useful.</li>
-            <li>· An icon per step makes it scannable at a glance.</li>
-            <li>· Say <em>why</em> in the notes: when it works, what it beats, what to watch for.</li>
+        <details className="group rounded border border-gold/30 bg-gold/5 text-sm text-muted">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3.5 [&::-webkit-details-marker]:hidden">
+            <span className="kicker">What makes a good submission</span>
+            <ChevronDown size={16} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
+          </summary>
+          <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
+            <li className="flex gap-2"><span className="text-gold">·</span> One opening, not a whole game plan — 10 to 20 steps is typical.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> Times from the in-game clock, so the play-along timer is useful.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> An icon per step makes it scannable at a glance.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span><span>Say <em>why</em> in the notes: when it works, what it beats, what to watch for.</span></li>
           </ul>
-        </div>
+        </details>
 
         {/* 1 — The build */}
         <section className="panel space-y-6 p-5 sm:p-7">
