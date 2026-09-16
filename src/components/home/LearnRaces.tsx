@@ -2,23 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
+import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";
-
-/** Painted emblem for each topic hub; races use the Reforged crests. */
-const TOPIC_ART: Record<string, string> = {
-  "new-players": "/graphics/new-players-1.png",
-  "creep-routes": "/graphics/creep-routes-1.png",
-  mechanics: "/graphics/game-mechanics-1.png",
-};
-
-function artFor(c: LearnCategory): string | null {
-  if (c.kind === "race" && c.race) return `/factions/large/${c.race}.png`;
-  return TOPIC_ART[c.id] ?? null;
-}
 
 /** Emblem + title + blurb, linking to a Learn hub. */
 function LearnEmblem({ category }: { category: LearnCategory }) {
-  const art = artFor(category);
+  const art = learnArt(category);
   return (
     <Link
       href={`/learn/${category.id}`}
