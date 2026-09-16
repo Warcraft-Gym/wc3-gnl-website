@@ -133,10 +133,14 @@ export default async function BuildPage({ params }: Params) {
             )
           ) : (
             <p className="text-sm text-faint">No notes yet.</p>
-          )}
+          )}        </section>
+
+        {/* Steps */}
+        <section className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)] lg:self-start">
+          <StepTable steps={build.steps} />
 
           {/* Questions go to the build orders channel */}
-          <div className="panel mt-8 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
+          <div className="panel mt-4 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
             <div>
               <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
                 Questions about this build?
@@ -155,11 +159,6 @@ export default async function BuildPage({ params }: Params) {
               <DiscordIcon size={15} /> Discuss on Discord
             </ButtonLink>
           </div>
-        </section>
-
-        {/* Steps */}
-        <section className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)] lg:self-start">
-          <StepTable steps={build.steps} />
         </section>
       </Container>
 
