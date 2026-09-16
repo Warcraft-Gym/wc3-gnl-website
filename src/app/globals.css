@@ -126,8 +126,15 @@
     color-scheme: dark;
   }
 
+  /* Dark leather texture behind all content. Fixed on pointer devices so
+     the texture never seams or stretches; touch browsers ignore `fixed`
+     reliably, so there it tiles vertically at full width instead. */
   body {
     background-color: var(--wg-bg);
+    background-image: url("/keyart/leather_bg.webp");
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
     color: var(--wg-text);
     font-family: var(--wg-font-sans);
     font-size: var(--wg-text-base);
@@ -138,6 +145,14 @@
 
   /* Quadrata-style display type: uppercase, wide tracking, regular weight
      carries the look — bold is reserved for hero headlines. */
+  @media (hover: none) {
+    body {
+      background-attachment: scroll;
+      background-size: 100% auto;
+      background-repeat: repeat-y;
+    }
+  }
+
   h1, h2, h3, h4 {
     font-family: var(--wg-font-display);
     font-weight: 700;
