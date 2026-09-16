@@ -267,25 +267,11 @@
       0 0 28px -6px var(--wg-gold-glow);
   }
 
-  /* Riveted metal strip used to separate full-bleed sections */
+  /* Riveted metal strip used to separate full-bleed sections (2600×22 art,
+     tiled horizontally for wider viewports) */
   .rivets {
-    height: 14px;
-    border-top: 1px solid oklch(45% 0.01 60);
-    border-bottom: 1px solid oklch(8% 0.01 60);
-    background:
-      radial-gradient(
-          circle at 50% 50%,
-          oklch(62% 0.015 70) 0 1.6px,
-          oklch(38% 0.01 60) 2.2px,
-          transparent 3px
-        )
-        0 0 / 28px 100% repeat-x,
-      linear-gradient(
-        180deg,
-        oklch(32% 0.012 60),
-        oklch(16% 0.01 60) 50%,
-        oklch(26% 0.012 60)
-      );
+    height: 22px;
+    background: url("/keyart/section_divider.avif") center top / auto 100% repeat-x;
   }
 
   /* Full-bleed painted atmosphere. Drop a real key-art image on top by
