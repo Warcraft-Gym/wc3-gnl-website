@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { GuideCard } from "@/components/learn/GuideCard";
@@ -47,18 +47,13 @@ export default async function LearnCategoryPage({ params }: Params) {
         art={learnArt(cat)}
         background={learnHeaderArt(cat)}
         backgroundPosition="center 30%"
+        back={{ href: "/learn", label: "All topics" }}
       >
         {race ? (
           <ButtonLink href={buildsHref} size="sm">
             {cat.title} build orders <ArrowRight size={14} />
           </ButtonLink>
         ) : null}
-        <Link
-          href="/learn"
-          className="inline-flex h-9 items-center gap-1.5 px-2 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
-        >
-          <ArrowLeft size={15} /> All topics
-        </Link>
       </PageHeader>
 
       <Container className="py-10">

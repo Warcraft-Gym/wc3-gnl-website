@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowLeft, ArrowRight, PlusCircle } from "lucide-react";
+import { ArrowRight, PlusCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -75,12 +75,6 @@ export default async function BuildsPage({
         <ButtonLink href="/learn/builds/submit" size="sm">
           <PlusCircle size={15} /> Submit a build
         </ButtonLink>
-        <Link
-          href="/learn"
-          className="inline-flex h-9 items-center gap-1.5 px-2 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
-        >
-          <ArrowLeft size={15} /> All topics
-        </Link>
       </PageHeader>
 
       <Container className="py-10">

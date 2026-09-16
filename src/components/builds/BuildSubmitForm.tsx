@@ -100,7 +100,7 @@ export function BuildSubmitForm() {
     const el = document.querySelector<HTMLInputElement>(`[data-step="${formId}-${focusRow.current}"] input[aria-label=Instruction]`);
     el?.focus();
     focusRow.current = null;
-  }, [steps.length]);
+  }, [steps.length, formId]);
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const stepsJson = JSON.stringify(
