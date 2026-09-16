@@ -6,8 +6,9 @@ type Size = "sm" | "md" | "lg";
 
 // Blizzard-style CTA: squared corners, serif uppercase label, burnished gold
 // gradient for the primary action.
+// Full-width on phones so CTA groups stack cleanly; inline from `sm` up.
 const base =
-  "inline-flex items-center justify-center gap-2 rounded font-display font-bold uppercase tracking-[0.08em] whitespace-nowrap " +
+  "inline-flex items-center justify-center gap-2 rounded font-display font-bold uppercase tracking-[0.08em] whitespace-nowrap max-sm:w-full " +
   "transition-[background-color,border-color,box-shadow,color,transform] duration-[var(--wg-dur-fast)] ease-[var(--ease-out-expo)] " +
   "hover:-translate-y-px active:translate-y-0 " +
   "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gold " +
