@@ -138,7 +138,7 @@ export default async function BuildPage({ params }: Params) {
           {/* Questions go to the build orders channel */}
           <div className="panel mt-8 flex flex-col gap-4 border-[#5865F2]/40 p-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+              <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
                 Questions about this build?
               </p>
               <p className="mt-1 text-sm text-muted">
