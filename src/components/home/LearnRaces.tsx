@@ -58,7 +58,7 @@ export function LearnRaces() {
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-14">
       <div>
         <p className="kicker">Learn</p>
-        <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+        <h2 className="mt-3 whitespace-nowrap text-[clamp(1.55rem,0.9rem+1.75vw,2.35rem)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
           Learn Warcraft III
         </h2>
         <p className="mt-5 max-w-md text-lg text-muted">
