@@ -81,9 +81,9 @@ export function IconPicker({
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    return GAME_ICONS.filter(
-      (i) => (tab === "all" || i.race === tab) && (!needle || i.title.toLowerCase().includes(needle)),
-    );
+    // A search looks across every race; the tab only filters when browsing.
+    if (needle) return GAME_ICONS.filter((i) => i.title.toLowerCase().includes(needle));
+    return GAME_ICONS.filter((i) => tab === "all" || i.race === tab);
   }, [tab, q]);
 
   const current = getGameIcon(value);
