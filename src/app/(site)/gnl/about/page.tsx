@@ -45,7 +45,7 @@ export default async function AboutPage() {
 
       <Container className="py-10">
         {/* Intro */}
-        <div className="reading max-w-3xl space-y-5 p-6 text-[1.075rem] leading-8 text-muted sm:p-8 [&_strong]:text-fg">
+        <div className="max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
           <RichText value={about.intro} />
         </div>
 
@@ -104,7 +104,7 @@ export default async function AboutPage() {
         </section>
 
         {/* Cadence */}
-        <section className="reading mt-16 max-w-3xl space-y-5 p-6 text-[1.075rem] leading-8 text-muted sm:p-8 [&_strong]:text-fg">
+        <section className="mt-16 max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
           <p className="kicker mb-2">Season cadence</p>
           <RichText value={about.cadence} />
         </section>

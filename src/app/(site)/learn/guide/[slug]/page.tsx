@@ -90,15 +90,13 @@ export default async function GuidePage({ params }: Params) {
       ) : null}
 
       <Container className="max-w-3xl py-12">
-        <div className="reading p-6 sm:p-10">
-          {guide.body?.length ? (
-            <PortableBody value={guide.body} />
-          ) : (
-            <div className="space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
-              {guide.paragraphs?.map((p, i) => <p key={i}>{p}</p>)}
-            </div>
-          )}
-        </div>
+        {guide.body?.length ? (
+          <PortableBody value={guide.body} />
+        ) : (
+          <div className="space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
+            {guide.paragraphs?.map((p, i) => <p key={i}>{p}</p>)}
+          </div>
+        )}
       </Container>
 
       {related.length ? (

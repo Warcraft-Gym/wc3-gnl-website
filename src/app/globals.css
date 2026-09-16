@@ -248,15 +248,6 @@
     backdrop-filter: blur(6px);
   }
 
-  /* Long-form reading surface: near-black at ~70% over the leather so body
-     copy stays legible; slightly more opaque than .panel, no hover. */
-  .reading {
-    border-radius: var(--wg-radius-lg);
-    border: 1px solid var(--wg-line);
-    background: rgba(0, 0, 0, 0.72);
-    backdrop-filter: blur(4px);
-  }
-
   /* Burnished gold CTA — vertical gradient, inset highlight, dark text */
   .btn-gold {
     color: oklch(22% 0.04 60);
