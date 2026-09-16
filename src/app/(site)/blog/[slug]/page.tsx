@@ -101,6 +101,7 @@ export default async function PostPage({ params }: Params) {
       ) : null}
 
       <Container className="max-w-3xl py-12">
+        <div className="reading p-6 sm:p-10">
         {post.portableText?.length ? (
           <PortableBody value={post.portableText} />
         ) : (
@@ -108,6 +109,7 @@ export default async function PostPage({ params }: Params) {
             {post.paragraphs?.map((p, i) => <p key={i}>{p}</p>)}
           </div>
         )}
+        </div>
       </Container>
 
       {related.length ? (

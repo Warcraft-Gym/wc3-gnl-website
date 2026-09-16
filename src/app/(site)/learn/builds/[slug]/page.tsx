@@ -109,7 +109,7 @@ export default async function BuildPage({ params }: Params) {
 
       <Container className="grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
         {/* Description */}
-        <section className="min-w-0">
+        <section className="reading min-w-0 self-start p-5 sm:p-7">
           <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this build</h2>
           {build.description && build.description.length ? (
             isPortableText(build.description) ? (
