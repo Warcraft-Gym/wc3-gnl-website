@@ -17,7 +17,22 @@ Studio. There is no login and no voting in this version.
    clicks **Publish**, or deletes it. Publish is blocked (validation error)
    while Review is still Pending, so a build cannot go live unreviewed.
    Builds created directly in the Studio default to Approved.
-4. Published builds show up within five minutes (ISR revalidate 300).
+4. Published builds show up immediately if the Sanity webhook is set up
+   (below), otherwise within five minutes (ISR revalidate 300).
+
+### Instant updates (Sanity webhook)
+
+In sanity.io/manage → project → API → Webhooks, add a webhook:
+
+- URL: `https://<site>/api/revalidate`
+- Trigger on: create, update, delete
+- Filter: `_type in ["buildOrder", "post", "guide", "aboutPage"]`
+- Projection: `{ _type, slug }`
+- Secret: any long random string; put the same value in the Vercel env as
+  `SANITY_REVALIDATE_SECRET`
+
+The route verifies the signature and purges the pages that render that
+document type.
 
 Editors can also create builds directly in the Studio; same document type.
 
