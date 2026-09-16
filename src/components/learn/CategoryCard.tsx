@@ -1,34 +1,32 @@
 import Link from "next/link";
-import { ArrowUpRight, Map, Cog, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { ArrowUpRight } from "lucide-react";
 import type { LearnCategory } from "@/lib/learn/data";
+import { learnArt } from "@/lib/learn/art";
 import { Surface } from "@/components/ui/Surface";
-import { RaceIcon } from "@/components/ui/RaceIcon";
 
-const TOPIC_ICON = {
-  "new-players": Sparkles,
-  "creep-routes": Map,
-  mechanics: Cog,
-} as const;
-
+/** Category card with the same crest / emblem as the homepage. */
 export function CategoryCard({ category }: { category: LearnCategory }) {
-  const TopicIcon =
-    category.kind === "topic"
-      ? TOPIC_ICON[category.id as keyof typeof TOPIC_ICON] ?? Sparkles
-      : null;
+  const art = learnArt(category);
 
   return (
     <Surface interactive as="article" className="group">
       <Link
         href={`/learn/${category.id}`}
-        className="flex h-full items-start gap-4 p-5"
+        className="flex h-full items-center gap-4 p-5"
       >
-        <span className="skew grid size-12 shrink-0 place-items-center bg-gold/10 text-gold">
-          {category.kind === "race" && category.race ? (
-            <RaceIcon race={category.race} size={26} />
-          ) : TopicIcon ? (
-            <TopicIcon
-              size={22}
-              className="[transform:skewX(calc(var(--wg-skew)*-1))]"
+        <span className="relative block size-20 shrink-0 transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:scale-105">
+          <span
+            aria-hidden
+            className="absolute inset-[10%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-40 blur-lg transition-opacity duration-[var(--wg-dur)] group-hover:opacity-90"
+          />
+          {art ? (
+            <Image
+              src={art}
+              alt=""
+              fill
+              sizes="80px"
+              className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,.8)]"
             />
           ) : null}
         </span>

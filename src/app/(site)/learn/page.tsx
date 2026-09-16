@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
@@ -12,6 +13,7 @@ import { CategoryCard } from "@/components/learn/CategoryCard";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
 import { getLatestGuides } from "@/lib/learn/guides";
+import { learnArt } from "@/lib/learn/art";
 
 export const metadata: Metadata = {
   title: "Learn Warcraft III",
@@ -44,16 +46,31 @@ export default async function LearnPage() {
             }}
           />
           <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="max-w-2xl">
+            <div className="flex max-w-3xl flex-col gap-5 sm:flex-row sm:items-center">
+              <span className="relative block size-28 shrink-0 sm:size-32">
+                <span
+                  aria-hidden
+                  className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-60 blur-xl"
+                />
+                <Image
+                  src={learnArt(newPlayers) ?? ""}
+                  alt=""
+                  fill
+                  priority
+                  sizes="128px"
+                  className="object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,.85)]"
+                />
+              </span>
+              <div>
               <span className="kicker mb-3">Start here</span>
-              <h2 className="flex items-center gap-3 text-[length:var(--wg-text-title)]">
-                <GraduationCap className="text-gold" size={30} />
+              <h2 className="text-[length:var(--wg-text-title)]">
                 New &amp; returning players
               </h2>
               <p className="mt-3 normal-case text-muted">{newPlayers.blurb} Pick a
                 race, learn one opening, and get your first games in without the
                 overwhelm.
               </p>
+              </div>
             </div>
             <ButtonLink href="/learn/new-players" size="lg" className="shrink-0">
               Start learning <ArrowRight size={18} />
