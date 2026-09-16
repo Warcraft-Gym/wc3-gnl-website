@@ -1,8 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
-import Link from "next/link";
-import { ArrowDown, ArrowUp, CheckCircle2, ChevronDown, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
 import { TagInput } from "./TagInput";
@@ -364,16 +363,24 @@ export function BuildSubmitForm() {
             </p>
           ) : null}
 
-          <div className="flex flex-wrap items-center gap-4 border-t border-line/60 pt-6">
-            <Button type="submit" size="lg" disabled={pending}>
-              {pending ? "Sending…" : "Submit for review"}
-            </Button>
-            <p className="text-xs text-faint">
-              A coach checks every submission before it goes live.{" "}
-              <Link href="/learn/builds" className="text-muted hover:text-gold">
-                Back to builds
-              </Link>
-            </p>
+          <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex items-start gap-3 text-sm text-muted">
+              <ShieldCheck size={20} className="mt-0.5 shrink-0 text-gold" />
+              <div>
+                <p className="font-bold text-fg">Reviewed before it goes live</p>
+                <p className="mt-0.5 text-xs">
+                  A coach checks every build — usually within a few days — and publishes it with your name on it.
+                </p>
+              </div>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
+              <ButtonLink href="/learn/builds" variant="ghost" size="lg" className="sm:w-auto">
+                Cancel
+              </ButtonLink>
+              <Button type="submit" size="lg" disabled={pending} className="sm:w-auto">
+                {pending ? "Sending…" : "Submit for review"} <ArrowRight size={16} />
+              </Button>
+            </div>
           </div>
         </section>
       </div>
