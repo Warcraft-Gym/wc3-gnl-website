@@ -128,7 +128,7 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
                   </td>
                   <td className="px-2 py-2.5 pr-4">
                     <span className="flex items-center gap-2.5">
-                      {s.icon ? <GameIcon iconKey={s.icon} size={28} /> : null}
+                      {s.icon ? <GameIcon iconKey={s.icon} size={32} /> : null}
                       <span className={cn("font-medium", isActive ? "text-fg" : isPast ? "text-muted" : "text-fg")}>
                         {s.instruction}
                       </span>

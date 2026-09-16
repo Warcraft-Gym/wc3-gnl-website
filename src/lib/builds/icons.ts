@@ -1,8 +1,9 @@
 /**
  * WC3 icon manifest. Shared by the Sanity step editor (option list) and the
- * site (rendering). Images live in public/wc3-icons/<key>.png; the UI falls
- * back to a text chip when an image is missing, so keys can be defined before
- * the art lands.
+ * site (rendering). Images live in public/wc3-icons/<key>.webp — the game's
+ * command-button art, sourced from the W3Champions community site
+ * (github.com/w3champions/website, originalWC3Icons) and resized to 64px.
+ * The UI falls back to a text chip if an image is ever missing.
  */
 
 export type IconRace = "human" | "orc" | "nightelf" | "undead" | "neutral";
@@ -181,7 +182,7 @@ export function getGameIcon(key?: string | null): GameIcon | undefined {
 }
 
 export function gameIconSrc(key: string): string {
-  return `/wc3-icons/${key}.png`;
+  return `/wc3-icons/${key}.webp`;
 }
 
 /** Studio option list, grouped so the dropdown reads naturally. */
