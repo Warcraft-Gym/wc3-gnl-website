@@ -7,11 +7,13 @@ import { Hero } from "@/components/home/Hero";
 import { LearnRaces } from "@/components/home/LearnRaces";
 import { GuideFeatureCard } from "@/components/home/GuideFeatureCard";
 import { CommunityTiles } from "@/components/home/CommunityTiles";
+import { CommunityIntro } from "@/components/home/CommunityIntro";
 import { NewsFeatureCard } from "@/components/home/NewsFeatureCard";
 import { GnlSection } from "@/components/home/GnlSection";
 import { getActiveSeason, getStandings, getTeams } from "@/lib/api/gnl";
 import { getGuides } from "@/lib/learn/guides";
 import { getLatestPosts } from "@/lib/content";
+import { getDiscordCommunity } from "@/lib/discord";
 import { DISCORD_URL } from "@/lib/links";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
@@ -23,13 +25,15 @@ export const dynamic = "force-dynamic";
  * hero → learn by race → latest guides → community & fun → news →
  * the GNL (one compact section) → CTA. */
 export default async function HomePage() {
-  const [season, standings, teamData, guides, posts] = await Promise.all([
-    getActiveSeason(),
-    getStandings(),
-    getTeams(),
-    getGuides(),
-    getLatestPosts(3),
-  ]);
+  const [season, standings, teamData, guides, posts, community] =
+    await Promise.all([
+      getActiveSeason(),
+      getStandings(),
+      getTeams(),
+      getGuides(),
+      getLatestPosts(3),
+      getDiscordCommunity(),
+    ]);
 
   const latestGuides = [...guides]
     .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
@@ -89,22 +93,7 @@ export default async function HomePage() {
       <section className="keyart">
         <KeyArt src="/keyart/section-sparks.jpg" overlay="none" />
         <Container className="relative z-10 grid grid-cols-[minmax(0,1fr)] gap-10 py-[var(--wg-space-section)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-14">
-          <div>
-            <p className="kicker">The Gym Discord</p>
-            <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-              More than guides
-            </h2>
-            <p className="mt-5 max-w-md text-lg text-muted">
-              The Gym is a community of Warcraft III players who like getting
-              better and having fun doing it — coaching, replay reviews, casual
-              events and casts, all run by volunteers on Discord.
-            </p>
-            <div className="mt-7">
-              <ButtonLink href={DISCORD_URL} variant="discord">
-                <DiscordIcon size={18} /> Join the Discord
-              </ButtonLink>
-            </div>
-          </div>
+          <CommunityIntro community={community} />
           <CommunityTiles />
         </Container>
       </section>
@@ -170,20 +159,20 @@ export default async function HomePage() {
             />
             <p className="kicker justify-center">Open to everyone</p>
             <h2 className="mt-3 text-[length:var(--wg-text-display)]">
-              Ready to play?
+              Come join the Gym
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">
-              New to Warcraft III, or back after years away? Start with the
-              beginner guides, then come say hi on Discord — there&apos;s
-              always someone up for a game, a replay review or the next
-              community night.
+              New to Warcraft III, back after years away, or grinding for the
+              next season — there&apos;s a spot for you. Say hi on Discord and
+              there&apos;s always someone up for a game, a replay review or
+              the next community night.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/learn/new-players" size="lg">
-                Start learning <ArrowRight size={18} />
-              </ButtonLink>
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
                 <DiscordIcon size={20} /> Join the Discord
+              </ButtonLink>
+              <ButtonLink href="/learn/new-players" variant="outline" size="lg">
+                Start learning <ArrowRight size={18} />
               </ButtonLink>
             </div>
           </div>
