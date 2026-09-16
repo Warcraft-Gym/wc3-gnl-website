@@ -171,7 +171,7 @@ export default async function HomePage() {
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
                 <DiscordIcon size={20} /> Join the Discord
               </ButtonLink>
-              <ButtonLink href="/learn/new-players" variant="outline" size="lg">
+              <ButtonLink href="/learn" variant="outline" size="lg">
                 Start learning <ArrowRight size={18} />
               </ButtonLink>
             </div>

@@ -48,7 +48,7 @@ export function Hero() {
         </p>
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
-          <ButtonLink href="/learn/new-players" size="lg">
+          <ButtonLink href="/learn" size="lg">
             Start Learning <ArrowRight size={18} />
           </ButtonLink>
           <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
