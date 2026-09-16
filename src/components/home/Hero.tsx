@@ -59,14 +59,6 @@ export function Hero() {
         <p className="mt-12 text-sm text-muted">
           Guides for every race · A league for every level
         </p>
-        <a
-          href={DISCORD_URL}
-          target="_blank"
-          rel="noreferrer"
-          className="mt-3 inline-flex items-center gap-2 font-display text-[0.8rem] font-bold uppercase tracking-[0.2em] text-muted transition-colors hover:text-fg"
-        >
-          <DiscordIcon size={16} className="text-[#5865F2]" /> Everything happens on the Gym Discord
-        </a>
       </Container>
     </section>
   );
