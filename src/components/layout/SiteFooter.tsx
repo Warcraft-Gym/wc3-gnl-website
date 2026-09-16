@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Code2, Play } from "lucide-react";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
-import { DISCORD_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";
+import { DASHBOARD_URL, DISCORD_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";
 import { Container } from "@/components/ui/Container";
 import { Wordmark } from "./Wordmark";
 import { KeyArt } from "@/components/ui/KeyArt";
@@ -71,9 +71,9 @@ export function SiteFooter() {
           <p className="kicker mb-4">Community</p>
           <ul className="space-y-2.5 text-sm">
             <li>
-              <Link href="/dashboard" className="text-muted hover:text-gold">
+              <a href={DASHBOARD_URL} target="_blank" rel="noreferrer" className="text-muted hover:text-gold">
                 Player Dashboard
-              </Link>
+              </a>
             </li>
             <li>
               <Link href="/learn" className="text-muted hover:text-gold">

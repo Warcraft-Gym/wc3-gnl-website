@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { FantasyStandings } from "@/components/league/FantasyStandings";
 import { getActiveSeason, getFantasy } from "@/lib/api/gnl";
+import { DASHBOARD_URL } from "@/lib/links";
 
 export const dynamic = "force-dynamic";
 
@@ -99,7 +100,7 @@ export default async function FantasyPage() {
             ))}
           </div>
           <div className="mt-8">
-            <ButtonLink href="/dashboard" size="lg">
+            <ButtonLink href={DASHBOARD_URL} size="lg" target="_blank" rel="noreferrer">
               Manage in the dashboard
             </ButtonLink>
           </div>

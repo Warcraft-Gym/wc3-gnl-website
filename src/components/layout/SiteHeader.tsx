@@ -2,6 +2,7 @@ import { Wordmark } from "./Wordmark";
 import { DesktopNav } from "./DesktopNav";
 import { MobileNav } from "./MobileNav";
 import { ButtonLink } from "@/components/ui/Button";
+import { DASHBOARD_URL } from "@/lib/links";
 
 /** Floating translucent nav bar, inset from the viewport edges like the
  *  official site. Height is published as --wg-header-h for sticky offsets. */
@@ -16,7 +17,7 @@ export function SiteHeader() {
         </div>
         <div className="flex items-center gap-3">
           <div className="hidden md:block">
-            <ButtonLink href="/dashboard" size="sm">
+            <ButtonLink href={DASHBOARD_URL} size="sm" target="_blank" rel="noreferrer">
               Player Dashboard
             </ButtonLink>
           </div>
