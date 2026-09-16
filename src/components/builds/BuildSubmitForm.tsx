@@ -240,7 +240,7 @@ export function BuildSubmitForm() {
         </section>
 
         {/* 2, Steps */}
-        <section className="panel p-5 sm:p-7">
+        <section className="panel relative z-20 p-5 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <SectionTitle n={2}>Steps</SectionTitle>
             {errors.steps ? <p className="text-xs text-loss">{errors.steps}</p> : null}
@@ -257,7 +257,7 @@ export function BuildSubmitForm() {
                 <li
                   key={s.id}
                   data-step={`${formId}-${s.id}`}
-                  className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-2 gap-y-2 rounded border border-line/70 bg-bg/40 p-2.5 sm:grid-cols-[2rem_4.5rem_4rem_auto_minmax(0,1fr)_auto] sm:items-start sm:p-3"
+                  className="relative grid grid-cols-[2rem_minmax(0,1fr)] gap-x-2 gap-y-2 rounded border border-line/70 bg-bg/40 p-2.5 focus-within:z-10 sm:grid-cols-[2rem_4.5rem_4rem_auto_minmax(0,1fr)_auto] sm:items-start sm:p-3"
                 >
                   <span className="tnum pt-2.5 text-center text-xs text-faint">{i + 1}</span>
 

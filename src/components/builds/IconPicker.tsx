@@ -95,7 +95,7 @@ export function IconPicker({
   }
 
   return (
-    <div ref={root} className="relative">
+    <div ref={root} className={cn("relative", open && "z-40")}>
       <button
         type="button"
         onClick={() => (open ? setOpen(false) : openPicker())}
@@ -122,7 +122,7 @@ export function IconPicker({
         <div
           role="dialog"
           aria-label="Choose an icon"
-          className="absolute left-0 top-full z-30 mt-1 w-[19rem] rounded-lg border border-line bg-bg/95 p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] backdrop-blur-xl sm:w-[22rem]"
+          className="absolute left-0 top-full z-40 mt-1 w-[19rem] rounded-lg border border-line bg-bg/95 p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] backdrop-blur-xl sm:w-[22rem]"
         >
           <div className="relative">
             <Search size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint" />
