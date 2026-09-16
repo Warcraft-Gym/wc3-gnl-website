@@ -2,16 +2,14 @@
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, CheckCircle2, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, CheckCircle2, Plus, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
 import { TagInput } from "./TagInput";
 import { RaceCrestRow, type CrestOption } from "./RaceCrestPicker";
-import { StepTable } from "./StepTable";
-import { DifficultyBadge, Matchup } from "./BuildBadges";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import type { IconRace } from "@/lib/builds/icons";
-import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace, type BuildStep } from "@/lib/builds/types";
+import { BUILD_DIFFICULTIES, type BuildDifficulty } from "@/lib/builds/types";
 import type { StepInput } from "@/lib/builds/submission";
 import { cn } from "@/lib/utils";
 
@@ -78,7 +76,6 @@ export function BuildSubmitForm() {
   const formId = useId();
   const nextId = useRef(4);
   const [steps, setSteps] = useState<StepRow[]>(() => [newRow(1), newRow(2), newRow(3)]);
-  const [showPreview, setShowPreview] = useState(false);
   const [text, setText] = useState({
     title: "", patch: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "",
   });
@@ -137,14 +134,6 @@ export function BuildSubmitForm() {
       return [...rows, row];
     });
 
-  const previewSteps: BuildStep[] = steps
-    .filter((s) => s.instruction.trim())
-    .map((s) => ({
-      time: s.time || undefined,
-      supply: s.supply === "" ? undefined : Number(s.supply),
-      instruction: s.instruction,
-      icon: s.icon || undefined,
-    }));
   const iconRace = (race && race !== "any" ? race : undefined) as IconRace | undefined;
 
   if (state.status === "ok") {
@@ -166,42 +155,8 @@ export function BuildSubmitForm() {
     );
   }
 
-  const preview = (
-    <div className="space-y-4">
-      <div className="panel p-5">
-        <p className="kicker">Preview</p>
-        <h3 className="mt-2 text-[1.2rem] font-bold leading-tight tracking-[0.05em] text-fg">
-          {text.title || <span className="text-faint">Your build title</span>}
-        </h3>
-        {text.summary ? <p className="mt-2 text-sm text-muted">{text.summary}</p> : null}
-        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
-          {race && race !== "any" ? (
-            <Matchup race={race as BuildRace} vsRace={vsRace === "any" ? "any" : (vsRace as BuildRace)} size={18} />
-          ) : (
-            <span className="text-xs text-faint">Pick your race to see the matchup</span>
-          )}
-          <DifficultyBadge level={difficulty} />
-        </div>
-        {tags.length ? (
-          <div className="mt-3 flex flex-wrap gap-1.5">
-            {tags.map((t) => (
-              <span key={t} className="rounded border border-line bg-surface/60 px-2 py-0.5 text-[0.7rem] text-muted">{t}</span>
-            ))}
-          </div>
-        ) : null}
-      </div>
-      {previewSteps.length ? (
-        <StepTable steps={previewSteps} />
-      ) : (
-        <p className="rounded border border-dashed border-line px-4 py-8 text-center text-xs text-faint">
-          Your steps will appear here as you type them.
-        </p>
-      )}
-    </div>
-  );
-
   return (
-    <form action={formAction} className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+    <form action={formAction}>
       {/* Honeypot + hidden state */}
       <div className="hidden" aria-hidden>
         <label>
@@ -420,18 +375,6 @@ export function BuildSubmitForm() {
         </section>
       </div>
 
-      {/* Live preview — sticky beside the form on desktop, toggle on phones */}
-      <aside className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
-        <button
-          type="button"
-          onClick={() => setShowPreview((v) => !v)}
-          className="mb-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded border border-line bg-surface/60 text-xs font-bold uppercase tracking-wide text-muted lg:hidden"
-        >
-          {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
-          {showPreview ? "Hide preview" : "Show preview"}
-        </button>
-        <div className={cn(!showPreview && "max-lg:hidden")}>{preview}</div>
-      </aside>
     </form>
   );
 }

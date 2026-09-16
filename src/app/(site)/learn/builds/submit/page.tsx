@@ -26,7 +26,7 @@ export default function SubmitBuildPage() {
           <ArrowLeft size={15} /> All builds
         </Link>
       </PageHeader>
-      <Container className="py-10">
+      <Container className="max-w-4xl py-10">
         <BuildSubmitForm />
       </Container>
     </>
