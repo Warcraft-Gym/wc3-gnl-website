@@ -146,7 +146,7 @@ export default async function BuildPage({ params }: Params) {
                 Questions about this build?
               </p>
               <p className="mt-1 text-sm text-muted">
-                Ask in the build orders channel on the Gym Discord. The author and the coaches hang out there.
+                Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
               </p>
             </div>
             <ButtonLink
