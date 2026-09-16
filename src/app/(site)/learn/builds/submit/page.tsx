@@ -16,7 +16,6 @@ export default function SubmitBuildPage() {
         kicker="Learn · Build orders"
         title="Submit a build"
         art="/graphics/build-orders-2.webp"
-        back={{ href: "/learn/builds", label: "All builds" }}
         lead="Share an opening that works for you. A coach reviews it, then it goes up in the build list with your name on it."
       >
       </PageHeader>

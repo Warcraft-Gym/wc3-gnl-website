@@ -47,7 +47,6 @@ export default async function LearnCategoryPage({ params }: Params) {
         art={learnArt(cat)}
         background={learnHeaderArt(cat)}
         backgroundPosition="center 30%"
-        back={{ href: "/learn", label: "All topics" }}
       >
         {race ? (
           <ButtonLink href={buildsHref} size="sm">
