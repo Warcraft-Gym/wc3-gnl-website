@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
  *
  *  `decoding="sync"` is deliberate: with next/image's default async decode,
  *  Chrome finished decoding these large backgrounds after first paint and
- *  never repainted them — the art stayed invisible until something else
+ *  never repainted them, the art stayed invisible until something else
  *  invalidated the section (a scroll, a style change). Sync decode costs a
  *  few ms on the main thread but paints reliably. */
 export function KeyArt({

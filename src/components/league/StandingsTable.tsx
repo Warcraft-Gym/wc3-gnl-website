@@ -4,7 +4,7 @@ import { TeamPlate } from "./VsBadge";
 import { cn } from "@/lib/utils";
 
 function StreakPill({ streak }: { streak?: string }) {
-  if (!streak) return <span className="text-faint">—</span>;
+  if (!streak) return <span className="text-faint">-</span>;
   const win = streak.startsWith("W");
   return (
     <span

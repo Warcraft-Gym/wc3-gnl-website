@@ -17,7 +17,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { week } = await params;
-  return { title: `Schedule — Week ${week}` };
+  return { title: `Schedule, Week ${week}` };
 }
 
 export default async function ScheduleWeekPage({ params }: Params) {

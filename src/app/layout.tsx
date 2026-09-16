@@ -28,7 +28,7 @@ const mono = JetBrains_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL("https://warcraft3.gym"),
   title: {
-    default: "Warcraft 3 Gym — Learn Warcraft III & compete in the GNL",
+    default: "Warcraft 3 Gym: Learn Warcraft III & compete in the GNL",
     template: "%s · Warcraft 3 Gym",
   },
   description:

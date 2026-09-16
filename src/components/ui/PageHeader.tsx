@@ -4,7 +4,7 @@ import { Kicker } from "./Surface";
 import { KeyArt } from "./KeyArt";
 
 /** Sub-page masthead: centred serif title over a painted atmosphere,
- *  closed by a riveted strip — like the official site's interior pages.
+ *  closed by a riveted strip, like the official site's interior pages.
  *  Pulls itself up behind the sticky site chrome so the art runs under the
  *  nav bar; --wg-chrome-h is the header height, or header + sub-nav when a
  *  section layout (e.g. /gnl) sets it. */

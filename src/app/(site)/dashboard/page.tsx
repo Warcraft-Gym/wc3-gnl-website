@@ -18,7 +18,7 @@ const FEATURES = [
   {
     Icon: CalendarClock,
     title: "Set availability & self-schedule",
-    body: "Mark the windows you can play and lock in series times with your opponent — no admin ping required.",
+    body: "Mark the windows you can play and lock in series times with your opponent, no admin ping required.",
   },
   {
     Icon: Upload,
@@ -33,7 +33,7 @@ const FEATURES = [
   {
     Icon: Swords,
     title: "Your series & stats",
-    body: "See your upcoming matches, past results, and personal stats — all in one place.",
+    body: "See your upcoming matches, past results, and personal stats, all in one place.",
   },
 ];
 
@@ -68,7 +68,7 @@ export default function DashboardPage() {
           <p className="mt-3 max-w-2xl text-muted">
             The Gym already issues one-time access tokens through its Discord bot.
             The dashboard will build on that same flow: request a login link in
-            Discord, click through, and you&apos;re authenticated — no extra
+            Discord, click through, and you&apos;re authenticated, no extra
             password to manage. Session handling and the scheduling UI land in the
             next milestone.
           </p>

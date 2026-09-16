@@ -35,7 +35,7 @@ function pushRecent(key: string) {
 
 /**
  * Icon picker: a button showing the current icon that opens a popover grid
- * of real icons — searchable, tabbed by race, with a recently-used row.
+ * of real icons, searchable, tabbed by race, with a recently-used row.
  * `race` pre-selects that race's tab so most picks are one click away.
  */
 export function IconPicker({

@@ -8,7 +8,7 @@ import { apiVersion, dataset, projectId } from "@/sanity/env";
 /**
  * Writes a public submission to Sanity as a *draft* build order. Drafts are
  * invisible to the site and show up under "Pending review" in the Studio,
- * where an editor publishes (or deletes) them — that's the approval queue.
+ * where an editor publishes (or deletes) them, that's the approval queue.
  *
  * Needs SANITY_API_WRITE_TOKEN (Editor scope). Never exposed to the browser.
  */

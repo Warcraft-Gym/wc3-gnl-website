@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-/** Translucent warm panel — the core visual unit. `notch` is kept for
+/** Translucent warm panel, the core visual unit. `notch` is kept for
  *  call-site compatibility and now just rounds the corners a little more. */
 export function Surface({
   className,

@@ -13,7 +13,7 @@ import { getAboutPage } from "@/lib/content/about";
 export const metadata: Metadata = {
   title: "About the GNL",
   description:
-    "The Gym Newbie League is a team league with solo matches, created by the Gym Discord community for new and veteran players alike — skill level doesn't matter.",
+    "The Gym Newbie League is a team league with solo matches, created by the Gym Discord community for new and veteran players alike. Skill level doesn't matter.",
 };
 
 const BENEFIT_ICONS = [Swords, GraduationCap, Users2];

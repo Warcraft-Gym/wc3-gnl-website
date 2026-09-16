@@ -18,7 +18,7 @@ import { learnArt } from "@/lib/learn/art";
 export const metadata: Metadata = {
   title: "Learn Warcraft III",
   description:
-    "Level up your Warcraft 3 skills — race guides, creep routes, game mechanics, and build orders for new and returning players.",
+    "Level up your Warcraft 3 skills, race guides, creep routes, game mechanics, and build orders for new and returning players.",
 };
 
 export default async function LearnPage() {
@@ -31,11 +31,11 @@ export default async function LearnPage() {
       <PageHeader
         kicker="Learn"
         title="Level up your Warcraft III"
-        lead="Guides, build orders, and fundamentals for every race — whether you just installed the game or you're grinding for the next GNL season."
+        lead="Guides, build orders, and fundamentals for every race, whether you just installed the game or you're grinding for the next GNL season."
       />
 
       <Container className="py-10">
-        {/* New & returning players — featured entry */}
+        {/* New & returning players, featured entry */}
         <Surface className="grain relative overflow-hidden border-gold/25 p-8 sm:p-10">
           <div
             aria-hidden
@@ -87,7 +87,7 @@ export default async function LearnPage() {
             ))}
           </div>
 
-          {/* Build orders — cross-race, so it sits under the category grid */}
+          {/* Build orders, cross-race, so it sits under the category grid */}
           <Link
             href="/learn/builds"
             className="panel group mt-4 flex flex-col gap-4 p-5 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50 sm:flex-row sm:items-center sm:justify-between"
@@ -101,7 +101,7 @@ export default async function LearnPage() {
                   Build orders
                 </h3>
                 <p className="mt-1 text-sm text-muted">
-                  Timed openings for every race and matchup, with a play-along clock — and you can submit your own.
+                  Timed openings for every race and matchup, with a play-along clock, and you can submit your own.
                 </p>
               </div>
             </div>
@@ -138,7 +138,7 @@ export default async function LearnPage() {
             </h2>
             <p className="mt-2 text-muted">
               The Gym Discord has volunteer coaches who review replays and help you
-              improve — for free, at every level.
+              improve, for free, at every level.
             </p>
           </div>
           <ButtonLink

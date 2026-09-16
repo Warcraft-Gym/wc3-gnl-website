@@ -37,7 +37,7 @@ export default async function LeaderboardPage({
       <PageHeader
         kicker={`${season.shortName} · Players`}
         title="Leaderboard"
-        lead="Individual results across all weeks. Every race, every skill bracket — the Gym is for everyone."
+        lead="Individual results across all weeks. Every race, every skill bracket, the Gym is for everyone."
       />
       <Container className="py-10">
         <DataSourceNote source={source} />

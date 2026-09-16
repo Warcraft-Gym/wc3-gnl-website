@@ -45,7 +45,7 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* Learn by race — blue "races" section */}
+      {/* Learn by race, blue "races" section */}
       <section className="keyart keyart-blue">
         <KeyArt
           src="/keyart/feature-night-elf.webp"
@@ -60,7 +60,7 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* Latest guides — centred heading + three feature cards */}
+      {/* Latest guides, centred heading + three feature cards */}
       <section className="keyart keyart-dark">
         <Container className="relative z-10 py-[var(--wg-space-section)]">
           <div className="mx-auto max-w-2xl text-center">
@@ -70,7 +70,7 @@ export default async function HomePage() {
             </h2>
             <p className="mt-4 text-lg text-muted">
               Build orders, matchup plans and mechanics explained by people who
-              play them every week — from your first game to your first
+              play them every week, from your first game to your first
               tournament.
             </p>
           </div>
@@ -125,7 +125,7 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* The GNL — one compact section */}
+      {/* The GNL, one compact section */}
       <section className="keyart">
         <KeyArt
           src="/keyart/feature-orc-vs-human.webp"
@@ -163,7 +163,7 @@ export default async function HomePage() {
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">
               New to Warcraft III, back after years away, or grinding for the
-              next season — there&apos;s a spot for you. Say hi on Discord and
+              next season, there&apos;s a spot for you. Say hi on Discord and
               there&apos;s always someone up for a game, a replay review or
               the next community night.
             </p>

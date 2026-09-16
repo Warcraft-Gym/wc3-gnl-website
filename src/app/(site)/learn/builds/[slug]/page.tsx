@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const build = await getBuildBySlug(slug);
   if (!build) return { title: "Build not found" };
   const race = BUILD_RACES.find((r) => r.id === build.race)?.label;
-  const title = `${build.title} — ${race} build order`;
+  const title = `${build.title}, ${race} build order`;
   return {
     title,
     description: build.summary,

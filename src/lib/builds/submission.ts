@@ -59,7 +59,7 @@ export const submissionSchema = z.object({
     .refine((v) => !v || /^https?:\/\//.test(v), "Must start with http(s)://"),
   description: z.string().trim().max(6000, "Max 6000 characters").optional(),
   steps: z.array(stepSchema).min(3, "Add at least three steps").max(60, "Max 60 steps"),
-  /** Honeypot — must stay empty. */
+  /** Honeypot, must stay empty. */
   website: z.string().max(0).optional(),
   /** Client timestamp when the form was opened; bots submit instantly. */
   startedAt: z.coerce.number().optional(),

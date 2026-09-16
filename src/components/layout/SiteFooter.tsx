@@ -32,7 +32,7 @@ export function SiteFooter() {
         <div>
           <Wordmark />
           <p className="mt-4 max-w-xs text-sm text-muted">
-            Free Warcraft III guides and the Gym Newbie League — a community
+            Free Warcraft III guides and the Gym Newbie League, a community
             tournament for players who want to improve.
           </p>
           <div className="mt-5 flex gap-2">
@@ -51,7 +51,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <nav aria-label="Footer — GNL">
+        <nav aria-label="Footer, GNL">
           <p className="kicker mb-4">GNL 18</p>
           <ul className="space-y-2.5 text-sm">
             {GNL_NAV.map((item) => (
@@ -67,7 +67,7 @@ export function SiteFooter() {
           </ul>
         </nav>
 
-        <nav aria-label="Footer — community">
+        <nav aria-label="Footer, community">
           <p className="kicker mb-4">Community</p>
           <ul className="space-y-2.5 text-sm">
             <li>

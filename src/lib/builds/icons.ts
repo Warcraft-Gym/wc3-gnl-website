@@ -1,6 +1,6 @@
 /**
  * WC3 icon manifest. Shared by the Sanity step editor (option list) and the
- * site (rendering). Images live in public/wc3-icons/<key>.webp — the game's
+ * site (rendering). Images live in public/wc3-icons/<key>.webp, the game's
  * command-button art, sourced from the W3Champions community site
  * (github.com/w3champions/website, originalWC3Icons) and resized to 64px.
  * The UI falls back to a text chip if an image is ever missing.
@@ -187,6 +187,6 @@ export function gameIconSrc(key: string): string {
 
 /** Studio option list, grouped so the dropdown reads naturally. */
 export const GAME_ICON_OPTIONS = GAME_ICONS.map((i) => ({
-  title: `${{ human: "HU", orc: "OR", nightelf: "NE", undead: "UD", neutral: "—" }[i.race]} · ${i.title}`,
+  title: `${{ human: "HU", orc: "OR", nightelf: "NE", undead: "UD", neutral: "NT" }[i.race]} · ${i.title}`,
   value: i.key,
 }));

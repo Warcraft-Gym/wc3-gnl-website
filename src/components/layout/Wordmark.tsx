@@ -13,7 +13,7 @@ export function Wordmark({
   return (
     <Link
       href="/"
-      aria-label="Warcraft 3 Gym — home"
+      aria-label="Warcraft 3 Gym, home"
       className={cn("group inline-flex items-center gap-3", className)}
     >
       {compact ? null : (

@@ -41,8 +41,8 @@ import type {
  * Public data access for the Warcraft-Gym site.
  *
  * Each function calls the GNL FastAPI backend (via the server-only client) and
- * maps the response to the frontend domain types; on any failure — or when
- * GNL_API_BASE_URL is unset — it falls back to fixtures. See mappers.ts for the
+ * maps the response to the frontend domain types; on any failure, or when
+ * GNL_API_BASE_URL is unset, it falls back to fixtures. See mappers.ts for the
  * backend→domain mapping.
  */
 

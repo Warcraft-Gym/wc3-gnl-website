@@ -26,7 +26,7 @@ export function Hero() {
       />
 
       <Container className="relative z-10 flex min-h-[100svh] flex-col items-center justify-center pb-20 pt-[calc(var(--wg-header-h)+4rem)] text-center sm:pb-24">
-        {/* Title lockup — small "WARCRAFT III" over a big "GYM", like the
+        {/* Title lockup, small "WARCRAFT III" over a big "GYM", like the
             game logo's small "III" / big "REFORGED" hierarchy */}
         <p className="font-display text-[clamp(1.6rem,0.8rem+3.4vw,3.25rem)] font-bold uppercase leading-none tracking-[0.16em] text-foil">
           Warcraft III

@@ -1,7 +1,7 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 /**
- * The GNL About page. A singleton — the frontend reads the first document.
+ * The GNL About page. A singleton, the frontend reads the first document.
  * Structured fields keep the designed card/step layout while making the copy
  * editable in the Studio.
  */

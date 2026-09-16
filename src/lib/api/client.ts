@@ -6,7 +6,7 @@ import "server-only";
  * The public site fetches league data through Next.js Server Components, so the
  * service credential never reaches the browser. When the API is not configured
  * (local dev, previews without secrets) or a request fails, callers fall back to
- * bundled fixtures — the site always renders.
+ * bundled fixtures, the site always renders.
  *
  * Env:
  *   GNL_API_BASE_URL   backend API base URL
@@ -58,7 +58,7 @@ export async function apiGet<T = unknown>(
   const headers: Record<string, string> = { Accept: "application/json" };
   if (SERVICE_TOKEN) headers.Authorization = `Bearer ${SERVICE_TOKEN}`;
 
-  // Retry transient failures (network errors, 5xx) — the backend is serverless
+  // Retry transient failures (network errors, 5xx), the backend is serverless
   // and can cold-start, especially under a burst of build/render fetches.
   const MAX_ATTEMPTS = 3;
   let lastError: ApiError = new ApiError(`Request failed for ${path}`, undefined, path);
@@ -98,7 +98,7 @@ export async function withFallback<T>(
   try {
     return { data: await live(), source: "live" };
   } catch (err) {
-    console.warn(`[gnl] ${label}: falling back to fixtures —`, String(err));
+    console.warn(`[gnl] ${label}: falling back to fixtures -`, String(err));
     return { data: fallback(), source: "fixture" };
   }
 }

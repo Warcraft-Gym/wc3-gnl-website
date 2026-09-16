@@ -20,7 +20,7 @@ const STEPS = [
   {
     Icon: Users,
     title: "Draft your team",
-    body: "Pick players and a drafted race before the season locks. Your squad scores as they win — your captain scores double.",
+    body: "Pick players and a drafted race before the season locks. Your squad scores as they win; your captain scores double.",
   },
   {
     Icon: Coins,

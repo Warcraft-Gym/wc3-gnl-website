@@ -5,7 +5,7 @@ import type { BuildOrder, BuildRace, BuildVsRace } from "./types";
 
 /**
  * Build-order data access. Reads published `buildOrder` documents from Sanity
- * (drafts never reach the site — that is the review queue). The bundled
+ * (drafts never reach the site, that is the review queue). The bundled
  * fixtures are used only in development when Sanity is unreachable or has
  * no builds; production always shows exactly what Sanity has, so an empty
  * library reads as empty rather than as fake content. Lists omit the
@@ -52,7 +52,7 @@ async function listFromSanity(): Promise<BuildOrder[] | null> {
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn("[builds] Sanity list failed, using fixtures —", String(err));
+      console.warn("[builds] Sanity list failed, using fixtures -", String(err));
     }
     return null;
   }
@@ -106,7 +106,7 @@ export async function getBuildBySlug(slug: string): Promise<BuildOrder | undefin
         if (doc && doc.title) return doc;
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
-          console.warn("[builds] Sanity fetch failed, using fixtures —", String(err));
+          console.warn("[builds] Sanity fetch failed, using fixtures -", String(err));
         }
       }
     }

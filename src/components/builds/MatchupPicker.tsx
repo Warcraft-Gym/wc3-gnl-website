@@ -17,7 +17,7 @@ type Side = "race" | "vs";
 /**
  * Matchup picker + filter bar. Everything lives in the URL (?race=&vs=&q=
  * &difficulty=&sort=) so filtered views are shareable, and every control
- * applies immediately — search debounced, the rest on change.
+ * applies immediately, search debounced, the rest on change.
  */
 export function MatchupPicker({
   race,

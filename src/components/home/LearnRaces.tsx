@@ -52,7 +52,7 @@ export function LearnRaces() {
         </h2>
         <p className="mt-5 max-w-md text-lg text-muted">
           Build orders, creep routes and game mechanics written by Gym coaches
-          for players who want to get better — from your very first ladder
+          for players who want to get better, from your very first ladder
           game to preparing for a GNL season. Pick your race and start with the
           beginner guides.
         </p>
@@ -87,7 +87,7 @@ export function LearnRaces() {
           <ListOrdered size={16} className="text-gold" />
           <span>
             <span className="font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-fg">Build orders</span>
-            <span className="hidden sm:inline"> — timed openings for every matchup, with a play-along clock</span>
+            <span className="hidden sm:inline">, timed openings for every matchup, with a play-along clock</span>
           </span>
           <ArrowRight size={14} className="text-gold transition-transform group-hover:translate-x-0.5" />
         </Link>

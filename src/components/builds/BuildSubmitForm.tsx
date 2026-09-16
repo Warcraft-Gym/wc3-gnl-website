@@ -139,10 +139,10 @@ export function BuildSubmitForm() {
     return (
       <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
         <CheckCircle2 size={40} className="mx-auto text-win" />
-        <h2 className="mt-4 text-[1.4rem] font-bold tracking-[0.05em]">Thanks — it&apos;s in the queue</h2>
+        <h2 className="mt-4 text-[1.4rem] font-bold tracking-[0.05em]">Thanks, it&apos;s in the queue</h2>
         <p className="mx-auto mt-3 max-w-md text-muted">
           A coach will look it over and publish it, usually within a few days. It will appear in the
-          build list with your name on it{text.authorDiscord ? " — we'll ping you on Discord if anything needs a tweak" : ""}.
+          build list with your name on it{text.authorDiscord ? ", we'll ping you on Discord if anything needs a tweak" : ""}.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/learn/builds">Back to builds</ButtonLink>
@@ -177,14 +177,14 @@ export function BuildSubmitForm() {
             <ChevronDown size={16} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
-            <li className="flex gap-2"><span className="text-gold">·</span> One opening, not a whole game plan — 10 to 20 steps is typical.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> One opening, not a whole game plan. 10 to 20 steps is typical.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> Times from the in-game clock, so the play-along timer is useful.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> An icon per step makes it scannable at a glance.</li>
             <li className="flex gap-2"><span className="text-gold">·</span><span>Say <em>why</em> in the notes: when it works, what it beats, what to watch for.</span></li>
           </ul>
         </details>
 
-        {/* 1 — The build */}
+        {/* 1, The build */}
         <section className="panel space-y-6 p-5 sm:p-7">
           <SectionTitle n={1}>The build</SectionTitle>
 
@@ -239,7 +239,7 @@ export function BuildSubmitForm() {
           </Field>
         </section>
 
-        {/* 2 — Steps */}
+        {/* 2, Steps */}
         <section className="panel p-5 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <SectionTitle n={2}>Steps</SectionTitle>
@@ -331,7 +331,7 @@ export function BuildSubmitForm() {
           </div>
         </section>
 
-        {/* 3 — Notes & credit */}
+        {/* 3, Notes & credit */}
         <section className="panel space-y-6 p-5 sm:p-7">
           <SectionTitle n={3}>Notes &amp; credit</SectionTitle>
 
@@ -369,7 +369,7 @@ export function BuildSubmitForm() {
               <div>
                 <p className="font-bold text-fg">Reviewed before it goes live</p>
                 <p className="mt-0.5 text-xs">
-                  A coach checks every build — usually within a few days — and publishes it with your name on it.
+                  A coach checks every build, usually within a few days, then publishes it with your name on it.
                 </p>
               </div>
             </div>

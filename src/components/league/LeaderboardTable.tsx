@@ -52,7 +52,7 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                   {row.winrate}%
                 </td>
                 <td className="tnum px-4 py-3 text-right font-display text-base font-bold text-gold">
-                  {row.mmr ?? "—"}
+                  {row.mmr ?? "-"}
                 </td>
               </tr>
             );

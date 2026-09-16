@@ -7,7 +7,7 @@ import type { DiscordCommunity } from "@/lib/discord";
 const STEPS = [
   {
     title: "Join the Discord",
-    body: "One click, free, no application. Introduce yourself — everyone remembers being new.",
+    body: "One click, free, no application. Introduce yourself. Everyone remembers being new.",
   },
   {
     title: "Find your people",
@@ -15,7 +15,7 @@ const STEPS = [
   },
   {
     title: "Show up for the fun",
-    body: "Coaching sessions, King of the Hill nights, replay of the month, casts — and the GNL when a season opens.",
+    body: "Coaching sessions, King of the Hill nights, replay of the month, casts, and the GNL when a season opens.",
   },
 ];
 
@@ -32,7 +32,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
       </h2>
       <p className="mt-5 max-w-md text-lg text-muted">
         Nobody gets good at Warcraft III alone. The Gym is a community of
-        players who help each other improve and have fun doing it — coaching,
+        players who help each other improve and have fun doing it, coaching,
         replay reviews, casual nights and casts, all run by volunteers. New
         players are welcomed, not judged.
       </p>

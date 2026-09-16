@@ -26,7 +26,7 @@ Server Component  →  src/lib/api/gnl.ts  →  src/lib/api/client.ts  →  Fast
 - `withFallback(live, fallback, label)` runs the live read and uses the bundled
   fixture on failure or when `GNL_API_BASE_URL` is unset.
 
-### `gnl.ts` — the adaptation seam
+### `gnl.ts`, the adaptation seam
 
 Every GNL page starts from the same selection:
 

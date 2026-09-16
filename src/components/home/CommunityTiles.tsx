@@ -23,7 +23,7 @@ const TILES = [
   {
     art: "/graphics/replay-of-month-2.webp",
     title: "Replay of the month",
-    body: "The community picks the best game each month — clutch base trades, hero snipes, comebacks — and the coaches break it down.",
+    body: "The community picks the best game each month (clutch base trades, hero snipes, comebacks) and the coaches break it down.",
     href: "/blog",
     cta: "Watch the picks",
     external: false,

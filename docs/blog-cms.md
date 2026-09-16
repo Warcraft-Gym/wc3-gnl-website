@@ -90,6 +90,6 @@ Add `sanity.config.ts` at the repo root and a route at
 
 ## Swapping CMS later
 
-Nothing in the UI imports Sanity directly — only `src/lib/content/index.ts`
+Nothing in the UI imports Sanity directly, only `src/lib/content/index.ts`
 does. To move to Payload or a Flask blog table, implement a new source there
 behind the same `getPosts` / `getPostBySlug` contract.

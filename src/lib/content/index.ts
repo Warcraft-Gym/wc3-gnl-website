@@ -28,7 +28,7 @@ async function fromSanity(): Promise<Post[] | null> {
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn("[content] Sanity fetch failed, using fixtures —", String(err));
+      console.warn("[content] Sanity fetch failed, using fixtures -", String(err));
     }
     return null;
   }

@@ -22,7 +22,7 @@ function embedUrl(raw?: string): string | null {
  */
 const components: PortableTextComponents = {
   types: {
-    // Stray inline nodes the HTML converter can emit at block level — render
+    // Stray inline nodes the HTML converter can emit at block level, render
     // their text so no content is lost (and silence the console warning).
     span: ({ value }) => <>{(value as { text?: string })?.text ?? ""}</>,
     youtube: ({ value }) => {

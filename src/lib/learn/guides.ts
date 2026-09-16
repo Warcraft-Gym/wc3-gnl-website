@@ -5,7 +5,7 @@ import type { Guide, LearnCategoryId } from "./data";
 
 /**
  * Guide data access. Reads `guide` documents from Sanity and falls back to the
- * bundled fixtures. Lists fetch metadata only (no body) — fetching all bodies
+ * bundled fixtures. Lists fetch metadata only (no body), fetching all bodies
  * at once exceeds Next.js' 2MB fetch-cache limit. The detail view fetches a
  * single guide's body by slug.
  */
@@ -48,7 +48,7 @@ async function listFromSanity(): Promise<Guide[] | null> {
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
-      console.warn("[learn] Sanity guide list failed, using fixtures —", String(err));
+      console.warn("[learn] Sanity guide list failed, using fixtures -", String(err));
     }
     return null;
   }
@@ -87,7 +87,7 @@ export async function getGuideBySlug(slug: string): Promise<Guide | undefined> {
         if (doc && doc.title) return doc;
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
-          console.warn("[learn] Sanity guide fetch failed, using fixtures —", String(err));
+          console.warn("[learn] Sanity guide fetch failed, using fixtures -", String(err));
         }
       }
     }

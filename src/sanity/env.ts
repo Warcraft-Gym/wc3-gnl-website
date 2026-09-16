@@ -1,6 +1,6 @@
 /**
  * Shared Sanity configuration. projectId and dataset are publishable (not
- * secrets), so we default them to the WC3 Gym project — the embedded Studio at
+ * secrets), so we default them to the WC3 Gym project, the embedded Studio at
  * /studio always loads, and env vars can still override per-environment.
  */
 export const apiVersion =

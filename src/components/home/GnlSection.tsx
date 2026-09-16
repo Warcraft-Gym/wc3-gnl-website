@@ -35,7 +35,7 @@ export function GnlSection({
           team, captain and coaches have your back the whole season.
         </p>
         <p className="mt-3 max-w-md text-sm text-muted">
-          Skill level doesn&apos;t matter — everyone who signs up gets drafted.
+          Skill level doesn&apos;t matter, everyone who signs up gets drafted.
         </p>
         <div className="mt-7 flex flex-wrap gap-3">
           <ButtonLink href="/gnl/schedule" variant="outline">

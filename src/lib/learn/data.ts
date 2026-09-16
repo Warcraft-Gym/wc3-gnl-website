@@ -3,7 +3,7 @@ import type { Race } from "@/lib/utils";
 /**
  * Learn section content. Structured like the live "Learn Warcraft 3" hub:
  * race + topic categories, and a set of guides tagged by category and level.
- * Fixture content for now — swappable to a CMS later (see src/lib/content).
+ * Fixture content for now, swappable to a CMS later (see src/lib/content).
  */
 
 export type LearnCategoryId =
@@ -86,7 +86,7 @@ export const LEARN_CATEGORIES: LearnCategory[] = [
   {
     id: "mechanics",
     title: "Game Mechanics",
-    blurb: "Upkeep, items, experience — the systems under the game.",
+    blurb: "Upkeep, items, experience, the systems under the game.",
     kind: "topic",
   },
 ];
@@ -106,9 +106,9 @@ export const GUIDES: Guide[] = [
     excerpt:
       "A no-pressure roadmap for brand-new players: pick a race, learn one opening, and get your first ladder games in.",
     paragraphs: [
-      "Warcraft III can feel overwhelming at first — four races, dozens of units, and a clock that never stops. The good news: you do not need to learn all of it to start having fun and winning games.",
+      "Warcraft III can feel overwhelming at first, four races, dozens of units, and a clock that never stops. The good news: you do not need to learn all of it to start having fun and winning games.",
       "Pick one race and stick with it for your first week. You will improve far faster learning one race deeply than dabbling in all four. If you have no preference, Human is the most forgiving for beginners.",
-      "Learn exactly one opening build order and repeat it every game. Your goal this week is not to win — it is to stop getting supply-blocked, keep your hero alive, and finish a game without panicking.",
+      "Learn exactly one opening build order and repeat it every game. Your goal this week is not to win. It is to stop getting supply-blocked, keep your hero alive, and finish a game without panicking.",
     ],
   },
   {
@@ -119,7 +119,7 @@ export const GUIDES: Guide[] = [
     minutes: 4,
     publishedAt: "2026-08-12",
     excerpt:
-      "Small setup changes that pay off every single game — grid hotkeys, control groups, and camera habits.",
+      "Small setup changes that pay off every single game, grid hotkeys, control groups, and camera habits.",
     paragraphs: [
       "Before you grind mechanics, spend ten minutes on setup. Grid hotkeys map abilities to the same physical keys across every unit, so you are not memorising a different layout for each caster.",
       "Bind your hero to control group 1 and your main army to 2. Getting into the habit of tapping 1 to check on your hero is one of the highest-value beginner habits there is.",
@@ -164,7 +164,7 @@ export const GUIDES: Guide[] = [
       "Grab a neutral hero first to power up your creeping and open more mid-game paths.",
     paragraphs: [
       "Opening with a Tavern hero gives Night Elf flexibility: a Beastmaster or Naga changes how you creep and what you threaten, without committing to a tech path early.",
-      "The key is creep efficiency — use the extra hero to clear tougher camps sooner, snowball item and experience leads, and keep your Wisps safe while you expand.",
+      "The key is creep efficiency, use the extra hero to clear tougher camps sooner, snowball item and experience leads, and keep your Wisps safe while you expand.",
     ],
   },
   {
@@ -192,7 +192,7 @@ export const GUIDES: Guide[] = [
       "Turn quick Headhunters into map pressure before your opponent stabilises.",
     paragraphs: [
       "Orc thrives on tempo. Fast Headhunters backed by a Far Seer's Wolves let you contest creep camps and expansions while your opponent is still teching.",
-      "The push does not need to kill — forcing your opponent to react on your schedule is the win. Trade efficiently and keep your Grunts topped up between fights.",
+      "The push does not need to kill, forcing your opponent to react on your schedule is the win. Trade efficiently and keep your Grunts topped up between fights.",
     ],
   },
   {
@@ -234,7 +234,7 @@ export const GUIDES: Guide[] = [
       "Camp colours, level ranges, and which camps are worth your time on ladder maps.",
     paragraphs: [
       "Green, orange, and red camps signal how hard they hit and what they drop. Learning to read them at a glance tells you which camps are safe to take early and which need a hero level or two first.",
-      "Prioritise camps that drop the items and experience your build wants. A good creep route is not the most camps — it is the right camps, in an order that keeps your hero and army safe.",
+      "Prioritise camps that drop the items and experience your build wants. A good creep route is not the most camps, it is the right camps, in an order that keeps your hero and army safe.",
     ],
   },
   {
@@ -247,7 +247,7 @@ export const GUIDES: Guide[] = [
     excerpt:
       "How upkeep taxes your gold, and why timing your army around it matters.",
     paragraphs: [
-      "Upkeep quietly reduces your gold income as your food climbs — low, high, then no upkeep. Understanding the thresholds tells you when to fight, when to expand, and when to spend down.",
+      "Upkeep quietly reduces your gold income as your food climbs, low, high, then no upkeep. Understanding the thresholds tells you when to fight, when to expand, and when to spend down.",
       "Strong players ride the upkeep line deliberately: pushing food up for a decisive fight, then trading down and expanding to reset their economy.",
     ],
   },

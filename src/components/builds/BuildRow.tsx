@@ -12,7 +12,7 @@ function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(iso));
 }
 
-/** Left-edge accent by difficulty — a quieter signal than another chip. */
+/** Left-edge accent by difficulty, a quieter signal than another chip. */
 const ACCENT: Record<BuildDifficulty, string> = {
   beginner: "before:bg-win",
   intermediate: "before:bg-arcane",
@@ -69,7 +69,7 @@ export function BuildRow({ build }: { build: BuildOrder }) {
   );
 }
 
-/** Build of the week — one wide card with the race's showcase art behind it. */
+/** Build of the week, one wide card with the race's showcase art behind it. */
 export function FeaturedBuild({ build }: { build: BuildOrder }) {
   return (
     <Link

@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Standings",
-  description: "The GNL team ladder — wins, losses, map differential and points.",
+  description: "The GNL team ladder, wins, losses, map differential and points.",
 };
 
 export default async function StandingsPage() {

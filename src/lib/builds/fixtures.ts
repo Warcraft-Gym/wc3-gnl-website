@@ -24,7 +24,7 @@ export const FIXTURE_BUILDS: BuildOrder[] = [
       { time: "0:20", supply: 6, instruction: "New Peasant builds Farm", icon: "hu-farm" },
       { time: "0:35", supply: 7, instruction: "Peasant builds Barracks", icon: "hu-barracks" },
       { time: "1:05", supply: 8, instruction: "Farm", icon: "hu-farm" },
-      { time: "1:30", supply: 9, instruction: "Archmage — Water Elemental first", icon: "hu-archmage" },
+      { time: "1:30", supply: 9, instruction: "Archmage: Water Elemental first", icon: "hu-archmage" },
       { time: "1:45", supply: 11, instruction: "2 Footmen, creep the closest green camp", icon: "hu-footman" },
       { time: "2:30", supply: 14, instruction: "Lumber Mill", icon: "hu-lumber-mill" },
       { time: "3:00", supply: 15, instruction: "Town Hall at the natural, 3 Militia to guard", icon: "hu-town-hall" },
@@ -57,7 +57,7 @@ export const FIXTURE_BUILDS: BuildOrder[] = [
       { time: "0:05", supply: 5, instruction: "Queue 2 Peons", icon: "or-peon" },
       { time: "0:25", supply: 6, instruction: "Burrow", icon: "or-burrow" },
       { time: "0:40", supply: 7, instruction: "Barracks", icon: "or-barracks" },
-      { time: "1:20", supply: 8, instruction: "Far Seer — Feral Spirit first", icon: "or-far-seer" },
+      { time: "1:20", supply: 8, instruction: "Far Seer: Feral Spirit first", icon: "or-far-seer" },
       { time: "1:40", supply: 10, instruction: "Grunt, creep with wolves", icon: "or-grunt" },
       { time: "2:10", supply: 12, instruction: "War Mill, second Burrow", icon: "or-war-mill" },
       { time: "2:40", supply: 14, instruction: "Troll Headhunters non-stop from Barracks", icon: "or-headhunter" },
@@ -68,7 +68,7 @@ export const FIXTURE_BUILDS: BuildOrder[] = [
     ],
     description: [
       "The point is the timing: you arrive at the Human natural while Militia are still the only defence. Bring the Far Seer's wolves to tank tower shots and focus the Town Hall.",
-      "If the Human went Tower-heavy instead of expanding, don't commit — pull back, take your own expansion and switch to Raiders.",
+      "If the Human went Tower-heavy instead of expanding, don't commit, pull back, take your own expansion and switch to Raiders.",
     ],
   },
   {
@@ -100,7 +100,7 @@ export const FIXTURE_BUILDS: BuildOrder[] = [
     ],
     description: [
       "Tavern heroes let you creep faster than an Altar opening and keep the Orc guessing. Beastmaster's Quilbeast summons make early creeping free; Dark Ranger's Silence punishes Far Seer wolves.",
-      "Keep Huntresses grouped — they win fights on surround, not stats.",
+      "Keep Huntresses grouped, they win fights on surround, not stats.",
     ],
   },
   {
@@ -122,7 +122,7 @@ export const FIXTURE_BUILDS: BuildOrder[] = [
       { time: "0:05", supply: 5, instruction: "Ghoul to lumber", icon: "ud-ghoul" },
       { time: "0:20", supply: 6, instruction: "Acolyte builds Ziggurat", icon: "ud-ziggurat" },
       { time: "0:50", supply: 7, instruction: "Queue Acolyte, then 2 Ghouls from Crypt", icon: "ud-ghoul" },
-      { time: "1:15", supply: 9, instruction: "Death Knight — Death Coil first", icon: "ud-death-knight" },
+      { time: "1:15", supply: 9, instruction: "Death Knight: Death Coil first", icon: "ud-death-knight" },
       { time: "1:40", supply: 11, instruction: "Graveyard, Ziggurat", icon: "ud-graveyard" },
       { time: "2:20", supply: 14, instruction: "Creep with DK + 3 Ghouls, Crypt Fiends start", icon: "ud-crypt-fiend" },
       { time: "3:00", supply: 17, instruction: "Second Crypt, Ziggurat", icon: "ud-crypt" },
@@ -132,7 +132,7 @@ export const FIXTURE_BUILDS: BuildOrder[] = [
     ],
     description: [
       "Learn this before any other Undead build. Ghouls on lumber from the first minute is the single biggest economic habit; never let the wood run dry.",
-      "Vs Night Elf, Web is the priority research — Hippogryphs and Talons are the threats Fiends exist to answer.",
+      "Vs Night Elf, Web is the priority research, Hippogryphs and Talons are the threats Fiends exist to answer.",
     ],
   },
 ];

@@ -14,7 +14,7 @@ const MIN_FILL_SECONDS = 8;
 
 /**
  * Small in-memory throttle: one submission per IP per minute. It is per
- * serverless instance rather than global, which is fine — the honeypot and
+ * serverless instance rather than global, which is fine, the honeypot and
  * fill-time checks do most of the work, and every submission still lands in
  * the review queue rather than on the site.
  */
@@ -60,7 +60,7 @@ export async function submitBuild(_prev: SubmitState, formData: FormData): Promi
   // Spam guards: honeypot filled, or submitted faster than a human could.
   if (data.website) return { status: "ok", slug: "" };
   if (data.startedAt && Date.now() - data.startedAt < MIN_FILL_SECONDS * 1000) {
-    return { status: "error", message: "That was quick — give it another look and submit again." };
+    return { status: "error", message: "That was quick, give it another look and submit again." };
   }
 
   if (!canAcceptSubmissions()) {
@@ -73,7 +73,7 @@ export async function submitBuild(_prev: SubmitState, formData: FormData): Promi
   const h = await headers();
   const ip = (h.get("x-forwarded-for") ?? "").split(",")[0].trim() || "unknown";
   if (throttled(ip)) {
-    return { status: "error", message: "You just sent one — wait a minute before submitting another build." };
+    return { status: "error", message: "You just sent one, wait a minute before submitting another build." };
   }
 
   try {

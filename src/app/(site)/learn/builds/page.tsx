@@ -17,11 +17,11 @@ import {
 } from "@/lib/builds/types";
 
 export const metadata: Metadata = {
-  title: "Build orders — Learn",
+  title: "Build orders · Learn",
   description:
     "Warcraft III build orders for every race and matchup, with timings, supply counts and a play-along timer. Written by Gym coaches and the community.",
   openGraph: {
-    title: "Warcraft III build orders — Warcraft 3 Gym",
+    title: "Warcraft III build orders · Warcraft 3 Gym",
     description: "Timed openings for every race and matchup, with a play-along clock. Submit your own.",
     images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
   },
@@ -69,7 +69,7 @@ export default async function BuildsPage({
       <PageHeader
         kicker="Learn"
         title="Build orders"
-        lead="Step-by-step openings for every race and matchup — with timings, supply counts and a play-along clock."
+        lead="Step-by-step openings for every race and matchup, with timings, supply counts and a play-along clock."
       >
         <ButtonLink href="/learn/builds/submit" size="sm">
           <PlusCircle size={15} /> Submit a build
@@ -85,7 +85,7 @@ export default async function BuildsPage({
       <Container className="py-10">
         {featured && !isFiltered ? <FeaturedBuild build={featured} /> : null}
 
-        {/* Matchup + filters — the way in */}
+        {/* Matchup + filters, the way in */}
         <section className={featured && !isFiltered ? "mt-12" : ""}>
           <Suspense>
             <MatchupPicker
@@ -139,7 +139,7 @@ export default async function BuildsPage({
               <p className="kicker">Community builds</p>
               <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a build worth sharing?</h2>
               <p className="mt-1 max-w-xl text-sm text-muted">
-                Submit it here — no account needed. A coach reviews it and it goes up with your name on it.
+                Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
               </p>
             </div>
             <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">

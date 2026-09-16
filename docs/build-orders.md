@@ -13,7 +13,7 @@ Studio. There is no login and no voting in this version.
    `buildOrder` document in Sanity via a server-only write token.
 3. Drafts never reach the site. In the Studio they appear under
    **Build orders → Pending review**. An editor opens the draft, edits if
-   needed, and clicks **Publish** — or deletes it.
+   needed, and clicks **Publish**, or deletes it.
 4. Published builds show up within five minutes (ISR revalidate 300).
 
 Editors can also create builds directly in the Studio; same document type.
@@ -27,8 +27,8 @@ Editors can also create builds directly in the Studio; same document type.
 | `difficulty` | `beginner` · `intermediate` · `advanced` |
 | `patch`, `tags`, `summary` | list metadata; summary is shown in the list |
 | `author`, `authorDiscord`, `maintainer`, `sourceUrl` | credit |
-| `featured` | **Build of the week** — spotlight at the top of the list. Turn it on for one build at a time. |
-| `steps[]` | `{ time "mm:ss", supply, instruction, icon }` — `time` drives the play-along clock |
+| `featured` | **Build of the week**, spotlight at the top of the list. Turn it on for one build at a time. |
+| `steps[]` | `{ time "mm:ss", supply, instruction, icon }`, `time` drives the play-along clock |
 | `description` | Portable Text (same editor as guides) |
 
 Schema: `src/sanity/schemaTypes/buildOrder.ts`. Studio desk:
@@ -62,8 +62,8 @@ Production (and Preview if you want previews to accept submissions).
 | Path | What |
 |---|---|
 | `src/lib/builds/types.ts` | `BuildOrder`, `BuildStep`, clock helpers |
-| `src/lib/builds/builds.ts` | `getBuilds`, `getBuildBySlug`, `filterBuilds`, `getFeaturedBuild` — Sanity with fixture fallback |
-| `src/lib/builds/fixtures.ts` | four seed builds, **development only** — used when Sanity is unreachable or empty. They were imported into Sanity as the starting library (`build-<slug>` ids). |
+| `src/lib/builds/builds.ts` | `getBuilds`, `getBuildBySlug`, `filterBuilds`, `getFeaturedBuild`, Sanity with fixture fallback |
+| `src/lib/builds/fixtures.ts` | four seed builds, **development only**, used when Sanity is unreachable or empty. They were imported into Sanity as the starting library (`build-<slug>` ids). |
 | `src/lib/builds/submission.ts` | zod schema shared by the form and the action |
 | `src/lib/builds/submit.ts` | write client; creates the draft |
 | `src/app/(site)/learn/builds/` | list, `[slug]` detail, `submit` (page + server action) |

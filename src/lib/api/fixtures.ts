@@ -15,7 +15,7 @@ import type { Race } from "@/lib/utils";
 import { slugify } from "@/lib/utils";
 
 /**
- * Fixture data — a believable snapshot of a GNL season, shaped to match the
+ * Fixture data, a believable snapshot of a GNL season, shaped to match the
  * live site: weeks → team-vs-team fixtures (aggregate score) → player games.
  * Names are original community-style handles (not real persons). Deterministic:
  * no Date.now()/random, so previews and snapshots are stable.
@@ -28,7 +28,7 @@ const CURRENT_WEEK = 4;
 
 export const FIXTURE_SEASON: Season = {
   id: 18,
-  name: "Gym Newbie League — Season 18",
+  name: "Gym Newbie League, Season 18",
   shortName: "GNL 18",
   slug: "gnl-18",
   isActive: true,

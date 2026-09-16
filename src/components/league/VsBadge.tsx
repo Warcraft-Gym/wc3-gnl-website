@@ -17,7 +17,7 @@ export function VsBadge({ className }: { className?: string }) {
   );
 }
 
-/** Team plate — shows the team logo when available, else the tag. */
+/** Team plate, shows the team logo when available, else the tag. */
 export function TeamPlate({
   tag,
   logoUrl,

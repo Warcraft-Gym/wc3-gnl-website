@@ -122,9 +122,9 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
                       i + 1
                     )}
                   </td>
-                  <td className="tnum px-2 py-2.5 text-xs text-muted">{s.time ?? "—"}</td>
+                  <td className="tnum px-2 py-2.5 text-xs text-muted">{s.time ?? "-"}</td>
                   <td className="tnum px-2 py-2.5 text-center text-xs text-muted">
-                    {s.supply != null ? s.supply : "—"}
+                    {s.supply != null ? s.supply : "-"}
                   </td>
                   <td className="px-2 py-2.5 pr-4">
                     <span className="flex items-center gap-2.5">

@@ -19,7 +19,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { category } = await params;
   const cat = getCategory(category);
   return {
-    title: cat ? `${cat.title} — Learn` : "Learn",
+    title: cat ? `${cat.title} · Learn` : "Learn",
     description: cat?.blurb,
   };
 }

@@ -37,7 +37,7 @@ export interface RawSeason {
   series_per_week?: number;
   start_date?: string;
   end_date?: string;
-  /** e.g. "GNL" — combined with the season number for the short name. */
+  /** e.g. "GNL", combined with the season number for the short name. */
   league_short_name?: string;
   /** Common event phase, e.g. "signups_open" | "running" | "finished". */
   phase?: string;

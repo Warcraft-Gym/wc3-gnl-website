@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const team = await getTeamBySlug(slug);
   return {
     title: team ? team.name : "Team",
-    description: team ? `${team.name} — roster and results.` : undefined,
+    description: team ? `${team.name}: roster and results.` : undefined,
   };
 }
 

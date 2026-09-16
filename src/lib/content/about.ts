@@ -25,9 +25,9 @@ export type AboutContent = {
 export const ABOUT_FALLBACK: Omit<AboutContent, "source"> = {
   kicker: "Gym Newbie League",
   title: "About the GNL",
-  lead: "A team league with solo matches, created by the Gym Discord community to give new and veteran players a competitive — and fun — place to compete.",
+  lead: "A team league with solo matches, created by the Gym Discord community to give new and veteran players a competitive (and fun) place to compete.",
   intro: [
-    "The GNL is built for players between the grass/beginner leagues and roughly 1700–1800 MMR — anyone who wants organised, competitive games without stepping into the pro scene. If you're friendly, active in game and on Discord, there's a spot for you.",
+    "The GNL is built for players between the grass/beginner leagues and roughly 1700–1800 MMR: anyone who wants organised, competitive games without stepping into the pro scene. If you're friendly, active in game and on Discord, there's a spot for you.",
     "Skill level does not matter. Showing up and wanting to improve does.",
   ],
   benefits: [
@@ -37,17 +37,17 @@ export const ABOUT_FALLBACK: Omit<AboutContent, "source"> = {
     },
     {
       title: "Captains & coaches",
-      body: "Your captains and coaches are helpful people from the community — from seasoned veterans to semi-pros — who draft the team, share strategy, and help you improve.",
+      body: "Your captains and coaches are helpful people from the community, from seasoned veterans to semi-pros, who draft the team, share strategy, and help you improve.",
     },
     {
       title: "A team behind you",
-      body: "Private team Discord channels for strategy talk, replay reviews, and camaraderie. You're never grinding alone — you've got a squad.",
+      body: "Private team Discord channels for strategy talk, replay reviews, and camaraderie. You're never grinding alone, you've got a squad.",
     },
   ],
   steps: [
     {
       title: "Sign up",
-      body: "Apply to join the season through the Gym Discord. Everyone is welcome — skill level does not matter.",
+      body: "Apply to join the season through the Gym Discord. Everyone is welcome. Skill level does not matter.",
     },
     {
       title: "Get drafted",
@@ -63,15 +63,15 @@ export const ABOUT_FALLBACK: Omit<AboutContent, "source"> = {
     },
     {
       title: "Earn points",
-      body: "Results feed the standings — 4 points for a 2–0, 3 for a 2–1, and 1 even for a 1–2 loss.",
+      body: "Results feed the standings: 4 points for a 2–0, 3 for a 2–1, and 1 even for a 1–2 loss.",
     },
     {
-      title: "Improve — win or lose",
+      title: "Improve, win or lose",
       body: "Every game gives you replays to study and teammates to learn from. Getting better is the whole point.",
     },
   ],
   cadence: [
-    "A season runs roughly six weeks, with a break of a few months between cycles. Between seasons the Gym Discord keeps going — volunteer coaching, practice, and a community of Warcraft III players to game with while you wait for the next draft.",
+    "A season runs roughly six weeks, with a break of a few months between cycles. Between seasons the Gym Discord keeps going, volunteer coaching, practice, and a community of Warcraft III players to game with while you wait for the next draft.",
   ],
 };
 
@@ -108,7 +108,7 @@ export async function getAboutPage(): Promise<AboutContent> {
         }
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
-          console.warn("[content] aboutPage fetch failed, using fallback —", String(err));
+          console.warn("[content] aboutPage fetch failed, using fallback -", String(err));
         }
       }
     }
