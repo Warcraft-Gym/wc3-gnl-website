@@ -56,12 +56,9 @@ export function LearnRaces() {
           game to preparing for a GNL season. Pick your race and start with the
           beginner guides.
         </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <ButtonLink href="/learn/new-players" size="md">
-            Start learning <ArrowRight size={16} />
-          </ButtonLink>
-          <ButtonLink href="/learn" variant="outline" size="md">
-            All guides
+        <div className="mt-7">
+          <ButtonLink href="/learn" size="md">
+            All guides <ArrowRight size={16} />
           </ButtonLink>
         </div>
       </div>
