@@ -42,7 +42,7 @@ const TILES = [
  *  with its painted emblem. */
 export function CommunityTiles() {
   return (
-    <ul className="grid gap-x-4 gap-y-12 pt-9 sm:grid-cols-2">
+    <ul className="grid content-start gap-x-4 gap-y-12 pt-9 sm:grid-cols-2 lg:self-center">
       {TILES.map(({ art, title, body, href, cta, external }) => {
         const inner = (
           <>
