@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { PortableText } from "@portabletext/react";
 import { Swords, GraduationCap, Users2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -8,7 +7,7 @@ import { Surface } from "@/components/ui/Surface";
 import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL } from "@/lib/links";
-import { getAboutPage } from "@/lib/content/about";
+import { ABOUT as about } from "@/lib/content/about";
 
 export const metadata: Metadata = {
   title: "About the GNL",
@@ -18,27 +17,7 @@ export const metadata: Metadata = {
 
 const BENEFIT_ICONS = [Swords, GraduationCap, Users2];
 
-/** Renders Sanity Portable Text, or plain-string fallback paragraphs. */
-function RichText({ value }: { value: unknown[] }) {
-  if (!value?.length) return null;
-  const first = value[0];
-  const isPortableText =
-    typeof first === "object" && first !== null && "_type" in first;
-  if (isPortableText) {
-    return <PortableText value={value as never} />;
-  }
-  return (
-    <>
-      {(value as string[]).map((p, i) => (
-        <p key={i}>{p}</p>
-      ))}
-    </>
-  );
-}
-
-export default async function AboutPage() {
-  const about = await getAboutPage();
-
+export default function AboutPage() {
   return (
     <>
       <PageHeader kicker={about.kicker} title={about.title} lead={about.lead} />
@@ -46,7 +25,9 @@ export default async function AboutPage() {
       <Container className="py-10">
         {/* Intro */}
         <div className="max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
-          <RichText value={about.intro} />
+          {about.intro.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
         </div>
 
         {/* Excellent choice */}
@@ -106,7 +87,9 @@ export default async function AboutPage() {
         {/* Cadence */}
         <section className="mt-16 max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
           <p className="kicker mb-2">Season cadence</p>
-          <RichText value={about.cadence} />
+          {about.cadence.map((p) => (
+            <p key={p}>{p}</p>
+          ))}
         </section>
 
         {/* CTA */}

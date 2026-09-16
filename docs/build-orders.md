@@ -26,7 +26,7 @@ In sanity.io/manage → project → API → Webhooks, add a webhook:
 
 - URL: `https://<site>/api/revalidate`
 - Trigger on: create, update, delete
-- Filter: `_type in ["buildOrder", "post", "guide", "aboutPage"]`
+- Filter: `_type in ["buildOrder", "post", "guide"]`
 - Projection: `{ _type, slug }`
 - Secret: any long random string; put the same value in the Vercel env as
   `SANITY_REVALIDATE_SECRET`

@@ -1,10 +1,6 @@
-import "server-only";
-import { isSanityConfigured, sanityClient } from "./sanity";
-
 /**
- * About-page content. Reads a singleton `aboutPage` document from Sanity and
- * falls back to the built-in copy (also the seed for the first published doc),
- * so the page always renders.
+ * About-page content for /gnl/about. The league format changes rarely, so
+ * this lives in code rather than in the Studio.
  */
 
 export type AboutBenefit = { title: string; body: string };
@@ -14,15 +10,13 @@ export type AboutContent = {
   kicker: string;
   title: string;
   lead: string;
-  /** Portable Text blocks (from Sanity) or plain strings (fallback). */
-  intro: unknown[];
+  intro: string[];
   benefits: AboutBenefit[];
   steps: AboutStep[];
-  cadence: unknown[];
-  source: "sanity" | "fallback";
+  cadence: string[];
 };
 
-export const ABOUT_FALLBACK: Omit<AboutContent, "source"> = {
+export const ABOUT: AboutContent = {
   kicker: "Gym Newbie League",
   title: "About the GNL",
   lead: "A team league with solo matches, created by the Gym Discord community to give new and veteran players a competitive (and fun) place to compete.",
@@ -74,44 +68,3 @@ export const ABOUT_FALLBACK: Omit<AboutContent, "source"> = {
     "A season runs roughly six weeks, with a break of a few months between cycles. Between seasons the Gym Discord keeps going, volunteer coaching, practice, and a community of Warcraft III players to game with while you wait for the next draft.",
   ],
 };
-
-const ABOUT_PROJECTION = `{
-  kicker, title, lead, intro,
-  benefits[]{ title, body },
-  steps[]{ title, body },
-  cadence
-}`;
-
-export async function getAboutPage(): Promise<AboutContent> {
-  if (isSanityConfigured()) {
-    const client = sanityClient();
-    if (client) {
-      try {
-        const doc = await client.fetch<Partial<AboutContent> | null>(
-          `*[_type == "aboutPage"][0]${ABOUT_PROJECTION}`,
-          {},
-          { next: { revalidate: 300 } },
-        );
-        if (doc && doc.title) {
-          return {
-            kicker: doc.kicker || ABOUT_FALLBACK.kicker,
-            title: doc.title,
-            lead: doc.lead || ABOUT_FALLBACK.lead,
-            intro: doc.intro?.length ? doc.intro : ABOUT_FALLBACK.intro,
-            benefits: doc.benefits?.length
-              ? doc.benefits
-              : ABOUT_FALLBACK.benefits,
-            steps: doc.steps?.length ? doc.steps : ABOUT_FALLBACK.steps,
-            cadence: doc.cadence?.length ? doc.cadence : ABOUT_FALLBACK.cadence,
-            source: "sanity",
-          };
-        }
-      } catch (err) {
-        if (process.env.NODE_ENV !== "production") {
-          console.warn("[content] aboutPage fetch failed, using fallback -", String(err));
-        }
-      }
-    }
-  }
-  return { ...ABOUT_FALLBACK, source: "fallback" };
-}

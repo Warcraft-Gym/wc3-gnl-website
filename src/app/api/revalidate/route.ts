@@ -38,7 +38,6 @@ const PATHS: Record<string, (slug?: string) => string[]> = {
   ],
   post: (slug) => ["/blog", ...(slug ? [`/blog/${slug}`] : []), "/"],
   guide: (slug) => ["/learn", ...(slug ? [`/learn/guide/${slug}`] : []), "/"],
-  aboutPage: () => ["/gnl/about"],
 };
 
 export async function POST(req: NextRequest) {
