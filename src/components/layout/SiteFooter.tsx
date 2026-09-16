@@ -76,6 +76,11 @@ export function SiteFooter() {
               </a>
             </li>
             <li>
+              <Link href="/about" className="text-muted hover:text-gold">
+                About the Gym
+              </Link>
+            </li>
+            <li>
               <Link href="/learn" className="text-muted hover:text-gold">
                 Learn
               </Link>
