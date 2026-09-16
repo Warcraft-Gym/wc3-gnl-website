@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import { PortableText } from "@portabletext/react";
-import { ArrowRight, Swords, GraduationCap, Users2 } from "lucide-react";
+import { Swords, GraduationCap, Users2 } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { ButtonLink } from "@/components/ui/Button";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
+import { DISCORD_URL } from "@/lib/links";
 import { getAboutPage } from "@/lib/content/about";
 
 export const metadata: Metadata = {
@@ -109,8 +111,8 @@ export default async function AboutPage() {
 
         {/* CTA */}
         <div className="mt-14 flex flex-wrap gap-3">
-          <ButtonLink href="https://discord.gg/7HUyQAKQ8p" size="lg">
-            Join the Gym Discord <ArrowRight size={18} />
+          <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
+            <DiscordIcon size={20} /> Join the Gym Discord
           </ButtonLink>
           <ButtonLink href="/gnl/rules" variant="outline" size="lg">
             Read the full rules

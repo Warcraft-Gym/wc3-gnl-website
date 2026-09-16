@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { PRIMARY_NAV } from "./nav-items";
 import { cn } from "@/lib/utils";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
 export function DesktopNav() {
   const pathname = usePathname();
@@ -29,7 +30,16 @@ export function DesktopNav() {
 
         if (item.external) {
           return (
-            <a key={item.href} href={item.href} target="_blank" rel="noreferrer" className={cls}>
+            <a
+              key={item.href}
+              href={item.href}
+              target="_blank"
+              rel="noreferrer"
+              className={cn(cls, "inline-flex items-center gap-1.5")}
+            >
+              {item.label === "Discord" ? (
+                <DiscordIcon size={16} className="text-[#5865F2]" />
+              ) : null}
               {item.label}
             </a>
           );

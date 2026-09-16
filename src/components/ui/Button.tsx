@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "ghost" | "outline";
+type Variant = "primary" | "ghost" | "outline" | "discord";
 type Size = "sm" | "md" | "lg";
 
 // Blizzard-style CTA: squared corners, serif uppercase label, burnished gold
@@ -18,6 +18,9 @@ const variants: Record<Variant, string> = {
   outline:
     "border border-gold/50 bg-surface/40 text-gold hover:border-gold hover:bg-gold/10",
   ghost: "text-muted hover:text-gold hover:bg-surface-2/70",
+  /** Discord Blurple (#5865F2) per discord.com/branding, for links into the server. */
+  discord:
+    "bg-[#5865F2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_1px_2px_rgba(0,0,0,.6)] hover:bg-[#4752C4] hover:shadow-[0_0_28px_-6px_rgba(88,101,242,.7)]",
 };
 
 const sizes: Record<Size, string> = {

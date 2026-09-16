@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Cog, Map, Sparkles } from "lucide-react";
 import { LEARN_CATEGORIES } from "@/lib/learn/data";
-import { RaceIcon } from "@/components/ui/RaceIcon";
+import Image from "next/image";
 import { ButtonLink } from "@/components/ui/Button";
 
 const TOPIC_ICON = {
@@ -10,8 +10,8 @@ const TOPIC_ICON = {
   mechanics: Cog,
 } as const;
 
-/** "Races" section, Learn edition: one medallion per race linking to that
- *  race's guides, plus the topic hubs underneath. */
+/** "Races" section, Learn edition: one Reforged race crest per race linking
+ *  to that race's guides, plus the topic hubs underneath. */
 export function LearnRaces() {
   const races = LEARN_CATEGORIES.filter((c) => c.kind === "race");
   const topics = LEARN_CATEGORIES.filter((c) => c.kind === "topic");
@@ -40,22 +40,33 @@ export function LearnRaces() {
       </div>
 
       <div>
-        <ul className="flex flex-wrap gap-x-6 gap-y-7 sm:gap-x-8">
+        <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6">
           {races.map((c) => (
-            <li key={c.id} className="w-24 sm:w-28">
+            <li key={c.id}>
               <Link
                 href={`/learn/${c.id}`}
                 className="group flex flex-col items-center text-center"
               >
-                <span className="grid size-24 place-items-center rounded-full border-2 border-gold-deep/70 bg-surface/80 p-1 shadow-[0_0_0_4px_rgba(0,0,0,.6),0_12px_30px_-10px_rgba(0,0,0,.9)] transition-[border-color,box-shadow,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1 group-hover:border-gold group-hover:shadow-[0_0_0_4px_rgba(0,0,0,.6),0_0_34px_-6px_var(--wg-gold-glow)] sm:size-28">
-                  <span className="grid size-full place-items-center rounded-full border border-line-strong bg-surface-2">
-                    {c.race ? <RaceIcon race={c.race} size={56} /> : null}
-                  </span>
+                <span className="relative block aspect-square w-full max-w-[11rem] transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5">
+                  {/* Glow behind the crest, brightens on hover */}
+                  <span
+                    aria-hidden
+                    className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-50 blur-xl transition-opacity duration-[var(--wg-dur)] group-hover:opacity-100"
+                  />
+                  {c.race ? (
+                    <Image
+                      src={`/factions/large/${c.race}.png`}
+                      alt=""
+                      fill
+                      sizes="(max-width: 640px) 45vw, 176px"
+                      className="object-contain drop-shadow-[0_14px_24px_rgba(0,0,0,.85)]"
+                    />
+                  ) : null}
                 </span>
-                <span className="mt-3 font-display text-[0.72rem] font-bold uppercase leading-tight tracking-[0.12em] text-fg transition-colors group-hover:text-gold">
+                <span className="mt-4 font-display text-[0.8rem] font-bold uppercase leading-tight tracking-[0.14em] text-fg transition-colors group-hover:text-gold">
                   {c.title}
                 </span>
-                <span className="mt-1 text-xs text-muted">{c.blurb}</span>
+                <span className="mt-1 max-w-[11rem] text-xs text-muted">{c.blurb}</span>
               </Link>
             </li>
           ))}

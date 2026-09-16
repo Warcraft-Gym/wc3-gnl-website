@@ -5,6 +5,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { Badge } from "@/components/ui/Badge";
 import { ButtonLink } from "@/components/ui/Button";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
+import { DISCORD_URL } from "@/lib/links";
 
 export const metadata: Metadata = {
   title: "Player Dashboard",
@@ -71,8 +73,8 @@ export default function DashboardPage() {
             next milestone.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <ButtonLink href="https://discord.gg/7HUyQAKQ8p" size="md">
-              Join the Discord
+            <ButtonLink href={DISCORD_URL} variant="discord" size="md">
+              <DiscordIcon size={18} /> Join the Discord
             </ButtonLink>
             <ButtonLink href="/gnl/schedule" variant="outline" size="md">
               See the current schedule

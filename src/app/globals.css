@@ -49,7 +49,7 @@
   --wg-font-sans: var(--font-sans), "Lato", ui-sans-serif, system-ui, sans-serif;
   --wg-font-mono: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
 
-  --wg-text-hero: clamp(2.4rem, 1rem + 4.8vw, 4.25rem);
+  --wg-text-hero: clamp(1.6rem, 0.8rem + 2.6vw, 2.6rem);
   --wg-text-display: clamp(2rem, 1rem + 3.4vw, 3.6rem);
   --wg-text-title: clamp(1.35rem, 1rem + 1.3vw, 2rem);
   --wg-text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);

@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react";
 import { PRIMARY_NAV, GNL_NAV } from "./nav-items";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -37,8 +38,11 @@ export function MobileNav() {
                   target="_blank"
                   rel="noreferrer"
                   onClick={close}
-                  className="border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] text-fg"
+                  className="flex items-center gap-2 border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] text-fg"
                 >
+                  {item.label === "Discord" ? (
+                    <DiscordIcon size={18} className="text-[#5865F2]" />
+                  ) : null}
                   {item.label}
                 </a>
               ) : (

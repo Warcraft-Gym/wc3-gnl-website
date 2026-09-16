@@ -6,6 +6,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { SectionHead } from "@/components/ui/Surface";
 import { ButtonLink } from "@/components/ui/Button";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
+import { DISCORD_URL } from "@/lib/links";
 import { CategoryCard } from "@/components/learn/CategoryCard";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
@@ -102,11 +104,12 @@ export default async function LearnPage() {
             </p>
           </div>
           <ButtonLink
-            href="https://discord.gg/7HUyQAKQ8p"
+            href={DISCORD_URL}
+            variant="discord"
             size="lg"
             className="shrink-0"
           >
-            Join the Discord <ArrowRight size={18} />
+            <DiscordIcon size={20} /> Join the Discord
           </ButtonLink>
         </Surface>
       </Container>
