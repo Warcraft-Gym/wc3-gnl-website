@@ -148,12 +148,12 @@ export default async function BuildPage({ params }: Params) {
             <ButtonLink
               href={DISCORD_BUILDS_CHANNEL_URL}
               variant="discord"
-              size="md"
+              size="sm"
               target="_blank"
               rel="noreferrer"
               className="shrink-0"
             >
-              <DiscordIcon size={18} /> Discuss on Discord
+              <DiscordIcon size={15} /> Discuss on Discord
             </ButtonLink>
           </div>
         </section>
