@@ -24,6 +24,8 @@ export type LearnCategory = {
   /** Race categories render the faction icon; topics use a lucide icon. */
   kind: "race" | "topic";
   race?: Race;
+  /** Slug of a guide rendered in full as the category page's main content. */
+  featuredGuide?: string;
 };
 
 export type Guide = {
@@ -48,6 +50,7 @@ export const LEARN_CATEGORIES: LearnCategory[] = [
     title: "New & returning players",
     blurb: "Just installed, or back after years away? Start here.",
     kind: "topic",
+    featuredGuide: "new-returning-players-guide-to-warcraft-iii",
   },
   {
     id: "human",

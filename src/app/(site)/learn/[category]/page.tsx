@@ -7,7 +7,8 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
 import { learnArt, learnHeaderArt } from "@/lib/learn/art";
-import { getGuidesByCategory } from "@/lib/learn/guides";
+import { getGuideBySlug, getGuidesByCategory } from "@/lib/learn/guides";
+import { PortableBody } from "@/components/sanity/PortableBody";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { ButtonLink } from "@/components/ui/Button";
@@ -32,7 +33,10 @@ export default async function LearnCategoryPage({ params }: Params) {
   const cat = getCategory(category);
   if (!cat) notFound();
 
-  const guides = await getGuidesByCategory(cat.id);
+  // A category can lead with one guide in full (the new-player handbook);
+  // the rest of its guides follow as cards.
+  const featured = cat.featuredGuide ? await getGuideBySlug(cat.featuredGuide) : undefined;
+  const guides = (await getGuidesByCategory(cat.id)).filter((g) => g.slug !== featured?.slug);
   // Race pages also surface that race's build orders, pre-filtered.
   const race = cat.kind === "race" && cat.race && cat.race !== "random" ? cat.race : undefined;
   const builds = race ? filterBuilds(await getBuilds(), { race }).slice(0, 4) : [];
@@ -55,14 +59,35 @@ export default async function LearnCategoryPage({ params }: Params) {
         ) : null}
       </PageHeader>
 
+      {featured?.body?.length ? (
+        <Container className="max-w-3xl pt-12">
+          <article>
+            <p className="kicker">{featured.title}</p>
+            <p className="mt-2 text-lg text-muted">{featured.excerpt}</p>
+            <p className="mt-3 font-mono text-[0.66rem] font-bold uppercase tracking-[0.16em] text-faint">
+              {featured.minutes} min read
+            </p>
+            <div className="mt-8">
+              <PortableBody value={featured.body} />
+            </div>
+          </article>
+        </Container>
+      ) : null}
+
       <Container className="py-10">
+        {featured && guides.length ? (
+          <div className="mt-6 mb-6 border-t border-line/60 pt-10">
+            <p className="kicker">More for new players</p>
+            <h2 className="mt-2 text-[length:var(--wg-text-title)]">Shorter reads</h2>
+          </div>
+        ) : null}
         {guides.length ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {guides.map((g) => (
               <GuideCard key={g.slug} guide={g} />
             ))}
           </div>
-        ) : (
+        ) : featured ? null : (
           <p className="border border-dashed border-line px-5 py-10 text-center text-sm text-faint">
             Guides for this topic are on the way. Join the Discord to request one.
           </p>
