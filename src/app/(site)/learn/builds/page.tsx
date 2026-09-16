@@ -69,6 +69,7 @@ export default async function BuildsPage({
       <PageHeader
         kicker="Learn"
         title="Build orders"
+        art="/graphics/build-orders-2.webp"
         lead="Step-by-step openings for every race and matchup, with timings, supply counts and a play-along clock."
       >
         <ButtonLink href="/learn/builds/submit" size="sm">

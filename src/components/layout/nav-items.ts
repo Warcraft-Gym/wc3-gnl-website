@@ -4,6 +4,7 @@ export type NavItem = { href: string; label: string; external?: boolean };
 export const PRIMARY_NAV: NavItem[] = [
   { href: "/blog", label: "News" },
   { href: "/learn", label: "Learn" },
+  { href: "/learn/builds", label: "Builds" },
   { href: "/gnl/schedule", label: "League" },
 ];
 

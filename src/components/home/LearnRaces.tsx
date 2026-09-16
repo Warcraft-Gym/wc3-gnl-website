@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ListOrdered } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";
@@ -72,25 +72,35 @@ export function LearnRaces() {
           ))}
         </ul>
 
-        <ul className="mt-8 grid grid-cols-3 gap-x-2 gap-y-6 sm:mt-10 sm:gap-x-6 sm:gap-y-8 lg:mx-auto lg:max-w-[calc(75%+1.5rem)]">
+        <ul className="mt-8 grid grid-cols-4 gap-x-2 gap-y-6 sm:mt-10 sm:gap-x-6 sm:gap-y-8">
           {topics.map((c) => (
             <li key={c.id}>
               <LearnEmblem category={c} />
             </li>
           ))}
+          <li>
+            <Link href="/learn/builds" className="group flex flex-col items-center text-center">
+              <span className="relative block aspect-square w-full max-w-[7.5rem] transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5 sm:max-w-[11rem]">
+                <span
+                  aria-hidden
+                  className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-50 blur-xl transition-opacity duration-[var(--wg-dur)] group-hover:opacity-100"
+                />
+                <Image
+                  src="/graphics/build-orders-2.webp"
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 45vw, 176px"
+                  className="object-contain drop-shadow-[0_14px_24px_rgba(0,0,0,.85)]"
+                />
+              </span>
+              <span className="mt-3 font-display text-[0.7rem] font-bold uppercase leading-tight tracking-[0.12em] text-fg transition-colors group-hover:text-gold sm:mt-4 sm:text-[0.8rem] sm:tracking-[0.14em]">
+                Build orders
+              </span>
+              <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">Timed openings with a play-along clock.</span>
+            </Link>
+          </li>
         </ul>
 
-        <Link
-          href="/learn/builds"
-          className="group mt-8 flex items-center justify-center gap-3 rounded border border-line bg-surface/50 px-4 py-3 text-sm text-muted transition-colors hover:border-gold/50 hover:text-fg sm:mt-10"
-        >
-          <ListOrdered size={16} className="text-gold" />
-          <span>
-            <span className="font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-fg">Build orders</span>
-            <span className="hidden sm:inline">, timed openings for every matchup, with a play-along clock</span>
-          </span>
-          <ArrowRight size={14} className="text-gold transition-transform group-hover:translate-x-0.5" />
-        </Link>
       </div>
     </div>
   );

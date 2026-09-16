@@ -17,7 +17,9 @@ export function DesktopNav() {
         const active =
           !item.external &&
           (pathname === item.href ||
-            pathname.startsWith(item.href) ||
+            (pathname.startsWith(item.href + "/") &&
+              // Builds lives under /learn but has its own nav item
+              !(item.href === "/learn" && pathname.startsWith("/learn/builds"))) ||
             (item.label === "League" && pathname.startsWith("/gnl")));
 
         // Plain sans links like the official nav; the active one carries a

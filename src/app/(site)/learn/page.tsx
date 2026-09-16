@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ListOrdered } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
@@ -93,8 +93,18 @@ export default async function LearnPage() {
             className="panel group mt-4 flex flex-col gap-4 p-5 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50 sm:flex-row sm:items-center sm:justify-between"
           >
             <div className="flex items-center gap-4">
-              <span className="grid size-12 shrink-0 place-items-center rounded-lg border border-gold/30 bg-surface-2 text-gold">
-                <ListOrdered size={22} />
+              <span className="relative block size-20 shrink-0">
+                <span
+                  aria-hidden
+                  className="absolute inset-[10%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-40 blur-lg transition-opacity duration-[var(--wg-dur)] group-hover:opacity-90"
+                />
+                <Image
+                  src="/graphics/build-orders-2.webp"
+                  alt=""
+                  fill
+                  sizes="80px"
+                  className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,.8)]"
+                />
               </span>
               <div>
                 <h3 className="font-display text-lg font-bold uppercase text-fg transition-colors group-hover:text-gold">

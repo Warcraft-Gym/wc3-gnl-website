@@ -52,7 +52,9 @@ export function MobileNav() {
                   onClick={close}
                   className={cn(
                     "border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] transition-colors",
-                    pathname.startsWith(item.href)
+                    pathname === item.href ||
+                      (pathname.startsWith(item.href + "/") &&
+                        !(item.href === "/learn" && pathname.startsWith("/learn/builds")))
                       ? "text-gold"
                       : "text-fg hover:text-gold",
                   )}

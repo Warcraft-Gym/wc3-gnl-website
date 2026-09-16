@@ -17,6 +17,7 @@ export default function SubmitBuildPage() {
       <PageHeader
         kicker="Learn · Build orders"
         title="Submit a build"
+        art="/graphics/build-orders-2.webp"
         lead="Share an opening that works for you. A coach reviews it, then it goes up in the build list with your name on it."
       >
         <Link
