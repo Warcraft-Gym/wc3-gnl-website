@@ -1,17 +1,44 @@
 import Link from "next/link";
-import { ArrowRight, Cog, Map, Sparkles } from "lucide-react";
-import { LEARN_CATEGORIES } from "@/lib/learn/data";
-import { RaceIcon } from "@/components/ui/RaceIcon";
+import Image from "next/image";
+import { ArrowRight } from "lucide-react";
+import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
+import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";
 
-const TOPIC_ICON = {
-  "new-players": Sparkles,
-  "creep-routes": Map,
-  mechanics: Cog,
-} as const;
+/** Emblem + title + blurb, linking to a Learn hub. */
+function LearnEmblem({ category }: { category: LearnCategory }) {
+  const art = learnArt(category);
+  return (
+    <Link
+      href={`/learn/${category.id}`}
+      className="group flex flex-col items-center text-center"
+    >
+      <span className="relative block aspect-square w-full max-w-[7.5rem] sm:max-w-[11rem] transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5">
+        {/* Glow behind the emblem, brightens on hover */}
+        <span
+          aria-hidden
+          className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-50 blur-xl transition-opacity duration-[var(--wg-dur)] group-hover:opacity-100"
+        />
+        {art ? (
+          <Image
+            src={art}
+            alt=""
+            fill
+            sizes="(max-width: 640px) 45vw, 176px"
+            className="object-contain drop-shadow-[0_14px_24px_rgba(0,0,0,.85)]"
+          />
+        ) : null}
+      </span>
+      <span className="mt-3 font-display text-[0.7rem] font-bold uppercase leading-tight tracking-[0.12em] sm:mt-4 sm:text-[0.8rem] sm:tracking-[0.14em] text-fg transition-colors group-hover:text-gold">
+        {category.title}
+      </span>
+      <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">{category.blurb}</span>
+    </Link>
+  );
+}
 
-/** "Races" section, Learn edition: one medallion per race linking to that
- *  race's guides, plus the topic hubs underneath. */
+/** "Races" section, Learn edition: the four race crests, then the three
+ *  topic emblems, each linking to its guides. */
 export function LearnRaces() {
   const races = LEARN_CATEGORIES.filter((c) => c.kind === "race");
   const topics = LEARN_CATEGORIES.filter((c) => c.kind === "topic");
@@ -20,7 +47,7 @@ export function LearnRaces() {
     <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-14">
       <div>
         <p className="kicker">Learn</p>
-        <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+        <h2 className="mt-3 whitespace-nowrap text-[clamp(1.55rem,0.9rem+1.75vw,2.35rem)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
           Learn Warcraft III
         </h2>
         <p className="mt-5 max-w-md text-lg text-muted">
@@ -29,52 +56,28 @@ export function LearnRaces() {
           game to preparing for a GNL season. Pick your race and start with the
           beginner guides.
         </p>
-        <div className="mt-7 flex flex-wrap gap-3">
-          <ButtonLink href="/learn/new-players" size="md">
-            Start learning <ArrowRight size={16} />
-          </ButtonLink>
-          <ButtonLink href="/learn" variant="outline" size="md">
-            All guides
+        <div className="mt-7">
+          <ButtonLink href="/learn" size="md">
+            Browse the guides <ArrowRight size={16} />
           </ButtonLink>
         </div>
       </div>
 
       <div>
-        <ul className="flex flex-wrap gap-x-6 gap-y-7 sm:gap-x-8">
+        <ul className="grid grid-cols-4 gap-x-2 gap-y-6 sm:gap-x-6 sm:gap-y-8">
           {races.map((c) => (
-            <li key={c.id} className="w-24 sm:w-28">
-              <Link
-                href={`/learn/${c.id}`}
-                className="group flex flex-col items-center text-center"
-              >
-                <span className="grid size-24 place-items-center rounded-full border-2 border-gold-deep/70 bg-surface/80 p-1 shadow-[0_0_0_4px_rgba(0,0,0,.6),0_12px_30px_-10px_rgba(0,0,0,.9)] transition-[border-color,box-shadow,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1 group-hover:border-gold group-hover:shadow-[0_0_0_4px_rgba(0,0,0,.6),0_0_34px_-6px_var(--wg-gold-glow)] sm:size-28">
-                  <span className="grid size-full place-items-center rounded-full border border-line-strong bg-surface-2">
-                    {c.race ? <RaceIcon race={c.race} size={56} /> : null}
-                  </span>
-                </span>
-                <span className="mt-3 font-display text-[0.72rem] font-bold uppercase leading-tight tracking-[0.12em] text-fg transition-colors group-hover:text-gold">
-                  {c.title}
-                </span>
-                <span className="mt-1 text-xs text-muted">{c.blurb}</span>
-              </Link>
+            <li key={c.id}>
+              <LearnEmblem category={c} />
             </li>
           ))}
         </ul>
 
-        <ul className="mt-9 flex flex-wrap gap-2">
-          {topics.map((c) => {
-            const Icon = TOPIC_ICON[c.id as keyof typeof TOPIC_ICON] ?? Sparkles;
-            return (
-              <li key={c.id}>
-                <Link
-                  href={`/learn/${c.id}`}
-                  className="inline-flex items-center gap-2 rounded border border-line bg-surface/50 px-4 py-2 font-display text-[0.7rem] font-bold uppercase tracking-[0.12em] text-muted transition-colors hover:border-gold/60 hover:text-gold"
-                >
-                  <Icon size={14} className="text-gold" /> {c.title}
-                </Link>
-              </li>
-            );
-          })}
+        <ul className="mt-8 grid grid-cols-3 gap-x-2 gap-y-6 sm:mt-10 sm:gap-x-6 sm:gap-y-8 lg:mx-auto lg:max-w-[calc(75%+1.5rem)]">
+          {topics.map((c) => (
+            <li key={c.id}>
+              <LearnEmblem category={c} />
+            </li>
+          ))}
         </ul>
       </div>
     </div>

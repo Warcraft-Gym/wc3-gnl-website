@@ -11,12 +11,12 @@
  * ------------------------------------------------------------------ */
 
 :root {
-  /* --- Surfaces (black base; warm, translucent brown panels) --- */
+  /* --- Surfaces (black base; near-black translucent panels) --- */
   --wg-bg: oklch(0% 0 0);
   --wg-bg-deep: oklch(0% 0 0);
-  --wg-surface: oklch(17% 0.018 55);
-  --wg-surface-2: oklch(21% 0.02 55);
-  --wg-surface-3: oklch(26% 0.022 55);
+  --wg-surface: oklch(8% 0.004 60);
+  --wg-surface-2: oklch(12% 0.005 60);
+  --wg-surface-3: oklch(17% 0.006 60);
   --wg-line: oklch(70% 0.03 75 / 0.18);
   --wg-line-strong: oklch(80% 0.06 80 / 0.4);
 
@@ -49,7 +49,7 @@
   --wg-font-sans: var(--font-sans), "Lato", ui-sans-serif, system-ui, sans-serif;
   --wg-font-mono: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
 
-  --wg-text-hero: clamp(2.4rem, 1rem + 4.8vw, 4.25rem);
+  --wg-text-hero: clamp(1.6rem, 0.8rem + 2.6vw, 2.6rem);
   --wg-text-display: clamp(2rem, 1rem + 3.4vw, 3.6rem);
   --wg-text-title: clamp(1.35rem, 1rem + 1.3vw, 2rem);
   --wg-text-base: clamp(1rem, 0.96rem + 0.2vw, 1.0625rem);
@@ -126,8 +126,15 @@
     color-scheme: dark;
   }
 
+  /* Dark leather texture behind all content. Fixed on pointer devices so
+     the texture never seams or stretches; touch browsers ignore `fixed`
+     reliably, so there it tiles vertically at full width instead. */
   body {
     background-color: var(--wg-bg);
+    background-image: url("/keyart/leather_bg.webp");
+    background-size: cover;
+    background-position: center top;
+    background-attachment: fixed;
     color: var(--wg-text);
     font-family: var(--wg-font-sans);
     font-size: var(--wg-text-base);
@@ -138,6 +145,14 @@
 
   /* Quadrata-style display type: uppercase, wide tracking, regular weight
      carries the look — bold is reserved for hero headlines. */
+  @media (hover: none) {
+    body {
+      background-attachment: scroll;
+      background-size: 100% auto;
+      background-repeat: repeat-y;
+    }
+  }
+
   h1, h2, h3, h4 {
     font-family: var(--wg-font-display);
     font-weight: 700;
@@ -160,6 +175,13 @@
   a {
     color: inherit;
     text-decoration: none;
+  }
+
+  /* A `grid` with no explicit columns gets one implicit `auto` track, which
+     sizes to its widest child and can push the page wider than the viewport
+     on phones. Make that implicit track shrinkable instead. */
+  .grid {
+    grid-auto-columns: minmax(0, 1fr);
   }
 }
 
@@ -214,12 +236,12 @@
     border-radius: var(--wg-radius-lg);
   }
 
-  /* Translucent warm panel — the core surface of the official site */
+  /* Translucent near-black panel — the core surface */
   .panel {
     position: relative;
     border-radius: var(--wg-radius-lg);
     border: 1px solid var(--wg-line);
-    background: color-mix(in oklab, var(--wg-surface) 72%, transparent);
+    background: color-mix(in oklab, var(--wg-surface) 58%, transparent);
     box-shadow:
       inset 0 1px 0 oklch(100% 0 0 / 0.06),
       0 12px 40px -18px oklch(0% 0 0 / 0.9);
@@ -252,25 +274,11 @@
       0 0 28px -6px var(--wg-gold-glow);
   }
 
-  /* Riveted metal strip used to separate full-bleed sections */
+  /* Riveted metal strip used to separate full-bleed sections (2600×22 art,
+     tiled horizontally for wider viewports) */
   .rivets {
-    height: 14px;
-    border-top: 1px solid oklch(45% 0.01 60);
-    border-bottom: 1px solid oklch(8% 0.01 60);
-    background:
-      radial-gradient(
-          circle at 50% 50%,
-          oklch(62% 0.015 70) 0 1.6px,
-          oklch(38% 0.01 60) 2.2px,
-          transparent 3px
-        )
-        0 0 / 28px 100% repeat-x,
-      linear-gradient(
-        180deg,
-        oklch(32% 0.012 60),
-        oklch(16% 0.01 60) 50%,
-        oklch(26% 0.012 60)
-      );
+    height: 22px;
+    background: url("/keyart/section_divider.avif") center top / auto 100% repeat-x;
   }
 
   /* Full-bleed painted atmosphere. Drop a real key-art image on top by

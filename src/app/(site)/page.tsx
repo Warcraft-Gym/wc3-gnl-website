@@ -4,90 +4,54 @@ import { ButtonLink } from "@/components/ui/Button";
 import { Rivets } from "@/components/ui/Rivets";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { Hero } from "@/components/home/Hero";
-import { TrendingMatches } from "@/components/home/TrendingMatches";
-import { NewsFeatureCard } from "@/components/home/NewsFeatureCard";
-import { LadderPanel } from "@/components/home/LadderPanel";
-import { TeamMedallions } from "@/components/home/TeamMedallions";
 import { LearnRaces } from "@/components/home/LearnRaces";
-import { DISCORD_URL } from "@/lib/links";
-import {
-  getActiveSeason,
-  getStandings,
-  getFixtures,
-  getTeams,
-  splitFixtures,
-} from "@/lib/api/gnl";
+import { GuideFeatureCard } from "@/components/home/GuideFeatureCard";
+import { CommunityTiles } from "@/components/home/CommunityTiles";
+import { CommunityIntro } from "@/components/home/CommunityIntro";
+import { NewsFeatureCard } from "@/components/home/NewsFeatureCard";
+import { GnlSection } from "@/components/home/GnlSection";
+import { getActiveSeason, getStandings, getTeams } from "@/lib/api/gnl";
+import { getGuides } from "@/lib/learn/guides";
 import { getLatestPosts } from "@/lib/content";
+import { getDiscordCommunity } from "@/lib/discord";
+import { DISCORD_URL } from "@/lib/links";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
 export const dynamic = "force-dynamic";
 
-/* Homepage composed as a stack of full-bleed painted sections separated by
- * riveted strips, mirroring the official Warcraft III page:
- * hero → "this week" in the GNL (headline + panel) → learn WC3 (blue,
- * race medallions) → news (feature cards) → the ladder (edition-style
- * panel) → teams (crest medallions) → CTA. */
+/* Homepage: the Gym is first a place to learn Warcraft III and hang out with
+ * other players; the league is one of the things it runs. Stack of full-bleed
+ * painted sections split by riveted strips:
+ * hero → learn by race → latest guides → community & fun → news →
+ * the GNL (one compact section) → CTA. */
 export default async function HomePage() {
-  const [season, standings, fixtureData, teamData, posts] = await Promise.all([
-    getActiveSeason(),
-    getStandings(),
-    getFixtures(),
-    getTeams(),
-    getLatestPosts(3),
-  ]);
+  const [season, standings, teamData, guides, posts, community] =
+    await Promise.all([
+      getActiveSeason(),
+      getStandings(),
+      getTeams(),
+      getGuides(),
+      getLatestPosts(3),
+      getDiscordCommunity(),
+    ]);
 
-  const { live, upcoming, results } = splitFixtures(fixtureData.fixtures);
+  const latestGuides = [...guides]
+    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
+    .slice(0, 3);
 
   return (
     <>
-      <Hero
-        season={season}
-        stats={{
-          teams: teamData.teams.length,
-          players: teamData.teams.reduce((n, t) => n + t.players.length, 0),
-          live: live.length,
-        }}
-      />
+      <Hero />
 
       <Rivets />
 
-      {/* This week — headline left, matches panel right */}
-      <section className="keyart">
-        <KeyArt src="/keyart/section-sparks.jpg" overlay="none" />
-        <Container className="relative z-10 grid grid-cols-[minmax(0,1fr)] items-center gap-10 py-[var(--wg-space-section)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.7fr)] lg:gap-14">
-          <div>
-            <p className="kicker">
-              {season.shortName} · Week {season.currentWeek} of {season.totalWeeks}
-            </p>
-            <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-              This week in the GNL
-            </h2>
-            <p className="mt-5 max-w-md text-lg text-muted">
-              The Gym Newbie League is our team tournament: {teamData.teams.length}{" "}
-              captain-drafted teams, a weekly round of solo best-of-three
-              series, and playoffs for the top four. Here&apos;s what&apos;s live,
-              upcoming and just finished.
-            </p>
-            <div className="mt-7">
-              <ButtonLink href="/gnl/schedule" variant="outline" size="md">
-                Full schedule <ArrowRight size={16} />
-              </ButtonLink>
-            </div>
-          </div>
-          <div className="panel p-4 sm:p-6">
-            <TrendingMatches live={live} upcoming={upcoming} results={results} />
-          </div>
-        </Container>
-      </section>
-
-      <Rivets />
-
-      {/* Learn Warcraft III — blue "races" section */}
+      {/* Learn by race — blue "races" section */}
       <section className="keyart keyart-blue">
         <KeyArt
           src="/keyart/feature-night-elf.jpg"
           position="70% center"
-          overlay="none"
-          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.55)_45%,black_100%)] opacity-70"
+          overlay="soft"
+          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.55)_45%,black_100%)] opacity-80"
         />
         <Container className="relative z-10 py-[var(--wg-space-section)]">
           <LearnRaces />
@@ -96,14 +60,54 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* Latest news — centred heading + three feature cards */}
+      {/* Latest guides — centred heading + three feature cards */}
+      <section className="keyart keyart-dark">
+        <Container className="relative z-10 py-[var(--wg-space-section)]">
+          <div className="mx-auto max-w-2xl text-center">
+            <p className="kicker justify-center">Fresh from the coaches</p>
+            <h2 className="mt-3 text-[length:var(--wg-text-display)]">
+              Latest guides
+            </h2>
+            <p className="mt-4 text-lg text-muted">
+              Build orders, matchup plans and mechanics explained by people who
+              play them every week — from your first game to your first
+              tournament.
+            </p>
+          </div>
+          <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
+            {latestGuides.map((g, i) => (
+              <GuideFeatureCard key={g.slug} guide={g} index={i} />
+            ))}
+          </div>
+          <div className="mt-12 flex justify-center">
+            <ButtonLink href="/learn" variant="outline">
+              All guides <ArrowRight size={16} />
+            </ButtonLink>
+          </div>
+        </Container>
+      </section>
+
+      <Rivets />
+
+      {/* Community & fun */}
+      <section className="keyart">
+        <KeyArt src="/keyart/section-sparks.jpg" overlay="none" />
+        <Container className="relative z-10 grid grid-cols-[minmax(0,1fr)] gap-10 py-[var(--wg-space-section)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-14">
+          <CommunityIntro community={community} />
+          <CommunityTiles />
+        </Container>
+      </section>
+
+      <Rivets />
+
+      {/* Latest news */}
       <section className="keyart keyart-dark">
         <Container className="relative z-10 py-[var(--wg-space-section)]">
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-[length:var(--wg-text-display)]">Latest news</h2>
             <p className="mt-4 text-lg text-muted">
-              Season recaps, sign-ups for the next GNL, replay of the month and
-              fresh guides from the Gym.
+              Event announcements, replay of the month, season recaps and
+              community stories from the Gym.
             </p>
           </div>
           <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
@@ -121,53 +125,20 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* The ladder — edition-style panel */}
-      <section className="keyart">
-        <KeyArt src="/keyart/section-embers.jpg" position="center bottom" overlay="none" />
-        <Container className="relative z-10 py-[var(--wg-space-section)]">
-          <div className="mx-auto max-w-2xl text-center">
-            <h2 className="text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-              The ladder
-            </h2>
-          </div>
-          <div className="mt-10">
-            <LadderPanel season={season} rows={standings.rows.slice(0, 6)} />
-          </div>
-        </Container>
-      </section>
-
-      <Rivets />
-
-      {/* Teams — crest medallion row over the orc-vs-human art */}
+      {/* The GNL — one compact section */}
       <section className="keyart">
         <KeyArt
           src="/keyart/feature-orc-vs-human.jpg"
           position="60% center"
           overlay="none"
-          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.5)_45%,black_100%)] opacity-60"
+          className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.5)_45%,black_100%)] opacity-55"
         />
         <Container className="relative z-10 py-[var(--wg-space-section)]">
-          <div className="grid grid-cols-[minmax(0,1fr)] gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)] lg:gap-14">
-            <div>
-              <p className="kicker">{season.shortName}</p>
-              <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-                The teams
-              </h2>
-              <p className="mt-5 max-w-sm text-lg text-muted">
-                {teamData.teams.length} rosters drafted by captains for{" "}
-                {season.shortName}. Captains and coaches are community
-                veterans who draft balanced teams, so every player faces
-                opponents at their own level. Pick a crest to see the players,
-                their races and every series they&apos;ve played.
-              </p>
-              <div className="mt-7">
-                <ButtonLink href="/gnl/teams" variant="outline">
-                  All teams <ArrowRight size={16} />
-                </ButtonLink>
-              </div>
-            </div>
-            <TeamMedallions teams={teamData.teams} />
-          </div>
+          <GnlSection
+            season={season}
+            rows={standings.rows.slice(0, 5)}
+            teams={teamData.teams}
+          />
         </Container>
       </section>
 
@@ -188,20 +159,20 @@ export default async function HomePage() {
             />
             <p className="kicker justify-center">Open to everyone</p>
             <h2 className="mt-3 text-[length:var(--wg-text-display)]">
-              Ready to play?
+              Come join the Gym
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted">
-              New to Warcraft III? Start with the beginner guides. Ready to
-              compete? Sign-ups for each GNL season open on the Gym Discord —
-              skill level doesn&apos;t matter, every player gets drafted onto
-              a team with a captain and coaches behind them.
+              New to Warcraft III, back after years away, or grinding for the
+              next season — there&apos;s a spot for you. Say hi on Discord and
+              there&apos;s always someone up for a game, a replay review or
+              the next community night.
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
-              <ButtonLink href={DISCORD_URL} size="lg">
-                Join the league <ArrowRight size={18} />
+              <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
+                <DiscordIcon size={20} /> Join the Discord
               </ButtonLink>
               <ButtonLink href="/learn/new-players" variant="outline" size="lg">
-                Start learning
+                Start learning <ArrowRight size={18} />
               </ButtonLink>
             </div>
           </div>

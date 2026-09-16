@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Code2, Play, MessageCircle } from "lucide-react";
+import { Code2, Play } from "lucide-react";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";
 import { Container } from "@/components/ui/Container";
 import { Wordmark } from "./Wordmark";
@@ -16,7 +17,7 @@ function XIcon({ size = 16 }: { size?: number }) {
 }
 
 const SOCIAL = [
-  { href: DISCORD_URL, label: "Discord", Icon: MessageCircle },
+  { href: DISCORD_URL, label: "Discord", Icon: DiscordIcon },
   { href: YOUTUBE_URL, label: "YouTube", Icon: Play },
   { href: X_URL, label: "X (Twitter)", Icon: XIcon },
   { href: GITHUB_URL, label: "GitHub", Icon: Code2 },

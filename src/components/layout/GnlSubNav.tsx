@@ -18,7 +18,7 @@ export function GnlSubNav({ seasonShortName }: { seasonShortName: string }) {
         </span>
         <nav
           aria-label="GNL section"
-          className="flex h-full flex-1 items-center gap-1 overflow-x-auto"
+          className="flex h-full flex-1 items-center gap-1 overflow-x-auto max-sm:[mask-image:linear-gradient(90deg,black_calc(100%-2.5rem),transparent)] max-sm:[scrollbar-width:none]"
         >
           {GNL_NAV.map((item) => {
             const active =

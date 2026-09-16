@@ -27,15 +27,20 @@ export function StandingsTable({
 }) {
   return (
     <div className="overflow-x-auto rounded-lg border border-line">
-      <table className="w-full min-w-[36rem] border-collapse text-sm">
+      <table
+        className={cn(
+          "w-full border-collapse text-sm",
+          compact ? "min-w-[20rem]" : "min-w-[36rem]",
+        )}
+      >
         <thead>
           <tr className="border-b border-line bg-surface/60 text-left font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">
             <th className="w-10 px-4 py-3 text-center font-medium">#</th>
             <th className="px-2 py-3 font-medium">Team</th>
-            <th className="px-3 py-3 text-center font-medium">P</th>
+            <th className={cn("px-3 py-3 text-center font-medium", compact && "max-sm:hidden")}>P</th>
             <th className="px-3 py-3 text-center font-medium">W</th>
             <th className="px-3 py-3 text-center font-medium">L</th>
-            <th className="px-3 py-3 text-center font-medium">Diff</th>
+            <th className={cn("px-3 py-3 text-center font-medium", compact && "max-sm:hidden")}>Diff</th>
             {!compact && (
               <th className="px-3 py-3 text-center font-medium">Streak</th>
             )}
@@ -74,12 +79,13 @@ export function StandingsTable({
                     {row.team.name}
                   </Link>
                 </td>
-                <td className="tnum px-3 py-3 text-center text-muted">{row.played}</td>
+                <td className={cn("tnum px-3 py-3 text-center text-muted", compact && "max-sm:hidden")}>{row.played}</td>
                 <td className="tnum px-3 py-3 text-center text-win">{row.wins}</td>
                 <td className="tnum px-3 py-3 text-center text-loss">{row.losses}</td>
                 <td
                   className={cn(
                     "tnum px-3 py-3 text-center",
+                    compact && "max-sm:hidden",
                     row.mapDiff > 0
                       ? "text-win"
                       : row.mapDiff < 0

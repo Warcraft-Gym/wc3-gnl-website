@@ -1,21 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, Map, Cog, Sparkles } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { RaceIcon } from "@/components/ui/RaceIcon";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
+import { learnArt, learnHeaderArt } from "@/lib/learn/art";
 import { getGuidesByCategory } from "@/lib/learn/guides";
 
 type Params = { params: Promise<{ category: string }> };
-
-const TOPIC_ICON = {
-  "new-players": Sparkles,
-  "creep-routes": Map,
-  mechanics: Cog,
-} as const;
 
 export function generateStaticParams() {
   return LEARN_CATEGORIES.map((c) => ({ category: c.id }));
@@ -36,32 +30,23 @@ export default async function LearnCategoryPage({ params }: Params) {
   if (!cat) notFound();
 
   const guides = await getGuidesByCategory(cat.id);
-  const TopicIcon =
-    cat.kind === "topic"
-      ? TOPIC_ICON[cat.id as keyof typeof TOPIC_ICON] ?? Sparkles
-      : null;
 
   return (
     <>
-      <PageHeader kicker="Learn" title={cat.title} lead={cat.blurb}>
-        <div className="flex items-center gap-3">
-          <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
-            {cat.kind === "race" && cat.race ? (
-              <RaceIcon race={cat.race} size={24} />
-            ) : TopicIcon ? (
-              <TopicIcon
-                size={20}
-                className="[transform:skewX(calc(var(--wg-skew)*-1))]"
-              />
-            ) : null}
-          </span>
-          <Link
-            href="/learn"
-            className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
-          >
-            <ArrowLeft size={15} /> All topics
-          </Link>
-        </div>
+      <PageHeader
+        kicker="Learn"
+        title={cat.title}
+        lead={cat.blurb}
+        art={learnArt(cat)}
+        background={learnHeaderArt(cat)}
+        backgroundPosition="center 30%"
+      >
+        <Link
+          href="/learn"
+          className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
+        >
+          <ArrowLeft size={15} /> All topics
+        </Link>
       </PageHeader>
 
       <Container className="py-10">

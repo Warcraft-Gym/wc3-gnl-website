@@ -103,15 +103,17 @@ export function FixtureRow({ fixture }: { fixture: TeamFixture }) {
           href={`/gnl/teams/${fixture.home.slug}`}
           className="group flex min-w-0 flex-1 items-center gap-3"
         >
-          <TeamPlate
-            tag={fixture.home.tag}
-            logoUrl={fixture.home.logoUrl}
-            name={fixture.home.name}
-            size="md"
-          />
+          <span className="max-sm:hidden">
+            <TeamPlate
+              tag={fixture.home.tag}
+              logoUrl={fixture.home.logoUrl}
+              name={fixture.home.name}
+              size="md"
+            />
+          </span>
           <span
             className={cn(
-              "truncate font-display text-base font-bold uppercase transition-colors group-hover:text-gold sm:text-lg",
+              "font-display text-base font-bold uppercase leading-tight transition-colors group-hover:text-gold max-sm:line-clamp-2 max-sm:text-xs sm:truncate sm:text-lg",
               homeWon || !done ? "text-fg" : "text-muted",
             )}
           >
@@ -150,18 +152,20 @@ export function FixtureRow({ fixture }: { fixture: TeamFixture }) {
         >
           <span
             className={cn(
-              "truncate font-display text-base font-bold uppercase transition-colors group-hover:text-gold sm:text-lg",
+              "font-display text-base font-bold uppercase leading-tight transition-colors group-hover:text-gold max-sm:line-clamp-2 max-sm:text-xs sm:truncate sm:text-lg",
               awayWon || !done ? "text-fg" : "text-muted",
             )}
           >
             {fixture.away.name}
           </span>
-          <TeamPlate
-            tag={fixture.away.tag}
-            logoUrl={fixture.away.logoUrl}
-            name={fixture.away.name}
-            size="md"
-          />
+          <span className="max-sm:hidden">
+            <TeamPlate
+              tag={fixture.away.tag}
+              logoUrl={fixture.away.logoUrl}
+              name={fixture.away.name}
+              size="md"
+            />
+          </span>
         </Link>
       </div>
 
