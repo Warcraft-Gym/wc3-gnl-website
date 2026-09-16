@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { KeyArt } from "@/components/ui/KeyArt";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { StepTable } from "@/components/builds/StepTable";
 import { DifficultyBadge, Matchup, TagChip } from "@/components/builds/BuildBadges";
@@ -54,14 +55,15 @@ export default async function BuildPage({ params }: Params) {
 
   return (
     <article>
-      {/* Masthead */}
-      <div className="relative overflow-hidden border-b border-line/70">
+      {/* Masthead: the race showcase runs under the nav bar, like the Learn race pages */}
+      <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
+        <KeyArt src={`/factions/headers/${build.race}.webp`} position="center 30%" overlay="soft" />
+        {/* Left-weighted vignette so the title and meta read over the art */}
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-50"
-          style={{ backgroundImage: "radial-gradient(34rem 20rem at 82% -20%, var(--wg-gold-glow), transparent 60%)" }}
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.8)_0%,rgba(0,0,0,.55)_45%,rgba(0,0,0,.15)_100%)]"
         />
-        <Container className="py-12 sm:py-16">
+        <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
             href="/learn/builds"
             className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
@@ -75,8 +77,10 @@ export default async function BuildPage({ params }: Params) {
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {build.patch}</span>
             ) : null}
           </div>
-          <h1 className="mt-4 max-w-3xl text-[length:var(--wg-text-display)]">{build.title}</h1>
-          <p className="mt-4 max-w-2xl text-lg text-muted">{build.summary}</p>
+          <h1 className="mt-4 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+            {build.title}
+          </h1>
+          <p className="mt-4 max-w-2xl text-lg text-muted [text-shadow:0_1px_12px_rgba(0,0,0,.8)]">{build.summary}</p>
           <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-faint">
             <span>
               By <span className="text-muted">{build.author}</span>
@@ -105,6 +109,7 @@ export default async function BuildPage({ params }: Params) {
             </div>
           ) : null}
         </Container>
+        <div className="rivets relative z-10" aria-hidden />
       </div>
 
       <Container className="grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
