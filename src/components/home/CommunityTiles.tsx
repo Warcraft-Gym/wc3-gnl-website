@@ -42,11 +42,12 @@ const TILES = [
  *  with its painted emblem. */
 export function CommunityTiles() {
   return (
-    <ul className="grid gap-4 sm:grid-cols-2">
+    <ul className="grid gap-x-4 gap-y-12 pt-9 sm:grid-cols-2">
       {TILES.map(({ art, title, body, href, cta, external }) => {
         const inner = (
           <>
-            <span className="relative block size-20 shrink-0 transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:scale-105">
+            {/* Emblem sits over the top-left edge, outside the panel */}
+            <span className="pointer-events-none absolute -top-9 left-4 block size-[5.5rem] transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1">
               <span
                 aria-hidden
                 className="absolute inset-[10%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-40 blur-lg transition-opacity duration-[var(--wg-dur)] group-hover:opacity-90"
@@ -55,8 +56,8 @@ export function CommunityTiles() {
                 src={art}
                 alt=""
                 fill
-                sizes="80px"
-                className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,.8)]"
+                sizes="88px"
+                className="object-contain drop-shadow-[0_10px_18px_rgba(0,0,0,.85)]"
               />
             </span>
             <span className="min-w-0 flex-1">
@@ -71,7 +72,7 @@ export function CommunityTiles() {
             </span>
           </>
         );
-        const cls = "panel group flex h-full items-start gap-4 p-5 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50";
+        const cls = "panel group relative flex h-full items-start gap-4 px-5 pb-5 pt-14 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50";
         return (
           <li key={title}>
             {external ? (
