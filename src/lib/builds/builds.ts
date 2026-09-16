@@ -46,7 +46,7 @@ async function listFromSanity(): Promise<BuildOrder[] | null> {
   if (!client) return null;
   try {
     return await client.fetch<BuildOrder[]>(
-      `*[_type == "buildOrder" && defined(slug.current)] | order(_updatedAt desc) ${LIST_PROJECTION}`,
+      `*[_type == "buildOrder" && defined(slug.current) && coalesce(reviewStatus, "approved") == "approved"] | order(_updatedAt desc) ${LIST_PROJECTION}`,
       {},
       { next: { revalidate: 300 } },
     );
@@ -99,7 +99,7 @@ export async function getBuildBySlug(slug: string): Promise<BuildOrder | undefin
     if (client) {
       try {
         const doc = await client.fetch<BuildOrder | null>(
-          `*[_type == "buildOrder" && slug.current == $slug][0]${DETAIL_PROJECTION}`,
+          `*[_type == "buildOrder" && slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"][0]${DETAIL_PROJECTION}`,
           { slug },
           { next: { revalidate: 300 } },
         );

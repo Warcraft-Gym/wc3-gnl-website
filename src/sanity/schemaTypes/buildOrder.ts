@@ -123,6 +123,24 @@ export const buildOrder = defineType({
       group: "meta",
     }),
     defineField({
+      name: "reviewStatus",
+      title: "Review",
+      type: "string",
+      group: "meta",
+      options: {
+        list: [
+          { title: "Pending review", value: "pending" },
+          { title: "Approved", value: "approved" },
+        ],
+        layout: "radio",
+        direction: "horizontal",
+      },
+      initialValue: "approved",
+      description:
+        "Public submissions arrive as Pending. Set to Approved (and publish) once a coach has checked the build.",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
       name: "featured",
       title: "Build of the week",
       type: "boolean",

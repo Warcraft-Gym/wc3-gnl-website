@@ -14,20 +14,25 @@ export const structure: StructureResolver = (S) =>
           S.list()
             .title("Build orders")
             .items([
+              // Review state lives on the document (public submissions arrive
+              // as "pending"), so the queue works regardless of the Studio's
+              // draft/published perspective.
               S.listItem()
                 .title("Pending review")
                 .child(
                   S.documentList()
                     .title("Pending review")
-                    .filter('_type == "buildOrder" && _id in path("drafts.**")')
+                    .apiVersion("2024-10-01")
+                    .filter('_type == "buildOrder" && reviewStatus == "pending"')
                     .defaultOrdering([{ field: "_updatedAt", direction: "desc" }]),
                 ),
               S.listItem()
-                .title("Published")
+                .title("Approved")
                 .child(
                   S.documentList()
-                    .title("Published")
-                    .filter('_type == "buildOrder" && !(_id in path("drafts.**"))')
+                    .title("Approved")
+                    .apiVersion("2024-10-01")
+                    .filter('_type == "buildOrder" && coalesce(reviewStatus, "approved") == "approved"')
                     .defaultOrdering([{ field: "publishedAt", direction: "desc" }]),
                 ),
               S.divider(),

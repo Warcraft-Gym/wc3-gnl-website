@@ -62,6 +62,7 @@ export async function createBuildDraft(data: BuildSubmission): Promise<{ id: str
     authorDiscord: data.authorDiscord || undefined,
     sourceUrl: data.sourceUrl || undefined,
     featured: false,
+    reviewStatus: "pending",
     publishedAt: new Date().toISOString(),
     steps: data.steps.map((s) => ({
       _type: "step",

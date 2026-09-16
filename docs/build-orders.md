@@ -11,9 +11,11 @@ Studio. There is no login and no voting in this version.
 2. The server action validates it, applies spam guards (honeypot, minimum
    fill time, one submission per IP per minute) and creates a **draft**
    `buildOrder` document in Sanity via a server-only write token.
-3. Drafts never reach the site. In the Studio they appear under
-   **Build orders → Pending review**. An editor opens the draft, edits if
-   needed, and clicks **Publish**, or deletes it.
+3. The submission is stamped `reviewStatus: pending` and never reaches the
+   site. In the Studio it appears under **Build orders → Pending review**.
+   An editor opens it, edits if needed, sets **Review** to **Approved** and
+   clicks **Publish**, or deletes it. Builds created directly in the Studio
+   default to Approved.
 4. Published builds show up within five minutes (ISR revalidate 300).
 
 Editors can also create builds directly in the Studio; same document type.
@@ -27,6 +29,7 @@ Editors can also create builds directly in the Studio; same document type.
 | `difficulty` | `beginner` · `intermediate` · `advanced` |
 | `patch`, `tags`, `summary` | list metadata; summary is shown in the list |
 | `author`, `authorDiscord`, `maintainer`, `sourceUrl` | credit |
+| `reviewStatus` | `pending` (public submission, hidden from the site) or `approved`. The site only shows approved builds. |
 | `featured` | **Build of the week**, spotlight at the top of the list. Turn it on for one build at a time. |
 | `steps[]` | `{ time "mm:ss", supply, instruction, icon }`, `time` drives the play-along clock |
 | `description` | Portable Text (same editor as guides) |
