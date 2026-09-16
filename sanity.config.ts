@@ -3,6 +3,7 @@ import { structureTool } from "sanity/structure";
 import { visionTool } from "@sanity/vision";
 import { apiVersion, dataset, projectId } from "./src/sanity/env";
 import { schemaTypes } from "./src/sanity/schemaTypes";
+import { structure } from "./src/sanity/structure";
 
 /**
  * Embedded Studio config. Mounted at /studio in the Next.js app.
@@ -14,5 +15,5 @@ export default defineConfig({
   dataset,
   basePath: "/studio",
   schema: { types: schemaTypes },
-  plugins: [structureTool(), visionTool({ defaultApiVersion: apiVersion })],
+  plugins: [structureTool({ structure }), visionTool({ defaultApiVersion: apiVersion })],
 });
