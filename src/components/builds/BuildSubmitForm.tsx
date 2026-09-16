@@ -1,14 +1,17 @@
 "use client";
 
-import { useActionState, useEffect, useMemo, useState } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowDown, ArrowUp, CheckCircle2, Plus, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, CheckCircle2, Eye, EyeOff, Plus, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
-import { GameIcon } from "./GameIcon";
+import { IconPicker } from "./IconPicker";
+import { TagInput } from "./TagInput";
+import { RaceCrestRow, type CrestOption } from "./RaceCrestPicker";
+import { StepTable } from "./StepTable";
+import { DifficultyBadge, Matchup } from "./BuildBadges";
 import { Button, ButtonLink } from "@/components/ui/Button";
-import { RaceIcon } from "@/components/ui/RaceIcon";
-import { GAME_ICONS, type IconRace } from "@/lib/builds/icons";
-import { BUILD_DIFFICULTIES, BUILD_RACES, type BuildRace } from "@/lib/builds/types";
+import type { IconRace } from "@/lib/builds/icons";
+import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace, type BuildStep } from "@/lib/builds/types";
 import type { StepInput } from "@/lib/builds/submission";
 import { cn } from "@/lib/utils";
 
@@ -18,35 +21,31 @@ const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
 const label = "block font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted";
 
-const RACE_GROUP: Record<IconRace, string> = {
-  human: "Human",
-  orc: "Orc",
-  nightelf: "Night Elf",
-  undead: "Undead",
-  neutral: "Neutral",
-};
-
-let nextId = 1;
-const newRow = (): StepRow => ({ id: nextId++, time: "", supply: "", instruction: "", icon: "" });
+const newRow = (id: number): StepRow => ({ id, time: "", supply: "", instruction: "", icon: "" });
 
 function Field({
   name,
   title,
   hint,
   error,
+  counter,
   children,
 }: {
-  name: string;
+  name?: string;
   title: string;
   hint?: string;
   error?: string;
+  counter?: string;
   children: React.ReactNode;
 }) {
   return (
     <div>
-      <label htmlFor={name} className={label}>
-        {title}
-      </label>
+      <div className="flex items-baseline justify-between">
+        <label htmlFor={name} className={label}>
+          {title}
+        </label>
+        {counter ? <span className="tnum text-[0.65rem] text-faint">{counter}</span> : null}
+      </div>
       <div className="mt-1.5">{children}</div>
       {error ? (
         <p className="mt-1 text-xs text-loss">{error}</p>
@@ -57,42 +56,12 @@ function Field({
   );
 }
 
-function RacePicker({
-  name,
-  value,
-  onChange,
-  allowAny,
-}: {
-  name: string;
-  value: string;
-  onChange: (v: string) => void;
-  allowAny?: boolean;
-}) {
-  const options: { id: string; label: string }[] = [
-    ...BUILD_RACES,
-    ...(allowAny ? [{ id: "any", label: "Any" }] : []),
-  ];
+function SectionTitle({ n, children }: { n: number; children: React.ReactNode }) {
   return (
-    <div className="flex flex-wrap gap-2">
-      <input type="hidden" name={name} value={value} />
-      {options.map((r) => (
-        <button
-          key={r.id}
-          type="button"
-          onClick={() => onChange(r.id)}
-          aria-pressed={value === r.id}
-          className={cn(
-            "inline-flex h-10 items-center gap-2 rounded border px-3 text-sm font-bold transition-colors",
-            value === r.id
-              ? "border-gold bg-gold/10 text-fg"
-              : "border-line bg-surface/60 text-muted hover:border-gold/50 hover:text-fg",
-          )}
-        >
-          <RaceIcon race={r.id === "any" ? "random" : (r.id as BuildRace)} size={18} />
-          {r.label}
-        </button>
-      ))}
-    </div>
+    <h2 className="flex items-center gap-3 text-[1.05rem] font-bold tracking-[0.06em]">
+      <span className="btn-gold grid size-7 shrink-0 place-items-center rounded font-display text-xs font-bold">{n}</span>
+      {children}
+    </h2>
   );
 }
 
@@ -100,13 +69,18 @@ const initial: SubmitState = { status: "idle" };
 
 export function BuildSubmitForm() {
   const [state, formAction, pending] = useActionState(submitBuild, initial);
-  const [race, setRace] = useState("");
-  const [vsRace, setVsRace] = useState("any");
-  const [difficulty, setDifficulty] = useState("beginner");
-  // Text fields are controlled so a server-side validation error doesn't
-  // wipe them (React resets uncontrolled form fields after an action).
+  const [race, setRace] = useState<CrestOption | "">("");
+  const [vsRace, setVsRace] = useState<CrestOption>("any");
+  const [difficulty, setDifficulty] = useState<BuildDifficulty>("beginner");
+  const [tags, setTags] = useState<string[]>([]);
+  // Row ids are per-form counters (not a module global) so the server and
+  // client render identical ids and hydration stays clean.
+  const formId = useId();
+  const nextId = useRef(4);
+  const [steps, setSteps] = useState<StepRow[]>(() => [newRow(1), newRow(2), newRow(3)]);
+  const [showPreview, setShowPreview] = useState(false);
   const [text, setText] = useState({
-    title: "", patch: "", tags: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "",
+    title: "", patch: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "",
   });
   const bind = (k: keyof typeof text) => ({
     id: k,
@@ -115,25 +89,22 @@ export function BuildSubmitForm() {
     onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setText((t) => ({ ...t, [k]: e.target.value })),
   });
-  const [steps, setSteps] = useState<StepRow[]>(() => [newRow(), newRow(), newRow()]);
-  // Set on the client after mount (a server-rendered timestamp would be
-  // stale and differ from the client's, tripping hydration).
+
+  // Client-only timestamp for the fill-time spam check.
   const [startedAt, setStartedAt] = useState(0);
   useEffect(() => {
     const id = window.setTimeout(() => setStartedAt(Date.now()), 0);
     return () => window.clearTimeout(id);
   }, []);
 
-  // Icons grouped for the <select>: the chosen race first, then the rest.
-  const iconGroups = useMemo(() => {
-    const order: IconRace[] = ["human", "orc", "nightelf", "undead", "neutral"];
-    const first = order.filter((r) => r === race);
-    const rest = order.filter((r) => r !== race);
-    return [...first, ...rest].map((r) => ({
-      race: r,
-      icons: GAME_ICONS.filter((i) => i.race === r),
-    }));
-  }, [race]);
+  // Focus the instruction of a freshly added row.
+  const focusRow = useRef<number | null>(null);
+  useEffect(() => {
+    if (focusRow.current === null) return;
+    const el = document.querySelector<HTMLInputElement>(`[data-step="${formId}-${focusRow.current}"] input[aria-label=Instruction]`);
+    el?.focus();
+    focusRow.current = null;
+  }, [steps.length]);
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const stepsJson = JSON.stringify(
@@ -145,10 +116,9 @@ export function BuildSubmitForm() {
     })),
   );
 
-  function update(id: number, patch: Partial<StepRow>) {
+  const update = (id: number, patch: Partial<StepRow>) =>
     setSteps((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
-  }
-  function move(index: number, dir: -1 | 1) {
+  const move = (index: number, dir: -1 | 1) =>
     setSteps((rows) => {
       const j = index + dir;
       if (j < 0 || j >= rows.length) return rows;
@@ -156,19 +126,35 @@ export function BuildSubmitForm() {
       [copy[index], copy[j]] = [copy[j], copy[index]];
       return copy;
     });
-  }
-  function remove(id: number) {
-    setSteps((rows) => (rows.length > 1 ? rows.filter((r) => r.id !== id) : rows));
-  }
+  const remove = (id: number) => setSteps((rows) => (rows.length > 1 ? rows.filter((r) => r.id !== id) : rows));
+  const add = () =>
+    setSteps((rows) => {
+      const row = newRow(nextId.current++);
+      const last = rows[rows.length - 1];
+      // Start the new row's clock at the previous one's, as a nudge.
+      if (last?.time) row.time = last.time;
+      focusRow.current = row.id;
+      return [...rows, row];
+    });
+
+  const previewSteps: BuildStep[] = steps
+    .filter((s) => s.instruction.trim())
+    .map((s) => ({
+      time: s.time || undefined,
+      supply: s.supply === "" ? undefined : Number(s.supply),
+      instruction: s.instruction,
+      icon: s.icon || undefined,
+    }));
+  const iconRace = (race && race !== "any" ? race : undefined) as IconRace | undefined;
 
   if (state.status === "ok") {
     return (
-      <div className="panel p-8 text-center sm:p-12">
+      <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
         <CheckCircle2 size={40} className="mx-auto text-win" />
         <h2 className="mt-4 text-[1.4rem] font-bold tracking-[0.05em]">Thanks — it&apos;s in the queue</h2>
         <p className="mx-auto mt-3 max-w-md text-muted">
           A coach will look it over and publish it, usually within a few days. It will appear in the
-          build list with your name on it.
+          build list with your name on it{text.authorDiscord ? " — we'll ping you on Discord if anything needs a tweak" : ""}.
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/learn/builds">Back to builds</ButtonLink>
@@ -180,9 +166,43 @@ export function BuildSubmitForm() {
     );
   }
 
+  const preview = (
+    <div className="space-y-4">
+      <div className="panel p-5">
+        <p className="kicker">Preview</p>
+        <h3 className="mt-2 text-[1.2rem] font-bold leading-tight tracking-[0.05em] text-fg">
+          {text.title || <span className="text-faint">Your build title</span>}
+        </h3>
+        {text.summary ? <p className="mt-2 text-sm text-muted">{text.summary}</p> : null}
+        <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {race && race !== "any" ? (
+            <Matchup race={race as BuildRace} vsRace={vsRace === "any" ? "any" : (vsRace as BuildRace)} size={18} />
+          ) : (
+            <span className="text-xs text-faint">Pick your race to see the matchup</span>
+          )}
+          <DifficultyBadge level={difficulty} />
+        </div>
+        {tags.length ? (
+          <div className="mt-3 flex flex-wrap gap-1.5">
+            {tags.map((t) => (
+              <span key={t} className="rounded border border-line bg-surface/60 px-2 py-0.5 text-[0.7rem] text-muted">{t}</span>
+            ))}
+          </div>
+        ) : null}
+      </div>
+      {previewSteps.length ? (
+        <StepTable steps={previewSteps} />
+      ) : (
+        <p className="rounded border border-dashed border-line px-4 py-8 text-center text-xs text-faint">
+          Your steps will appear here as you type them.
+        </p>
+      )}
+    </div>
+  );
+
   return (
-    <form action={formAction} className="space-y-10">
-      {/* Honeypot + timing, invisible to people */}
+    <form action={formAction} className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] lg:items-start xl:grid-cols-[minmax(0,1fr)_minmax(0,26rem)]">
+      {/* Honeypot + hidden state */}
       <div className="hidden" aria-hidden>
         <label>
           Website <input type="text" name="website" tabIndex={-1} autoComplete="off" />
@@ -190,227 +210,228 @@ export function BuildSubmitForm() {
       </div>
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="stepsJson" value={stepsJson} />
+      <input type="hidden" name="race" value={race === "any" ? "" : race} />
+      <input type="hidden" name="vsRace" value={vsRace} />
+      <input type="hidden" name="difficulty" value={difficulty} />
+      <input type="hidden" name="tags" value={tags.join(",")} />
 
-      {/* About the build */}
-      <section className="panel space-y-6 p-5 sm:p-7">
-        <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">The build</h2>
-
-        <Field name="title" title="Title" error={errors.title} hint="e.g. Fast Death Knight into Fiends">
-          <input {...bind("title")} required maxLength={90} className={input} />
-        </Field>
-
-        <div className="grid gap-6 sm:grid-cols-2">
-          <Field name="race" title="Your race" error={errors.race}>
-            <RacePicker name="race" value={race} onChange={setRace} />
-          </Field>
-          <Field name="vsRace" title="Against" error={errors.vsRace}>
-            <RacePicker name="vsRace" value={vsRace} onChange={setVsRace} allowAny />
-          </Field>
+      <div className="min-w-0 space-y-8">
+        {/* Guidance */}
+        <div className="rounded border border-gold/30 bg-gold/5 px-5 py-4 text-sm text-muted">
+          <p className="kicker mb-2">What makes a good submission</p>
+          <ul className="grid gap-1 sm:grid-cols-2">
+            <li>· One opening, not a whole game plan — 10 to 20 steps is typical.</li>
+            <li>· Times from the in-game clock, so the play-along timer is useful.</li>
+            <li>· An icon per step makes it scannable at a glance.</li>
+            <li>· Say <em>why</em> in the notes: when it works, what it beats, what to watch for.</li>
+          </ul>
         </div>
 
-        <div className="grid gap-6 sm:grid-cols-[1fr_1fr_1.4fr]">
-          <Field name="difficulty" title="Difficulty" error={errors.difficulty}>
-            <select
-              id="difficulty"
-              name="difficulty"
-              value={difficulty}
-              onChange={(e) => setDifficulty(e.target.value)}
-              className={input}
-            >
-              {BUILD_DIFFICULTIES.map((d) => (
-                <option key={d.id} value={d.id}>
-                  {d.label}
-                </option>
-              ))}
-            </select>
-          </Field>
-          <Field name="patch" title="Patch" error={errors.patch} hint="Optional, e.g. 2.0.3">
-            <input {...bind("patch")} maxLength={16} className={input} />
-          </Field>
-          <Field name="tags" title="Tags" error={errors.tags} hint="Comma-separated, e.g. fast expand, tavern">
-            <input {...bind("tags")} maxLength={200} className={input} />
-          </Field>
-        </div>
+        {/* 1 — The build */}
+        <section className="panel space-y-6 p-5 sm:p-7">
+          <SectionTitle n={1}>The build</SectionTitle>
 
-        <Field
-          name="summary"
-          title="Summary"
-          error={errors.summary}
-          hint="One or two sentences shown in the list. What is the idea, and when does it work?"
-        >
-          <textarea {...bind("summary")} required rows={2} maxLength={200} className={cn(input, "h-auto py-2")} />
-        </Field>
-      </section>
+          <Field name="title" title="Title" error={errors.title} counter={`${text.title.length}/90`} hint="e.g. Fast Death Knight into Fiends">
+            <input {...bind("title")} required maxLength={90} className={input} />
+          </Field>
 
-      {/* Steps */}
-      <section className="panel p-5 sm:p-7">
-        <div className="flex flex-wrap items-end justify-between gap-3">
-          <div>
-            <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">Steps</h2>
-            <p className="mt-1 text-xs text-faint">
-              Time and food are optional but make the play-along clock work. Pick an icon so the step is easy to scan.
-            </p>
+          <div className="grid gap-6 md:grid-cols-2">
+            <Field title="Your race" error={errors.race}>
+              <RaceCrestRow value={race} onChange={setRace} size="sm" />
+            </Field>
+            <Field title="Against" error={errors.vsRace}>
+              <RaceCrestRow value={vsRace} onChange={setVsRace} allowAny size="sm" />
+            </Field>
           </div>
-          {errors.steps ? <p className="text-xs text-loss">{errors.steps}</p> : null}
-        </div>
 
-        <ol className="mt-5 space-y-3">
-          {steps.map((s, i) => {
-            const err = (k: string) => errors[`steps.${i}.${k}`];
-            return (
-              <li
-                key={s.id}
-                className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-3 gap-y-2 rounded border border-line/70 bg-bg/40 p-3 sm:grid-cols-[2rem_4.5rem_4rem_minmax(0,1fr)_auto] sm:items-start"
-              >
-                <span className="tnum pt-2.5 text-center text-xs text-faint">{i + 1}</span>
+          <div className="grid gap-6 sm:grid-cols-[auto_8rem_minmax(0,1fr)]">
+            <Field title="Difficulty" error={errors.difficulty}>
+              <div className="flex gap-1">
+                {BUILD_DIFFICULTIES.map((d) => (
+                  <button
+                    key={d.id}
+                    type="button"
+                    onClick={() => setDifficulty(d.id)}
+                    aria-pressed={difficulty === d.id}
+                    className={cn(
+                      "h-10 rounded border px-3 font-display text-[0.68rem] font-bold uppercase tracking-[0.1em] transition-colors",
+                      difficulty === d.id ? "border-gold bg-gold/10 text-fg" : "border-line bg-surface/60 text-muted hover:text-fg",
+                    )}
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+            </Field>
+            <Field name="patch" title="Patch" error={errors.patch} hint="e.g. 2.0.3">
+              <input {...bind("patch")} maxLength={16} placeholder="Optional" className={input} />
+            </Field>
+            <Field title="Tags" error={errors.tags} hint="Enter or comma to add. Up to 8.">
+              <TagInput value={tags} onChange={setTags} placeholder="fast expand, tavern…" />
+            </Field>
+          </div>
 
-                <div className="grid grid-cols-2 gap-2 sm:contents">
-                  <div>
-                    <input
-                      aria-label="Time"
-                      placeholder="m:ss"
-                      value={s.time}
-                      onChange={(e) => update(s.id, { time: e.target.value })}
-                      className={cn(input, "tnum px-2", err("time") && "border-loss")}
-                    />
-                    {err("time") ? <p className="mt-1 text-[0.65rem] text-loss">{err("time")}</p> : null}
-                  </div>
-                  <div>
+          <Field
+            name="summary"
+            title="Summary"
+            error={errors.summary}
+            counter={`${text.summary.length}/200`}
+            hint="Shown in the list. What is the idea, and when does it work?"
+          >
+            <textarea {...bind("summary")} required rows={2} maxLength={200} className={cn(input, "h-auto py-2")} />
+          </Field>
+        </section>
+
+        {/* 2 — Steps */}
+        <section className="panel p-5 sm:p-7">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <SectionTitle n={2}>Steps</SectionTitle>
+            {errors.steps ? <p className="text-xs text-loss">{errors.steps}</p> : null}
+          </div>
+
+          <div className="mt-4 hidden grid-cols-[2rem_4.5rem_4rem_3.25rem_minmax(0,1fr)_7.25rem] gap-x-2 px-3 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint sm:grid">
+            <span>#</span><span>Time</span><span>Food</span><span>Icon</span><span>Instruction</span><span />
+          </div>
+
+          <ol className="mt-2 space-y-2">
+            {steps.map((s, i) => {
+              const err = (k: string) => errors[`steps.${i}.${k}`];
+              return (
+                <li
+                  key={s.id}
+                  data-step={`${formId}-${s.id}`}
+                  className="grid grid-cols-[2rem_minmax(0,1fr)] gap-x-2 gap-y-2 rounded border border-line/70 bg-bg/40 p-2.5 sm:grid-cols-[2rem_4.5rem_4rem_auto_minmax(0,1fr)_auto] sm:items-start sm:p-3"
+                >
+                  <span className="tnum pt-2.5 text-center text-xs text-faint">{i + 1}</span>
+
+                  <div className="grid grid-cols-2 gap-2 sm:contents">
+                    <div>
+                      <input
+                        aria-label="Time"
+                        placeholder="m:ss"
+                        value={s.time}
+                        onChange={(e) => update(s.id, { time: e.target.value })}
+                        className={cn(input, "tnum px-2", err("time") && "border-loss")}
+                      />
+                      {err("time") ? <p className="mt-1 text-[0.65rem] text-loss">{err("time")}</p> : null}
+                    </div>
                     <input
                       aria-label="Food"
                       placeholder="Food"
                       inputMode="numeric"
                       value={s.supply}
                       onChange={(e) => update(s.id, { supply: e.target.value.replace(/\D/g, "").slice(0, 3) })}
-                      className={cn(input, "tnum px-2", err("supply") && "border-loss")}
+                      className={cn(input, "tnum px-2")}
                     />
                   </div>
-                </div>
 
-                <div className="col-span-2 sm:col-span-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="grid size-10 shrink-0 place-items-center">
-                      {s.icon ? (
-                        <GameIcon iconKey={s.icon} size={32} />
-                      ) : (
-                        <span className="size-8 rounded border border-dashed border-line" />
-                      )}
-                    </span>
-                    <select
-                      aria-label="Icon"
-                      value={s.icon}
-                      onChange={(e) => update(s.id, { icon: e.target.value })}
-                      className={cn(input, "w-[calc(100%-3rem)] shrink-0 px-2 sm:w-44")}
-                    >
-                      <option value="">No icon</option>
-                      {iconGroups.map((g) => (
-                        <optgroup key={g.race} label={RACE_GROUP[g.race]}>
-                          {g.icons.map((ic) => (
-                            <option key={ic.key} value={ic.key}>
-                              {ic.title}
-                            </option>
-                          ))}
-                        </optgroup>
-                      ))}
-                    </select>
-                    <input
-                      aria-label="Instruction"
-                      placeholder="What to do"
-                      value={s.instruction}
-                      onChange={(e) => update(s.id, { instruction: e.target.value })}
-                      maxLength={160}
-                      className={cn(input, "min-w-[10rem] flex-1", err("instruction") && "border-loss")}
-                    />
+                  <div className="col-span-2 flex items-start gap-2 sm:contents">
+                    <IconPicker value={s.icon} onChange={(k) => update(s.id, { icon: k })} race={iconRace} />
+                    <div className="min-w-0 flex-1">
+                      <input
+                        aria-label="Instruction"
+                        placeholder="What to do"
+                        value={s.instruction}
+                        onChange={(e) => update(s.id, { instruction: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && i === steps.length - 1) {
+                            e.preventDefault();
+                            add();
+                          }
+                        }}
+                        maxLength={160}
+                        className={cn(input, err("instruction") && "border-loss")}
+                      />
+                      {err("instruction") ? <p className="mt-1 text-[0.65rem] text-loss">{err("instruction")}</p> : null}
+                    </div>
                   </div>
-                  {err("instruction") ? <p className="mt-1 text-[0.65rem] text-loss">{err("instruction")}</p> : null}
-                </div>
 
-                <div className="col-span-2 flex justify-end gap-1 sm:col-span-1">
-                  <button
-                    type="button"
-                    onClick={() => move(i, -1)}
-                    disabled={i === 0}
-                    aria-label="Move up"
-                    className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30"
-                  >
-                    <ArrowUp size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => move(i, 1)}
-                    disabled={i === steps.length - 1}
-                    aria-label="Move down"
-                    className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30"
-                  >
-                    <ArrowDown size={14} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => remove(s.id)}
-                    disabled={steps.length === 1}
-                    aria-label="Remove step"
-                    className="grid size-10 place-items-center rounded border border-line text-muted hover:border-loss/60 hover:text-loss disabled:opacity-30"
-                  >
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-              </li>
-            );
-          })}
-        </ol>
+                  <div className="col-span-2 flex justify-end gap-1 sm:col-span-1">
+                    <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
+                      <ArrowUp size={14} />
+                    </button>
+                    <button type="button" onClick={() => move(i, 1)} disabled={i === steps.length - 1} aria-label="Move down" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
+                      <ArrowDown size={14} />
+                    </button>
+                    <button type="button" onClick={() => remove(s.id)} disabled={steps.length === 1} aria-label="Remove step" className="grid size-10 place-items-center rounded border border-line text-muted hover:border-loss/60 hover:text-loss disabled:opacity-30">
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
 
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={add}
+              className="inline-flex h-10 items-center gap-2 rounded border border-gold/50 px-4 font-display text-[0.72rem] font-bold uppercase tracking-[0.1em] text-gold hover:bg-gold/10"
+            >
+              <Plus size={14} /> Add step
+            </button>
+            <span className="text-xs text-faint">Enter on the last instruction adds a step.</span>
+          </div>
+        </section>
+
+        {/* 3 — Notes & credit */}
+        <section className="panel space-y-6 p-5 sm:p-7">
+          <SectionTitle n={3}>Notes &amp; credit</SectionTitle>
+
+          <Field
+            name="description"
+            title="Notes"
+            error={errors.description}
+            counter={`${text.description.length}/6000`}
+            hint="Optional. When to use it, transitions, what to watch for. Blank line between paragraphs."
+          >
+            <textarea {...bind("description")} rows={5} maxLength={6000} className={cn(input, "h-auto py-2")} />
+          </Field>
+
+          <div className="grid gap-6 sm:grid-cols-2">
+            <Field name="author" title="Your name" error={errors.author} hint="Shown as the author.">
+              <input {...bind("author")} required maxLength={60} className={input} />
+            </Field>
+            <Field name="authorDiscord" title="Discord handle" error={errors.authorDiscord} hint="Optional, so coaches can reach you.">
+              <input {...bind("authorDiscord")} maxLength={60} className={input} />
+            </Field>
+          </div>
+          <Field name="sourceUrl" title="Source link" error={errors.sourceUrl} hint="Optional replay, VOD or post.">
+            <input {...bind("sourceUrl")} type="url" maxLength={300} placeholder="https://" className={input} />
+          </Field>
+
+          {state.status === "error" ? (
+            <p role="alert" className="rounded border border-loss/50 bg-loss/10 px-4 py-3 text-sm text-fg">
+              {state.message}
+            </p>
+          ) : null}
+
+          <div className="flex flex-wrap items-center gap-4 border-t border-line/60 pt-6">
+            <Button type="submit" size="lg" disabled={pending}>
+              {pending ? "Sending…" : "Submit for review"}
+            </Button>
+            <p className="text-xs text-faint">
+              A coach checks every submission before it goes live.{" "}
+              <Link href="/learn/builds" className="text-muted hover:text-gold">
+                Back to builds
+              </Link>
+            </p>
+          </div>
+        </section>
+      </div>
+
+      {/* Live preview — sticky beside the form on desktop, toggle on phones */}
+      <aside className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <button
           type="button"
-          onClick={() => setSteps((rows) => [...rows, newRow()])}
-          className="mt-4 inline-flex h-10 items-center gap-2 rounded border border-gold/50 px-4 font-display text-[0.72rem] font-bold uppercase tracking-[0.1em] text-gold hover:bg-gold/10"
+          onClick={() => setShowPreview((v) => !v)}
+          className="mb-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded border border-line bg-surface/60 text-xs font-bold uppercase tracking-wide text-muted lg:hidden"
         >
-          <Plus size={14} /> Add step
+          {showPreview ? <EyeOff size={14} /> : <Eye size={14} />}
+          {showPreview ? "Hide preview" : "Show preview"}
         </button>
-      </section>
-
-      {/* Notes + credit */}
-      <section className="panel space-y-6 p-5 sm:p-7">
-        <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">Notes &amp; credit</h2>
-
-        <Field
-          name="description"
-          title="Notes"
-          error={errors.description}
-          hint="Optional. When to use it, transitions, what to watch for. Blank line between paragraphs."
-        >
-          <textarea {...bind("description")} rows={6} maxLength={6000} className={cn(input, "h-auto py-2")} />
-        </Field>
-
-        <div className="grid gap-6 sm:grid-cols-3">
-          <Field name="author" title="Your name" error={errors.author} hint="Shown as the author.">
-            <input {...bind("author")} required maxLength={60} className={input} />
-          </Field>
-          <Field name="authorDiscord" title="Discord handle" error={errors.authorDiscord} hint="Optional, so coaches can reach you.">
-            <input {...bind("authorDiscord")} maxLength={60} className={input} />
-          </Field>
-          <Field name="sourceUrl" title="Source link" error={errors.sourceUrl} hint="Optional replay, VOD or post.">
-            <input {...bind("sourceUrl")} type="url" maxLength={300} className={input} />
-          </Field>
-        </div>
-      </section>
-
-      {state.status === "error" ? (
-        <p role="alert" className="rounded border border-loss/50 bg-loss/10 px-4 py-3 text-sm text-fg">
-          {state.message}
-        </p>
-      ) : null}
-
-      <div className="flex flex-wrap items-center gap-4">
-        <Button type="submit" size="lg" disabled={pending}>
-          {pending ? "Sending…" : "Submit for review"}
-        </Button>
-        <p className="text-xs text-faint">
-          A coach checks every submission before it goes live.{" "}
-          <Link href="/learn/builds" className="text-muted hover:text-gold">
-            Back to builds
-          </Link>
-        </p>
-      </div>
+        <div className={cn(!showPreview && "max-lg:hidden")}>{preview}</div>
+      </aside>
     </form>
   );
 }
