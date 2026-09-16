@@ -21,6 +21,11 @@ export const metadata: Metadata = {
   title: "Build orders — Learn",
   description:
     "Warcraft III build orders for every race and matchup, with timings, supply counts and a play-along timer. Written by Gym coaches and the community.",
+  openGraph: {
+    title: "Warcraft III build orders — Warcraft 3 Gym",
+    description: "Timed openings for every race and matchup, with a play-along clock. Submit your own.",
+    images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
+  },
 };
 
 type Search = {

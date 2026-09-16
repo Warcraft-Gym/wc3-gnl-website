@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ListOrdered } from "lucide-react";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";
@@ -79,6 +79,18 @@ export function LearnRaces() {
             </li>
           ))}
         </ul>
+
+        <Link
+          href="/learn/builds"
+          className="group mt-8 flex items-center justify-center gap-3 rounded border border-line bg-surface/50 px-4 py-3 text-sm text-muted transition-colors hover:border-gold/50 hover:text-fg sm:mt-10"
+        >
+          <ListOrdered size={16} className="text-gold" />
+          <span>
+            <span className="font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-fg">Build orders</span>
+            <span className="hidden sm:inline"> — timed openings for every matchup, with a play-along clock</span>
+          </span>
+          <ArrowRight size={14} className="text-gold transition-transform group-hover:translate-x-0.5" />
+        </Link>
       </div>
     </div>
   );

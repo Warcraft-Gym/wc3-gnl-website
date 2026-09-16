@@ -22,9 +22,16 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const build = await getBuildBySlug(slug);
   if (!build) return { title: "Build not found" };
   const race = BUILD_RACES.find((r) => r.id === build.race)?.label;
+  const title = `${build.title} — ${race} build order`;
   return {
-    title: `${build.title} — ${race} build order`,
+    title,
     description: build.summary,
+    openGraph: {
+      title,
+      description: build.summary,
+      type: "article",
+      images: [{ url: `/factions/headers/${build.race}.webp`, width: 1600, height: 700 }],
+    },
   };
 }
 

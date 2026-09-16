@@ -13,9 +13,10 @@ export type SubmitState =
 const MIN_FILL_SECONDS = 8;
 
 /**
- * Small in-memory throttle per instance: one submission per IP per minute.
- * The shared Redis limiter arrives with the voting work; this stops the
- * cheapest abuse in the meantime.
+ * Small in-memory throttle: one submission per IP per minute. It is per
+ * serverless instance rather than global, which is fine — the honeypot and
+ * fill-time checks do most of the work, and every submission still lands in
+ * the review queue rather than on the site.
  */
 const recent = new Map<string, number>();
 function throttled(ip: string): boolean {
