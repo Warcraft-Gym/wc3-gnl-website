@@ -1,7 +1,7 @@
 import "server-only";
 
 /**
- * Server-only HTTP client for the Warcraft-Gym Flask backend.
+ * Server-only HTTP client for the Warcraft-Gym FastAPI backend.
  *
  * The public site fetches league data through Next.js Server Components, so the
  * service credential never reaches the browser. When the API is not configured
@@ -9,8 +9,8 @@ import "server-only";
  * bundled fixtures — the site always renders.
  *
  * Env:
- *   GNL_API_BASE_URL   e.g. https://api.warcraft3.gym  (Flask, CORS-open)
- *   GNL_SERVICE_TOKEN  JWT for read access to admin-scoped read endpoints
+ *   GNL_API_BASE_URL   backend API base URL
+ *   GNL_SERVICE_TOKEN  optional bearer for protected reads
  */
 
 const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");

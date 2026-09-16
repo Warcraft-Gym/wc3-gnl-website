@@ -27,6 +27,7 @@ const DAY = 86_400_000;
 // --- raw backend shapes (only the fields we consume) ---
 export interface RawSeason {
   id: number;
+  league_id?: number;
   name: string;
   /** Number of play rounds (weeks). The live backend sends `round_count`;
    *  `number_weeks` is kept for older payloads. */
@@ -38,7 +39,7 @@ export interface RawSeason {
   end_date?: string;
   /** e.g. "GNL" — combined with the season number for the short name. */
   league_short_name?: string;
-  /** e.g. "signups" | "running" | "complete" */
+  /** Common event phase, e.g. "signups_open" | "running" | "finished". */
   phase?: string;
 }
 export interface RawPlayer {
@@ -48,11 +49,19 @@ export interface RawPlayer {
   race?: string;
   mmr?: number;
   country?: string;
+  gnl_stats?: Array<{
+    season_id?: number;
+    games?: number;
+    wins?: number;
+    losses?: number;
+  }>;
 }
 interface RawTeamLite {
   id: number;
+  league_id?: number;
   name: string;
   long_name?: string;
+  icon_url?: string;
 }
 interface RawSeasonInfo {
   season_id: number;
@@ -111,7 +120,11 @@ export interface RawFantasyTeam {
   drafted_players?: RawPlayer[];
 }
 
-const logoUrl = (teamId: number) => `${BASE}/teams/${teamId}/image`;
+const logoUrl = (team: RawTeamLite) =>
+  team.icon_url ??
+  (team.league_id
+    ? `${BASE}/leagues/${team.league_id}/teams/${team.id}/image`
+    : `${BASE}/teams/${team.id}/image`);
 const played = (a: number, b: number) => a > 0 || b > 0;
 const ms = (iso?: string) => (iso ? Date.parse(iso) : NaN);
 
@@ -143,7 +156,7 @@ export function mapSeason(s: RawSeason): Season {
     name: s.name,
     shortName: shortSeasonName(s),
     slug: slugify(s.name),
-    isActive: s.phase ? s.phase !== "complete" : true,
+    isActive: s.phase ? !["complete", "finished"].includes(s.phase) : true,
     currentWeek,
     totalWeeks: total,
     startDate: s.start_date,
@@ -191,7 +204,7 @@ export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
       name: long,
       slug: slugify(long),
       tag: t.name,
-      logoUrl: logoUrl(t.id),
+      logoUrl: logoUrl(t),
       captainId: roster[0]?.id,
       players: roster.map((p) => mapPlayer(p, t.id, long)),
     };
@@ -205,7 +218,7 @@ export function flattenPlayers(teams: Team[]): Player[] {
 // --- fixtures (group series by match) ---
 function fixtureTeam(t: RawTeamLite, score: number): FixtureTeam {
   const long = t.long_name || t.name;
-  return { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t.id), score };
+  return { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t), score };
 }
 
 function playerMatchStatus(s: RawSeries): MatchStatus {
@@ -320,7 +333,7 @@ export function mapStandings(
     const long = t.long_name || t.name;
     return {
       rank: 0,
-      team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t.id) },
+      team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
       played: s.played,
       wins: s.wins,
       losses: s.losses,
@@ -364,6 +377,48 @@ export function mapLeaderboard(raw: RawCareerStat[]): LeaderboardRow[] {
   return rows;
 }
 
+/** The selected event's player record, read from its team rosters. */
+export function mapEventLeaderboard(
+  teams: RawTeam[],
+  eventId: number,
+): LeaderboardRow[] {
+  const rows = teams.flatMap((team) => {
+    const long = team.long_name || team.name;
+    const roster = team.player_by_season?.[String(eventId)] ?? [];
+    return roster.map((player) => {
+      const stat = player.gnl_stats?.find((row) => row.season_id === eventId);
+      const wins = stat?.wins ?? 0;
+      const losses = stat?.losses ?? 0;
+      const played = stat?.games ?? wins + losses;
+      return {
+        id: player.id,
+        rank: 0,
+        player: {
+          id: player.id,
+          name: player.name,
+          slug: slugify(player.name),
+          race: raceOf(player.race),
+          teamName: long,
+        },
+        played,
+        wins,
+        losses,
+        winrate: played ? Math.round((wins * 100) / played) : 0,
+        mmr: player.mmr,
+      };
+    });
+  });
+
+  rows.sort(
+    (a, b) =>
+      (b.mmr ?? 0) - (a.mmr ?? 0) ||
+      b.wins - a.wins ||
+      b.winrate - a.winrate,
+  );
+  rows.forEach((row, index) => (row.rank = index + 1));
+  return rows;
+}
+
 // --- fantasy (managers' drafted squads for a season, ranked by total points) ---
 export function mapFantasy(
   raw: RawFantasyTeam[],
@@ -397,7 +452,7 @@ export function mapFantasy(
               id: team.id,
               name: team.long_name || team.name,
               tag: team.name,
-              logoUrl: logoUrl(team.id),
+              logoUrl: logoUrl(team),
             }
           : undefined,
         draftedRace: raceOf(t.drafted_race),

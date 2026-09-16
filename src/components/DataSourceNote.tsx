@@ -3,7 +3,7 @@ import type { DataSource } from "@/lib/api/gnl";
 
 /**
  * Small honesty banner: shown only when a page is rendering fixture data
- * instead of the live Flask API, so nobody mistakes sample data for real
+ * instead of the live FastAPI, so nobody mistakes sample data for real
  * standings. Rendered in non-production only.
  */
 export function DataSourceNote({ source }: { source: DataSource }) {
@@ -13,7 +13,7 @@ export function DataSourceNote({ source }: { source: DataSource }) {
       <Database size={13} />
       Sample data — set{" "}
       <code className="rounded bg-surface-2 px-1 font-mono">GNL_API_BASE_URL</code>{" "}
-      to render live league data from the Flask backend.
+      to render live league data from the FastAPI backend.
     </div>
   );
 }

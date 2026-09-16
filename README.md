@@ -6,8 +6,8 @@ built to replace the WordPress site and deploy on **Vercel**.
 - **Framework:** Next.js 16 (App Router, React 19, TypeScript, Turbopack)
 - **Styling:** Tailwind CSS v4 — custom "War Room" design system (dark
   esports-editorial: obsidian, engraved gold, arcane teal, race-faction color)
-- **League data:** consumes the existing [Flask backend](https://github.com/Warcraft-Gym/backend)
-  (MySQL, JWT) server-side — the service token never reaches the browser
+- **League data:** consumes the existing [FastAPI backend](https://github.com/Warcraft-Gym/wc3-gym-backend)
+  server-side — an optional service token never reaches the browser
 - **Blog:** [Sanity](https://www.sanity.io/) behind a swappable content interface
 - **Fallback:** runs entirely on realistic fixtures when no backend/CMS is
   configured, so local dev and previews work out of the box
@@ -30,23 +30,24 @@ Vercel (this app, Next.js)
 ├─ Blog             /blog  ── Sanity (or fixtures)
 └─ Player dashboard /dashboard  (placeholder — next milestone)
         │
-        │  server-side fetch (JWT held server-side only)
+        │  server-side fetch (optional bearer held server-side only)
         ▼
-Flask API (existing)  ──  MySQL  (teams · matches · series · fantasy · auth)
+FastAPI (existing)  ──  league · event · teams · series · fantasy
 ```
 
 ### The data seam
 
 All league reads go through `src/lib/api/gnl.ts`. Each function tries the live
-Flask API and **falls back to fixtures** on any error or when unconfigured. When
-the backend's exact JSON is confirmed, adjust the `live()` mappers there — the
-UI never changes. See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+FastAPI and **falls back to fixtures** on any error or when unconfigured. The
+adapter discovers the GNL league, selects its latest finished event and maps
+that event's teams, player records, fixtures and fantasy table. See
+[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
 ### Environment
 
 | Variable | Purpose |
 | --- | --- |
-| `GNL_API_BASE_URL` | Flask API base URL. Empty → fixtures. |
+| `GNL_API_BASE_URL` | FastAPI base URL. Empty → fixtures. |
 | `GNL_SERVICE_TOKEN` | Read-scoped JWT, server-side only. |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Enables the live blog. Empty → fixture posts. |
 | `NEXT_PUBLIC_SANITY_DATASET` | Sanity dataset (default `production`). |
@@ -65,7 +66,7 @@ src/
 │   ├── home/             # Hero
 │   └── blog/             # PostCard, PostBody
 ├── lib/
-│   ├── api/              # Flask client, domain types, fixtures, gnl.ts (seam)
+│   ├── api/              # FastAPI client, domain types, fixtures, gnl.ts (seam)
 │   ├── content/          # blog: Sanity + fixtures behind one interface
 │   └── utils.ts          # cn(), race helpers, formatting
 └── app/globals.css       # design tokens + base

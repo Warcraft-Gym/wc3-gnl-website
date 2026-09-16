@@ -19,12 +19,11 @@ import {
   flattenPlayers,
   mapFixtures,
   mapStandings,
-  mapLeaderboard,
+  mapEventLeaderboard,
   mapFantasy,
   type RawSeason,
   type RawTeam,
   type RawSeries,
-  type RawCareerStat,
   type RawFantasyTeam,
 } from "./mappers";
 import type {
@@ -49,10 +48,22 @@ import type {
 
 export type DataSource = "live" | "fixture";
 
-/** The active (latest) season's raw record — the root of every season-scoped read. */
+interface RawLeague {
+  id: number;
+  kind: string;
+}
+
+/** The latest completed GNL event — the root of every event-scoped read. */
 async function fetchActiveSeasonRaw(): Promise<RawSeason> {
-  const seasons = await apiGet<RawSeason[]>("/seasons");
-  return pickActiveSeason(seasons);
+  const leagues = await apiGet<RawLeague[]>("/leagues");
+  const league = leagues.find((row) => row.kind === "gnl");
+  if (!league) throw new Error("The GNL league is not configured.");
+  const events = await apiGet<RawSeason[]>("/events", {
+    query: { league_id: league.id, published: "true" },
+  });
+  const completed = events.filter((event) => event.phase === "finished");
+  if (!completed.length) throw new Error("The GNL has no completed event.");
+  return pickActiveSeason(completed);
 }
 
 export async function getActiveSeason(): Promise<Season> {
@@ -80,7 +91,7 @@ export async function getFixtures(): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchActiveSeasonRaw();
-      const series = await apiGet<RawSeries[]>(`/series/season/${s.id}`);
+      const series = await apiGet<RawSeries[]>(`/events/${s.id}/series`);
       return mapFixtures(series);
     },
     () => FIXTURE_FIXTURES,
@@ -119,8 +130,8 @@ export async function getStandings(): Promise<{
     async () => {
       const s = await fetchActiveSeasonRaw();
       const [teams, series] = await Promise.all([
-        apiGet<RawTeam[]>(`/teams/season/${s.id}`),
-        apiGet<RawSeries[]>(`/series/season/${s.id}`),
+        apiGet<RawTeam[]>(`/events/${s.id}/teams`),
+        apiGet<RawSeries[]>(`/events/${s.id}/series`),
       ]);
       return mapStandings(teams, mapFixtures(series), s.id);
     },
@@ -134,7 +145,7 @@ export async function getTeams(): Promise<{ teams: Team[]; source: DataSource }>
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchActiveSeasonRaw();
-      const teams = await apiGet<RawTeam[]>(`/teams/season/${s.id}`);
+      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
       return mapTeams(teams, s.id);
     },
     () => FIXTURE_TEAMS,
@@ -155,7 +166,7 @@ export async function getPlayers(): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchActiveSeasonRaw();
-      const teams = await apiGet<RawTeam[]>(`/teams/season/${s.id}`);
+      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
       return flattenPlayers(mapTeams(teams, s.id));
     },
     () => FIXTURE_PLAYERS,
@@ -171,10 +182,8 @@ export async function getLeaderboard(): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchActiveSeasonRaw();
-      const stats = await apiGet<RawCareerStat[]>("/stats/career", {
-        query: { season_id: s.id },
-      });
-      return mapLeaderboard(stats);
+      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
+      return mapEventLeaderboard(teams, s.id);
     },
     () => FIXTURE_LEADERBOARD,
     "getLeaderboard",
@@ -189,7 +198,7 @@ export async function getFantasy(): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchActiveSeasonRaw();
-      const teams = await apiGet<RawFantasyTeam[]>("/fantasy/teams", {
+      const teams = await apiGet<RawFantasyTeam[]>(`/events/${s.id}/fantasy/teams`, {
         query: { limit: 500 },
       });
       return mapFantasy(teams, s.id);
