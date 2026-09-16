@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import { createClient } from "next-sanity";
 import { slugify } from "@/lib/utils";
 import type { BuildSubmission } from "./submission";
+import { apiVersion, dataset, projectId } from "@/sanity/env";
 
 /**
  * Writes a public submission to Sanity as a *draft* build order. Drafts are
@@ -12,9 +13,8 @@ import type { BuildSubmission } from "./submission";
  * Needs SANITY_API_WRITE_TOKEN (Editor scope). Never exposed to the browser.
  */
 
-const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
-const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET ?? "production";
-const apiVersion = process.env.SANITY_API_VERSION ?? "2024-10-01";
+// Project/dataset come from the same publishable defaults the rest of the app
+// uses (src/sanity/env.ts); only the token has to come from the environment.
 const token = process.env.SANITY_API_WRITE_TOKEN;
 
 export function canAcceptSubmissions(): boolean {
