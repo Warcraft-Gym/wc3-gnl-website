@@ -136,7 +136,7 @@ export default async function BuildPage({ params }: Params) {
           )}
 
           {/* Questions go to the build orders channel */}
-          <div className="panel mt-8 flex flex-col gap-4 border-[#5865F2]/40 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="panel mt-8 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
             <div>
               <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
                 Questions about this build?
@@ -151,7 +151,6 @@ export default async function BuildPage({ params }: Params) {
               size="sm"
               target="_blank"
               rel="noreferrer"
-              className="shrink-0"
             >
               <DiscordIcon size={15} /> Discuss on Discord
             </ButtonLink>
