@@ -137,8 +137,13 @@ export const buildOrder = defineType({
       },
       initialValue: "approved",
       description:
-        "Public submissions arrive as Pending. Set to Approved (and publish) once a coach has checked the build.",
-      validation: (rule) => rule.required(),
+        "Public submissions arrive as Pending. Set to Approved once a coach has checked the build; publishing is blocked until then.",
+      validation: (rule) =>
+        rule.required().custom((value) =>
+          value === "pending"
+            ? "Still pending review. Set Review to Approved before publishing."
+            : true,
+        ),
     }),
     defineField({
       name: "featured",

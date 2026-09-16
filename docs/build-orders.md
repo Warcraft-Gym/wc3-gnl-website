@@ -14,8 +14,9 @@ Studio. There is no login and no voting in this version.
 3. The submission is stamped `reviewStatus: pending` and never reaches the
    site. In the Studio it appears under **Build orders → Pending review**.
    An editor opens it, edits if needed, sets **Review** to **Approved** and
-   clicks **Publish**, or deletes it. Builds created directly in the Studio
-   default to Approved.
+   clicks **Publish**, or deletes it. Publish is blocked (validation error)
+   while Review is still Pending, so a build cannot go live unreviewed.
+   Builds created directly in the Studio default to Approved.
 4. Published builds show up within five minutes (ISR revalidate 300).
 
 Editors can also create builds directly in the Studio; same document type.
