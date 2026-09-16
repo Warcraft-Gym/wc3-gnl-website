@@ -13,6 +13,8 @@ export function PageHeader({
   title,
   lead,
   art,
+  background,
+  backgroundPosition,
   children,
 }: {
   kicker?: string;
@@ -20,11 +22,23 @@ export function PageHeader({
   lead?: string;
   /** Optional emblem (e.g. a race crest) shown above the title. */
   art?: string | null;
+  /** Painted backdrop; defaults to the shared undead-city scene. */
+  background?: string;
+  backgroundPosition?: string;
   children?: React.ReactNode;
 }) {
   return (
     <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
-      <KeyArt src="/keyart/feature-undead-city.jpg" position="center 40%" overlay="soft" />
+      <KeyArt
+        src={background ?? "/keyart/feature-undead-city.jpg"}
+        position={backgroundPosition ?? "center 40%"}
+        overlay="soft"
+      />
+      {/* Centre vignette so the emblem and title read over busy art */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(50rem_30rem_at_50%_58%,rgba(0,0,0,.7),rgba(0,0,0,.25)_55%,transparent_75%)]"
+      />
       <Container className="relative z-10 flex flex-col items-center pb-14 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)] text-center sm:pb-20 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+5rem)]">
         {art ? (
           <span className="relative mb-5 block size-[clamp(7.5rem,6rem+6vw,11rem)]">

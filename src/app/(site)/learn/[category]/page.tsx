@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
-import { learnArt } from "@/lib/learn/art";
+import { learnArt, learnHeaderArt } from "@/lib/learn/art";
 import { getGuidesByCategory } from "@/lib/learn/guides";
 
 type Params = { params: Promise<{ category: string }> };
@@ -38,6 +38,8 @@ export default async function LearnCategoryPage({ params }: Params) {
         title={cat.title}
         lead={cat.blurb}
         art={learnArt(cat)}
+        background={learnHeaderArt(cat)}
+        backgroundPosition="center 30%"
       >
         <Link
           href="/learn"
