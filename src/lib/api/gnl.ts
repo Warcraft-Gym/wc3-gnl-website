@@ -53,7 +53,13 @@ interface RawLeague {
   kind: string;
 }
 
-/** The latest completed GNL event — the root of every event-scoped read. */
+/**
+ * The GNL event every page reads. For now this is the newest finished one:
+ * a choice for this phase, not a rule of the data. A running season could be
+ * shown the same way. The intended end state is a landing page that switches
+ * on the season's phase (signups open, commenced, complete); that logic is
+ * deferred until it is the focus.
+ */
 async function fetchActiveSeasonRaw(): Promise<RawSeason> {
   const leagues = await apiGet<RawLeague[]>("/leagues");
   const league = leagues.find((row) => row.kind === "gnl");

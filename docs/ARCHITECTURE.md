@@ -35,6 +35,11 @@ Every GNL page starts from the same selection:
 3. Keep events whose common event phase is `finished`.
 4. Select the newest by `start_date`, with the id as the fallback order.
 
+Step 3 is a choice for the current phase, not a rule. A running season could be
+shown the same way, and the intended end state is a landing page that switches
+on the season's phase: signups open, commenced, or complete. That switch is
+deferred until it is the focus.
+
 The selected event scopes every public table:
 
 | Data | Backend read | Mapping |

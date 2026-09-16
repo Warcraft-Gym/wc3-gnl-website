@@ -39,7 +39,8 @@ FastAPI (existing)  ──  league · event · teams · series · fantasy
 
 All league reads go through `src/lib/api/gnl.ts`. Each function tries the live
 FastAPI and **falls back to fixtures** on any error or when unconfigured. The
-adapter discovers the GNL league, selects its latest finished event and maps
+adapter discovers the GNL league, selects its latest finished event (a choice
+for now, see the architecture doc) and maps
 that event's teams, player records, fixtures and fantasy table. See
 [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 
