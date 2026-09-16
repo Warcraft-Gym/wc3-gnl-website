@@ -4,6 +4,9 @@ import Link from "next/link";
 import { ArrowLeft, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
+import { ButtonLink } from "@/components/ui/Button";
+import { DiscordIcon } from "@/components/ui/DiscordIcon";
+import { DISCORD_BUILDS_CHANNEL_URL } from "@/lib/links";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { StepTable } from "@/components/builds/StepTable";
 import { DifficultyBadge, Matchup, TagChip } from "@/components/builds/BuildBadges";
@@ -131,6 +134,28 @@ export default async function BuildPage({ params }: Params) {
           ) : (
             <p className="text-sm text-faint">No notes yet.</p>
           )}
+
+          {/* Questions go to the build orders channel */}
+          <div className="panel mt-8 flex flex-col gap-4 border-[#5865F2]/40 p-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+                Questions about this build?
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                Ask in the build orders channel on the Gym Discord. The author and the coaches hang out there.
+              </p>
+            </div>
+            <ButtonLink
+              href={DISCORD_BUILDS_CHANNEL_URL}
+              variant="discord"
+              size="md"
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0"
+            >
+              <DiscordIcon size={18} /> Discuss on Discord
+            </ButtonLink>
+          </div>
         </section>
 
         {/* Steps */}
