@@ -14,7 +14,7 @@ export function Hero() {
     <section className="keyart grain -mt-[var(--wg-header-h)] overflow-hidden">
       {/* Masthead key art. The composition has its light in the centre, so
           the lockup sits on it directly; a soft vignette keeps the copy legible. */}
-      <KeyArt src="/keyart/hero-masthead.jpg" position="center 30%" priority overlay="none" />
+      <KeyArt src="/keyart/hero-masthead.webp" position="center 30%" priority overlay="none" />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 z-[1]"

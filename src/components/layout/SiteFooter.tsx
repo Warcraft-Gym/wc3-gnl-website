@@ -26,7 +26,7 @@ const SOCIAL = [
 export function SiteFooter() {
   return (
     <footer className="keyart keyart-dark relative">
-      <KeyArt src="/keyart/section-sparks.jpg" position="center top" overlay="strong" />
+      <KeyArt src="/keyart/section-sparks.webp" position="center top" overlay="strong" />
       <div className="rivets relative z-10" aria-hidden />
       <Container className="relative z-10 grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>

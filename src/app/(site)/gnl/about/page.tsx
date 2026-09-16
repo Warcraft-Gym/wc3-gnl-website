@@ -52,7 +52,7 @@ export default async function AboutPage() {
         {/* Excellent choice */}
         <figure className="mt-10 flex justify-center">
           <Image
-            src="/graphics/excellent-choice.png"
+            src="/graphics/excellent-choice.webp"
             alt="Excellent choice"
             width={1291}
             height={851}

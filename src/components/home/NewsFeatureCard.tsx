@@ -11,9 +11,9 @@ const CATEGORY_LABEL: Record<Post["category"], string> = {
 
 /** Painted fallbacks for posts without a cover, rotated by card index. */
 const FALLBACK_COVERS = [
-  "/keyart/feature-orc-vs-human.jpg",
-  "/keyart/feature-night-elf.jpg",
-  "/keyart/feature-undead-city.jpg",
+  "/keyart/feature-orc-vs-human.webp",
+  "/keyart/feature-night-elf.webp",
+  "/keyart/feature-undead-city.webp",
 ];
 
 function formatDate(iso: string) {

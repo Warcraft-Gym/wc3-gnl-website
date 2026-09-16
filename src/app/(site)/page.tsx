@@ -48,7 +48,7 @@ export default async function HomePage() {
       {/* Learn by race — blue "races" section */}
       <section className="keyart keyart-blue">
         <KeyArt
-          src="/keyart/feature-night-elf.jpg"
+          src="/keyart/feature-night-elf.webp"
           position="70% center"
           overlay="soft"
           className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.55)_45%,black_100%)] opacity-80"
@@ -91,7 +91,7 @@ export default async function HomePage() {
 
       {/* Community & fun */}
       <section className="keyart">
-        <KeyArt src="/keyart/section-sparks.jpg" overlay="none" />
+        <KeyArt src="/keyart/section-sparks.webp" overlay="none" />
         <Container className="relative z-10 grid grid-cols-[minmax(0,1fr)] gap-10 py-[var(--wg-space-section)] lg:grid-cols-[minmax(0,1fr)_minmax(0,1.5fr)] lg:gap-14">
           <CommunityIntro community={community} />
           <CommunityTiles />
@@ -128,7 +128,7 @@ export default async function HomePage() {
       {/* The GNL — one compact section */}
       <section className="keyart">
         <KeyArt
-          src="/keyart/feature-orc-vs-human.jpg"
+          src="/keyart/feature-orc-vs-human.webp"
           position="60% center"
           overlay="none"
           className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.5)_45%,black_100%)] opacity-55"
@@ -146,7 +146,7 @@ export default async function HomePage() {
 
       {/* CTA band */}
       <section className="keyart keyart-dark">
-        <KeyArt src="/keyart/outro-battle.jpg" position="center 30%" overlay="strong" />
+        <KeyArt src="/keyart/outro-battle.webp" position="center 30%" overlay="strong" />
         <Container className="relative z-10 py-[var(--wg-space-section)]">
           <div className="panel grain relative overflow-hidden p-8 text-center sm:p-14">
             <div

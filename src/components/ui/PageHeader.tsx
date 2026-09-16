@@ -30,7 +30,7 @@ export function PageHeader({
   return (
     <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
       <KeyArt
-        src={background ?? "/keyart/feature-undead-city.jpg"}
+        src={background ?? "/keyart/feature-undead-city.webp"}
         position={backgroundPosition ?? "center 40%"}
         overlay="soft"
       />

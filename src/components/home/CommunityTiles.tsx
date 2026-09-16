@@ -5,7 +5,7 @@ import { DISCORD_URL, YOUTUBE_URL } from "@/lib/links";
 
 const TILES = [
   {
-    art: "/graphics/coaching-replay-2.png",
+    art: "/graphics/coaching-replay-2.webp",
     title: "Coaching & replay reviews",
     body: "Volunteer coaches from grass league to semi-pro review your replays, answer questions and run practice sessions. Just ask in the Discord.",
     href: DISCORD_URL,
@@ -13,7 +13,7 @@ const TILES = [
     external: true,
   },
   {
-    art: "/graphics/king-of-the-hill-2.png",
+    art: "/graphics/king-of-the-hill-2.webp",
     title: "King of the Hill nights",
     body: "Casual community events where one player holds the hill and everyone lines up to knock them off. Low stakes, high fun, open to all.",
     href: "/blog",
@@ -21,7 +21,7 @@ const TILES = [
     external: false,
   },
   {
-    art: "/graphics/replay-of-month-2.png",
+    art: "/graphics/replay-of-month-2.webp",
     title: "Replay of the month",
     body: "The community picks the best game each month — clutch base trades, hero snipes, comebacks — and the coaches break it down.",
     href: "/blog",
@@ -29,7 +29,7 @@ const TILES = [
     external: false,
   },
   {
-    art: "/graphics/casts-youtube-2.png",
+    art: "/graphics/casts-youtube-2.webp",
     title: "Casts on YouTube",
     body: "League series and community games cast live by Gym members, with VODs on the channel if you missed the night.",
     href: YOUTUBE_URL,

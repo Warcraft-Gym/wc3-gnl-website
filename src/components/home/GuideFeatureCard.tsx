@@ -12,9 +12,9 @@ const LEVEL_LABEL: Record<GuideLevel, string> = {
 
 /** Painted fallbacks for guides without a cover, rotated by card index. */
 const FALLBACK_COVERS = [
-  "/keyart/feature-night-elf.jpg",
-  "/keyart/feature-undead-city.jpg",
-  "/keyart/feature-orc-vs-human.jpg",
+  "/keyart/feature-night-elf.webp",
+  "/keyart/feature-undead-city.webp",
+  "/keyart/feature-orc-vs-human.webp",
 ];
 
 /** Feature-card treatment for a guide: framed cover, serif title, blurb,
