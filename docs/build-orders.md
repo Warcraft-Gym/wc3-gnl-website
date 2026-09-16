@@ -63,7 +63,7 @@ Production (and Preview if you want previews to accept submissions).
 |---|---|
 | `src/lib/builds/types.ts` | `BuildOrder`, `BuildStep`, clock helpers |
 | `src/lib/builds/builds.ts` | `getBuilds`, `getBuildBySlug`, `filterBuilds`, `getFeaturedBuild` — Sanity with fixture fallback |
-| `src/lib/builds/fixtures.ts` | four seed builds used when Sanity is unreachable / unconfigured |
+| `src/lib/builds/fixtures.ts` | four seed builds, **development only** — used when Sanity is unreachable or empty. They were imported into Sanity as the starting library (`build-<slug>` ids). |
 | `src/lib/builds/submission.ts` | zod schema shared by the form and the action |
 | `src/lib/builds/submit.ts` | write client; creates the draft |
 | `src/app/(site)/learn/builds/` | list, `[slug]` detail, `submit` (page + server action) |

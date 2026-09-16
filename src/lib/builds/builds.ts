@@ -5,10 +5,14 @@ import type { BuildOrder, BuildRace, BuildVsRace } from "./types";
 
 /**
  * Build-order data access. Reads published `buildOrder` documents from Sanity
- * (drafts never reach the site — that is the review queue) and falls back to
- * the bundled fixtures. Lists omit the description; the detail fetch
- * includes it.
+ * (drafts never reach the site — that is the review queue). The bundled
+ * fixtures are used only in development when Sanity is unreachable or has
+ * no builds; production always shows exactly what Sanity has, so an empty
+ * library reads as empty rather than as fake content. Lists omit the
+ * description; the detail fetch includes it.
  */
+
+const USE_FIXTURES = process.env.NODE_ENV !== "production";
 
 const LIST_PROJECTION = `{
   "slug": slug.current,
@@ -57,9 +61,10 @@ async function listFromSanity(): Promise<BuildOrder[] | null> {
 export async function getBuilds(): Promise<BuildOrder[]> {
   if (isSanityConfigured()) {
     const live = await listFromSanity();
-    if (live && live.length) return live;
+    if (live && (live.length || !USE_FIXTURES)) return live;
+    if (!USE_FIXTURES) return [];
   }
-  return [...FIXTURE_BUILDS].sort(byUpdatedDesc);
+  return USE_FIXTURES ? [...FIXTURE_BUILDS].sort(byUpdatedDesc) : [];
 }
 
 export type BuildFilter = {
@@ -106,5 +111,5 @@ export async function getBuildBySlug(slug: string): Promise<BuildOrder | undefin
       }
     }
   }
-  return FIXTURE_BUILDS.find((b) => b.slug === slug);
+  return USE_FIXTURES ? FIXTURE_BUILDS.find((b) => b.slug === slug) : undefined;
 }
