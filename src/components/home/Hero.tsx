@@ -1,4 +1,3 @@
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { Container } from "@/components/ui/Container";
@@ -27,15 +26,14 @@ export function Hero() {
       />
 
       <Container className="relative z-10 flex min-h-[100svh] flex-col items-center justify-center pb-20 pt-[calc(var(--wg-header-h)+4rem)] text-center sm:pb-24">
-        {/* Logo (placeholder mark for now) */}
-        <Image
-          src="/logo/logo.png"
-          alt="Warcraft III Gym"
-          width={350}
-          height={350}
-          priority
-          className="size-[clamp(11rem,8rem+12vw,17rem)] drop-shadow-[0_18px_40px_rgba(0,0,0,.85)]"
-        />
+        {/* Title lockup — small "WARCRAFT III" over a big "GYM", like the
+            game logo's small "III" / big "REFORGED" hierarchy */}
+        <p className="font-display text-[clamp(1.6rem,0.8rem+3.4vw,3.25rem)] font-bold uppercase leading-none tracking-[0.16em] text-foil">
+          Warcraft III
+        </p>
+        <p className="mt-1 font-display text-[clamp(3.25rem,1rem+7.5vw,7rem)] font-extrabold uppercase leading-none tracking-[0.18em] text-foil">
+          Gym
+        </p>
 
         <h1 className="mt-8 max-w-3xl text-[length:var(--wg-text-hero)] font-semibold text-fg [text-shadow:0_3px_28px_rgba(0,0,0,.85)]">
           <span className="inline-flex flex-wrap justify-center gap-x-[0.9em] gap-y-1">
