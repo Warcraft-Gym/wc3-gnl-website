@@ -13,7 +13,7 @@ function LearnEmblem({ category }: { category: LearnCategory }) {
       href={`/learn/${category.id}`}
       className="group flex flex-col items-center text-center"
     >
-      <span className="relative block aspect-square w-full max-w-[11rem] transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5">
+      <span className="relative block aspect-square w-full max-w-[7.5rem] sm:max-w-[11rem] transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:-translate-y-1.5">
         {/* Glow behind the emblem, brightens on hover */}
         <span
           aria-hidden
@@ -29,10 +29,10 @@ function LearnEmblem({ category }: { category: LearnCategory }) {
           />
         ) : null}
       </span>
-      <span className="mt-4 font-display text-[0.8rem] font-bold uppercase leading-tight tracking-[0.14em] text-fg transition-colors group-hover:text-gold">
+      <span className="mt-3 font-display text-[0.7rem] font-bold uppercase leading-tight tracking-[0.12em] sm:mt-4 sm:text-[0.8rem] sm:tracking-[0.14em] text-fg transition-colors group-hover:text-gold">
         {category.title}
       </span>
-      <span className="mt-1 max-w-[11rem] text-xs text-muted">{category.blurb}</span>
+      <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">{category.blurb}</span>
     </Link>
   );
 }
@@ -64,7 +64,7 @@ export function LearnRaces() {
       </div>
 
       <div>
-        <ul className="grid grid-cols-2 gap-x-4 gap-y-8 sm:grid-cols-4 sm:gap-x-6">
+        <ul className="grid grid-cols-4 gap-x-2 gap-y-6 sm:gap-x-6 sm:gap-y-8">
           {races.map((c) => (
             <li key={c.id}>
               <LearnEmblem category={c} />
@@ -72,9 +72,9 @@ export function LearnRaces() {
           ))}
         </ul>
 
-        <ul className="mt-10 grid grid-cols-2 justify-center gap-x-4 gap-y-8 sm:grid-cols-3 sm:gap-x-6 lg:mx-auto lg:max-w-[calc(75%+1.5rem)]">
+        <ul className="mt-8 grid grid-cols-3 gap-x-2 gap-y-6 sm:mt-10 sm:gap-x-6 sm:gap-y-8 lg:mx-auto lg:max-w-[calc(75%+1.5rem)]">
           {topics.map((c) => (
-            <li key={c.id} className="last:col-span-2 sm:last:col-span-1">
+            <li key={c.id}>
               <LearnEmblem category={c} />
             </li>
           ))}

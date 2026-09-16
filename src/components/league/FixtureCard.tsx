@@ -32,15 +32,17 @@ export function FixtureCard({ fixture }: { fixture: TeamFixture }) {
           href={`/gnl/teams/${fixture.home.slug}`}
           className="flex min-w-0 flex-1 items-center gap-2.5"
         >
-          <TeamPlate
-            tag={fixture.home.tag}
-            logoUrl={fixture.home.logoUrl}
-            name={fixture.home.name}
-            size="sm"
-          />
+          <span className="max-sm:hidden">
+            <TeamPlate
+              tag={fixture.home.tag}
+              logoUrl={fixture.home.logoUrl}
+              name={fixture.home.name}
+              size="sm"
+            />
+          </span>
           <span
             className={cn(
-              "truncate font-display text-sm font-bold uppercase",
+              "font-display text-sm font-bold uppercase leading-tight max-sm:line-clamp-2 max-sm:text-xs sm:truncate",
               homeWon || !done ? "text-fg" : "text-muted",
             )}
           >
@@ -68,18 +70,20 @@ export function FixtureCard({ fixture }: { fixture: TeamFixture }) {
         >
           <span
             className={cn(
-              "truncate font-display text-sm font-bold uppercase",
+              "font-display text-sm font-bold uppercase leading-tight max-sm:line-clamp-2 max-sm:text-xs sm:truncate",
               awayWon || !done ? "text-fg" : "text-muted",
             )}
           >
             {fixture.away.name}
           </span>
-          <TeamPlate
-            tag={fixture.away.tag}
-            logoUrl={fixture.away.logoUrl}
-            name={fixture.away.name}
-            size="sm"
-          />
+          <span className="max-sm:hidden">
+            <TeamPlate
+              tag={fixture.away.tag}
+              logoUrl={fixture.away.logoUrl}
+              name={fixture.away.name}
+              size="sm"
+            />
+          </span>
         </Link>
       </div>
     </Surface>
