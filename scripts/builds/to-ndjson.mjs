@@ -1,8 +1,9 @@
 /**
  * Turns the compact build-order data in scripts/builds/<race>.mjs into NDJSON
  * for `sanity dataset import`. Steps are written as ["supply", "icon", "text"]
- * where supply is the "5/11" style food count from the Gym build cards (the
- * number before the slash is stored; "?" means unknown).
+ * with an optional 4th "m:ss" clock time. Supply is the "5/11" style food
+ * count from the Gym build cards (the number before the slash is stored; "?"
+ * means unknown).
  *
  * Usage:
  *   node scripts/builds/to-ndjson.mjs orc
@@ -25,12 +26,13 @@ const block = (text, k) => ({
 });
 
 const docs = BUILDS.map((b) => {
-  const steps = b.steps.map(([supply, icon, instruction], i) => {
+  const steps = b.steps.map(([supply, icon, instruction, time], i) => {
     const m = String(supply).match(/(\d+)/);
     if (instruction.length > 160) throw new Error(`${b.slug} step ${i + 1} is ${instruction.length} chars`);
     return {
       _type: "step",
       _key: key(b.slug + i + instruction),
+      ...(time ? { time } : {}),
       ...(m ? { supply: Number(m[1]) } : {}),
       ...(icon ? { icon } : {}),
       instruction,
