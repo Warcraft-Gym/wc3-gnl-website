@@ -35,6 +35,8 @@ const PATHS: Record<string, (slug?: string) => string[]> = {
     ...(slug ? [`/learn/builds/${slug}`] : []),
     "/learn/human", "/learn/orc", "/learn/night-elf", "/learn/undead",
     "/",
+    "/api/builds",
+    ...(slug ? [`/api/builds/${slug}`] : []),
   ],
   post: (slug) => ["/blog", ...(slug ? [`/blog/${slug}`] : []), "/"],
   guide: (slug) => ["/learn", ...(slug ? [`/learn/guide/${slug}`] : []), "/"],
