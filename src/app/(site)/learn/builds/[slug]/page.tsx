@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { ButtonLink } from "@/components/ui/Button";
@@ -119,6 +119,18 @@ export default async function BuildPage({ params }: Params) {
         {/* Description */}
         <section className="min-w-0">
           <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this build</h2>
+          {build.guide ? (
+            <Link
+              href={`/learn/guide/${build.guide.slug}`}
+              className="mb-5 flex items-center gap-3 rounded border border-gold/40 bg-gold/5 px-4 py-3 text-sm transition-colors hover:border-gold hover:bg-gold/10"
+            >
+              <BookOpen size={18} className="shrink-0 text-gold" />
+              <span className="min-w-0">
+                <span className="block font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold">Full guide</span>
+                <span className="block truncate text-fg">{build.guide.title}</span>
+              </span>
+            </Link>
+          ) : null}
           {build.description && build.description.length ? (
             isPortableText(build.description) ? (
               <div className="prose-invert max-w-none">

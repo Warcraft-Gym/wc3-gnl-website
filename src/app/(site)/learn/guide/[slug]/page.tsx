@@ -1,13 +1,15 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ListOrdered } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { urlFor } from "@/sanity/image";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { getCategory } from "@/lib/learn/data";
 import { getGuides, getGuideBySlug } from "@/lib/learn/guides";
+import { getBuildsForGuide } from "@/lib/builds/builds";
+import { BuildRow } from "@/components/builds/BuildRow";
 import { cn } from "@/lib/utils";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -36,6 +38,8 @@ export default async function GuidePage({ params }: Params) {
   if (!guide) notFound();
 
   const category = getCategory(guide.category);
+  // Builds transcribed from this guide get a play-along table of their own.
+  const builds = await getBuildsForGuide(guide.slug);
   const related = (await getGuides())
     .filter((g) => g.category === guide.category && g.slug !== guide.slug)
     .slice(0, 3);
@@ -86,6 +90,19 @@ export default async function GuidePage({ params }: Params) {
             alt=""
             className="h-auto w-full border border-line bg-surface"
           />
+        </Container>
+      ) : null}
+
+      {builds.length ? (
+        <Container className="max-w-3xl pt-10">
+          <p className="kicker mb-3 flex items-center gap-2">
+            <ListOrdered size={14} /> Play-along build order
+          </p>
+          <ul className="grid gap-2.5">
+            {builds.map((b) => (
+              <BuildRow key={b.slug} build={b} />
+            ))}
+          </ul>
         </Container>
       ) : null}
 

@@ -30,6 +30,7 @@ const DETAIL_PROJECTION = `{
   title, race, vsRace, difficulty, patch,
   "tags": coalesce(tags, []),
   summary, author, authorDiscord, maintainer, sourceUrl,
+  "guide": guide->{ "slug": slug.current, title },
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
@@ -112,4 +113,23 @@ export async function getBuildBySlug(slug: string): Promise<BuildOrder | undefin
     }
   }
   return USE_FIXTURES ? FIXTURE_BUILDS.find((b) => b.slug === slug) : undefined;
+}
+
+/** Approved builds taken from a given Learn guide (usually one). */
+export async function getBuildsForGuide(guideSlug: string): Promise<BuildOrder[]> {
+  if (!isSanityConfigured()) return [];
+  const client = sanityClient();
+  if (!client) return [];
+  try {
+    return await client.fetch<BuildOrder[]>(
+      `*[_type == "buildOrder" && guide->slug.current == $guideSlug && coalesce(reviewStatus, "approved") == "approved"] | order(_updatedAt desc) ${LIST_PROJECTION}`,
+      { guideSlug },
+      { next: { revalidate: 300 } },
+    );
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[builds] Sanity guide-builds fetch failed -", String(err));
+    }
+    return [];
+  }
 }

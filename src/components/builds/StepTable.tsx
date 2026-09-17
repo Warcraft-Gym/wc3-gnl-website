@@ -94,7 +94,7 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
           <thead>
             <tr className="text-left font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
               <th className="w-10 px-3 py-2.5 text-center font-medium sm:px-4">#</th>
-              <th className="w-16 px-2 py-2.5 font-medium">Time</th>
+              {hasClock ? <th className="w-16 px-2 py-2.5 font-medium">Time</th> : null}
               <th className="w-14 px-2 py-2.5 text-center font-medium">Food</th>
               <th className="px-2 py-2.5 font-medium">Instruction</th>
             </tr>
@@ -122,7 +122,7 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
                       i + 1
                     )}
                   </td>
-                  <td className="tnum px-2 py-2.5 text-xs text-muted">{s.time ?? "-"}</td>
+                  {hasClock ? <td className="tnum px-2 py-2.5 text-xs text-muted">{s.time ?? "-"}</td> : null}
                   <td className="tnum px-2 py-2.5 text-center text-xs text-muted">
                     {s.supply != null ? s.supply : "-"}
                   </td>

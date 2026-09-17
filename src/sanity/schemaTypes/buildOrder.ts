@@ -123,6 +123,14 @@ export const buildOrder = defineType({
       group: "meta",
     }),
     defineField({
+      name: "guide",
+      title: "Companion guide",
+      type: "reference",
+      to: [{ type: "guide" }],
+      group: "meta",
+      description: "The Learn guide this build was taken from; the two pages link to each other.",
+    }),
+    defineField({
       name: "reviewStatus",
       title: "Review",
       type: "string",

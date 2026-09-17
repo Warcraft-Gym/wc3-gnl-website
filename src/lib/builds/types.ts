@@ -27,6 +27,8 @@ export type BuildOrder = {
   authorDiscord?: string;
   maintainer?: string;
   sourceUrl?: string;
+  /** Slug and title of the Learn guide this build came from, if any. */
+  guide?: { slug: string; title: string } | null;
   featured: boolean;
   publishedAt: string;
   updatedAt: string;
