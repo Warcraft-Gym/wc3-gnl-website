@@ -73,6 +73,14 @@ src/
 └── app/globals.css       # design tokens + base
 ```
 
+## Desktop overlay
+
+`apps/overlay` is a separate pnpm workspace package: a Tauri v2 desktop app
+that shows a build order in a transparent, always-on-top window while you
+play, driven by the public JSON API (`/api/builds`, see
+[`docs/build-orders.md`](docs/build-orders.md)). It builds and lints
+independently of the Next site — see [`docs/overlay.md`](docs/overlay.md).
+
 ## Blog / CMS
 
 Editorial content is decoupled from league data. To stand up authoring for
