@@ -8,7 +8,6 @@ import { ButtonLink } from "@/components/ui/Button";
 import { MatchupPicker } from "@/components/builds/MatchupPicker";
 import { BuildRow, FeaturedBuild } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
-import { getOverlayRelease } from "@/lib/overlay";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import {
   BUILD_DIFFICULTIES,
@@ -54,7 +53,7 @@ export default async function BuildsPage({
   const q = sp.q?.slice(0, 80);
   const sort = sp.sort === "title" ? "title" : "updated";
 
-  const [all, release] = await Promise.all([getBuilds(), getOverlayRelease()]);
+  const all = await getBuilds();
   let builds = filterBuilds(all, { race, vsRace, q });
   if (difficulty) builds = builds.filter((b) => b.difficulty === difficulty);
   builds = [...builds].sort((a, b) =>
@@ -83,7 +82,7 @@ export default async function BuildsPage({
         {featured && !isFiltered ? <FeaturedBuild build={featured} /> : null}
 
         {/* Overlay beta, only on the unfiltered landing view */}
-        {!isFiltered ? <OverlayBeta release={release} /> : null}
+        {!isFiltered ? <OverlayBeta /> : null}
 
         {/* Matchup + filters, the way in */}
         <section className="mt-12">
