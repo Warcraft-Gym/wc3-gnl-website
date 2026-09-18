@@ -2,9 +2,9 @@
  * WC3 icon manifest. Shared by the Sanity step editor (option list) and the
  * site (rendering). Images live in public/wc3-icons/<key>.webp, the classic
  * (pre-Reforged) command-button art from the W3Champions launcher
- * (github.com/w3champions/launcher, hotkeys/icons/classic) at 64px. Ancient
- * Protector and Goblin Laboratory have no classic file there and keep the
- * Reforged art. The UI falls back to a text chip if an image is ever missing.
+ * (github.com/w3champions/launcher, hotkeys/icons/classic) at 64px. As in the
+ * game data, Ancient Protector uses BTNTreant and Goblin Laboratory uses
+ * BTNAmmoDump. The UI falls back to a text chip if an image is ever missing.
  */
 
 export type IconRace = "human" | "orc" | "nightelf" | "undead" | "neutral";
