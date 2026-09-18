@@ -100,7 +100,7 @@ export default async function OverlayPage() {
 
         {/* One composition: the overlay in an actual game, with the picker window
             tucked over its bottom-right corner */}
-        <figure className="relative mt-4 mb-20 sm:mb-24">
+        <figure className="relative mt-4 sm:mb-24">
           <Image
             src="/overlay/in-game.webp"
             alt="The overlay panel floating over a Warcraft III game: a Night Elf base at 0:10 with the build's steps, icons and food counts listed on the left."
@@ -110,15 +110,16 @@ export default async function OverlayPage() {
             sizes="(max-width: 640px) 100vw, 72rem"
             className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
           />
+          {/* Phones stack the picker under the game shot; wider screens tuck it over the corner */}
           <Image
             src="/overlay/picker.webp"
             alt="The overlay's build picker window: race filters, search and the list of builds with a Use in game button on each."
             width={1920}
             height={1280}
-            sizes="(max-width: 640px) 55vw, 24rem"
-            className="absolute -bottom-12 right-[-2%] w-[55%] rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:-bottom-16 sm:right-[-3%] sm:w-[24rem]"
+            sizes="(max-width: 640px) 100vw, 24rem"
+            className="mt-4 h-auto w-full rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:absolute sm:-bottom-16 sm:right-[-3%] sm:mt-0 sm:w-[24rem]"
           />
-          <figcaption className="absolute -bottom-12 left-0 max-w-[40%] text-sm text-muted sm:-bottom-16">
+          <figcaption className="mt-3 text-sm text-muted sm:absolute sm:-bottom-16 sm:left-0 sm:mt-0 sm:max-w-[40%]">
             Pick a build in the picker window, then the panel stays on top of the game while you play.
           </figcaption>
         </figure>
