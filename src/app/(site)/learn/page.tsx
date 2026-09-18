@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight, ArrowUpRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
@@ -11,7 +11,7 @@ import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL } from "@/lib/links";
 import { CategoryCard } from "@/components/learn/CategoryCard";
 import { GuideCard } from "@/components/learn/GuideCard";
-import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
+import { LEARN_CATEGORIES, getCategory, type LearnCategory } from "@/lib/learn/data";
 import { getLatestGuides } from "@/lib/learn/guides";
 import { learnArt } from "@/lib/learn/art";
 
@@ -24,7 +24,15 @@ export const metadata: Metadata = {
 
 export default async function LearnPage() {
   const newPlayers = getCategory("new-players")!;
-  const categories = LEARN_CATEGORIES.filter((c) => c.id !== "new-players");
+  const races = LEARN_CATEGORIES.filter((c) => c.kind === "race");
+  const topics = LEARN_CATEGORIES.filter((c) => c.kind === "topic" && c.id !== "new-players");
+  // Build orders live at /learn/builds but belong with the topics here.
+  const buildOrders: LearnCategory = {
+    id: "mechanics",
+    title: "Build orders",
+    blurb: "Timed openings for every race and matchup, with a play-along clock. Submit your own.",
+    kind: "topic",
+  };
   const latest = await getLatestGuides(6);
 
   return (
@@ -79,47 +87,22 @@ export default async function LearnPage() {
           </div>
         </Surface>
 
-        {/* Categories */}
+        {/* Categories: races in one row, topics in the next */}
         <section className="mt-14">
           <SectionHead kicker="Browse" title="Guides by race &amp; topic" />
-          <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((c) => (
+          <p className="kicker mt-8 mb-4">By race</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {races.map((c) => (
               <CategoryCard key={c.id} category={c} />
             ))}
           </div>
-
-          {/* Build orders, cross-race, so it sits under the category grid */}
-          <Link
-            href="/learn/builds"
-            className="panel group mt-4 block p-5 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50"
-          >
-            <div className="flex items-center gap-4">
-              <span className="relative block size-20 shrink-0">
-                <span
-                  aria-hidden
-                  className="absolute inset-[10%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-40 blur-lg transition-opacity duration-[var(--wg-dur)] group-hover:opacity-90"
-                />
-                <Image
-                  src="/graphics/build-orders-2.webp"
-                  alt=""
-                  fill
-                  sizes="80px"
-                  className="object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,.8)]"
-                />
-              </span>
-              <div className="min-w-0">
-                <div className="flex items-center justify-between gap-2">
-                  <h3 className="font-display text-lg font-bold uppercase text-fg transition-colors group-hover:text-gold">
-                    Build orders
-                  </h3>
-                  <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
-                </div>
-                <p className="mt-1 text-sm text-muted">
-                  Timed openings for every race and matchup, with a play-along clock, and you can submit your own.
-                </p>
-              </div>
-            </div>
-          </Link>
+          <p className="kicker mt-10 mb-4">By topic</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {topics.map((c) => (
+              <CategoryCard key={c.id} category={c} />
+            ))}
+            <CategoryCard category={buildOrders} href="/learn/builds" art="/graphics/build-orders-2.webp" />
+          </div>
         </section>
 
         {/* Latest guides */}

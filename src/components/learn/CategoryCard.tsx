@@ -5,14 +5,23 @@ import type { LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { Surface } from "@/components/ui/Surface";
 
-/** Category card with the same crest / emblem as the homepage. */
-export function CategoryCard({ category }: { category: LearnCategory }) {
-  const art = learnArt(category);
+/** Category card with the same crest / emblem as the homepage. `href` and
+ *  `art` override the category's own, for the build orders card. */
+export function CategoryCard({
+  category,
+  href,
+  art: artOverride,
+}: {
+  category: LearnCategory;
+  href?: string;
+  art?: string;
+}) {
+  const art = artOverride ?? learnArt(category);
 
   return (
     <Surface interactive as="article" className="group">
       <Link
-        href={`/learn/${category.id}`}
+        href={href ?? `/learn/${category.id}`}
         className="flex h-full items-center gap-4 p-5"
       >
         <span className="relative block size-20 shrink-0 transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:scale-105">
