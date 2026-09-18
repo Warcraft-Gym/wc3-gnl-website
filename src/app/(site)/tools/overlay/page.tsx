@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Build order overlay · Warcraft 3 Gym",
     description: "Float any build order over the game, with a play-along clock and global shortcuts.",
-    images: [{ url: "/overlay/picker.webp", width: 1920, height: 1280 }],
+    images: [{ url: "/overlay/in-game.webp", width: 1920, height: 1080 }],
   },
 };
 
@@ -94,14 +94,28 @@ export default async function OverlayPage() {
           </p>
         ) : null}
 
-        {/* Screenshots: the picker window with the floating panel over its corner */}
-        <figure className="relative mt-4 sm:mr-[7.5rem]">
+        {/* The overlay in an actual game, then the picker window with the panel over its corner */}
+        <figure className="mt-4">
+          <Image
+            src="/overlay/in-game.webp"
+            alt="The overlay panel floating over a Warcraft III game: a Night Elf base at 0:10 with the build's steps, icons and food counts listed on the left."
+            width={1920}
+            height={1080}
+            priority
+            sizes="(max-width: 640px) 100vw, 72rem"
+            className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
+          />
+          <figcaption className="mt-3 text-center text-sm text-muted">
+            The panel stays on top of the game while you play. Drag it anywhere, resize it, or hide it with a shortcut.
+          </figcaption>
+        </figure>
+
+        <figure className="relative mt-14 sm:mr-[7.5rem]">
           <Image
             src="/overlay/picker.webp"
             alt="The overlay's build picker window: race filters, search and the list of builds with a Use in game button on each."
             width={1920}
             height={1280}
-            priority
             sizes="(max-width: 640px) 100vw, 64rem"
             className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
           />
