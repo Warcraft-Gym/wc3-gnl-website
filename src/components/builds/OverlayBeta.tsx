@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { Apple, BookOpen, Download, Keyboard, Layers, MonitorPlay, Timer } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
@@ -26,7 +27,7 @@ const POINTS = [
  *  downloads from GitHub Releases, and where to report problems. */
 export function OverlayBeta({ release }: { release: OverlayRelease | null }) {
   return (
-    <section className="panel relative mt-14 overflow-hidden border-arcane/40 p-6 sm:p-8">
+    <section className="panel relative mt-10 border-arcane/40 p-6 sm:p-8">
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0 opacity-70"
@@ -54,7 +55,27 @@ export function OverlayBeta({ release }: { release: OverlayRelease | null }) {
           ) : null}
         </div>
 
-        <ul className="mt-6 grid gap-4 sm:grid-cols-3">
+        {/* Screenshots: the picker window with the floating panel over its corner */}
+        <figure className="relative mt-7 sm:mr-[7.5rem]">
+          <Image
+            src="/overlay/picker.webp"
+            alt="The overlay's build picker window: race filters, search and the list of builds with a Use in game button on each."
+            width={1920}
+            height={1280}
+            sizes="(max-width: 640px) 100vw, 56rem"
+            className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
+          />
+          <Image
+            src="/overlay/panel.webp"
+            alt="The floating overlay panel: the build's steps with icons, food counts, the clock at 3:10 and the current step highlighted."
+            width={760}
+            height={1040}
+            sizes="(max-width: 640px) 40vw, 15rem"
+            className="absolute -bottom-6 right-[-4%] w-[40%] rounded border border-line shadow-[0_24px_60px_-16px_rgba(0,0,0,.95)] sm:-right-[7.5rem] sm:w-[15rem]"
+          />
+        </figure>
+
+        <ul className="mt-10 grid gap-4 sm:grid-cols-3">
           {POINTS.map(({ Icon, title, body }) => (
             <li key={title} className="rounded border border-line/70 bg-bg/40 p-4">
               <Icon size={18} className="text-arcane" />

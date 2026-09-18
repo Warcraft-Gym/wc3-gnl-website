@@ -82,8 +82,11 @@ export default async function BuildsPage({
       <Container className="py-10">
         {featured && !isFiltered ? <FeaturedBuild build={featured} /> : null}
 
+        {/* Overlay beta, only on the unfiltered landing view */}
+        {!isFiltered ? <OverlayBeta release={release} /> : null}
+
         {/* Matchup + filters, the way in */}
-        <section className={featured && !isFiltered ? "mt-12" : ""}>
+        <section className="mt-12">
           <Suspense>
             <MatchupPicker
               race={race}
@@ -123,8 +126,6 @@ export default async function BuildsPage({
             </Link>
           </p>
         ) : null}
-
-        <OverlayBeta release={release} />
 
         {/* Submit CTA */}
         <div className="panel relative mt-14 overflow-hidden border-gold/40 p-6 sm:p-8">
