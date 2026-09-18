@@ -103,9 +103,32 @@ top, and work exactly like a published build for the in-game panel:
 select one and click **Show overlay** the same way. A **Source** filter in
 the picker (All / Private / Site) narrows the list to just one kind.
 Private builds render with or without a network connection — they never
-depend on the site's `/api/builds` endpoint. Creating and editing them (a
-"New private build" editor, duplicate-from-site, export/import, and
-submitting one back to the site) ships in a follow-up release.
+depend on the site's `/api/builds` endpoint.
+
+### Creating and editing a private build
+
+- **New private build** (top bar) opens a blank editor: title, race,
+  opponents, difficulty, patch, tags, summary, author, and a "More fields"
+  group for the optional Discord/source-URL/description fields, plus a
+  **Steps** section — add, reorder, and remove steps, each with an optional
+  time (`m:ss`), food count, icon, and instruction. Click a step's icon
+  button to open the icon picker (grouped by race, searchable by name,
+  loaded from the site's `/api/icons`).
+- Every row has small **Duplicate** / **Edit** / **Delete** buttons
+  (Edit/Delete only on private rows) — Duplicate works on *any* row
+  (private or published) and opens the editor pre-filled with
+  `"<title> (copy)"`, ready to tweak and save as a new private build. The
+  selected build's header also gets an **Edit** button when it's private.
+- Saving validates with the **exact same rules the site's own build
+  submission form uses** (title/summary length, tag limits, `m:ss` step
+  times, 0–100 food, etc.), so a private build is already in shape to
+  submit to the site unchanged — except a private build only needs one
+  step, where a public submission needs at least three.
+- Closing the editor with unsaved changes (Cancel, Escape, or clicking the
+  backdrop) asks you to confirm before discarding; deleting a build asks
+  for confirmation too.
+- Submitting a private build back to the site ships in a follow-up
+  release.
 
 ## Build locally
 
