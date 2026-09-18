@@ -12,9 +12,11 @@ race and topic hubs) is plain code.
 | `guide` | `/learn/<category>` hubs and `/learn/guide/<slug>` | `src/sanity/schemaTypes/guide.ts` |
 | `buildOrder` | `/learn/builds`, build pages, the homepage, `/api/builds` | `src/sanity/schemaTypes/buildOrder.ts`, see [`build-orders.md`](build-orders.md) |
 | `post` | `/blog` | `src/sanity/schemaTypes/post.ts` |
+| `tool` | `/tools`, the community tools cards | `src/sanity/schemaTypes/tool.ts` |
 
 The desk (`src/sanity/structure.ts`) shows build orders first with the
-**Pending review** queue for public submissions, then posts and guides.
+**Pending review** queue for public submissions, then posts, guides and
+tools.
 
 ### Guides
 
@@ -32,6 +34,16 @@ A build order can point back at the guide it was transcribed from (the
 **Companion guide** reference on `buildOrder`); the two pages then link to
 each other.
 
+### Tools
+
+Each `tool` is one card on `/tools`: `title`, `url`, `group` (Ladder, Replay
+parsers, Build order overlays, For streamers, Other cool tools), `by`
+(maker credit), `body`, `image` (a 16:9 screenshot), optional `badge`,
+`order` within the group, and `live` to hide a card without deleting it.
+The groups and their order are fixed in `src/lib/tools-data.ts`; the cards
+inside them are entirely editor-managed. The Gym's own apps (the overlay) stay
+in code in `src/lib/tools.ts`.
+
 ### Posts
 
 Fields: `title`, `slug`, `excerpt`, `category` (`news`, `recap`, `guide`,
@@ -40,8 +52,9 @@ Fields: `title`, `slug`, `excerpt`, `category` (`news`, `recap`, `guide`,
 
 ## How the site reads it
 
-`src/lib/learn/guides.ts`, `src/lib/builds/builds.ts` and
-`src/lib/content/index.ts` are the only modules that query Sanity. Each uses
+`src/lib/learn/guides.ts`, `src/lib/builds/builds.ts`,
+`src/lib/content/index.ts` and `src/lib/tools-data.ts` are the only modules
+that query Sanity. Each uses
 the published perspective through the CDN, caches for five minutes (ISR) and
 falls back to bundled fixtures when the project is unreachable, so the site
 never renders empty. Nothing in the UI imports Sanity directly, which keeps
@@ -57,7 +70,7 @@ webhook in sanity.io/manage (project → API → Webhooks):
 
 - URL: `https://warcraft3.gym/api/revalidate`
 - Trigger on: create, update, delete
-- Filter: `_type in ["buildOrder", "post", "guide"]`
+- Filter: `_type in ["buildOrder", "post", "guide", "tool"]`
 - Projection: `{ _type, slug }`
 - Secret: a long random string, also set on Vercel as `SANITY_REVALIDATE_SECRET`
 
@@ -85,6 +98,7 @@ Editor token in `SANITY_AUTH_TOKEN`:
 | `migrate-wp-news.mjs` | WordPress news posts → `post` documents |
 | `migrate-wp-new-players.mjs` | The New / Returning Players handbook page → one `guide` (rebuilds headings from the WP layout, drops the anchor ToC) |
 | `builds/to-ndjson.mjs <race>` | Transcribed build orders in `builds/<race>.mjs` → `buildOrder` documents. See [`build-orders.md`](build-orders.md). |
+| `seed-tools.mjs` | The community tools in `src/lib/tools.ts` → `tool` documents, previews uploaded from `public/tools` |
 
 Re-running an import with `--replace` is safe: ids are deterministic.
 

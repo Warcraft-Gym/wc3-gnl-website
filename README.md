@@ -40,7 +40,8 @@ for ESLint.
 | `/learn/builds/submit` | Public submission form; submissions land in the Studio as pending drafts | server action, write token |
 | `/blog`, `/blog/<slug>` | News | Sanity `post` |
 | `/gnl/*` | Schedule, standings, teams, leaderboard, fantasy, rules, about | FastAPI |
-| `/about`, `/tools` | About the Gym; community tools (and the overlay, once live) | code |
+| `/about` | About the Gym | code |
+| `/tools`, `/tools/overlay` | Community tools (editor-managed) and the Gym's overlay | Sanity `tool` + code |
 | `/api/builds`, `/api/builds/<slug>` | Public JSON API for the overlay and anyone else | Sanity |
 | `/studio` | Sanity Studio for editors | Sanity |
 

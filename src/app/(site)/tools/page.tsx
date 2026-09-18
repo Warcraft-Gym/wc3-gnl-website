@@ -4,7 +4,11 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { COMMUNITY_TOOL_GROUPS, GYM_TOOLS, type Tool } from "@/lib/tools";
+import { GYM_TOOLS, type Tool } from "@/lib/tools";
+import { getCommunityToolGroups, type CommunityTool } from "@/lib/tools-data";
+import { urlFor } from "@/sanity/image";
+import type { LucideIcon } from "lucide-react";
+import { Wrench } from "lucide-react";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
@@ -14,15 +18,36 @@ export const metadata: Metadata = {
   alternates: { canonical: "/tools" },
 };
 
-function ToolCard({ tool }: { tool: Tool }) {
-  const { href, Icon, title, body, by, badge, image } = tool;
+type CardProps = {
+  href: string;
+  title: string;
+  body: string;
+  by?: string;
+  badge?: string;
+  imageSrc: string;
+  Icon: LucideIcon;
+};
+
+function fromGymTool(t: Tool): CardProps {
+  return { href: t.href, title: t.title, body: t.body, by: t.by, badge: t.badge, imageSrc: t.image, Icon: t.Icon };
+}
+
+function fromCommunityTool(t: CommunityTool): CardProps {
+  const imageSrc = t.image
+    ? urlFor(t.image as Parameters<typeof urlFor>[0]).width(800).height(450).fit("crop").auto("format").url()
+    : (t.imagePath ?? "/tools/overlay.webp");
+  return { href: t.url, title: t.title, body: t.body, by: t.by, badge: t.badge, imageSrc, Icon: Wrench };
+}
+
+function ToolCard({ tool }: { tool: CardProps }) {
+  const { href, Icon, title, body, by, badge, imageSrc } = tool;
   const external = href.startsWith("http");
   const host = external ? new URL(href).hostname.replace(/^www\./, "") : null;
   const inner = (
     <>
       <span className="relative -mx-6 -mt-6 mb-5 block aspect-video overflow-hidden rounded-t border-b border-line/70 bg-bg-deep">
         <Image
-          src={image}
+          src={imageSrc}
           alt=""
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
@@ -70,7 +95,8 @@ function ToolCard({ tool }: { tool: Tool }) {
   );
 }
 
-export default function ToolsPage() {
+export default async function ToolsPage() {
+  const groups = await getCommunityToolGroups();
   return (
     <>
       <PageHeader
@@ -88,13 +114,13 @@ export default function ToolsPage() {
             <p className="kicker mb-5">From the Gym</p>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {GYM_TOOLS.map((t) => (
-                <ToolCard key={t.href} tool={t} />
+                <ToolCard key={t.href} tool={fromGymTool(t)} />
               ))}
             </div>
           </section>
         ) : null}
 
-        {COMMUNITY_TOOL_GROUPS.map((group, i) => (
+        {groups.map((group, i) => (
           <section key={group.title} className={i === 0 ? "" : "mt-14"}>
             <div className="mb-5">
               <p className="kicker">{group.title}</p>
@@ -102,7 +128,7 @@ export default function ToolsPage() {
             </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {group.tools.map((t) => (
-                <ToolCard key={t.href} tool={t} />
+                <ToolCard key={t.id} tool={fromCommunityTool(t)} />
               ))}
             </div>
           </section>
