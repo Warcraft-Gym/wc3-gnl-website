@@ -108,7 +108,7 @@ enforces that the two stay equal).
   combo — open **Settings → Shortcuts** and look for the "Not registered"
   warning, then change the combo.
 - **Build list is empty.** Check the **API base** setting (Settings
-  drawer) points at the right site origin — the default is
+  dialog) points at the right site origin — the default is
   `https://wc3-gnl-website.vercel.app`; if the offline banner is
   showing, the app is using a cached list because it couldn't reach the
   API. Note that `/api/builds` only serves data once the site deployment
