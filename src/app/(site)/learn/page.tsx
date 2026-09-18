@@ -93,7 +93,7 @@ export default async function LearnPage() {
           <p className="kicker mt-8 mb-4">By race</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {races.map((c) => (
-              <CategoryCard key={c.id} category={c} />
+              <CategoryCard key={c.id} category={c} stacked />
             ))}
           </div>
           <p className="kicker mt-10 mb-4">By topic</p>
