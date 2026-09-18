@@ -5,13 +5,11 @@ import {
   Calendar,
   Film,
   Keyboard,
-  LayoutDashboard,
   Map,
   MonitorPlay,
   Swords,
   Tv,
 } from "lucide-react";
-import { DASHBOARD_URL } from "./links";
 
 export type Tool = {
   href: string;
@@ -34,13 +32,6 @@ export const GYM_TOOLS: Tool[] = [
     title: "Build order overlay",
     badge: "Beta",
     body: "A desktop app that floats a build order over Warcraft III while you play, with a clock and global shortcuts.",
-  },
-  {
-    href: DASHBOARD_URL,
-    image: "/tools/dashboard.webp",
-    Icon: LayoutDashboard,
-    title: "Player dashboard",
-    body: "Availability, scheduling, results and your fantasy team for the Gym Newbie League.",
   },
 ];
 

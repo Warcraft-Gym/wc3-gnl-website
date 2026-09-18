@@ -9,7 +9,7 @@ import { COMMUNITY_TOOLS, GYM_TOOLS, type Tool } from "@/lib/tools";
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "Apps and utilities for Warcraft III players: the Gym's build order overlay and player dashboard, plus the community's ladder, creep, hotkey and replay tools.",
+    "Apps and utilities for Warcraft III players: the Gym's build order overlay, plus the community's ladder, creep, hotkey and replay tools.",
 };
 
 function ToolCard({ tool }: { tool: Tool }) {
@@ -79,7 +79,7 @@ export default function ToolsPage() {
       <Container className="py-10">
         <section>
           <p className="kicker mb-5">From the Gym</p>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {GYM_TOOLS.map((t) => (
               <ToolCard key={t.href} tool={t} />
             ))}
