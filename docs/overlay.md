@@ -64,9 +64,22 @@ it directly.
 | Previous step | `Ctrl+Shift+[` | `⌘⇧[` | Jump the clock to the previous timed step |
 
 Change any combo from the picker's **Settings → Shortcuts** panel: click
-**Change**, then press the new combo (Escape cancels). If a row shows
-**"Not registered — another app may own this combo"**, another application
-already has that shortcut registered globally — pick a different combo.
+**Change**, then press the new combo (Escape cancels the capture without
+closing the Settings dialog). A modifier combo needs Ctrl, Alt, or ⌘; a
+single **function key** (F1–F12, and F13–F24 if your keyboard has them) or
+one of Insert, Delete, Home, End, PageUp, PageDown, Pause, ScrollLock also
+works on its own, no modifier required — press it and it's accepted
+immediately. Pressing any other key alone (a letter, digit, etc.) does
+nothing to the stored combo and shows an inline reason instead
+(`Use Ctrl/Alt/⌘ + key, or a function key…`); it clears on your next
+accepted press or Escape.
+
+If a row shows a warning after **"Not registered:"**, that's the real error
+the OS/plugin returned — usually another application (or a **second copy**
+of this overlay **already running**) already owns that combo globally. Pick
+a different combo, close the other app, or click **Re-register** to retry
+the current combos without changing anything (useful right after quitting
+whatever was holding the shortcut).
 
 ## Using it in a game
 
