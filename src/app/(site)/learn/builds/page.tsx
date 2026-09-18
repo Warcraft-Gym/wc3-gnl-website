@@ -6,7 +6,7 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { MatchupPicker } from "@/components/builds/MatchupPicker";
-import { BuildRow, FeaturedBuild } from "@/components/builds/BuildRow";
+import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import {
@@ -62,7 +62,6 @@ export default async function BuildsPage({
       : a.title.localeCompare(b.title),
   );
 
-  const featured = all.find((b) => b.featured);
   const isFiltered = Boolean(race || vsRace || q || difficulty);
 
   return (
@@ -79,13 +78,11 @@ export default async function BuildsPage({
       </PageHeader>
 
       <Container className="py-10">
-        {featured && !isFiltered ? <FeaturedBuild build={featured} /> : null}
-
         {/* Overlay beta, only on the unfiltered landing view */}
         {!isFiltered ? <OverlayBeta /> : null}
 
         {/* Matchup + filters, the way in */}
-        <section className="mt-12">
+        <section className={isFiltered ? "" : "mt-10"}>
           <Suspense>
             <MatchupPicker
               race={race}

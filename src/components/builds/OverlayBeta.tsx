@@ -6,7 +6,7 @@ export function OverlayBeta() {
   return (
     <Link
       href="/tools/overlay"
-      className="panel group mt-6 flex items-center gap-4 border-arcane/40 px-5 py-4 transition-colors hover:border-arcane"
+      className="panel group flex items-center gap-4 border-arcane/40 px-5 py-4 transition-colors hover:border-arcane"
     >
       <span className="grid size-10 shrink-0 place-items-center rounded border border-arcane/40 bg-arcane/10 text-arcane">
         <MonitorPlay size={18} />
