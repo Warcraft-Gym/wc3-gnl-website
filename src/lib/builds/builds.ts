@@ -16,7 +16,8 @@ const USE_FIXTURES = process.env.NODE_ENV !== "production";
 
 const LIST_PROJECTION = `{
   "slug": slug.current,
-  title, race, vsRace, difficulty, patch,
+  title, race, difficulty, patch,
+  "vsRaces": coalesce(vsRaces, select(vsRace == "any" => [], defined(vsRace) => [vsRace], [])),
   "tags": coalesce(tags, []),
   summary, author, authorDiscord, maintainer, sourceUrl,
   "featured": coalesce(featured, false),
@@ -27,7 +28,8 @@ const LIST_PROJECTION = `{
 
 const DETAIL_PROJECTION = `{
   "slug": slug.current,
-  title, race, vsRace, difficulty, patch,
+  title, race, difficulty, patch,
+  "vsRaces": coalesce(vsRaces, select(vsRace == "any" => [], defined(vsRace) => [vsRace], [])),
   "tags": coalesce(tags, []),
   summary, author, authorDiscord, maintainer, sourceUrl,
   "guide": guide->{ "slug": slug.current, title },
@@ -75,12 +77,12 @@ export type BuildFilter = {
 };
 
 /** Filter helper shared by the list page. `vsRace` matches builds written
- *  for that opponent or for "any". */
+ *  for that opponent (among others) or for any opponent. */
 export function filterBuilds(builds: BuildOrder[], f: BuildFilter): BuildOrder[] {
   const q = f.q?.trim().toLowerCase();
   return builds.filter((b) => {
     if (f.race && b.race !== f.race) return false;
-    if (f.vsRace && f.vsRace !== "any" && b.vsRace !== f.vsRace && b.vsRace !== "any") return false;
+    if (f.vsRace && f.vsRace !== "any" && b.vsRaces.length && !b.vsRaces.includes(f.vsRace)) return false;
     if (q) {
       const hay = [b.title, b.summary, b.author, ...b.tags].join(" ").toLowerCase();
       if (!hay.includes(q)) return false;

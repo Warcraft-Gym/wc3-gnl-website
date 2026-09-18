@@ -45,7 +45,7 @@ const docs = BUILDS.map((b) => {
     title: b.title,
     slug: { _type: "slug", current: b.slug },
     race,
-    vsRace: b.vsRace ?? "any",
+    vsRaces: b.vsRaces ?? (b.vsRace && b.vsRace !== "any" ? [b.vsRace] : []),
     difficulty: b.difficulty,
     ...(b.patch ? { patch: b.patch } : {}),
     tags: b.tags ?? [],

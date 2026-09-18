@@ -18,7 +18,8 @@ export type BuildOrder = {
   slug: string;
   title: string;
   race: BuildRace;
-  vsRace: BuildVsRace;
+  /** Opponent races the build is written for; empty means any opponent. */
+  vsRaces: BuildRace[];
   difficulty: BuildDifficulty;
   patch?: string;
   tags: string[];
@@ -62,4 +63,10 @@ export function formatClock(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = Math.floor(seconds % 60);
   return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+/** Human-readable opponent list: "Any", "Orc", "Orc / Undead". */
+export function vsLabel(vsRaces: BuildRace[]): string {
+  if (!vsRaces.length) return "Any";
+  return vsRaces.map((r) => BUILD_RACES.find((x) => x.id === r)?.label ?? r).join(" / ");
 }

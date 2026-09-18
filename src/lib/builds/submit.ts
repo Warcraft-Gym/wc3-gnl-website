@@ -53,7 +53,7 @@ export async function createBuildDraft(data: BuildSubmission): Promise<{ id: str
     title: data.title,
     slug: { _type: "slug", current: slug },
     race: data.race,
-    vsRace: data.vsRace,
+    vsRaces: data.vsRaces,
     difficulty: data.difficulty,
     patch: data.patch || undefined,
     tags: data.tags,

@@ -45,17 +45,14 @@ export const buildOrder = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
-      name: "vsRace",
+      name: "vsRaces",
       title: "Against",
-      type: "string",
+      type: "array",
       group: "meta",
-      options: {
-        list: [...RACES, { title: "Any", value: "any" }],
-        layout: "radio",
-        direction: "horizontal",
-      },
-      initialValue: "any",
-      validation: (rule) => rule.required(),
+      description: "Opponent races this build is written for. Leave empty for any opponent.",
+      of: [defineArrayMember({ type: "string" })],
+      options: { list: RACES, layout: "grid" },
+      validation: (rule) => rule.unique(),
     }),
     defineField({
       name: "difficulty",
@@ -236,10 +233,10 @@ export const buildOrder = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", race: "race", vsRace: "vsRace", author: "author" },
-    prepare: ({ title, race, vsRace, author }) => ({
+    select: { title: "title", race: "race", vsRaces: "vsRaces", author: "author" },
+    prepare: ({ title, race, vsRaces, author }) => ({
       title,
-      subtitle: `${race ?? "?"} vs ${vsRace ?? "any"} · ${author ?? ""}`,
+      subtitle: `${race ?? "?"} vs ${(vsRaces as string[] | undefined)?.length ? (vsRaces as string[]).join(" / ") : "any"} · ${author ?? ""}`,
     }),
   },
 });
