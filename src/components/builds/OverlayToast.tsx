@@ -6,35 +6,20 @@ import Link from "next/link";
 import { ArrowRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const DISMISSED_KEY = "wg:overlay-toast-dismissed";
 const DELAY_MS = 4000;
 
 /** Bottom-right toast pointing at the overlay app. Slides in a few seconds
- *  after the build list loads; once dismissed it stays away on this browser
- *  for a while so it never nags. */
+ *  after the build list loads, on every visit; closing it only hides it
+ *  until the next page load. */
 export function OverlayToast() {
   const [open, setOpen] = useState(false);
 
   useEffect(() => {
-    try {
-      const until = Number(localStorage.getItem(DISMISSED_KEY) ?? 0);
-      if (until > Date.now()) return;
-    } catch {
-      /* storage may be unavailable */
-    }
     const id = window.setTimeout(() => setOpen(true), DELAY_MS);
     return () => window.clearTimeout(id);
   }, []);
 
-  const dismiss = () => {
-    setOpen(false);
-    try {
-      // A week of quiet after a dismiss.
-      localStorage.setItem(DISMISSED_KEY, String(Date.now() + 7 * 24 * 3600 * 1000));
-    } catch {
-      /* ignore */
-    }
-  };
+  const dismiss = () => setOpen(false);
 
   return (
     <div
