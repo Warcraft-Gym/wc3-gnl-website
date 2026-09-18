@@ -150,11 +150,16 @@ enforces that the two stay equal).
 - **All shortcuts show "Not registered".** Before 0.1.2 this usually meant
   a second copy of the app was already running and had claimed every
   global shortcut, leaving the new copy's registrations to fail silently.
-  From 0.1.2 the app is single-instance: closing the picker window quits
-  the whole app (it used to leave the hidden overlay window, and the
-  process behind it, running invisibly), and launching the app again while
-  one is already running just focuses the existing picker instead of
-  starting a second process. If a copy is genuinely frozen (not just
+  From 0.1.2 the app quits fully when the picker window closes on every
+  platform (it used to leave the hidden overlay window, and the process
+  behind it, running invisibly). On **Windows and Linux**, 0.1.2 also adds
+  a single-instance guard: launching the app again while one is already
+  running just focuses the existing picker instead of starting a second
+  process. **macOS** does not register this guard (registering it renders
+  the picker window blank on macOS) — a `.app` bundle launched from
+  Finder/Launchpad is already single-instance via Launch Services, so
+  running the raw dev/debug binary twice from a terminal is the only way
+  to get two copies on macOS. If a copy is genuinely frozen (not just
   hidden) rather than merely already running, end it from Task Manager
   (Windows) / Activity Monitor (macOS), or use the **Quit app** button in
   Settings, then relaunch.
