@@ -1,9 +1,10 @@
 /**
  * WC3 icon manifest. Shared by the Sanity step editor (option list) and the
- * site (rendering). Images live in public/wc3-icons/<key>.webp, the game's
- * command-button art, sourced from the W3Champions community site
- * (github.com/w3champions/website, originalWC3Icons) and resized to 64px.
- * The UI falls back to a text chip if an image is ever missing.
+ * site (rendering). Images live in public/wc3-icons/<key>.webp, the classic
+ * (pre-Reforged) command-button art from the W3Champions launcher
+ * (github.com/w3champions/launcher, hotkeys/icons/classic) at 64px. Ancient
+ * Protector and Goblin Laboratory have no classic file there and keep the
+ * Reforged art. The UI falls back to a text chip if an image is ever missing.
  */
 
 export type IconRace = "human" | "orc" | "nightelf" | "undead" | "neutral";

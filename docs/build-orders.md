@@ -57,9 +57,11 @@ The list page's second spotlight is **Recently updated** (newest `_updatedAt`).
 
 ## Icons
 
-Step icons are the game's command-button art, sourced from the W3Champions
-community site (`github.com/w3champions/website`, `originalWC3Icons/`) and
-resized to 64px WebP in `public/wc3-icons/<key>.webp`.
+Step icons are the classic (pre-Reforged) command-button art, sourced from the
+W3Champions launcher (`github.com/w3champions/launcher`,
+`src/assets/images/hotkeys/icons/classic/`) as 64px WebP in
+`public/wc3-icons/<key>.webp`. Ancient Protector and Goblin Laboratory have no
+classic file there and keep the Reforged art.
 
 The manifest is `src/lib/builds/icons.ts`: it defines every key, title, race
 and kind, and feeds both the Studio dropdown and the site. To add an icon,
