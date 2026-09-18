@@ -77,6 +77,8 @@ pnpm --filter wc3gym-overlay dev
 pnpm --filter wc3gym-overlay check:config
 ```
 
+Site fonts (Cinzel/Lato/JetBrains Mono) and key-art are bundled in `apps/overlay` via `@fontsource` and local `public/` copies, so the app renders identically offline.
+
 ## Release
 
 Tag a commit to build and publish installers via GitHub Actions:
