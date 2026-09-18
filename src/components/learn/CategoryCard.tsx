@@ -26,7 +26,7 @@ export function CategoryCard({
     <Surface interactive as="article" className="group">
       <Link
         href={href ?? `/learn/${category.id}`}
-        className={cn("flex h-full gap-4 p-5", stacked ? "flex-col" : "items-center")}
+        className={cn("flex h-full gap-4 p-5", stacked ? "flex-col items-center text-center" : "items-center")}
       >
         <span className={cn("relative block shrink-0 transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:scale-105", stacked ? "size-24" : "size-20")}>
           <span
@@ -43,8 +43,8 @@ export function CategoryCard({
             />
           ) : null}
         </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-2">
+        <div className={cn("min-w-0 flex-1", stacked && "w-full")}>
+          <div className={cn("flex items-center gap-2", stacked ? "justify-center" : "justify-between")}>
             <h3 className="font-display text-lg font-bold uppercase text-fg transition-colors group-hover:text-gold">
               {category.title}
             </h3>
