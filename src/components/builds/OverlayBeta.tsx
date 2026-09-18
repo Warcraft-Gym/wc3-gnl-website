@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, MonitorPlay } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 /** One-line pointer to the overlay app page, used on the build list and
@@ -19,9 +20,13 @@ export function OverlayBeta({
         className,
       )}
     >
-      <span className="grid size-10 shrink-0 place-items-center rounded border border-arcane/40 bg-arcane/10 text-arcane">
-        <MonitorPlay size={18} />
-      </span>
+      <Image
+        src="/overlay/smart-peon.webp"
+        alt=""
+        width={192}
+        height={192}
+        className="size-14 shrink-0 rounded-full border border-arcane/40 object-cover shadow-[0_6px_16px_rgba(0,0,0,.7)] transition-transform duration-[var(--wg-dur)] group-hover:scale-105 sm:size-16"
+      />
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-2">
           <span className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
