@@ -94,6 +94,19 @@ whatever was holding the shortcut).
    that data, and a step with no value for a shown column just leaves the
    cell blank instead of showing a placeholder.
 
+## Private builds
+
+Private build orders are stored **only on this computer** (`localStorage`,
+key `wc3gym.localBuilds`) — they are never sent to the site. They show up
+in the picker's build list marked with a **PRIVATE** badge, always at the
+top, and work exactly like a published build for the in-game panel:
+select one and click **Show overlay** the same way. A **Source** filter in
+the picker (All / Private / Site) narrows the list to just one kind.
+Private builds render with or without a network connection — they never
+depend on the site's `/api/builds` endpoint. Creating and editing them (a
+"New private build" editor, duplicate-from-site, export/import, and
+submitting one back to the site) ships in a follow-up release.
+
 ## Build locally
 
 ```bash
