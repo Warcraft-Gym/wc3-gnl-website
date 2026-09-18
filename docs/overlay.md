@@ -1,10 +1,16 @@
-# Warcraft 3 Gym — desktop overlay
+# Warcraft 3 Gym desktop overlay
 
 A small Tauri v2 desktop app (`apps/overlay`) that shows a build order in a
-transparent, always-on-top, borderless window while you play — pick a build
-from a normal window, then toggle a floating overlay-v panel on top of the
-game with a global shortcut. It reads the same public JSON API the site
-serves (`/api/builds`).
+transparent, always-on-top, borderless window while you play: pick a build
+from a normal window, then toggle a floating panel on top of the game with a
+global shortcut. It reads the same public JSON API the site serves
+(`/api/builds`).
+
+On the site, `/tools/overlay` is the public page for the beta (downloads from
+the latest GitHub Release, screenshots, shortcuts, prerequisites) and the
+build pages carry a pointer to it. All of that is behind `OVERLAY_BETA_LIVE`
+in `src/lib/flags.ts`, off until the app has been through the checklist
+below; flip it to `true` to publish.
 
 ## Prerequisites
 

@@ -1,110 +1,136 @@
-# Warcraft 3 Gym — Web
+# Warcraft 3 Gym
 
-A modern public site + player dashboard for the **Gym Newbie League (GNL)**,
-built to replace the WordPress site and deploy on **Vercel**.
+The website of the Warcraft 3 Gym community at **https://warcraft3.gym**:
+free Warcraft III guides and build orders for every race, the community, and
+the **Gym Newbie League (GNL)**. It replaces the WordPress site and deploys
+on **Vercel**.
 
 - **Framework:** Next.js 16 (App Router, React 19, TypeScript, Turbopack)
-- **Styling:** Tailwind CSS v4 — custom "War Room" design system (dark
-  esports-editorial: obsidian, engraved gold, arcane teal, race-faction color)
-- **League data:** consumes the existing [FastAPI backend](https://github.com/Warcraft-Gym/wc3-gym-backend)
-  server-side — an optional service token never reaches the browser
-- **Blog:** [Sanity](https://www.sanity.io/) behind a swappable content interface
-- **Fallback:** runs entirely on realistic fixtures when no backend/CMS is
-  configured, so local dev and previews work out of the box
+- **Styling:** Tailwind CSS v4 with a Blizzard-style design system in
+  `src/app/globals.css` (Cinzel display type, gold accents, painted key art,
+  riveted section dividers)
+- **Content:** [Sanity](https://www.sanity.io/) for guides, build orders and
+  news, with the Studio embedded at `/studio`
+- **League data:** the [FastAPI backend](https://github.com/Warcraft-Gym/wc3-gym-backend),
+  read server-side; an optional service token never reaches the browser
+- **Fallback:** every data source falls back to bundled fixtures, so local
+  dev and preview deployments work with no secrets configured
+- **Desktop overlay:** `apps/overlay`, a Tauri app that floats a build order
+  over the game (see below)
 
 ## Getting started
 
 ```bash
 pnpm install
-cp .env.example .env.local   # optional — the site runs on fixtures without it
+cp .env.example .env.local   # optional, the site runs on fixtures without it
 pnpm dev                     # http://localhost:3000
 ```
 
-`pnpm build` for a production build, `pnpm start` to serve it.
+`pnpm build` for a production build, `pnpm start` to serve it, `pnpm lint`
+for ESLint.
+
+## What is on the site
+
+| Route | What | Source |
+| --- | --- | --- |
+| `/` | Homepage: learn by race, latest guides, build orders, community, news, the GNL | all of the below |
+| `/learn`, `/learn/<category>` | Guide hubs per race and topic; the new-players hub renders the full handbook | Sanity `guide` |
+| `/learn/guide/<slug>` | A guide, with its play-along build order when one was transcribed from it | Sanity `guide` + `buildOrder` |
+| `/learn/builds`, `/learn/builds/<slug>` | Build orders with filters, a step table and a play-along clock | Sanity `buildOrder` |
+| `/learn/builds/submit` | Public submission form; submissions land in the Studio as pending drafts | server action, write token |
+| `/blog`, `/blog/<slug>` | News | Sanity `post` |
+| `/gnl/*` | Schedule, standings, teams, leaderboard, fantasy, rules, about | FastAPI |
+| `/about`, `/tools` | About the Gym; community tools (and the overlay, once live) | code |
+| `/api/builds`, `/api/builds/<slug>` | Public JSON API for the overlay and anyone else | Sanity |
+| `/studio` | Sanity Studio for editors | Sanity |
+
+The Player Dashboard button links to the separate dashboard app
+(`https://wc3-gym-frontend.vercel.app`, `DASHBOARD_URL` in `src/lib/links.ts`).
 
 ## Architecture
 
-```
+```text
 Vercel (this app, Next.js)
-├─ Public site      /, /standings, /schedule, /brackets, /teams, /players
-├─ Blog             /blog  ── Sanity (or fixtures)
-└─ Player dashboard /dashboard  (placeholder — next milestone)
-        │
-        │  server-side fetch (optional bearer held server-side only)
-        ▼
-FastAPI (existing)  ──  league · event · teams · series · fantasy
+├─ Learn, builds, news   ──  Sanity (Studio embedded at /studio)
+├─ GNL pages             ──  FastAPI backend (server-side, optional bearer)
+├─ /api/builds           ──  public JSON for the desktop overlay
+└─ Fixtures              ──  used whenever a source is unconfigured or fails
 ```
 
-### The data seam
-
-All league reads go through `src/lib/api/gnl.ts`. Each function tries the live
-FastAPI and **falls back to fixtures** on any error or when unconfigured. The
-adapter discovers the GNL league, selects its latest finished event (a choice
-for now, see the architecture doc) and maps
-that event's teams, player records, fixtures and fantasy table. See
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- **League data seam:** every GNL read goes through `src/lib/api/gnl.ts`,
+  which maps backend payloads onto UI types and falls back to fixtures. See
+  [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
+- **Content:** guides, build orders and posts are read through
+  `src/lib/learn`, `src/lib/builds` and `src/lib/content`, each with a fixture
+  fallback. Pages use ISR (5 minutes) plus an on-demand revalidation webhook.
+  See [`docs/content.md`](docs/content.md).
+- **Build orders:** submission flow, review in the Studio, the icon set, the
+  JSON API and the transcription scripts. See
+  [`docs/build-orders.md`](docs/build-orders.md).
+- **SEO:** `src/lib/site.ts` is the canonical origin; `robots.ts`,
+  `sitemap.ts`, per-page canonicals, OpenGraph/Twitter images and JSON-LD
+  (`Organization`, `WebSite`, `Article`, `HowTo`, `BreadcrumbList`) live in
+  `src/app` and `src/lib/seo.ts`.
+- **Feature flags:** `src/lib/flags.ts`. `OVERLAY_BETA_LIVE` gates every
+  overlay surface on the site until the app has been tested.
 
 ### Environment
 
 | Variable | Purpose |
 | --- | --- |
-| `GNL_API_BASE_URL` | FastAPI base URL. Empty → fixtures. |
+| `GNL_API_BASE_URL` | FastAPI base URL. Empty means fixtures. |
 | `GNL_SERVICE_TOKEN` | Read-scoped JWT, server-side only. |
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | Enables the live blog. Empty → fixture posts. |
-| `NEXT_PUBLIC_SANITY_DATASET` | Sanity dataset (default `production`). |
+| `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity read access. Defaults are baked in so the Studio always loads. |
+| `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts. |
+| `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
+| `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Production defaults to `https://warcraft3.gym`. |
 
 ## Project structure
 
-```
+```text
 src/
-├── app/                  # routes (App Router)
-│   ├── page.tsx          # home
-│   ├── standings/ schedule/ brackets/ teams/ players/ blog/ dashboard/ …
+├── app/
+│   ├── (site)/            # public routes: learn, blog, gnl, about, tools
+│   ├── api/               # builds JSON API, revalidate webhook
+│   ├── studio/            # embedded Sanity Studio
+│   ├── layout.tsx         # fonts, metadata defaults, sitewide JSON-LD
+│   ├── robots.ts · sitemap.ts · manifest.ts · opengraph-image.jpg
+│   └── globals.css        # design tokens, key-art and panel utilities
 ├── components/
-│   ├── ui/               # Button, Surface, Badge, Container, PageHeader
-│   ├── layout/           # header, footer, nav, wordmark
-│   ├── league/           # StandingsTable, SeriesCard, TeamCard, BracketView
-│   ├── home/             # Hero
-│   └── blog/             # PostCard, PostBody
+│   ├── ui/                # Button, PageHeader, KeyArt, Container, badges
+│   ├── layout/            # header, nav, footer, wordmark
+│   ├── home/              # homepage sections
+│   ├── learn/ builds/ blog/ league/   # per-area components
+│   ├── sanity/            # Portable Text renderer
+│   └── seo/               # JsonLd
 ├── lib/
-│   ├── api/              # FastAPI client, domain types, fixtures, gnl.ts (seam)
-│   ├── content/          # blog: Sanity + fixtures behind one interface
-│   └── utils.ts          # cn(), race helpers, formatting
-└── app/globals.css       # design tokens + base
+│   ├── api/               # FastAPI client, mappers, fixtures, gnl.ts (seam)
+│   ├── learn/ builds/ content/        # data access with fixture fallbacks
+│   ├── site.ts · seo.ts · flags.ts · links.ts · tools.ts · overlay.ts
+│   └── discord.ts         # live member counts from the invite API
+└── sanity/                # schema types, desk structure, env, image builder
+scripts/                   # WordPress migrations and build-order transcription
+apps/overlay/              # the desktop overlay (separate workspace package)
+public/                    # key art, faction crests, classic WC3 icons, logos
 ```
 
 ## Desktop overlay
 
 `apps/overlay` is a separate pnpm workspace package: a Tauri v2 desktop app
 that shows a build order in a transparent, always-on-top window while you
-play, driven by the public JSON API (`/api/builds`, see
-[`docs/build-orders.md`](docs/build-orders.md)). It builds and lints
-independently of the Next site — see [`docs/overlay.md`](docs/overlay.md)
-for Windows/macOS install steps and the manual checklist. Release:
-`git tag overlay-v0.1.0 && git push origin overlay-v0.1.0` triggers GitHub
-Actions to build installers and attach them to a Release. Windows users who
-don't want to install anything can grab the `_portable.exe` asset instead.
-
-## Blog / CMS
-
-Editorial content is decoupled from league data. To stand up authoring for
-admins, follow [`docs/blog-cms.md`](docs/blog-cms.md) — it includes the exact
-Sanity schema and the one-time setup. Until then, the blog renders sample posts.
-
-## Roadmap
-
-- **✅ Milestone 1 — Public site** (this): home, standings, schedule, brackets,
-  teams, players, blog.
-- **Milestone 2 — Player dashboard:** Discord-token auth (the backend already
-  issues one-time tokens), availability, self-scheduling, result reporting,
-  fantasy.
-- **Milestone 3 — Admin:** fold the current Vue admin into a role-gated section.
+play, driven by `/api/builds`. It builds and lints independently of the Next
+site. See [`docs/overlay.md`](docs/overlay.md) for install steps, shortcuts,
+the release process and the manual checklist. Tagging `overlay-v<version>`
+builds Windows and macOS installers on GitHub Actions and attaches them to a
+Release; the site's `/tools/overlay` page reads the latest one.
 
 ## Deploy
 
-Push to a Vercel project (framework auto-detected as Next.js). Set the env vars
-above in the Vercel dashboard. Preview deployments work on fixtures with no
-secrets configured.
+Push to the Vercel project (Next.js is auto-detected) and set the env vars
+above. Preview deployments work on fixtures with no secrets configured. In
+Vercel, set `warcraft3.gym` as the production domain with `www` redirecting
+to the apex, and add the Sanity webhook described in
+[`docs/build-orders.md`](docs/build-orders.md) so edits appear instantly.
 
 ---
 
