@@ -84,6 +84,7 @@ for Windows/macOS install steps and the manual checklist. Release:
 `git tag overlay-v0.1.0 && git push origin overlay-v0.1.0` triggers GitHub
 Actions to build installers and attach them to a Release. Windows users who
 don't want to install anything can grab the `_portable.exe` asset instead.
+Private builds can be exported/imported as JSON and submitted to the site from the app — see "Private builds" in [`docs/overlay.md`](docs/overlay.md).
 
 ## Blog / CMS
 

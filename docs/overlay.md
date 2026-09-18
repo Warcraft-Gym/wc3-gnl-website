@@ -127,8 +127,34 @@ depend on the site's `/api/builds` endpoint.
 - Closing the editor with unsaved changes (Cancel, Escape, or clicking the
   backdrop) asks you to confirm before discarding; deleting a build asks
   for confirmation too.
-- Submitting a private build back to the site ships in a follow-up
-  release.
+
+### Backing up, sharing, and submitting a private build
+
+Private builds live only in this app's local storage — reinstalling the
+app, clearing the WebView's storage, or moving to a new computer loses
+them unless you've exported a copy first. **Export** and **Import** turn a
+private build into a plain `.json` file you control:
+
+- **Export** (on a private row, and on the selected build's header) saves
+  one build as `<title>.wc3gym.json`. **Export all private builds**
+  (Settings) saves every private build in a single file. On Windows/macOS
+  this opens the native save dialog; in browser mode it downloads the file
+  like any other download.
+- **Import builds…** (Settings) opens a file you've exported (or one a
+  friend sent you) and adds whatever's in it to your private builds.
+  Importing the same file twice is safe — a build already present (same
+  title and steps) is skipped, not duplicated, and every private build
+  gets a fresh ID on import so importing on two machines never collides.
+  A status line reports **"Imported N, skipped M"** after each import.
+- **Submit to site** (on a private row, and on the selected build's
+  header) opens the site's build-submission page in your browser — it
+  does not send anything automatically. Export the build first if you
+  want the exact JSON to reference while filling out the form, or just
+  use it as a shortcut to the page.
+
+Exported files are plain JSON — safe to keep in a backup folder, a git
+repo, or a shared drive, and safe to open in a text editor to see exactly
+what a build contains before importing it.
 
 ## Build locally
 
