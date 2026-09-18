@@ -8,62 +8,128 @@ serves (`/api/builds`).
 
 ## Prerequisites
 
-- **Rust** (stable toolchain) — https://rustup.rs
-- **Node 22** and **pnpm** (see the repo root `packageManager` field)
-- **Windows only:** MSVC build tools (Visual Studio "Desktop development
-  with C++" workload)
-- **Windows only:** WebView2 runtime (preinstalled on Windows 11; Windows 10
-  needs the Evergreen bootstrapper from Microsoft)
-
-## Run in browser
-
-```bash
-pnpm --filter wc3gym-overlay dev
-```
-
-Open http://localhost:5173/picker.html. The overlay window (`overlay.html`)
-opens in a second tab instead of a real OS window; there is no drag region
-or transparency outside of Tauri.
-
-## Run native
-
-```bash
-pnpm --filter wc3gym-overlay tauri dev
-```
-
-Launches the real picker and overlay-v windows via Tauri.
-
-## Build
-
-```bash
-pnpm --filter wc3gym-overlay tauri build
-```
-
-Produces a signed/bundled installer for the current platform under
-`src-tauri/target/release/bundle/`.
-
-## Check config
-
-```bash
-pnpm --filter wc3gym-overlay check:config
-```
-
-Validates `tauri.conf.json` and the capability files against the mission's
-window, flag, and permission requirements — run it after any config edit.
-
-## Shortcuts
-
-TODO F005
+- **Warcraft III must run in windowed or borderless (windowed) mode.**
+  Exclusive fullscreen owns the whole screen and hides every other window,
+  including the overlay. In Reforged: **Options → Video → Window Mode →
+  Windowed** or **Borderless Windowed** (not "Fullscreen").
+- **Windows 10/11.** Windows 11 ships WebView2 preinstalled. Windows 10
+  needs the [WebView2 Evergreen bootstrapper](https://developer.microsoft.com/microsoft-edge/webview2/)
+  installed once.
+- **macOS 12+.**
 
 ## Install on Windows
 
-TODO F005
+1. Download the `.exe` installer (NSIS) from the latest
+   [GitHub Release](../../releases).
+2. The build is unsigned, so Windows SmartScreen will show
+   **"Windows protected your PC"**. Click **More info → Run anyway** to
+   continue — this is expected until the app is code-signed.
+3. First launch opens the **picker** window: pick a build, then click
+   **Show overlay** to open the floating build-order panel (or press
+   `Ctrl+Shift+O`).
+4. Settings (API base, shortcuts, overlay opacity/scale) are stored in the
+   app's WebView local storage, not a config file under `%APPDATA%`.
+   Uninstalling the app clears this app data along with it.
 
-## Manual checklist
+## Install on macOS
 
-TODO F005
+1. Download the `.dmg` from the latest
+   [GitHub Release](../../releases).
+2. Because the build is unsigned, Gatekeeper blocks a normal double-click
+   open. **Right-click the app → Open → Open** (only needed once).
+
+## Shortcuts
+
+| Action | Windows/Linux | macOS | What it does |
+|---|---|---|---|
+| Toggle overlay | `Ctrl+Shift+O` | `⌘⇧O` | Show/hide the floating overlay window |
+| Play / pause timer | `Ctrl+Shift+P` | `⌘⇧P` | Start or pause the build-order clock |
+| Reset timer | `Ctrl+Shift+R` | `⌘⇧R` | Reset the clock to 0:00 |
+| Next step | `Ctrl+Shift+]` | `⌘⇧]` | Jump the clock to the next timed step |
+| Previous step | `Ctrl+Shift+[` | `⌘⇧[` | Jump the clock to the previous timed step |
+
+Change any combo from the picker's **Settings → Shortcuts** panel: click
+**Change**, then press the new combo (Escape cancels). If a row shows
+**"Not registered — another app may own this combo"**, another application
+already has that shortcut registered globally — pick a different combo.
+
+## Using it in a game
+
+1. In the picker, select a build from the list and click **Show overlay**.
+2. Alt-tab into Warcraft III (windowed/borderless — see Prerequisites).
+3. At the game clock's **0:00** (match start), press **play**
+   (`Ctrl+Shift+P` / `⌘⇧P`) on the overlay timer.
+4. Use **next step** / **prev step** to resync the highlighted step if the
+   timer drifts from the in-game clock.
+
+## Build locally
+
+```bash
+# Native app (real Tauri windows)
+pnpm --filter wc3gym-overlay tauri dev
+pnpm --filter wc3gym-overlay tauri build
+
+# Browser mode (no Tauri windows — picker.html/overlay.html as tabs)
+pnpm --filter wc3gym-overlay dev
+# then open http://localhost:5173/picker.html?api=http://localhost:3111
+
+# Validate tauri.conf.json + capabilities against the mission's requirements
+pnpm --filter wc3gym-overlay check:config
+```
+
+## Release
+
+Tag a commit to build and publish installers via GitHub Actions:
+
+```bash
+git tag overlay-v0.1.0
+git push origin overlay-v0.1.0
+```
+
+The `Overlay release` workflow (`.github/workflows/overlay-release.yml`)
+builds Windows (NSIS + MSI) and macOS (DMG, universal binary) installers and
+attaches them to a new GitHub Release. You can also trigger the workflow
+manually (`workflow_dispatch`) to build and upload workflow artifacts
+without publishing a release — useful for testing the pipeline.
+
+The tag's version must match `apps/overlay/package.json` and
+`src-tauri/tauri.conf.json` (`pnpm --filter wc3gym-overlay check:config`
+enforces that the two stay equal).
 
 ## Troubleshooting
 
-TODO F005 — SmartScreen warnings on first launch of an unsigned build are
-expected until the release workflow (F005) adds code signing.
+- **Overlay not visible.** Confirm Warcraft III is windowed/borderless, not
+  exclusive fullscreen. Press the toggle shortcut (`Ctrl+Shift+O` / `⌘⇧O`)
+  or click **Show overlay** again in the picker. Check that "always on top"
+  hasn't been defeated by another always-on-top window.
+- **Shortcuts not working.** Another app may already own that global
+  combo — open **Settings → Shortcuts** and look for the "Not registered"
+  warning, then change the combo.
+- **Build list is empty.** Check the **API base** setting (Settings
+  drawer) points at the right site origin; if the offline banner is
+  showing, the app is using a cached list because it couldn't reach the
+  API.
+- **Blank/white window on Windows.** The WebView2 runtime is missing —
+  install the Evergreen bootstrapper (see Prerequisites) and relaunch.
+
+## Manual checklist (Windows)
+
+Run through this once per release build before announcing it. Record each
+line as **pass/fail + notes**.
+
+- [ ] **M-1** — Install the `.exe` from the GitHub Release (SmartScreen →
+  More info → Run anyway) and confirm the picker lists builds served from
+  `warcraft3.gym`.
+  _record: pass/fail + notes:_
+- [ ] **M-2** — With Warcraft III running borderless, open the overlay via
+  the picker button and via `Ctrl+Shift+O`; confirm it stays on top while
+  the game window has focus, and that the game is still readable behind
+  the transparent panel.
+  _record: pass/fail + notes:_
+- [ ] **M-3** — With the game focused, `Ctrl+Shift+P`, `Ctrl+Shift+R`,
+  `Ctrl+Shift+]` and `Ctrl+Shift+[` all work; the panel can be dragged by
+  its header; its position survives an app restart.
+  _record: pass/fail + notes:_
+- [ ] **M-4** — Change a shortcut in Settings and confirm the new combo
+  takes effect immediately, with no app restart required.
+  _record: pass/fail + notes:_

@@ -1,0 +1,65 @@
+name: Overlay release
+
+on:
+  push:
+    tags:
+      - "overlay-v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: windows-latest
+            args: ""
+          - platform: macos-latest
+            args: "--target universal-apple-darwin"
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.platform == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: apps/overlay/src-tauri
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Build and publish release (tag push)
+        if: startsWith(github.ref, 'refs/tags/overlay-v')
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: apps/overlay
+          tagName: ${{ github.ref_name }}
+          releaseName: "Warcraft 3 Gym Overlay ${{ github.ref_name }}"
+          releaseBody: "See docs/overlay.md for install steps. Unsigned build — expect a SmartScreen prompt on Windows."
+          releaseDraft: false
+          prerelease: false
+          args: ${{ matrix.args }}
+
+      - name: Build and upload workflow artifacts (manual run)
+        if: github.event_name == 'workflow_dispatch'
+        uses: tauri-apps/tauri-action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          projectPath: apps/overlay
+          uploadWorkflowArtifacts: true
+          args: ${{ matrix.args }}
