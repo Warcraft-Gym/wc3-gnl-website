@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Apple, BookOpen, Download, Keyboard, Layers, Lock, Timer } from "lucide-react";
+import { Apple, Download, Keyboard, Layers, Lock, Timer } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
-import { DiscordIcon } from "@/components/ui/DiscordIcon";
-import { DISCORD_BUILDS_CHANNEL_URL } from "@/lib/links";
-import { OVERLAY_DOCS_URL, OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
+import { OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
@@ -181,14 +179,6 @@ export default async function OverlayPage() {
             <li className="flex gap-2"><span className="text-gold">·</span> The build is not code-signed yet. Windows shows a SmartScreen prompt (More info, Run anyway); on macOS right-click the app and choose Open the first time.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> The portable exe needs no install and no admin rights.</li>
           </ul>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <ButtonLink href={OVERLAY_DOCS_URL} variant="outline" size="md" target="_blank" rel="noreferrer">
-              <BookOpen size={16} /> Full setup guide
-            </ButtonLink>
-            <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="md" target="_blank" rel="noreferrer">
-              <DiscordIcon size={18} /> Report a problem
-            </ButtonLink>
-          </div>
         </section>
       </Container>
     </>
