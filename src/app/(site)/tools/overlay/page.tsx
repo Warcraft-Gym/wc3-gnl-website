@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Apple, BookOpen, Download, Keyboard, Layers, Timer } from "lucide-react";
+import { Apple, BookOpen, Download, Keyboard, Layers, Lock, Timer } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -37,6 +37,11 @@ const POINTS = [
     title: "Same builds as the site",
     body: "Pick any build order from the Gym, including the ones you submit. It syncs from the site, so new builds show up on their own.",
   },
+  {
+    Icon: Lock,
+    title: "Your own private builds",
+    body: "Write a build of your own, or duplicate and tweak any site build. Private builds stay on your computer, work offline, and can be exported as JSON to back up, share, or submit to the site.",
+  },
 ];
 
 const SHORTCUTS = [
@@ -52,6 +57,7 @@ const STEPS = [
   "Pick a build and click Show overlay, or press the toggle shortcut. The panel floats on top of the game.",
   "Run Warcraft III in windowed or borderless mode. Exclusive fullscreen hides every other window, including the overlay.",
   "At the match's 0:00, press play. The current step highlights as the clock runs; use next and previous if it drifts.",
+  "Want a build that is not on the site? New private build in the picker opens an editor with the same steps, icons and rules as the site's form. Duplicate any build to start from it. Private builds are marked in the list and never leave your computer unless you export them.",
 ];
 
 export default async function OverlayPage() {
@@ -119,7 +125,7 @@ export default async function OverlayPage() {
           </figcaption>
         </figure>
 
-        <ul className="mt-14 grid gap-4 sm:grid-cols-3">
+        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {POINTS.map(({ Icon, title, body }) => (
             <li key={title} className="panel p-5">
               <Icon size={18} className="text-arcane" />
