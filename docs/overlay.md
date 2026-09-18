@@ -111,6 +111,14 @@ enforces that the two stay equal).
   API.
 - **Blank/white window on Windows.** The WebView2 runtime is missing —
   install the Evergreen bootstrapper (see Prerequisites) and relaunch.
+- **The game pauses when I show the overlay.** Fixed — the overlay window
+  is declared non-focusable (`focusable: false` / `focus: false` in
+  `tauri.conf.json`) and `showWindow`/`toggleWindow` never call `setFocus()`
+  on it, so showing or hiding the panel (button or shortcut) does not
+  activate the app and pause a single-player game. On macOS, clicking
+  *inside* the panel can still bring the whole app forward (a system
+  behavior outside the app's control even with `acceptFirstMouse`) —
+  prefer the keyboard shortcuts over clicking the panel while playing.
 
 ## Manual checklist (Windows)
 
@@ -132,4 +140,7 @@ line as **pass/fail + notes**.
   _record: pass/fail + notes:_
 - [ ] **M-4** — Change a shortcut in Settings and confirm the new combo
   takes effect immediately, with no app restart required.
+  _record: pass/fail + notes:_
+- [ ] **M-5** — Showing/hiding the overlay (shortcut and button) and
+  clicking its buttons does not pause a single-player game.
   _record: pass/fail + notes:_
