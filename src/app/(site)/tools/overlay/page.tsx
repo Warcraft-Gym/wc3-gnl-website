@@ -94,8 +94,9 @@ export default async function OverlayPage() {
           </p>
         ) : null}
 
-        {/* The overlay in an actual game, then the picker window with the panel over its corner */}
-        <figure className="mt-4">
+        {/* One composition: the overlay in an actual game, with the picker window
+            tucked over its bottom-right corner */}
+        <figure className="relative mt-4 mb-20 sm:mb-24">
           <Image
             src="/overlay/in-game.webp"
             alt="The overlay panel floating over a Warcraft III game: a Night Elf base at 0:10 with the build's steps, icons and food counts listed on the left."
@@ -105,28 +106,17 @@ export default async function OverlayPage() {
             sizes="(max-width: 640px) 100vw, 72rem"
             className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
           />
-          <figcaption className="mt-3 text-center text-sm text-muted">
-            The panel stays on top of the game while you play. Drag it anywhere, resize it, or hide it with a shortcut.
-          </figcaption>
-        </figure>
-
-        <figure className="relative mt-14 sm:mr-[7.5rem]">
           <Image
             src="/overlay/picker.webp"
             alt="The overlay's build picker window: race filters, search and the list of builds with a Use in game button on each."
             width={1920}
             height={1280}
-            sizes="(max-width: 640px) 100vw, 64rem"
-            className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
+            sizes="(max-width: 640px) 55vw, 24rem"
+            className="absolute -bottom-12 right-[-2%] w-[55%] rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:-bottom-16 sm:right-[-3%] sm:w-[24rem]"
           />
-          <Image
-            src="/overlay/panel.webp"
-            alt="The floating overlay panel: the build's steps with icons, food counts, the clock at 3:10 and the current step highlighted."
-            width={760}
-            height={1040}
-            sizes="(max-width: 640px) 40vw, 16rem"
-            className="absolute -bottom-6 right-[-4%] w-[40%] rounded border border-line shadow-[0_24px_60px_-16px_rgba(0,0,0,.95)] sm:-right-[7.5rem] sm:w-[16rem]"
-          />
+          <figcaption className="absolute -bottom-12 left-0 max-w-[40%] text-sm text-muted sm:-bottom-16">
+            Pick a build in the picker window, then the panel stays on top of the game while you play.
+          </figcaption>
         </figure>
 
         <ul className="mt-14 grid gap-4 sm:grid-cols-3">
