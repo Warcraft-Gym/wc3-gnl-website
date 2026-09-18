@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   title: "Tools",
   description:
     "Apps and utilities for Warcraft III players: the Gym's build order overlay, plus the community's ladder, creep, hotkey and replay tools.",
+  alternates: { canonical: "/tools" },
 };
 
 function ToolCard({ tool }: { tool: Tool }) {

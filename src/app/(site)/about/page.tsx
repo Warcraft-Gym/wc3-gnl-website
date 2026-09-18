@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "About the Gym",
   description:
     "Warcraft 3 Gym is a Discord community founded in 2017 where players of every skill level come together to learn Warcraft III, get better and have fun.",
+  alternates: { canonical: "/about" },
 };
 
 const PILLARS = [

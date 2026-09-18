@@ -9,6 +9,8 @@ import { LEARN_CATEGORIES, getCategory } from "@/lib/learn/data";
 import { learnArt, learnHeaderArt } from "@/lib/learn/art";
 import { getGuideBySlug, getGuidesByCategory } from "@/lib/learn/guides";
 import { PortableBody } from "@/components/sanity/PortableBody";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd } from "@/lib/seo";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { ButtonLink } from "@/components/ui/Button";
@@ -22,9 +24,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { category } = await params;
   const cat = getCategory(category);
+  if (!cat) return { title: "Learn" };
+  const title = cat.kind === "race" ? `${cat.title} guides and build orders` : `${cat.title} guides`;
   return {
-    title: cat ? `${cat.title} · Learn` : "Learn",
-    description: cat?.blurb,
+    title,
+    description: `${cat.blurb} Free Warcraft III ${cat.title} guides from the Gym coaches.`,
+    alternates: { canonical: `/learn/${cat.id}` },
+    openGraph: { title: `${title} · Warcraft 3 Gym`, description: cat.blurb, url: `/learn/${cat.id}` },
   };
 }
 
@@ -44,6 +50,12 @@ export default async function LearnCategoryPage({ params }: Params) {
 
   return (
     <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Learn", path: "/learn" },
+          { name: cat.title, path: `/learn/${cat.id}` },
+        ])}
+      />
       <PageHeader
         kicker="Learn"
         title={cat.title}

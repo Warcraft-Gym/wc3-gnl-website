@@ -8,8 +8,9 @@ import { getActiveSeason, getTeams } from "@/lib/api/gnl";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Teams",
-  description: "The teams competing in the current GNL season.",
+  title: "GNL teams",
+  description: "Every team in the current Gym Newbie League season, with captains and rosters.",
+  alternates: { canonical: "/gnl/teams" },
 };
 
 export default async function TeamsPage() {

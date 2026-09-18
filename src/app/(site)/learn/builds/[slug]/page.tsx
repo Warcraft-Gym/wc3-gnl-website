@@ -14,7 +14,9 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { getBuildBySlug, getBuilds } from "@/lib/builds/builds";
-import { BUILD_RACES } from "@/lib/builds/types";
+import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -28,16 +30,23 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const build = await getBuildBySlug(slug);
   if (!build) return { title: "Build not found" };
   const race = BUILD_RACES.find((r) => r.id === build.race)?.label;
-  const title = `${build.title}, ${race} build order`;
+  const vs = build.vsRaces.length ? ` vs ${vsLabel(build.vsRaces)}` : "";
+  const title = `${build.title}: ${race}${vs} build order`;
   return {
     title,
     description: build.summary,
+    alternates: { canonical: `/learn/builds/${build.slug}` },
     openGraph: {
       title,
       description: build.summary,
       type: "article",
+      url: `/learn/builds/${build.slug}`,
+      publishedTime: build.publishedAt,
+      modifiedTime: build.updatedAt,
+      authors: [build.author],
       images: [{ url: `/factions/headers/${build.race}.webp`, width: 1600, height: 700 }],
     },
+    twitter: { card: "summary_large_image", title, description: build.summary },
   };
 }
 
@@ -60,6 +69,24 @@ export default async function BuildPage({ params }: Params) {
 
   return (
     <article>
+      <JsonLd
+        data={howToJsonLd({
+          path: `/learn/builds/${build.slug}`,
+          title: build.title,
+          description: build.summary,
+          author: build.author,
+          publishedAt: build.publishedAt,
+          modifiedAt: build.updatedAt,
+          steps: build.steps,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Learn", path: "/learn" },
+          { name: "Build orders", path: "/learn/builds" },
+          { name: build.title, path: `/learn/builds/${build.slug}` },
+        ])}
+      />
       {/* Masthead: the race showcase runs under the nav bar, like the Learn race pages */}
       <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
         <KeyArt src={`/factions/headers/${build.race}.webp`} position="center 30%" overlay="soft" />

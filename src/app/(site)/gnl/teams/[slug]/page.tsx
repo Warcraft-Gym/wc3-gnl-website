@@ -25,9 +25,11 @@ export async function generateStaticParams() {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const team = await getTeamBySlug(slug);
+  if (!team) return { title: "Team" };
   return {
-    title: team ? team.name : "Team",
-    description: team ? `${team.name}: roster and results.` : undefined,
+    title: `${team.name}, GNL team`,
+    description: `${team.name} in the Gym Newbie League: roster, captain, results and upcoming series.`,
+    alternates: { canonical: `/gnl/teams/${team.slug}` },
   };
 }
 

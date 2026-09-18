@@ -8,8 +8,9 @@ import type { PostCategory } from "@/lib/content/types";
 import { cn } from "@/lib/utils";
 
 export const metadata: Metadata = {
-  title: "Latest News",
-  description: "News, recaps, guides and announcements from the Warcraft 3 Gym.",
+  title: "News",
+  description: "News, season recaps, replay of the month and announcements from the Warcraft 3 Gym community.",
+  alternates: { canonical: "/blog" },
 };
 
 const LABELS: Record<PostCategory, string> = {

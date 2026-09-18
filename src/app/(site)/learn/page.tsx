@@ -16,9 +16,10 @@ import { getLatestGuides } from "@/lib/learn/guides";
 import { learnArt } from "@/lib/learn/art";
 
 export const metadata: Metadata = {
-  title: "Learn Warcraft III",
+  title: "Learn Warcraft III: guides for every race",
   description:
-    "Level up your Warcraft 3 skills, race guides, creep routes, game mechanics, and build orders for new and returning players.",
+    "Free Warcraft III guides: Human, Orc, Night Elf and Undead strategy, creep routes, game mechanics and build orders for new and returning players.",
+  alternates: { canonical: "/learn" },
 };
 
 export default async function LearnPage() {

@@ -13,6 +13,7 @@ export const metadata: Metadata = {
   title: "About the GNL",
   description:
     "The Gym Newbie League is a team league with solo matches, created by the Gym Discord community for new and veteran players alike. Skill level doesn't matter.",
+  alternates: { canonical: "/gnl/about" },
 };
 
 const BENEFIT_ICONS = [Swords, GraduationCap, Users2];

@@ -17,7 +17,11 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { week } = await params;
-  return { title: `Schedule, Week ${week}` };
+  return {
+    title: `GNL schedule, week ${week}`,
+    description: `Gym Newbie League fixtures and results for week ${week}: every series, map score and player matchup.`,
+    alternates: { canonical: `/gnl/schedule/${week}` },
+  };
 }
 
 export default async function ScheduleWeekPage({ params }: Params) {
