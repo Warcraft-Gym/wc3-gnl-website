@@ -135,6 +135,11 @@ The `Overlay release` workflow (`.github/workflows/overlay-release.yml`)
 builds Windows (NSIS + MSI) and macOS (DMG, universal binary) installers,
 attaches them to a new GitHub Release, and also uploads a raw
 `_portable.exe` (see "Portable (no install)" above) to the same Release.
+It also uploads version-less copies (`Warcraft-3-Gym-Overlay-Setup.exe`,
+`Warcraft-3-Gym-Overlay-Portable.exe`, `Warcraft-3-Gym-Overlay.dmg`) so
+`https://github.com/Warcraft-Gym/wc3-gnl-website/releases/latest/download/<name>`
+always points at the newest build; the site's `/tools/overlay` page links to
+those and refreshes its version label every minute.
 You can also trigger the workflow manually (`workflow_dispatch`) to build
 and upload workflow artifacts — including the portable exe as the
 `portable-windows` artifact — without publishing a release, useful for
