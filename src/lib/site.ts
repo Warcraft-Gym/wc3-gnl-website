@@ -1,15 +1,16 @@
 /**
- * Canonical site identity. The URL comes from NEXT_PUBLIC_SITE_URL when set
- * (use it once the custom domain is live), else Vercel's production URL for
- * the project, else localhost. Every absolute URL in metadata, the sitemap,
- * robots and structured data goes through here.
+ * Canonical site identity. The site lives at https://warcraft3.gym; every
+ * absolute URL in metadata, the sitemap, robots and structured data goes
+ * through here, so preview deployments still declare the real domain as
+ * canonical. NEXT_PUBLIC_SITE_URL overrides it (local testing, a staging
+ * host); plain `next dev` uses localhost.
  */
 
-const fromEnv = process.env.NEXT_PUBLIC_SITE_URL;
-const fromVercel = process.env.VERCEL_PROJECT_PRODUCTION_URL;
+const PRODUCTION_URL = "https://warcraft3.gym";
 
 export const SITE_URL = (
-  fromEnv ?? (fromVercel ? `https://${fromVercel}` : "http://localhost:3000")
+  process.env.NEXT_PUBLIC_SITE_URL ??
+  (process.env.NODE_ENV === "production" ? PRODUCTION_URL : "http://localhost:3000")
 ).replace(/\/$/, "");
 
 export const SITE_NAME = "Warcraft 3 Gym";
