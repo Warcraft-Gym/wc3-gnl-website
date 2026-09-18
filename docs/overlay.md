@@ -108,9 +108,12 @@ enforces that the two stay equal).
   combo — open **Settings → Shortcuts** and look for the "Not registered"
   warning, then change the combo.
 - **Build list is empty.** Check the **API base** setting (Settings
-  drawer) points at the right site origin; if the offline banner is
+  drawer) points at the right site origin — the default is
+  `https://wc3-gnl-website.vercel.app`; if the offline banner is
   showing, the app is using a cached list because it couldn't reach the
-  API.
+  API. Note that `/api/builds` only serves data once the site deployment
+  that ships it is live — until then a fresh install correctly shows the
+  empty state.
 - **Blank/white window on Windows.** The WebView2 runtime is missing —
   install the Evergreen bootstrapper (see Prerequisites) and relaunch.
 - **The game pauses when I show the overlay.** Fixed — the overlay window
@@ -129,7 +132,7 @@ line as **pass/fail + notes**.
 
 - [ ] **M-1** — Install the `.exe` from the GitHub Release (SmartScreen →
   More info → Run anyway) and confirm the picker lists builds served from
-  `warcraft3.gym`.
+  `wc3-gnl-website.vercel.app`.
   _record: pass/fail + notes:_
 - [ ] **M-2** — With Warcraft III running borderless, open the overlay via
   the picker button and via `Ctrl+Shift+O`; confirm it stays on top while
