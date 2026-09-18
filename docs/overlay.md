@@ -147,6 +147,17 @@ enforces that the two stay equal).
 - **Shortcuts not working.** Another app may already own that global
   combo — open **Settings → Shortcuts** and look for the "Not registered"
   warning, then change the combo.
+- **All shortcuts show "Not registered".** Before 0.1.2 this usually meant
+  a second copy of the app was already running and had claimed every
+  global shortcut, leaving the new copy's registrations to fail silently.
+  From 0.1.2 the app is single-instance: closing the picker window quits
+  the whole app (it used to leave the hidden overlay window, and the
+  process behind it, running invisibly), and launching the app again while
+  one is already running just focuses the existing picker instead of
+  starting a second process. If a copy is genuinely frozen (not just
+  hidden) rather than merely already running, end it from Task Manager
+  (Windows) / Activity Monitor (macOS), or use the **Quit app** button in
+  Settings, then relaunch.
 - **Build list is empty.** Check the **API base** setting (Settings
   dialog) points at the right site origin — the default is
   `https://wc3-gnl-website.vercel.app`; if the offline banner is
