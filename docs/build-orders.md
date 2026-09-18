@@ -20,6 +20,23 @@ Studio. There is no login and no voting in this version.
 4. Published builds show up immediately if the Sanity webhook is set up
    (below), otherwise within five minutes (ISR revalidate 300).
 
+### Importing a build from the overlay app
+
+The submit form can be pre-filled from a private build made in the desktop
+overlay, in three ways (`src/lib/builds/exchange.ts`, same file format as
+`apps/overlay/src/lib/buildExchange.ts`, `wc3gym-build` version 1):
+
+- **Load .json file**: the file the overlay's Export button writes.
+- **Paste from clipboard**: the same JSON copied as text.
+- **Deep link**: `/learn/builds/submit#build=<base64url of the export JSON>`.
+  The form reads the fragment on load, fills itself in and removes the
+  fragment from the address bar. The fragment never reaches the server. This
+  is what the overlay's Submit-to-site button should open so the form is
+  filled without any file juggling.
+
+Nothing is submitted automatically; the player still checks the form and
+presses Submit for review.
+
 ### Instant updates (Sanity webhook)
 
 In sanity.io/manage → project → API → Webhooks, add a webhook:
