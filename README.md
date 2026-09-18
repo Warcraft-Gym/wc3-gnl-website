@@ -82,7 +82,8 @@ play, driven by the public JSON API (`/api/builds`, see
 independently of the Next site — see [`docs/overlay.md`](docs/overlay.md)
 for Windows/macOS install steps and the manual checklist. Release:
 `git tag overlay-v0.1.0 && git push origin overlay-v0.1.0` triggers GitHub
-Actions to build installers and attach them to a Release.
+Actions to build installers and attach them to a Release. Windows users who
+don't want to install anything can grab the `_portable.exe` asset instead.
 
 ## Blog / CMS
 

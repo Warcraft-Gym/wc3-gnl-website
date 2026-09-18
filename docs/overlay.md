@@ -31,6 +31,21 @@ serves (`/api/builds`).
    app's WebView local storage, not a config file under `%APPDATA%`.
    Uninstalling the app clears this app data along with it.
 
+### Portable (no install)
+
+Prefer not to install anything? Download the `_portable.exe` asset from the
+same [GitHub Release](../../releases) instead of the NSIS installer, put it
+anywhere (a folder, a USB stick — no installer, no admin rights), and run
+it directly.
+
+- Windows SmartScreen still shows **"Windows protected your PC"** for this
+  unsigned build — **More info → Run anyway**, same as the installed version.
+- Requires the [WebView2 runtime](https://developer.microsoft.com/microsoft-edge/webview2/)
+  (preinstalled on Windows 11; Windows 10 needs the Evergreen bootstrapper
+  once — see Prerequisites above).
+- Settings still live in `%LOCALAPPDATA%`, not beside the exe — moving or
+  deleting the portable exe does not move or delete your settings.
+
 ## Install on macOS
 
 1. Download the `.dmg` from the latest
@@ -81,6 +96,11 @@ Site fonts (Cinzel/Lato/JetBrains Mono) and key-art are bundled in `apps/overlay
 
 ## Release
 
+Before tagging, bump the version in all three of `apps/overlay/package.json`,
+`src-tauri/tauri.conf.json`, and `src-tauri/Cargo.toml` (plus `Cargo.lock`'s
+own `wc3gym-overlay` package entry), then confirm with
+`pnpm --filter wc3gym-overlay check:config`.
+
 Tag a commit to build and publish installers via GitHub Actions:
 
 ```bash
@@ -89,10 +109,13 @@ git push origin overlay-v0.1.0
 ```
 
 The `Overlay release` workflow (`.github/workflows/overlay-release.yml`)
-builds Windows (NSIS + MSI) and macOS (DMG, universal binary) installers and
-attaches them to a new GitHub Release. You can also trigger the workflow
-manually (`workflow_dispatch`) to build and upload workflow artifacts
-without publishing a release — useful for testing the pipeline.
+builds Windows (NSIS + MSI) and macOS (DMG, universal binary) installers,
+attaches them to a new GitHub Release, and also uploads a raw
+`_portable.exe` (see "Portable (no install)" above) to the same Release.
+You can also trigger the workflow manually (`workflow_dispatch`) to build
+and upload workflow artifacts — including the portable exe as the
+`portable-windows` artifact — without publishing a release, useful for
+testing the pipeline.
 
 The tag's version must match `apps/overlay/package.json` and
 `src-tauri/tauri.conf.json` (`pnpm --filter wc3gym-overlay check:config`
