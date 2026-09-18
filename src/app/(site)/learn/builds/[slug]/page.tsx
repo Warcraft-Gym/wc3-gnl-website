@@ -12,6 +12,7 @@ import { StepTable } from "@/components/builds/StepTable";
 import { DifficultyBadge, Matchup, TagChip } from "@/components/builds/BuildBadges";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
+import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { getBuildBySlug, getBuilds } from "@/lib/builds/builds";
 import { BUILD_RACES } from "@/lib/builds/types";
 
@@ -152,10 +153,12 @@ export default async function BuildPage({ params }: Params) {
         <section className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)] lg:self-start">
           <StepTable steps={build.steps} />
 
-          <OverlayBeta
-            className="mt-4"
-            text="The desktop overlay floats these steps over Warcraft III while you play, clock included."
-          />
+          {OVERLAY_BETA_LIVE ? (
+            <OverlayBeta
+              className="mt-4"
+              text="The desktop overlay floats these steps over Warcraft III while you play, clock included."
+            />
+          ) : null}
 
           {/* Questions go to the build orders channel */}
           <div className="panel mt-4 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">

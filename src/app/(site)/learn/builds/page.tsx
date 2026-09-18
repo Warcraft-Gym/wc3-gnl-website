@@ -8,6 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { MatchupPicker } from "@/components/builds/MatchupPicker";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
+import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import {
   BUILD_DIFFICULTIES,
@@ -79,10 +80,10 @@ export default async function BuildsPage({
 
       <Container className="py-10">
         {/* Overlay beta, only on the unfiltered landing view */}
-        {!isFiltered ? <OverlayBeta /> : null}
+        {OVERLAY_BETA_LIVE && !isFiltered ? <OverlayBeta /> : null}
 
         {/* Matchup + filters, the way in */}
-        <section className={isFiltered ? "" : "mt-10"}>
+        <section className={OVERLAY_BETA_LIVE && !isFiltered ? "mt-10" : ""}>
           <Suspense>
             <MatchupPicker
               race={race}

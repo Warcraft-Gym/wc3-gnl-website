@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Image from "next/image";
 import { Apple, BookOpen, Download, Keyboard, Layers, Timer } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -7,6 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_BUILDS_CHANNEL_URL } from "@/lib/links";
 import { OVERLAY_DOCS_URL, OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
+import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Build order overlay",
@@ -53,6 +55,7 @@ const STEPS = [
 ];
 
 export default async function OverlayPage() {
+  if (!OVERLAY_BETA_LIVE) notFound();
   const release = await getOverlayRelease();
 
   return (

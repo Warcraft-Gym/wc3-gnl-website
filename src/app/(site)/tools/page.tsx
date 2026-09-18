@@ -5,6 +5,7 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { COMMUNITY_TOOLS, GYM_TOOLS, type Tool } from "@/lib/tools";
+import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Tools",
@@ -74,19 +75,25 @@ export default function ToolsPage() {
       <PageHeader
         kicker="Warcraft 3 Gym"
         title="Tools"
-        lead="Apps from the Gym, and the community tools we point players to every day."
+        lead={
+          OVERLAY_BETA_LIVE
+            ? "Apps from the Gym, and the community tools we point players to every day."
+            : "The community tools we point players to every day."
+        }
       />
       <Container className="py-10">
-        <section>
-          <p className="kicker mb-5">From the Gym</p>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {GYM_TOOLS.map((t) => (
-              <ToolCard key={t.href} tool={t} />
-            ))}
-          </div>
-        </section>
+        {OVERLAY_BETA_LIVE ? (
+          <section className="mb-14">
+            <p className="kicker mb-5">From the Gym</p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {GYM_TOOLS.map((t) => (
+                <ToolCard key={t.href} tool={t} />
+              ))}
+            </div>
+          </section>
+        ) : null}
 
-        <section className="mt-14">
+        <section>
           <div className="mb-5">
             <p className="kicker">From the community</p>
             <p className="mt-2 max-w-2xl text-sm text-muted">

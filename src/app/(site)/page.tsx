@@ -12,6 +12,7 @@ import { NewsFeatureCard } from "@/components/home/NewsFeatureCard";
 import { GnlSection } from "@/components/home/GnlSection";
 import { BuildRow, FeaturedBuild } from "@/components/builds/BuildRow";
 import { getBuilds } from "@/lib/builds/builds";
+import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { getActiveSeason, getStandings, getTeams } from "@/lib/api/gnl";
 import { getGuides } from "@/lib/learn/guides";
 import { getLatestPosts } from "@/lib/content";
@@ -121,9 +122,11 @@ export default async function HomePage() {
               <ButtonLink href="/learn/builds" variant="outline">
                 All build orders <ArrowRight size={16} />
               </ButtonLink>
-              <ButtonLink href="/tools/overlay" variant="ghost">
-                Try the in-game overlay
-              </ButtonLink>
+              {OVERLAY_BETA_LIVE ? (
+                <ButtonLink href="/tools/overlay" variant="ghost">
+                  Try the in-game overlay
+                </ButtonLink>
+              ) : null}
             </div>
           </Container>
         </section>
