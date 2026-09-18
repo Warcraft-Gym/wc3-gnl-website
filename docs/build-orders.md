@@ -76,6 +76,42 @@ image is missing the UI shows a lettered chip instead of breaking.
 Set the token locally in `.env.local` and in the Vercel project for
 Production (and Preview if you want previews to accept submissions).
 
+## JSON API
+
+Public, read-only endpoints so a desktop overlay (or any other client) can
+consume the same build orders shown on the site. No auth — the data is
+already public; only approved builds are ever served, same as the pages.
+
+| Endpoint | Returns |
+|---|---|
+| `GET /api/builds` | `200 { "builds": ApiBuild[] }`, in the order `getBuilds()` returns. List items **omit `description`**. |
+| `GET /api/builds/<slug>` | `200 { "build": ApiBuild }` including `description`, or `404 { "error": "not_found" }` when the slug doesn't match an approved build. |
+| `OPTIONS /api/builds`, `OPTIONS /api/builds/<slug>` | `204`, no body, CORS headers only (preflight). |
+
+`ApiBuild` is every field of `BuildOrder` (see Content model above) except
+that each item in `steps[]` also gets `iconUrl`: an absolute URL
+(`<request origin>/wc3-icons/<icon>.webp`), added only when the step has an
+`icon`. The `icon` key itself is kept unchanged. There is no `reviewStatus`
+field in the API — the data layer already serves approved-only, so it would
+be redundant and it is never exposed.
+
+Every response, including `404` and `OPTIONS`, carries:
+
+```
+Access-Control-Allow-Origin: *
+Access-Control-Allow-Methods: GET, OPTIONS
+Access-Control-Allow-Headers: Content-Type
+Cache-Control: public, s-maxage=300, stale-while-revalidate=600
+```
+
+(`404` responses use a shorter `s-maxage=60` so a miss doesn't linger in a
+shared cache.) The open CORS policy is deliberate: the data is already
+public on the site, and the overlay runs on a different origin.
+
+The Sanity webhook (`/api/revalidate`, above) also purges `/api/builds` and
+`/api/builds/<slug>` when a `buildOrder` changes, so the API reflects an
+edit as fast as the pages do.
+
 ## Code map
 
 | Path | What |
@@ -85,7 +121,9 @@ Production (and Preview if you want previews to accept submissions).
 | `src/lib/builds/fixtures.ts` | four seed builds, **development only**, used when Sanity is unreachable or empty. They were imported into Sanity as the starting library (`build-<slug>` ids). |
 | `src/lib/builds/submission.ts` | zod schema shared by the form and the action |
 | `src/lib/builds/submit.ts` | write client; creates the draft |
+| `src/lib/builds/serialize.ts` | `BuildOrder` → `ApiBuild`/`ApiBuildListItem` DTOs for the JSON API |
 | `src/app/(site)/learn/builds/` | list, `[slug]` detail, `submit` (page + server action) |
+| `src/app/api/builds/` | public JSON API: `route.ts` (list), `[slug]/route.ts` (detail), `_headers.ts` (shared CORS/cache headers) |
 | `src/components/builds/` | `StepTable` (timer), `MatchupPicker`, `BuildRow`, `BuildSubmitForm`, `GameIcon`, badges |
 
 ## Not in this version

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+apps/*/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -45,6 +46,11 @@ yarn-error.log*
 
 # vercel
 .vercel
+
+# overlay app (Tauri build artifacts, not source)
+apps/overlay/dist/
+apps/overlay/src-tauri/target/
+apps/overlay/src-tauri/gen/
 
 # typescript
 *.tsbuildinfo

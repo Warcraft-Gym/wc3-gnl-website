@@ -1,0 +1,70 @@
+import { beforeEach, describe, expect, it } from "vitest";
+import { TIMER } from "../store/keys";
+import { readKey, writeKey } from "../store/state";
+import { reset, stepNext, stepPrev, togglePlayPause } from "./timerActions";
+
+const steps = [{ time: "0:00" }, { time: "0:30" }, { time: "1:15" }];
+
+describe("timerActions", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
+  it("togglePlayPause starts the timer (engaging it), then pauses it accumulating elapsed", async () => {
+    await togglePlayPause(0);
+    expect(readKey(TIMER)).toEqual({ startedAtMs: 0, baseElapsedMs: 0, engaged: true });
+
+    await togglePlayPause(1000);
+    expect(readKey(TIMER)).toEqual({ startedAtMs: null, baseElapsedMs: 1000, engaged: true });
+  });
+
+  it("a stepNext press after Play has already been running for a while lands on the step after the active one, not back at the first step (C-015 step 5, corrected semantics)", async () => {
+    // Play is clicked, the clock runs for 1.5s (elapsed > the first step's
+    // own 0:00 timestamp) — this is exactly the sequence a real player
+    // follows. Play engages the timer, so the next step_next press must
+    // advance from the row that's already active (0:00) to its neighbour
+    // (0:30), not rewind back to 0:00.
+    await togglePlayPause(0);
+
+    await stepNext(steps, 1500);
+    expect(readKey(TIMER).baseElapsedMs).toBe(30_000);
+    expect(readKey(TIMER).engaged).toBe(true);
+
+    await stepNext(steps, 1500);
+    expect(readKey(TIMER).baseElapsedMs).toBe(75_000);
+  });
+
+  it("reset returns elapsed to 0, running=false, and not engaged", async () => {
+    await writeKey(TIMER, { startedAtMs: 0, baseElapsedMs: 5000, engaged: true });
+    await reset();
+    expect(readKey(TIMER)).toEqual({ startedAtMs: null, baseElapsedMs: 0, engaged: false });
+  });
+
+  it("stepNext/stepPrev jump the clock to the neighbouring timed step, clamped", async () => {
+    await writeKey(TIMER, { startedAtMs: null, baseElapsedMs: 0, engaged: false });
+
+    // First press from a fresh timer lands on the first timed step itself
+    // (0:00 here), not the one after it.
+    await stepNext(steps, 0);
+    expect(readKey(TIMER).baseElapsedMs).toBe(0);
+    expect(readKey(TIMER).engaged).toBe(true);
+
+    await stepNext(steps, 0);
+    expect(readKey(TIMER).baseElapsedMs).toBe(30_000);
+
+    await stepNext(steps, 0);
+    expect(readKey(TIMER).baseElapsedMs).toBe(75_000);
+
+    await stepNext(steps, 0); // clamped at the last timed step
+    expect(readKey(TIMER).baseElapsedMs).toBe(75_000);
+
+    await stepPrev(steps, 0);
+    expect(readKey(TIMER).baseElapsedMs).toBe(30_000);
+  });
+
+  it("stepPrev from a fresh/reset timer is a no-op (stays reset)", async () => {
+    await writeKey(TIMER, { startedAtMs: null, baseElapsedMs: 0, engaged: false });
+    await stepPrev(steps, 0);
+    expect(readKey(TIMER)).toEqual({ startedAtMs: null, baseElapsedMs: 0, engaged: false });
+  });
+});

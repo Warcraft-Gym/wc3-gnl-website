@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "overlay:dev": "pnpm --filter wc3gym-overlay tauri dev",
+    "overlay:build": "pnpm --filter wc3gym-overlay tauri build",
+    "overlay:check": "pnpm --filter wc3gym-overlay check:config"
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",
