@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { COMMUNITY_TOOLS, GYM_TOOLS, type Tool } from "@/lib/tools";
+import { COMMUNITY_TOOL_GROUPS, GYM_TOOLS, type Tool } from "@/lib/tools";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
   title: "Tools",
   description:
-    "Apps and utilities for Warcraft III players: the Gym's build order overlay, plus the community's ladder, creep, hotkey and replay tools.",
+    "Community-made Warcraft III tools: the W3Champions ladder, replay parsers, build order overlays, streaming tools, creep route and hotkey trainers.",
   alternates: { canonical: "/tools" },
 };
 
@@ -78,8 +78,8 @@ export default function ToolsPage() {
         title="Tools"
         lead={
           OVERLAY_BETA_LIVE
-            ? "Apps from the Gym, and the community tools we point players to every day."
-            : "The community tools we point players to every day."
+            ? "Apps from the Gym, and the community-made tools we point players to every day."
+            : "Community-made tools we point players to every day. Made by other people in the scene, and not run by the Gym."
         }
       />
       <Container className="py-10">
@@ -94,19 +94,19 @@ export default function ToolsPage() {
           </section>
         ) : null}
 
-        <section>
-          <div className="mb-5">
-            <p className="kicker">From the community</p>
-            <p className="mt-2 max-w-2xl text-sm text-muted">
-              Made by other people in the scene. We use them, we recommend them, and none of them are run by the Gym.
-            </p>
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {COMMUNITY_TOOLS.map((t) => (
-              <ToolCard key={t.href} tool={t} />
-            ))}
-          </div>
-        </section>
+        {COMMUNITY_TOOL_GROUPS.map((group, i) => (
+          <section key={group.title} className={i === 0 ? "" : "mt-14"}>
+            <div className="mb-5">
+              <p className="kicker">{group.title}</p>
+              {group.blurb ? <p className="mt-2 max-w-2xl text-sm text-muted">{group.blurb}</p> : null}
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {group.tools.map((t) => (
+                <ToolCard key={t.href} tool={t} />
+              ))}
+            </div>
+          </section>
+        ))}
       </Container>
     </>
   );
