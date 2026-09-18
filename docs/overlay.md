@@ -70,9 +70,22 @@ it directly.
 | Previous step | `Ctrl+Shift+[` | `⌘⇧[` | Jump the clock to the previous timed step |
 
 Change any combo from the picker's **Settings → Shortcuts** panel: click
-**Change**, then press the new combo (Escape cancels). If a row shows
-**"Not registered — another app may own this combo"**, another application
-already has that shortcut registered globally — pick a different combo.
+**Change**, then press the new combo (Escape cancels the capture without
+closing the Settings dialog). A modifier combo needs Ctrl, Alt, or ⌘; a
+single **function key** (F1–F12, and F13–F24 if your keyboard has them) or
+one of Insert, Delete, Home, End, PageUp, PageDown, Pause, ScrollLock also
+works on its own, no modifier required — press it and it's accepted
+immediately. Pressing any other key alone (a letter, digit, etc.) does
+nothing to the stored combo and shows an inline reason instead
+(`Use Ctrl/Alt/⌘ + key, or a function key…`); it clears on your next
+accepted press or Escape.
+
+If a row shows a warning after **"Not registered:"**, that's the real error
+the OS/plugin returned — usually another application (or a **second copy**
+of this overlay **already running**) already owns that combo globally. Pick
+a different combo, close the other app, or click **Re-register** to retry
+the current combos without changing anything (useful right after quitting
+whatever was holding the shortcut).
 
 ## Using it in a game
 
@@ -140,6 +153,22 @@ enforces that the two stay equal).
 - **Shortcuts not working.** Another app may already own that global
   combo — open **Settings → Shortcuts** and look for the "Not registered"
   warning, then change the combo.
+- **All shortcuts show "Not registered".** Before 0.1.2 this usually meant
+  a second copy of the app was already running and had claimed every
+  global shortcut, leaving the new copy's registrations to fail silently.
+  From 0.1.2 the app quits fully when the picker window closes on every
+  platform (it used to leave the hidden overlay window, and the process
+  behind it, running invisibly). On **Windows and Linux**, 0.1.2 also adds
+  a single-instance guard: launching the app again while one is already
+  running just focuses the existing picker instead of starting a second
+  process. **macOS** does not register this guard (registering it renders
+  the picker window blank on macOS) — a `.app` bundle launched from
+  Finder/Launchpad is already single-instance via Launch Services, so
+  running the raw dev/debug binary twice from a terminal is the only way
+  to get two copies on macOS. If a copy is genuinely frozen (not just
+  hidden) rather than merely already running, end it from Task Manager
+  (Windows) / Activity Monitor (macOS), or use the **Quit app** button in
+  Settings, then relaunch.
 - **Build list is empty.** Check the **API base** setting (Settings
   dialog) points at the right site origin — the default is
   `https://wc3-gnl-website.vercel.app`; if the offline banner is
