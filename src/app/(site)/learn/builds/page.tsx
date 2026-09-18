@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { MatchupPicker } from "@/components/builds/MatchupPicker";
 import { BuildRow } from "@/components/builds/BuildRow";
-import { OverlayBeta } from "@/components/builds/OverlayBeta";
+import { OverlayToast } from "@/components/builds/OverlayToast";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import {
@@ -81,11 +81,29 @@ export default async function BuildsPage({
       </PageHeader>
 
       <Container className="py-10">
-        {/* Overlay beta, only on the unfiltered landing view */}
-        {OVERLAY_BETA_LIVE && !isFiltered ? <OverlayBeta /> : null}
+        {/* Submit CTA */}
+        <div className="panel relative overflow-hidden border-gold/40 p-6 sm:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{ backgroundImage: "radial-gradient(28rem 14rem at 100% 120%, var(--wg-gold-glow), transparent 65%)" }}
+          />
+          <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="kicker">Community builds</p>
+              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a build worth sharing?</h2>
+              <p className="mt-1 max-w-xl text-sm text-muted">
+                Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
+              </p>
+            </div>
+            <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">
+              Submit a build <ArrowRight size={16} />
+            </ButtonLink>
+          </div>
+        </div>
 
         {/* Matchup + filters, the way in */}
-        <section className={OVERLAY_BETA_LIVE && !isFiltered ? "mt-10" : ""}>
+        <section className="mt-12">
           <Suspense>
             <MatchupPicker
               race={race}
@@ -126,27 +144,10 @@ export default async function BuildsPage({
           </p>
         ) : null}
 
-        {/* Submit CTA */}
-        <div className="panel relative mt-14 overflow-hidden border-gold/40 p-6 sm:p-8">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-70"
-            style={{ backgroundImage: "radial-gradient(28rem 14rem at 100% 120%, var(--wg-gold-glow), transparent 65%)" }}
-          />
-          <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="kicker">Community builds</p>
-              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a build worth sharing?</h2>
-              <p className="mt-1 max-w-xl text-sm text-muted">
-                Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
-              </p>
-            </div>
-            <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">
-              Submit a build <ArrowRight size={16} />
-            </ButtonLink>
-          </div>
-        </div>
       </Container>
+
+      {/* Overlay beta nudge, slides in after a few seconds */}
+      {OVERLAY_BETA_LIVE ? <OverlayToast /> : null}
     </>
   );
 }
