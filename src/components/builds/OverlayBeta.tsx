@@ -1,12 +1,23 @@
 import Link from "next/link";
 import { ArrowRight, MonitorPlay } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-/** One-line pointer from the build list to the overlay app page. */
-export function OverlayBeta() {
+/** One-line pointer to the overlay app page, used on the build list and
+ *  under a build's step table. */
+export function OverlayBeta({
+  text = "A desktop overlay floats any of these builds over Warcraft III. Looking for players to try it.",
+  className,
+}: {
+  text?: string;
+  className?: string;
+}) {
   return (
     <Link
       href="/tools/overlay"
-      className="panel group flex items-center gap-4 border-arcane/40 px-5 py-4 transition-colors hover:border-arcane"
+      className={cn(
+        "panel group flex items-center gap-4 border-arcane/40 px-5 py-4 transition-colors hover:border-arcane",
+        className,
+      )}
     >
       <span className="grid size-10 shrink-0 place-items-center rounded border border-arcane/40 bg-arcane/10 text-arcane">
         <MonitorPlay size={18} />
@@ -20,9 +31,7 @@ export function OverlayBeta() {
             Beta
           </span>
         </span>
-        <span className="mt-0.5 block text-sm text-muted">
-          A desktop overlay floats any of these builds over Warcraft III. Looking for players to try it.
-        </span>
+        <span className="mt-0.5 block text-sm text-muted">{text}</span>
       </span>
       <ArrowRight size={18} className="shrink-0 text-muted transition-colors group-hover:text-gold" />
     </Link>
