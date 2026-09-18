@@ -21,12 +21,15 @@ export type Tool = {
   /** Who makes it; omitted for the Gym's own tools. */
   by?: string;
   badge?: string;
+  /** 16:9 preview in public/tools/, a screenshot of the tool. */
+  image: string;
 };
 
 /** Apps and services built by the Gym. */
 export const GYM_TOOLS: Tool[] = [
   {
     href: "/tools/overlay",
+    image: "/tools/overlay.webp",
     Icon: MonitorPlay,
     title: "Build order overlay",
     badge: "Beta",
@@ -34,6 +37,7 @@ export const GYM_TOOLS: Tool[] = [
   },
   {
     href: DASHBOARD_URL,
+    image: "/tools/dashboard.webp",
     Icon: LayoutDashboard,
     title: "Player dashboard",
     body: "Availability, scheduling, results and your fantasy team for the Gym Newbie League.",
@@ -44,6 +48,7 @@ export const GYM_TOOLS: Tool[] = [
 export const COMMUNITY_TOOLS: Tool[] = [
   {
     href: "https://w3champions.com/getting-started/",
+    image: "/tools/w3champions.webp",
     Icon: Swords,
     title: "W3Champions",
     by: "W3Champions",
@@ -51,6 +56,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://wc3.no/",
+    image: "/tools/ape-science.webp",
     Icon: Activity,
     title: "Ape Science Research Facility",
     by: "Longjacket",
@@ -58,6 +64,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://coff-creeps.web.app/",
+    image: "/tools/coff-creeps.webp",
     Icon: Map,
     title: "Coff Creeps",
     by: "Coff",
@@ -65,6 +72,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://jcfields.gitlab.io/warcraft3-hotkey-editor/",
+    image: "/tools/hotkeys-editor.webp",
     Icon: Keyboard,
     title: "Custom Hotkeys Editor",
     by: "jcfields",
@@ -72,6 +80,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://replaytool.warcraft3.org/en:home",
+    image: "/tools/replay-tool.webp",
     Icon: Film,
     title: "Replay Tool",
     by: "LadyRisa",
@@ -79,6 +88,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://warcraft3.info/",
+    image: "/tools/warcraft3-info.webp",
     Icon: Calendar,
     title: "Warcraft3.info",
     by: "warcraft3.info",
@@ -86,6 +96,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://liquipedia.net/warcraft/Main_Page",
+    image: "/tools/liquipedia.webp",
     Icon: BookOpenText,
     title: "Liquipedia",
     by: "Liquipedia",
@@ -93,6 +104,7 @@ export const COMMUNITY_TOOLS: Tool[] = [
   },
   {
     href: "https://www.back2warcraft.com/",
+    image: "/tools/back2warcraft.webp",
     Icon: Tv,
     title: "Back2Warcraft",
     by: "Back2Warcraft",

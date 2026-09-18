@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -12,11 +13,21 @@ export const metadata: Metadata = {
 };
 
 function ToolCard({ tool }: { tool: Tool }) {
-  const { href, Icon, title, body, by, badge } = tool;
+  const { href, Icon, title, body, by, badge, image } = tool;
   const external = href.startsWith("http");
   const host = external ? new URL(href).hostname.replace(/^www\./, "") : null;
   const inner = (
     <>
+      <span className="relative -mx-6 -mt-6 mb-5 block aspect-video overflow-hidden rounded-t border-b border-line/70 bg-bg-deep">
+        <Image
+          src={image}
+          alt=""
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="object-cover object-top transition-transform duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] group-hover:scale-[1.03]"
+        />
+        <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(0,0,0,.55))]" />
+      </span>
       <div className="flex items-start justify-between gap-3">
         <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
           <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
@@ -45,7 +56,7 @@ function ToolCard({ tool }: { tool: Tool }) {
       </span>
     </>
   );
-  const cls = "panel group flex h-full flex-col p-6 transition-colors hover:border-gold/50";
+  const cls = "panel group flex h-full flex-col overflow-hidden p-6 transition-colors hover:border-gold/50";
   return external ? (
     <a href={href} target="_blank" rel="noreferrer" className={cls}>
       {inner}
