@@ -67,7 +67,7 @@ export default async function OverlayPage() {
       <PageHeader
         kicker="Tools · Beta"
         title="Build order overlay"
-        lead="A small desktop app that shows the build order on top of Warcraft III while you play. It is early, and we are looking for players to try it and tell us what breaks."
+        lead="Stop alt-tabbing to check a build. This little app keeps the steps, food counts and clock on top of the game. Beta: expect rough edges, and tell us about them."
       >
         {release?.windowsInstaller ? (
           <ButtonLink href={release.windowsInstaller} size="md">
