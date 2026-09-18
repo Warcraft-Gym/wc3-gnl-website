@@ -41,7 +41,7 @@ Editors can also create builds directly in the Studio; same document type.
 | Field | Notes |
 |---|---|
 | `title`, `slug` | slug is generated from the title on submission |
-| `race`, `vsRace` | `human` · `orc` · `nightelf` · `undead`; `vsRace` may be `any` |
+| `race`, `vsRaces` | `human` · `orc` · `nightelf` · `undead`; `vsRaces` is a list, empty means any opponent |
 | `difficulty` | `beginner` · `intermediate` · `advanced` |
 | `patch`, `tags`, `summary` | list metadata; summary is shown in the list |
 | `author`, `authorDiscord`, `maintainer`, `sourceUrl` | credit |

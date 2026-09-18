@@ -90,3 +90,26 @@ export function RaceCrestRow({
     </div>
   );
 }
+
+/** A row of crests where several races can be active at once. "Any" clears
+ *  the selection and is shown active while nothing is picked. */
+export function RaceCrestMultiRow({
+  value,
+  onChange,
+  size = "md",
+}: {
+  value: BuildRace[];
+  onChange: (v: BuildRace[]) => void;
+  size?: "sm" | "md";
+}) {
+  const toggle = (id: BuildRace) =>
+    onChange(value.includes(id) ? value.filter((r) => r !== id) : [...value, id]);
+  return (
+    <div className="flex gap-1 sm:gap-2" role="group" aria-label="Against">
+      <RaceCrest id="any" label="Any" active={value.length === 0} onClick={() => onChange([])} size={size} />
+      {BUILD_RACES.map((o) => (
+        <RaceCrest key={o.id} id={o.id} label={o.label} active={value.includes(o.id)} onClick={() => toggle(o.id)} size={size} />
+      ))}
+    </div>
+  );
+}

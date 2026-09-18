@@ -1,8 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { RaceIcon } from "@/components/ui/RaceIcon";
-import { DifficultyBadge, TagChip } from "./BuildBadges";
+import { DifficultyBadge, TagChip, VsRaces } from "./BuildBadges";
 import { BUILD_RACES, type BuildDifficulty, type BuildOrder } from "@/lib/builds/types";
 import { cn } from "@/lib/utils";
 
@@ -47,8 +46,7 @@ export function BuildRow({ build }: { build: BuildOrder }) {
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             <span className="inline-flex items-center gap-1">
               <span className="text-faint">vs</span>
-              <RaceIcon race={build.vsRace === "any" ? "random" : build.vsRace} size={14} />
-              {build.vsRace === "any" ? "Any" : RACE_LABEL[build.vsRace]}
+              <VsRaces vsRaces={build.vsRaces} size={14} />
             </span>
             <span className="text-faint">·</span>
             <span>by {build.author}</span>
@@ -105,8 +103,7 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
             <span className="inline-flex items-center gap-1.5">
               <span className="font-bold text-fg">{RACE_LABEL[build.race]}</span>
               <span className="text-faint">vs</span>
-              <RaceIcon race={build.vsRace === "any" ? "random" : build.vsRace} size={14} />
-              {build.vsRace === "any" ? "Any" : RACE_LABEL[build.vsRace]}
+              <VsRaces vsRaces={build.vsRaces} size={14} />
             </span>
             <DifficultyBadge level={build.difficulty} />
             <span>by {build.author}</span>

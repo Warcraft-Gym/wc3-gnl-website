@@ -74,7 +74,7 @@ export default async function BuildPage({ params }: Params) {
             <ArrowLeft size={15} /> All builds
           </Link>
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Matchup race={build.race} vsRace={build.vsRace} size={22} />
+            <Matchup race={build.race} vsRaces={build.vsRaces} size={22} />
             <DifficultyBadge level={build.difficulty} />
             {build.patch ? (
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {build.patch}</span>

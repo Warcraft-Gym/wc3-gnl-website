@@ -33,7 +33,7 @@ export const stepSchema = z.object({
 export const submissionSchema = z.object({
   title: z.string().trim().min(6, "Give it a proper title").max(90, "Max 90 characters"),
   race: z.enum(raceIds, { error: "Pick your race" }),
-  vsRace: z.enum([...raceIds, "any"] as [string, ...string[]], { error: "Pick an opponent" }),
+  vsRaces: z.array(z.enum(raceIds)).max(4).transform((v) => [...new Set(v)]),
   difficulty: z.enum(difficultyIds, { error: "Pick a difficulty" }),
   patch: z.string().trim().max(16, "Max 16 characters").optional(),
   tags: z

@@ -1,29 +1,51 @@
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { cn } from "@/lib/utils";
-import type { BuildDifficulty, BuildRace, BuildVsRace } from "@/lib/builds/types";
-import { BUILD_RACES } from "@/lib/builds/types";
+import type { BuildDifficulty, BuildRace } from "@/lib/builds/types";
+import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
 
 const RACE_LABEL = Object.fromEntries(BUILD_RACES.map((r) => [r.id, r.label])) as Record<BuildRace, string>;
 
-/** "Race vs Opponent" with faction icons; "Any" uses the random mark. */
-export function Matchup({
-  race,
-  vsRace,
-  size = 20,
+/** The opponent side of a matchup: one icon per race, or the random mark
+ *  and "Any" when the build is not written for a specific opponent. */
+export function VsRaces({
+  vsRaces,
+  size = 14,
   className,
 }: {
-  race: BuildRace;
-  vsRace: BuildVsRace;
+  vsRaces: BuildRace[];
   size?: number;
   className?: string;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-1.5 whitespace-nowrap text-sm", className)}>
+    <span className={cn("inline-flex items-center gap-1", className)}>
+      {vsRaces.length ? (
+        vsRaces.map((r) => <RaceIcon key={r} race={r} size={size} />)
+      ) : (
+        <RaceIcon race="random" size={size} />
+      )}
+      <span className="text-muted">{vsLabel(vsRaces)}</span>
+    </span>
+  );
+}
+
+/** "Race vs Opponent(s)" with faction icons. */
+export function Matchup({
+  race,
+  vsRaces,
+  size = 20,
+  className,
+}: {
+  race: BuildRace;
+  vsRaces: BuildRace[];
+  size?: number;
+  className?: string;
+}) {
+  return (
+    <span className={cn("inline-flex flex-wrap items-center gap-1.5 text-sm", className)}>
       <RaceIcon race={race} size={size} />
       <span className="font-bold text-fg">{RACE_LABEL[race]}</span>
       <span className="mx-0.5 font-display text-[0.6rem] font-bold uppercase tracking-widest text-gold">vs</span>
-      <RaceIcon race={vsRace === "any" ? "random" : vsRace} size={size} />
-      <span className="text-muted">{vsRace === "any" ? "Any" : RACE_LABEL[vsRace]}</span>
+      <VsRaces vsRaces={vsRaces} size={size} />
     </span>
   );
 }

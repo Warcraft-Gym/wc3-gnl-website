@@ -38,7 +38,7 @@ export async function submitBuild(_prev: SubmitState, formData: FormData): Promi
   const parsed = submissionSchema.safeParse({
     title: formData.get("title"),
     race: formData.get("race"),
-    vsRace: formData.get("vsRace"),
+    vsRaces: formData.getAll("vsRaces").filter(Boolean),
     difficulty: formData.get("difficulty"),
     patch: formData.get("patch") ?? undefined,
     tags: formData.get("tags") ?? undefined,

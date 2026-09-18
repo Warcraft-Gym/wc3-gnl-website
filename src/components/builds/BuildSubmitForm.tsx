@@ -5,10 +5,10 @@ import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, Plus, Shield
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
 import { TagInput } from "./TagInput";
-import { RaceCrestRow, type CrestOption } from "./RaceCrestPicker";
+import { RaceCrestMultiRow, RaceCrestRow, type CrestOption } from "./RaceCrestPicker";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import type { IconRace } from "@/lib/builds/icons";
-import { BUILD_DIFFICULTIES, type BuildDifficulty } from "@/lib/builds/types";
+import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace } from "@/lib/builds/types";
 import type { StepInput } from "@/lib/builds/submission";
 import { cn } from "@/lib/utils";
 
@@ -67,7 +67,7 @@ const initial: SubmitState = { status: "idle" };
 export function BuildSubmitForm() {
   const [state, formAction, pending] = useActionState(submitBuild, initial);
   const [race, setRace] = useState<CrestOption | "">("");
-  const [vsRace, setVsRace] = useState<CrestOption>("any");
+  const [vsRaces, setVsRaces] = useState<BuildRace[]>([]);
   const [difficulty, setDifficulty] = useState<BuildDifficulty>("beginner");
   const [tags, setTags] = useState<string[]>([]);
   // Row ids are per-form counters (not a module global) so the server and
@@ -165,7 +165,9 @@ export function BuildSubmitForm() {
       <input type="hidden" name="startedAt" value={startedAt} />
       <input type="hidden" name="stepsJson" value={stepsJson} />
       <input type="hidden" name="race" value={race === "any" ? "" : race} />
-      <input type="hidden" name="vsRace" value={vsRace} />
+      {vsRaces.map((r) => (
+        <input key={r} type="hidden" name="vsRaces" value={r} />
+      ))}
       <input type="hidden" name="difficulty" value={difficulty} />
       <input type="hidden" name="tags" value={tags.join(",")} />
 
@@ -196,8 +198,8 @@ export function BuildSubmitForm() {
             <Field title="Your race" error={errors.race}>
               <RaceCrestRow value={race} onChange={setRace} size="sm" />
             </Field>
-            <Field title="Against" error={errors.vsRace}>
-              <RaceCrestRow value={vsRace} onChange={setVsRace} allowAny size="sm" />
+            <Field title="Against" error={errors.vsRaces} hint="Pick every race it works against, or leave Any.">
+              <RaceCrestMultiRow value={vsRaces} onChange={setVsRaces} size="sm" />
             </Field>
           </div>
 
