@@ -76,6 +76,10 @@ already has that shortcut registered globally — pick a different combo.
    (`Ctrl+Shift+P` / `⌘⇧P`) on the overlay timer.
 4. Use **next step** / **prev step** to resync the highlighted step if the
    timer drifts from the in-game clock.
+5. The step list header labels each column ("#", "Time", "Food", "Step");
+   a Time or Food column only appears when the selected build actually has
+   that data, and a step with no value for a shown column just leaves the
+   cell blank instead of showing a placeholder.
 
 ## Build locally
 
