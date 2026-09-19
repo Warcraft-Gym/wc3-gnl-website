@@ -379,7 +379,12 @@ export default async function PlayerPage({ params }: Params) {
 
             {live?.matches.length ? (
               <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">Recent ladder games</h2>
+                <div className="mb-4 flex items-baseline justify-between gap-3">
+                  <h2 className="font-display text-xl font-bold uppercase">Recent ladder games</h2>
+                  <a href={live.profileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs uppercase tracking-wide text-muted hover:text-gold">
+                    All games on W3Champions <ExternalLink size={11} />
+                  </a>
+                </div>
                 <Surface className="divide-y divide-line/60">
                   {live.matches.map((m) => (
                     <div key={m.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
@@ -401,9 +406,16 @@ export default async function PlayerPage({ params }: Params) {
                           </a>
                           <span className="tnum text-xs text-faint">{m.opponent.mmr}</span>
                         </span>
-                        <span className="block truncate text-xs text-faint">
+                        <a
+                          href={`https://w3champions.com/match/${m.id}`}
+                          target="_blank"
+                          rel="noreferrer"
+                          title="Open this game on W3Champions"
+                          className="block truncate text-xs text-faint transition-colors hover:text-gold"
+                        >
                           {m.map} <span>·</span> {dur(m.durationSeconds)} <span>·</span> {fmtDate.format(new Date(m.startedAt))}
-                        </span>
+                          <ExternalLink size={10} className="ml-1 inline-block align-[-1px]" />
+                        </a>
                       </span>
                       <span className={cn("tnum w-9 shrink-0 text-right font-mono text-xs", m.mmrGain >= 0 ? "text-win" : "text-loss")}>
                         {m.mmrGain >= 0 ? "+" : ""}
