@@ -10,6 +10,8 @@ import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
 import { getActiveSeason, getPlayerProfile } from "@/lib/api/gnl";
+import { getW3cProfile } from "@/lib/w3c";
+import { MmrChart } from "@/components/league/MmrChart";
 import { cn, raceOf } from "@/lib/utils";
 import type { MatchStatus } from "@/lib/api/types";
 
@@ -50,9 +52,16 @@ export default async function PlayerPage({ params }: Params) {
   const [profile, season] = await Promise.all([getPlayerProfile(slug), getActiveSeason()]);
   if (!profile) notFound();
   const { player, team, isCaptain, captainOnly, season: rec, w3c, career, series } = profile;
-  const w3cUrl = player.battleTag
+  const live = player.battleTag ? await getW3cProfile(player.battleTag) : null;
+  const w3cUrl = live?.profileUrl ?? (player.battleTag
     ? `https://w3champions.com/player/${encodeURIComponent(player.battleTag)}`
-    : undefined;
+    : undefined);
+  const ladder = live?.ladder.length
+    ? live.ladder
+    : w3c.map((r) => ({ race: r.race, mmr: r.mmr, league: "", division: 0, rank: 0, games: r.games, wins: r.wins, losses: r.losses }));
+  const ladderSeason = live?.season ?? w3c[0]?.season;
+  const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
+  const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
 
   return (
     <>
@@ -127,23 +136,75 @@ export default async function PlayerPage({ params }: Params) {
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-10">
-            {w3c.length ? (
+            {ladder.length ? (
               <section>
                 <h2 className="mb-4 font-display text-xl font-bold uppercase">W3Champions ladder</h2>
                 <Surface className="divide-y divide-line/60">
-                  {w3c.map((r) => (
-                    <div key={r.race} className="flex items-center justify-between gap-3 p-4">
-                      <span className="flex items-center gap-2">
-                        <RaceBadge race={r.race} />
-                      </span>
-                      <span className="tnum text-sm text-muted">
-                        {r.wins}W {r.losses}L <span className="text-faint">·</span> {pct(r.wins, r.losses)}%
+                  {ladder.map((r) => (
+                    <div key={r.race} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4">
+                      <RaceBadge race={r.race} />
+                      <span className="min-w-0 text-sm text-muted">
+                        {r.league ? (
+                          <span className="block truncate text-fg">
+                            {r.league}
+                            {r.division ? ` ${r.division}` : ""}
+                            {r.rank ? <span className="text-faint"> · rank {r.rank}</span> : null}
+                          </span>
+                        ) : null}
+                        <span className="tnum block text-xs">
+                          {r.wins}W {r.losses}L <span className="text-faint">·</span> {pct(r.wins, r.losses)}% <span className="text-faint">·</span> {r.games} games
+                        </span>
                       </span>
                       <span className="tnum font-display text-lg font-bold text-gold">{r.mmr}</span>
                     </div>
                   ))}
                 </Surface>
-                <p className="mt-2 text-xs text-faint">Ladder season {w3c[0].season}, synced from W3Champions.</p>
+                {live?.timeline.length ? (
+                  <div className="mt-4">
+                    <MmrChart points={live.timeline} />
+                  </div>
+                ) : null}
+                <p className="mt-2 text-xs text-faint">
+                  Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
+                </p>
+              </section>
+            ) : null}
+
+            {live?.matches.length ? (
+              <section>
+                <h2 className="mb-4 font-display text-xl font-bold uppercase">Recent ladder games</h2>
+                <Surface className="divide-y divide-line/60">
+                  {live.matches.map((m) => (
+                    <div key={m.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                      <span className={cn("w-9 shrink-0 font-display text-[0.65rem] font-extrabold", m.won ? "text-win" : "text-loss")}>
+                        {m.won ? "WIN" : "LOSS"}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="flex items-center gap-1.5">
+                          <RaceIcon race={m.race} size={14} />
+                          <span className="text-faint">vs</span>
+                          <RaceIcon race={m.opponent.race} size={14} />
+                          <a
+                            href={`https://w3champions.com/player/${encodeURIComponent(m.opponent.battleTag)}`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="truncate text-fg hover:text-gold"
+                          >
+                            {m.opponent.name}
+                          </a>
+                          <span className="tnum text-xs text-faint">{m.opponent.mmr}</span>
+                        </span>
+                        <span className="block truncate text-xs text-faint">
+                          {m.map} <span>·</span> {dur(m.durationSeconds)} <span>·</span> {fmtDate.format(new Date(m.startedAt))}
+                        </span>
+                      </span>
+                      <span className={cn("tnum w-9 shrink-0 text-right font-mono text-xs", m.mmrGain >= 0 ? "text-win" : "text-loss")}>
+                        {m.mmrGain >= 0 ? "+" : ""}
+                        {m.mmrGain}
+                      </span>
+                    </div>
+                  ))}
+                </Surface>
               </section>
             ) : null}
 
