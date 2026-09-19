@@ -103,7 +103,7 @@ export default async function LadderPage() {
                       <span className="tnum font-display text-sm font-bold text-faint">{i + 1}</span>
                       <div className="min-w-0">
                         <p className="flex items-center gap-2">
-                          <RaceIcon race={p.race} size={16} />
+                          <RaceIcon race={p.race} size={20} />
                           <Link href={`/gnl/players/${p.slug}`} className="truncate font-display font-bold uppercase text-fg hover:text-gold">
                             {p.name}
                           </Link>
