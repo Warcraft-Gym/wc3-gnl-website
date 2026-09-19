@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ExternalLink, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { KeyArt } from "@/components/ui/KeyArt";
 import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
@@ -55,13 +56,19 @@ export default async function PlayerPage({ params }: Params) {
 
   return (
     <>
-      <div className="relative overflow-hidden border-b border-line/70">
+      {/* Masthead: the player's race showcase runs under the nav bar; Random
+          players get the shared scene since there is no Random art */}
+      <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
+        <KeyArt
+          src={player.race === "random" ? "/keyart/feature-orc-vs-human.webp" : `/factions/headers/${player.race}.webp`}
+          position="center 30%"
+          overlay="soft"
+        />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-60"
-          style={{ backgroundImage: "radial-gradient(34rem 20rem at 90% -10%, var(--wg-gold-glow), transparent 60%)" }}
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.8)_0%,rgba(0,0,0,.55)_45%,rgba(0,0,0,.15)_100%)]"
         />
-        <Container className="py-12 sm:py-16">
+        <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
             href={team ? `/gnl/teams/${team.slug}` : "/gnl/leaderboard"}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
@@ -71,7 +78,7 @@ export default async function PlayerPage({ params }: Params) {
           <div className="flex flex-wrap items-center gap-5">
             <RaceIcon race={player.race} size={64} />
             <div className="min-w-0">
-              <h1 className="flex flex-wrap items-center gap-3 text-[length:var(--wg-text-display)] font-extrabold">
+              <h1 className="flex flex-wrap items-center gap-3 text-[length:var(--wg-text-display)] font-extrabold [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
                 {player.name}
                 {isCaptain ? <CaptainBadge /> : null}
               </h1>
@@ -97,6 +104,7 @@ export default async function PlayerPage({ params }: Params) {
             </div>
           </div>
         </Container>
+        <div className="rivets relative z-10" aria-hidden />
       </div>
 
       <Container className="py-10">
