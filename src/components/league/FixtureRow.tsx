@@ -111,9 +111,13 @@ function DetailRow({ m }: { m: PlayerMatch }) {
   );
 }
 
-export function FixtureRow({ fixture }: { fixture: TeamFixture }) {
+export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixture; defaultOpen?: boolean }) {
   const done = fixture.status === "completed";
-  const [open, setOpen] = useState(fixture.status === "live");
+  const [open, setOpen] = useState(defaultOpen || fixture.status === "live");
+  const seriesWon = (side: "home" | "away") =>
+    fixture.matches.filter((m) => m.status === "completed" && (side === "home" ? m.home.score > m.away.score : m.away.score > m.home.score)).length;
+  const homeSeries = seriesWon("home");
+  const awaySeries = seriesWon("away");
   const homeWon = done && fixture.home.score > fixture.away.score;
   const awayWon = done && fixture.away.score > fixture.home.score;
   const showScore = fixture.status !== "scheduled";
@@ -168,6 +172,11 @@ export function FixtureRow({ fixture }: { fixture: TeamFixture }) {
               <span>VS</span>
             </span>
           )}
+          {showScore && homeSeries + awaySeries > 0 ? (
+            <span className="tnum font-mono text-[0.62rem] uppercase tracking-widest text-faint" title="Series won">
+              {homeSeries} - {awaySeries} series
+            </span>
+          ) : null}
         </div>
 
         <Link

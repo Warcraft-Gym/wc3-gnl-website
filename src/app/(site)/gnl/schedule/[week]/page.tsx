@@ -7,6 +7,7 @@ import { FixtureRow } from "@/components/league/FixtureRow";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { Badge } from "@/components/ui/Badge";
 import { getActiveSeason, getWeeks, getWeekFixtures } from "@/lib/api/gnl";
+import { WeekSummary } from "@/components/league/WeekSummary";
 
 type Params = { params: Promise<{ week: string }> };
 
@@ -36,6 +37,9 @@ export default async function ScheduleWeekPage({ params }: Params) {
   ]);
 
   if (!week) notFound();
+  // A week whose start date is later than the newest fixture on record is
+  // still to come; a rule based on the clock would be impure in render.
+  const isFuture = weeks.some((w) => w.isCurrent && w.number < week.number);
 
   return (
     <>
@@ -51,20 +55,30 @@ export default async function ScheduleWeekPage({ params }: Params) {
       <Container className="py-10">
         <DataSourceNote source={source} />
 
-        <div className="mb-8">
+        <div className="mb-6">
           <WeekSelector weeks={weeks} active={week.number} />
         </div>
 
         {fixtures.length ? (
-          <div className="flex flex-col gap-4">
-            {fixtures.map((f) => (
-              <FixtureRow key={f.id} fixture={f} />
-            ))}
-          </div>
+          <>
+            <WeekSummary fixtures={fixtures} />
+            <div className="mt-6 flex flex-col gap-4">
+              {fixtures.map((f) => (
+                <FixtureRow key={f.id} fixture={f} defaultOpen={week.isCurrent} />
+              ))}
+            </div>
+          </>
         ) : (
-          <p className="border border-dashed border-line px-5 py-10 text-center text-sm text-faint">
-            No fixtures scheduled for this week yet.
-          </p>
+          <div className="border border-dashed border-line px-5 py-10 text-center">
+            <p className="font-display text-sm font-bold uppercase tracking-[0.08em] text-fg">
+              Week {week.number}, {week.label}
+            </p>
+            <p className="mt-2 text-sm text-faint">
+              {isFuture
+                ? "Fixtures for this week are set once the draft is done and the week before it is played."
+                : "No fixtures were recorded for this week."}
+            </p>
+          </div>
         )}
       </Container>
     </>
