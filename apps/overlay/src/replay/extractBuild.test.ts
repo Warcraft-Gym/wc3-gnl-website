@@ -17,6 +17,12 @@ function clockToMs(clock: string): number {
   return (minutes * 60 + seconds) * 1000;
 }
 
+function trainCountFor(instruction: string, unitTitle: string): number {
+  const multi = instruction.match(new RegExp(`^Train (\\d+)× ${unitTitle}$`));
+  if (multi) return Number(multi[1]);
+  return instruction === `Train ${unitTitle}` ? 1 : 0;
+}
+
 describe("extractBuild", () => {
   let summary: ReplaySummary;
   let focusId: number;
@@ -210,3 +216,374 @@ describe("extractBuild — merge window (F001 follow-up-2)", () => {
     });
   });
 });
+
+/** F001 (C-702): cancels change exactly the cancelled order — real fixtures,
+ *  compared against the cancel-blind extraction (`applyCancels: false`). */
+describe("extractBuild — cancel-aware extraction, real fixtures (F001, C-702)", () => {
+  function trainCount(instruction: string, unitTitle: string): number {
+    const multi = instruction.match(new RegExp(`^Train (\\d+)× ${unitTitle}$`));
+    if (multi) return Number(multi[1]);
+    return instruction === `Train ${unitTitle}` ? 1 : 0;
+  }
+
+  it(
+    "Turtle Rock, lolicore: 0:09 becomes 'Train 4× Peasant' and 0:32 'Build Farm' supply drops to 9; nothing else differs but the downstream -1 supply",
+    async () => {
+      const summary = await parseReplay(loadFixture("w3c_6aaef330d867fad24f91360c_turtle_rock.w3g"));
+      const lolicoreId = summary.players.find((p) => p.name === "lolicore#21233")!.id;
+      const withCancels = extractBuild(summary, lolicoreId);
+      const blind = extractBuild(summary, lolicoreId, { applyCancels: false });
+
+      expect(withCancels.steps.length).toBe(blind.steps.length);
+
+      const trainIdx = withCancels.steps.findIndex((s) => s.time === "0:09");
+      expect(withCancels.steps[trainIdx]?.instruction).toBe("Train 4× Peasant");
+      expect(blind.steps[trainIdx]?.instruction).toBe("Train 5× Peasant");
+
+      const farmIdx = withCancels.steps.findIndex((s) => s.time === "0:32");
+      expect(withCancels.steps[farmIdx]?.instruction).toBe("Build Farm");
+      expect(withCancels.steps[farmIdx]?.supply).toBe("9");
+      expect(blind.steps[farmIdx]?.supply).toBe("10");
+
+      for (let i = 0; i < withCancels.steps.length; i++) {
+        if (i === trainIdx) continue; // count differs by design (4× vs 5×)
+        expect(withCancels.steps[i]!.instruction).toBe(blind.steps[i]!.instruction);
+        if (i < farmIdx) {
+          expect(withCancels.steps[i]!.supply).toBe(blind.steps[i]!.supply);
+        } else {
+          expect(Number(blind.steps[i]!.supply) - Number(withCancels.steps[i]!.supply)).toBe(1);
+        }
+      }
+    },
+    15_000,
+  );
+
+  it(
+    "Hammerfall, Starglobal: exactly one Peon order removed before 8:00; every other instruction identical",
+    async () => {
+      const summary = await parseReplay(loadFixture("w3c_6aaef31bd867fad24f913602_hammerfall.w3g"));
+      const starglobalId = summary.players.find((p) => p.name === "Starglobal#4361")!.id;
+      const withCancels = extractBuild(summary, starglobalId);
+      const blind = extractBuild(summary, starglobalId, { applyCancels: false });
+
+      const before8 = (s: { time: string }) => clockToMs(s.time) < 480_000;
+      const withPeons = withCancels.steps.filter(before8).reduce((sum, s) => sum + trainCount(s.instruction, "Peon"), 0);
+      const blindPeons = blind.steps.filter(before8).reduce((sum, s) => sum + trainCount(s.instruction, "Peon"), 0);
+      expect(blindPeons - withPeons).toBe(1);
+
+      const nonPeon = (steps: { instruction: string }[]) => steps.filter((s) => !s.instruction.includes("Peon")).map((s) => s.instruction);
+      expect(nonPeon(withCancels.steps)).toEqual(nonPeon(blind.steps));
+    },
+    15_000,
+  );
+
+  it(
+    "Autumn Leaves, Dkblitz: exactly one ghoul order removed after 4:00; earlier steps identical",
+    async () => {
+      const summary = await parseReplay(loadFixture("w3c_6aaef285d867fad24f9135d5_autumn_leaves.w3g"));
+      const dkblitzId = summary.players.find((p) => p.name === "Dkblitz#11988")!.id;
+      const withCancels = extractBuild(summary, dkblitzId);
+      const blind = extractBuild(summary, dkblitzId, { applyCancels: false });
+
+      const cutoffMs = 240_000; // 4:00
+      const earlyWith = withCancels.steps.filter((s) => clockToMs(s.time) < cutoffMs);
+      const earlyBlind = blind.steps.filter((s) => clockToMs(s.time) < cutoffMs);
+      expect(earlyWith).toEqual(earlyBlind);
+
+      const lateWith = withCancels.steps.filter((s) => clockToMs(s.time) >= cutoffMs);
+      const lateBlind = blind.steps.filter((s) => clockToMs(s.time) >= cutoffMs);
+      const withGhouls = lateWith.reduce((sum, s) => sum + trainCount(s.instruction, "Ghoul"), 0);
+      const blindGhouls = lateBlind.reduce((sum, s) => sum + trainCount(s.instruction, "Ghoul"), 0);
+      expect(blindGhouls - withGhouls).toBe(1);
+    },
+    15_000,
+  );
+
+  it(
+    "every fixture: supply still starts at 5 and is non-decreasing with cancels applied",
+    async () => {
+      for (const [file, playerName] of [
+        ["w3c_6aaef330d867fad24f91360c_turtle_rock.w3g", "lolicore#21233"],
+        ["w3c_6aaef31bd867fad24f913602_hammerfall.w3g", "Starglobal#4361"],
+        ["w3c_6aaef285d867fad24f9135d5_autumn_leaves.w3g", "Dkblitz#11988"],
+      ] as const) {
+        const summary = await parseReplay(loadFixture(file));
+        const playerId = summary.players.find((p) => p.name === playerName)!.id;
+        const draft = extractBuild(summary, playerId);
+        expect(Number(draft.steps[0]!.supply)).toBe(5);
+        let lastSupply = -1;
+        for (const step of draft.steps) {
+          const supply = Number(step.supply);
+          expect(supply).toBeGreaterThanOrEqual(lastSupply === -1 ? 5 : lastSupply);
+          lastSupply = supply;
+        }
+      }
+    },
+    30_000,
+  );
+});
+
+/** F002 (C-704): the opt-in "likely rejected" filter — real fixtures. */
+describe("extractBuild — likely-rejected filter (F002, C-704)", () => {
+  let dretwiak: ReturnType<typeof extractBuild>;
+  let dretwiakBlind: ReturnType<typeof extractBuild>;
+
+  beforeAll(async () => {
+    const summary = await parseReplay(loadFixture("w3c_6aae9d48d867fad24f911778_last_refuge.w3g"));
+    const dretwiakId = summary.players.find((p) => p.name === "Dretwiak#2963")!.id;
+    dretwiak = extractBuild(summary, dretwiakId);
+    dretwiakBlind = extractBuild(summary, dretwiakId, { dropLikelyRejected: false });
+  }, 15_000);
+
+  it("Dretwiak (Last Refuge): Peasant orders accepted with ms <= 60_000 number at most 5 + floor(60/15) = 9", () => {
+    const peasantsAcceptedInFirstMinute = dretwiak.steps
+      .filter((s) => clockToMs(s.time) <= 60_000)
+      .reduce((sum, s) => sum + trainCountFor(s.instruction, "Peasant"), 0);
+    expect(peasantsAcceptedInFirstMinute).toBeLessThanOrEqual(9);
+  });
+
+  it("Dretwiak: dropped.count is >= 4 within the first minute", async () => {
+    const summary = await parseReplay(loadFixture("w3c_6aae9d48d867fad24f911778_last_refuge.w3g"));
+    const dretwiakId = summary.players.find((p) => p.name === "Dretwiak#2963")!.id;
+    const oneMinute = extractBuild(summary, dretwiakId, { cutoffMs: 60_000 });
+    expect(oneMinute.dropped.count).toBeGreaterThanOrEqual(4);
+  });
+
+  it("Dretwiak: every filtered step's (time, instruction) appears in the unfiltered list, or is the same group with a smaller count", () => {
+    for (const step of dretwiak.steps) {
+      const exact = dretwiakBlind.steps.some((b) => b.time === step.time && b.instruction === step.instruction);
+      if (exact) continue;
+      const multi = step.instruction.match(/^Train (\d+)× (.+)$/);
+      const single = step.instruction.match(/^Train (.+)$/);
+      const title = multi ? multi[2]! : single ? single[1]! : undefined;
+      expect(title, `unmatched filtered step: ${JSON.stringify(step)}`).toBeDefined();
+      const filteredCount = multi ? Number(multi[1]) : 1;
+      const blindMatch = dretwiakBlind.steps.find(
+        (b) => b.time === step.time && trainCountFor(b.instruction, title!) >= filteredCount && trainCountFor(b.instruction, title!) > 0,
+      );
+      expect(blindMatch, `no matching (same-group, larger count) blind step for ${JSON.stringify(step)}`).toBeTruthy();
+    }
+  });
+
+  it("dropLikelyRejected:false is identical to the F001 (cancel-only) result", async () => {
+    const summary = await parseReplay(loadFixture("w3c_6aae9d48d867fad24f911778_last_refuge.w3g"));
+    const dretwiakId = summary.players.find((p) => p.name === "Dretwiak#2963")!.id;
+    const withCancelsOnly = extractBuild(summary, dretwiakId, { dropLikelyRejected: false });
+    expect(withCancelsOnly.dropped).toEqual({ count: 0, byId: {}, orderIndices: [] });
+    expect(Object.keys(withCancelsOnly.meta.dropped)).toHaveLength(0);
+  });
+
+  it.each([
+    ["fortitude_vs_focus_northern_isles.w3g", "FoCuS#31324"],
+    ["w3c_6aaef330d867fad24f91360c_turtle_rock.w3g", "lolicore#21233"],
+    ["w3c_6aaef31bd867fad24f913602_hammerfall.w3g", "Starglobal#4361"],
+    ["w3c_6aaef285d867fad24f9135d5_autumn_leaves.w3g", "Dkblitz#11988"],
+  ] as const)("%s, %s: dropped.count within the first 3:00 is <= 2", async (file, playerName) => {
+    const summary = await parseReplay(loadFixture(file));
+    const playerId = summary.players.find((p) => p.name === playerName)!.id;
+    const draft = extractBuild(summary, playerId, { cutoffMs: 180_000 });
+    expect(draft.dropped.count).toBeLessThanOrEqual(2);
+  });
+});
+
+/** F002 (F001-scrutiny case 3): a merged step must never be anchored at a
+ *  fully cancelled order's timestamp. */
+describe("extractBuild — merged step anchoring after a fully cancelled leading order (F002)", () => {
+  function summaryWithEvents(events: ReplayEvent[]): ReplaySummary {
+    return {
+      map: { file: "synthetic.w3x", name: "Synthetic" },
+      version: "3.00",
+      buildNumber: 1,
+      durationMs: 120_000,
+      players: [{ id: 0, name: "Solo#1", race: "human", raceDetected: "human", teamId: 0, isObserver: false }],
+      events: { 0: events },
+    };
+  }
+
+  it("a group whose first order is fully cancelled is anchored at the next surviving order's time, not the cancelled one's", () => {
+    const draft = extractBuild(
+      summaryWithEvents([
+        { kind: "building", id: "hbar", ms: 0 },
+        { kind: "unit", id: "hfoo", ms: 61_000 },
+        { kind: "cancel", id: "hfoo", ms: 61_500, slot: 0 },
+        { kind: "unit", id: "hfoo", ms: 65_000 },
+      ]),
+      0,
+    );
+    const step = draft.steps.find((s) => s.instruction.includes("Footman"));
+    expect(step?.time).toBe("1:05"); // the surviving 65s order, not the cancelled 61s one
+  });
+});
+
+/** F001 (C-703): synthetic cancel semantics — a single undead player with a
+ *  handcrafted event stream, so every branch of `computeCancelledOrders`
+ *  gets a direct, deterministic test. */
+describe("extractBuild — cancel-aware extraction, synthetic semantics (F001, C-703)", () => {
+  function summaryWithEvents(events: ReplayEvent[]): ReplaySummary {
+    return {
+      map: { file: "synthetic.w3x", name: "Synthetic" },
+      version: "3.00",
+      buildNumber: 1,
+      durationMs: 120_000,
+      players: [{ id: 0, name: "Solo#1", race: "undead", raceDetected: "undead", teamId: 0, isObserver: false }],
+      events: { 0: events },
+    };
+  }
+
+  it("(a) two Acolyte orders, one cancelled: single 'Train Acolyte' step, next step's supply reflects only the survivor", () => {
+    const draft = extractBuild(
+      summaryWithEvents([
+        { kind: "unit", id: "uaco", ms: 1_000 },
+        { kind: "unit", id: "uaco", ms: 2_000 },
+        { kind: "cancel", id: "uaco", ms: 5_000, slot: 1 },
+        { kind: "building", id: "htow", ms: 20_000 },
+      ]),
+      0,
+    );
+    expect(draft.steps[0]).toMatchObject({ time: "0:01", supply: "5", instruction: "Train Acolyte" });
+    expect(draft.steps[1]?.supply).toBe("6");
+  });
+
+  it("(b) two Acolyte orders, both cancelled: no acolyte step at all; following step supply unchanged at 5", () => {
+    const draft = extractBuild(
+      summaryWithEvents([
+        { kind: "unit", id: "uaco", ms: 1_000 },
+        { kind: "unit", id: "uaco", ms: 2_000 },
+        { kind: "cancel", id: "uaco", ms: 5_000 },
+        { kind: "cancel", id: "uaco", ms: 6_000 },
+        { kind: "building", id: "htow", ms: 20_000 },
+      ]),
+      0,
+    );
+    expect(draft.steps.some((s) => s.instruction.includes("Acolyte"))).toBe(false);
+    expect(draft.steps).toHaveLength(1);
+    expect(draft.steps[0]?.supply).toBe("5");
+  });
+
+  it("(c) a cancel with no matching order before it is ignored, not thrown", () => {
+    expect(() => extractBuild(summaryWithEvents([{ kind: "cancel", id: "uaco", ms: 5_000 }]), 0)).not.toThrow();
+    const draft = extractBuild(summaryWithEvents([{ kind: "cancel", id: "uaco", ms: 5_000 }]), 0);
+    expect(draft.steps).toHaveLength(0);
+  });
+
+  it("(d) a cancel arriving after the order already finished training does not remove it", () => {
+    // uaco's train time is 15s, so an order at 1s finishes at 16s — a cancel at 40s is too late.
+    const draft = extractBuild(
+      summaryWithEvents([
+        { kind: "unit", id: "uaco", ms: 1_000 },
+        { kind: "cancel", id: "uaco", ms: 40_000 },
+      ]),
+      0,
+    );
+    expect(draft.steps.some((s) => s.instruction === "Train Acolyte")).toBe(true);
+  });
+
+  it("(e) a cancelled hero order never produces a hero step, and supply is unaffected", () => {
+    const draft = extractBuild(
+      summaryWithEvents([
+        { kind: "hero", id: "Udea", ms: 60_000 },
+        { kind: "cancel", id: "Udea", ms: 70_000 },
+        { kind: "building", id: "htow", ms: 90_000 },
+      ]),
+      0,
+    );
+    expect(draft.steps.some((s) => s.instruction === "Hero: Death Knight")).toBe(false);
+    expect(draft.steps[0]?.supply).toBe("5");
+  });
+});
+
+/** F003 (C-706): provenance captions — shown on the extracted step, not
+ *  persisted (see `buildEditorSchema.ts` and `StepRowEditor.tsx`). */
+describe("extractBuild — import provenance captions (F003, C-706)", () => {
+  function summaryWithEvents(events: ReplayEvent[]): ReplaySummary {
+    return {
+      map: { file: "synthetic.w3x", name: "Synthetic" },
+      version: "3.00",
+      buildNumber: 1,
+      durationMs: 120_000,
+      players: [{ id: 0, name: "Solo#1", race: "human", raceDetected: "human", teamId: 0, isObserver: false }],
+      events: { 0: events },
+    };
+  }
+
+  it(
+    "Turtle Rock, lolicore: the 0:09 step ('Train 4× Peasant') carries importNote '5 ordered · 1 cancelled'; unaffected steps have no importNote",
+    async () => {
+      const summary = await parseReplay(loadFixture("w3c_6aaef330d867fad24f91360c_turtle_rock.w3g"));
+      const lolicoreId = summary.players.find((p) => p.name === "lolicore#21233")!.id;
+      const draft = extractBuild(summary, lolicoreId);
+
+      const trainIdx = draft.steps.findIndex((s) => s.time === "0:09");
+      expect(draft.steps[trainIdx]?.instruction).toBe("Train 4× Peasant");
+      expect(draft.steps[trainIdx]?.importNote).toBe("5 ordered · 1 cancelled");
+
+      const untouchedIdx = draft.steps.findIndex((s) => s.time === "0:00");
+      expect(draft.steps[untouchedIdx]?.importNote).toBeUndefined();
+    },
+    15_000,
+  );
+
+  it(
+    "Last Refuge, Dretwiak: at least one step carries an importNote ending in 'dropped (likely rejected)'",
+    async () => {
+      const summary = await parseReplay(loadFixture("w3c_6aae9d48d867fad24f911778_last_refuge.w3g"));
+      const dretwiakId = summary.players.find((p) => p.name === "Dretwiak#2963")!.id;
+      const draft = extractBuild(summary, dretwiakId);
+
+      expect(draft.steps.some((s) => s.importNote?.endsWith("dropped (likely rejected)"))).toBe(true);
+    },
+    15_000,
+  );
+
+  it("synthetic: a step with both a cancel and a dropped order joins both notes with ' · '", () => {
+    // hbar available at 60_000; 8 hfoo orders 100ms apart from 61_000 fill
+    // the 5-slot queue (o1,o3,o4,o5,o6 survive+accepted, o2 cancelled at
+    // slot 1, o7/o8 dropped as capacity-exceeding) — one merged step ends
+    // up with both a cancel and two dropped orders attached.
+    const draft = extractBuild(
+      summaryWithEvents([
+        { kind: "building", id: "hbar", ms: 0 },
+        { kind: "unit", id: "hfoo", ms: 61_000 }, // o1
+        { kind: "unit", id: "hfoo", ms: 61_100 }, // o2 — cancelled below
+        { kind: "unit", id: "hfoo", ms: 61_200 }, // o3
+        { kind: "unit", id: "hfoo", ms: 61_300 }, // o4
+        { kind: "unit", id: "hfoo", ms: 61_400 }, // o5
+        { kind: "unit", id: "hfoo", ms: 61_500 }, // o6
+        { kind: "unit", id: "hfoo", ms: 61_600 }, // o7 — dropped (queue full)
+        { kind: "unit", id: "hfoo", ms: 61_700 }, // o8 — dropped (queue full)
+        { kind: "cancel", id: "hfoo", ms: 61_800, slot: 1 }, // cancels o2
+      ]),
+      0,
+    );
+    const step = draft.steps.find((s) => s.instruction.startsWith("Train"));
+    expect(step?.importNote).toBe("6 ordered · 1 cancelled · 2 dropped (likely rejected)");
+  });
+
+  it("no importNote when neither a cancel nor a drop applies to a step", () => {
+    const draft = extractBuild(summaryWithEvents([{ kind: "building", id: "htow", ms: 0 }]), 0);
+    expect(draft.steps[0]?.importNote).toBeUndefined();
+  });
+
+  it("editorFormSchema accepts steps without importNote and steps with it", () => {
+    const withNote = { ...draftBase(), steps: [{ time: "0:00", supply: "5", instruction: "Build Farm", icon: "", importNote: "5 ordered · 1 cancelled" }] };
+    const withoutNote = { ...draftBase(), steps: [{ time: "0:00", supply: "5", instruction: "Build Farm", icon: "" }] };
+    expect(editorFormSchema.safeParse(withNote).success).toBe(true);
+    expect(editorFormSchema.safeParse(withoutNote).success).toBe(true);
+  });
+});
+
+function draftBase() {
+  return {
+    title: "Test build title",
+    race: "human",
+    vsRaces: ["orc"],
+    difficulty: "intermediate",
+    patch: "",
+    tags: "",
+    summary: "A test build with at least twenty characters.",
+    author: "Tester",
+    authorDiscord: "",
+    sourceUrl: "",
+    description: "",
+  };
+}

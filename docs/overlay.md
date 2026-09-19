@@ -209,8 +209,26 @@ there later.
 
 ### What an import can and cannot know (limitations)
 
-- Steps are *commands*, not outcomes: an order that was immediately
-  cancelled still appears as a step.
+- **Cancels are honoured exactly** — the replay records every queue cancel
+  command, so a unit or hero you cancelled before it finished training does
+  not appear as a step (or shrinks the merged "Train N×" count for that
+  group). The editor shows what you actually ended up with, not what you
+  clicked.
+- **Orders the game refused are not recorded.** Warcraft III doesn't log a
+  rejection when you spam-click past a full production queue — the replay
+  only has the orders you issued. To approximate what actually happened,
+  the importer simulates each building's 5-slot production queue (using
+  each unit's build time and its producing building's completion time) and
+  drops orders that would not have fit. Dropped orders are shown as
+  "N dropped" in the import dialog and as a "N dropped (likely rejected)"
+  caption on the affected step. **Gold is not modelled** — an order you
+  couldn't actually afford, but that still had a free production slot, is
+  still simulated as accepted and appears in the draft. Uncheck **Drop
+  orders the game likely rejected** to turn the filter off and see every
+  order you issued, rejected or not.
+- **Cancelling a building under construction is not modelled** — only unit,
+  hero, and queued-order cancels are simulated; a cancelled building order
+  still appears as a step.
 - Supply is estimated from a fixed food-cost table per unit and does not
   account for units that later died.
 - Buildings re-issued within 2 seconds of each other collapse into a single
@@ -350,4 +368,10 @@ line as **pass/fail + notes**.
   yourself → adjust the cutoff/toggles if you like → Open in editor → Save
   → use the saved build in game. Report any unmapped units (a "?" icon) if
   you see one.
+  _record: pass/fail + notes:_
+- [ ] **M-8** — Import one of your own replays where you cancelled a unit
+  → the step count/instruction reflects the cancel (fewer trained, or the
+  step is gone entirely); toggle **Drop orders the game likely rejected**
+  and compare the step count and any "dropped (likely rejected)" captions
+  before and after.
   _record: pass/fail + notes:_

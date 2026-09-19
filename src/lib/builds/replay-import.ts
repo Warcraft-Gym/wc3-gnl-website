@@ -28,7 +28,12 @@ export type ReplayImportPlayer = {
   /** Known when the replay came from W3Champions. */
   won?: boolean;
   build: ExchangeBuild;
+  /** Orders the "likely rejected" filter removed (0 when the filter is off). */
+  dropped: number;
 };
+
+/** Forwarded to `extractBuild`; see its docblock. Default (unset) is on. */
+export type ReplayImportOptions = { dropLikelyRejected?: boolean };
 
 export type ReplayImport = {
   map: string;
@@ -90,17 +95,22 @@ async function fromBytes(
   bytes: Uint8Array,
   source?: { label: string; url?: string },
   wonBy?: Map<string, boolean>,
+  opts?: ReplayImportOptions,
 ): Promise<ReplayImportResult> {
   try {
     const summary = await parseReplay(bytes);
     const game = { map: summary.map.name, duration: clock(summary.durationMs) };
-    const players = summary.players.map<ReplayImportPlayer>((p) => ({
-      id: p.id,
-      name: p.name,
-      race: p.raceDetected !== "random" ? p.raceDetected : p.race,
-      won: wonBy?.get(withoutTag(p.name).toLowerCase()),
-      build: toExchange(extractBuild(summary, p.id), p.name, game, source?.url),
-    }));
+    const players = summary.players.map<ReplayImportPlayer>((p) => {
+      const draft = extractBuild(summary, p.id, { dropLikelyRejected: opts?.dropLikelyRejected });
+      return {
+        id: p.id,
+        name: p.name,
+        race: p.raceDetected !== "random" ? p.raceDetected : p.race,
+        won: wonBy?.get(withoutTag(p.name).toLowerCase()),
+        build: toExchange(draft, p.name, game, source?.url),
+        dropped: draft.dropped.count,
+      };
+    });
     if (!players.length) return { ok: false, error: "No players were found in this replay.", status: 422 };
     return {
       ok: true,
@@ -122,15 +132,15 @@ async function fromBytes(
 }
 
 /** An uploaded `.w3g` file. */
-export async function importReplayFile(file: File): Promise<ReplayImportResult> {
+export async function importReplayFile(file: File, opts?: ReplayImportOptions): Promise<ReplayImportResult> {
   if (file.size > MAX_REPLAY_BYTES) {
     return { ok: false, error: "That replay is too large (8 MB max).", status: 413 };
   }
-  return fromBytes(new Uint8Array(await file.arrayBuffer()), { label: file.name });
+  return fromBytes(new Uint8Array(await file.arrayBuffer()), { label: file.name }, undefined, opts);
 }
 
 /** A W3Champions match link or id; the replay is fetched from their API. */
-export async function importW3ChampionsMatch(ref: string): Promise<ReplayImportResult> {
+export async function importW3ChampionsMatch(ref: string, opts?: ReplayImportOptions): Promise<ReplayImportResult> {
   const matchId = parseMatchRef(ref);
   if (!matchId) {
     return { ok: false, error: "Paste a W3Champions match link, like w3champions.com/match/<id>.", status: 400 };
@@ -139,7 +149,7 @@ export async function importW3ChampionsMatch(ref: string): Promise<ReplayImportR
     const { bytes, match } = await fetchW3ChampionsReplay(matchId);
     const url = `https://w3champions.com/match/${matchId}`;
     const wonBy = new Map(match?.players.map((p) => [withoutTag(p.battleTag).toLowerCase(), p.won]) ?? []);
-    return fromBytes(bytes, { label: `W3Champions match ${matchId}`, url }, wonBy);
+    return fromBytes(bytes, { label: `W3Champions match ${matchId}`, url }, wonBy, opts);
   } catch (err) {
     if (err instanceof W3ChampionsError) {
       const text =
