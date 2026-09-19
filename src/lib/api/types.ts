@@ -49,9 +49,13 @@ export type StandingRow = {
   team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
   played: number;
   wins: number;
+  draws: number;
   losses: number;
+  /** Series points for minus against across the season. */
   mapDiff: number;
+  /** League points: the sum of series points (4 for a 2-0, 3 for a 2-1, 1 for a 1-2). */
   points: number;
+  /** Recent form, e.g. "W3" or "L1"; draws break a streak. */
   streak?: string;
 };
 

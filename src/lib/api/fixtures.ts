@@ -343,6 +343,7 @@ export const FIXTURE_STANDINGS: StandingRow[] = RECORDS.map(
       },
       played: wins + losses,
       wins,
+      draws: 0,
       losses,
       mapDiff,
       points: wins * 3,

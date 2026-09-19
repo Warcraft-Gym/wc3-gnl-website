@@ -24,13 +24,13 @@ export default async function StandingsPage() {
       <PageHeader
         kicker={`${season.shortName} · Ladder`}
         title="Standings"
-        lead="Points from series wins. Ties broken by map differential. Top four advance to the playoff bracket."
+        lead="Every solo series earns points for the team: 4 for a 2-0, 3 for a 2-1, and 1 even for a 1-2. The table is the sum of those points."
       />
       <Container className="py-10">
         <DataSourceNote source={source} />
         <StandingsTable rows={rows} />
         <p className="mt-5 font-mono text-xs uppercase tracking-wide text-faint">
-          P played · W won · L lost · Diff map differential · Pts points (3 per series win)
+          P weeks played · W D L team fixtures won, drawn, lost · Diff series points for minus against · Pts league points
         </p>
       </Container>
     </>

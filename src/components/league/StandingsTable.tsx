@@ -39,6 +39,7 @@ export function StandingsTable({
             <th className="px-2 py-3 font-medium">Team</th>
             <th className={cn("px-3 py-3 text-center font-medium", compact && "max-sm:hidden")}>P</th>
             <th className="px-3 py-3 text-center font-medium">W</th>
+            <th className="px-3 py-3 text-center font-medium">D</th>
             <th className="px-3 py-3 text-center font-medium">L</th>
             <th className={cn("px-3 py-3 text-center font-medium", compact && "max-sm:hidden")}>Diff</th>
             {!compact && (
@@ -81,6 +82,7 @@ export function StandingsTable({
                 </td>
                 <td className={cn("tnum px-3 py-3 text-center text-muted", compact && "max-sm:hidden")}>{row.played}</td>
                 <td className="tnum px-3 py-3 text-center text-win">{row.wins}</td>
+                <td className="tnum px-3 py-3 text-center text-muted">{row.draws}</td>
                 <td className="tnum px-3 py-3 text-center text-loss">{row.losses}</td>
                 <td
                   className={cn(

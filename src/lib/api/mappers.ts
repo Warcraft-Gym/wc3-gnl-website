@@ -361,18 +361,18 @@ export function mapStandings(
   fixtures: TeamFixture[],
   seasonId: number,
 ): StandingRow[] {
-  type Acc = { played: number; wins: number; losses: number; mapDiff: number };
+  type Acc = { played: number; wins: number; draws: number; losses: number; mapDiff: number; results: ("W" | "D" | "L")[] };
   const stat = new Map<number, Acc>();
   const ensure = (id: number): Acc => {
     let a = stat.get(id);
     if (!a) {
-      a = { played: 0, wins: 0, losses: 0, mapDiff: 0 };
+      a = { played: 0, wins: 0, draws: 0, losses: 0, mapDiff: 0, results: [] };
       stat.set(id, a);
     }
     return a;
   };
 
-  for (const f of fixtures) {
+  for (const f of [...fixtures].sort((x, y) => x.week - y.week)) {
     if (f.status !== "completed") continue;
     const h = ensure(f.home.id);
     const a = ensure(f.away.id);
@@ -383,24 +383,45 @@ export function mapStandings(
     if (f.home.score > f.away.score) {
       h.wins++;
       a.losses++;
+      h.results.push("W");
+      a.results.push("L");
     } else if (f.away.score > f.home.score) {
       a.wins++;
       h.losses++;
+      a.results.push("W");
+      h.results.push("L");
+    } else {
+      h.draws++;
+      a.draws++;
+      h.results.push("D");
+      a.results.push("D");
     }
   }
 
+  const streakOf = (results: ("W" | "D" | "L")[]): string | undefined => {
+    const last = results[results.length - 1];
+    if (!last || last === "D") return undefined;
+    let n = 0;
+    for (let i = results.length - 1; i >= 0 && results[i] === last; i--) n++;
+    return `${last}${n}`;
+  };
+
   const rows: StandingRow[] = teams.map((t) => {
     const info = t.seasons_info?.find((si) => si.season_id === seasonId);
-    const s = stat.get(t.id) ?? { played: 0, wins: 0, losses: 0, mapDiff: 0 };
+    const s = stat.get(t.id) ?? { played: 0, wins: 0, draws: 0, losses: 0, mapDiff: 0, results: [] };
     const long = t.long_name || t.name;
     return {
       rank: 0,
       team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
       played: s.played,
       wins: s.wins,
+      draws: s.draws,
       losses: s.losses,
       mapDiff: s.mapDiff,
-      points: info?.final_score ?? s.wins * 3,
+      // The backend's final score is the league points total; the fallback
+      // approximates it when the season info is missing.
+      points: info?.final_score ?? s.wins * 3 + s.draws,
+      streak: streakOf(s.results),
     };
   });
 
