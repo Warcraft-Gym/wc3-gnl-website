@@ -422,6 +422,8 @@ export function mapStandings(
       // approximates it when the season info is missing.
       points: info?.final_score ?? s.wins * 3 + s.draws,
       streak: streakOf(s.results),
+      form: s.results,
+      captains: (t.captains_by_season?.[String(seasonId)] ?? []).map((c) => c.name),
     };
   });
 

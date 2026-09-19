@@ -57,6 +57,10 @@ export type StandingRow = {
   points: number;
   /** Recent form, e.g. "W3" or "L1"; draws break a streak. */
   streak?: string;
+  /** Results in week order, oldest first. */
+  form: ("W" | "D" | "L")[];
+  /** Captain names for the season. */
+  captains: string[];
 };
 
 export type MatchStatus = "scheduled" | "live" | "completed";

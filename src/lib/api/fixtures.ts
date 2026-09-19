@@ -348,6 +348,8 @@ export const FIXTURE_STANDINGS: StandingRow[] = RECORDS.map(
       mapDiff,
       points: wins * 3,
       streak,
+      form: Array.from({ length: wins + losses }, (_, k) => (k < wins ? "W" : "L")),
+      captains: [],
     };
   },
 );
