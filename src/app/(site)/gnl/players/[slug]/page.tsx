@@ -41,12 +41,12 @@ function pct(w: number, l: number) {
   return n ? Math.round((w * 100) / n) : 0;
 }
 
-/** One headline number in the masthead. */
+/** One headline number in the masthead block. */
 function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: string }) {
   return (
-    <div className="min-w-[7rem]">
-      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted [text-shadow:0_1px_8px_rgba(0,0,0,.9)]">{label}</p>
-      <p className={cn("tnum mt-0.5 font-display text-2xl font-bold [text-shadow:0_2px_16px_rgba(0,0,0,.9)]", tone ?? "text-fg")}>{value}</p>
+    <div className="bg-bg/85 px-4 py-3 sm:px-5 sm:py-4">
+      <dt className="whitespace-nowrap font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{label}</dt>
+      <dd className={cn("tnum mt-1 font-display text-2xl font-bold leading-none", tone ?? "text-fg")}>{value}</dd>
     </div>
   );
 }
@@ -157,59 +157,68 @@ export default async function PlayerPage({ params }: Params) {
           aria-hidden
           className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.8)_0%,rgba(0,0,0,.55)_45%,rgba(0,0,0,.15)_100%)]"
         />
-        <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
+        <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-14 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3rem)]">
           <Link
             href={team ? `/gnl/teams/${team.slug}` : "/gnl/teams"}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
+            className="mb-5 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
             <ArrowLeft size={15} /> {team ? team.name : "Teams"}
           </Link>
-          <div className="flex flex-wrap items-center gap-5">
-            <RaceIcon race={player.race} size={64} />
-            <div className="min-w-0">
-              <h1 className="flex flex-wrap items-center gap-3 text-[length:var(--wg-text-display)] font-extrabold [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
-                {player.name}
-                {isCaptain ? <CaptainBadge /> : null}
-              </h1>
-              <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted">
-                <RaceBadge race={raceOf(player.race)} />
-                {team ? (
-                  <Link href={`/gnl/teams/${team.slug}`} className="inline-flex items-center gap-2 hover:text-gold">
-                    <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="sm" />
-                    {team.name}
-                  </Link>
-                ) : null}
-                {player.country ? (
-                  <span className="inline-flex items-center gap-1.5">
-                    <Flag code={player.country} /> {player.country}
-                  </span>
-                ) : null}
-                {w3cUrl ? (
-                  <a href={w3cUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-gold hover:underline">
-                    <W3cMark size={14} /> {player.battleTag}
-                  </a>
-                ) : null}
-              </p>
+
+          {/* Identity on the left, the headline numbers as a block on the right */}
+          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
+            <div className="flex items-center gap-5 sm:gap-6">
+              <span className="relative shrink-0">
+                <span aria-hidden className="absolute inset-[-20%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-60 blur-xl" />
+                <RaceIcon race={player.race} size={88} className="relative drop-shadow-[0_10px_20px_rgba(0,0,0,.9)]" />
+              </span>
+              <div className="min-w-0">
+                <p className="kicker">{captainOnly ? "Captain" : `${season.shortName} player`}</p>
+                <h1 className="mt-1 flex flex-wrap items-center gap-3 text-[length:var(--wg-text-display)] font-extrabold leading-none [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+                  {player.name}
+                  {isCaptain && !captainOnly ? <CaptainBadge /> : null}
+                </h1>
+                <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
+                  <RaceBadge race={raceOf(player.race)} />
+                  {team ? (
+                    <Link href={`/gnl/teams/${team.slug}`} className="inline-flex items-center gap-2 hover:text-gold">
+                      <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="sm" />
+                      {team.name}
+                    </Link>
+                  ) : null}
+                  {player.country ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Flag code={player.country} /> {player.country}
+                    </span>
+                  ) : null}
+                  {w3cUrl ? (
+                    <a href={w3cUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-gold hover:underline">
+                      <W3cMark size={14} /> {player.battleTag}
+                    </a>
+                  ) : null}
+                </p>
+              </div>
             </div>
+
+            <dl className="panel grid grid-cols-2 gap-px overflow-hidden bg-line/60 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+              {captainOnly ? null : (
+                <>
+                  <Stat label={`${season.shortName} series`} value={<>{rec.wins}<span className="text-faint"> - </span>{rec.losses}</>} />
+                  <Stat label="Win rate" value={`${pct(rec.wins, rec.losses)}%`} tone={pct(rec.wins, rec.losses) >= 50 ? "text-win" : "text-loss"} />
+                </>
+              )}
+              <Stat
+                label={mainLadder ? `W3C MMR · ${RACE_LABEL[mainLadder.race]}` : "W3C MMR"}
+                value={mainLadder?.mmr ?? player.mmr ?? "-"}
+                tone="text-gold"
+              />
+              <Stat
+                label={mainLadder ? "Ladder win rate" : "Career rating"}
+                value={mainLadder ? `${pct(mainLadder.wins, mainLadder.losses)}%` : career?.rating ?? "-"}
+                tone={mainLadder ? (pct(mainLadder.wins, mainLadder.losses) >= 50 ? "text-win" : "text-loss") : undefined}
+              />
+            </dl>
           </div>
-          <div className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-t border-line/40 pt-6">
-          {captainOnly ? null : (
-            <>
-              <Stat label={`${season.shortName} series`} value={<>{rec.wins}<span className="text-faint"> - </span>{rec.losses}</>} />
-              <Stat label={`${season.shortName} win rate`} value={`${pct(rec.wins, rec.losses)}%`} tone={pct(rec.wins, rec.losses) >= 50 ? "text-win" : "text-loss"} />
-            </>
-          )}
-          <Stat
-            label={mainLadder ? `W3C MMR, ${RACE_LABEL[mainLadder.race]}` : "W3C MMR"}
-            value={mainLadder?.mmr ?? player.mmr ?? "-"}
-            tone="text-gold"
-          />
-          <Stat
-            label={mainLadder ? "Ladder win rate" : "Career rating"}
-            value={mainLadder ? `${pct(mainLadder.wins, mainLadder.losses)}%` : career?.rating ?? "-"}
-            tone={mainLadder ? (pct(mainLadder.wins, mainLadder.losses) >= 50 ? "text-win" : "text-loss") : undefined}
-          />
-                  </div>
         </Container>
         <div className="rivets relative z-10" aria-hidden />
       </div>
