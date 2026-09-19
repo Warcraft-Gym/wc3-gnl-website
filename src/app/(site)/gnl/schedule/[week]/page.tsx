@@ -39,7 +39,7 @@ export default async function ScheduleWeekPage({ params }: Params) {
   if (!week) notFound();
   // A week whose start date is later than the newest fixture on record is
   // still to come; a rule based on the clock would be impure in render.
-  const isFuture = weeks.some((w) => w.isCurrent && w.number < week.number);
+  const isFuture = season.isActive && season.currentWeek < week.number;
 
   return (
     <>

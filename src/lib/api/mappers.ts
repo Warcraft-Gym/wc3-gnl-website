@@ -201,7 +201,8 @@ export function deriveWeeks(s: Season): Week[] {
       label: `${fmt.format(new Date(wkStart))} – ${dayFmt.format(new Date(wkStart + 6 * DAY))}`,
       startDate: new Date(wkStart).toISOString(),
       endDate: new Date(wkStart + 6 * DAY).toISOString(),
-      isCurrent: i + 1 === s.currentWeek,
+      // A finished season has no current week; the last one is just the last.
+      isCurrent: s.isActive && i + 1 === s.currentWeek,
     };
   });
 }
