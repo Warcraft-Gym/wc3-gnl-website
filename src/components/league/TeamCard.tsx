@@ -21,7 +21,12 @@ const RACE_LABEL: Record<Race, string> = { human: "Human", orc: "Orc", nightelf:
 export function TeamCard({ team, standing }: { team: Team; standing?: StandingRow }) {
   const rated = team.players.filter((p) => p.mmr);
   const avgMmr = rated.length ? Math.round(rated.reduce((n, p) => n + (p.mmr ?? 0), 0) / rated.length) : undefined;
-  const roster = [...team.players].sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0));
+  // Captains lead the list (whether or not they play), then the roster by MMR.
+  const playingCaptainIds = new Set(team.players.filter((p) => p.isCaptain).map((p) => p.id));
+  const nonPlayingCaptains = team.captains.filter((c) => !playingCaptainIds.has(c.id));
+  const roster = [...team.players].sort(
+    (a, b) => Number(b.isCaptain) - Number(a.isCaptain) || (b.mmr ?? 0) - (a.mmr ?? 0),
+  );
   const races = RACE_ORDER.map((r) => ({ race: r, n: team.players.filter((p) => raceOf(p.race) === r).length })).filter((x) => x.n);
 
   return (
@@ -97,8 +102,18 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
         </div>
       ) : null}
 
-      {/* Roster, strongest first */}
+      {/* Captains first, then the roster strongest first */}
       <ul className="mt-4 flex flex-col gap-1.5 border-t border-line/60 pt-4">
+        {nonPlayingCaptains.map((c) => (
+          <li key={`captain-${c.id}`} className="flex items-center justify-between gap-2 text-sm">
+            <span className="flex min-w-0 items-center gap-2 text-fg">
+              <RaceBadge race={raceOf(c.race)} showLabel={false} />
+              <span className="truncate">{c.name}</span>
+              <Crown size={11} className="shrink-0 text-gold" />
+            </span>
+            <span className="shrink-0 font-mono text-[0.6rem] uppercase tracking-wide text-faint">Captain</span>
+          </li>
+        ))}
         {roster.map((p) => (
           <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-2 text-muted">
