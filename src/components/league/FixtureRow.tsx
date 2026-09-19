@@ -7,7 +7,7 @@ import type { TeamFixture, PlayerMatch } from "@/lib/api/types";
 import { LiveBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "./VsBadge";
-import { cn, raceOf, formatMatchTime } from "@/lib/utils";
+import { cn, raceOf, formatMatchTime, slugify } from "@/lib/utils";
 
 function gameTime(iso?: string) {
   if (!iso) return { day: "TBD", time: "" };
@@ -41,14 +41,15 @@ function DetailRow({ m }: { m: PlayerMatch }) {
 
       <div className="flex items-center gap-2 truncate">
         <RaceIcon race={raceOf(m.home.race)} size={22} />
-        <span
+        <Link
+          href={`/gnl/players/${slugify(m.home.playerName)}`}
           className={cn(
-            "truncate font-semibold",
+            "truncate font-semibold transition-colors hover:text-gold",
             homeWon || !played ? "text-fg" : "text-muted",
           )}
         >
           {m.home.playerName}
-        </span>
+        </Link>
       </div>
 
       <div className="flex items-center justify-center gap-2">
@@ -73,14 +74,15 @@ function DetailRow({ m }: { m: PlayerMatch }) {
       </div>
 
       <div className="flex items-center justify-end gap-2 truncate text-right">
-        <span
+        <Link
+          href={`/gnl/players/${slugify(m.away.playerName)}`}
           className={cn(
-            "truncate font-semibold",
+            "truncate font-semibold transition-colors hover:text-gold",
             awayWon || !played ? "text-fg" : "text-muted",
           )}
         >
           {m.away.playerName}
-        </span>
+        </Link>
         <RaceIcon race={raceOf(m.away.race)} size={22} />
       </div>
     </div>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { LeaderboardRow } from "@/lib/api/types";
 import { RaceBadge } from "@/components/ui/Badge";
 import { cn, raceOf } from "@/lib/utils";
@@ -36,7 +37,9 @@ export function LeaderboardTable({ rows }: { rows: LeaderboardRow[] }) {
                   </span>
                 </td>
                 <td className="px-2 py-3 font-display font-bold uppercase text-fg">
-                  {row.player.name}
+                  <Link href={`/gnl/players/${row.player.slug}`} className="transition-colors hover:text-gold">
+                    {row.player.name}
+                  </Link>
                   {row.player.teamName ? (
                     <span className="ml-2 font-sans text-xs font-normal normal-case text-faint">
                       {row.player.teamName}

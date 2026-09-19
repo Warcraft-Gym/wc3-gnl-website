@@ -148,3 +148,48 @@ export type FantasyEntry = {
   roster: FantasyPick[];
 };
 
+
+/** W3Champions ladder record for one race in one ladder season. */
+export type W3cRaceStat = {
+  season: number;
+  race: Race;
+  mmr: number;
+  games: number;
+  wins: number;
+  losses: number;
+};
+
+/** One of the player's series in the selected GNL season, from their side. */
+export type PlayerSeries = {
+  id: number;
+  week: number;
+  scheduledAt?: string;
+  status: MatchStatus;
+  opponent: { id: number; name: string; slug: string; race: Race; teamName?: string };
+  race: Race;
+  score: number;
+  opponentScore: number;
+  /** Team fixture the series belongs to. */
+  fixture: { homeTeam: string; awayTeam: string };
+};
+
+/** Everything the player page shows. */
+export type PlayerProfile = {
+  player: Player;
+  team?: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
+  isCaptain: boolean;
+  /** This season's GNL record from the roster stats. */
+  season: { games: number; wins: number; losses: number; matchupHistory: Race[] };
+  /** Current-season W3C rows, one per race, best first. */
+  w3c: W3cRaceStat[];
+  /** All-time GNL career, when the player has one. */
+  career?: {
+    rating: number;
+    seriesWon: number;
+    seriesLost: number;
+    gamesWon: number;
+    gamesLost: number;
+    seasonsPlayed: number;
+  };
+  series: PlayerSeries[];
+};

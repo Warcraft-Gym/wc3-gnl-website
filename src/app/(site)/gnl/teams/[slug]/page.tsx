@@ -120,7 +120,9 @@ export default async function TeamPage({ params }: Params) {
               >
                 <div className="min-w-0">
                   <p className="flex flex-wrap items-center gap-2 font-display font-bold uppercase text-fg">
-                    {p.name}
+                    <Link href={`/gnl/players/${p.slug}`} className="transition-colors hover:text-gold">
+                      {p.name}
+                    </Link>
                     {p.isCaptain ? <CaptainBadge /> : null}
                   </p>
                   <p className="mt-1 flex items-center gap-3 text-xs text-faint">

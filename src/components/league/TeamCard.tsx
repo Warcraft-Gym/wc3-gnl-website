@@ -53,7 +53,9 @@ export function TeamCard({ team }: { team: Team }) {
           >
             <span className="flex min-w-0 items-center gap-2 text-muted">
               <RaceBadge race={raceOf(p.race)} showLabel={false} />
-              <span className={cn("truncate", p.isCaptain && "text-fg")}>{p.name}</span>
+              <Link href={`/gnl/players/${p.slug}`} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
+                {p.name}
+              </Link>
               {p.isCaptain ? <CaptainBadge compact /> : null}
             </span>
             <span className="tnum shrink-0 text-xs text-faint" title="W3Champions MMR">

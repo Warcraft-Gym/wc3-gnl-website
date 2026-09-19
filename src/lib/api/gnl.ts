@@ -21,10 +21,12 @@ import {
   mapStandings,
   mapEventLeaderboard,
   mapFantasy,
+  mapPlayerProfile,
   type RawSeason,
   type RawTeam,
   type RawSeries,
   type RawFantasyTeam,
+  type RawCareerStat,
 } from "./mappers";
 import type {
   Season,
@@ -35,6 +37,7 @@ import type {
   TeamFixture,
   LeaderboardRow,
   FantasyEntry,
+  PlayerProfile,
 } from "./types";
 
 /**
@@ -163,6 +166,25 @@ export async function getTeams(): Promise<{ teams: Team[]; source: DataSource }>
 export async function getTeamBySlug(slug: string): Promise<Team | undefined> {
   const { teams } = await getTeams();
   return teams.find((t) => t.slug === slug);
+}
+
+/** A player's page: roster entry, season record, W3C ladder rows, career
+ *  stats and their series this season. Undefined when the slug is unknown. */
+export async function getPlayerProfile(slug: string): Promise<PlayerProfile | undefined> {
+  const { data } = await withFallback(
+    async () => {
+      const s = await fetchActiveSeasonRaw();
+      const [teams, series, career] = await Promise.all([
+        apiGet<RawTeam[]>(`/events/${s.id}/teams`),
+        apiGet<RawSeries[]>(`/events/${s.id}/series`),
+        apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]),
+      ]);
+      return mapPlayerProfile(teams, series, career, s.id, slug) ?? null;
+    },
+    () => null,
+    "getPlayerProfile",
+  );
+  return data ?? undefined;
 }
 
 export async function getPlayers(): Promise<{

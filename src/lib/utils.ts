@@ -19,7 +19,8 @@ export type Race = keyof typeof RACES;
 export function raceOf(input?: string | null): Race {
   const k = (input ?? "").toLowerCase().replace(/[^a-z]/g, "");
   if (k.startsWith("hu")) return "human";
-  if (k.startsWith("or")) return "orc";
+  // "OC" is W3Champions' code for Orc.
+  if (k.startsWith("or") || k === "oc") return "orc";
   if (k.startsWith("ni") || k === "elf" || k === "ne") return "nightelf";
   if (k.startsWith("un") || k === "ud") return "undead";
   return "random";

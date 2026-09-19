@@ -12,6 +12,9 @@ import type {
   LeaderboardRow,
   FantasyEntry,
   FantasyPick,
+  PlayerProfile,
+  PlayerSeries,
+  W3cRaceStat,
 } from "./types";
 import { slugify, raceOf, isLive, type Race } from "@/lib/utils";
 
@@ -62,10 +65,23 @@ export interface RawPlayer {
   w3c_stats?: RawW3cStat[];
   gnl_stats?: Array<{
     season_id?: number;
+    team_id?: number;
     games?: number;
     wins?: number;
     losses?: number;
+    matchup_history?: string[];
   }>;
+}
+export interface RawCareerStat {
+  id: number;
+  user_id?: number | null;
+  player_name?: string | null;
+  rating?: number | null;
+  series_won?: number | null;
+  series_lost?: number | null;
+  games_won?: number | null;
+  games_lost?: number | null;
+  seasons_played?: number | null;
 }
 interface RawTeamLite {
   id: number;
@@ -101,6 +117,9 @@ export interface RawSeries {
   player2_score: number;
   player1: RawPlayer;
   player2: RawPlayer;
+  /** Race actually played in this series (W3C codes), may differ from the profile race. */
+  player1_race?: string | null;
+  player2_race?: string | null;
   match: RawMatch;
 }
 export interface RawFantasyTeam {
@@ -472,4 +491,96 @@ export function mapFantasy(
   entries.sort((a, b) => b.total - a.total || a.name.localeCompare(b.name));
   entries.forEach((e, i) => (e.rank = i + 1));
   return entries;
+}
+
+// --- player profile ---
+
+/** W3C rows for the newest ladder season the player has games in, best MMR first. */
+export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
+  const rows = (p.w3c_stats ?? []).filter((r) => r.mmr != null && (r.games ?? 0) > 0);
+  if (!rows.length) return [];
+  const latest = Math.max(...rows.map((r) => r.wc3_season));
+  return rows
+    .filter((r) => r.wc3_season === latest)
+    .map((r) => ({
+      season: r.wc3_season,
+      race: r.race ? (W3C_RACE[r.race] ?? raceOf(r.race)) : "random",
+      mmr: r.mmr ?? 0,
+      games: r.games ?? 0,
+      wins: r.wins ?? 0,
+      losses: r.losses ?? 0,
+    }))
+    .sort((a, b) => b.mmr - a.mmr);
+}
+
+export function mapPlayerProfile(
+  teams: RawTeam[],
+  series: RawSeries[],
+  career: RawCareerStat[],
+  seasonId: number,
+  slug: string,
+): PlayerProfile | undefined {
+  const key = String(seasonId);
+  for (const t of teams) {
+    const roster = t.player_by_season?.[key] ?? [];
+    const raw = roster.find((p) => slugify(p.name) === slug);
+    if (!raw) continue;
+    const long = t.long_name || t.name;
+    const captains = t.captains_by_season?.[key] ?? [];
+    const stat = raw.gnl_stats?.find((r) => r.season_id === seasonId);
+    const c = career.find((r) => r.user_id === raw.id);
+    const mine = series
+      .filter((s) => s.player1?.id === raw.id || s.player2?.id === raw.id)
+      .map<PlayerSeries>((s) => {
+        const home = s.player1?.id === raw.id;
+        const me = home ? s.player1 : s.player2;
+        const them = home ? s.player2 : s.player1;
+        const myRace = home ? s.player1_race : s.player2_race;
+        const theirRace = home ? s.player2_race : s.player1_race;
+        return {
+          id: s.id,
+          week: s.match?.playday ?? 0,
+          scheduledAt: s.date_time,
+          status: playerMatchStatus(s),
+          race: myRace ? (W3C_RACE[myRace] ?? raceOf(myRace)) : raceOf(me?.race),
+          score: home ? s.player1_score : s.player2_score,
+          opponentScore: home ? s.player2_score : s.player1_score,
+          opponent: {
+            id: them?.id ?? 0,
+            name: them?.name ?? "TBD",
+            slug: slugify(them?.name ?? ""),
+            race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.race),
+          },
+          fixture: {
+            homeTeam: s.match?.team1?.long_name || s.match?.team1?.name || "",
+            awayTeam: s.match?.team2?.long_name || s.match?.team2?.name || "",
+          },
+        };
+      })
+      .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
+    return {
+      player: mapPlayer(raw, t.id, long, captains.some((x) => x.id === raw.id)),
+      team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
+      isCaptain: captains.some((x) => x.id === raw.id),
+      season: {
+        games: stat?.games ?? 0,
+        wins: stat?.wins ?? 0,
+        losses: stat?.losses ?? 0,
+        matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
+      },
+      w3c: currentW3cRows(raw),
+      career: c
+        ? {
+            rating: c.rating ?? 0,
+            seriesWon: c.series_won ?? 0,
+            seriesLost: c.series_lost ?? 0,
+            gamesWon: c.games_won ?? 0,
+            gamesLost: c.games_lost ?? 0,
+            seasonsPlayed: c.seasons_played ?? 0,
+          }
+        : undefined,
+      series: mine,
+    };
+  }
+  return undefined;
 }
