@@ -123,7 +123,9 @@ play, driven by `/api/builds`. It builds and lints independently of the Next
 site. See [`docs/overlay.md`](docs/overlay.md) for install steps, shortcuts,
 the release process and the manual checklist. Tagging `overlay-v<version>`
 builds Windows and macOS installers on GitHub Actions and attaches them to a
-Release; the site's `/tools/overlay` page reads the latest one.
+Release; the site's `/tools/overlay` page reads the latest one. Private builds
+can be exported/imported as JSON and submitted to the site from the app — see
+"Private builds" in [`docs/overlay.md`](docs/overlay.md).
 
 ## Deploy
 

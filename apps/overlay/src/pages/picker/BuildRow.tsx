@@ -1,9 +1,13 @@
 import { useState, type KeyboardEvent } from "react";
+import { Copy, Download, Pencil, Send, Trash2 } from "lucide-react";
 import { Button } from "../../components/Button";
-import { DifficultyBadge, TagChip, vsLabel, type Difficulty } from "../../components/BuildBadges";
+import { IconButton } from "../../components/IconButton";
+import { DifficultyBadge, PrivateBadge, TagChip, vsLabel, type Difficulty } from "../../components/BuildBadges";
 import { RaceCrest as SmallRaceCrest, RACE_LABEL, raceTextClass, type Race } from "../../components/RaceCrest";
 import { cn } from "../../lib/cn";
-import type { ApiBuildListItem } from "../../api/schema";
+import { host } from "../../host";
+import { exportBuild, slugifyForFilename } from "../../lib/buildExchange";
+import { isLocalBuild, type AnyBuild } from "../../data/useAllBuilds";
 
 const DIFFICULTY_RAIL: Record<Difficulty, string> = {
   beginner: "before:bg-win",
@@ -64,17 +68,41 @@ export function BuildRow({
   apiBase,
   selected,
   onSelect,
+  onDuplicate,
+  onEdit,
+  onDelete,
 }: {
-  build: ApiBuildListItem;
+  build: AnyBuild;
   apiBase: string;
   selected: boolean;
   onSelect: () => void;
+  /** F003: opens the editor pre-filled from this build, for any row (site
+   *  or private). */
+  onDuplicate: () => void;
+  /** F003: local rows only — opens the editor in place. */
+  onEdit?: () => void;
+  /** F003: local rows only — deletes after an inline confirm. */
+  onDelete?: () => void;
 }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   function handleKeyDown(event: KeyboardEvent<HTMLLIElement>) {
     if (event.key === "Enter" && event.target === event.currentTarget) {
       event.preventDefault();
       onSelect();
     }
+  }
+
+  /** F004: a single private build → `<slug-or-title>.wc3gym.json`, ready to
+   *  hand to a friend or back up — see `buildExchange.ts` for the format. */
+  async function handleExport() {
+    if (!isLocalBuild(build)) return;
+    const payload = exportBuild(build);
+    await host.saveTextFile(`${slugifyForFilename(build.title)}.wc3gym.json`, JSON.stringify(payload, null, 2));
+  }
+
+  function handleSubmit() {
+    void host.openExternal(`${apiBase}/learn/builds/submit`);
   }
 
   return (
@@ -116,7 +144,49 @@ export function BuildRow({
       </div>
 
       <div className="flex flex-col items-end gap-1.5">
-        <DifficultyBadge level={build.difficulty} />
+        <div className="flex items-center gap-1.5">
+          {build.source === "local" ? <PrivateBadge /> : null}
+          <DifficultyBadge level={build.difficulty} />
+        </div>
+
+        {confirmDelete ? (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-loss">Delete?</span>
+            <Button variant="ghost" size="sm" onClick={() => setConfirmDelete(false)}>
+              Keep
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => onDelete?.()}>
+              Delete
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1">
+            <IconButton aria-label={`Duplicate ${build.title}`} onClick={onDuplicate}>
+              <Copy size={13} />
+            </IconButton>
+            {onEdit ? (
+              <IconButton aria-label={`Edit ${build.title}`} onClick={onEdit}>
+                <Pencil size={13} />
+              </IconButton>
+            ) : null}
+            {onDelete ? (
+              <IconButton aria-label={`Delete ${build.title}`} onClick={() => setConfirmDelete(true)}>
+                <Trash2 size={13} />
+              </IconButton>
+            ) : null}
+            {isLocalBuild(build) ? (
+              <>
+                <IconButton aria-label={`Export ${build.title}`} onClick={() => void handleExport()}>
+                  <Download size={13} />
+                </IconButton>
+                <IconButton aria-label={`Submit ${build.title} to site`} onClick={handleSubmit}>
+                  <Send size={13} />
+                </IconButton>
+              </>
+            ) : null}
+          </div>
+        )}
+
         <span className="tnum text-xs text-faint">
           {build.steps.length} steps{build.patch ? ` · ${build.patch}` : ""} · {formatDate(build.updatedAt)}
         </span>

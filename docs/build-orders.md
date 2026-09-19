@@ -117,7 +117,8 @@ already public; only approved builds are ever served, same as the pages.
 |---|---|
 | `GET /api/builds` | `200 { "builds": ApiBuild[] }`, in the order `getBuilds()` returns. List items **omit `description`**. |
 | `GET /api/builds/<slug>` | `200 { "build": ApiBuild }` including `description`, or `404 { "error": "not_found" }` when the slug doesn't match an approved build. |
-| `OPTIONS /api/builds`, `OPTIONS /api/builds/<slug>` | `204`, no body, CORS headers only (preflight). |
+| `GET /api/icons` | `200 { "icons": GameIcon[] }`, the full manifest from `src/lib/builds/icons.ts` (141 icons), each entry gaining a `url`: an absolute URL (`<request origin>/wc3-icons/<key>.webp`). Used by the overlay's build editor icon picker. |
+| `OPTIONS /api/builds`, `OPTIONS /api/builds/<slug>`, `OPTIONS /api/icons` | `204`, no body, CORS headers only (preflight). |
 
 `ApiBuild` is every field of `BuildOrder` (see Content model above; the
 opponent list is `vsRaces`, empty for any) except
@@ -157,6 +158,7 @@ edit as fast as the pages do.
 | `src/lib/builds/serialize.ts` | `BuildOrder` → `ApiBuild`/`ApiBuildListItem` DTOs for the JSON API |
 | `src/app/(site)/learn/builds/` | list, `[slug]` detail, `submit` (page + server action) |
 | `src/app/api/builds/` | public JSON API: `route.ts` (list), `[slug]/route.ts` (detail), `_headers.ts` (shared CORS/cache headers) |
+| `src/app/api/icons/` | public JSON API: `route.ts` (icon manifest with absolute image URLs) |
 | `src/components/builds/` | `StepTable` (timer), `MatchupPicker`, `RaceCrestPicker` (single and multi-select crests), `BuildRow` + `FeaturedBuild`, `BuildSubmitForm`, `IconPicker`, `GameIcon`, `OverlayBeta` (pointer to the overlay page), badges |
 | `scripts/builds/` | transcribed build data per race and the NDJSON converter |
 

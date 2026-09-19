@@ -31,8 +31,10 @@ export const apiBuildStepSchema = z.object({
   iconUrl: z.string().optional(),
 });
 
-const raceSchema = z.enum(["human", "orc", "nightelf", "undead"]);
-const difficultySchema = z.enum(["beginner", "intermediate", "advanced"]);
+// Exported so `store/keys.ts` can build the local-build schema (F002) off
+// the same race/difficulty enums instead of re-declaring them.
+export const raceSchema = z.enum(["human", "orc", "nightelf", "undead"]);
+export const difficultySchema = z.enum(["beginner", "intermediate", "advanced"]);
 
 const guideSchema = z
   .object({
@@ -74,8 +76,33 @@ export const buildResponseSchema = z.object({
   build: apiBuildSchema,
 });
 
+/**
+ * F003: mirrors the site's `GameIcon` (`src/lib/builds/icons.ts`) plus the
+ * `url` its `/api/icons` route stamps on. Exported so `store/keys.ts` can
+ * build `ICONS_CACHE`'s schema off the same shape instead of re-declaring
+ * it, same pattern as `raceSchema`/`difficultySchema` above.
+ */
+export const iconRaceSchema = z.enum(["human", "orc", "nightelf", "undead", "neutral"]);
+export const iconKindSchema = z.enum(["hero", "unit", "building", "upgrade", "misc"]);
+
+export const gameIconEntrySchema = z.object({
+  key: z.string(),
+  title: z.string(),
+  race: iconRaceSchema,
+  kind: iconKindSchema,
+  url: z.string(),
+});
+
+export const iconsResponseSchema = z.object({
+  icons: z.array(gameIconEntrySchema),
+});
+
 export type ApiBuildStep = z.infer<typeof apiBuildStepSchema>;
 export type ApiBuildListItem = z.infer<typeof apiBuildListItemSchema>;
 export type ApiBuild = z.infer<typeof apiBuildSchema>;
 export type BuildsListResponse = z.infer<typeof buildsListResponseSchema>;
 export type BuildResponse = z.infer<typeof buildResponseSchema>;
+export type GameIconEntry = z.infer<typeof gameIconEntrySchema>;
+export type IconsResponse = z.infer<typeof iconsResponseSchema>;
+export type IconRace = z.infer<typeof iconRaceSchema>;
+export type IconKind = z.infer<typeof iconKindSchema>;

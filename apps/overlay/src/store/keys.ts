@@ -5,7 +5,15 @@
  */
 
 import { z } from "zod";
-import { apiBuildListItemSchema, type ApiBuildListItem } from "../api/schema";
+import {
+  apiBuildListItemSchema,
+  apiBuildStepSchema,
+  difficultySchema,
+  gameIconEntrySchema,
+  raceSchema,
+  type ApiBuildListItem,
+  type GameIconEntry,
+} from "../api/schema";
 import { DEFAULT_API_BASE, DEFAULT_SHORTCUTS, LEGACY_API_BASES } from "../config";
 import type { ShortcutMap } from "../host/bridge";
 
@@ -166,4 +174,79 @@ export const SETTINGS: StoreKey<Settings> = {
     scale: 1,
     shortcuts: { ...DEFAULT_SHORTCUTS },
   }),
+};
+
+// --- wc3gym.localBuilds (F002) ----------------------------------------------
+
+/**
+ * Private build orders, created and edited entirely on this machine (F003
+ * ships the editor) — never sent to the site. Slugs are minted as
+ * `local-<uuid>` (see `lib/localBuilds.ts::createLocalBuild`) so they can
+ * never collide with a site slug, and `isLocalSlug` can tell the two apart
+ * from the string alone.
+ *
+ * Deliberately its own shape, not `apiBuildSchema` extended: local builds
+ * have no `guide`/`featured`/`publishedAt`/`maintainer` (site-only
+ * concepts), and `description` here is a plain string (no editor for the
+ * site's rich-text `description` yet), not the site's portable-text array.
+ *
+ * F003: `authorDiscord`/`sourceUrl` were added (both optional, matching the
+ * site submission form's own optional fields) so a private build already
+ * carries everything the site's submission schema asks for and "Submit to
+ * site" (a later feature) can send it unchanged.
+ */
+export const LOCAL_SLUG_PATTERN = /^local-[0-9a-f-]{36}$/;
+
+export const localBuildSchema = z.object({
+  slug: z.string().regex(LOCAL_SLUG_PATTERN),
+  title: z.string(),
+  race: raceSchema,
+  vsRaces: z.array(raceSchema).default([]),
+  difficulty: difficultySchema,
+  patch: z.string().optional(),
+  tags: z.array(z.string()),
+  summary: z.string(),
+  author: z.string(),
+  authorDiscord: z.string().optional(),
+  sourceUrl: z.string().optional(),
+  steps: z.array(apiBuildStepSchema).min(1),
+  description: z.string().optional(),
+  source: z.literal("local"),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+});
+
+export type LocalBuild = z.infer<typeof localBuildSchema>;
+
+export const LOCAL_BUILDS: StoreKey<LocalBuild[]> = {
+  name: "wc3gym.localBuilds",
+  schema: z.array(localBuildSchema),
+  defaultValue: () => [],
+};
+
+// --- wc3gym.iconsCache (F003) ------------------------------------------------
+
+/**
+ * See `data/useIcons.ts`, the only consumer — it fetches the site's
+ * `/api/icons` (schema: `gameIconEntrySchema` in `api/schema.ts`) once per
+ * `apiBase` and caches the result here so the editor's icon picker opens
+ * instantly (and still works offline) on every subsequent picker/editor
+ * launch.
+ */
+export type IconsCache = {
+  fetchedAt: string;
+  apiBase: string;
+  icons: GameIconEntry[];
+};
+
+export const iconsCacheSchema: z.ZodType<IconsCache> = z.object({
+  fetchedAt: z.string(),
+  apiBase: z.string(),
+  icons: z.array(gameIconEntrySchema),
+});
+
+export const ICONS_CACHE: StoreKey<IconsCache> = {
+  name: "wc3gym.iconsCache",
+  schema: iconsCacheSchema,
+  defaultValue: () => ({ fetchedAt: "", apiBase: DEFAULT_API_BASE, icons: [] }),
 };

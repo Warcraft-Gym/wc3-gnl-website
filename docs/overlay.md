@@ -100,6 +100,68 @@ whatever was holding the shortcut).
    that data, and a step with no value for a shown column just leaves the
    cell blank instead of showing a placeholder.
 
+## Private builds
+
+Private build orders are stored **only on this computer** (`localStorage`,
+key `wc3gym.localBuilds`) — they are never sent to the site. They show up
+in the picker's build list marked with a **PRIVATE** badge, always at the
+top, and work exactly like a published build for the in-game panel:
+select one and click **Show overlay** the same way. A **Source** filter in
+the picker (All / Private / Site) narrows the list to just one kind.
+Private builds render with or without a network connection — they never
+depend on the site's `/api/builds` endpoint.
+
+### Creating and editing a private build
+
+- **New private build** (top bar) opens a blank editor: title, race,
+  opponents, difficulty, patch, tags, summary, author, and a "More fields"
+  group for the optional Discord/source-URL/description fields, plus a
+  **Steps** section — add, reorder, and remove steps, each with an optional
+  time (`m:ss`), food count, icon, and instruction. Click a step's icon
+  button to open the icon picker (grouped by race, searchable by name,
+  loaded from the site's `/api/icons`).
+- Every row has small **Duplicate** / **Edit** / **Delete** buttons
+  (Edit/Delete only on private rows) — Duplicate works on *any* row
+  (private or published) and opens the editor pre-filled with
+  `"<title> (copy)"`, ready to tweak and save as a new private build. The
+  selected build's header also gets an **Edit** button when it's private.
+- Saving validates with the **exact same rules the site's own build
+  submission form uses** (title/summary length, tag limits, `m:ss` step
+  times, 0–100 food, etc.), so a private build is already in shape to
+  submit to the site unchanged — except a private build only needs one
+  step, where a public submission needs at least three.
+- Closing the editor with unsaved changes (Cancel, Escape, or clicking the
+  backdrop) asks you to confirm before discarding; deleting a build asks
+  for confirmation too.
+
+### Backing up, sharing, and submitting a private build
+
+Private builds live only in this app's local storage — reinstalling the
+app, clearing the WebView's storage, or moving to a new computer loses
+them unless you've exported a copy first. **Export** and **Import** turn a
+private build into a plain `.json` file you control:
+
+- **Export** (on a private row, and on the selected build's header) saves
+  one build as `<title>.wc3gym.json`. **Export all private builds**
+  (Settings) saves every private build in a single file. On Windows/macOS
+  this opens the native save dialog; in browser mode it downloads the file
+  like any other download.
+- **Import builds…** (Settings) opens a file you've exported (or one a
+  friend sent you) and adds whatever's in it to your private builds.
+  Importing the same file twice is safe — a build already present (same
+  title and steps) is skipped, not duplicated, and every private build
+  gets a fresh ID on import so importing on two machines never collides.
+  A status line reports **"Imported N, skipped M"** after each import.
+- **Submit to site** (on a private row, and on the selected build's
+  header) opens the site's build-submission page in your browser — it
+  does not send anything automatically. Export the build first if you
+  want the exact JSON to reference while filling out the form, or just
+  use it as a shortcut to the page.
+
+Exported files are plain JSON — safe to keep in a backup folder, a git
+repo, or a shared drive, and safe to open in a text editor to see exactly
+what a build contains before importing it.
+
 ## Build locally
 
 ```bash
