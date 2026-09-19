@@ -13,7 +13,7 @@ import { GnlSection } from "@/components/home/GnlSection";
 import { BuildRow, FeaturedBuild } from "@/components/builds/BuildRow";
 import { getBuilds } from "@/lib/builds/builds";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
-import { getActiveSeason, getStandings, getTeams } from "@/lib/api/gnl";
+import { getActiveSeason, getTeams } from "@/lib/api/gnl";
 import { getGuides } from "@/lib/learn/guides";
 import { getLatestPosts } from "@/lib/content";
 import { getDiscordCommunity } from "@/lib/discord";
@@ -28,10 +28,9 @@ export const dynamic = "force-dynamic";
  * hero → learn by race → latest guides → build orders → community & fun →
  * news → the GNL (one compact section) → CTA. */
 export default async function HomePage() {
-  const [season, standings, teamData, guides, posts, community, builds] =
+  const [season, teamData, guides, posts, community, builds] =
     await Promise.all([
       getActiveSeason(),
-      getStandings(),
       getTeams(),
       getGuides(),
       getLatestPosts(3),
@@ -179,11 +178,7 @@ export default async function HomePage() {
           className="[mask-image:linear-gradient(90deg,transparent_0%,rgba(0,0,0,.5)_45%,black_100%)] opacity-55"
         />
         <Container className="relative z-10 py-[var(--wg-space-section)]">
-          <GnlSection
-            season={season}
-            rows={standings.rows.slice(0, 5)}
-            teams={teamData.teams}
-          />
+          <GnlSection season={season} teams={teamData.teams} />
         </Container>
       </section>
 
