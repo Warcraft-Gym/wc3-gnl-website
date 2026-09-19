@@ -180,6 +180,15 @@ draft private build:
    saved build — is auto-selected: it's ready for **Show overlay**
    immediately, no extra click needed to "use" it in game.
 
+### From a W3Champions match
+
+Don't have the replay file handy? Click **From W3Champions** next to
+**Import replay** and paste the link from the match page's address bar
+(`https://w3champions.com/match/<id>` — the bare id also works). Click
+**Fetch** (or press **Enter**): the app downloads the replay straight from
+W3Champions' public API — nothing is uploaded — and opens the exact same
+dialog described above, starting at step 2 (choose which player is "you").
+
 ### Where Warcraft III stores replays
 
 - **Windows:** `Documents\Warcraft III\BattleNet\<account number>\Replays\`
@@ -188,9 +197,10 @@ draft private build:
   `~/Library/Application Support/Blizzard/Warcraft III/Replay/LastReplay.w3g`.
   The `Library` folder is hidden in Finder by default — open **Finder → Go**
   and hold **⌥ (Option)** to reveal the **Library** entry in the menu, or
-  point the file dialog directly at the path above. On macOS, the import
-  dialog must be pointed at that `Application Support/Blizzard` folder — the
-  app can only read replay files under it (see the capability scope below).
+  point the file dialog directly at the path above. On macOS, the app can
+  read replays from Documents, Downloads, Desktop, and
+  `~/Library/Application Support/Blizzard` — anything else is refused by
+  the file scope (see the capability scope below).
 
 Game patches have been reported to clear out the Replays folder — export
 any build you care about (see "Backing up, sharing, and submitting a
