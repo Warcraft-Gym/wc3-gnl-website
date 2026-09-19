@@ -9,7 +9,7 @@ import { RaceBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
-import { getActiveSeason, getPlayerProfile } from "@/lib/api/gnl";
+import { getPlayerProfile } from "@/lib/api/gnl";
 import { getW3cProfile } from "@/lib/w3c";
 import { MmrChart } from "@/components/league/MmrChart";
 import { GameIcon } from "@/components/builds/GameIcon";
@@ -18,7 +18,7 @@ import { W3cMark } from "@/components/ui/W3cMark";
 import { W3C_HEROES } from "@/lib/w3c-heroes";
 import type { VsRaceRecord } from "@/lib/w3c";
 import { cn, raceOf } from "@/lib/utils";
-import type { MatchStatus } from "@/lib/api/types";
+import type { MatchStatus, PlayerSeries } from "@/lib/api/types";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -31,7 +31,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { player, team } = profile;
   return {
     title: `${player.name}, GNL player`,
-    description: `${player.name} (${RACE_LABEL[player.race]}${team ? `, ${team.name}` : ""}) in the Gym Newbie League: season record, W3Champions MMR, career stats and series.`,
+    description: `${player.name} (${RACE_LABEL[player.race]}${team ? `, ${team.name}` : ""}) in the Gym Newbie League: record and series in every season, W3Champions MMR and career stats.`,
     alternates: { canonical: `/gnl/players/${slug}` },
   };
 }
@@ -52,6 +52,56 @@ function Stat({ label, value, tone }: { label: string; value: React.ReactNode; t
 }
 
 const STATUS_LABEL: Record<MatchStatus, string> = { scheduled: "Scheduled", live: "Live", completed: "Final" };
+
+/** "GNL 17 and GNL 18", "GNL 16, GNL 17 and GNL 18". */
+function listSeasons(names: string[]) {
+  const asc = [...names].reverse();
+  if (asc.length <= 1) return asc[0] ?? "";
+  return `${asc.slice(0, -1).join(", ")} and ${asc[asc.length - 1]}`;
+}
+
+/** One of the player's series, from their side. */
+function SeriesRow({ s }: { s: PlayerSeries }) {
+  const won = s.status === "completed" && s.score > s.opponentScore;
+  const lost = s.status === "completed" && s.score < s.opponentScore;
+  return (
+    <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto_auto] items-center gap-3 p-4">
+      <div className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-faint">
+        Week {s.week}
+        <span className="mt-0.5 block">{STATUS_LABEL[s.status]}</span>
+      </div>
+      <div className="min-w-0">
+        <p className="flex flex-wrap items-center gap-2 text-sm">
+          <RaceIcon race={s.race} size={22} />
+          <span className="text-faint">vs</span>
+          <RaceIcon race={s.opponent.race} size={22} />
+          <Link href={`/gnl/players/${s.opponent.slug}`} className="font-display font-bold uppercase text-fg hover:text-gold">
+            {s.opponent.name}
+          </Link>
+        </p>
+        <p className="mt-0.5 truncate text-xs text-faint">
+          {s.fixture.homeTeam} vs {s.fixture.awayTeam}
+        </p>
+      </div>
+      <div className="w-8">
+        {s.cast ? (
+          <a
+            href={s.cast.vodUrl ?? s.cast.channelUrl}
+            target="_blank"
+            rel="noreferrer"
+            title={s.cast.vodUrl ? `Watch the VOD on ${s.cast.name}` : `Cast by ${s.cast.name}`}
+            className={cn("grid size-7 place-items-center rounded border transition-colors", s.cast.vodUrl ? "border-arcane/60 bg-arcane/10 text-arcane" : "border-line text-muted hover:text-arcane")}
+          >
+            <Tv size={13} />
+          </a>
+        ) : null}
+      </div>
+      <div className={cn("tnum font-display text-lg font-bold", won ? "text-win" : lost ? "text-loss" : "text-faint")}>
+        {s.status === "scheduled" ? "-" : `${s.score} : ${s.opponentScore}`}
+      </div>
+    </div>
+  );
+}
 const RACE_ORDER = ["human", "orc", "nightelf", "undead", "random"] as const;
 
 /** One side of the league-vs-ladder comparison. */
@@ -115,9 +165,9 @@ function Compare({
 
 export default async function PlayerPage({ params }: Params) {
   const { slug } = await params;
-  const [profile, season] = await Promise.all([getPlayerProfile(slug), getActiveSeason()]);
+  const profile = await getPlayerProfile(slug);
   if (!profile) notFound();
-  const { player, team, isCaptain, captainOnly, season: rec, w3c, career, series } = profile;
+  const { player, team, isCaptain, captainOnly, latestSeason, history, allTime, w3c, career } = profile;
   const live = player.battleTag ? await getW3cProfile(player.battleTag) : null;
   const w3cUrl = live?.profileUrl ?? (player.battleTag
     ? `https://w3champions.com/player/${encodeURIComponent(player.battleTag)}`
@@ -134,14 +184,19 @@ export default async function PlayerPage({ params }: Params) {
   const ladderGames = ladder.reduce((n, r) => n + r.games, 0);
   const ladderWins = ladder.reduce((n, r) => n + r.wins, 0);
   const ladderLosses = ladder.reduce((n, r) => n + r.losses, 0);
-  // GNL series per opponent race, from this season's completed series.
+  // GNL series per opponent race, from every completed series on record.
   const gnlVsRace: VsRaceRecord = {};
-  for (const sr of series) {
+  for (const sr of history.flatMap((h) => h.series)) {
     if (sr.status !== "completed") continue;
     const rec = (gnlVsRace[sr.opponent.race] ??= { wins: 0, losses: 0 });
     if (sr.score > sr.opponentScore) rec.wins++;
     else if (sr.score < sr.opponentScore) rec.losses++;
   }
+  const seasonsPlayed = history.filter((h) => h.record.games > 0 || h.series.length > 0);
+  const seasonsLabel = listSeasons(seasonsPlayed.map((h) => h.season.shortName));
+  const hasGnlGames = allTime.games > 0;
+  // "GNL 17 series" when there is one season on record, else the total.
+  const gnlSeriesLabel = seasonsPlayed.length > 1 ? "GNL series" : `${seasonsPlayed[0]?.season.shortName ?? latestSeason.shortName} series`;
 
   return (
     <>
@@ -166,15 +221,24 @@ export default async function PlayerPage({ params }: Params) {
           </Link>
 
           {/* Identity on the left, the headline numbers as a block on the right */}
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center lg:gap-12">
-            <div className="flex items-center gap-5 sm:gap-6">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+            <div className="flex min-w-0 items-center gap-5 sm:gap-6">
               <span className="relative shrink-0">
                 <span aria-hidden className="absolute inset-[-20%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-60 blur-xl" />
                 <RaceIcon race={player.race} size={88} className="relative drop-shadow-[0_10px_20px_rgba(0,0,0,.9)]" />
               </span>
               <div className="min-w-0">
-                <p className="kicker">{captainOnly ? "Captain" : `${season.shortName} player`}</p>
-                <h1 className="mt-1 flex flex-wrap items-center gap-3 text-[length:var(--wg-text-display)] font-extrabold leading-none [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+                <p className="kicker">
+                  {captainOnly ? `${latestSeason.shortName} captain` : `${latestSeason.shortName} player`}
+                  {history.length > 1 ? ` · ${history.length} seasons` : ""}
+                </p>
+                <h1
+                  className={cn(
+                    "mt-1 flex flex-wrap items-center gap-3 font-extrabold leading-none [overflow-wrap:anywhere] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]",
+                    // Long single-word names step down a size so the stats block keeps its place beside them
+                    player.name.length >= 9 ? "text-[length:clamp(1.75rem,0.8rem+2.6vw,2.8rem)]" : "text-[length:var(--wg-text-display)]",
+                  )}
+                >
                   {player.name}
                   {isCaptain && !captainOnly ? <CaptainBadge /> : null}
                 </h1>
@@ -200,13 +264,16 @@ export default async function PlayerPage({ params }: Params) {
               </div>
             </div>
 
-            <dl className="panel grid grid-cols-2 gap-px overflow-hidden bg-line/60 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
-              {captainOnly ? null : (
+            <dl className="panel grid shrink-0 grid-cols-2 gap-px overflow-hidden bg-line/60 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4">
+              {hasGnlGames ? (
                 <>
-                  <Stat label={`${season.shortName} series`} value={<>{rec.wins}<span className="text-faint"> - </span>{rec.losses}</>} />
-                  <Stat label="Win rate" value={`${pct(rec.wins, rec.losses)}%`} tone={pct(rec.wins, rec.losses) >= 50 ? "text-win" : "text-loss"} />
+                  <Stat
+                    label={gnlSeriesLabel}
+                    value={<>{allTime.wins}<span className="text-faint"> - </span>{allTime.losses}</>}
+                  />
+                  <Stat label="Win rate" value={`${pct(allTime.wins, allTime.losses)}%`} tone={pct(allTime.wins, allTime.losses) >= 50 ? "text-win" : "text-loss"} />
                 </>
-              )}
+              ) : null}
               <Stat
                 label={mainLadder ? `W3C MMR · ${RACE_LABEL[mainLadder.race]}` : "W3C MMR"}
                 value={mainLadder?.mmr ?? player.mmr ?? "-"}
@@ -226,25 +293,26 @@ export default async function PlayerPage({ params }: Params) {
       <Container className="py-10">
         {captainOnly ? (
           <p className="mb-6 border-l-2 border-gold/60 pl-4 text-sm text-muted">
-            Captains {team?.name ?? "the team"} this season without playing in the roster. The numbers below are their own ladder and career.
+            Captains {team?.name ?? "the team"} in {latestSeason.shortName} without playing in the roster.
+            {hasGnlGames ? " The league numbers below come from the seasons they played." : " The numbers below are their own ladder and career."}
           </p>
         ) : null}
 
         {/* GNL vs ladder, side by side */}
-        {!captainOnly && (rec.games > 0 || live) ? (
+        {hasGnlGames || (!captainOnly && live) ? (
           <section>
             <h2 className="mb-4 font-display text-xl font-bold uppercase">League vs ladder</h2>
             <p className="mb-4 max-w-2xl text-sm text-muted">
-              {season.shortName} series against the current W3Champions ladder season, and how they go against each race.
+              Every GNL series on record against the current W3Champions ladder season, and how they go against each race.
             </p>
             <div className="grid gap-4 lg:grid-cols-2">
               <Compare
-                title={`${season.shortName} series`}
-                games={rec.games}
-                wins={rec.wins}
-                losses={rec.losses}
+                title={gnlSeriesLabel}
+                games={allTime.games}
+                wins={allTime.wins}
+                losses={allTime.losses}
                 vs={gnlVsRace}
-                note="Best-of-three series in the league"
+                note={seasonsPlayed.length > 1 ? `Best-of-three series across ${seasonsLabel}` : "Best-of-three series in the league"}
               />
               <Compare
                 title={`Ladder season ${ladderSeason ?? ""}`}
@@ -260,6 +328,72 @@ export default async function PlayerPage({ params }: Params) {
 
         <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_1.4fr]">
           <div className="space-y-10">
+            {history.length ? (
+              <section>
+                <h2 className="mb-4 font-display text-xl font-bold uppercase">GNL seasons</h2>
+                <Surface className="divide-y divide-line/60">
+                  {history.map((h) => {
+                    const rate = pct(h.record.wins, h.record.losses);
+                    const played = h.record.games > 0;
+                    return (
+                      <div key={h.season.id} className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-3 p-4">
+                        <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
+                        <span className="min-w-0">
+                          <Link href={`/gnl/teams/${h.team.slug}`} className="flex items-center gap-2 text-sm text-fg hover:text-gold">
+                            <TeamPlate tag={h.team.tag!} logoUrl={h.team.logoUrl} name={h.team.name} size="sm" />
+                            <span className="truncate font-display font-bold uppercase">{h.team.name}</span>
+                            {h.isCaptain ? <CaptainBadge compact /> : null}
+                          </Link>
+                          <span className="mt-0.5 block text-xs text-faint">
+                            {h.captainOnly ? "Captain, not in the roster" : played ? `${h.record.games} games` : "No games played"}
+                            {h.record.matchupHistory.length ? (
+                              <span className="ml-2 inline-flex items-center gap-0.5 align-middle" title="Opponent race of each game">
+                                {h.record.matchupHistory.map((r, i) => (
+                                  <RaceIcon key={`${r}-${i}`} race={r} size={14} />
+                                ))}
+                              </span>
+                            ) : null}
+                          </span>
+                        </span>
+                        <span className="text-right">
+                          <span className={cn("tnum block font-display text-lg font-bold", !played ? "text-faint" : rate >= 50 ? "text-win" : "text-loss")}>
+                            {played ? <>{h.record.wins}<span className="text-faint"> - </span>{h.record.losses}</> : "-"}
+                          </span>
+                          {played ? <span className="tnum block font-mono text-[0.62rem] text-faint">{rate}% win</span> : null}
+                        </span>
+                      </div>
+                    );
+                  })}
+                </Surface>
+                {career && career.seasonsPlayed > history.length ? (
+                  <p className="mt-2 text-xs text-faint">
+                    Season by season from the published events. Earlier seasons count in the career totals only.
+                  </p>
+                ) : null}
+              </section>
+            ) : null}
+
+            {career && (career.seasonsPlayed > 0 || career.rating > 0) ? (
+              <section>
+                <h2 className="mb-4 font-display text-xl font-bold uppercase">GNL career</h2>
+                <Surface className="grid grid-cols-2 divide-x divide-y divide-line/60 sm:grid-cols-3">
+                  {[
+                    ["Seasons", career.seasonsPlayed],
+                    ["Rating", career.rating],
+                    ["Series", `${career.seriesWon}-${career.seriesLost}`],
+                    ["Series win %", `${pct(career.seriesWon, career.seriesLost)}%`],
+                    ["Games", `${career.gamesWon}-${career.gamesLost}`],
+                    ["Game win %", `${pct(career.gamesWon, career.gamesLost)}%`],
+                  ].map(([k, v]) => (
+                    <div key={String(k)} className="p-4">
+                      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-faint">{k}</p>
+                      <p className="tnum mt-1 font-display text-lg font-bold text-fg">{v}</p>
+                    </div>
+                  ))}
+                </Surface>
+              </section>
+            ) : null}
+
             {ladder.length ? (
               <section>
                 <h2 className="mb-4 font-display text-xl font-bold uppercase">W3Champions ladder</h2>
@@ -314,75 +448,30 @@ export default async function PlayerPage({ params }: Params) {
               </section>
             ) : null}
 
-            {career && (career.seasonsPlayed > 0 || career.rating > 0) ? (
-              <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">GNL career</h2>
-                <Surface className="grid grid-cols-2 divide-x divide-y divide-line/60 sm:grid-cols-3">
-                  {[
-                    ["Seasons", career.seasonsPlayed],
-                    ["Rating", career.rating],
-                    ["Series", `${career.seriesWon}-${career.seriesLost}`],
-                    ["Series win %", `${pct(career.seriesWon, career.seriesLost)}%`],
-                    ["Games", `${career.gamesWon}-${career.gamesLost}`],
-                    ["Game win %", `${pct(career.gamesWon, career.gamesLost)}%`],
-                  ].map(([k, v]) => (
-                    <div key={String(k)} className="p-4">
-                      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-faint">{k}</p>
-                      <p className="tnum mt-1 font-display text-lg font-bold text-fg">{v}</p>
-                    </div>
-                  ))}
-                </Surface>
-              </section>
-            ) : null}
           </div>
 
           <div className="space-y-10">
-            {series.length ? (
+            {history.some((h) => h.series.length) ? (
               <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">Series this season</h2>
-                <Surface className="divide-y divide-line/60">
-                  {series.map((s) => {
-                    const won = s.status === "completed" && s.score > s.opponentScore;
-                    const lost = s.status === "completed" && s.score < s.opponentScore;
-                    return (
-                      <div key={s.id} className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto_auto] items-center gap-3 p-4">
-                        <div className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-faint">
-                          Week {s.week}
-                          <span className="mt-0.5 block">{STATUS_LABEL[s.status]}</span>
-                        </div>
-                        <div className="min-w-0">
-                          <p className="flex flex-wrap items-center gap-2 text-sm">
-                            <RaceIcon race={s.race} size={22} />
-                            <span className="text-faint">vs</span>
-                            <RaceIcon race={s.opponent.race} size={22} />
-                            <Link href={`/gnl/players/${s.opponent.slug}`} className="font-display font-bold uppercase text-fg hover:text-gold">
-                              {s.opponent.name}
-                            </Link>
-                          </p>
-                          <p className="mt-0.5 truncate text-xs text-faint">
-                            {s.fixture.homeTeam} vs {s.fixture.awayTeam}
-                          </p>
-                        </div>
-                        <div className="w-8">
-                          {s.cast ? (
-                            <a
-                              href={s.cast.vodUrl ?? s.cast.channelUrl}
-                              target="_blank"
-                              rel="noreferrer"
-                              title={s.cast.vodUrl ? `Watch the VOD on ${s.cast.name}` : `Cast by ${s.cast.name}`}
-                              className={cn("grid size-7 place-items-center rounded border transition-colors", s.cast.vodUrl ? "border-arcane/60 bg-arcane/10 text-arcane" : "border-line text-muted hover:text-arcane")}
-                            >
-                              <Tv size={13} />
-                            </a>
-                          ) : null}
-                        </div>
-                        <div className={cn("tnum font-display text-lg font-bold", won ? "text-win" : lost ? "text-loss" : "text-faint")}>
-                          {s.status === "scheduled" ? "-" : `${s.score} : ${s.opponentScore}`}
-                        </div>
+                <h2 className="mb-4 font-display text-xl font-bold uppercase">Series</h2>
+                <div className="space-y-4">
+                  {history
+                    .filter((h) => h.series.length)
+                    .map((h) => (
+                      <div key={h.season.id}>
+                        <p className="mb-2 flex items-baseline gap-2 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-faint">
+                          <span className="font-display text-sm font-extrabold text-gold">{h.season.shortName}</span>
+                          <span>{h.team.name}</span>
+                          <span className="tnum ml-auto">{h.record.wins}W {h.record.losses}L</span>
+                        </p>
+                        <Surface className="divide-y divide-line/60">
+                          {h.series.map((s) => (
+                            <SeriesRow key={s.id} s={s} />
+                          ))}
+                        </Surface>
                       </div>
-                    );
-                  })}
-                </Surface>
+                    ))}
+                </div>
               </section>
             ) : null}
 

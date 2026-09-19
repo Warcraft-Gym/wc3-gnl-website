@@ -12,6 +12,8 @@ import type {
   FantasyEntry,
   FantasyPick,
   PlayerProfile,
+  PlayerSeasonEntry,
+  GnlRecord,
   PlayerSeries,
   W3cRaceStat,
   Ladder,
@@ -508,84 +510,140 @@ export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
     .sort((a, b) => b.mmr - a.mmr);
 }
 
-export function mapPlayerProfile(
-  teams: RawTeam[],
-  series: RawSeries[],
-  career: RawCareerStat[],
-  seasonId: number,
-  slug: string,
-): PlayerProfile | undefined {
-  const key = String(seasonId);
-  for (const t of teams) {
+/** Everything the profile needs for one season, fetched by gnl.ts. */
+export interface RawSeasonBundle {
+  season: RawSeason;
+  teams: RawTeam[];
+  series: RawSeries[];
+}
+
+/** The player's series in one season, from their side, oldest week first. */
+function mapPlayerSeries(series: RawSeries[], userId: number): PlayerSeries[] {
+  return series
+    .filter((s) => s.player1?.id === userId || s.player2?.id === userId)
+    .map<PlayerSeries>((s) => {
+      const home = s.player1?.id === userId;
+      const me = home ? s.player1 : s.player2;
+      const them = home ? s.player2 : s.player1;
+      const myRace = home ? s.player1_race : s.player2_race;
+      const theirRace = home ? s.player2_race : s.player1_race;
+      const c = s.casts?.find((x) => x.vod_url) ?? s.casts?.[0];
+      return {
+        id: s.id,
+        week: s.match?.playday ?? 0,
+        scheduledAt: s.date_time,
+        status: playerMatchStatus(s),
+        race: myRace ? (W3C_RACE[myRace] ?? raceOf(myRace)) : raceOf(me?.race),
+        score: home ? s.player1_score : s.player2_score,
+        opponentScore: home ? s.player2_score : s.player1_score,
+        opponent: {
+          id: them?.id ?? 0,
+          name: them?.name ?? "TBD",
+          slug: slugify(them?.name ?? ""),
+          race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.race),
+        },
+        fixture: {
+          homeTeam: s.match?.team1?.long_name || s.match?.team1?.name || "",
+          awayTeam: s.match?.team2?.long_name || s.match?.team2?.name || "",
+        },
+        cast: c
+          ? { id: c.id, name: c.name ?? "Cast", channelUrl: c.channel_url ?? undefined, vodUrl: c.vod_url ?? undefined }
+          : undefined,
+      };
+    })
+    .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
+}
+
+/** Finds the player in one season's teams, by slug or (once known) by user id.
+ *  Captains usually are not on the playing roster; they get an entry too. */
+function findPlayerSeason(
+  bundle: RawSeasonBundle,
+  match: { slug: string; userId?: number },
+): { raw: RawPlayer; entry: PlayerSeasonEntry } | undefined {
+  const key = String(bundle.season.id);
+  const hit = (p: RawPlayer) => (match.userId != null ? p.id === match.userId : slugify(p.name) === match.slug);
+  for (const t of bundle.teams) {
     const roster = t.player_by_season?.[key] ?? [];
     const captains = t.captains_by_season?.[key] ?? [];
-    // Captains usually are not on the playing roster; they get a page too.
-    const rosterHit = roster.find((p) => slugify(p.name) === slug);
-    const raw = rosterHit ?? captains.find((c) => slugify(c.name) === slug);
+    const rosterHit = roster.find(hit);
+    const raw = rosterHit ?? captains.find(hit);
     if (!raw) continue;
-    const captainOnly = !rosterHit;
     const long = t.long_name || t.name;
-    const stat = raw.gnl_stats?.find((r) => r.season_id === seasonId);
-    const c = career.find((r) => r.user_id === raw.id);
-    const mine = series
-      .filter((s) => s.player1?.id === raw.id || s.player2?.id === raw.id)
-      .map<PlayerSeries>((s) => {
-        const home = s.player1?.id === raw.id;
-        const me = home ? s.player1 : s.player2;
-        const them = home ? s.player2 : s.player1;
-        const myRace = home ? s.player1_race : s.player2_race;
-        const theirRace = home ? s.player2_race : s.player1_race;
-        return {
-          id: s.id,
-          week: s.match?.playday ?? 0,
-          scheduledAt: s.date_time,
-          status: playerMatchStatus(s),
-          race: myRace ? (W3C_RACE[myRace] ?? raceOf(myRace)) : raceOf(me?.race),
-          score: home ? s.player1_score : s.player2_score,
-          opponentScore: home ? s.player2_score : s.player1_score,
-          opponent: {
-            id: them?.id ?? 0,
-            name: them?.name ?? "TBD",
-            slug: slugify(them?.name ?? ""),
-            race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.race),
-          },
-          fixture: {
-            homeTeam: s.match?.team1?.long_name || s.match?.team1?.name || "",
-            awayTeam: s.match?.team2?.long_name || s.match?.team2?.name || "",
-          },
-          cast: (() => {
-            const c = s.casts?.find((x) => x.vod_url) ?? s.casts?.[0];
-            return c ? { id: c.id, name: c.name ?? "Cast", channelUrl: c.channel_url ?? undefined, vodUrl: c.vod_url ?? undefined } : undefined;
-          })(),
-        };
-      })
-      .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
+    const stat = raw.gnl_stats?.find((r) => r.season_id === bundle.season.id);
+    const season = mapSeason(bundle.season);
     return {
-      player: mapPlayer(raw, t.id, long, captains.some((x) => x.id === raw.id)),
-      team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
-      isCaptain: captains.some((x) => x.id === raw.id),
-      captainOnly,
-      season: {
-        games: stat?.games ?? 0,
-        wins: stat?.wins ?? 0,
-        losses: stat?.losses ?? 0,
-        matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
+      raw,
+      entry: {
+        season: { id: season.id, name: season.name, shortName: season.shortName },
+        team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
+        isCaptain: captains.some((x) => x.id === raw.id),
+        captainOnly: !rosterHit,
+        record: {
+          games: stat?.games ?? 0,
+          wins: stat?.wins ?? 0,
+          losses: stat?.losses ?? 0,
+          matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
+        },
+        series: mapPlayerSeries(bundle.series, raw.id),
       },
-      w3c: currentW3cRows(raw),
-      career: c
-        ? {
-            rating: c.rating ?? 0,
-            seriesWon: c.series_won ?? 0,
-            seriesLost: c.series_lost ?? 0,
-            gamesWon: c.games_won ?? 0,
-            gamesLost: c.games_lost ?? 0,
-            seasonsPlayed: c.seasons_played ?? 0,
-          }
-        : undefined,
-      series: mine,
     };
   }
   return undefined;
+}
+
+/** Builds a player's profile from every published season, newest first. The
+ *  identity (race, team, W3C rows) comes from the most recent season they
+ *  took part in; older seasons only contribute to the history. */
+export function mapPlayerProfile(
+  seasons: RawSeasonBundle[],
+  career: RawCareerStat[],
+  slug: string,
+): PlayerProfile | undefined {
+  const ordered = [...seasons].sort(
+    (a, b) => (ms(b.season.start_date) || 0) - (ms(a.season.start_date) || 0) || b.season.id - a.season.id,
+  );
+  let latest: { raw: RawPlayer; entry: PlayerSeasonEntry } | undefined;
+  const history: PlayerSeasonEntry[] = [];
+  for (const bundle of ordered) {
+    const found = findPlayerSeason(bundle, { slug, userId: latest?.raw.id });
+    if (!found) continue;
+    latest ??= found;
+    history.push(found.entry);
+  }
+  if (!latest) return undefined;
+  const { raw, entry } = latest;
+  const c = career.find((r) => r.user_id === raw.id);
+  const allTime = history.reduce<GnlRecord>(
+    (acc, h) => ({
+      games: acc.games + h.record.games,
+      wins: acc.wins + h.record.wins,
+      losses: acc.losses + h.record.losses,
+      matchupHistory: [...acc.matchupHistory, ...h.record.matchupHistory],
+    }),
+    { games: 0, wins: 0, losses: 0, matchupHistory: [] },
+  );
+  return {
+    player: mapPlayer(raw, entry.team.id, entry.team.name, entry.isCaptain),
+    team: entry.team,
+    isCaptain: entry.isCaptain,
+    captainOnly: entry.captainOnly,
+    latestSeason: entry.season,
+    season: entry.record,
+    history,
+    allTime,
+    w3c: currentW3cRows(raw),
+    career: c
+      ? {
+          rating: c.rating ?? 0,
+          seriesWon: c.series_won ?? 0,
+          seriesLost: c.series_lost ?? 0,
+          gamesWon: c.games_won ?? 0,
+          gamesLost: c.games_lost ?? 0,
+          seasonsPlayed: c.seasons_played ?? 0,
+        }
+      : undefined,
+    series: entry.series,
+  };
 }
 
 // --- season ladder ---

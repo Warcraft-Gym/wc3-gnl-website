@@ -184,15 +184,38 @@ export type PlayerSeries = {
   cast?: MatchCast;
 };
 
+/** A GNL record: series games won and lost, plus the opponent race of each
+ *  completed series. */
+export type GnlRecord = { games: number; wins: number; losses: number; matchupHistory: Race[] };
+
+/** One GNL season from the player's side: the team they were on, their role
+ *  and record, and every series they played. */
+export type PlayerSeasonEntry = {
+  season: Pick<Season, "id" | "name" | "shortName">;
+  team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
+  isCaptain: boolean;
+  /** True when the person captained the team without being on its roster. */
+  captainOnly: boolean;
+  record: GnlRecord;
+  series: PlayerSeries[];
+};
+
 /** Everything the player page shows. */
 export type PlayerProfile = {
   player: Player;
+  /** The team from the player's most recent season. */
   team?: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
   isCaptain: boolean;
   /** True when the person captains the team but is not on its playing roster. */
   captainOnly: boolean;
-  /** This season's GNL record from the roster stats. */
-  season: { games: number; wins: number; losses: number; matchupHistory: Race[] };
+  /** The most recent GNL season the player took part in. */
+  latestSeason: Pick<Season, "id" | "name" | "shortName">;
+  /** That season's GNL record from the roster stats. */
+  season: GnlRecord;
+  /** Every published GNL season the player took part in, newest first. */
+  history: PlayerSeasonEntry[];
+  /** The records above summed over every season in `history`. */
+  allTime: GnlRecord;
   /** Current-season W3C rows, one per race, best first. */
   w3c: W3cRaceStat[];
   /** All-time GNL career, when the player has one. */
@@ -204,6 +227,7 @@ export type PlayerProfile = {
     gamesLost: number;
     seasonsPlayed: number;
   };
+  /** Series from the most recent season, oldest week first. */
   series: PlayerSeries[];
 };
 

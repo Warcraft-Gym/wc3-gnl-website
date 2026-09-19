@@ -64,6 +64,11 @@ interface RawLeague {
  * deferred until it is the focus.
  */
 async function fetchActiveSeasonRaw(): Promise<RawSeason> {
+  return pickActiveSeason(await fetchCompletedSeasonsRaw());
+}
+
+/** Every published, finished GNL event. */
+async function fetchCompletedSeasonsRaw(): Promise<RawSeason[]> {
   const leagues = await apiGet<RawLeague[]>("/leagues");
   const league = leagues.find((row) => row.kind === "gnl");
   if (!league) throw new Error("The GNL league is not configured.");
@@ -72,7 +77,7 @@ async function fetchActiveSeasonRaw(): Promise<RawSeason> {
   });
   const completed = events.filter((event) => event.phase === "finished");
   if (!completed.length) throw new Error("The GNL has no completed event.");
-  return pickActiveSeason(completed);
+  return completed;
 }
 
 export async function getActiveSeason(): Promise<Season> {
@@ -168,18 +173,26 @@ export async function getTeamBySlug(slug: string): Promise<Team | undefined> {
   return teams.find((t) => t.slug === slug);
 }
 
-/** A player's page: roster entry, season record, W3C ladder rows, career
- *  stats and their series this season. Undefined when the slug is unknown. */
+/** A player's page: roster entry, W3C ladder rows, career stats and their
+ *  record and series in every published GNL season. Undefined when the slug
+ *  is unknown. */
 export async function getPlayerProfile(slug: string): Promise<PlayerProfile | undefined> {
   const { data } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
-      const [teams, series, career] = await Promise.all([
-        apiGet<RawTeam[]>(`/events/${s.id}/teams`),
-        apiGet<RawSeries[]>(`/events/${s.id}/series`),
+      const seasons = await fetchCompletedSeasonsRaw();
+      const [bundles, career] = await Promise.all([
+        Promise.all(
+          seasons.map(async (season) => {
+            const [teams, series] = await Promise.all([
+              apiGet<RawTeam[]>(`/events/${season.id}/teams`),
+              apiGet<RawSeries[]>(`/events/${season.id}/series`),
+            ]);
+            return { season, teams, series };
+          }),
+        ),
         apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]),
       ]);
-      return mapPlayerProfile(teams, series, career, s.id, slug) ?? null;
+      return mapPlayerProfile(bundles, career, slug) ?? null;
     },
     () => null,
     "getPlayerProfile",
