@@ -6,7 +6,6 @@ import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "./VsBadge";
 import { cn, raceOf, type Race } from "@/lib/utils";
 
-const PREVIEW = 6;
 const RACE_ORDER: Race[] = ["human", "orc", "nightelf", "undead", "random"];
 const RACE_BG: Record<Race, string> = {
   human: "bg-human",
@@ -18,12 +17,11 @@ const RACE_BG: Record<Race, string> = {
 const RACE_LABEL: Record<Race, string> = { human: "Human", orc: "Orc", nightelf: "Night Elf", undead: "Undead", random: "Random" };
 
 /** Team card for the teams index: standing, record, captains, race make-up
- *  and the top of the roster by MMR. The full roster is on the team page. */
+ *  and the full roster sorted by MMR. */
 export function TeamCard({ team, standing }: { team: Team; standing?: StandingRow }) {
   const rated = team.players.filter((p) => p.mmr);
   const avgMmr = rated.length ? Math.round(rated.reduce((n, p) => n + (p.mmr ?? 0), 0) / rated.length) : undefined;
-  const preview = [...team.players].sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0)).slice(0, PREVIEW);
-  const rest = team.players.length - preview.length;
+  const roster = [...team.players].sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0));
   const races = RACE_ORDER.map((r) => ({ race: r, n: team.players.filter((p) => raceOf(p.race) === r).length })).filter((x) => x.n);
 
   return (
@@ -99,9 +97,9 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
         </div>
       ) : null}
 
-      {/* Roster preview */}
+      {/* Roster, strongest first */}
       <ul className="mt-4 flex flex-col gap-1.5 border-t border-line/60 pt-4">
-        {preview.map((p) => (
+        {roster.map((p) => (
           <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-2 text-muted">
               <RaceBadge race={raceOf(p.race)} showLabel={false} />
@@ -116,14 +114,6 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
           </li>
         ))}
       </ul>
-      {rest > 0 ? (
-        <Link
-          href={`/gnl/teams/${team.slug}`}
-          className="mt-3 self-start text-xs uppercase tracking-wide text-muted transition-colors hover:text-gold"
-        >
-          +{rest} more, full roster
-        </Link>
-      ) : null}
     </Surface>
   );
 }
