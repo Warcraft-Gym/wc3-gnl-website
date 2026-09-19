@@ -3,7 +3,10 @@ import { Button } from "../../components/Button";
 import type { BuildRace, BuildVsRace } from "../../components/BuildBadges";
 import { readLocalBuilds, writeLocalBuilds } from "../../data/localBuildsStore";
 import { isLocalBuild, useAllBuilds, type AnyBuild } from "../../data/useAllBuilds";
+import { host } from "../../host";
 import type { ShortcutRegistrationResult } from "../../host/bridge";
+import type { EditorFormInput } from "../../lib/buildEditorSchema";
+import type { ReplayImportSource } from "./replay/ReplayImportModal";
 import { deleteLocalBuild } from "../../lib/localBuilds";
 import { filterBuilds, sortBuilds } from "../../lib/filterBuilds";
 import { applySelftestShortcutOverride, runSelftest } from "../../selftest";
@@ -23,8 +26,20 @@ import { SETTINGS_DIALOG_ID, SettingsModal } from "./SettingsModal";
 // once the user actually opens it — code-split so "New private build" /
 // "Duplicate" / "Edit" don't add to the picker's initial bundle.
 const BuildEditorModal = lazy(() => import("./editor/BuildEditorModal").then((m) => ({ default: m.BuildEditorModal })));
+// F002/F004: the replay-import dialog (and, transitively, `w3gjs`) is only
+// ever needed once "Import replay"/"From W3Champions" is clicked.
+const ReplayImportModal = lazy(() =>
+  import("./replay/ReplayImportModal").then((m) => ({ default: m.ReplayImportModal })),
+);
 
-type EditorState = { mode: BuildEditorMode; sourceBuild: AnyBuild | null };
+const REPLAY_FILE_FILTERS = [{ name: "Warcraft III replay", extensions: ["w3g"] }];
+
+type EditorState = {
+  mode: BuildEditorMode;
+  sourceBuild: AnyBuild | null;
+  /** F002: seeds the editor form when opened from a replay import. */
+  initialValues?: EditorFormInput;
+};
 
 const RACE_VALUES: readonly BuildRace[] = ["human", "orc", "nightelf", "undead"];
 const DIFFICULTY_VALUES = ["beginner", "intermediate", "advanced"] as const;
@@ -93,6 +108,21 @@ export function App() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [filters, setFilters] = useState<Filters>(() => parseHashFilters(location.hash));
   const [editor, setEditor] = useState<EditorState | null>(null);
+  const [replayImport, setReplayImport] = useState<ReplayImportSource | null>(null);
+
+  async function handleImportReplay(): Promise<void> {
+    const picked = await host.openBinaryFile(REPLAY_FILE_FILTERS);
+    if (picked) setReplayImport({ kind: "file", bytes: picked.bytes });
+  }
+
+  function handleImportFromW3Champions(): void {
+    setReplayImport({ kind: "link" });
+  }
+
+  function handleOpenReplayInEditor(initialValues: EditorFormInput): void {
+    setReplayImport(null);
+    setEditor({ mode: "new", sourceBuild: null, initialValues });
+  }
 
   useEffect(() => {
     applySelftestShortcutOverride()
@@ -152,6 +182,12 @@ export function App() {
         <div className="flex items-center gap-2">
           <Button variant="gold" onClick={() => setEditor({ mode: "new", sourceBuild: null })}>
             New private build
+          </Button>
+          <Button variant="ghost" onClick={() => void handleImportReplay()}>
+            Import replay
+          </Button>
+          <Button variant="ghost" onClick={handleImportFromW3Champions}>
+            From W3Champions
           </Button>
           <Button
             variant="ghost"
@@ -213,6 +249,18 @@ export function App() {
               apiBase={settings.apiBase}
               allBuilds={builds}
               onClose={() => setEditor(null)}
+              initialValues={editor.initialValues}
+            />
+          </Suspense>
+        ) : null}
+
+        {replayImport ? (
+          <Suspense fallback={null}>
+            <ReplayImportModal
+              source={replayImport}
+              apiBase={settings.apiBase}
+              onClose={() => setReplayImport(null)}
+              onOpenInEditor={handleOpenReplayInEditor}
             />
           </Suspense>
         ) : null}
