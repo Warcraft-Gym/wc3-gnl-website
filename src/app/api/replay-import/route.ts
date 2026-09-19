@@ -24,13 +24,15 @@ export async function POST(request: Request) {
     if (!(file instanceof File)) {
       return NextResponse.json({ error: "Attach a .w3g replay file." }, { status: 400 });
     }
-    result = await importReplayFile(file);
+    const dropLikelyRejected = form.get("dropLikelyRejected") !== "false";
+    result = await importReplayFile(file, { dropLikelyRejected });
   } else {
-    const body = (await request.json().catch(() => null)) as { match?: unknown } | null;
+    const body = (await request.json().catch(() => null)) as { match?: unknown; dropLikelyRejected?: unknown } | null;
     if (typeof body?.match !== "string") {
       return NextResponse.json({ error: "Send { match: <W3Champions link or id> }." }, { status: 400 });
     }
-    result = await importW3ChampionsMatch(body.match);
+    const dropLikelyRejected = body.dropLikelyRejected !== false;
+    result = await importW3ChampionsMatch(body.match, { dropLikelyRejected });
   }
 
   if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status });

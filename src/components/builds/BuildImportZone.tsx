@@ -46,6 +46,14 @@ export function BuildImportZone({
   const [error, setError] = useState<string | null>(null);
   const [text, setText] = useState("");
   const [dragging, setDragging] = useState(false);
+  const [dropLikelyRejected, setDropLikelyRejected] = useState(true);
+  // The replay source behind the current/last import, kept so toggling the
+  // filter checkbox can re-run the same request. `null` for a JSON/overlay
+  // import (the filter does not apply there) or before anything was tried.
+  const [source, setSource] = useState<{ kind: "file"; file: File } | { kind: "match"; ref: string } | null>(null);
+  // Set only for a single-player replay (the picker shows counts itself),
+  // so the "done" view can report what came in alongside the form's message.
+  const [singleStats, setSingleStats] = useState<{ steps: number; dropped: number } | null>(null);
   const done = message?.tone === "ok";
   const shownError = error ?? (message?.tone === "error" ? message.text : null);
 
@@ -61,13 +69,21 @@ export function BuildImportZone({
   const reset = () => {
     setError(null);
     setText("");
+    setSource(null);
+    setSingleStats(null);
     setPhase({ kind: "idle" });
     onReset();
   };
 
   const takeReplay = (replay: ReplayImport) => {
-    if (replay.players.length === 1) finish(replay.players[0].build);
-    else setPhase({ kind: "pick", replay });
+    if (replay.players.length === 1) {
+      const p = replay.players[0];
+      setSingleStats({ steps: p.build.steps.length, dropped: p.dropped });
+      finish(p.build);
+    } else {
+      setSingleStats(null);
+      setPhase({ kind: "pick", replay });
+    }
   };
 
   const importJson = (json: string) => {
@@ -89,27 +105,38 @@ export function BuildImportZone({
     }
   };
 
-  const importReplayFile = (file: File) => {
+  const importReplayFile = (file: File, drop: boolean) => {
     const form = new FormData();
     form.append("replay", file);
+    form.append("dropLikelyRejected", String(drop));
     return request("Reading the replay", { method: "POST", body: form });
   };
-  const importMatch = (ref: string) =>
+  const importMatch = (ref: string, drop: boolean) =>
     request("Fetching the replay from W3Champions", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ match: ref }),
+      body: JSON.stringify({ match: ref, dropLikelyRejected: drop }),
     });
 
   /** A file of either kind, from the dialog or a drop. */
   const importFile = async (file: File | undefined) => {
     if (!file) return;
     const name = file.name.toLowerCase();
-    if (name.endsWith(".w3g")) return importReplayFile(file);
-    if (name.endsWith(".json")) return importJson(await file.text());
+    if (name.endsWith(".w3g")) {
+      setSource({ kind: "file", file });
+      return importReplayFile(file, dropLikelyRejected);
+    }
+    if (name.endsWith(".json")) {
+      setSource(null);
+      return importJson(await file.text());
+    }
     // Unknown extension: sniff the replay header, else treat it as text.
     const head = new Uint8Array(await file.slice(0, 26).arrayBuffer());
-    if (String.fromCharCode(...head) === "Warcraft III recorded game") return importReplayFile(file);
+    if (String.fromCharCode(...head) === "Warcraft III recorded game") {
+      setSource({ kind: "file", file });
+      return importReplayFile(file, dropLikelyRejected);
+    }
+    setSource(null);
     importJson(await file.text());
   };
 
@@ -117,9 +144,24 @@ export function BuildImportZone({
   const importText = (raw: string) => {
     const value = raw.trim();
     if (!value) return fail("Paste a W3Champions match link or the exported JSON first.");
-    if (W3C_MATCH.test(value)) return importMatch(value);
-    if (value.startsWith("{")) return importJson(value);
+    if (W3C_MATCH.test(value)) {
+      setSource({ kind: "match", ref: value });
+      return importMatch(value, dropLikelyRejected);
+    }
+    if (value.startsWith("{")) {
+      setSource(null);
+      return importJson(value);
+    }
     fail("That is neither a W3Champions match link nor an exported build.");
+  };
+
+  /** The filter checkbox: re-runs the last replay request so counts stay in
+   *  sync, or just records the flag when nothing has been imported yet. */
+  const onToggleDrop = (checked: boolean) => {
+    setDropLikelyRejected(checked);
+    if (!source) return;
+    if (source.kind === "file") void importReplayFile(source.file, checked);
+    else void importMatch(source.ref, checked);
   };
 
   const onDrop = async (e: React.DragEvent) => {
@@ -147,6 +189,22 @@ export function BuildImportZone({
   };
 
   const busy = phase.kind === "busy";
+
+  // Sent with every replay request (file or link); re-runs the last one on
+  // toggle so the "N dropped" counts stay accurate. Not shown for the
+  // overlay's own JSON export — that build is already final.
+  const dropToggle = (
+    <label className="mt-3 flex items-center gap-2 text-xs text-muted">
+      <input
+        type="checkbox"
+        checked={dropLikelyRejected}
+        disabled={busy}
+        onChange={(e) => onToggleDrop(e.target.checked)}
+        className="size-3.5 rounded border-line accent-arcane"
+      />
+      Drop orders the game likely rejected
+    </label>
+  );
 
   return (
     <section
@@ -199,9 +257,20 @@ export function BuildImportZone({
               <p role="status" className="mt-0.5 text-sm text-muted">
                 {message?.text}
               </p>
+              {singleStats ? (
+                <p role="status" className="tnum mt-0.5 text-xs text-faint">
+                  {singleStats.dropped > 0
+                    ? `Imported ${singleStats.steps} steps · ${singleStats.dropped} dropped`
+                    : `Imported ${singleStats.steps} steps`}
+                </p>
+              ) : null}
+              {dropToggle}
             </>
           ) : phase.kind === "pick" ? (
-            <PlayerPicker replay={phase.replay} onPick={(p) => finish(p.build)} />
+            <>
+              <PlayerPicker replay={phase.replay} onPick={(p) => finish(p.build)} />
+              {dropToggle}
+            </>
           ) : (
             <>
               <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">
@@ -242,6 +311,7 @@ export function BuildImportZone({
                   </Button>
                 </div>
               </div>
+              {dropToggle}
               {busy ? (
                 <p role="status" className="mt-2 text-sm text-arcane">
                   {phase.label}…
@@ -309,7 +379,7 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
             <span className="min-w-0 flex-1">
               <span className="block truncate font-display text-sm font-bold uppercase text-fg">{p.name.replace(/#\d+$/, "")}</span>
               <span className="tnum block text-xs text-faint">
-                {p.build.steps.length} steps
+                {p.dropped > 0 ? `${p.build.steps.length} steps · ${p.dropped} dropped` : `${p.build.steps.length} steps`}
                 {p.won === true ? <span className="ml-2 text-win">Won</span> : p.won === false ? <span className="ml-2 text-loss">Lost</span> : null}
               </span>
             </span>
