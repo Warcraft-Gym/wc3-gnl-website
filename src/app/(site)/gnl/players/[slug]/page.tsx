@@ -88,9 +88,9 @@ function Compare({
             const total = rec!.wins + rec!.losses;
             const share = (rec!.wins / total) * 100;
             return (
-              <li key={race} className="grid grid-cols-[6.5rem_minmax(0,1fr)_3.5rem] items-center gap-3 text-xs">
+              <li key={race} className="grid grid-cols-[7rem_minmax(0,1fr)_3.5rem] items-center gap-3 text-xs">
                 <span className="flex items-center gap-1.5 text-muted">
-                  <RaceIcon race={race} size={14} /> vs {RACE_LABEL[race]}
+                  <RaceIcon race={race} size={18} /> vs {RACE_LABEL[race]}
                 </span>
                 <span className="flex h-1.5 overflow-hidden rounded bg-loss/25">
                   <span className="h-full bg-win/80" style={{ width: `${share}%` }} />
@@ -344,9 +344,9 @@ export default async function PlayerPage({ params }: Params) {
                         </div>
                         <div className="min-w-0">
                           <p className="flex flex-wrap items-center gap-2 text-sm">
-                            <RaceIcon race={s.race} size={16} />
+                            <RaceIcon race={s.race} size={22} />
                             <span className="text-faint">vs</span>
-                            <RaceIcon race={s.opponent.race} size={16} />
+                            <RaceIcon race={s.opponent.race} size={22} />
                             <Link href={`/gnl/players/${s.opponent.slug}`} className="font-display font-bold uppercase text-fg hover:text-gold">
                               {s.opponent.name}
                             </Link>
@@ -394,9 +394,9 @@ export default async function PlayerPage({ params }: Params) {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1.5">
-                          <RaceIcon race={m.race} size={14} />
+                          <RaceIcon race={m.race} size={20} />
                           <span className="text-faint">vs</span>
-                          <RaceIcon race={m.opponent.race} size={14} />
+                          <RaceIcon race={m.opponent.race} size={20} />
                           <a
                             href={`https://w3champions.com/player/${encodeURIComponent(m.opponent.battleTag)}`}
                             target="_blank"
