@@ -553,6 +553,10 @@ export function mapPlayerProfile(
             homeTeam: s.match?.team1?.long_name || s.match?.team1?.name || "",
             awayTeam: s.match?.team2?.long_name || s.match?.team2?.name || "",
           },
+          cast: (() => {
+            const c = s.casts?.find((x) => x.vod_url) ?? s.casts?.[0];
+            return c ? { id: c.id, name: c.name ?? "Cast", channelUrl: c.channel_url ?? undefined, vodUrl: c.vod_url ?? undefined } : undefined;
+          })(),
         };
       })
       .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));

@@ -181,6 +181,7 @@ export type PlayerSeries = {
   opponentScore: number;
   /** Team fixture the series belongs to. */
   fixture: { homeTeam: string; awayTeam: string };
+  cast?: MatchCast;
 };
 
 /** Everything the player page shows. */
