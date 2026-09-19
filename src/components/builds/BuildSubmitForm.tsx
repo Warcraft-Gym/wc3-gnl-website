@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, FileUp, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
 import { TagInput } from "./TagInput";
@@ -10,6 +10,7 @@ import { Button, ButtonLink } from "@/components/ui/Button";
 import type { IconRace } from "@/lib/builds/icons";
 import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace } from "@/lib/builds/types";
 import type { StepInput } from "@/lib/builds/submission";
+import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeBuild } from "@/lib/builds/exchange";
 import { cn } from "@/lib/utils";
 
 type StepRow = { id: number; time: string; supply: string; instruction: string; icon: string };
@@ -135,6 +136,64 @@ export function BuildSubmitForm() {
 
   const iconRace = (race && race !== "any" ? race : undefined) as IconRace | undefined;
 
+  // Import from the overlay app: a `.wc3gym.json` file, pasted JSON, or the
+  // `#build=` fragment the app's Submit-to-site button can carry.
+  const [importMsg, setImportMsg] = useState<{ tone: "ok" | "error"; text: string } | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
+  const applyImport = (b: ExchangeBuild) => {
+    setText({
+      title: b.title,
+      patch: b.patch ?? "",
+      summary: b.summary,
+      description: b.description ?? "",
+      author: b.author,
+      authorDiscord: b.authorDiscord ?? "",
+      sourceUrl: b.sourceUrl ?? "",
+    });
+    setRace((b.race as BuildRace | undefined) ?? "");
+    setVsRaces(b.vsRaces as BuildRace[]);
+    setDifficulty(b.difficulty as BuildDifficulty);
+    setTags(b.tags.slice(0, 8));
+    setSteps(
+      b.steps.map((st) => ({
+        id: nextId.current++,
+        time: st.time ?? "",
+        supply: st.supply == null ? "" : String(st.supply),
+        instruction: st.instruction,
+        icon: st.icon ?? "",
+      })),
+    );
+    setImportMsg({ tone: "ok", text: `Imported "${b.title || "untitled build"}" with ${b.steps.length} steps. Check it over, then submit.` });
+  };
+  const importJson = (json: string) => {
+    const r = parseExchange(json);
+    if (r.ok) applyImport(r.build);
+    else setImportMsg({ tone: "error", text: r.error });
+  };
+  const onFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    e.target.value = "";
+    if (f) importJson(await f.text());
+  };
+  const onPaste = async () => {
+    try {
+      importJson(await navigator.clipboard.readText());
+    } catch {
+      setImportMsg({ tone: "error", text: "Could not read the clipboard. Use the file button instead." });
+    }
+  };
+  useEffect(() => {
+    const m = window.location.hash.match(new RegExp(`[#&]${IMPORT_HASH_KEY}=([^&]+)`));
+    if (!m) return;
+    const json = decodeFromHash(m[1]);
+    const id = window.setTimeout(() => {
+      if (json) importJson(json);
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }, 0);
+    return () => window.clearTimeout(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   if (state.status === "ok") {
     return (
       <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
@@ -185,6 +244,32 @@ export function BuildSubmitForm() {
             <li className="flex gap-2"><span className="text-gold">·</span><span>Say <em>why</em> in the notes: when it works, what it beats, what to watch for.</span></li>
           </ul>
         </details>
+
+        {/* Import from the overlay */}
+        <div className="panel flex flex-col gap-3 border-arcane/40 p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">
+              Made it in the overlay app?
+            </p>
+            <p className="mt-0.5 text-sm text-muted">
+              Export the private build there, then load the .json here to fill in the form.
+            </p>
+            {importMsg ? (
+              <p role="status" className={cn("mt-1.5 text-sm", importMsg.tone === "ok" ? "text-win" : "text-loss")}>
+                {importMsg.text}
+              </p>
+            ) : null}
+          </div>
+          <div className="flex shrink-0 flex-wrap gap-2">
+            <input ref={fileInput} type="file" accept=".json,application/json" className="hidden" onChange={onFile} />
+            <Button type="button" variant="outline" size="sm" onClick={() => fileInput.current?.click()}>
+              <FileUp size={14} /> Load .json file
+            </Button>
+            <Button type="button" variant="ghost" size="sm" onClick={onPaste}>
+              Paste from clipboard
+            </Button>
+          </div>
+        </div>
 
         {/* 1, The build */}
         <section className="panel space-y-6 p-5 sm:p-7">

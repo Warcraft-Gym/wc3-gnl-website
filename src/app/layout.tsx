@@ -1,6 +1,9 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Cinzel, Lato, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 
 // Cinzel is the closest open face to Friz Quadrata (the Warcraft display
 // type); Lato is what the official site uses for body copy.
@@ -26,19 +29,54 @@ const mono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://warcraft3.gym"),
+  metadataBase: new URL(SITE_URL),
   title: {
-    default: "Warcraft 3 Gym: Learn Warcraft III & compete in the GNL",
-    template: "%s · Warcraft 3 Gym",
+    default: `${SITE_NAME}: ${SITE_TAGLINE}`,
+    template: `%s · ${SITE_NAME}`,
   },
-  description:
-    "Free Warcraft III guides for every race, plus the Gym Newbie League (GNL): a community team tournament with weekly best-of-three series, standings, leaderboard and fantasy.",
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "Warcraft 3",
+    "Warcraft III",
+    "Warcraft 3 Reforged",
+    "build orders",
+    "guides",
+    "beginner guide",
+    "Gym Newbie League",
+    "GNL",
+    "W3Champions",
+    "Human",
+    "Orc",
+    "Night Elf",
+    "Undead",
+  ],
   openGraph: {
-    title: "Warcraft 3 Gym",
-    description:
-      "Learn Warcraft III with free guides, then compete in the Gym Newbie League.",
     type: "website",
+    siteName: SITE_NAME,
+    locale: "en_US",
+    title: `${SITE_NAME}: ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: "/",
   },
+  twitter: {
+    card: "summary_large_image",
+    site: "@wc3gym",
+    title: `${SITE_NAME}: ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+  },
+  alternates: { canonical: "/" },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
+  },
+  formatDetection: { telephone: false },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0b0a09",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -47,7 +85,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="en"
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <JsonLd data={organizationJsonLd()} />
+        <JsonLd data={websiteJsonLd()} />
+        {children}
+      </body>
     </html>
   );
 }

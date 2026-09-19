@@ -9,8 +9,9 @@ import { getActiveSeason, getLeaderboard } from "@/lib/api/gnl";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Leaderboard",
-  description: "Individual player rankings across the current GNL season.",
+  title: "GNL leaderboard",
+  description: "Individual player rankings across the current Gym Newbie League season.",
+  alternates: { canonical: "/gnl/leaderboard" },
 };
 
 const PAGE_SIZE = 25;

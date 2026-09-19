@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -29,12 +31,17 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return {
     title: post.title,
     description: post.excerpt,
+    alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.title,
       description: post.excerpt,
       type: "article",
+      url: `/blog/${post.slug}`,
+      publishedTime: post.publishedAt,
+      authors: [post.author],
       images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
     },
+    twitter: { card: "summary_large_image", title: post.title, description: post.excerpt },
   };
 }
 
@@ -54,6 +61,23 @@ export default async function PostPage({ params }: Params) {
 
   return (
     <article>
+      <JsonLd
+        data={articleJsonLd({
+          path: `/blog/${post.slug}`,
+          title: post.title,
+          description: post.excerpt,
+          publishedAt: post.publishedAt,
+          author: post.author,
+          image: post.coverImageUrl,
+          section: post.category,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "News", path: "/blog" },
+          { name: post.title, path: `/blog/${post.slug}` },
+        ])}
+      />
       <div className="relative overflow-hidden border-b border-line/70">
         <div
           aria-hidden

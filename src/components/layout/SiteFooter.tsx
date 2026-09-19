@@ -91,6 +91,11 @@ export function SiteFooter() {
               </Link>
             </li>
             <li>
+              <Link href="/tools" className="text-muted hover:text-gold">
+                Tools
+              </Link>
+            </li>
+            <li>
               <Link href="/blog" className="text-muted hover:text-gold">
                 News
               </Link>

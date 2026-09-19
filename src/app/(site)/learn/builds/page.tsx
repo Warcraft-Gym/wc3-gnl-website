@@ -6,7 +6,9 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { MatchupPicker } from "@/components/builds/MatchupPicker";
-import { BuildRow, FeaturedBuild } from "@/components/builds/BuildRow";
+import { BuildRow } from "@/components/builds/BuildRow";
+import { OverlayToast } from "@/components/builds/OverlayToast";
+import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import {
   BUILD_DIFFICULTIES,
@@ -17,12 +19,14 @@ import {
 } from "@/lib/builds/types";
 
 export const metadata: Metadata = {
-  title: "Build orders · Learn",
+  title: "Warcraft III build orders",
   description:
-    "Warcraft III build orders for every race and matchup, with timings, supply counts and a play-along timer. Written by Gym coaches and the community.",
+    "Warcraft III build orders for every race and matchup, with food counts, timings and a play-along clock. Written by Gym coaches and the community.",
+  // Filters live in the query string; the list is one page to search engines.
+  alternates: { canonical: "/learn/builds" },
   openGraph: {
     title: "Warcraft III build orders · Warcraft 3 Gym",
-    description: "Timed openings for every race and matchup, with a play-along clock. Submit your own.",
+    description: "Openings for every race and matchup, with a play-along clock. Submit your own.",
     images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
   },
 };
@@ -61,7 +65,6 @@ export default async function BuildsPage({
       : a.title.localeCompare(b.title),
   );
 
-  const featured = all.find((b) => b.featured);
   const isFiltered = Boolean(race || vsRace || q || difficulty);
 
   return (
@@ -78,10 +81,29 @@ export default async function BuildsPage({
       </PageHeader>
 
       <Container className="py-10">
-        {featured && !isFiltered ? <FeaturedBuild build={featured} /> : null}
+        {/* Submit CTA */}
+        <div className="panel relative overflow-hidden border-gold/40 p-6 sm:p-8">
+          <div
+            aria-hidden
+            className="pointer-events-none absolute inset-0 opacity-70"
+            style={{ backgroundImage: "radial-gradient(28rem 14rem at 100% 120%, var(--wg-gold-glow), transparent 65%)" }}
+          />
+          <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="kicker">Community builds</p>
+              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a build worth sharing?</h2>
+              <p className="mt-1 max-w-xl text-sm text-muted">
+                Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
+              </p>
+            </div>
+            <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">
+              Submit a build <ArrowRight size={16} />
+            </ButtonLink>
+          </div>
+        </div>
 
         {/* Matchup + filters, the way in */}
-        <section className={featured && !isFiltered ? "mt-12" : ""}>
+        <section className="mt-12">
           <Suspense>
             <MatchupPicker
               race={race}
@@ -122,27 +144,10 @@ export default async function BuildsPage({
           </p>
         ) : null}
 
-        {/* Submit CTA */}
-        <div className="panel relative mt-14 overflow-hidden border-gold/40 p-6 sm:p-8">
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-70"
-            style={{ backgroundImage: "radial-gradient(28rem 14rem at 100% 120%, var(--wg-gold-glow), transparent 65%)" }}
-          />
-          <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="kicker">Community builds</p>
-              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a build worth sharing?</h2>
-              <p className="mt-1 max-w-xl text-sm text-muted">
-                Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
-              </p>
-            </div>
-            <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">
-              Submit a build <ArrowRight size={16} />
-            </ButtonLink>
-          </div>
-        </div>
       </Container>
+
+      {/* Overlay beta nudge, slides in after a few seconds */}
+      {OVERLAY_BETA_LIVE ? <OverlayToast /> : null}
     </>
   );
 }

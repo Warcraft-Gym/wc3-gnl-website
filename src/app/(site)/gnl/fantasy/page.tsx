@@ -15,6 +15,7 @@ export const metadata: Metadata = {
   title: "Fantasy League",
   description:
     "Draft a fantasy team, place bets on series, and climb the fantasy standings.",
+  alternates: { canonical: "/gnl/fantasy" },
 };
 
 const STEPS = [

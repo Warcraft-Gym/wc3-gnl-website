@@ -42,4 +42,6 @@ export const structure: StructureResolver = (S) =>
       S.divider(),
       S.documentTypeListItem("post").title("Blog posts"),
       S.documentTypeListItem("guide").title("Learn guides"),
+      S.divider(),
+      S.documentTypeListItem("tool").title("Tools"),
     ]);

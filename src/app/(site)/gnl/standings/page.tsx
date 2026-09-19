@@ -8,8 +8,9 @@ import { getActiveSeason, getStandings } from "@/lib/api/gnl";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Standings",
-  description: "The GNL team ladder, wins, losses, map differential and points.",
+  title: "GNL standings",
+  description: "The Gym Newbie League team ladder: wins, losses, map differential and points for the current season.",
+  alternates: { canonical: "/gnl/standings" },
 };
 
 export default async function StandingsPage() {

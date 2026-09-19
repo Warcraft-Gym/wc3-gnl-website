@@ -11,6 +11,8 @@ import { getGuides, getGuideBySlug } from "@/lib/learn/guides";
 import { getBuildsForGuide } from "@/lib/builds/builds";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { cn } from "@/lib/utils";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -29,7 +31,25 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const guide = await getGuideBySlug(slug);
   if (!guide) return { title: "Guide not found" };
-  return { title: guide.title, description: guide.excerpt };
+  const category = getCategory(guide.category);
+  const image = guide.coverImage
+    ? urlFor(guide.coverImage).width(1200).height(630).fit("crop").auto("format").url()
+    : undefined;
+  return {
+    title: category ? `${guide.title} (${category.title} guide)` : guide.title,
+    description: guide.excerpt,
+    alternates: { canonical: `/learn/guide/${guide.slug}` },
+    openGraph: {
+      type: "article",
+      title: guide.title,
+      description: guide.excerpt,
+      url: `/learn/guide/${guide.slug}`,
+      publishedTime: guide.publishedAt,
+      section: category?.title,
+      ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
+    },
+    twitter: { card: "summary_large_image", title: guide.title, description: guide.excerpt },
+  };
 }
 
 export default async function GuidePage({ params }: Params) {
@@ -50,8 +70,29 @@ export default async function GuidePage({ params }: Params) {
     year: "numeric",
   }).format(new Date(guide.publishedAt));
 
+  const coverUrl = guide.coverImage
+    ? urlFor(guide.coverImage).width(1400).fit("max").auto("format").url()
+    : undefined;
+
   return (
     <article>
+      <JsonLd
+        data={articleJsonLd({
+          path: `/learn/guide/${guide.slug}`,
+          title: guide.title,
+          description: guide.excerpt,
+          publishedAt: guide.publishedAt,
+          image: coverUrl,
+          section: category?.title,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Learn", path: "/learn" },
+          ...(category ? [{ name: category.title, path: `/learn/${category.id}` }] : []),
+          { name: guide.title, path: `/learn/guide/${guide.slug}` },
+        ])}
+      />
       <div className="relative overflow-hidden border-b border-line/70">
         <div
           aria-hidden

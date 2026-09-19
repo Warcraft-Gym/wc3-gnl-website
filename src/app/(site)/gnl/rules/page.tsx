@@ -4,8 +4,9 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 
 export const metadata: Metadata = {
-  title: "Rules & Format",
-  description: "How the GNL season, drafts, and playoffs work.",
+  title: "GNL rules and format",
+  description: "How a Gym Newbie League season works: sign-ups, the draft, weekly best-of-three series, points and playoffs.",
+  alternates: { canonical: "/gnl/rules" },
 };
 
 const SECTIONS = [
