@@ -42,6 +42,7 @@ export const GAME_ICONS: GameIcon[] = [
   H("hu-paladin", "Paladin", "hero"),
   H("hu-mountain-king", "Mountain King", "hero"),
   H("hu-blood-mage", "Blood Mage", "hero"),
+  H("hu-forsaken-paladin", "Forsaken Paladin", "hero"),
   H("hu-town-hall", "Town Hall", "building"),
   H("hu-keep", "Keep", "building"),
   H("hu-castle", "Castle", "building"),

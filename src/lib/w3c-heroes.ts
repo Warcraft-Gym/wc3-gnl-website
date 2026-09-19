@@ -4,6 +4,8 @@ export const W3C_HEROES: Record<string, { icon: string; label: string }> = {
   paladin: { icon: "hu-paladin", label: "Paladin" },
   mountainking: { icon: "hu-mountain-king", label: "Mountain King" },
   bloodmage: { icon: "hu-blood-mage", label: "Blood Mage" },
+  forsakenpaladin: { icon: "hu-forsaken-paladin", label: "Forsaken Paladin" },
+  sorceror: { icon: "hu-sorceress", label: "Sorceress" },
   blademaster: { icon: "or-blademaster", label: "Blademaster" },
   farseer: { icon: "or-far-seer", label: "Far Seer" },
   taurenchieftain: { icon: "or-tauren-chieftain", label: "Tauren Chieftain" },

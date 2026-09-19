@@ -90,7 +90,9 @@ Step icons are the classic (pre-Reforged) command-button art, sourced from the
 W3Champions launcher (`github.com/w3champions/launcher`,
 `src/assets/images/hotkeys/icons/classic/`) as 64px WebP in
 `public/wc3-icons/<key>.webp`. As in the game data, Ancient Protector uses
-`BTNTreant` and Goblin Laboratory uses `BTNAmmoDump`.
+`BTNTreant` and Goblin Laboratory uses `BTNAmmoDump`. The Forsaken Paladin
+(a hero added after the classic set) uses the command-button art W3Champions
+serves for it.
 
 The manifest is `src/lib/builds/icons.ts`: it defines every key, title, race
 and kind, and feeds both the Studio dropdown and the site. To add an icon,
