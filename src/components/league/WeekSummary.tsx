@@ -1,8 +1,9 @@
 import type { TeamFixture } from "@/lib/api/types";
 import { formatMatchTime } from "@/lib/utils";
 
-/** One line of context above a week's fixtures: series played, live now,
- *  and the next scheduled game while the week is in progress. */
+/** Progress line above a week's fixtures, shown only while the week is in
+ *  play: series played so far, games live now, and the next game up. A
+ *  finished week has nothing to report, so it renders nothing. */
 export function WeekSummary({ fixtures }: { fixtures: TeamFixture[] }) {
   const series = fixtures.flatMap((f) => f.matches);
   const played = series.filter((m) => m.status === "completed").length;
@@ -10,15 +11,10 @@ export function WeekSummary({ fixtures }: { fixtures: TeamFixture[] }) {
   const upcoming = series
     .filter((m) => m.status === "scheduled" && m.scheduledAt)
     .sort((a, b) => new Date(a.scheduledAt!).getTime() - new Date(b.scheduledAt!).getTime())[0];
-  const decided = fixtures.filter((f) => f.status === "completed").length;
+  if (played === series.length && !live) return null;
 
   return (
     <div className="flex flex-wrap items-center gap-x-6 gap-y-2 border-l-2 border-gold/60 pl-4 text-sm text-muted">
-      <span>
-        <span className="tnum font-bold text-fg">{fixtures.length}</span> team fixtures
-        <span className="text-faint"> · </span>
-        <span className="tnum font-bold text-fg">{decided}</span> decided
-      </span>
       <span>
         <span className="tnum font-bold text-fg">{played}</span> of{" "}
         <span className="tnum font-bold text-fg">{series.length}</span> series played

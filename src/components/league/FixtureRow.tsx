@@ -36,21 +36,10 @@ function DetailRow({ m }: { m: PlayerMatch }) {
   const cast = vod ?? m.casts[0];
 
   return (
-    <div className="grid grid-cols-[5.5rem_1fr_auto_1fr] items-center gap-2 border-t border-line/40 px-4 py-2.5 text-sm sm:grid-cols-[7rem_1fr_auto_1fr]">
+    <div className="grid grid-cols-[5.5rem_1fr_auto_1fr_2.5rem] items-center gap-2 border-t border-line/40 px-4 py-2.5 text-sm sm:grid-cols-[7rem_1fr_auto_1fr_4.5rem]">
       <div className="font-mono text-[0.7rem] leading-tight text-faint">
         <div>{day}</div>
         <div>{time}</div>
-        {cast ? (
-          <a
-            href={vod?.vodUrl ?? cast.channelUrl}
-            target="_blank"
-            rel="noreferrer"
-            title={vod ? `Watch the VOD on ${cast.name}` : `Cast by ${cast.name}`}
-            className="mt-1 inline-flex items-center gap-1 text-[0.62rem] uppercase tracking-wide text-arcane hover:underline"
-          >
-            <Tv size={11} /> {vod ? "VOD" : "Cast"}
-          </a>
-        ) : null}
       </div>
 
       <div className="flex items-center gap-2 truncate">
@@ -106,6 +95,26 @@ function DetailRow({ m }: { m: PlayerMatch }) {
           {m.away.playerName}
         </Link>
         <RaceIcon race={raceOf(m.away.race)} size={22} />
+      </div>
+
+      <div className="flex justify-end">
+        {cast ? (
+          <a
+            href={vod?.vodUrl ?? cast.channelUrl}
+            target="_blank"
+            rel="noreferrer"
+            title={vod ? `Watch the VOD on ${cast.name}` : `Cast by ${cast.name}`}
+            className={cn(
+              "inline-flex h-7 items-center gap-1 rounded border px-2 font-mono text-[0.6rem] uppercase tracking-wide transition-colors",
+              vod
+                ? "border-arcane/60 bg-arcane/10 text-arcane hover:bg-arcane/20"
+                : "border-line text-muted hover:border-arcane/60 hover:text-arcane",
+            )}
+          >
+            <Tv size={12} />
+            <span className="max-sm:hidden">{vod ? "VOD" : "Cast"}</span>
+          </a>
+        ) : null}
       </div>
     </div>
   );

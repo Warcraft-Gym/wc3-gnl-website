@@ -62,7 +62,7 @@ export default async function ScheduleWeekPage({ params }: Params) {
         {fixtures.length ? (
           <>
             <WeekSummary fixtures={fixtures} />
-            <div className="mt-6 flex flex-col gap-4">
+            <div className="flex flex-col gap-4 [&:not(:first-child)]:mt-6">
               {fixtures.map((f) => (
                 <FixtureRow key={f.id} fixture={f} defaultOpen={week.isCurrent} />
               ))}
