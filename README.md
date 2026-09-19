@@ -37,12 +37,13 @@ for ESLint.
 | `/learn`, `/learn/<category>` | Guide hubs per race and topic; the new-players hub renders the full handbook | Sanity `guide` |
 | `/learn/guide/<slug>` | A guide, with its play-along build order when one was transcribed from it | Sanity `guide` + `buildOrder` |
 | `/learn/builds`, `/learn/builds/<slug>` | Build orders with filters, a step table and a play-along clock | Sanity `buildOrder` |
-| `/learn/builds/submit` | Public submission form; submissions land in the Studio as pending drafts | server action, write token |
+| `/learn/builds/submit` | Public submission form, fillable from a replay, a W3Champions match or the overlay's export; submissions land in the Studio as pending drafts | server action, write token |
 | `/blog`, `/blog/<slug>` | News | Sanity `post` |
 | `/gnl/*` | Schedule, standings, teams, players, ladder, fantasy, rules, about | FastAPI |
 | `/about` | About the Gym | code |
 | `/tools`, `/tools/overlay` | Community tools (editor-managed) and the Gym's overlay | Sanity `tool` + code |
 | `/api/builds`, `/api/builds/<slug>` | Public JSON API for the overlay and anyone else | Sanity |
+| `/api/replay-import` | Turns a `.w3g` replay or a W3Champions match into build drafts for the submit form | overlay's parser, server-side |
 | `/studio` | Sanity Studio for editors | Sanity |
 
 The Player Dashboard button links to the separate dashboard app

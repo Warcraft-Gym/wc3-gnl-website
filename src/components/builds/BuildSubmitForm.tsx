@@ -6,7 +6,7 @@ import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/
 import { IconPicker } from "./IconPicker";
 import { TagInput } from "./TagInput";
 import { RaceCrestMultiRow, RaceCrestRow, type CrestOption } from "./RaceCrestPicker";
-import { OverlayImportZone, type ImportMessage } from "./OverlayImportZone";
+import { BuildImportZone, type ImportMessage } from "./BuildImportZone";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import type { IconRace } from "@/lib/builds/icons";
 import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace } from "@/lib/builds/types";
@@ -166,11 +166,8 @@ export function BuildSubmitForm() {
     const steps = `${b.steps.length} step${b.steps.length === 1 ? "" : "s"}`;
     setImportMsg({ tone: "ok", text: `"${b.title || "Untitled build"}", ${steps}. Check it over below, then submit.` });
   };
+  // The #build= deep link from the overlay's Submit-to-site button.
   const importJson = (json: string) => {
-    if (!json.trim()) {
-      setImportMsg({ tone: "error", text: "Nothing to paste. Copy the exported JSON first, or choose the file." });
-      return;
-    }
     const r = parseExchange(json);
     if (r.ok) applyImport(r.build);
     else setImportMsg({ tone: "error", text: r.error });
@@ -239,7 +236,7 @@ export function BuildSubmitForm() {
         </details>
 
         {/* Import from the overlay */}
-        <OverlayImportZone onJson={importJson} message={importMsg} onReset={() => setImportMsg(null)} />
+        <BuildImportZone onImport={applyImport} message={importMsg} onReset={() => setImportMsg(null)} />
 
         {/* 1, The build */}
         <section className="panel space-y-6 p-5 sm:p-7">

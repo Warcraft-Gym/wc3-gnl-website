@@ -20,22 +20,34 @@ Studio. There is no login and no voting in this version.
 4. Published builds show up immediately if the Sanity webhook is set up
    (below), otherwise within five minutes (ISR revalidate 300).
 
-### Importing a build from the overlay app
+### Starting from a replay or the overlay app
 
-The submit form can be pre-filled from a private build made in the desktop
-overlay, in three ways (`src/lib/builds/exchange.ts`, same file format as
-`apps/overlay/src/lib/buildExchange.ts`, `wc3gym-build` version 1):
+The import zone at the top of the submit form (`BuildImportZone`) fills the
+form from something the player already has. Everything lands in the same
+`ExchangeBuild` shape (`src/lib/builds/exchange.ts`) and is applied the same
+way; nothing is submitted automatically, the player still checks the form
+and presses Submit for review.
 
-- **Load .json file**: the file the overlay's Export button writes.
-- **Paste from clipboard**: the same JSON copied as text.
+- **A Warcraft III replay (`.w3g`)**, dropped on the zone or chosen with the
+  file button. The file goes to `POST /api/replay-import` (multipart,
+  field `replay`, 8 MB max), which parses it on the server with the overlay
+  app's pipeline (`apps/overlay/src/replay`, imported through the
+  `@overlay-replay/*` tsconfig alias, `w3gjs` underneath) and returns one
+  build draft per player: the first eight minutes of orders as timed steps
+  with supply and icons, race and opponent races, a title and an author
+  from the player name. With two players the zone asks whose build to take,
+  showing who won when known. Replays are read on the fly and not stored.
+- **A W3Champions match link** (or bare match id), typed or pasted. The
+  route (`POST /api/replay-import` with JSON `{ match }`) fetches the replay
+  from W3Champions' public API, then continues as above; the match page
+  becomes the draft's source link.
+- **The overlay's export** (`.wc3gym.json`, same file format as
+  `apps/overlay/src/lib/buildExchange.ts`, `wc3gym-build` version 1):
+  dropped, chosen, or its JSON pasted.
 - **Deep link**: `/learn/builds/submit#build=<base64url of the export JSON>`.
   The form reads the fragment on load, fills itself in and removes the
   fragment from the address bar. The fragment never reaches the server. This
-  is what the overlay's Submit-to-site button should open so the form is
-  filled without any file juggling.
-
-Nothing is submitted automatically; the player still checks the form and
-presses Submit for review.
+  is what the overlay's Submit-to-site button opens.
 
 ### Instant updates (Sanity webhook)
 
@@ -121,6 +133,7 @@ already public; only approved builds are ever served, same as the pages.
 | `GET /api/builds/<slug>` | `200 { "build": ApiBuild }` including `description`, or `404 { "error": "not_found" }` when the slug doesn't match an approved build. |
 | `GET /api/icons` | `200 { "icons": GameIcon[] }`, the full manifest from `src/lib/builds/icons.ts` (141 icons), each entry gaining a `url`: an absolute URL (`<request origin>/wc3-icons/<key>.webp`). Used by the overlay's build editor icon picker. |
 | `OPTIONS /api/builds`, `OPTIONS /api/builds/<slug>`, `OPTIONS /api/icons` | `204`, no body, CORS headers only (preflight). |
+| `POST /api/replay-import` | Same-origin helper for the submit form (no CORS). Multipart with a `replay` `.w3g` file, or JSON `{ "match": "<W3Champions link or id>" }`. `200 { map, version, duration, source?, players: [{ id, name, race, won?, build: ExchangeBuild }] }`, or `4xx/5xx { "error": "<message>" }`. Nothing is stored. |
 
 `ApiBuild` is every field of `BuildOrder` (see Content model above; the
 opponent list is `vsRaces`, empty for any) except
@@ -161,7 +174,7 @@ edit as fast as the pages do.
 | `src/app/(site)/learn/builds/` | list, `[slug]` detail, `submit` (page + server action) |
 | `src/app/api/builds/` | public JSON API: `route.ts` (list), `[slug]/route.ts` (detail), `_headers.ts` (shared CORS/cache headers) |
 | `src/app/api/icons/` | public JSON API: `route.ts` (icon manifest with absolute image URLs) |
-| `src/components/builds/` | `StepTable` (timer), `MatchupPicker`, `RaceCrestPicker` (single and multi-select crests), `BuildRow` + `FeaturedBuild`, `BuildSubmitForm`, `IconPicker`, `GameIcon`, `OverlayBeta` (pointer to the overlay page), badges |
+| `src/components/builds/` | `StepTable` (timer), `MatchupPicker`, `RaceCrestPicker` (single and multi-select crests), `BuildRow` + `FeaturedBuild`, `BuildSubmitForm`, `BuildImportZone` (replay, W3Champions link and overlay export import), `IconPicker`, `GameIcon`, `OverlayBeta` (pointer to the overlay page), badges |
 | `scripts/builds/` | transcribed build data per race and the NDJSON converter |
 
 ## Not in this version

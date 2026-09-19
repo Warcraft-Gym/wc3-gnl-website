@@ -19,7 +19,8 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@overlay-replay/*": ["./apps/overlay/src/replay/*"]
     }
   },
   "include": [
