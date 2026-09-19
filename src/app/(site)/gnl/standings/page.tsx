@@ -1,23 +1,31 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { StandingsTable } from "@/components/league/StandingsTable";
 import { DataSourceNote } from "@/components/DataSourceNote";
-import { getActiveSeason, getStandings } from "@/lib/api/gnl";
+import { PastSeasonNote } from "@/components/league/PastSeasonNote";
+import { getSeason, getSeasons, getStandings } from "@/lib/api/gnl";
+import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "GNL standings",
-  description: "The Gym Newbie League team ladder: wins, losses, map differential and points for the current season.",
-  alternates: { canonical: "/gnl/standings" },
-};
+type Props = { searchParams: Promise<SeasonSearchParams> };
 
-export default async function StandingsPage() {
-  const [season, { rows, source }] = await Promise.all([
-    getActiveSeason(),
-    getStandings(),
-  ]);
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const season = await getSeason(parseSeasonParam((await searchParams).season));
+  return {
+    title: season ? `${season.shortName} standings` : "GNL standings",
+    description: `The Gym Newbie League team ladder${season ? ` for ${season.shortName}` : ""}: wins, losses, map differential and points.`,
+    alternates: { canonical: "/gnl/standings" },
+  };
+}
+
+export default async function StandingsPage({ searchParams }: Props) {
+  const seasons = await getSeasons();
+  const season = await getSeason(parseSeasonParam((await searchParams).season));
+  if (!season) notFound();
+  const { rows, source } = await getStandings(season.number);
 
   return (
     <>
@@ -28,6 +36,7 @@ export default async function StandingsPage() {
       />
       <Container className="py-10">
         <DataSourceNote source={source} />
+        <PastSeasonNote season={season} latest={seasons[0]} href="/gnl/standings" />
         <StandingsTable rows={rows} />
         <p className="mt-4 text-xs text-faint">
           <span className="font-mono uppercase tracking-wide text-muted">P</span> weeks played

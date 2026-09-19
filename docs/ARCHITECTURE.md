@@ -33,12 +33,22 @@ Every GNL page starts from the same selection:
 1. `GET /leagues` and select the row whose `kind` is `gnl`.
 2. `GET /events?league_id={id}&published=true`.
 3. Keep events whose common event phase is `finished`.
-4. Select the newest by `start_date`, with the id as the fallback order.
+4. Select the season asked for, else the newest by `start_date`, with the id
+   as the fallback order.
 
 Step 3 is a choice for the current phase, not a rule. A running season could be
 shown the same way, and the intended end state is a landing page that switches
 on the season's phase: signups open, commenced, or complete. That switch is
 deferred until it is the focus.
+
+**Past seasons.** Every loader takes an optional season number and every
+league page reads it from `?season=N` (`src/lib/api/season-params.ts`). The
+default link, with no param, always shows the newest season, so the sub-nav
+pill, the `SeasonLink` component and the schedule redirect only add the param
+when browsing an older one. Pages 404 on a number that names no published
+season. Team pages resolve their slug across all seasons and offer a switcher
+for the seasons the team played; player pages always show every season the
+player took part in.
 
 The selected event scopes every public table:
 
@@ -48,7 +58,8 @@ The selected event scopes every public table:
 | teams and rosters | `GET /events/{event_id}/teams` | `mapTeams`, `flattenPlayers` |
 | schedule and results | `GET /events/{event_id}/series` | `mapFixtures` |
 | standings | event teams plus event series | `mapStandings` |
-| player pages | roster entry, `gnl_stats`, `w3c_stats`, `/stats/career`, event series | `mapPlayerProfile` |
+| player pages | roster entry, `gnl_stats`, `w3c_stats`, `/stats/career`, series, across every published event | `mapPlayerProfile` |
+| team pages | teams and series of the chosen season, across every published event for the switcher | `getTeamPage` |
 | season ladder | `GET /events/{event_id}/ladder` | `mapLadder` |
 | fantasy table | `GET /events/{event_id}/fantasy/teams` | `mapFantasy` |
 

@@ -6,34 +6,40 @@ import { WeekSelector } from "@/components/league/WeekSelector";
 import { FixtureRow } from "@/components/league/FixtureRow";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { Badge } from "@/components/ui/Badge";
-import { getActiveSeason, getWeeks, getWeekFixtures } from "@/lib/api/gnl";
+import { PastSeasonNote } from "@/components/league/PastSeasonNote";
+import { getSeason, getSeasons, getWeeks, getWeekFixtures } from "@/lib/api/gnl";
+import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 import { WeekSummary } from "@/components/league/WeekSummary";
 
-type Params = { params: Promise<{ week: string }> };
+// Reads ?season=, so it renders per request like the other league pages.
+export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  const { weeks } = await getWeeks();
-  return weeks.map((w) => ({ week: String(w.number) }));
-}
+type Params = {
+  params: Promise<{ week: string }>;
+  searchParams: Promise<SeasonSearchParams>;
+};
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const { week } = await params;
+export async function generateMetadata({ params, searchParams }: Params): Promise<Metadata> {
+  const [{ week }, query] = await Promise.all([params, searchParams]);
+  const season = await getSeason(parseSeasonParam(query.season));
   return {
-    title: `GNL schedule, week ${week}`,
-    description: `Gym Newbie League fixtures and results for week ${week}: every series, map score and player matchup.`,
+    title: `${season?.shortName ?? "GNL"} schedule, week ${week}`,
+    description: `Gym Newbie League fixtures and results for week ${week}${season ? ` of ${season.shortName}` : ""}: every series, map score and player matchup.`,
     alternates: { canonical: `/gnl/schedule/${week}` },
   };
 }
 
-export default async function ScheduleWeekPage({ params }: Params) {
-  const { week: weekParam } = await params;
+export default async function ScheduleWeekPage({ params, searchParams }: Params) {
+  const [{ week: weekParam }, query] = await Promise.all([params, searchParams]);
   const weekNum = Number(weekParam);
   if (!Number.isInteger(weekNum)) notFound();
 
-  const [season, { weeks }, { week, fixtures, source }] = await Promise.all([
-    getActiveSeason(),
-    getWeeks(),
-    getWeekFixtures(weekNum),
+  const seasons = await getSeasons();
+  const season = await getSeason(parseSeasonParam(query.season));
+  if (!season) notFound();
+  const [{ weeks }, { week, fixtures, source }] = await Promise.all([
+    getWeeks(season.number),
+    getWeekFixtures(weekNum, season.number),
   ]);
 
   if (!week) notFound();
@@ -54,6 +60,7 @@ export default async function ScheduleWeekPage({ params }: Params) {
 
       <Container className="py-10">
         <DataSourceNote source={source} />
+        <PastSeasonNote season={season} latest={seasons[0]} href="/gnl/schedule" />
 
         <div className="mb-6">
           <WeekSelector weeks={weeks} active={week.number} />

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { SeasonLink as Link } from "./SeasonLink";
 import type { StandingRow } from "@/lib/api/types";
 import { TeamPlate } from "./VsBadge";
 import { cn } from "@/lib/utils";

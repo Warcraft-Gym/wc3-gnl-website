@@ -68,14 +68,20 @@ interface RawLeague {
 }
 
 /**
- * The GNL event every page reads. For now this is the newest finished one:
- * a choice for this phase, not a rule of the data. A running season could be
- * shown the same way. The intended end state is a landing page that switches
- * on the season's phase (signups open, commenced, complete); that logic is
- * deferred until it is the focus.
+ * The GNL event a page reads. Every league page takes an optional season
+ * number (`?season=17`); without one it shows the newest finished season.
+ * A running season could be shown the same way. The intended end state is a
+ * landing page that switches on the season's phase (signups open, commenced,
+ * complete); that logic is deferred until it is the focus.
  */
-async function fetchActiveSeasonRaw(): Promise<RawSeason> {
-  return pickActiveSeason(await fetchCompletedSeasonsRaw());
+async function fetchSeasonRaw(seasonNumber?: number): Promise<RawSeason> {
+  const seasons = await fetchCompletedSeasonsRaw();
+  if (seasonNumber == null) return pickActiveSeason(seasons);
+  const hit = seasons.find((s) => mapSeason(s).number === seasonNumber);
+  // Pages resolve the season with getSeason() first and 404 on a miss, so
+  // this only fires for a bad number passed straight to a loader.
+  if (!hit) throw new Error(`GNL season ${seasonNumber} is not published.`);
+  return hit;
 }
 
 /** Every published, finished GNL event. */
@@ -91,31 +97,48 @@ async function fetchCompletedSeasonsRaw(): Promise<RawSeason[]> {
   return completed;
 }
 
-export async function getActiveSeason(): Promise<Season> {
+/** Every published season, newest first. Falls back to the fixture season. */
+export async function getSeasons(): Promise<Season[]> {
   const { data } = await withFallback(
-    async () => mapSeason(await fetchActiveSeasonRaw()),
-    () => FIXTURE_SEASON,
-    "getActiveSeason",
+    async () =>
+      (await fetchCompletedSeasonsRaw())
+        .map(mapSeason)
+        .sort((a, b) => Date.parse(b.startDate ?? "") - Date.parse(a.startDate ?? "") || b.id - a.id),
+    () => [FIXTURE_SEASON],
+    "getSeasons",
   );
   return data;
 }
 
-export async function getWeeks(): Promise<{ weeks: Week[]; source: DataSource }> {
+/** The season a page shows: the one asked for, else the newest. Undefined
+ *  when `seasonNumber` names no published season. */
+export async function getSeason(seasonNumber?: number): Promise<Season | undefined> {
+  const seasons = await getSeasons();
+  if (seasonNumber == null) return seasons[0];
+  return seasons.find((s) => s.number === seasonNumber);
+}
+
+/** The newest season; kept for the home page and the sitemap. */
+export async function getActiveSeason(): Promise<Season> {
+  return (await getSeasons())[0];
+}
+
+export async function getWeeks(seasonNumber?: number): Promise<{ weeks: Week[]; source: DataSource }> {
   const { data, source } = await withFallback(
-    async () => deriveWeeks(mapSeason(await fetchActiveSeasonRaw())),
+    async () => deriveWeeks(mapSeason(await fetchSeasonRaw(seasonNumber))),
     () => FIXTURE_WEEKS,
     "getWeeks",
   );
   return { weeks: data, source };
 }
 
-export async function getFixtures(): Promise<{
+export async function getFixtures(seasonNumber?: number): Promise<{
   fixtures: TeamFixture[];
   source: DataSource;
 }> {
   const { data, source } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
+      const s = await fetchSeasonRaw(seasonNumber);
       const series = await apiGet<RawSeries[]>(`/events/${s.id}/series`);
       return mapFixtures(series);
     },
@@ -125,14 +148,14 @@ export async function getFixtures(): Promise<{
   return { fixtures: data, source };
 }
 
-export async function getWeekFixtures(week: number): Promise<{
+export async function getWeekFixtures(week: number, seasonNumber?: number): Promise<{
   week: Week | undefined;
   fixtures: TeamFixture[];
   source: DataSource;
 }> {
   const [{ weeks }, { fixtures, source }] = await Promise.all([
-    getWeeks(),
-    getFixtures(),
+    getWeeks(seasonNumber),
+    getFixtures(seasonNumber),
   ]);
   return {
     week: weeks.find((w) => w.number === week),
@@ -147,13 +170,13 @@ export async function getWeekFixtures(week: number): Promise<{
   };
 }
 
-export async function getStandings(): Promise<{
+export async function getStandings(seasonNumber?: number): Promise<{
   rows: StandingRow[];
   source: DataSource;
 }> {
   const { data, source } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
+      const s = await fetchSeasonRaw(seasonNumber);
       const [teams, series] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${s.id}/teams`),
         apiGet<RawSeries[]>(`/events/${s.id}/series`),
@@ -166,10 +189,10 @@ export async function getStandings(): Promise<{
   return { rows: data, source };
 }
 
-export async function getTeams(): Promise<{ teams: Team[]; source: DataSource }> {
+export async function getTeams(seasonNumber?: number): Promise<{ teams: Team[]; source: DataSource }> {
   const { data, source } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
+      const s = await fetchSeasonRaw(seasonNumber);
       const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
       return mapTeams(teams, s.id);
     },
@@ -271,13 +294,13 @@ export async function getPlayerProfile(slug: string): Promise<PlayerProfile | un
   return data ?? undefined;
 }
 
-export async function getPlayers(): Promise<{
+export async function getPlayers(seasonNumber?: number): Promise<{
   players: Player[];
   source: DataSource;
 }> {
   const { data, source } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
+      const s = await fetchSeasonRaw(seasonNumber);
       const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
       return flattenPlayers(mapTeams(teams, s.id));
     },
@@ -288,13 +311,13 @@ export async function getPlayers(): Promise<{
 }
 
 
-export async function getFantasy(): Promise<{
+export async function getFantasy(seasonNumber?: number): Promise<{
   entries: FantasyEntry[];
   source: DataSource;
 }> {
   const { data, source } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
+      const s = await fetchSeasonRaw(seasonNumber);
       const teams = await apiGet<RawFantasyTeam[]>(`/events/${s.id}/fantasy/teams`, {
         query: { limit: 500 },
       });
@@ -329,10 +352,10 @@ export function splitFixtures(fixtures: TeamFixture[]) {
 
 /** The season ladder challenge: points, games and achievements per team and
  *  player, from W3Champions games played during the season. */
-export async function getLadder(): Promise<{ ladder: Ladder | null; source: DataSource }> {
+export async function getLadder(seasonNumber?: number): Promise<{ ladder: Ladder | null; source: DataSource }> {
   const { data, source } = await withFallback(
     async () => {
-      const s = await fetchActiveSeasonRaw();
+      const s = await fetchSeasonRaw(seasonNumber);
       const [ladder, teams] = await Promise.all([
         apiGet<RawLadder>(`/events/${s.id}/ladder`, { revalidate: 900 }),
         apiGet<RawTeam[]>(`/events/${s.id}/teams`),

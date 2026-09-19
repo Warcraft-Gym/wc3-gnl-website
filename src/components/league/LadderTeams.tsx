@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronDown } from "lucide-react";
 import type { LadderTeam } from "@/lib/api/types";
 import { RaceIcon } from "@/components/ui/RaceIcon";

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Trophy } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -8,21 +9,31 @@ import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { LadderTeams } from "@/components/league/LadderTeams";
-import { getActiveSeason, getLadder } from "@/lib/api/gnl";
+import { PastSeasonNote } from "@/components/league/PastSeasonNote";
+import { getLadder, getSeason, getSeasons } from "@/lib/api/gnl";
+import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "GNL ladder challenge",
-  description:
-    "The Gym Newbie League ladder challenge: W3Champions games played during the season earn points and achievements for your team.",
-  alternates: { canonical: "/gnl/ladder" },
-};
+type Props = { searchParams: Promise<SeasonSearchParams> };
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const season = await getSeason(parseSeasonParam((await searchParams).season));
+  return {
+    title: season ? `${season.shortName} ladder challenge` : "GNL ladder challenge",
+    description:
+      `The Gym Newbie League ladder challenge${season ? ` in ${season.shortName}` : ""}: W3Champions games played during the season earn points and achievements for your team.`,
+    alternates: { canonical: "/gnl/ladder" },
+  };
+}
 
 const fmt = new Intl.NumberFormat("en-US");
 
-export default async function LadderPage() {
-  const [season, { ladder, source }] = await Promise.all([getActiveSeason(), getLadder()]);
+export default async function LadderPage({ searchParams }: Props) {
+  const seasons = await getSeasons();
+  const season = await getSeason(parseSeasonParam((await searchParams).season));
+  if (!season) notFound();
+  const { ladder, source } = await getLadder(season.number);
 
   const topPlayers = ladder
     ? ladder.teams
@@ -41,6 +52,7 @@ export default async function LadderPage() {
       />
       <Container className="py-10">
         <DataSourceNote source={source} />
+        <PastSeasonNote season={season} latest={seasons[0]} href="/gnl/ladder" />
 
         {!ladder ? (
           <p className="border border-dashed border-line px-5 py-10 text-center text-sm text-faint">

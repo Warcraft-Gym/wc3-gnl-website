@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { SeasonLink as Link } from "./SeasonLink";
 import type { TeamFixture } from "@/lib/api/types";
 import { Surface } from "@/components/ui/Surface";
 import { LiveBadge } from "@/components/ui/Badge";

@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { SeasonLink as Link } from "./SeasonLink";
 import { ArrowUpRight, Crown } from "lucide-react";
 import type { StandingRow, Team } from "@/lib/api/types";
 import { Surface } from "@/components/ui/Surface";

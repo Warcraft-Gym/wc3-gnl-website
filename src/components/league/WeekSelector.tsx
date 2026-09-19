@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { Week } from "@/lib/api/types";
 import { cn } from "@/lib/utils";

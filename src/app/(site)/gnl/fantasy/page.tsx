@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { Trophy, Coins, Users } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -6,17 +7,24 @@ import { Surface, SectionHead } from "@/components/ui/Surface";
 import { ButtonLink } from "@/components/ui/Button";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { FantasyStandings } from "@/components/league/FantasyStandings";
-import { getActiveSeason, getFantasy } from "@/lib/api/gnl";
+import { PastSeasonNote } from "@/components/league/PastSeasonNote";
+import { getFantasy, getSeason, getSeasons } from "@/lib/api/gnl";
+import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 import { DASHBOARD_URL } from "@/lib/links";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
-  title: "Fantasy League",
-  description:
-    "Draft a fantasy team, place bets on series, and climb the fantasy standings.",
-  alternates: { canonical: "/gnl/fantasy" },
-};
+type Props = { searchParams: Promise<SeasonSearchParams> };
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  const season = await getSeason(parseSeasonParam((await searchParams).season));
+  return {
+    title: season ? `${season.shortName} Fantasy League` : "Fantasy League",
+    description:
+      "Draft a fantasy team, place bets on series, and climb the fantasy standings.",
+    alternates: { canonical: "/gnl/fantasy" },
+  };
+}
 
 const STEPS = [
   {
@@ -36,11 +44,11 @@ const STEPS = [
   },
 ];
 
-export default async function FantasyPage() {
-  const [season, { entries, source }] = await Promise.all([
-    getActiveSeason(),
-    getFantasy(),
-  ]);
+export default async function FantasyPage({ searchParams }: Props) {
+  const seasons = await getSeasons();
+  const season = await getSeason(parseSeasonParam((await searchParams).season));
+  if (!season) notFound();
+  const { entries, source } = await getFantasy(season.number);
 
   const topScore = entries[0]?.total ?? 0;
 
@@ -53,6 +61,7 @@ export default async function FantasyPage() {
       />
       <Container className="py-10">
         <DataSourceNote source={source} />
+        <PastSeasonNote season={season} latest={seasons[0]} href="/gnl/fantasy" />
 
         {/* summary strip */}
         <div className="mb-6 grid gap-px overflow-hidden border border-line bg-line sm:grid-cols-3">

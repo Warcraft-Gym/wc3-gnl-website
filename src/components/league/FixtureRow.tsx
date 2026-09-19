@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronRight, PlayCircle, Tv } from "lucide-react";
 import type { TeamFixture, PlayerMatch } from "@/lib/api/types";
 import { LiveBadge } from "@/components/ui/Badge";

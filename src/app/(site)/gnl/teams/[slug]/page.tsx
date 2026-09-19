@@ -10,6 +10,7 @@ import { FixtureCard } from "@/components/league/FixtureCard";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
 import { SeasonSwitcher } from "@/components/league/SeasonSwitcher";
 import { getTeamPage } from "@/lib/api/gnl";
+import { parseSeasonParam as parseSeason, withSeason, type SeasonSearchParams } from "@/lib/api/season-params";
 import { raceOf } from "@/lib/utils";
 
 // Reads ?season= and the live backend, so it renders per request like the
@@ -18,14 +19,8 @@ export const dynamic = "force-dynamic";
 
 type Params = {
   params: Promise<{ slug: string }>;
-  searchParams: Promise<{ season?: string }>;
+  searchParams: Promise<SeasonSearchParams>;
 };
-
-/** "?season=17" → 17; anything else means the team's newest season. */
-function parseSeason(raw?: string): number | undefined {
-  const n = Number(raw);
-  return raw && Number.isInteger(n) && n > 0 ? n : undefined;
-}
 
 export async function generateMetadata({ params, searchParams }: Params): Promise<Metadata> {
   const [{ slug }, { season }] = await Promise.all([params, searchParams]);
@@ -108,7 +103,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
           </div>
           {seasons.length > 1 ? (
             <div className="mt-8">
-              <SeasonSwitcher seasons={seasons} active={season.number} href={(n) => `/gnl/teams/${team.slug}?season=${n}`} />
+              <SeasonSwitcher seasons={seasons} active={season.number} href={(n) => withSeason(`/gnl/teams/${team.slug}`, n === seasons[0].number ? undefined : n)} />
             </div>
           ) : null}
         </Container>
