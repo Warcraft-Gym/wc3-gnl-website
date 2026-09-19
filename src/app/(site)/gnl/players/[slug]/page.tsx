@@ -41,11 +41,12 @@ function pct(w: number, l: number) {
   return n ? Math.round((w * 100) / n) : 0;
 }
 
+/** One headline number in the masthead. */
 function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: string }) {
   return (
-    <div className="panel p-4">
-      <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">{label}</p>
-      <p className={cn("tnum mt-1 font-display text-2xl font-bold", tone ?? "text-fg")}>{value}</p>
+    <div className="min-w-[7rem]">
+      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-muted [text-shadow:0_1px_8px_rgba(0,0,0,.9)]">{label}</p>
+      <p className={cn("tnum mt-0.5 font-display text-2xl font-bold [text-shadow:0_2px_16px_rgba(0,0,0,.9)]", tone ?? "text-fg")}>{value}</p>
     </div>
   );
 }
@@ -191,19 +192,7 @@ export default async function PlayerPage({ params }: Params) {
               </p>
             </div>
           </div>
-        </Container>
-        <div className="rivets relative z-10" aria-hidden />
-      </div>
-
-      <Container className="py-10">
-        {captainOnly ? (
-          <p className="mb-6 border-l-2 border-gold/60 pl-4 text-sm text-muted">
-            Captains {team?.name ?? "the team"} this season without playing in the roster. The numbers below are their own ladder and career.
-          </p>
-        ) : null}
-
-        {/* Headline numbers */}
-        <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 flex flex-wrap gap-x-10 gap-y-4 border-t border-line/40 pt-6">
           {captainOnly ? null : (
             <>
               <Stat label={`${season.shortName} series`} value={<>{rec.wins}<span className="text-faint"> - </span>{rec.losses}</>} />
@@ -220,11 +209,21 @@ export default async function PlayerPage({ params }: Params) {
             value={mainLadder ? `${pct(mainLadder.wins, mainLadder.losses)}%` : career?.rating ?? "-"}
             tone={mainLadder ? (pct(mainLadder.wins, mainLadder.losses) >= 50 ? "text-win" : "text-loss") : undefined}
           />
-        </section>
+                  </div>
+        </Container>
+        <div className="rivets relative z-10" aria-hidden />
+      </div>
+
+      <Container className="py-10">
+        {captainOnly ? (
+          <p className="mb-6 border-l-2 border-gold/60 pl-4 text-sm text-muted">
+            Captains {team?.name ?? "the team"} this season without playing in the roster. The numbers below are their own ladder and career.
+          </p>
+        ) : null}
 
         {/* GNL vs ladder, side by side */}
         {!captainOnly && (rec.games > 0 || live) ? (
-          <section className="mt-12">
+          <section>
             <h2 className="mb-4 font-display text-xl font-bold uppercase">League vs ladder</h2>
             <p className="mb-4 max-w-2xl text-sm text-muted">
               {season.shortName} series against the current W3Champions ladder season, and how they go against each race.
