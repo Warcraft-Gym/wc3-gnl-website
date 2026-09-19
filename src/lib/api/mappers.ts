@@ -124,6 +124,9 @@ export interface RawSeries {
   /** Race actually played in this series (W3C codes), may differ from the profile race. */
   player1_race?: string | null;
   player2_race?: string | null;
+  player1_points?: number | null;
+  player2_points?: number | null;
+  casts?: Array<{ id: number; name?: string | null; channel_url?: string | null; vod_url?: string | null }>;
   match: RawMatch;
 }
 export interface RawFantasyTeam {
@@ -287,16 +290,24 @@ function toPlayerMatch(s: RawSeries): PlayerMatch {
     home: {
       playerId: s.player1?.id,
       playerName: s.player1?.name ?? "TBD",
-      race: raceOf(s.player1?.race),
+      race: raceOf(s.player1_race ?? s.player1?.race),
       score: s.player1_score ?? 0,
+      points: s.player1_points ?? undefined,
     },
     away: {
       playerId: s.player2?.id,
       playerName: s.player2?.name ?? "TBD",
-      race: raceOf(s.player2?.race),
+      race: raceOf(s.player2_race ?? s.player2?.race),
       score: s.player2_score ?? 0,
+      points: s.player2_points ?? undefined,
     },
     hasReplays: false,
+    casts: (s.casts ?? []).map((c) => ({
+      id: c.id,
+      name: c.name ?? "Cast",
+      channelUrl: c.channel_url ?? undefined,
+      vodUrl: c.vod_url ?? undefined,
+    })),
   };
 }
 

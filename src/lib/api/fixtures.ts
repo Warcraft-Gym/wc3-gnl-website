@@ -252,6 +252,7 @@ function buildPlayerMatches(
           score: aScore,
         },
         hasReplays: status === "completed",
+        casts: [],
       });
       g++;
     }

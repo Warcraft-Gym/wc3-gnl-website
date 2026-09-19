@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ChevronRight, PlayCircle } from "lucide-react";
+import { ChevronRight, PlayCircle, Tv } from "lucide-react";
 import type { TeamFixture, PlayerMatch } from "@/lib/api/types";
 import { LiveBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
@@ -32,11 +32,25 @@ function DetailRow({ m }: { m: PlayerMatch }) {
   const awayWon = m.status === "completed" && m.away.score > m.home.score;
   const played = m.status !== "scheduled";
 
+  const vod = m.casts.find((c) => c.vodUrl);
+  const cast = vod ?? m.casts[0];
+
   return (
     <div className="grid grid-cols-[5.5rem_1fr_auto_1fr] items-center gap-2 border-t border-line/40 px-4 py-2.5 text-sm sm:grid-cols-[7rem_1fr_auto_1fr]">
       <div className="font-mono text-[0.7rem] leading-tight text-faint">
         <div>{day}</div>
         <div>{time}</div>
+        {cast ? (
+          <a
+            href={vod?.vodUrl ?? cast.channelUrl}
+            target="_blank"
+            rel="noreferrer"
+            title={vod ? `Watch the VOD on ${cast.name}` : `Cast by ${cast.name}`}
+            className="mt-1 inline-flex items-center gap-1 text-[0.62rem] uppercase tracking-wide text-arcane hover:underline"
+          >
+            <Tv size={11} /> {vod ? "VOD" : "Cast"}
+          </a>
+        ) : null}
       </div>
 
       <div className="flex items-center gap-2 truncate">
@@ -52,7 +66,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         </Link>
       </div>
 
-      <div className="flex items-center justify-center gap-2">
+      <div className="flex flex-col items-center justify-center gap-0.5">
         {m.status === "live" ? (
           <span className="live-dot size-1.5 rounded-full bg-live" aria-hidden />
         ) : null}
@@ -71,6 +85,14 @@ function DetailRow({ m }: { m: PlayerMatch }) {
             <span className="text-faint">vs</span>
           )}
         </span>
+        {played && (m.home.points != null || m.away.points != null) ? (
+          <span
+            className="tnum font-mono text-[0.6rem] uppercase tracking-wide text-faint"
+            title="League points earned"
+          >
+            {m.home.points ?? 0} · {m.away.points ?? 0} pts
+          </span>
+        ) : null}
       </div>
 
       <div className="flex items-center justify-end gap-2 truncate text-right">

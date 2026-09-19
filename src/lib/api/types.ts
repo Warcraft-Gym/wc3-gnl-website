@@ -65,15 +65,26 @@ export type Week = {
   isCurrent: boolean;
 };
 
-/** One side of an individual 1v1 game. */
+/** One side of an individual 1v1 series. */
 export type MatchSide = {
   playerId?: number;
   playerName: string;
+  /** Race played in this series (may differ from the player's usual race). */
   race: Race;
   score: number;
+  /** League points the side earned from this series. */
+  points?: number;
 };
 
-/** An individual player-vs-player game inside a team fixture. */
+/** A cast of a series: a streamer's channel and, once added, the VOD. */
+export type MatchCast = {
+  id: number;
+  name: string;
+  channelUrl?: string;
+  vodUrl?: string;
+};
+
+/** An individual player-vs-player series inside a team fixture. */
 export type PlayerMatch = {
   id: number;
   scheduledAt?: string;
@@ -81,6 +92,7 @@ export type PlayerMatch = {
   home: MatchSide;
   away: MatchSide;
   hasReplays: boolean;
+  casts: MatchCast[];
 };
 
 /** One team's side of a weekly fixture, with aggregate games won. */
