@@ -1,62 +1,114 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
-import type { Team } from "@/lib/api/types";
+import { ArrowUpRight, Crown } from "lucide-react";
+import type { StandingRow, Team } from "@/lib/api/types";
 import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "./VsBadge";
-import { cn, raceOf } from "@/lib/utils";
-import { CaptainBadge } from "./CaptainBadge";
+import { cn, raceOf, type Race } from "@/lib/utils";
 
-export function TeamCard({ team }: { team: Team }) {
+const PREVIEW = 6;
+const RACE_ORDER: Race[] = ["human", "orc", "nightelf", "undead", "random"];
+const RACE_BG: Record<Race, string> = {
+  human: "bg-human",
+  orc: "bg-orc",
+  nightelf: "bg-nightelf",
+  undead: "bg-undead",
+  random: "bg-faint",
+};
+const RACE_LABEL: Record<Race, string> = { human: "Human", orc: "Orc", nightelf: "Night Elf", undead: "Undead", random: "Random" };
+
+/** Team card for the teams index: standing, record, captains, race make-up
+ *  and the top of the roster by MMR. The full roster is on the team page. */
+export function TeamCard({ team, standing }: { team: Team; standing?: StandingRow }) {
+  const rated = team.players.filter((p) => p.mmr);
+  const avgMmr = rated.length ? Math.round(rated.reduce((n, p) => n + (p.mmr ?? 0), 0) / rated.length) : undefined;
+  const preview = [...team.players].sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0)).slice(0, PREVIEW);
+  const rest = team.players.length - preview.length;
+  const races = RACE_ORDER.map((r) => ({ race: r, n: team.players.filter((p) => raceOf(p.race) === r).length })).filter((x) => x.n);
+
   return (
     <Surface interactive as="article" className="group flex flex-col p-5">
-      <Link
-        href={`/gnl/teams/${team.slug}`}
-        className="flex items-start justify-between gap-3"
-      >
-        <div className="flex items-center gap-3">
-          <TeamPlate
-            tag={team.tag!}
-            logoUrl={team.logoUrl}
-            name={team.name}
-            size="lg"
-          />
-          <div>
-            <h3 className="font-display text-lg font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold">
-              {team.name}
-            </h3>
-            <p className="mt-0.5 text-xs text-faint">
-              {team.players.length} players
-              {team.captains.length ? (
-                <>
-                  {" · "}
-                  <span className="text-muted">
-                    {team.captains.length > 1 ? "Captains" : "Captain"}{" "}
-                    {team.captains.map((c) => c.name).join(" & ")}
-                  </span>
-                </>
-              ) : null}
+      <Link href={`/gnl/teams/${team.slug}`} className="flex items-start gap-3">
+        <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="lg" />
+        <div className="min-w-0 flex-1">
+          <h3 className="flex items-start justify-between gap-2 font-display text-lg font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold">
+            <span className="min-w-0">{team.name}</span>
+            <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
+          </h3>
+          {team.captains.length ? (
+            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
+              <Crown size={12} className="shrink-0 text-gold" />
+              <span className="truncate">{team.captains.map((c) => c.name).join(" & ")}</span>
             </p>
-          </div>
+          ) : null}
         </div>
-        <ArrowUpRight
-          size={18}
-          className="text-faint transition-colors group-hover:text-gold"
-        />
       </Link>
 
-      <ul className="mt-4 flex flex-col gap-2 border-t border-line/60 pt-4">
-        {team.players.map((p) => (
-          <li
-            key={p.id}
-            className="flex items-center justify-between gap-2 text-sm"
-          >
+      {/* Standing + numbers */}
+      <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line/60 pt-4">
+        <div>
+          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Standing</dt>
+          <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">
+            {standing ? (
+              <>
+                <span className={standing.rank === 1 ? "text-gold" : ""}>#{standing.rank}</span>
+                <span className="ml-1.5 font-sans text-xs font-normal text-muted">{standing.points} pts</span>
+              </>
+            ) : (
+              "-"
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Record</dt>
+          <dd className="tnum mt-0.5 font-display text-base font-bold">
+            {standing ? (
+              <>
+                <span className="text-win">{standing.wins}</span>
+                <span className="text-faint">-</span>
+                <span className="text-muted">{standing.draws}</span>
+                <span className="text-faint">-</span>
+                <span className="text-loss">{standing.losses}</span>
+              </>
+            ) : (
+              "-"
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Avg MMR</dt>
+          <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">{avgMmr ?? "-"}</dd>
+        </div>
+      </dl>
+
+      {/* Race make-up */}
+      {races.length ? (
+        <div className="mt-3" title={races.map((x) => `${x.n} ${RACE_LABEL[x.race]}`).join(", ")}>
+          <div className="flex h-1.5 w-full gap-px overflow-hidden rounded">
+            {races.map((x) => (
+              <span key={x.race} className={cn("h-full", RACE_BG[x.race])} style={{ width: `${(x.n / team.players.length) * 100}%` }} />
+            ))}
+          </div>
+          <p className="mt-1.5 flex flex-wrap gap-x-3 font-mono text-[0.6rem] uppercase tracking-wide text-faint">
+            {races.map((x) => (
+              <span key={x.race}>
+                {x.n} {RACE_LABEL[x.race]}
+              </span>
+            ))}
+          </p>
+        </div>
+      ) : null}
+
+      {/* Roster preview */}
+      <ul className="mt-4 flex flex-col gap-1.5 border-t border-line/60 pt-4">
+        {preview.map((p) => (
+          <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-2 text-muted">
               <RaceBadge race={raceOf(p.race)} showLabel={false} />
               <Link href={`/gnl/players/${p.slug}`} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
                 {p.name}
               </Link>
-              {p.isCaptain ? <CaptainBadge compact /> : null}
+              {p.isCaptain ? <Crown size={11} className="shrink-0 text-gold" /> : null}
             </span>
             <span className="tnum shrink-0 text-xs text-faint" title="W3Champions MMR">
               {p.mmr ?? "-"}
@@ -64,6 +116,14 @@ export function TeamCard({ team }: { team: Team }) {
           </li>
         ))}
       </ul>
+      {rest > 0 ? (
+        <Link
+          href={`/gnl/teams/${team.slug}`}
+          className="mt-3 self-start text-xs uppercase tracking-wide text-muted transition-colors hover:text-gold"
+        >
+          +{rest} more, full roster
+        </Link>
+      ) : null}
     </Surface>
   );
 }
