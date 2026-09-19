@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
-import { Apple, Download, Keyboard, Layers, Lock, Timer } from "lucide-react";
+import Link from "next/link";
+import { Apple, Download, FileInput, Keyboard, Layers, Lock, Share2, Timer } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -11,7 +12,7 @@ import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 export const metadata: Metadata = {
   title: "Build order overlay",
   description:
-    "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Windows and macOS, beta.",
+    "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",
   openGraph: {
     title: "Build order overlay · Warcraft 3 Gym",
     description: "Float any build order over the game, with a play-along clock and global shortcuts.",
@@ -38,7 +39,17 @@ const POINTS = [
   {
     Icon: Lock,
     title: "Your own private builds",
-    body: "Write a build of your own, or duplicate and tweak any site build. Private builds stay on your computer, work offline, and can be exported as JSON to back up, share, or submit to the site.",
+    body: "Write a build of your own, or duplicate and tweak any site build. Private builds stay on your computer and work offline.",
+  },
+  {
+    Icon: FileInput,
+    title: "Start from a replay",
+    body: "Turn one of your replays, or any W3Champions match link, into a build in two clicks: pick which player you were, trim how far into the game to go, open it in the editor.",
+  },
+  {
+    Icon: Share2,
+    title: "Export, share, submit",
+    body: "Export a private build as a JSON file to back it up or send it to a friend, and submit it to the site from the app when it is ready for everyone.",
   },
 ];
 
@@ -56,6 +67,14 @@ const STEPS = [
   "Run Warcraft III in windowed or borderless mode. Exclusive fullscreen hides every other window, including the overlay.",
   "At the match's 0:00, press play. The current step highlights as the clock runs; use next and previous if it drifts.",
   "Want a build that is not on the site? New private build in the picker opens an editor with the same steps, icons and rules as the site's form. Duplicate any build to start from it. Private builds are marked in the list and never leave your computer unless you export them.",
+  "Played a game you want to keep? Import replay takes a .w3g file, From W3Champions takes a match link. Choose which player you were and the editor opens with the timed steps, icons, race and opponent already filled in.",
+];
+
+const REPLAY_NOTES = [
+  "Steps are the orders you gave, not what happened: a cancelled order still shows up.",
+  "Food counts are estimated from a fixed cost table and do not account for units that died.",
+  "Heroes appear when they were ordered, not when they finished training.",
+  "Replays from before patch 1.32 cannot be read.",
 ];
 
 export default async function OverlayPage() {
@@ -124,7 +143,7 @@ export default async function OverlayPage() {
           </figcaption>
         </figure>
 
-        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <ul className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {POINTS.map(({ Icon, title, body }) => (
             <li key={title} className="panel p-5">
               <Icon size={18} className="text-arcane" />
@@ -172,6 +191,36 @@ export default async function OverlayPage() {
             <p className="mt-3 text-xs text-faint">Every combo can be changed in the app&apos;s Settings.</p>
           </section>
         </div>
+
+        <section className="mt-14 grid gap-10 lg:grid-cols-2">
+          <div>
+            <p className="kicker mb-4">From a replay to a build</p>
+            <p className="text-sm leading-6 text-muted">
+              Import replay (top bar) reads a <span className="font-mono text-xs text-fg">.w3g</span> file from your Replays folder and lists both players; pick the one you were. Import up to trims how much of the game becomes steps (eight minutes by default), and you can leave upgrades and items out. Open in editor lands the draft in the build editor, where you tidy it up like any other private build. From W3Champions does the same from a match link: the replay is fetched from their public API, nothing is uploaded.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-muted">
+              The same import lives on the site: the{" "}
+              <Link href="/learn/builds/submit" className="text-gold hover:underline">
+                submit form
+              </Link>{" "}
+              takes a replay or a match link too, if you want to share a build without the app.
+            </p>
+          </div>
+          <div>
+            <p className="kicker mb-4">What an import cannot know</p>
+            <ul className="space-y-2 text-sm text-muted">
+              {REPLAY_NOTES.map((n) => (
+                <li key={n} className="flex gap-2">
+                  <span className="text-gold">·</span>
+                  {n}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-faint">
+              Windows keeps replays in Documents\Warcraft III\BattleNet\&lt;account&gt;\Replays. On macOS they are in ~/Library/Application Support/Blizzard/Warcraft III, with the last game at Replay/LastReplay.w3g.
+            </p>
+          </div>
+        </section>
 
         <section className="panel mt-14 border-arcane/40 p-6 sm:p-8">
           <p className="kicker">Before you install</p>
