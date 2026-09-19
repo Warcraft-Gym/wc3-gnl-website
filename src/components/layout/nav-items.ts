@@ -15,7 +15,6 @@ export const GNL_NAV: NavItem[] = [
   { href: "/gnl/schedule", label: "Schedule" },
   { href: "/gnl/standings", label: "Standings" },
   { href: "/gnl/teams", label: "Teams" },
-  { href: "/gnl/leaderboard", label: "Leaderboard" },
   { href: "/gnl/ladder", label: "Ladder" },
   { href: "/gnl/fantasy", label: "Fantasy" },
   { href: "/gnl/rules", label: "Rules" },

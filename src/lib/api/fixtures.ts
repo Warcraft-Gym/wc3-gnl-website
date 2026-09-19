@@ -7,7 +7,6 @@ import type {
   TeamFixture,
   PlayerMatch,
   FixtureTeam,
-  LeaderboardRow,
   MatchStatus,
   FantasyEntry,
 } from "./types";
@@ -353,31 +352,6 @@ export const FIXTURE_STANDINGS: StandingRow[] = RECORDS.map(
     };
   },
 );
-
-// --- Individual leaderboard (derived deterministically from MMR ordering). ---
-export const FIXTURE_LEADERBOARD: LeaderboardRow[] = [...FIXTURE_PLAYERS]
-  .sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0))
-  .map((p, i) => {
-    const played = 14;
-    const wins = Math.max(3, 13 - i);
-    const losses = played - wins;
-    return {
-      id: p.id,
-      rank: i + 1,
-      player: {
-        id: p.id,
-        name: p.name,
-        slug: p.slug,
-        race: p.race,
-        teamName: p.teamName,
-      },
-      played,
-      wins,
-      losses,
-      winrate: Math.round((wins / played) * 100),
-      mmr: p.mmr,
-    };
-  });
 
 
 // --- Fantasy standings (deterministic managers drafting fixture teams). ---

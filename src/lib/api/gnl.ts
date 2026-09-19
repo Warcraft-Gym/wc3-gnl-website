@@ -8,7 +8,6 @@ import {
   FIXTURE_STANDINGS,
   FIXTURE_WEEKS,
   FIXTURE_FIXTURES,
-  FIXTURE_LEADERBOARD,
   FIXTURE_FANTASY,
 } from "./fixtures";
 import {
@@ -19,7 +18,6 @@ import {
   flattenPlayers,
   mapFixtures,
   mapStandings,
-  mapEventLeaderboard,
   mapFantasy,
   mapPlayerProfile,
   mapLadder,
@@ -37,7 +35,6 @@ import type {
   StandingRow,
   Week,
   TeamFixture,
-  LeaderboardRow,
   FantasyEntry,
   PlayerProfile,
   Ladder,
@@ -206,21 +203,6 @@ export async function getPlayers(): Promise<{
   return { players: data, source };
 }
 
-export async function getLeaderboard(): Promise<{
-  rows: LeaderboardRow[];
-  source: DataSource;
-}> {
-  const { data, source } = await withFallback(
-    async () => {
-      const s = await fetchActiveSeasonRaw();
-      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
-      return mapEventLeaderboard(teams, s.id);
-    },
-    () => FIXTURE_LEADERBOARD,
-    "getLeaderboard",
-  );
-  return { rows: data, source };
-}
 
 export async function getFantasy(): Promise<{
   entries: FantasyEntry[];

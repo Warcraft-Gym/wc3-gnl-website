@@ -39,7 +39,7 @@ for ESLint.
 | `/learn/builds`, `/learn/builds/<slug>` | Build orders with filters, a step table and a play-along clock | Sanity `buildOrder` |
 | `/learn/builds/submit` | Public submission form; submissions land in the Studio as pending drafts | server action, write token |
 | `/blog`, `/blog/<slug>` | News | Sanity `post` |
-| `/gnl/*` | Schedule, standings, teams, leaderboard, fantasy, rules, about | FastAPI |
+| `/gnl/*` | Schedule, standings, teams, players, ladder, fantasy, rules, about | FastAPI |
 | `/about` | About the Gym | code |
 | `/tools`, `/tools/overlay` | Community tools (editor-managed) and the Gym's overlay | Sanity `tool` + code |
 | `/api/builds`, `/api/builds/<slug>` | Public JSON API for the overlay and anyone else | Sanity |

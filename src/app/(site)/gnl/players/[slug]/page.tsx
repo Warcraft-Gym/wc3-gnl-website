@@ -70,10 +70,10 @@ export default async function PlayerPage({ params }: Params) {
         />
         <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
-            href={team ? `/gnl/teams/${team.slug}` : "/gnl/leaderboard"}
+            href={team ? `/gnl/teams/${team.slug}` : "/gnl/teams"}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> {team ? team.name : "Leaderboard"}
+            <ArrowLeft size={15} /> {team ? team.name : "Teams"}
           </Link>
           <div className="flex flex-wrap items-center gap-5">
             <RaceIcon race={player.race} size={64} />

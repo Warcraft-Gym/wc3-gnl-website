@@ -127,18 +127,6 @@ export type TeamFixture = {
   matches: PlayerMatch[];
 };
 
-export type LeaderboardRow = {
-  /** Stable row identity. Historical players may have no user account, so
-   *  this is the career-stat record id, not the player id. */
-  id: number;
-  rank: number;
-  player: Pick<Player, "id" | "name" | "slug" | "race" | "teamName">;
-  played: number;
-  wins: number;
-  losses: number;
-  winrate: number;
-  mmr?: number;
-};
 
 /** A drafted pick on a fantasy squad. */
 export type FantasyPick = {

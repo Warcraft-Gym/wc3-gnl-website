@@ -48,7 +48,8 @@ The selected event scopes every public table:
 | teams and rosters | `GET /events/{event_id}/teams` | `mapTeams`, `flattenPlayers` |
 | schedule and results | `GET /events/{event_id}/series` | `mapFixtures` |
 | standings | event teams plus event series | `mapStandings` |
-| player leaderboard | the `gnl_stats` row on each event roster player | `mapEventLeaderboard` |
+| player pages | roster entry, `gnl_stats`, `w3c_stats`, `/stats/career`, event series | `mapPlayerProfile` |
+| season ladder | `GET /events/{event_id}/ladder` | `mapLadder` |
 | fantasy table | `GET /events/{event_id}/fantasy/teams` | `mapFantasy` |
 
 Team images use the `icon_url` carried by the backend response. That URL points

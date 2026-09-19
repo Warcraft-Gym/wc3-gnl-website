@@ -9,7 +9,6 @@ import type {
   PlayerMatch,
   MatchStatus,
   StandingRow,
-  LeaderboardRow,
   FantasyEntry,
   FantasyPick,
   PlayerProfile,
@@ -432,51 +431,6 @@ export function mapStandings(
 
   rows.sort((a, b) => b.points - a.points || b.mapDiff - a.mapDiff || b.wins - a.wins);
   rows.forEach((r, i) => (r.rank = i + 1));
-  return rows;
-}
-
-/** The selected event's player record, read from its team rosters. */
-export function mapEventLeaderboard(
-  teams: RawTeam[],
-  eventId: number,
-): LeaderboardRow[] {
-  const seen = new Set<number>();
-  const rows = teams.flatMap((team) => {
-    const long = team.long_name || team.name;
-    const roster = team.player_by_season?.[String(eventId)] ?? [];
-    return roster.map((player) => {
-      const stat = player.gnl_stats?.find((row) => row.season_id === eventId);
-      const wins = stat?.wins ?? 0;
-      const losses = stat?.losses ?? 0;
-      const played = stat?.games ?? wins + losses;
-      return {
-        id: player.id,
-        rank: 0,
-        player: {
-          id: player.id,
-          name: player.name,
-          slug: slugify(player.name),
-          race: raceOf(player.race),
-          teamName: long,
-        },
-        played,
-        wins,
-        losses,
-        winrate: played ? Math.round((wins * 100) / played) : 0,
-        mmr: currentMmr(player),
-      };
-    });
-  }).filter((row) => {
-    if (seen.has(row.id)) return false;
-    seen.add(row.id);
-    return true;
-  });
-
-  rows.sort(
-    (a, b) =>
-      b.wins - a.wins || b.winrate - a.winrate || (b.mmr ?? 0) - (a.mmr ?? 0),
-  );
-  rows.forEach((row, index) => (row.rank = index + 1));
   return rows;
 }
 
