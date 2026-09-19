@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, Tv } from "lucide-react";
+import { ArrowLeft, Tv } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { Surface } from "@/components/ui/Surface";
@@ -14,6 +14,7 @@ import { getW3cProfile } from "@/lib/w3c";
 import { MmrChart } from "@/components/league/MmrChart";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { Flag } from "@/components/ui/Flag";
+import { W3cMark } from "@/components/ui/W3cMark";
 import { W3C_HEROES } from "@/lib/w3c-heroes";
 import type { VsRaceRecord } from "@/lib/w3c";
 import { cn, raceOf } from "@/lib/utils";
@@ -183,8 +184,8 @@ export default async function PlayerPage({ params }: Params) {
                   </span>
                 ) : null}
                 {w3cUrl ? (
-                  <a href={w3cUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-gold hover:underline">
-                    {player.battleTag} <ExternalLink size={11} />
+                  <a href={w3cUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-gold hover:underline">
+                    <W3cMark size={14} /> {player.battleTag}
                   </a>
                 ) : null}
               </p>
@@ -279,8 +280,8 @@ export default async function PlayerPage({ params }: Params) {
                     <MmrChart points={live.timeline} />
                   </div>
                 ) : null}
-                <p className="mt-2 text-xs text-faint">
-                  Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
+                <p className="mt-2 flex items-center gap-1.5 text-xs text-faint">
+                  <W3cMark size={12} className="opacity-70" /> Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
                 </p>
               </section>
             ) : null}
@@ -381,8 +382,8 @@ export default async function PlayerPage({ params }: Params) {
               <section>
                 <div className="mb-4 flex items-baseline justify-between gap-3">
                   <h2 className="font-display text-xl font-bold uppercase">Recent ladder games</h2>
-                  <a href={live.profileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-xs uppercase tracking-wide text-muted hover:text-gold">
-                    All games on W3Champions <ExternalLink size={11} />
+                  <a href={live.profileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted hover:text-gold">
+                    <W3cMark size={13} /> All games on W3Champions
                   </a>
                 </div>
                 <Surface className="divide-y divide-line/60">
@@ -400,9 +401,9 @@ export default async function PlayerPage({ params }: Params) {
                             href={`https://w3champions.com/player/${encodeURIComponent(m.opponent.battleTag)}`}
                             target="_blank"
                             rel="noreferrer"
-                            className="truncate text-fg hover:text-gold"
+                            className="inline-flex min-w-0 items-center gap-1 truncate text-fg hover:text-gold"
                           >
-                            {m.opponent.name}
+                            {m.opponent.name} <W3cMark size={11} className="opacity-70" />
                           </a>
                           <span className="tnum text-xs text-faint">{m.opponent.mmr}</span>
                         </span>
@@ -414,7 +415,7 @@ export default async function PlayerPage({ params }: Params) {
                           className="block truncate text-xs text-faint transition-colors hover:text-gold"
                         >
                           {m.map} <span>·</span> {dur(m.durationSeconds)} <span>·</span> {fmtDate.format(new Date(m.startedAt))}
-                          <ExternalLink size={10} className="ml-1 inline-block align-[-1px]" />
+                          <W3cMark size={10} className="ml-1 opacity-70" />
                         </a>
                       </span>
                       <span className={cn("tnum w-9 shrink-0 text-right font-mono text-xs", m.mmrGain >= 0 ? "text-win" : "text-loss")}>
