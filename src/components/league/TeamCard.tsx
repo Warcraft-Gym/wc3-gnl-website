@@ -22,12 +22,9 @@ const RACE_LABEL: Record<Race, string> = { human: "Human", orc: "Orc", nightelf:
 export function TeamCard({ team, standing }: { team: Team; standing?: StandingRow }) {
   const rated = team.players.filter((p) => p.mmr);
   const avgMmr = rated.length ? Math.round(rated.reduce((n, p) => n + (p.mmr ?? 0), 0) / rated.length) : undefined;
-  // Captains lead the list (whether or not they play), then the roster by MMR.
-  const playingCaptainIds = new Set(team.players.filter((p) => p.isCaptain).map((p) => p.id));
-  const nonPlayingCaptains = team.captains.filter((c) => !playingCaptainIds.has(c.id));
-  const roster = [...team.players].sort(
-    (a, b) => Number(b.isCaptain) - Number(a.isCaptain) || (b.mmr ?? 0) - (a.mmr ?? 0),
-  );
+  // Captains are listed under the team name; the roster is players only,
+  // strongest first, with playing captains marked by the crown.
+  const roster = [...team.players].sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0));
   const races = RACE_ORDER.map((r) => ({ race: r, n: team.players.filter((p) => raceOf(p.race) === r).length })).filter((x) => x.n);
 
   return (
@@ -40,10 +37,16 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
             <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
           </h3>
           {team.captains.length ? (
-            <p className="mt-1 flex items-center gap-1.5 text-xs text-muted">
-              <Crown size={12} className="shrink-0 text-gold" />
-              <span className="truncate">{team.captains.map((c) => c.name).join(" & ")}</span>
-            </p>
+            <ul className="mt-1.5 space-y-1">
+              {team.captains.map((c) => (
+                <li key={c.id} className="flex items-center gap-1.5 text-xs text-muted">
+                  <Crown size={12} className="shrink-0 text-gold" />
+                  <RaceBadge race={raceOf(c.race)} showLabel={false} />
+                  <Flag code={c.country} className="shrink-0" />
+                  <span className="truncate text-fg">{c.name}</span>
+                </li>
+              ))}
+            </ul>
           ) : null}
         </div>
       </Link>
@@ -103,19 +106,8 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
         </div>
       ) : null}
 
-      {/* Captains first, then the roster strongest first */}
+      {/* Roster, strongest first */}
       <ul className="mt-4 grid gap-x-6 gap-y-1.5 border-t border-line/60 pt-4 sm:grid-cols-2">
-        {nonPlayingCaptains.map((c) => (
-          <li key={`captain-${c.id}`} className="flex items-center justify-between gap-2 text-sm">
-            <span className="flex min-w-0 items-center gap-1.5 text-fg">
-              <RaceBadge race={raceOf(c.race)} showLabel={false} />
-              <Flag code={c.country} className="shrink-0 text-xs" />
-              <span className="truncate">{c.name}</span>
-              <Crown size={11} className="shrink-0 text-gold" />
-            </span>
-            <span className="shrink-0 font-mono text-[0.58rem] uppercase tracking-wide text-faint">Captain</span>
-          </li>
-        ))}
         {roster.map((p) => (
           <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-1.5 text-muted">
