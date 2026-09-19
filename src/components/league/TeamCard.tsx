@@ -43,7 +43,9 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
                   <Crown size={12} className="shrink-0 text-gold" />
                   <RaceBadge race={raceOf(c.race)} showLabel={false} />
                   <Flag code={c.country} className="shrink-0" />
-                  <span className="truncate text-fg">{c.name}</span>
+                  <Link href={`/gnl/players/${c.slug}`} className="truncate text-fg transition-colors hover:text-gold">
+                    {c.name}
+                  </Link>
                 </li>
               ))}
             </ul>

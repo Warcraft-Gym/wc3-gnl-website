@@ -49,7 +49,7 @@ export default async function PlayerPage({ params }: Params) {
   const { slug } = await params;
   const [profile, season] = await Promise.all([getPlayerProfile(slug), getActiveSeason()]);
   if (!profile) notFound();
-  const { player, team, isCaptain, season: rec, w3c, career, series } = profile;
+  const { player, team, isCaptain, captainOnly, season: rec, w3c, career, series } = profile;
   const w3cUrl = player.battleTag
     ? `https://w3champions.com/player/${encodeURIComponent(player.battleTag)}`
     : undefined;
@@ -109,9 +109,18 @@ export default async function PlayerPage({ params }: Params) {
 
       <Container className="py-10">
         {/* Season record + W3C */}
+        {captainOnly ? (
+          <p className="mb-6 border-l-2 border-gold/60 pl-4 text-sm text-muted">
+            Captains {team?.name ?? "the team"} this season without playing in the roster. Ladder and career numbers below are their own.
+          </p>
+        ) : null}
         <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <Stat label={`${season.shortName} record`} value={<>{rec.wins}<span className="text-faint"> - </span>{rec.losses}</>} />
-          <Stat label="Series win rate" value={`${pct(rec.wins, rec.losses)}%`} tone={pct(rec.wins, rec.losses) >= 50 ? "text-win" : "text-loss"} />
+          {captainOnly ? null : (
+            <>
+              <Stat label={`${season.shortName} record`} value={<>{rec.wins}<span className="text-faint"> - </span>{rec.losses}</>} />
+              <Stat label="Series win rate" value={`${pct(rec.wins, rec.losses)}%`} tone={pct(rec.wins, rec.losses) >= 50 ? "text-win" : "text-loss"} />
+            </>
+          )}
           <Stat label="W3C MMR" value={player.mmr ?? "-"} tone="text-gold" />
           <Stat label="Career rating" value={career?.rating ?? "-"} />
         </section>
@@ -171,7 +180,7 @@ export default async function PlayerPage({ params }: Params) {
             ) : null}
           </div>
 
-          <section>
+          <section className={captainOnly && !series.length ? "hidden" : undefined}>
             <h2 className="mb-4 font-display text-xl font-bold uppercase">Series this season</h2>
             {series.length ? (
               <Surface className="divide-y divide-line/60">

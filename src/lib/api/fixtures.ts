@@ -125,7 +125,7 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
       slug,
       tag: TAGS[name] ?? makeTag(name),
       logoUrl: `/team-logos/${slug}.png`,
-      captains: players[0] ? [{ id: players[0].id, name: players[0].name, race: players[0].race, country: players[0].country }] : [],
+      captains: players[0] ? [{ id: players[0].id, name: players[0].name, slug: players[0].slug, race: players[0].race, country: players[0].country }] : [],
       players,
     };
   },

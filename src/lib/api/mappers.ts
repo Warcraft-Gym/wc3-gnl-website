@@ -261,7 +261,7 @@ export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
       slug: slugify(long),
       tag: t.name,
       logoUrl: logoUrl(t),
-      captains: captains.map((c) => ({ id: c.id, name: c.name, race: raceOf(c.race), country: c.country })),
+      captains: captains.map((c) => ({ id: c.id, name: c.name, slug: slugify(c.name), race: raceOf(c.race), country: c.country })),
       players,
     };
   });
@@ -518,10 +518,13 @@ export function mapPlayerProfile(
   const key = String(seasonId);
   for (const t of teams) {
     const roster = t.player_by_season?.[key] ?? [];
-    const raw = roster.find((p) => slugify(p.name) === slug);
-    if (!raw) continue;
-    const long = t.long_name || t.name;
     const captains = t.captains_by_season?.[key] ?? [];
+    // Captains usually are not on the playing roster; they get a page too.
+    const rosterHit = roster.find((p) => slugify(p.name) === slug);
+    const raw = rosterHit ?? captains.find((c) => slugify(c.name) === slug);
+    if (!raw) continue;
+    const captainOnly = !rosterHit;
+    const long = t.long_name || t.name;
     const stat = raw.gnl_stats?.find((r) => r.season_id === seasonId);
     const c = career.find((r) => r.user_id === raw.id);
     const mine = series
@@ -557,6 +560,7 @@ export function mapPlayerProfile(
       player: mapPlayer(raw, t.id, long, captains.some((x) => x.id === raw.id)),
       team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
       isCaptain: captains.some((x) => x.id === raw.id),
+      captainOnly,
       season: {
         games: stat?.games ?? 0,
         wins: stat?.wins ?? 0,

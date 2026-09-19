@@ -42,7 +42,7 @@ export type Team = {
   logoUrl?: string;
   /** Team captains for the season. Captains often are not on the playing
    *  roster, so they are listed separately from `players`. */
-  captains: Pick<Player, "id" | "name" | "race" | "country">[];
+  captains: Pick<Player, "id" | "name" | "slug" | "race" | "country">[];
   players: Player[];
 };
 
@@ -188,6 +188,8 @@ export type PlayerProfile = {
   player: Player;
   team?: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
   isCaptain: boolean;
+  /** True when the person captains the team but is not on its playing roster. */
+  captainOnly: boolean;
   /** This season's GNL record from the roster stats. */
   season: { games: number; wins: number; losses: number; matchupHistory: Race[] };
   /** Current-season W3C rows, one per race, best first. */

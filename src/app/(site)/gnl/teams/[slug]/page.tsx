@@ -99,7 +99,9 @@ export default async function TeamPage({ params }: Params) {
                     <span key={c.id} className="inline-flex items-center gap-1.5 text-fg">
                       {i > 0 ? <span className="text-faint">&amp;</span> : null}
                       <RaceBadge race={raceOf(c.race)} showLabel={false} />
-                      {c.name}
+                      <Link href={`/gnl/players/${c.slug}`} className="transition-colors hover:text-gold">
+                        {c.name}
+                      </Link>
                     </span>
                   ))}
                 </p>
