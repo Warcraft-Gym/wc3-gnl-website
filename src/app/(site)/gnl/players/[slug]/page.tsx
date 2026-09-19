@@ -339,7 +339,7 @@ export default async function PlayerPage({ params }: Params) {
                       <div key={h.season.id} className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-3 p-4">
                         <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
                         <span className="min-w-0">
-                          <Link href={`/gnl/teams/${h.team.slug}`} className="flex items-center gap-2 text-sm text-fg hover:text-gold">
+                          <Link href={`/gnl/teams/${h.team.slug}?season=${h.season.number}`} className="flex items-center gap-2 text-sm text-fg hover:text-gold">
                             <TeamPlate tag={h.team.tag!} logoUrl={h.team.logoUrl} name={h.team.name} size="sm" />
                             <span className="truncate font-display font-bold uppercase">{h.team.name}</span>
                             {h.isCaptain ? <CaptainBadge compact /> : null}
@@ -461,7 +461,7 @@ export default async function PlayerPage({ params }: Params) {
                       <div key={h.season.id}>
                         <p className="mb-2 flex items-baseline gap-2 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-faint">
                           <span className="font-display text-sm font-extrabold text-gold">{h.season.shortName}</span>
-                          <span>{h.team.name}</span>
+                          <Link href={`/gnl/teams/${h.team.slug}?season=${h.season.number}`} className="transition-colors hover:text-gold">{h.team.name}</Link>
                           <span className="tnum ml-auto">{h.record.wins}W {h.record.losses}L</span>
                         </p>
                         <Surface className="divide-y divide-line/60">

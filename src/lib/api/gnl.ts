@@ -1,6 +1,7 @@
 import "server-only";
 
 import { apiGet, withFallback } from "./client";
+import { slugify } from "@/lib/utils";
 import {
   FIXTURE_SEASON,
   FIXTURE_TEAMS,
@@ -50,6 +51,16 @@ import type {
  */
 
 export type DataSource = "live" | "fixture";
+
+export type TeamPageData = {
+  team: Team;
+  /** The season shown. */
+  season: Season;
+  /** Every published season the team took part in, newest first. */
+  seasons: Season[];
+  standing?: StandingRow;
+  fixtures: TeamFixture[];
+};
 
 interface RawLeague {
   id: number;
@@ -168,9 +179,69 @@ export async function getTeams(): Promise<{ teams: Team[]; source: DataSource }>
   return { teams: data, source };
 }
 
-export async function getTeamBySlug(slug: string): Promise<Team | undefined> {
-  const { teams } = await getTeams();
-  return teams.find((t) => t.slug === slug);
+/** Whether a team took part in a season: it had a roster or captains. */
+function teamInSeason(t: RawTeam, seasonId: number): boolean {
+  const key = String(seasonId);
+  return Boolean(t.player_by_season?.[key]?.length || t.captains_by_season?.[key]?.length);
+}
+
+/** A team's page for one of its seasons: the roster, standing and fixtures
+ *  of that season, plus every published season the team took part in
+ *  (newest first) for the switcher. Without `seasonNumber` the newest
+ *  season the team played is shown. Undefined when the slug is unknown. */
+export async function getTeamPage(
+  slug: string,
+  seasonNumber?: number,
+): Promise<TeamPageData | undefined> {
+  const { data } = await withFallback(
+    async () => {
+      const raws = await fetchCompletedSeasonsRaw();
+      const perSeason = await Promise.all(
+        raws.map(async (raw) => ({ raw, teams: await apiGet<RawTeam[]>(`/events/${raw.id}/teams`) })),
+      );
+      const played = perSeason
+        .filter(({ raw, teams }) =>
+          teams.some((t) => slugify(t.long_name || t.name) === slug && teamInSeason(t, raw.id)),
+        )
+        .sort((a, b) => b.raw.id - a.raw.id);
+      if (!played.length) return null;
+      const seasons = played.map(({ raw }) => mapSeason(raw));
+      const pick = seasonNumber != null ? seasons.findIndex((s) => s.number === seasonNumber) : 0;
+      if (pick < 0) return null;
+      const { raw, teams } = played[pick];
+      const series = await apiGet<RawSeries[]>(`/events/${raw.id}/series`);
+      const fixtures = mapFixtures(series);
+      const team = mapTeams(teams, raw.id).find((t) => t.slug === slug);
+      if (!team) return null;
+      return {
+        team,
+        season: seasons[pick],
+        seasons,
+        standing: mapStandings(teams, fixtures, raw.id).find((r) => r.team.id === team.id),
+        fixtures: fixtures
+          .filter((f) => f.home.id === team.id || f.away.id === team.id)
+          .sort((a, b) => a.week - b.week),
+      };
+    },
+    () => fixtureTeamPage(slug, seasonNumber),
+    "getTeamPage",
+  );
+  return data ?? undefined;
+}
+
+/** The fixture-backed team page, for local dev without a backend. */
+function fixtureTeamPage(slug: string, seasonNumber?: number): TeamPageData | null {
+  const team = FIXTURE_TEAMS.find((t) => t.slug === slug);
+  if (!team || (seasonNumber != null && seasonNumber !== FIXTURE_SEASON.number)) return null;
+  return {
+    team,
+    season: FIXTURE_SEASON,
+    seasons: [FIXTURE_SEASON],
+    standing: FIXTURE_STANDINGS.find((r) => r.team.id === team.id),
+    fixtures: FIXTURE_FIXTURES
+      .filter((f) => f.home.id === team.id || f.away.id === team.id)
+      .sort((a, b) => a.week - b.week),
+  };
 }
 
 /** A player's page: roster entry, W3C ladder rows, career stats and their

@@ -10,6 +10,8 @@ export type Season = {
   id: number;
   name: string;
   shortName: string; // e.g. "GNL 18"
+  /** The season number, e.g. 18; used in URLs like ?season=18. */
+  number: number;
   slug: string;
   isActive: boolean;
   currentWeek: number;
@@ -191,7 +193,7 @@ export type GnlRecord = { games: number; wins: number; losses: number; matchupHi
 /** One GNL season from the player's side: the team they were on, their role
  *  and record, and every series they played. */
 export type PlayerSeasonEntry = {
-  season: Pick<Season, "id" | "name" | "shortName">;
+  season: Pick<Season, "id" | "name" | "shortName" | "number">;
   team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
   isCaptain: boolean;
   /** True when the person captained the team without being on its roster. */
@@ -209,7 +211,7 @@ export type PlayerProfile = {
   /** True when the person captains the team but is not on its playing roster. */
   captainOnly: boolean;
   /** The most recent GNL season the player took part in. */
-  latestSeason: Pick<Season, "id" | "name" | "shortName">;
+  latestSeason: Pick<Season, "id" | "name" | "shortName" | "number">;
   /** That season's GNL record from the roster stats. */
   season: GnlRecord;
   /** Every published GNL season the player took part in, newest first. */

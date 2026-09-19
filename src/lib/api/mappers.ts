@@ -162,6 +162,12 @@ export function pickActiveSeason(raw: RawSeason[]): RawSeason {
   )[0];
 }
 
+/** "Season 18" → 18; the event id when the name carries no number. */
+function seasonNumber(s: RawSeason): number {
+  const num = s.name.match(/\d+/)?.[0];
+  return num ? Number(num) : s.id;
+}
+
 /** "Season 18" + league "GNL" → "GNL 18"; otherwise the season name. */
 function shortSeasonName(s: RawSeason): string {
   const num = s.name.match(/\d+/)?.[0];
@@ -182,6 +188,7 @@ export function mapSeason(s: RawSeason): Season {
     id: s.id,
     name: s.name,
     shortName: shortSeasonName(s),
+    number: seasonNumber(s),
     slug: slugify(s.name),
     isActive: s.phase ? !["complete", "finished"].includes(s.phase) : true,
     currentWeek,
@@ -574,7 +581,7 @@ function findPlayerSeason(
     return {
       raw,
       entry: {
-        season: { id: season.id, name: season.name, shortName: season.shortName },
+        season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
         team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
         isCaptain: captains.some((x) => x.id === raw.id),
         captainOnly: !rosterHit,

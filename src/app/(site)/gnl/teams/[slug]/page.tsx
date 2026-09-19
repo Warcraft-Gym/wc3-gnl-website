@@ -8,46 +8,43 @@ import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { FixtureCard } from "@/components/league/FixtureCard";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
-import {
-  getTeams,
-  getTeamBySlug,
-  getStandings,
-  getFixtures,
-} from "@/lib/api/gnl";
+import { SeasonSwitcher } from "@/components/league/SeasonSwitcher";
+import { getTeamPage } from "@/lib/api/gnl";
 import { raceOf } from "@/lib/utils";
 
-type Params = { params: Promise<{ slug: string }> };
+// Reads ?season= and the live backend, so it renders per request like the
+// other league pages.
+export const dynamic = "force-dynamic";
 
-export async function generateStaticParams() {
-  const { teams } = await getTeams();
-  return teams.map((t) => ({ slug: t.slug }));
+type Params = {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ season?: string }>;
+};
+
+/** "?season=17" → 17; anything else means the team's newest season. */
+function parseSeason(raw?: string): number | undefined {
+  const n = Number(raw);
+  return raw && Number.isInteger(n) && n > 0 ? n : undefined;
 }
 
-export async function generateMetadata({ params }: Params): Promise<Metadata> {
-  const { slug } = await params;
-  const team = await getTeamBySlug(slug);
-  if (!team) return { title: "Team" };
+export async function generateMetadata({ params, searchParams }: Params): Promise<Metadata> {
+  const [{ slug }, { season }] = await Promise.all([params, searchParams]);
+  const data = await getTeamPage(slug, parseSeason(season));
+  if (!data) return { title: "Team" };
+  const { team } = data;
   return {
-    title: `${team.name}, GNL team`,
-    description: `${team.name} in the Gym Newbie League: roster, captain, results and upcoming series.`,
+    title: `${team.name}, ${data.season.shortName} team`,
+    description: `${team.name} in the Gym Newbie League ${data.season.shortName}: roster, captain, results and series.`,
+    // One canonical per team: the newest season's page.
     alternates: { canonical: `/gnl/teams/${team.slug}` },
   };
 }
 
-export default async function TeamPage({ params }: Params) {
-  const { slug } = await params;
-  const [team, { rows }, { fixtures }] = await Promise.all([
-    getTeamBySlug(slug),
-    getStandings(),
-    getFixtures(),
-  ]);
-
-  if (!team) notFound();
-
-  const standing = rows.find((r) => r.team.id === team.id);
-  const teamFixtures = fixtures
-    .filter((f) => f.home.id === team.id || f.away.id === team.id)
-    .sort((a, b) => a.week - b.week);
+export default async function TeamPage({ params, searchParams }: Params) {
+  const [{ slug }, { season: seasonParam }] = await Promise.all([params, searchParams]);
+  const data = await getTeamPage(slug, parseSeason(seasonParam));
+  if (!data) notFound();
+  const { team, season, seasons, standing, fixtures: teamFixtures } = data;
 
   return (
     <>
@@ -75,7 +72,8 @@ export default async function TeamPage({ params }: Params) {
               size="lg"
             />
             <div>
-              <h1 className="text-[length:var(--wg-text-display)] font-extrabold">
+              <p className="kicker">{season.shortName}{seasons.length > 1 ? ` · ${seasons.length} seasons` : ""}</p>
+              <h1 className="mt-1 text-[length:var(--wg-text-display)] font-extrabold">
                 {team.name}
               </h1>
               {standing ? (
@@ -87,7 +85,7 @@ export default async function TeamPage({ params }: Params) {
                     </span>
                   </span>
                   <span className="tnum">
-                    {standing.wins}W – {standing.losses}L
+                    {standing.wins}W - {standing.losses}L
                   </span>
                   <span className="tnum">{standing.points} pts</span>
                 </p>
@@ -108,6 +106,11 @@ export default async function TeamPage({ params }: Params) {
               ) : null}
             </div>
           </div>
+          {seasons.length > 1 ? (
+            <div className="mt-8">
+              <SeasonSwitcher seasons={seasons} active={season.number} href={(n) => `/gnl/teams/${team.slug}?season=${n}`} />
+            </div>
+          ) : null}
         </Container>
       </div>
 
@@ -163,7 +166,7 @@ export default async function TeamPage({ params }: Params) {
             </div>
           ) : (
             <p className="border border-dashed border-line px-5 py-8 text-center text-sm text-faint">
-              No fixtures recorded for this team yet.
+              No fixtures recorded for this team in {season.shortName}.
             </p>
           )}
         </section>

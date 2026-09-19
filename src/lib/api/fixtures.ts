@@ -29,6 +29,7 @@ export const FIXTURE_SEASON: Season = {
   id: 18,
   name: "Gym Newbie League, Season 18",
   shortName: "GNL 18",
+  number: 18,
   slug: "gnl-18",
   isActive: true,
   currentWeek: CURRENT_WEEK,
