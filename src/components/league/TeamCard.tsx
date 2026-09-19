@@ -4,6 +4,7 @@ import type { StandingRow, Team } from "@/lib/api/types";
 import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "./VsBadge";
+import { Flag } from "@/components/ui/Flag";
 import { cn, raceOf, type Race } from "@/lib/utils";
 
 const RACE_ORDER: Race[] = ["human", "orc", "nightelf", "undead", "random"];
@@ -103,27 +104,29 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
       ) : null}
 
       {/* Captains first, then the roster strongest first */}
-      <ul className="mt-4 flex flex-col gap-1.5 border-t border-line/60 pt-4">
+      <ul className="mt-4 grid gap-x-6 gap-y-1.5 border-t border-line/60 pt-4 sm:grid-cols-2">
         {nonPlayingCaptains.map((c) => (
           <li key={`captain-${c.id}`} className="flex items-center justify-between gap-2 text-sm">
-            <span className="flex min-w-0 items-center gap-2 text-fg">
+            <span className="flex min-w-0 items-center gap-1.5 text-fg">
               <RaceBadge race={raceOf(c.race)} showLabel={false} />
+              <Flag code={c.country} className="shrink-0 text-xs" />
               <span className="truncate">{c.name}</span>
               <Crown size={11} className="shrink-0 text-gold" />
             </span>
-            <span className="shrink-0 font-mono text-[0.6rem] uppercase tracking-wide text-faint">Captain</span>
+            <span className="shrink-0 font-mono text-[0.58rem] uppercase tracking-wide text-faint">Captain</span>
           </li>
         ))}
         {roster.map((p) => (
           <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
-            <span className="flex min-w-0 items-center gap-2 text-muted">
+            <span className="flex min-w-0 items-center gap-1.5 text-muted">
               <RaceBadge race={raceOf(p.race)} showLabel={false} />
+              <Flag code={p.country} className="shrink-0 text-xs" />
               <Link href={`/gnl/players/${p.slug}`} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
                 {p.name}
               </Link>
               {p.isCaptain ? <Crown size={11} className="shrink-0 text-gold" /> : null}
             </span>
-            <span className="tnum shrink-0 text-xs text-faint" title="W3Champions MMR">
+            <span className="tnum shrink-0 font-mono text-[0.68rem] text-faint" title="W3Champions MMR">
               {p.mmr ?? "-"}
             </span>
           </li>

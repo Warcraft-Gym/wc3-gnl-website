@@ -34,7 +34,7 @@ export default async function TeamsPage() {
       />
       <Container className="py-10">
         <DataSourceNote source={source} />
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 lg:grid-cols-2">
           {ordered.map((t) => (
             <TeamCard key={t.id} team={t} standing={standingOf.get(t.id)} />
           ))}

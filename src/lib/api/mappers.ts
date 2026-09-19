@@ -228,7 +228,8 @@ export function currentMmr(p: RawPlayer): number | undefined {
   return pick?.mmr ?? undefined;
 }
 
-function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain = false): Player {
+function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain = false, seasonId?: number): Player {
+  const stat = seasonId != null ? p.gnl_stats?.find((r) => r.season_id === seasonId) : undefined;
   return {
     id: p.id,
     name: p.name,
@@ -240,6 +241,7 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
     teamId,
     teamName,
     isCaptain,
+    record: stat ? { wins: stat.wins ?? 0, losses: stat.losses ?? 0 } : undefined,
   };
 }
 
@@ -252,7 +254,7 @@ export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
     const captainIds = new Set(captains.map((c) => c.id));
     // Captains who also play come first, then the roster as the backend gives it.
     const players = roster
-      .map((p) => mapPlayer(p, t.id, long, captainIds.has(p.id)))
+      .map((p) => mapPlayer(p, t.id, long, captainIds.has(p.id), seasonId))
       .sort((a, b) => Number(b.isCaptain) - Number(a.isCaptain));
     return {
       id: t.id,

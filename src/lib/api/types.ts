@@ -30,6 +30,8 @@ export type Player = {
   teamId?: number;
   teamName?: string;
   isCaptain?: boolean;
+  /** Series record this season, when the roster carries season stats. */
+  record?: { wins: number; losses: number };
 };
 
 export type Team = {
