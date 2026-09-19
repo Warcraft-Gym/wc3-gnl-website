@@ -125,7 +125,8 @@ the release process and the manual checklist. Tagging `overlay-v<version>`
 builds Windows and macOS installers on GitHub Actions and attaches them to a
 Release; the site's `/tools/overlay` page reads the latest one. Private builds
 can be exported/imported as JSON and submitted to the site from the app — see
-"Private builds" in [`docs/overlay.md`](docs/overlay.md).
+"Private builds" in [`docs/overlay.md`](docs/overlay.md). Build orders can
+also be imported from a Warcraft III replay (`.w3g`) into a private build.
 
 ## Deploy
 

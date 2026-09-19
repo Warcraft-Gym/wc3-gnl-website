@@ -162,6 +162,63 @@ Exported files are plain JSON — safe to keep in a backup folder, a git
 repo, or a shared drive, and safe to open in a text editor to see exactly
 what a build contains before importing it.
 
+## Import a build from a replay
+
+**Import replay** (top bar) turns one of your own `.w3g` replay files into a
+draft private build:
+
+1. Click **Import replay** and pick a `.w3g` file in the native dialog.
+2. Choose which player is "you" — the replay does not record who was sitting
+   at which seat, so a radio list of both players is shown and you pick.
+3. Adjust **Import up to** (default `08:00`) to trim how much of the game is
+   converted into steps, and the **Include upgrades** / **Include items**
+   toggles; a live "N steps" count updates as you change any of them.
+4. Click **Open in editor** — the build editor opens pre-filled with the
+   extracted steps, title, race, and opponent race. Trim/annotate as you
+   would any other build, then **Save**.
+5. The saved build is **PRIVATE**, tagged `replay`, and — like any newly
+   saved build — is auto-selected: it's ready for **Show overlay**
+   immediately, no extra click needed to "use" it in game.
+
+### Where Warcraft III stores replays
+
+- **Windows:** `Documents\Warcraft III\BattleNet\<account number>\Replays\`
+- **macOS:** `~/Library/Application Support/Blizzard/Warcraft III/BattleNet/<account number>/Replays/`,
+  plus an auto-saved copy of the last game at
+  `~/Library/Application Support/Blizzard/Warcraft III/Replay/LastReplay.w3g`.
+  The `Library` folder is hidden in Finder by default — open **Finder → Go**
+  and hold **⌥ (Option)** to reveal the **Library** entry in the menu, or
+  point the file dialog directly at the path above. On macOS, the import
+  dialog must be pointed at that `Application Support/Blizzard` folder — the
+  app can only read replay files under it (see the capability scope below).
+
+Game patches have been reported to clear out the Replays folder — export
+any build you care about (see "Backing up, sharing, and submitting a
+private build" above) rather than relying on the replay file still being
+there later.
+
+### What an import can and cannot know (limitations)
+
+- Steps are *commands*, not outcomes: an order that was immediately
+  cancelled still appears as a step.
+- Supply is estimated from a fixed food-cost table per unit and does not
+  account for units that later died.
+- Buildings re-issued within 2 seconds of each other collapse into a single
+  step.
+- Heroes appear at the moment they were ordered, not when they finish
+  training.
+- Only melee units, buildings, and heroes have icons; non-melee units (e.g.
+  `Npal`, mercenaries) show without an icon.
+- Replays older than patch 1.32 are rejected outright.
+
+### Troubleshooting an import
+
+- **"Not a Warcraft III replay"** — the chosen file isn't a `.w3g` (wrong
+  file picked).
+- **"Unsupported replay version"** — the replay predates patch 1.32.
+- **"Couldn't read this replay"** — the file is corrupt or truncated, e.g.
+  `TempReplay.w3g` left behind by a game that crashed before finishing.
+
 ## Build locally
 
 ```bash
@@ -277,4 +334,10 @@ line as **pass/fail + notes**.
   _record: pass/fail + notes:_
 - [ ] **M-5** — Showing/hiding the overlay (shortcut and button) and
   clicking its buttons does not pause a single-player game.
+  _record: pass/fail + notes:_
+- [ ] **M-6** (macOS now, Windows after release) — Import replay → pick a
+  real replay of your own from your BattleNet Replays folder → choose
+  yourself → adjust the cutoff/toggles if you like → Open in editor → Save
+  → use the saved build in game. Report any unmapped units (a "?" icon) if
+  you see one.
   _record: pass/fail + notes:_
