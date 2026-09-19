@@ -193,3 +193,49 @@ export type PlayerProfile = {
   };
   series: PlayerSeries[];
 };
+
+/** The Gym's season ladder challenge: W3Champions games played during the
+ *  season earn ladder points and achievements for the player's team. */
+export type LadderAchievement = {
+  id: string;
+  name: string;
+  description: string;
+  points: number;
+  achievedAt?: string;
+};
+
+export type LadderPlayer = {
+  id: number;
+  name: string;
+  slug: string;
+  race: Race;
+  points: number;
+  ladderPoints: number;
+  games: number;
+  wins: number;
+  losses: number;
+  mmr: { start: number; min: number; max: number; current: number };
+  vsRace: Partial<Record<Race, { wins: number; losses: number }>>;
+  achievements: LadderAchievement[];
+};
+
+export type LadderTeam = {
+  id: number;
+  name: string;
+  slug: string;
+  tag?: string;
+  logoUrl?: string;
+  points: number;
+  ladderPoints: number;
+  games: number;
+  players: LadderPlayer[];
+};
+
+export type Ladder = {
+  totalGames: number;
+  syncedAt?: string;
+  /** Games per calendar day across the season. */
+  perDay: { date: string; games: number }[];
+  rules: LadderAchievement[];
+  teams: LadderTeam[];
+};

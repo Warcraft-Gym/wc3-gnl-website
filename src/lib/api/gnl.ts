@@ -22,6 +22,8 @@ import {
   mapEventLeaderboard,
   mapFantasy,
   mapPlayerProfile,
+  mapLadder,
+  type RawLadder,
   type RawSeason,
   type RawTeam,
   type RawSeries,
@@ -38,6 +40,7 @@ import type {
   LeaderboardRow,
   FantasyEntry,
   PlayerProfile,
+  Ladder,
 } from "./types";
 
 /**
@@ -256,4 +259,22 @@ export function splitFixtures(fixtures: TeamFixture[]) {
           new Date(a.scheduledAt ?? 0).getTime(),
       ),
   };
+}
+
+/** The season ladder challenge: points, games and achievements per team and
+ *  player, from W3Champions games played during the season. */
+export async function getLadder(): Promise<{ ladder: Ladder | null; source: DataSource }> {
+  const { data, source } = await withFallback(
+    async () => {
+      const s = await fetchActiveSeasonRaw();
+      const [ladder, teams] = await Promise.all([
+        apiGet<RawLadder>(`/events/${s.id}/ladder`, { revalidate: 900 }),
+        apiGet<RawTeam[]>(`/events/${s.id}/teams`),
+      ]);
+      return mapLadder(ladder, teams);
+    },
+    () => null,
+    "getLadder",
+  );
+  return { ladder: data, source };
 }

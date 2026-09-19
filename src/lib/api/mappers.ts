@@ -15,6 +15,10 @@ import type {
   PlayerProfile,
   PlayerSeries,
   W3cRaceStat,
+  Ladder,
+  LadderAchievement,
+  LadderPlayer,
+  LadderTeam,
 } from "./types";
 import { slugify, raceOf, isLive, type Race } from "@/lib/utils";
 
@@ -583,4 +587,98 @@ export function mapPlayerProfile(
     };
   }
   return undefined;
+}
+
+// --- season ladder ---
+interface RawLadderAchievement {
+  id: string;
+  name: string;
+  description: string;
+  points: number;
+  achieved_at?: string | null;
+}
+interface RawLadderPlayer {
+  id: number;
+  name?: string | null;
+  race?: string | null;
+  points: number;
+  ladder_points: number;
+  wins: number;
+  losses: number;
+  games: number;
+  mmr?: { start?: number; min?: number; max?: number; current?: number } | null;
+  vs_race?: Record<string, [number, number]>;
+  achievements?: RawLadderAchievement[];
+}
+interface RawLadderTeam {
+  id: number;
+  name?: string | null;
+  long_name?: string | null;
+  points: number;
+  ladder_points: number;
+  games: number;
+  players?: RawLadderPlayer[];
+}
+export interface RawLadder {
+  season?: { synced_at?: string | null };
+  total_games?: number;
+  per_day?: { d: string; g: number }[];
+  achievement_rules?: RawLadderAchievement[];
+  teams?: RawLadderTeam[];
+}
+
+const toAch = (a: RawLadderAchievement): LadderAchievement => ({
+  id: a.id,
+  name: a.name,
+  description: a.description,
+  points: a.points,
+  achievedAt: a.achieved_at ?? undefined,
+});
+
+export function mapLadder(raw: RawLadder, teams: RawTeam[]): Ladder {
+  const logos = new Map(teams.map((t) => [t.id, logoUrl(t)]));
+  return {
+    totalGames: raw.total_games ?? 0,
+    syncedAt: raw.season?.synced_at ?? undefined,
+    perDay: (raw.per_day ?? []).map((d) => ({ date: d.d, games: d.g })),
+    rules: (raw.achievement_rules ?? []).map(toAch),
+    teams: (raw.teams ?? [])
+      .map<LadderTeam>((t) => {
+        const long = t.long_name || t.name || "";
+        return {
+          id: t.id,
+          name: long,
+          slug: slugify(long),
+          tag: t.name ?? undefined,
+          logoUrl: logos.get(t.id),
+          points: t.points,
+          ladderPoints: t.ladder_points,
+          games: t.games,
+          players: (t.players ?? [])
+            .map<LadderPlayer>((p) => ({
+              id: p.id,
+              name: p.name ?? "",
+              slug: slugify(p.name ?? ""),
+              race: raceOf(p.race),
+              points: p.points,
+              ladderPoints: p.ladder_points,
+              games: p.games,
+              wins: p.wins,
+              losses: p.losses,
+              mmr: {
+                start: p.mmr?.start ?? 0,
+                min: p.mmr?.min ?? 0,
+                max: p.mmr?.max ?? 0,
+                current: p.mmr?.current ?? 0,
+              },
+              vsRace: Object.fromEntries(
+                Object.entries(p.vs_race ?? {}).map(([k, [w, l]]) => [W3C_RACE[k] ?? raceOf(k), { wins: w, losses: l }]),
+              ),
+              achievements: (p.achievements ?? []).map(toAch),
+            }))
+            .sort((a, b) => b.points - a.points),
+        };
+      })
+      .sort((a, b) => b.points - a.points),
+  };
 }
