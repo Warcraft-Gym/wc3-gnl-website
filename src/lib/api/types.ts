@@ -24,10 +24,12 @@ export type Player = {
   slug: string;
   battleTag?: string;
   race: Race;
+  /** Current W3Champions MMR for the player's race. */
   mmr?: number;
   country?: string;
   teamId?: number;
   teamName?: string;
+  isCaptain?: boolean;
 };
 
 export type Team = {
@@ -36,7 +38,9 @@ export type Team = {
   slug: string;
   tag?: string;
   logoUrl?: string;
-  captainId?: number;
+  /** Team captains for the season. Captains often are not on the playing
+   *  roster, so they are listed separately from `players`. */
+  captains: Pick<Player, "id" | "name" | "race" | "country">[];
   players: Player[];
 };
 

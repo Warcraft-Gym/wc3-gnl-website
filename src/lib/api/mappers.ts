@@ -13,7 +13,7 @@ import type {
   FantasyEntry,
   FantasyPick,
 } from "./types";
-import { slugify, raceOf, isLive } from "@/lib/utils";
+import { slugify, raceOf, isLive, type Race } from "@/lib/utils";
 
 /**
  * Maps the GNL FastAPI backend responses to the frontend domain types.
@@ -42,13 +42,24 @@ export interface RawSeason {
   /** Common event phase, e.g. "signups_open" | "running" | "finished". */
   phase?: string;
 }
+export interface RawW3cStat {
+  wc3_season: number;
+  race?: string;
+  mmr?: number | null;
+  games?: number | null;
+  wins?: number | null;
+  losses?: number | null;
+}
 export interface RawPlayer {
   id: number;
   name: string;
   battleTag?: string;
   race?: string;
-  mmr?: number;
+  /** Manually entered MMR; rarely filled. Prefer w3c_stats. */
+  mmr?: number | null;
   country?: string;
+  /** Synced from W3Champions, one row per race per ladder season. */
+  w3c_stats?: RawW3cStat[];
   gnl_stats?: Array<{
     season_id?: number;
     games?: number;
@@ -71,6 +82,7 @@ interface RawSeasonInfo {
 }
 export interface RawTeam extends RawTeamLite {
   player_by_season?: Record<string, RawPlayer[]>;
+  captains_by_season?: Record<string, RawPlayer[]>;
   seasons_info?: RawSeasonInfo[];
 }
 interface RawMatch {
@@ -169,32 +181,60 @@ export function deriveWeeks(s: Season): Week[] {
 }
 
 // --- players / teams ---
-function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string): Player {
+
+/** Race codes W3Champions uses in w3c_stats rows. */
+const W3C_RACE: Record<string, Race> = { HU: "human", OC: "orc", OR: "orc", NE: "nightelf", UD: "undead", RnD: "random", RANDOM: "random" };
+
+/**
+ * The player's current W3Champions MMR: the newest ladder season they have
+ * games in, and within it the row for their GNL race, else their most played
+ * race. Falls back to the manually entered `mmr` when nothing is synced.
+ */
+export function currentMmr(p: RawPlayer): number | undefined {
+  const rows = (p.w3c_stats ?? []).filter((r) => r.mmr != null && (r.games ?? 0) > 0);
+  if (!rows.length) return p.mmr ?? undefined;
+  const latest = Math.max(...rows.map((r) => r.wc3_season));
+  const season = rows.filter((r) => r.wc3_season === latest);
+  const race = raceOf(p.race);
+  const own = season.find((r) => (r.race ? W3C_RACE[r.race] ?? raceOf(r.race) : undefined) === race);
+  const pick = own ?? [...season].sort((a, b) => (b.games ?? 0) - (a.games ?? 0))[0];
+  return pick?.mmr ?? undefined;
+}
+
+function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain = false): Player {
   return {
     id: p.id,
     name: p.name,
     slug: slugify(p.name),
     battleTag: p.battleTag,
     race: raceOf(p.race),
-    mmr: p.mmr,
+    mmr: currentMmr(p),
     country: p.country,
     teamId,
     teamName,
+    isCaptain,
   };
 }
 
 export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
   return raw.map((t) => {
     const long = t.long_name || t.name;
-    const roster = t.player_by_season?.[String(seasonId)] ?? [];
+    const key = String(seasonId);
+    const roster = t.player_by_season?.[key] ?? [];
+    const captains = t.captains_by_season?.[key] ?? [];
+    const captainIds = new Set(captains.map((c) => c.id));
+    // Captains who also play come first, then the roster as the backend gives it.
+    const players = roster
+      .map((p) => mapPlayer(p, t.id, long, captainIds.has(p.id)))
+      .sort((a, b) => Number(b.isCaptain) - Number(a.isCaptain));
     return {
       id: t.id,
       name: long,
       slug: slugify(long),
       tag: t.name,
       logoUrl: logoUrl(t),
-      captainId: roster[0]?.id,
-      players: roster.map((p) => mapPlayer(p, t.id, long)),
+      captains: captains.map((c) => ({ id: c.id, name: c.name, race: raceOf(c.race), country: c.country })),
+      players,
     };
   });
 }
@@ -363,7 +403,7 @@ export function mapEventLeaderboard(
         wins,
         losses,
         winrate: played ? Math.round((wins * 100) / played) : 0,
-        mmr: player.mmr,
+        mmr: currentMmr(player),
       };
     });
   }).filter((row) => {

@@ -117,6 +117,7 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
       country,
       teamId: ti + 1,
       teamName: name,
+      isCaptain: pi === 0,
     }));
     const slug = slugify(name);
     return {
@@ -125,7 +126,7 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
       slug,
       tag: TAGS[name] ?? makeTag(name),
       logoUrl: `/team-logos/${slug}.png`,
-      captainId: players[0]?.id,
+      captains: players[0] ? [{ id: players[0].id, name: players[0].name, race: players[0].race, country: players[0].country }] : [],
       players,
     };
   },

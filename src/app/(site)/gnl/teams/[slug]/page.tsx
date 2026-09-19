@@ -7,6 +7,7 @@ import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { FixtureCard } from "@/components/league/FixtureCard";
+import { CaptainBadge } from "@/components/league/CaptainBadge";
 import {
   getTeams,
   getTeamBySlug,
@@ -91,6 +92,18 @@ export default async function TeamPage({ params }: Params) {
                   <span className="tnum">{standing.points} pts</span>
                 </p>
               ) : null}
+              {team.captains.length ? (
+                <p className="mt-3 flex flex-wrap items-center gap-2 text-sm text-muted">
+                  <CaptainBadge />
+                  {team.captains.map((c, i) => (
+                    <span key={c.id} className="inline-flex items-center gap-1.5 text-fg">
+                      {i > 0 ? <span className="text-faint">&amp;</span> : null}
+                      <RaceBadge race={raceOf(c.race)} showLabel={false} />
+                      {c.name}
+                    </span>
+                  ))}
+                </p>
+              ) : null}
             </div>
           </div>
         </Container>
@@ -105,9 +118,10 @@ export default async function TeamPage({ params }: Params) {
                 key={p.id}
                 className="flex items-center justify-between gap-3 p-4"
               >
-                <div>
-                  <p className="font-display font-bold uppercase text-fg">
+                <div className="min-w-0">
+                  <p className="flex flex-wrap items-center gap-2 font-display font-bold uppercase text-fg">
                     {p.name}
+                    {p.isCaptain ? <CaptainBadge /> : null}
                   </p>
                   <p className="mt-1 flex items-center gap-3 text-xs text-faint">
                     <RaceBadge race={raceOf(p.race)} />
@@ -118,11 +132,16 @@ export default async function TeamPage({ params }: Params) {
                     ) : null}
                   </p>
                 </div>
-                {p.mmr ? (
-                  <span className="tnum font-mono text-sm text-muted">
-                    {p.mmr} MMR
-                  </span>
-                ) : null}
+                <span className="shrink-0 text-right" title="Current W3Champions MMR">
+                  {p.mmr ? (
+                    <>
+                      <span className="tnum block font-mono text-sm text-fg">{p.mmr}</span>
+                      <span className="block font-mono text-[0.6rem] uppercase tracking-[0.16em] text-faint">W3C MMR</span>
+                    </>
+                  ) : (
+                    <span className="font-mono text-xs text-faint">No MMR</span>
+                  )}
+                </span>
               </div>
             ))}
           </Surface>

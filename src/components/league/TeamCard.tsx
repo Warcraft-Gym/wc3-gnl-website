@@ -4,7 +4,8 @@ import type { Team } from "@/lib/api/types";
 import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "./VsBadge";
-import { raceOf } from "@/lib/utils";
+import { cn, raceOf } from "@/lib/utils";
+import { CaptainBadge } from "./CaptainBadge";
 
 export function TeamCard({ team }: { team: Team }) {
   return (
@@ -26,6 +27,15 @@ export function TeamCard({ team }: { team: Team }) {
             </h3>
             <p className="mt-0.5 text-xs text-faint">
               {team.players.length} players
+              {team.captains.length ? (
+                <>
+                  {" · "}
+                  <span className="text-muted">
+                    {team.captains.length > 1 ? "Captains" : "Captain"}{" "}
+                    {team.captains.map((c) => c.name).join(" & ")}
+                  </span>
+                </>
+              ) : null}
             </p>
           </div>
         </div>
@@ -41,13 +51,14 @@ export function TeamCard({ team }: { team: Team }) {
             key={p.id}
             className="flex items-center justify-between gap-2 text-sm"
           >
-            <span className="flex items-center gap-2 truncate text-muted">
+            <span className="flex min-w-0 items-center gap-2 text-muted">
               <RaceBadge race={raceOf(p.race)} showLabel={false} />
-              <span className="truncate">{p.name}</span>
+              <span className={cn("truncate", p.isCaptain && "text-fg")}>{p.name}</span>
+              {p.isCaptain ? <CaptainBadge compact /> : null}
             </span>
-            {p.mmr ? (
-              <span className="tnum text-xs text-faint">{p.mmr}</span>
-            ) : null}
+            <span className="tnum shrink-0 text-xs text-faint" title="W3Champions MMR">
+              {p.mmr ?? "-"}
+            </span>
           </li>
         ))}
       </ul>
