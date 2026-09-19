@@ -207,6 +207,7 @@ export default async function PlayerPage({ params }: Params) {
           src={player.race === "random" ? "/keyart/feature-orc-vs-human.webp" : `/factions/headers/${player.race}.webp`}
           position="center 30%"
           overlay="soft"
+          priority
         />
         <div
           aria-hidden

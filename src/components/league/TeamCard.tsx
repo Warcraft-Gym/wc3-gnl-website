@@ -29,12 +29,21 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
 
   return (
     <Surface interactive as="article" className="group flex flex-col p-5">
-      <Link href={`/gnl/teams/${team.slug}`} className="flex items-start gap-3">
-        <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="lg" />
+      {/* The plate and the name link to the team; the captains link to their
+          own pages, so the header is not one big anchor (anchors cannot nest). */}
+      <div className="flex items-start gap-3">
+        <Link href={`/gnl/teams/${team.slug}`} className="shrink-0" aria-label={team.name}>
+          <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="lg" />
+        </Link>
         <div className="min-w-0 flex-1">
-          <h3 className="flex items-start justify-between gap-2 font-display text-lg font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold">
-            <span className="min-w-0">{team.name}</span>
-            <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
+          <h3 className="font-display text-lg font-bold uppercase leading-tight text-fg">
+            <Link
+              href={`/gnl/teams/${team.slug}`}
+              className="flex items-start justify-between gap-2 transition-colors group-hover:text-gold"
+            >
+              <span className="min-w-0">{team.name}</span>
+              <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
+            </Link>
           </h3>
           {team.captains.length ? (
             <ul className="mt-1.5 space-y-1">
@@ -51,7 +60,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
             </ul>
           ) : null}
         </div>
-      </Link>
+      </div>
 
       {/* Standing + numbers */}
       <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line/60 pt-4">

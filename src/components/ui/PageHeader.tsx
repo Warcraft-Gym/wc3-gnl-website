@@ -33,6 +33,7 @@ export function PageHeader({
         src={background ?? "/keyart/feature-undead-city.webp"}
         position={backgroundPosition ?? "center 40%"}
         overlay="soft"
+        priority
       />
       {/* Centre vignette so the emblem and title read over busy art */}
       <div

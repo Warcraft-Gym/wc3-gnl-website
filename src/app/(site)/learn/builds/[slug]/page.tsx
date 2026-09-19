@@ -89,7 +89,7 @@ export default async function BuildPage({ params }: Params) {
       />
       {/* Masthead: the race showcase runs under the nav bar, like the Learn race pages */}
       <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
-        <KeyArt src={`/factions/headers/${build.race}.webp`} position="center 30%" overlay="soft" />
+        <KeyArt src={`/factions/headers/${build.race}.webp`} position="center 30%" overlay="soft" priority />
         {/* Left-weighted vignette so the title and meta read over the art */}
         <div
           aria-hidden
