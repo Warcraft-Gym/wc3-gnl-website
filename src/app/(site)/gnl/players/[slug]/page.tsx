@@ -32,9 +32,10 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const profile = await getPlayerProfile(slug);
   if (!profile) return { title: "Player" };
   const { player, team } = profile;
+  const about = [player.race ? RACES[player.race].label : null, team?.name].filter(Boolean).join(", ");
   return {
     title: `${player.name}, GNL player`,
-    description: `${player.name} (${RACES[player.race].label}${team ? `, ${team.name}` : ""}) in the Gym Newbie League: record and series in every season, W3Champions MMR and career stats.`,
+    description: `${player.name}${about ? ` (${about})` : ""} in the Gym Newbie League: record and series in every season, W3Champions MMR and career stats.`,
     alternates: { canonical: `/gnl/players/${slug}` },
   };
 }
@@ -179,9 +180,10 @@ export default async function PlayerPage({ params }: Params) {
   const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
   const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   // One definition of the main race for the masthead art, the large icon, the
-  // bold chip, the headline MMR tile and the first line of the chart.
-  const main = mainRace(ladder, player.race);
-  const mainLadder = ladder.find((r) => r.race === main);
+  // bold chip and the first line of the chart. The headline MMR tile falls to
+  // the first ladder row, which is the highest MMR.
+  const main = mainRace(ladder);
+  const mainLadder = ladder.find((r) => r.race === main) ?? ladder[0];
   // One entry per ladder race; a race with no timeline keeps its row and
   // draws no line.
   const mmrLines: MmrLine[] = ladder.map((r) => ({
@@ -213,11 +215,12 @@ export default async function PlayerPage({ params }: Params) {
 
   return (
     <>
-      {/* Masthead: the player's race showcase runs under the nav bar; Random
-          players get the shared scene since there is no Random art */}
+      {/* Masthead: the main race showcase runs under the nav bar. A Random
+          main race and no main race both get the shared scene, because a race
+          scene states a race. */}
       <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
         <KeyArt
-          src={main === "random" ? "/keyart/feature-orc-vs-human.webp" : `/factions/headers/${main}.webp`}
+          src={main && main !== "random" ? `/factions/headers/${main}.webp` : "/keyart/feature-orc-vs-human.webp"}
           position="center 30%"
           overlay="soft"
           priority
@@ -237,10 +240,13 @@ export default async function PlayerPage({ params }: Params) {
           {/* Identity on the left, the headline numbers as a block on the right */}
           <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
             <div className="flex min-w-0 items-center gap-5 sm:gap-6">
-              <span className="relative shrink-0">
-                <span aria-hidden className="absolute inset-[-20%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-60 blur-xl" />
-                <RaceIcon race={main} size={88} className="relative drop-shadow-[0_10px_20px_rgba(0,0,0,.9)]" />
-              </span>
+              {/* No main race draws no icon, so the page claims no race. */}
+              {main ? (
+                <span className="relative shrink-0">
+                  <span aria-hidden className="absolute inset-[-20%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-60 blur-xl" />
+                  <RaceIcon race={main} size={88} className="relative drop-shadow-[0_10px_20px_rgba(0,0,0,.9)]" />
+                </span>
+              ) : null}
               <div className="min-w-0">
                 <p className="kicker">
                   {captainOnly ? `${latestSeason.shortName} captain` : `${latestSeason.shortName} player`}
@@ -258,9 +264,11 @@ export default async function PlayerPage({ params }: Params) {
                 </h1>
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
                   {/* The signup race is a season fact, so it names its season. */}
-                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
-                    {latestSeason.shortName} ·<RaceBadge race={player.race} />
-                  </span>
+                  {player.race ? (
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+                      {latestSeason.shortName} ·<RaceBadge race={player.race} />
+                    </span>
+                  ) : null}
                   {team ? (
                     <Link href={`/gnl/teams/${team.slug}`} className="inline-flex items-center gap-2 hover:text-gold">
                       <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="sm" />
@@ -296,7 +304,7 @@ export default async function PlayerPage({ params }: Params) {
                 <Stat label={`${gnlSeriesLabel} record`} value={record(allTime.seriesWon, allTime.seriesLost) ?? DASH} />
               ) : null}
               <Stat
-                label={mainLadder ? `W3C MMR · ${RACES[main].label}` : "W3C MMR"}
+                label={mainLadder ? `W3C MMR · ${RACES[mainLadder.race].label}` : "W3C MMR"}
                 value={mainLadder?.mmr ?? player.mmr ?? DASH}
                 tone="text-gold"
               />
@@ -364,7 +372,7 @@ export default async function PlayerPage({ params }: Params) {
                       <div key={h.season.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4">
                         <span className="flex items-center gap-1.5 whitespace-nowrap">
                           {/* The race of that season's signup, beside its season. */}
-                          <RaceIcon race={h.race} size={16} />
+                          {h.race ? <RaceIcon race={h.race} size={16} /> : null}
                           <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
                         </span>
                         <span className="min-w-0">

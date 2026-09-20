@@ -60,13 +60,15 @@ A player is not one race. The league data holds four different race facts, and e
 | Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `PlayerProfile.w3c` and the live ladder rows of the player page: the race MMR chips and the ladder band, whose race rows select the line of the MMR chart |
 | Signup race | `signup_race`: the race of one player in one season. A player may sign up with another race next season. | `Player.race` and `Player.mmr`: the race badge and the MMR of a roster row, always beside their season |
 | Played race | The race a player picked in one series | The series row, beside that series only |
-| Profile race | `race`: one value per player, a legacy field | A fallback only, when a season row holds no signup race |
+| Profile race | `race`: one value per player, a legacy field of the backend | Nowhere. This site does not read it. |
 
 - No surface treats a race as a fixed property of a player. A race always belongs to a ladder season, a league season or a series.
+- A season row with no signup race carries no race: it shows no badge and no icon, and it stands outside the race make-up bar of its team and the count beside it.
 - The player page holds every ladder race with games in the newest W3Champions season that has rows, sorted by MMR from high to low. A roster row holds one race and one MMR, both of the signup race of its season. No surface prints an MMR without the race it belongs to, with one exception: an MMR typed in by hand for a player with no ladder rows.
-- The main race is a display choice, not a data fact. `mainRace()` picks the race with the highest MMR among races with ten or more games. If no race has ten games, it picks the highest MMR of all. With no ladder games, it is the signup race, then the profile race.
-- The main race selects the masthead art and the large icon of the player page, the bold race chip, the headline MMR tile, which names its race, and the first selected line of the MMR chart. It never hides another race.
-- The player page shows one chip per ladder race: icon, MMR and the record. The record is printed, not hidden in a tooltip, so touch and keyboard readers get it too. The headline MMR tile names its race: "W3C MMR · Orc".
+- The main race is a display choice, not a data fact. `mainRace()` picks the race with the highest MMR among ladder races with ten or more games, and answers nothing when no race reaches ten games.
+- The main race selects the masthead art and the large icon of the player page, the bold race chip and the first selected line of the MMR chart. It never hides another race.
+- With no main race the player page is neutral: the shared scene as masthead art, no large race icon, no bold chip. It never picks a scene at random, because a race scene states a race.
+- The player page shows one chip per ladder race: icon, MMR and the record. The record is printed, not hidden in a tooltip, so touch and keyboard readers get it too. The headline MMR tile is the first ladder row, the highest MMR, and names its race: "W3C MMR · Orc".
 - The MMR chart draws one line per ladder race on one MMR axis. See "The MMR chart".
 - A race is an icon first. Every race mark carries the race icon with its name as `alt` and `title`. A race name in text wears a text token, never the race colour.
 - A race colour fills a mark with no text on it: a bar segment, a dot, a stripe. Race colours and result colours never encode data in the same mark set, because orc red sits close to `loss`.
@@ -74,7 +76,7 @@ A player is not one race. The league data holds four different race facts, and e
 
 ## Colour tokens for data
 
-Values are tested on the black ground with the validator. A pair passes from ΔE 8 for a colour-blind reader and from ΔE 15 for full colour vision.
+The maintainers decided on 20 September 2026 that this site takes the data colours of the WC3 Gym app: for data, the app's palette is the reference, and this site uses its dark values, which pass on the black ground. Values are tested on the black ground with the validator. A pair passes from ΔE 8 for a colour-blind reader and from ΔE 15 for full colour vision.
 
 | Token | Value | Job | Tested |
 |---|---|---|---|
@@ -89,7 +91,6 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 | `--wg-live` | unchanged | A live series. It always ships with its dot and the word "Live". | A status colour, never a chart series |
 
 - Win is blue, not green. A reader with red-green colour blindness cannot rely on green against red, and blue against a warm red holds for every reader. The app made the same choice, and both sites mean the same thing by blue.
-- The values are the dark theme values of the app. They hold on black, so the two sites share one set of data colours on dark grounds.
 - Text never wears a data colour, with two exceptions where the text is the mark: a result score or a signed change, and a count under a W or L column title.
 - Gold is the brand. Gold never means "won" on a page that has a subject.
 
@@ -111,7 +112,7 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 The chart is the right side of the "W3Champions ladder" band, one full-width band of the player page after the Gym Newbie League content and before "Recent ladder games" and "Heroes".
 
 - The band holds the race rows on the left, about a third of the width, and the plot on the right, about two thirds and about 320 px tall. Under 900 px the rows stack above a full-width plot about 260 px tall.
-- **The rows are the selector.** Each ladder race is one `<button>` with `aria-pressed`: icon, race name, league and rank, "Ladder games" record and MMR. There is no separate button row. The main race is selected first.
+- **The rows are the selector.** Each ladder race is one `<button>` with `aria-pressed`: icon, race name, league and rank, "Ladder games" record and MMR. There is no separate button row. The main race is selected first, and with no main race the first row, which holds the highest MMR.
 - A race with fewer than two timeline points keeps its row, is not pressable, and says "Too few games for a line" in visible text, never in a `title`.
 - Pointing at a row lights its line; pointing at a line lights its row. A quiet line rises to the full text colour at 2 px, and its gutter label with it.
 - One line per ladder race, all on one linear MMR axis, with a tick every 100 MMR or every 200 MMR when the range is wide, and a date axis with the first and last day.
@@ -144,7 +145,6 @@ The chart is the right side of the "W3Champions ladder" band, one full-width ban
 
 ## Open questions
 
-- The data colours are a proposal. The values above align the two sites on dark grounds. The alternative keeps green for a win and moves only the race colours away from `win` and `loss`. The measured cost of the alternative: the old pair passes the colour-blind check by lightness alone (ΔE 14.7), and old undead green and old orc red sit on top of `win` and `loss` (ΔE under 3).
 - `--wg-arcane`, the blue of the cast and VOD chips, sits near `win`. It is a control colour and never a mark, so the two do not meet in one mark set. A later pass can move it.
 
 ## Known gaps

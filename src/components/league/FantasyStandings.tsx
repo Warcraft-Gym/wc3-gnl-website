@@ -40,7 +40,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
           {entry.captain ? (
             <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-[0.68rem] uppercase tracking-wide text-faint">
               <Star size={11} className="shrink-0 fill-gold text-gold" />
-              <RaceIcon race={raceOf(entry.captain.race)} size={13} />
+              {entry.captain.race ? <RaceIcon race={entry.captain.race} size={13} /> : null}
               <span className="truncate normal-case text-muted">
                 {entry.captain.name}
               </span>
@@ -132,7 +132,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
                       : "border-line bg-surface/40",
                   )}
                 >
-                  <RaceIcon race={raceOf(p.race)} size={18} />
+                  {p.race ? <RaceIcon race={p.race} size={18} /> : null}
                   <span className="truncate text-sm font-medium text-fg">
                     {p.name}
                   </span>

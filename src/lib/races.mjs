@@ -11,18 +11,14 @@
 const GAMES_FLOOR = 10;
 
 /**
- * The race with the highest MMR among races of at least ten games, and the
- * more played race on an exact tie. With no such race it is the highest MMR of
- * all, and with no ladder games at all it is the race the player signed up
- * with.
+ * The race with the highest MMR among ladder races of at least ten games, and
+ * the more played race on an exact tie. It answers null when no race reaches
+ * ten games, so ladder data alone decides the main race.
  * @param {readonly LadderRace[]} races
- * @param {Race} signupRace
- * @returns {Race}
+ * @returns {Race | null}
  */
-export function mainRace(races, signupRace) {
-  const played = races.filter((r) => r.games > 0);
-  if (!played.length) return signupRace;
-  const rated = played.filter((r) => r.games >= GAMES_FLOOR);
-  const pool = rated.length ? rated : played;
-  return pool.reduce((best, r) => (r.mmr > best.mmr || (r.mmr === best.mmr && r.games > best.games) ? r : best)).race;
+export function mainRace(races) {
+  const rated = races.filter((r) => r.games >= GAMES_FLOOR);
+  if (!rated.length) return null;
+  return rated.reduce((best, r) => (r.mmr > best.mmr || (r.mmr === best.mmr && r.games > best.games) ? r : best)).race;
 }

@@ -50,12 +50,13 @@ function mmrAt(points: W3cTimelinePoint[], time: number): number | null {
 /**
  * The W3Champions ladder band: the race rows on the left select the line on
  * the right. One MMR axis for every race, the selected race in gold, the
- * others quiet with their icon and end value in the right gutter.
+ * others quiet with their icon and end value in the right gutter. With no main
+ * race the first row is the highest MMR, and it is selected first.
  */
-export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
+export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race | null }) {
   const order = [...lines].sort((a, b) => (a.race === main ? -1 : b.race === main ? 1 : b.mmr - a.mmr));
   const drawn = order.filter((l) => l.points.length >= 2);
-  const [selected, setSelected] = useState<Race>(main);
+  const [selected, setSelected] = useState<Race | null>(main);
   const [hovered, setHovered] = useState<Race | null>(null);
   const [at, setAt] = useState<number | null>(null);
   const [width, setWidth] = useState(0);

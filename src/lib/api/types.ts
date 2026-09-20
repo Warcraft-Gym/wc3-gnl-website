@@ -25,9 +25,9 @@ export type Player = {
   name: string;
   slug: string;
   battleTag?: string;
-  /** The race this player signed up with for the season of this read, with the
-   *  legacy profile race as the fallback. It is not the ladder race. */
-  race: Race;
+  /** The race this player signed up with for the season of this read, and null
+   *  when the season row names none. It is not the ladder race. */
+  race: Race | null;
   /** Current W3Champions MMR of the signup race above, so the number and the
    *  race badge of a roster row name the same race. */
   mmr?: number;
@@ -157,7 +157,7 @@ export type FantasyEntry = {
   name: string;
   captain?: { id: number; name: string; race: Player["race"]; country?: string };
   draftedTeam?: { id: number; name: string; tag: string; logoUrl?: string };
-  draftedRace: Player["race"];
+  draftedRace: Race;
   breakdown: FantasyBreakdown;
   total: number;
   roster: FantasyPick[];
@@ -199,7 +199,7 @@ export type PlayerSeasonEntry = {
   season: Pick<Season, "id" | "name" | "shortName" | "number">;
   team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
   /** The race the player signed up with for this season. */
-  race: Race;
+  race: Race | null;
   isCaptain: boolean;
   /** True when the person captained the team without being on its roster. */
   captainOnly: boolean;

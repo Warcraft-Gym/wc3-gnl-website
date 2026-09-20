@@ -62,7 +62,7 @@ export interface RawPlayer {
   id: number;
   name: string;
   battleTag?: string;
-  /** One legacy value per player. `signup_race` of the season row wins. */
+  /** A legacy field of the backend. This site does not read it. */
   race?: string;
   /** The race this player signed up with for the season of this row. */
   signup_race?: string | null;
@@ -127,7 +127,7 @@ export interface RawSeries {
   player2_score: number;
   player1: RawPlayer;
   player2: RawPlayer;
-  /** Race actually played in this series (W3C codes), may differ from the profile race. */
+  /** Race actually played in this series (W3C codes), may differ from the signup race. */
   player1_race?: string | null;
   player2_race?: string | null;
   player1_points?: number | null;
@@ -225,6 +225,13 @@ export function deriveWeeks(s: Season): Week[] {
 /** Race codes W3Champions uses in w3c_stats rows. */
 const W3C_RACE: Record<string, Race> = { HU: "human", OC: "orc", OR: "orc", NE: "nightelf", UD: "undead", RnD: "random", RANDOM: "random" };
 
+/** The race of a signup row. An empty or unknown value is no race at all. */
+function signupRace(value?: string | null): Race | null {
+  const race = raceOf(value);
+  if (race !== "random") return race;
+  return /^(rnd|random)$/i.test((value ?? "").trim()) ? race : null;
+}
+
 /**
  * The player's current W3Champions MMR: the newest ladder season they have
  * games in, and within it the row of their signup race, else their most played
@@ -235,8 +242,8 @@ export function currentMmr(p: RawPlayer): number | undefined {
   if (!rows.length) return p.mmr ?? undefined;
   const latest = Math.max(...rows.map((r) => r.wc3_season));
   const season = rows.filter((r) => r.wc3_season === latest);
-  const race = raceOf(p.signup_race || p.race);
-  const own = season.find((r) => (r.race ? W3C_RACE[r.race] ?? raceOf(r.race) : undefined) === race);
+  const race = signupRace(p.signup_race);
+  const own = race ? season.find((r) => (r.race ? W3C_RACE[r.race] ?? raceOf(r.race) : undefined) === race) : undefined;
   const pick = own ?? [...season].sort((a, b) => (b.games ?? 0) - (a.games ?? 0))[0];
   return pick?.mmr ?? p.mmr ?? undefined;
 }
@@ -248,7 +255,7 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
     name: p.name,
     slug: slugify(p.name),
     battleTag: p.battleTag,
-    race: raceOf(p.signup_race || p.race),
+    race: signupRace(p.signup_race),
     mmr: currentMmr(p),
     country: p.country,
     teamId,
@@ -275,7 +282,14 @@ export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
       slug: slugify(long),
       tag: t.name,
       logoUrl: logoUrl(t),
-      captains: captains.map((c) => ({ id: c.id, name: c.name, slug: slugify(c.name), race: raceOf(c.race), country: c.country })),
+      // A captain row carries no signup race, so a playing captain takes the one of their roster row.
+      captains: captains.map((c) => ({
+        id: c.id,
+        name: c.name,
+        slug: slugify(c.name),
+        race: signupRace(c.signup_race ?? roster.find((p) => p.id === c.id)?.signup_race),
+        country: c.country,
+      })),
       players,
     };
   });
@@ -306,14 +320,14 @@ function toPlayerMatch(s: RawSeries): PlayerMatch {
     home: {
       playerId: s.player1?.id,
       playerName: s.player1?.name ?? "TBD",
-      race: raceOf(s.player1_race ?? s.player1?.race),
+      race: raceOf(s.player1_race ?? s.player1?.signup_race),
       score: s.player1_score ?? 0,
       points: s.player1_points ?? undefined,
     },
     away: {
       playerId: s.player2?.id,
       playerName: s.player2?.name ?? "TBD",
-      race: raceOf(s.player2_race ?? s.player2?.race),
+      race: raceOf(s.player2_race ?? s.player2?.signup_race),
       score: s.player2_score ?? 0,
       points: s.player2_points ?? undefined,
     },
@@ -460,7 +474,7 @@ export function mapFantasy(
       const roster: FantasyPick[] = (t.drafted_players ?? []).map((p) => ({
         id: p.id,
         name: p.name,
-        race: raceOf(p.race),
+        race: signupRace(p.signup_race),
         isCaptain: p.id === captainId,
       }));
       const team = t.drafted_team;
@@ -472,7 +486,8 @@ export function mapFantasy(
           ? {
               id: t.captain.id,
               name: t.captain.name,
-              race: raceOf(t.captain.race),
+              // A captain row carries no signup race, so the drafted pick holds it.
+              race: signupRace(t.captain.signup_race) ?? roster.find((p) => p.id === captainId)?.race ?? null,
               country: t.captain.country,
             }
           : undefined,
@@ -545,14 +560,14 @@ function mapPlayerSeries(series: RawSeries[], userId: number): PlayerSeries[] {
         week: s.match?.playday ?? 0,
         scheduledAt: s.date_time,
         status: playerMatchStatus(s),
-        race: myRace ? (W3C_RACE[myRace] ?? raceOf(myRace)) : raceOf(me?.race),
+        race: myRace ? (W3C_RACE[myRace] ?? raceOf(myRace)) : raceOf(me?.signup_race),
         score: home ? s.player1_score : s.player2_score,
         opponentScore: home ? s.player2_score : s.player1_score,
         opponent: {
           id: them?.id ?? 0,
           name: them?.name ?? "TBD",
           slug: slugify(them?.name ?? ""),
-          race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.race),
+          race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.signup_race),
         },
         fixture: {
           homeTeam: s.match?.team1?.long_name || s.match?.team1?.name || "",
@@ -588,7 +603,7 @@ function findPlayerSeason(
       entry: {
         season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
         team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
-        race: raceOf(raw.signup_race || raw.race),
+        race: signupRace(raw.signup_race),
         isCaptain: captains.some((x) => x.id === raw.id),
         captainOnly: !rosterHit,
         record: {
