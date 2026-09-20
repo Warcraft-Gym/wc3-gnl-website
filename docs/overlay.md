@@ -209,11 +209,21 @@ there later.
 
 ### What an import can and cannot know (limitations)
 
-- **Cancels are honoured exactly** — the replay records every queue cancel
-  command, so a unit or hero you cancelled before it finished training does
-  not appear as a step (or shrinks the merged "Train N×" count for that
-  group). The editor shows what you actually ended up with, not what you
-  clicked.
+- **Cancels are honoured exactly, both ways you can issue them.** Clicking a
+  queued unit's icon in the production queue cancels that exact slot. Pressing
+  **Esc** (or clicking the command card's **Cancel** button) works too — the
+  importer tracks what you have selected (including control groups) and
+  resolves the cancel against whichever unit, hero, research/tier-up, or
+  building-under-construction that selection was training, exactly like the
+  in-game Cancel button does. A cancelled unit or hero doesn't appear as a
+  step (or shrinks the merged "Train N×" count for that group); a cancelled
+  building or research/tier-up doesn't appear at all. The editor shows what
+  you actually ended up with, not what you clicked. In rare cases (an
+  ambiguous or empty selection at the moment of the Esc) a cancel can't be
+  resolved and is silently ignored — this doesn't affect anything else in the
+  draft. If you want a second opinion on any import, [wc3.no](https://wc3.no)
+  publishes its own build-order summary for W3Champions matches and is a
+  good cross-check.
 - **Orders the game refused are not recorded.** Warcraft III doesn't log a
   rejection when you spam-click past a full production queue — the replay
   only has the orders you issued. To approximate what actually happened,
@@ -226,9 +236,6 @@ there later.
   still simulated as accepted and appears in the draft. Uncheck **Drop
   orders the game likely rejected** to turn the filter off and see every
   order you issued, rejected or not.
-- **Cancelling a building under construction is not modelled** — only unit,
-  hero, and queued-order cancels are simulated; a cancelled building order
-  still appears as a step.
 - Supply is estimated from a fixed food-cost table per unit and does not
   account for units that later died.
 - Buildings re-issued within 2 seconds of each other collapse into a single
