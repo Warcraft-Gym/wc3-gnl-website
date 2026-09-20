@@ -5,7 +5,9 @@ import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronDown } from "lucide-react";
 import type { LadderTeam } from "@/lib/api/types";
 import { RaceIcon } from "@/components/ui/RaceIcon";
+import { Meter } from "@/components/ui/Meter";
 import { TeamPlate } from "./VsBadge";
+import { record, signed } from "@/lib/figures.mjs";
 import { cn } from "@/lib/utils";
 
 const fmt = new Intl.NumberFormat("en-US");
@@ -38,9 +40,13 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
               <TeamPlate tag={t.tag ?? ""} logoUrl={t.logoUrl} name={t.name} size="md" />
               <div className="min-w-0">
                 <p className="truncate font-display font-bold uppercase text-fg">{t.name}</p>
-                <div className="mt-1.5 h-1.5 w-full max-w-xs overflow-hidden rounded bg-surface-2">
-                  <div className="h-full rounded bg-gold/80" style={{ width: `${(t.points / max) * 100}%` }} />
-                </div>
+                <Meter
+                  value={t.points}
+                  max={max}
+                  hue="bg-gold/80"
+                  label={`${fmt.format(t.points)} ladder points, of ${fmt.format(max)} for the leading team`}
+                  className="mt-1.5 w-full max-w-xs"
+                />
                 <p className="mt-1 text-xs text-faint">
                   {fmt.format(t.games)} games · {t.players.filter((p) => p.games > 0).length} players active
                 </p>
@@ -66,13 +72,12 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                         </span>
                       ) : null}
                     </span>
-                    <span className="tnum text-xs text-faint">{p.wins}W {p.losses}L</span>
+                    <span className="tnum whitespace-nowrap text-xs text-faint">Games {record(p.wins, p.losses) ?? "—"}</span>
                     <span className="tnum text-xs text-faint" title="MMR change over the season">
                       {p.mmr.current}
                       <span className={p.mmr.current - p.mmr.start >= 0 ? "text-win" : "text-loss"}>
                         {" "}
-                        {p.mmr.current - p.mmr.start >= 0 ? "+" : ""}
-                        {p.mmr.current - p.mmr.start}
+                        {signed(p.mmr.current - p.mmr.start)}
                       </span>
                     </span>
                     <span className="tnum w-14 text-right font-display font-bold text-fg">{fmt.format(p.points)}</span>

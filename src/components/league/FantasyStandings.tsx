@@ -1,6 +1,7 @@
 import { ChevronDown, Star } from "lucide-react";
 import type { FantasyEntry, FantasyBreakdown } from "@/lib/api/types";
 import { RaceIcon } from "@/components/ui/RaceIcon";
+import { Meter } from "@/components/ui/Meter";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { cn, raceOf } from "@/lib/utils";
 
@@ -39,7 +40,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
           {entry.captain ? (
             <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-[0.68rem] uppercase tracking-wide text-faint">
               <Star size={11} className="shrink-0 fill-gold text-gold" />
-              <RaceIcon race={raceOf(entry.captain.race)} size={13} />
+              {entry.captain.race ? <RaceIcon race={entry.captain.race} size={13} /> : null}
               <span className="truncate normal-case text-muted">
                 {entry.captain.name}
               </span>
@@ -93,18 +94,18 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
           <ul className="mt-3 space-y-2">
             {BREAKDOWN.map(({ key, label }) => {
               const value = entry.breakdown[key];
-              const pct = entry.total > 0 ? (value / entry.total) * 100 : 0;
               return (
                 <li key={key} className="flex items-center gap-3">
                   <span className="w-16 shrink-0 font-mono text-[0.62rem] uppercase tracking-wide text-muted">
                     {label}
                   </span>
-                  <span className="relative h-2 flex-1 overflow-hidden bg-surface-2">
-                    <span
-                      className="absolute inset-y-0 left-0 bg-gold/70"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </span>
+                  <Meter
+                    value={value}
+                    max={entry.total}
+                    hue="bg-gold/70"
+                    label={`${label}: ${value} of ${entry.total} points`}
+                    className="h-2 flex-1"
+                  />
                   <span className="tnum w-8 shrink-0 text-right font-display text-sm font-bold text-fg">
                     {value}
                   </span>
@@ -131,7 +132,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
                       : "border-line bg-surface/40",
                   )}
                 >
-                  <RaceIcon race={raceOf(p.race)} size={18} />
+                  {p.race ? <RaceIcon race={p.race} size={18} /> : null}
                   <span className="truncate text-sm font-medium text-fg">
                     {p.name}
                   </span>

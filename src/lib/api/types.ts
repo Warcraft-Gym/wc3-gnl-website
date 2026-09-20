@@ -25,8 +25,11 @@ export type Player = {
   name: string;
   slug: string;
   battleTag?: string;
-  race: Race;
-  /** Current W3Champions MMR for the player's race. */
+  /** The race this player signed up with for the season of this read, and null
+   *  when the season row names none. It is not the ladder race. */
+  race: Race | null;
+  /** Current W3Champions MMR of the signup race above, so the number and the
+   *  race badge of a roster row name the same race. */
   mmr?: number;
   country?: string;
   teamId?: number;
@@ -154,7 +157,7 @@ export type FantasyEntry = {
   name: string;
   captain?: { id: number; name: string; race: Player["race"]; country?: string };
   draftedTeam?: { id: number; name: string; tag: string; logoUrl?: string };
-  draftedRace: Player["race"];
+  draftedRace: Race;
   breakdown: FantasyBreakdown;
   total: number;
   roster: FantasyPick[];
@@ -186,15 +189,17 @@ export type PlayerSeries = {
   cast?: MatchCast;
 };
 
-/** A GNL record: series games won and lost, plus the opponent race of each
- *  completed series. */
-export type GnlRecord = { games: number; wins: number; losses: number; matchupHistory: Race[] };
+/** A GNL record. Every figure counts best-of-three series, never the games
+ *  inside them, plus the opponent race of each completed series. */
+export type GnlRecord = { seriesPlayed: number; seriesWon: number; seriesLost: number; matchupHistory: Race[] };
 
 /** One GNL season from the player's side: the team they were on, their role
  *  and record, and every series they played. */
 export type PlayerSeasonEntry = {
   season: Pick<Season, "id" | "name" | "shortName" | "number">;
   team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
+  /** The race the player signed up with for this season. */
+  race: Race | null;
   isCaptain: boolean;
   /** True when the person captained the team without being on its roster. */
   captainOnly: boolean;
@@ -220,7 +225,8 @@ export type PlayerProfile = {
   allTime: GnlRecord;
   /** Current-season W3C rows, one per race, best first. */
   w3c: W3cRaceStat[];
-  /** All-time GNL career, when the player has one. */
+  /** All-time Gym Newbie League career, when the player has one. Series and
+   *  games are two different counts here. */
   career?: {
     rating: number;
     seriesWon: number;

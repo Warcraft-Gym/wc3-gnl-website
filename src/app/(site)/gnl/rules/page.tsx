@@ -22,7 +22,7 @@ const SECTIONS = [
     title: "Scheduling",
     points: [
       "Players set their availability and agree a time through the dashboard.",
-      "Unscheduled games default to the league's standard slot for that week.",
+      "Unscheduled games default to the standard Gym Newbie League slot for that week.",
       "Both players confirm the result; admins only step in for disputes.",
     ],
   },

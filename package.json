@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "test": "node --test src/lib/*.test.mjs",
     "overlay:dev": "pnpm --filter wc3gym-overlay tauri dev",
     "overlay:build": "pnpm --filter wc3gym-overlay tauri build",
     "overlay:check": "pnpm --filter wc3gym-overlay check:config"

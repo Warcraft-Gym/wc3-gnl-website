@@ -39,13 +39,13 @@ export default async function StandingsPage({ searchParams }: Props) {
         <PastSeasonNote season={season} latest={seasons[0]} href="/gnl/standings" />
         <StandingsTable rows={rows} />
         <p className="mt-4 text-xs text-faint">
-          <span className="font-mono uppercase tracking-wide text-muted">P</span> weeks played
+          <span className="font-mono uppercase tracking-wide text-muted">P W D L</span> weekly fixtures played, won, drawn and lost
           <span className="mx-2">·</span>
           <span className="font-mono uppercase tracking-wide text-muted">Form</span> last five fixtures, oldest first
           <span className="mx-2">·</span>
           <span className="font-mono uppercase tracking-wide text-muted">Diff</span> series points scored minus conceded
           <span className="mx-2">·</span>
-          <span className="font-mono uppercase tracking-wide text-muted">Pts</span> league points, 4 for a 2-0 series, 3 for a 2-1, 1 for a 1-2
+          <span className="font-mono uppercase tracking-wide text-muted">Pts</span> Gym Newbie League points, 4 for a 2-0 series, 3 for a 2-1, 1 for a 1-2
         </p>
       </Container>
     </>

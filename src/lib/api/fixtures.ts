@@ -242,13 +242,13 @@ function buildPlayerMatches(
         home: {
           playerId: hp.id,
           playerName: hp.name,
-          race: hp.race,
+          race: hp.race ?? "random",
           score: hScore,
         },
         away: {
           playerId: ap.id,
           playerName: ap.name,
-          race: ap.race,
+          race: ap.race ?? "random",
           score: aScore,
         },
         hasReplays: status === "completed",

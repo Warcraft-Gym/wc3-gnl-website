@@ -77,7 +77,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         {played && (m.home.points != null || m.away.points != null) ? (
           <span
             className="tnum font-mono text-[0.6rem] uppercase tracking-wide text-faint"
-            title="League points earned"
+            title="Gym Newbie League points earned"
           >
             {m.home.points ?? 0} · {m.away.points ?? 0} pts
           </span>
@@ -183,7 +183,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
           )}
           {showScore && homeSeries + awaySeries > 0 ? (
             <span className="tnum font-mono text-[0.62rem] uppercase tracking-widest text-faint" title="Series won">
-              {homeSeries} - {awaySeries} series
+              {homeSeries} : {awaySeries} series
             </span>
           ) : null}
         </div>

@@ -10,8 +10,8 @@ import { FixtureCard } from "@/components/league/FixtureCard";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
 import { SeasonSwitcher } from "@/components/league/SeasonSwitcher";
 import { getTeamPage } from "@/lib/api/gnl";
+import { record } from "@/lib/figures.mjs";
 import { parseSeasonParam as parseSeason, withSeason, type SeasonSearchParams } from "@/lib/api/season-params";
-import { raceOf } from "@/lib/utils";
 
 // Reads ?season= and the live backend, so it renders per request like the
 // other league pages.
@@ -80,7 +80,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                     </span>
                   </span>
                   <span className="tnum">
-                    {standing.wins}W - {standing.losses}L
+                    Fixtures {record(standing.wins, standing.losses, standing.draws) ?? "—"}
                   </span>
                   <span className="tnum">{standing.points} pts</span>
                 </p>
@@ -91,7 +91,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                   {team.captains.map((c, i) => (
                     <span key={c.id} className="inline-flex items-center gap-1.5 text-fg">
                       {i > 0 ? <span className="text-faint">&amp;</span> : null}
-                      <RaceBadge race={raceOf(c.race)} showLabel={false} />
+                      {c.race ? <RaceBadge race={c.race} showLabel={false} /> : null}
                       <Link href={`/gnl/players/${c.slug}`} className="transition-colors hover:text-gold">
                         {c.name}
                       </Link>
@@ -126,7 +126,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                     {p.isCaptain ? <CaptainBadge /> : null}
                   </p>
                   <p className="mt-1 flex items-center gap-3 text-xs text-faint">
-                    <RaceBadge race={raceOf(p.race)} />
+                    {p.race ? <RaceBadge race={p.race} /> : null}
                     {p.country ? (
                       <span className="inline-flex items-center gap-1">
                         <MapPin size={11} /> {p.country}
