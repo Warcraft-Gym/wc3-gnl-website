@@ -35,6 +35,15 @@ export function record(wins, losses, draws) {
 }
 
 /**
+ * A change with its sign, using the real minus sign: "+24", "−18", "+0".
+ * @param {number} n
+ * @returns {string}
+ */
+export function signed(n) {
+  return n < 0 ? `−${Math.abs(n)}` : `+${n}`;
+}
+
+/**
  * A result read from one side: "Won 2 : 1", "Lost 1 : 2", "Drew 1 : 1".
  * @param {number} own
  * @param {number} other

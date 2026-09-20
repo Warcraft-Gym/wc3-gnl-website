@@ -19,7 +19,7 @@ import { Flag } from "@/components/ui/Flag";
 import { W3cMark } from "@/components/ui/W3cMark";
 import { W3C_HEROES } from "@/lib/w3c-heroes";
 import type { VsRaceRecord } from "@/lib/w3c";
-import { record, resultLabel } from "@/lib/figures.mjs";
+import { record, resultLabel, signed } from "@/lib/figures.mjs";
 import { mainRace } from "@/lib/races.mjs";
 import { cn, RACES } from "@/lib/utils";
 import type { MatchStatus, PlayerSeries } from "@/lib/api/types";
@@ -96,8 +96,9 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
         ) : null}
       </div>
       <div
+        role="img"
         title={s.status === "scheduled" ? undefined : resultLabel(s.score, s.opponentScore)}
-        aria-label={s.status === "scheduled" ? undefined : resultLabel(s.score, s.opponentScore)}
+        aria-label={s.status === "scheduled" ? "Not played yet" : resultLabel(s.score, s.opponentScore)}
         className={cn("tnum font-display text-lg font-bold", won ? "text-win" : lost ? "text-loss" : "text-faint")}
       >
         {s.status === "scheduled" ? DASH : `${s.score} : ${s.opponentScore}`}
@@ -166,7 +167,7 @@ export default async function PlayerPage({ params }: Params) {
     : undefined);
   // Every ladder race, best MMR first.
   const ladder = (live?.ladder.length
-    ? live.ladder
+    ? [...live.ladder]
     : w3c.map((r) => ({ race: r.race, mmr: r.mmr, league: "", division: 0, rank: 0, games: r.games, wins: r.wins, losses: r.losses }))
   ).sort((a, b) => b.mmr - a.mmr);
   const ladderSeason = live?.season ?? w3c[0]?.season;
@@ -246,8 +247,7 @@ export default async function PlayerPage({ params }: Params) {
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
                   {/* The signup race is a season fact, so it names its season. */}
                   <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
-                    <RaceIcon race={player.race} size={22} />
-                    {latestSeason.shortName} · {RACES[player.race].label}
+                    {latestSeason.shortName} ·<RaceBadge race={player.race} />
                   </span>
                   {team ? (
                     <Link href={`/gnl/teams/${team.slug}`} className="inline-flex items-center gap-2 hover:text-gold">
@@ -268,12 +268,14 @@ export default async function PlayerPage({ params }: Params) {
                 </p>
                 {/* One chip per ladder race, so no surface reduces the player
                     to one MMR without naming its race. */}
-                <div className="mt-4">
-                  <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">
-                    <W3cMark size={11} className="opacity-70" /> Ladder season {ladderSeason}
-                  </p>
-                  <RaceMmrChips races={ladder} main={main} />
-                </div>
+                {ladder.length ? (
+                  <div className="mt-4">
+                    <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">
+                      <W3cMark size={11} className="opacity-70" /> Ladder season {ladderSeason}
+                    </p>
+                    <RaceMmrChips races={ladder} main={main} />
+                  </div>
+                ) : null}
               </div>
             </div>
 
@@ -398,9 +400,10 @@ export default async function PlayerPage({ params }: Params) {
               </section>
             ) : null}
 
-            {ladder.length ? (
+            {ladder.length || player.battleTag ? (
               <section>
                 <h2 className="mb-4 font-display text-xl font-bold uppercase">W3Champions ladder</h2>
+                {ladder.length ? (
                 <Surface className="divide-y divide-line/60">
                   {ladder.map((r) => (
                     <div key={r.race} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4">
@@ -421,14 +424,19 @@ export default async function PlayerPage({ params }: Params) {
                     </div>
                   ))}
                 </Surface>
-                {mmrLines.length ? (
+                ) : (
+                  <p className="text-sm text-faint">No ladder games this season.</p>
+                )}
+                {mmrLines.some((l) => l.points.length >= 2) ? (
                   <div className="mt-4">
                     <MmrChart lines={mmrLines} main={main} />
                   </div>
                 ) : null}
-                <p className="mt-2 flex items-center gap-1.5 text-xs text-faint">
-                  <W3cMark size={12} className="opacity-70" /> Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
-                </p>
+                {ladderSeason ? (
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-faint">
+                    <W3cMark size={12} className="opacity-70" /> Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
+                  </p>
+                ) : null}
               </section>
             ) : null}
 
@@ -520,8 +528,7 @@ export default async function PlayerPage({ params }: Params) {
                         </a>
                       </span>
                       <span className={cn("tnum w-9 shrink-0 text-right font-mono text-xs", m.mmrGain >= 0 ? "text-win" : "text-loss")}>
-                        {m.mmrGain >= 0 ? "+" : ""}
-                        {m.mmrGain}
+                        {signed(m.mmrGain)}
                       </span>
                     </div>
                   ))}

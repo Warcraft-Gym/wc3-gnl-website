@@ -183,7 +183,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
           )}
           {showScore && homeSeries + awaySeries > 0 ? (
             <span className="tnum font-mono text-[0.62rem] uppercase tracking-widest text-faint" title="Series won">
-              {homeSeries} - {awaySeries} series
+              {homeSeries} : {awaySeries} series
             </span>
           ) : null}
         </div>

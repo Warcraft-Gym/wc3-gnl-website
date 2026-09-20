@@ -1,6 +1,7 @@
 import { SeasonLink as Link } from "./SeasonLink";
 import type { StandingRow } from "@/lib/api/types";
 import { TeamPlate } from "./VsBadge";
+import { signed } from "@/lib/figures.mjs";
 import { cn } from "@/lib/utils";
 
 /** The last five results as pips, oldest to newest. */
@@ -8,7 +9,7 @@ function FormPips({ form }: { form: StandingRow["form"] }) {
   const last = form.slice(-5);
   if (!last.length) return <span className="text-faint">-</span>;
   return (
-    <span className="inline-flex items-center gap-1" aria-label={`Last ${last.length}: ${last.join(", ")}`}>
+    <span className="inline-flex items-center gap-1" role="img" aria-label={`Last ${last.length}: ${last.join(", ")}`}>
       {last.map((r, i) => (
         <span
           key={i}
@@ -115,7 +116,7 @@ export function StandingsTable({
                     row.mapDiff > 0 ? "text-win/80" : row.mapDiff < 0 ? "text-loss/80" : "text-faint",
                   )}
                 >
-                  {row.mapDiff > 0 ? `+${row.mapDiff}` : row.mapDiff}
+                  {signed(row.mapDiff)}
                 </td>
                 <td className={cn("tnum px-4 py-3 text-right font-display text-base font-bold", leader ? "text-gold" : "text-fg")}>
                   {row.points}

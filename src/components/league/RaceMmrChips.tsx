@@ -6,12 +6,12 @@ import { RACES, cn, type Race } from "@/lib/utils";
 /**
  * One chip per ladder race: the race icon, its MMR and its record. The main
  * race is bold. The record is printed, not hidden in a tooltip, so a reader on
- * a touch screen or a keyboard gets it too.
+ * a touch screen or a keyboard gets it too. The caller renders nothing when
+ * the player has no ladder rows.
  */
 type LadderRace = Pick<W3cRaceStat, "race" | "mmr" | "games" | "wins" | "losses">;
 
 export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; main: Race }) {
-  if (!races.length) return <p className="text-sm text-faint">No ladder games this season.</p>;
   return (
     <ul className="flex flex-wrap gap-2">
       {races.map((r) => {

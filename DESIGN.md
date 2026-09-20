@@ -16,7 +16,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 | Piece | File |
 |---|---|
 | Colour tokens | `src/app/globals.css` |
-| `record()`, `rate()`, `resultLabel()` | `src/lib/figures.mjs`, tested by `src/lib/figures.test.mjs` |
+| `record()`, `rate()`, `signed()`, `resultLabel()` | `src/lib/figures.mjs`, tested by `src/lib/figures.test.mjs` |
 | `mainRace()` | `src/lib/races.mjs`, tested by `src/lib/races.test.mjs` |
 | Race names and icon paths | `RACES` in `src/lib/utils.ts` |
 | MMR chart | `src/components/league/MmrChart.tsx` |
@@ -28,7 +28,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 ## Figures
 
 - A record reads `{wins} – {losses}`, with an en dash and one space on each side. From ten played it carries the percent: "19 – 11 (63%)". Under ten it stands alone: "3 – 1". Nothing played prints an em dash. `record()` writes every record on the site.
-- Never write a record as "19/30", "19W 11L", "19-11" or "19W - 11L". A team record with draws reads "6 – 1 – 3" and carries no percent.
+- Never write a record as "19/30", "19W 11L", "19-11" or "19W - 11L". A team record in a league with draws always prints three parts in the order wins, draws, losses: "6 – 1 – 3", and "12 – 0 – 8" with no draws. It carries no percent.
 - One percent per record. A record that carries its percent has no "Win rate" tile or column beside it.
 - A figure names what it counts. A series is a best of three in the league. A game is one game, on the ladder or inside a series. Never use one word for the other. A tile label reads "Series record" or "Ladder games", never "Record".
 - A figure names its scope: this season, all GNL seasons, or a W3Champions ladder season. A ladder figure stands beside the W3Champions mark.
@@ -51,15 +51,15 @@ A player is not one race. The league data holds four different race facts, and e
 
 | Race fact | Source | Where it shows |
 |---|---|---|
-| Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `Player.races`, the race MMR chips, the MMR chart |
-| Signup race | `signup_race`: the race of one player in one season. A player may sign up with another race next season. | `Player.race`, the race badge of a season page, always beside its season |
+| Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `PlayerProfile.w3c` and the live ladder rows of the player page: the race MMR chips, the ladder table, the MMR chart |
+| Signup race | `signup_race`: the race of one player in one season. A player may sign up with another race next season. | `Player.race` and `Player.mmr`: the race badge and the MMR of a roster row, always beside their season |
 | Played race | The race a player picked in one series | The series row, beside that series only |
 | Profile race | `race`: one value per player, a legacy field | A fallback only, when a season row holds no signup race |
 
 - No surface treats a race as a fixed property of a player. A race always belongs to a ladder season, a league season or a series.
-- `Player.races` holds every ladder race with games in the newest W3Champions season that has rows, sorted by MMR from high to low. No surface reduces a player to one MMR without naming the race of that MMR.
+- The player page holds every ladder race with games in the newest W3Champions season that has rows, sorted by MMR from high to low. A roster row holds one race and one MMR, both of the signup race of its season. No surface prints an MMR without the race it belongs to, with one exception: an MMR typed in by hand for a player with no ladder rows.
 - The main race is a display choice, not a data fact. `mainRace()` picks the race with the highest MMR among races with ten or more games. If no race has ten games, it picks the highest MMR of all. With no ladder games, it is the signup race, then the profile race.
-- The main race may select three things only: the masthead art of the player page, which race chip is bold, and which line of the MMR chart is selected first. It never hides another race.
+- The main race selects the masthead art and the large icon of the player page, the bold race chip, the headline MMR tile, which names its race, and the first selected line of the MMR chart. It never hides another race.
 - The player page shows one chip per ladder race: icon, MMR and the record. The record is printed, not hidden in a tooltip, so touch and keyboard readers get it too. The headline MMR tile names its race: "W3C MMR · Orc".
 - The MMR chart draws one line per ladder race on one MMR axis. See "The MMR chart".
 - A race is an icon first. Every race mark carries the race icon with its name as `alt` and `title`. A race name in text wears a text token, never the race colour.
@@ -82,9 +82,9 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 | `--wg-gold` | unchanged | The brand accent, the winner in a neutral result, the selected line of a chart | With `win` and `loss`: ΔE 14.2 colour blind |
 | `--wg-live` | unchanged | A live series. It always ships with its dot and the word "Live". | A status colour, never a chart series |
 
-- Win is blue, not green. A reader with red-green colour blindness cannot rely on green against red, and blue against a warm red holds for every reader. The app made the same choice, and both sites now mean the same thing by blue.
+- Win is blue, not green. A reader with red-green colour blindness cannot rely on green against red, and blue against a warm red holds for every reader. The app made the same choice, and both sites mean the same thing by blue.
 - The values are the dark theme values of the app. They hold on black, so the two sites share one set of data colours on dark grounds.
-- Text never wears a data colour, with one exception: a result score and a signed change, where the text is the mark.
+- Text never wears a data colour, with two exceptions where the text is the mark: a result score or a signed change, and a count under a W or L column title.
 - Gold is the brand. Gold never means "won" on a page that has a subject.
 
 ## Charts, bars and tiles
@@ -111,7 +111,7 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 ## Data flow
 
 - The page reads per-race rows once and passes them down. A component never fetches its own copy.
-- The W3Champions API serves the race rows and one MMR timeline per race. The timelines of all ladder races load in parallel on the server, with the 10 minute cache window of `src/lib/w3c.ts`. That is up to five small reads per player page per window, and none of them touch the league backend.
+- The W3Champions API serves the race rows and one MMR timeline per race. The timelines of all ladder races load in parallel on the server, with the 10 minute cache window of `src/lib/w3c.ts`. That is up to five small reads per player page per window, and none of them touch the league backend. The timelines of five races add about 5 KB to the page payload.
 - League reads keep their 60 second window. A new data mark never adds a league read per row. Ask for one aggregated read instead.
 
 ## Shared with the app
@@ -135,6 +135,6 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 ## Known gaps
 
 - The games-per-day bars of the ladder page draw no y-axis and have no keyboard route.
-- Team cards average one MMR per player, the MMR of the main race.
+- A race button of the MMR chart that has too few points is disabled, and its reason sits in a `title` that the keyboard cannot reach.
 - `--wg-line` at 18% is under the 3:1 floor for a line that separates figures.
 - The smallest figure labels run under 10 px.

@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { W3cTimelinePoint } from "@/lib/w3c";
+import { signed } from "@/lib/figures.mjs";
 import { RACES, cn, type Race } from "@/lib/utils";
 
 /** One ladder race on the chart: its season MMR and its run of points. */
@@ -9,7 +10,8 @@ export type MmrLine = { race: Race; mmr: number; points: W3cTimelinePoint[] };
 
 const H = 220;
 const PAD = { top: 12, right: 44, bottom: 22, left: 40 };
-const DATE_FMT = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
+// UTC, so the server and the browser name the same day.
+const DATE_FMT = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", timeZone: "UTC" });
 
 /** Tick step that keeps the axis readable over a wide range. */
 function tickStep(span: number) {
@@ -28,10 +30,7 @@ function ticksFor(lo: number, hi: number) {
  * draws in gold; the others stay quiet and carry their race icon as a label.
  */
 export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
-  const order = useMemo(
-    () => [...lines].sort((a, b) => (a.race === main ? -1 : b.race === main ? 1 : b.mmr - a.mmr)),
-    [lines, main],
-  );
+  const order = [...lines].sort((a, b) => (a.race === main ? -1 : b.race === main ? 1 : b.mmr - a.mmr));
   const [selected, setSelected] = useState<Race>(main);
   const [at, setAt] = useState<number | null>(null);
   const [width, setWidth] = useState(0);
@@ -47,19 +46,15 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
   }, []);
 
   const drawn = order.filter((l) => l.points.length >= 2);
-  const scale = useMemo(() => {
-    const all = drawn.flatMap((l) => l.points);
-    const times = all.map((p) => new Date(p.date).getTime());
-    const mmrs = all.map((p) => p.mmr);
-    const t0 = Math.min(...times);
-    const t1 = Math.max(...times);
-    const step = tickStep(Math.max(...mmrs) - Math.min(...mmrs));
-    const lo = Math.floor(Math.min(...mmrs) / step) * step;
-    const hi = Math.ceil(Math.max(...mmrs) / step) * step;
-    return { t0, t1, lo, hi: hi > lo ? hi : lo + step };
-  }, [drawn]);
-
   if (!drawn.length) return null;
+
+  const all = drawn.flatMap((l) => l.points);
+  const mmrs = all.map((p) => p.mmr);
+  const step = tickStep(Math.max(...mmrs) - Math.min(...mmrs));
+  const lo = Math.floor(Math.min(...mmrs) / step) * step;
+  const hi = Math.ceil(Math.max(...mmrs) / step) * step;
+  const times = all.map((p) => new Date(p.date).getTime());
+  const scale = { t0: Math.min(...times), t1: Math.max(...times), lo, hi: hi > lo ? hi : lo + step };
 
   const inner = { w: Math.max(120, width - PAD.left - PAD.right), h: H - PAD.top - PAD.bottom };
   const x = (date: string) =>
@@ -95,6 +90,7 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
     else if (e.key === "ArrowLeft") setAt(Math.max(0, here - 1));
     else if (e.key === "Home") setAt(0);
     else if (e.key === "End") setAt(n - 1);
+    else if (e.key === "Escape") setAt(null);
     else return;
     e.preventDefault();
   }
@@ -115,7 +111,7 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
           and no line. */}
       <div className="flex flex-wrap gap-1.5">
         {order.map((l) => {
-          const on = l.race === selected;
+          const on = l.race === active.race;
           const flat = l.points.length < 2;
           return (
             <button
@@ -148,8 +144,7 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
         <span className="tnum font-bold text-gold">{point.mmr}</span>
         <span>on {DATE_FMT.format(new Date(point.date))}</span>
         <span className="tnum">
-          {delta >= 0 ? "+" : "−"}
-          {Math.abs(delta)} since {DATE_FMT.format(new Date(first.date))}
+          {signed(delta)} since {DATE_FMT.format(new Date(first.date))}
         </span>
       </p>
 
@@ -166,6 +161,7 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
         onPointerMove={track}
         onPointerDown={track}
         onPointerLeave={() => setAt(null)}
+        onBlur={() => setAt(null)}
         className="mt-2 block touch-pan-y"
       >
         <defs>

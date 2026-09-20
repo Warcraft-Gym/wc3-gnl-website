@@ -11,7 +11,7 @@ import { DataSourceNote } from "@/components/DataSourceNote";
 import { LadderTeams } from "@/components/league/LadderTeams";
 import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getLadder, getSeason, getSeasons } from "@/lib/api/gnl";
-import { record } from "@/lib/figures.mjs";
+import { record, signed } from "@/lib/figures.mjs";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 
 export const dynamic = "force-dynamic";
@@ -137,8 +137,7 @@ export default async function LadderPage({ searchParams }: Props) {
                           MMR {p.mmr.current}
                           <span className={p.mmr.current - p.mmr.start >= 0 ? "text-win" : "text-loss"}>
                             {" "}
-                            {p.mmr.current - p.mmr.start >= 0 ? "+" : ""}
-                            {p.mmr.current - p.mmr.start}
+                            {signed(p.mmr.current - p.mmr.start)}
                           </span>
                         </p>
                       </div>

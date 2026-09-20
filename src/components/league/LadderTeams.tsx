@@ -7,7 +7,7 @@ import type { LadderTeam } from "@/lib/api/types";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { Meter } from "@/components/ui/Meter";
 import { TeamPlate } from "./VsBadge";
-import { record } from "@/lib/figures.mjs";
+import { record, signed } from "@/lib/figures.mjs";
 import { cn } from "@/lib/utils";
 
 const fmt = new Intl.NumberFormat("en-US");
@@ -77,8 +77,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                       {p.mmr.current}
                       <span className={p.mmr.current - p.mmr.start >= 0 ? "text-win" : "text-loss"}>
                         {" "}
-                        {p.mmr.current - p.mmr.start >= 0 ? "+" : ""}
-                        {p.mmr.current - p.mmr.start}
+                        {signed(p.mmr.current - p.mmr.start)}
                       </span>
                     </span>
                     <span className="tnum w-14 text-right font-display font-bold text-fg">{fmt.format(p.points)}</span>
