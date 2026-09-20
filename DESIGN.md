@@ -18,20 +18,26 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 | Colour tokens | `src/app/globals.css` |
 | `record()`, `rate()`, `signed()`, `resultLabel()` | `src/lib/figures.mjs`, tested by `src/lib/figures.test.mjs` |
 | `mainRace()` | `src/lib/races.mjs`, tested by `src/lib/races.test.mjs` |
+| `vsRaceOfSeason()`, the ladder season split | `src/lib/w3c-vs-race.mjs`, tested by `src/lib/w3c-vs-race.test.mjs` |
 | Race names and icon paths | `RACES` in `src/lib/utils.ts` |
-| MMR chart | `src/components/league/MmrChart.tsx` |
+| Ladder band: the race rows and the MMR chart | `src/components/league/MmrChart.tsx` |
 | Race MMR chips | `src/components/league/RaceMmrChips.tsx` |
 | Meter (one bar with a figure) | `src/components/ui/Meter.tsx` |
 
-`pnpm test` runs the two test files with the test runner of Node.
+`pnpm test` runs the three test files with the test runner of Node.
 
 ## Figures
 
 - A record reads `{wins} – {losses}`, with an en dash and one space on each side. From ten played it carries the percent: "19 – 11 (63%)". Under ten it stands alone: "3 – 1". Nothing played prints an em dash. `record()` writes every record on the site.
 - Never write a record as "19/30", "19W 11L", "19-11" or "19W - 11L". A team record in a league with draws always prints three parts in the order wins, draws, losses: "6 – 1 – 3", and "12 – 0 – 8" with no draws. It carries no percent.
 - One percent per record. A record that carries its percent has no "Win rate" tile or column beside it.
-- A figure names what it counts. A series is a best of three in the league. A game is one game, on the ladder or inside a series. Never use one word for the other. A tile label reads "Series record" or "Ladder games", never "Record".
+- A figure names what it counts. A series is a best of three. A game is one game, on the ladder or inside a series. A fixture is one week of one team against another, and holds several series. Never use one word for another. A tile label reads "Series record" or "Ladder games", never "Record".
+- A record never stands without its unit word, close enough that a crop of the figure still carries it: "Series 1 – 2", "Games 11 – 5 (69%)", "Ladder games 234 – 298 (44%)". A column of records names its unit once, in the head above the column.
+- The backend counts series in the fields it calls games: `gnl_stats.games`, `gnl_stats.wins` and `gnl_stats.losses` are played, won and lost best-of-three series, and `gnl_stats.matchup_history` holds one opponent race per series. Only the `Raw*` types keep those names; the site's own types read `seriesPlayed`, `seriesWon` and `seriesLost`.
+- A team's W, D and L count weekly fixtures, from `mapStandings()`, not the series inside them.
 - A figure names its scope: this season, all GNL seasons, or a W3Champions ladder season. A ladder figure stands beside the W3Champions mark.
+- A ladder count always names its W3Champions season, as "Ladder games · S25". The league stores ladder games from season 23 only, so the site prints no all-time ladder total. With no season the tile shows an em dash.
+- Name the Gym Newbie League in full, or as GNL where the label style is short. Never call it "the league": a league is the general term, and GNL and KOTH are both leagues. The navigation item "League" is the route to the GNL pages and keeps its name.
 - A score is not a record. A series score keeps its colon, "2 : 1", and a points pair is written by hand with no percent.
 - Every figure that sits in a column uses tabular numerals (`.tnum`). Numbers align right in a table.
 
@@ -51,7 +57,7 @@ A player is not one race. The league data holds four different race facts, and e
 
 | Race fact | Source | Where it shows |
 |---|---|---|
-| Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `PlayerProfile.w3c` and the live ladder rows of the player page: the race MMR chips, the ladder table, the MMR chart |
+| Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `PlayerProfile.w3c` and the live ladder rows of the player page: the race MMR chips and the ladder band, whose race rows select the line of the MMR chart |
 | Signup race | `signup_race`: the race of one player in one season. A player may sign up with another race next season. | `Player.race` and `Player.mmr`: the race badge and the MMR of a roster row, always beside their season |
 | Played race | The race a player picked in one series | The series row, beside that series only |
 | Profile race | `race`: one value per player, a legacy field | A fallback only, when a season row holds no signup race |
@@ -96,22 +102,31 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 - Hover, touch and keyboard read the same values. A chart is one keyboard stop, and the arrow keys walk its points. Never rely on the `title` attribute alone, because it shows on neither touch nor keyboard focus.
 - Every chart and bar has `role="img"` and an `aria-label` that states what it shows and its range. A plain `div` with an `aria-label` and no role is not read out.
 - A legend holds only the marks that have no label of their own. Four series or fewer carry a direct label and need no legend box.
-- A meter is one bar in one hue on a neutral track, with its figure beside it. It is never `win` on a `loss` track. A table cell carries the figure alone, with no bar.
+- A win rate never gets a bar. The record carries the percent, and a row of records reads as a column of figures. A meter shows an amount against a maximum, in one hue on a neutral track, with its figure beside it: team ladder points, the fantasy points breakdown. It is never `win` on a `loss` track.
 - A stat tile holds one figure, its label and its scope. A row of tiles never holds two forms of one fact, such as a record and its win rate.
 - An amount scale uses one hue from light to dark. A category uses the fixed race set or the result pair. Never add a colour to tell a fifth series apart. Use small multiples or select one line.
 
 ### The MMR chart
 
+The chart is the right side of the "W3Champions ladder" band, one full-width band of the player page after the Gym Newbie League content and before "Recent ladder games" and "Heroes".
+
+- The band holds the race rows on the left, about a third of the width, and the plot on the right, about two thirds and about 320 px tall. Under 900 px the rows stack above a full-width plot about 260 px tall.
+- **The rows are the selector.** Each ladder race is one `<button>` with `aria-pressed`: icon, race name, league and rank, "Ladder games" record and MMR. There is no separate button row. The main race is selected first.
+- A race with fewer than two timeline points keeps its row, is not pressable, and says "Too few games for a line" in visible text, never in a `title`.
+- Pointing at a row lights its line; pointing at a line lights its row. A quiet line rises to the full text colour at 2 px, and its gutter label with it.
 - One line per ladder race, all on one linear MMR axis, with a tick every 100 MMR or every 200 MMR when the range is wide, and a date axis with the first and last day.
-- The selected race draws in `gold` at full strength, with its area fill, its dots and its end value. Every other race draws as a quiet 1.5 px line in a text token, with the race icon at its end as the direct label.
-- A row of race buttons above the plot selects the line: icon, race name and MMR, sorted by MMR, the main race first. It is a button row, not a dropdown, because five options fit and every option stays visible.
-- The readout names the race, the date and the MMR of the point. A change since the first point keeps its sign.
-- A race with fewer than two points has a button and no line.
+- The selected race draws in `gold` at full strength, last and on top, with its area fill and its end dot. Every other race draws as a quiet 1.5 px line in a text token.
+- Every line carries a transparent 16 px hit path with `cursor: pointer`, so a click or a tap on the line selects that race.
+- No dot on every point. Only the end dot of the selected line and the crosshair dot, each with a 2 px ring in the ground colour.
+- Every line is labelled in a gutter at the right edge of the plot: its race icon and its end MMR, pushed at least 16 px apart, held inside the plot box, and joined to its end point by a faint leader when the line ends before the right edge. No icon sits among the lines.
+- The readout is a fixed row above the plot, so it never covers the crosshair point and never leaves the card at any width. It names the date and every race's MMR on that date, the selected race first, bold, with its signed change since its first point. A race's value is its latest point on or before that date; a race with no point yet is left out.
+- The plot is one keyboard stop. Left and Right walk the dates, Home and End jump to the ends, Up and Down change the selected race, Escape and blur clear the crosshair. The `aria-label` names the races, the selected race and the MMR range.
 
 ## Data flow
 
 - The page reads per-race rows once and passes them down. A component never fetches its own copy.
 - The W3Champions API serves the race rows and one MMR timeline per race. The timelines of all ladder races load in parallel on the server, with the 10 minute cache window of `src/lib/w3c.ts`. That is up to five small reads per player page per window, and none of them touch the league backend. The timelines of five races add about 5 KB to the page payload.
+- The per-race split of the ladder panel is the whole season, from one `player-stats/{tag}/race-on-map-versus-race?season={n}` read of about 49 KB, in the same window and behind the same never-throw wrapper. `vsRaceOfSeason()` keeps the one row the page needs: every race the player picked, over the map "Overall". The 100 match read stays for "Recent ladder games" and the heroes, and never feeds the split. When the season read fails the panel shows its headline record and no per-race rows, because a 100 game sample and a season are different figures.
 - League reads keep their 60 second window. A new data mark never adds a league read per row. Ask for one aggregated read instead.
 
 ## Shared with the app
@@ -135,6 +150,5 @@ Values are tested on the black ground with the validator. A pair passes from ΔE
 ## Known gaps
 
 - The games-per-day bars of the ladder page draw no y-axis and have no keyboard route.
-- A race button of the MMR chart that has too few points is disabled, and its reason sits in a `title` that the keyboard cannot reach.
 - `--wg-line` at 18% is under the 3:1 floor for a line that separates figures.
 - The smallest figure labels run under 10 px.

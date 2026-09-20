@@ -77,7 +77,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         {played && (m.home.points != null || m.away.points != null) ? (
           <span
             className="tnum font-mono text-[0.6rem] uppercase tracking-wide text-faint"
-            title="League points earned"
+            title="Gym Newbie League points earned"
           >
             {m.home.points ?? 0} · {m.away.points ?? 0} pts
           </span>

@@ -81,7 +81,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                     </span>
                   </span>
                   <span className="tnum">
-                    {record(standing.wins, standing.losses, standing.draws) ?? "—"}
+                    Fixtures {record(standing.wins, standing.losses, standing.draws) ?? "—"}
                   </span>
                   <span className="tnum">{standing.points} pts</span>
                 </p>

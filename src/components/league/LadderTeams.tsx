@@ -72,7 +72,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                         </span>
                       ) : null}
                     </span>
-                    <span className="tnum text-xs text-faint">{record(p.wins, p.losses) ?? "—"}</span>
+                    <span className="tnum whitespace-nowrap text-xs text-faint">Games {record(p.wins, p.losses) ?? "—"}</span>
                     <span className="tnum text-xs text-faint" title="MMR change over the season">
                       {p.mmr.current}
                       <span className={p.mmr.current - p.mmr.start >= 0 ? "text-win" : "text-loss"}>

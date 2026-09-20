@@ -189,9 +189,9 @@ export type PlayerSeries = {
   cast?: MatchCast;
 };
 
-/** A GNL record: series games won and lost, plus the opponent race of each
- *  completed series. */
-export type GnlRecord = { games: number; wins: number; losses: number; matchupHistory: Race[] };
+/** A GNL record. Every figure counts best-of-three series, never the games
+ *  inside them, plus the opponent race of each completed series. */
+export type GnlRecord = { seriesPlayed: number; seriesWon: number; seriesLost: number; matchupHistory: Race[] };
 
 /** One GNL season from the player's side: the team they were on, their role
  *  and record, and every series they played. */
@@ -225,7 +225,8 @@ export type PlayerProfile = {
   allTime: GnlRecord;
   /** Current-season W3C rows, one per race, best first. */
   w3c: W3cRaceStat[];
-  /** All-time GNL career, when the player has one. */
+  /** All-time Gym Newbie League career, when the player has one. Series and
+   *  games are two different counts here. */
   career?: {
     rating: number;
     seriesWon: number;

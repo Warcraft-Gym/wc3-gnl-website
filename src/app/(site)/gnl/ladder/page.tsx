@@ -128,7 +128,7 @@ export default async function LadderPage({ searchParams }: Props) {
                         </p>
                         <p className="mt-0.5 flex items-center gap-2 text-xs text-faint">
                           <TeamPlate tag={p.team.tag ?? ""} logoUrl={p.team.logoUrl} name={p.team.name} size="sm" />
-                          {p.team.name} <span>·</span> {p.games} games <span>·</span> {record(p.wins, p.losses) ?? "—"}
+                          {p.team.name} <span>·</span> <span className="tnum">Ladder games {record(p.wins, p.losses) ?? "—"}</span>
                         </p>
                       </div>
                       <div className="text-right">

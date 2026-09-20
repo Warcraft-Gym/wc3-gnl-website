@@ -72,7 +72,8 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
           </dd>
         </div>
         <div>
-          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Series record</dt>
+          {/* Won, drawn and lost weekly fixtures, not the series inside them. */}
+          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Fixtures</dt>
           <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">
             {(standing ? record(standing.wins, standing.losses, standing.draws) : null) ?? "—"}
           </dd>

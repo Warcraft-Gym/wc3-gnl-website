@@ -71,12 +71,14 @@ export interface RawPlayer {
   country?: string;
   /** Synced from W3Champions, one row per race per ladder season. */
   w3c_stats?: RawW3cStat[];
+  /** `games`, `wins` and `losses` count best-of-three series, not games. */
   gnl_stats?: Array<{
     season_id?: number;
     team_id?: number;
     games?: number;
     wins?: number;
     losses?: number;
+    /** The opponent race of each completed series, one entry per series. */
     matchup_history?: string[];
   }>;
 }
@@ -590,9 +592,9 @@ function findPlayerSeason(
         isCaptain: captains.some((x) => x.id === raw.id),
         captainOnly: !rosterHit,
         record: {
-          games: stat?.games ?? 0,
-          wins: stat?.wins ?? 0,
-          losses: stat?.losses ?? 0,
+          seriesPlayed: stat?.games ?? 0,
+          seriesWon: stat?.wins ?? 0,
+          seriesLost: stat?.losses ?? 0,
           matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
         },
         series: mapPlayerSeries(bundle.series, raw.id),
@@ -626,12 +628,12 @@ export function mapPlayerProfile(
   const c = career.find((r) => r.user_id === raw.id);
   const allTime = history.reduce<GnlRecord>(
     (acc, h) => ({
-      games: acc.games + h.record.games,
-      wins: acc.wins + h.record.wins,
-      losses: acc.losses + h.record.losses,
+      seriesPlayed: acc.seriesPlayed + h.record.seriesPlayed,
+      seriesWon: acc.seriesWon + h.record.seriesWon,
+      seriesLost: acc.seriesLost + h.record.seriesLost,
       matchupHistory: [...acc.matchupHistory, ...h.record.matchupHistory],
     }),
-    { games: 0, wins: 0, losses: 0, matchupHistory: [] },
+    { seriesPlayed: 0, seriesWon: 0, seriesLost: 0, matchupHistory: [] },
   );
   return {
     player: mapPlayer(raw, entry.team.id, entry.team.name, entry.isCaptain),
