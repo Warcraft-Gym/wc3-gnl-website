@@ -63,7 +63,10 @@ export interface RawPlayer {
   id: number;
   name: string;
   battleTag?: string;
+  /** One legacy value per player. `signup_race` of the season row wins. */
   race?: string;
+  /** The race this player signed up with for the season of this row. */
+  signup_race?: string | null;
   /** Manually entered MMR; rarely filled. Prefer w3c_stats. */
   mmr?: number | null;
   country?: string;
@@ -229,7 +232,7 @@ const W3C_RACE: Record<string, Race> = { HU: "human", OC: "orc", OR: "orc", NE: 
 export function currentMmr(p: RawPlayer): number | undefined {
   const rows = currentW3cRows(p);
   if (!rows.length) return p.mmr ?? undefined;
-  const main = mainRace(rows, raceOf(p.race));
+  const main = mainRace(rows, raceOf(p.signup_race ?? p.race));
   return rows.find((r) => r.race === main)?.mmr ?? p.mmr ?? undefined;
 }
 
@@ -240,7 +243,7 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
     name: p.name,
     slug: slugify(p.name),
     battleTag: p.battleTag,
-    race: raceOf(p.race),
+    race: raceOf(p.signup_race ?? p.race),
     races: currentW3cRows(p),
     mmr: currentMmr(p),
     country: p.country,
@@ -581,6 +584,7 @@ function findPlayerSeason(
       entry: {
         season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
         team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
+        race: raceOf(raw.signup_race ?? raw.race),
         isCaptain: captains.some((x) => x.id === raw.id),
         captainOnly: !rosterHit,
         record: {

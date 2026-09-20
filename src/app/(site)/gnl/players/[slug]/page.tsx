@@ -21,7 +21,7 @@ import { W3C_HEROES } from "@/lib/w3c-heroes";
 import type { VsRaceRecord } from "@/lib/w3c";
 import { record, resultLabel } from "@/lib/figures.mjs";
 import { mainRace } from "@/lib/races.mjs";
-import { cn, raceOf, RACES } from "@/lib/utils";
+import { cn, RACES } from "@/lib/utils";
 import type { MatchStatus, PlayerSeries } from "@/lib/api/types";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -242,7 +242,11 @@ export default async function PlayerPage({ params }: Params) {
                   {isCaptain && !captainOnly ? <CaptainBadge /> : null}
                 </h1>
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
-                  <RaceBadge race={raceOf(player.race)} />
+                  {/* The signup race is a season fact, so it names its season. */}
+                  <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <RaceIcon race={player.race} size={22} />
+                    {latestSeason.shortName} · {RACES[player.race].label}
+                  </span>
                   {team ? (
                     <Link href={`/gnl/teams/${team.slug}`} className="inline-flex items-center gap-2 hover:text-gold">
                       <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="sm" />
@@ -335,8 +339,12 @@ export default async function PlayerPage({ params }: Params) {
                   {history.map((h) => {
                     const played = h.record.games > 0;
                     return (
-                      <div key={h.season.id} className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto] items-center gap-3 p-4">
-                        <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
+                      <div key={h.season.id} className="grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-3 p-4">
+                        <span className="flex items-center gap-1.5">
+                          {/* The race of that season's signup, beside its season. */}
+                          <RaceIcon race={h.race} size={16} />
+                          <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
+                        </span>
                         <span className="min-w-0">
                           <Link href={`/gnl/teams/${h.team.slug}?season=${h.season.number}`} className="flex items-center gap-2 text-sm text-fg hover:text-gold">
                             <TeamPlate tag={h.team.tag!} logoUrl={h.team.logoUrl} name={h.team.name} size="sm" />

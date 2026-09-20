@@ -25,7 +25,8 @@ export type Player = {
   name: string;
   slug: string;
   battleTag?: string;
-  /** The race the player declared. It is the fallback, not the ladder race. */
+  /** The race this player signed up with for the season of this read, with the
+   *  legacy profile race as the fallback. It is not the ladder race. */
   race: Race;
   /** Every ladder race with games in the newest W3Champions season that has
    *  rows, sorted by MMR from high to low. */
@@ -199,6 +200,8 @@ export type GnlRecord = { games: number; wins: number; losses: number; matchupHi
 export type PlayerSeasonEntry = {
   season: Pick<Season, "id" | "name" | "shortName" | "number">;
   team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
+  /** The race the player signed up with for this season. */
+  race: Race;
   isCaptain: boolean;
   /** True when the person captained the team without being on its roster. */
   captainOnly: boolean;

@@ -47,16 +47,18 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 
 ## Races
 
-A player is not one race. The league data holds three different race facts, and each surface names the one it shows.
+A player is not one race. The league data holds four different race facts, and each surface names the one it shows.
 
 | Race fact | Source | Where it shows |
 |---|---|---|
 | Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `Player.races`, the race MMR chips, the MMR chart |
+| Signup race | `signup_race`: the race of one player in one season. A player may sign up with another race next season. | `Player.race`, the race badge of a season page, always beside its season |
 | Played race | The race a player picked in one series | The series row, beside that series only |
-| Profile race | One value the player declared | The fallback only, when the player has no ladder games |
+| Profile race | `race`: one value per player, a legacy field | A fallback only, when a season row holds no signup race |
 
+- No surface treats a race as a fixed property of a player. A race always belongs to a ladder season, a league season or a series.
 - `Player.races` holds every ladder race with games in the newest W3Champions season that has rows, sorted by MMR from high to low. No surface reduces a player to one MMR without naming the race of that MMR.
-- The main race is a display choice, not a data fact. `mainRace()` picks the race with the highest MMR among races with ten or more games. If no race has ten games, it picks the highest MMR of all. With no ladder games, it is the profile race.
+- The main race is a display choice, not a data fact. `mainRace()` picks the race with the highest MMR among races with ten or more games. If no race has ten games, it picks the highest MMR of all. With no ladder games, it is the signup race, then the profile race.
 - The main race may select three things only: the masthead art of the player page, which race chip is bold, and which line of the MMR chart is selected first. It never hides another race.
 - The player page shows one chip per ladder race: icon, MMR and the record. The record is printed, not hidden in a tooltip, so touch and keyboard readers get it too. The headline MMR tile names its race: "W3C MMR · Orc".
 - The MMR chart draws one line per ladder race on one MMR axis. See "The MMR chart".
