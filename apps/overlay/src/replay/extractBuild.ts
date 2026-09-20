@@ -1,7 +1,7 @@
 import type { EditorFormInput } from "../lib/buildEditorSchema";
 import { describeId } from "./idMap";
 import { FOOD_COST } from "./foodCost";
-import { computeCancelledOrders, filterLikelyRejected, type DroppedInfo } from "./rejectedOrders";
+import { computeCancelledBuildOrResearch, computeCancelledOrders, filterLikelyRejected, type DroppedInfo } from "./rejectedOrders";
 import type {
   ExtractBuildOptions,
   ImportedBuildStep,
@@ -127,12 +127,30 @@ const MAX_MERGE_COUNT = 5;
 function dedupeAndMerge(events: readonly ReplayEvent[], removed: ReadonlySet<ReplayEvent>): MergedStep[] {
   const deduped: ReplayEvent[] = [];
   const lastBuildingMs = new Map<string, number>();
+  const lastHeroIndex = new Map<string, number>();
   for (const event of events) {
     if (event.kind === "cancel") continue; // never itself a step
     if (event.kind === "building") {
       const lastMs = lastBuildingMs.get(event.id);
       if (lastMs !== undefined && event.ms - lastMs <= DEDUPE_WINDOW_MS) continue;
       lastBuildingMs.set(event.id, event.ms);
+    }
+    if (event.kind === "hero") {
+      // F001 (oracle parity): the raw event stream now carries every
+      // hero-training order verbatim, including a redundant re-click on an
+      // already-training hero (see `parseReplay.ts`) — collapsed here, same
+      // 2s reorder window as buildings above, so it never shows up twice.
+      // Prefers whichever of the pair *survived* a cancel, if only one did,
+      // so a genuinely cancelled duplicate can't hide a real one.
+      const lastIndex = lastHeroIndex.get(event.id);
+      if (lastIndex !== undefined) {
+        const lastEvent = deduped[lastIndex]!;
+        if (event.ms - lastEvent.ms <= DEDUPE_WINDOW_MS) {
+          if (removed.has(lastEvent) && !removed.has(event)) deduped[lastIndex] = event;
+          continue;
+        }
+      }
+      lastHeroIndex.set(event.id, deduped.length);
     }
     deduped.push(event);
   }
@@ -247,12 +265,18 @@ export function extractBuild(summary: ReplaySummary, playerId: number, opts: Ext
   const removedOrders = applyCancels ? computeCancelledOrders(filtered, filtered) : new Set<ReplayEvent>();
   const survivingOrders = filtered.filter((e) => (e.kind === "unit" || e.kind === "hero") && !removedOrders.has(e));
 
+  // F001: buildings under construction and research/tier-ups cancelled via
+  // Esc never produce a step at all (unlike a cancelled unit/hero order,
+  // there's no "N ordered, M cancelled" partial count to show) — dropped
+  // from `eventsForMerge` outright, same as a `filterLikelyRejected` drop.
+  const removedBuildOrResearch = applyCancels ? computeCancelledBuildOrResearch(filtered) : new Set<ReplayEvent>();
+
   const { accepted, dropped } = dropLikelyRejected
     ? filterLikelyRejected(survivingOrders, filtered)
     : { accepted: survivingOrders, dropped: EMPTY_DROPPED };
   const rejectedSet = new Set(survivingOrders.filter((order) => !accepted.includes(order)));
 
-  const eventsForMerge = filtered.filter((e) => !rejectedSet.has(e));
+  const eventsForMerge = filtered.filter((e) => !rejectedSet.has(e) && !removedBuildOrResearch.has(e));
   const mergedSteps = dedupeAndMerge(eventsForMerge, removedOrders);
   const droppedMeta = attachDroppedToSteps(mergedSteps, [...rejectedSet]);
 
