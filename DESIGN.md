@@ -149,6 +149,7 @@ The chart is the right side of the "W3Champions ladder" band, one full-width ban
 
 ## Known gaps
 
+- The ladder page shows one race per player, the `race` of each row of the ladder read. The backend fills that field from its legacy profile race, so this page is not decoupled yet. The fix is in the backend: the ladder read sends the signup race of the season.
 - The games-per-day bars of the ladder page draw no y-axis and have no keyboard route.
 - `--wg-line` at 18% is under the 3:1 floor for a line that separates figures.
 - The smallest figure labels run under 10 px.
