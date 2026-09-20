@@ -75,6 +75,18 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
   const point = shown ?? last;
   const delta = point.mmr - first.mmr;
   const dots = inner.w / Math.max(1, active.points.length - 1) >= 10;
+  const quiet = drawn.filter((l) => l.race !== active.race);
+  // Two runs that end on the same day stack their icons, so push them apart.
+  const endLabels = quiet
+    .map((l) => {
+      const end = l.points[l.points.length - 1];
+      return { race: l.race, x: x(end.date), y: y(end.mmr) };
+    })
+    .sort((a, b) => a.y - b.y);
+  endLabels.forEach((l, i) => {
+    const above = endLabels[i - 1];
+    if (above && Math.abs(l.x - above.x) < 20 && l.y < above.y + 18) l.y = above.y + 18;
+  });
 
   function walk(e: React.KeyboardEvent) {
     const n = active.points.length;
@@ -180,19 +192,14 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race }) {
         </text>
 
         {/* The quiet races, each labelled by its own icon */}
-        {drawn
-          .filter((l) => l.race !== active.race)
-          .map((l) => {
-            const end = l.points[l.points.length - 1];
-            return (
-              <g key={l.race}>
-                <path d={path(l.points)} fill="none" stroke="var(--wg-text-faint)" strokeWidth="1.5" strokeOpacity="0.55" strokeLinejoin="round" />
-                <image href={`/factions/${l.race}.png`} x={x(end.date) + 5} y={y(end.mmr) - 8} width="16" height="16" opacity="0.8">
-                  <title>{RACES[l.race].label}</title>
-                </image>
-              </g>
-            );
-          })}
+        {quiet.map((l) => (
+          <path key={l.race} d={path(l.points)} fill="none" stroke="var(--wg-text-faint)" strokeWidth="1.5" strokeOpacity="0.55" strokeLinejoin="round" />
+        ))}
+        {endLabels.map((l) => (
+          <image key={l.race} href={`/factions/${l.race}.png`} x={l.x + 5} y={l.y - 8} width="16" height="16" opacity="0.8">
+            <title>{RACES[l.race].label}</title>
+          </image>
+        ))}
 
         {/* The selected race */}
         <path

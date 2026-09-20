@@ -24,7 +24,7 @@ export function Meter({
     <span
       role="img"
       aria-label={label}
-      className={cn("block h-1.5 overflow-hidden rounded bg-surface-2", className)}
+      className={cn("block h-1.5 overflow-hidden rounded bg-surface-3", className)}
     >
       <span className={cn("block h-full rounded", hue)} style={{ width: `${share}%` }} />
     </span>

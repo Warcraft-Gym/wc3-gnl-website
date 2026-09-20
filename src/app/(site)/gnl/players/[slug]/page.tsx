@@ -134,7 +134,7 @@ function Compare({
       {rows.length ? (
         <ul className="mt-4 space-y-2">
           {rows.map(({ race, rec }) => (
-            <li key={race} className="grid grid-cols-[7rem_minmax(0,1fr)_5rem] items-center gap-3 text-xs">
+            <li key={race} className="grid grid-cols-[6.5rem_minmax(1.5rem,1fr)_auto] items-center gap-3 text-xs">
               <span className="flex items-center gap-1.5 text-muted">
                 <RaceIcon race={race} size={18} /> vs {RACES[race].label}
               </span>
@@ -143,7 +143,7 @@ function Compare({
                 max={rec!.wins + rec!.losses}
                 label={`Won ${rec!.wins} of ${rec!.wins + rec!.losses} against ${RACES[race].label}`}
               />
-              <span className="tnum text-right text-muted">{record(rec!.wins, rec!.losses) ?? DASH}</span>
+              <span className="tnum whitespace-nowrap text-right text-muted">{record(rec!.wins, rec!.losses) ?? DASH}</span>
             </li>
           ))}
         </ul>
@@ -164,9 +164,11 @@ export default async function PlayerPage({ params }: Params) {
   const w3cUrl = live?.profileUrl ?? (player.battleTag
     ? `https://w3champions.com/player/${encodeURIComponent(player.battleTag)}`
     : undefined);
-  const ladder = live?.ladder.length
+  // Every ladder race, best MMR first.
+  const ladder = (live?.ladder.length
     ? live.ladder
-    : w3c.map((r) => ({ race: r.race, mmr: r.mmr, league: "", division: 0, rank: 0, games: r.games, wins: r.wins, losses: r.losses }));
+    : w3c.map((r) => ({ race: r.race, mmr: r.mmr, league: "", division: 0, rank: 0, games: r.games, wins: r.wins, losses: r.losses }))
+  ).sort((a, b) => b.mmr - a.mmr);
   const ladderSeason = live?.season ?? w3c[0]?.season;
   const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
   const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
@@ -339,8 +341,8 @@ export default async function PlayerPage({ params }: Params) {
                   {history.map((h) => {
                     const played = h.record.games > 0;
                     return (
-                      <div key={h.season.id} className="grid grid-cols-[4.5rem_minmax(0,1fr)_auto] items-center gap-3 p-4">
-                        <span className="flex items-center gap-1.5">
+                      <div key={h.season.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4">
+                        <span className="flex items-center gap-1.5 whitespace-nowrap">
                           {/* The race of that season's signup, beside its season. */}
                           <RaceIcon race={h.race} size={16} />
                           <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
@@ -380,7 +382,7 @@ export default async function PlayerPage({ params }: Params) {
             {career && (career.seasonsPlayed > 0 || career.rating > 0) ? (
               <section>
                 <h2 className="mb-4 font-display text-xl font-bold uppercase">GNL career</h2>
-                <Surface className="grid grid-cols-2 divide-x divide-y divide-line/60 sm:grid-cols-4">
+                <Surface className="grid grid-cols-2 divide-x divide-y divide-line/60">
                   {[
                     ["Seasons", career.seasonsPlayed],
                     ["Rating", career.rating],
