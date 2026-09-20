@@ -235,7 +235,12 @@ there later.
   couldn't actually afford, but that still had a free production slot, is
   still simulated as accepted and appears in the draft. Uncheck **Drop
   orders the game likely rejected** to turn the filter off and see every
-  order you issued, rejected or not.
+  order you issued, rejected or not. One consequence of gold not being
+  modelled: pressing Esc on a building whose last order the game had
+  already silently refused for lack of gold still resolves to a cancel of
+  that (never-actually-queued) order — harmless, since the unit never
+  existed, but it is why an import's "cancelled" count can run slightly
+  higher than [wc3.no](https://wc3.no)'s.
 - Supply is estimated from a fixed food-cost table per unit and does not
   account for units that later died.
 - Buildings re-issued within 2 seconds of each other collapse into a single
