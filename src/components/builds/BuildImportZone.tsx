@@ -76,13 +76,17 @@ export function BuildImportZone({
   };
 
   const takeReplay = (replay: ReplayImport) => {
-    if (replay.players.length === 1) {
-      const p = replay.players[0];
+    // A Computer player's orders are not in the replay, so it has no steps
+    // to offer; only players with a build are worth picking from.
+    const players = replay.players.filter((p) => p.build.steps.length > 0);
+    if (!players.length) return fail("No build orders were found in this replay.");
+    if (players.length === 1) {
+      const p = players[0];
       setSingleStats({ steps: p.build.steps.length, dropped: p.dropped });
       finish(p.build);
     } else {
       setSingleStats(null);
-      setPhase({ kind: "pick", replay });
+      setPhase({ kind: "pick", replay: { ...replay, players } });
     }
   };
 

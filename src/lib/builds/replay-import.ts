@@ -5,6 +5,7 @@ import { extractBuild } from "@overlay-replay/extractBuild";
 import { fetchW3ChampionsReplay, parseMatchRef, W3ChampionsError } from "@overlay-replay/w3champions";
 import { ReplayParseError, type ReplayRace } from "@overlay-replay/types";
 import type { ExchangeBuild } from "./exchange";
+import { BUILD_RACES, type BuildRace } from "./types";
 
 /**
  * Turns a Warcraft III replay (an uploaded `.w3g`, or one fetched from a
@@ -19,7 +20,8 @@ import type { ExchangeBuild } from "./exchange";
 export const MAX_REPLAY_BYTES = 8 * 1024 * 1024;
 /** The submit form's limit; a long replay cutoff can produce more. */
 const MAX_STEPS = 60;
-const RACE_LABEL: Record<string, string> = { human: "Human", orc: "Orc", nightelf: "Night Elf", undead: "Undead", random: "Random" };
+const RACE_LABEL: Record<string, string> = { human: "Human", orc: "Orc", nightelf: "Night Elf", undead: "Undead" };
+const isSiteRace = (r: string): r is BuildRace => BUILD_RACES.some((x) => x.id === r);
 
 export type ReplayImportPlayer = {
   id: number;
@@ -65,11 +67,15 @@ function toExchange(
   game: { map: string; duration: string },
   sourceUrl?: string,
 ): ExchangeBuild {
-  const vs = draft.vsRaces.map((r) => RACE_LABEL[r] ?? r).join(" and ") || "the field";
+  // The site knows four races; "random" (a Computer opponent, or a race the
+  // replay could not detect) cannot be submitted, so it is left out and the
+  // form asks for what is missing.
+  const vsRaces = draft.vsRaces.filter(isSiteRace);
+  const vs = vsRaces.map((r) => RACE_LABEL[r]).join(" and ") || "any race";
   return {
     title: draft.title.replace(playerName, withoutTag(playerName)).replace(/\s[—–-]\s/g, " on ").slice(0, 90),
-    race: draft.race,
-    vsRaces: draft.vsRaces,
+    race: isSiteRace(draft.race) ? draft.race : undefined,
+    vsRaces,
     difficulty: draft.difficulty,
     patch: draft.patch,
     tags: draft.tags
@@ -77,7 +83,7 @@ function toExchange(
       .map((t) => t.trim())
       .filter(Boolean),
     // The form asks for a real summary; this placeholder says what to write.
-    summary: `${RACE_LABEL[draft.race] ?? draft.race} vs ${vs} from a ${game.duration} game on ${game.map}. Say what the idea is and when it works.`.slice(0, 200),
+    summary: `${RACE_LABEL[draft.race] ?? "A build"} vs ${vs} from a ${game.duration} game on ${game.map}. Say what the idea is and when it works.`.slice(0, 200),
     author: withoutTag(playerName),
     authorDiscord: "",
     sourceUrl: sourceUrl ?? "",
