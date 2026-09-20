@@ -11,6 +11,7 @@ import { DataSourceNote } from "@/components/DataSourceNote";
 import { LadderTeams } from "@/components/league/LadderTeams";
 import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getLadder, getSeason, getSeasons } from "@/lib/api/gnl";
+import { record } from "@/lib/figures.mjs";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 
 export const dynamic = "force-dynamic";
@@ -42,6 +43,7 @@ export default async function LadderPage({ searchParams }: Props) {
         .slice(0, 10)
     : [];
   const busiest = ladder ? Math.max(1, ...ladder.perDay.map((d) => d.games)) : 1;
+  const busiestDay = ladder?.perDay.find((d) => d.games === busiest);
 
   return (
     <>
@@ -82,7 +84,11 @@ export default async function LadderPage({ searchParams }: Props) {
             {ladder.perDay.length ? (
               <section className="mt-10">
                 <p className="kicker mb-3">Games per day</p>
-                <div className="panel flex h-28 items-end gap-[3px] px-4 pb-3 pt-4" aria-label="Ladder games per day">
+                <div
+                  role="img"
+                  aria-label={`Ladder games per day over ${ladder.perDay.length} days: ${fmt.format(ladder.totalGames)} games in all, busiest on ${busiestDay?.date} with ${busiest} games.`}
+                  className="panel flex h-28 items-end gap-[3px] px-4 pb-3 pt-4"
+                >
                   {ladder.perDay.map((d) => (
                     <span
                       key={d.date}
@@ -122,7 +128,7 @@ export default async function LadderPage({ searchParams }: Props) {
                         </p>
                         <p className="mt-0.5 flex items-center gap-2 text-xs text-faint">
                           <TeamPlate tag={p.team.tag ?? ""} logoUrl={p.team.logoUrl} name={p.team.name} size="sm" />
-                          {p.team.name} <span>·</span> {p.games} games <span>·</span> {p.wins}W {p.losses}L
+                          {p.team.name} <span>·</span> {p.games} games <span>·</span> {record(p.wins, p.losses) ?? "—"}
                         </p>
                       </div>
                       <div className="text-right">

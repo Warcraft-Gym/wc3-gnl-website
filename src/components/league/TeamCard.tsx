@@ -5,17 +5,10 @@ import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { TeamPlate } from "./VsBadge";
 import { Flag } from "@/components/ui/Flag";
-import { cn, raceOf, type Race } from "@/lib/utils";
+import { record } from "@/lib/figures.mjs";
+import { cn, raceOf, RACES, type Race } from "@/lib/utils";
 
 const RACE_ORDER: Race[] = ["human", "orc", "nightelf", "undead", "random"];
-const RACE_BG: Record<Race, string> = {
-  human: "bg-human",
-  orc: "bg-orc",
-  nightelf: "bg-nightelf",
-  undead: "bg-undead",
-  random: "bg-faint",
-};
-const RACE_LABEL: Record<Race, string> = { human: "Human", orc: "Orc", nightelf: "Night Elf", undead: "Undead", random: "Random" };
 
 /** Team card for the teams index: standing, record, captains, race make-up
  *  and the full roster sorted by MMR. */
@@ -26,6 +19,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
   // strongest first, with playing captains marked by the crown.
   const roster = [...team.players].sort((a, b) => (b.mmr ?? 0) - (a.mmr ?? 0));
   const races = RACE_ORDER.map((r) => ({ race: r, n: team.players.filter((p) => raceOf(p.race) === r).length })).filter((x) => x.n);
+  const makeup = races.map((x) => `${x.n} ${RACES[x.race].label}`).join(", ");
 
   return (
     <Surface interactive as="article" className="group flex flex-col p-5">
@@ -78,19 +72,9 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
           </dd>
         </div>
         <div>
-          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Record</dt>
-          <dd className="tnum mt-0.5 font-display text-base font-bold">
-            {standing ? (
-              <>
-                <span className="text-win">{standing.wins}</span>
-                <span className="text-faint">-</span>
-                <span className="text-muted">{standing.draws}</span>
-                <span className="text-faint">-</span>
-                <span className="text-loss">{standing.losses}</span>
-              </>
-            ) : (
-              "-"
-            )}
+          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Series record</dt>
+          <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">
+            {(standing ? record(standing.wins, standing.losses, standing.draws) : null) ?? "—"}
           </dd>
         </div>
         <div>
@@ -101,16 +85,20 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
 
       {/* Race make-up */}
       {races.length ? (
-        <div className="mt-3" title={races.map((x) => `${x.n} ${RACE_LABEL[x.race]}`).join(", ")}>
-          <div className="flex h-1.5 w-full gap-px overflow-hidden rounded">
+        <div className="mt-3">
+          <div
+            role="img"
+            aria-label={`Race make-up of ${team.players.length} players: ${makeup}`}
+            className="flex h-1.5 w-full gap-0.5"
+          >
             {races.map((x) => (
-              <span key={x.race} className={cn("h-full", RACE_BG[x.race])} style={{ width: `${(x.n / team.players.length) * 100}%` }} />
+              <span key={x.race} className={cn("h-full rounded-sm", RACES[x.race].dot)} style={{ width: `${(x.n / team.players.length) * 100}%` }} />
             ))}
           </div>
           <p className="mt-1.5 flex flex-wrap gap-x-3 font-mono text-[0.6rem] uppercase tracking-wide text-faint">
             {races.map((x) => (
               <span key={x.race}>
-                {x.n} {RACE_LABEL[x.race]}
+                {x.n} {RACES[x.race].label}
               </span>
             ))}
           </p>

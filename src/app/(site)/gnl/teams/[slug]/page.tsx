@@ -10,6 +10,7 @@ import { FixtureCard } from "@/components/league/FixtureCard";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
 import { SeasonSwitcher } from "@/components/league/SeasonSwitcher";
 import { getTeamPage } from "@/lib/api/gnl";
+import { record } from "@/lib/figures.mjs";
 import { parseSeasonParam as parseSeason, withSeason, type SeasonSearchParams } from "@/lib/api/season-params";
 import { raceOf } from "@/lib/utils";
 
@@ -80,7 +81,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                     </span>
                   </span>
                   <span className="tnum">
-                    {standing.wins}W - {standing.losses}L
+                    {record(standing.wins, standing.losses, standing.draws) ?? "—"}
                   </span>
                   <span className="tnum">{standing.points} pts</span>
                 </p>

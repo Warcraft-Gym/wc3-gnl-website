@@ -5,13 +5,14 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/** Race → semantic color token class + label. */
+/** Race → label, short code and the fill token of a race mark. A race name in
+ *  text wears a text token, so there is no text colour here. */
 export const RACES = {
-  human: { label: "Human", color: "text-human", dot: "bg-human", short: "HU" },
-  orc: { label: "Orc", color: "text-orc", dot: "bg-orc", short: "OR" },
-  nightelf: { label: "Night Elf", color: "text-nightelf", dot: "bg-nightelf", short: "NE" },
-  undead: { label: "Undead", color: "text-undead", dot: "bg-undead", short: "UD" },
-  random: { label: "Random", color: "text-random", dot: "bg-random", short: "RD" },
+  human: { label: "Human", dot: "bg-human", short: "HU" },
+  orc: { label: "Orc", dot: "bg-orc", short: "OR" },
+  nightelf: { label: "Night Elf", dot: "bg-nightelf", short: "NE" },
+  undead: { label: "Undead", dot: "bg-undead", short: "UD" },
+  random: { label: "Random", dot: "bg-random", short: "RD" },
 } as const;
 
 export type Race = keyof typeof RACES;

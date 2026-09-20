@@ -1,6 +1,7 @@
 import { ChevronDown, Star } from "lucide-react";
 import type { FantasyEntry, FantasyBreakdown } from "@/lib/api/types";
 import { RaceIcon } from "@/components/ui/RaceIcon";
+import { Meter } from "@/components/ui/Meter";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { cn, raceOf } from "@/lib/utils";
 
@@ -93,18 +94,18 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
           <ul className="mt-3 space-y-2">
             {BREAKDOWN.map(({ key, label }) => {
               const value = entry.breakdown[key];
-              const pct = entry.total > 0 ? (value / entry.total) * 100 : 0;
               return (
                 <li key={key} className="flex items-center gap-3">
                   <span className="w-16 shrink-0 font-mono text-[0.62rem] uppercase tracking-wide text-muted">
                     {label}
                   </span>
-                  <span className="relative h-2 flex-1 overflow-hidden bg-surface-2">
-                    <span
-                      className="absolute inset-y-0 left-0 bg-gold/70"
-                      style={{ width: `${pct}%` }}
-                    />
-                  </span>
+                  <Meter
+                    value={value}
+                    max={entry.total}
+                    hue="bg-gold/70"
+                    label={`${label}: ${value} of ${entry.total} points`}
+                    className="h-2 flex-1"
+                  />
                   <span className="tnum w-8 shrink-0 text-right font-display text-sm font-bold text-fg">
                     {value}
                   </span>

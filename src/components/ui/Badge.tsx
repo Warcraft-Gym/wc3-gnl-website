@@ -44,8 +44,8 @@ export function RaceBadge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide",
-        r.color,
+        // The icon carries the race; the name stays in a text token.
+        "inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted",
         className,
       )}
     >
