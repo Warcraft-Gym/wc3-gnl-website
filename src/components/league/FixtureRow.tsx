@@ -8,11 +8,14 @@ import { LiveBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "./VsBadge";
 import { cn, raceOf, formatMatchTime, slugify } from "@/lib/utils";
+import { missingTimeLines } from "@/lib/match-time.mjs";
 
-function gameTime(iso?: string) {
-  if (!iso) return { day: "TBD", time: "" };
+function gameTime(iso?: string, played = false) {
+  // a played series with no time never had one written down
+  const missing = missingTimeLines(played);
+  if (!iso) return missing;
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return { day: "TBD", time: "" };
+  if (Number.isNaN(d.getTime())) return missing;
   return {
     day: new Intl.DateTimeFormat("en-US", {
       weekday: "short",
@@ -27,10 +30,10 @@ function gameTime(iso?: string) {
 }
 
 function DetailRow({ m }: { m: PlayerMatch }) {
-  const { day, time } = gameTime(m.scheduledAt);
   const homeWon = m.status === "completed" && m.home.score > m.away.score;
   const awayWon = m.status === "completed" && m.away.score > m.home.score;
   const played = m.status !== "scheduled";
+  const { day, time } = gameTime(m.scheduledAt, played);
 
   const vod = m.casts.find((c) => c.vodUrl);
   const cast = vod ?? m.casts[0];
