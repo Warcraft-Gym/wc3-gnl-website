@@ -228,7 +228,7 @@ export function BuildSubmitForm() {
             <ChevronDown size={16} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
-            <li className="flex gap-2"><span className="text-gold">·</span> One opening, not a whole game plan. 10 to 20 steps is typical.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> One build order, not a whole game plan. 10 to 20 steps is typical.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> Times from the in-game clock, so the play-along timer is useful.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> An icon per step makes it scannable at a glance.</li>
             <li className="flex gap-2"><span className="text-gold">·</span><span>Say <em>why</em> in the notes: when it works, what it beats, what to watch for.</span></li>

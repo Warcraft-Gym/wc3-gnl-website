@@ -26,7 +26,7 @@ export const metadata: Metadata = {
   alternates: { canonical: "/learn/builds" },
   openGraph: {
     title: "Warcraft III build orders · Warcraft 3 Gym",
-    description: "Openings for every race and matchup, with a play-along clock. Submit your own.",
+    description: "Build orders for every race and matchup, with a play-along clock. Submit your own.",
     images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
   },
 };
@@ -73,7 +73,7 @@ export default async function BuildsPage({
         kicker="Learn"
         title="Build orders"
         art="/graphics/build-orders-2.webp"
-        lead="Step-by-step openings for every race and matchup, with timings, supply counts and a play-along clock."
+        lead="Step-by-step build orders for every race and matchup, with timings, supply counts and a play-along clock."
       >
         <ButtonLink href="/learn/builds/submit" size="sm">
           <PlusCircle size={15} /> Submit a build

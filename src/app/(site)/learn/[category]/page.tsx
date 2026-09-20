@@ -110,7 +110,7 @@ export default async function LearnCategoryPage({ params }: Params) {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
               <div>
                 <p className="kicker">Build orders</p>
-                <h2 className="mt-2 text-[length:var(--wg-text-title)]">{cat.title} openings</h2>
+                <h2 className="mt-2 text-[length:var(--wg-text-title)]">{cat.title} build orders</h2>
                 <p className="mt-2 max-w-xl text-sm text-muted">
                   Timed step-by-step builds with a play-along clock. Pick one and follow it in your next game.
                 </p>

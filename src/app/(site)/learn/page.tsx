@@ -30,7 +30,7 @@ export default async function LearnPage() {
   const buildOrders: LearnCategory = {
     id: "mechanics",
     title: "Build orders",
-    blurb: "Timed openings for every race and matchup, with a play-along clock. Submit your own.",
+    blurb: "Timed build orders for every race and matchup, with a play-along clock. Submit your own.",
     kind: "topic",
   };
   const latest = await getLatestGuides(6);
@@ -76,7 +76,7 @@ export default async function LearnPage() {
                 New &amp; returning players
               </h2>
               <p className="mt-3 normal-case text-muted">{newPlayers.blurb} Pick a
-                race, learn one opening, and get your first games in without the
+                race, learn one build order, and get your first games in without the
                 overwhelm.
               </p>
               </div>

@@ -96,7 +96,7 @@ export function LearnRaces() {
               <span className="mt-3 font-display text-[0.7rem] font-bold uppercase leading-tight tracking-[0.12em] text-fg transition-colors group-hover:text-gold sm:mt-4 sm:text-[0.8rem] sm:tracking-[0.14em]">
                 Build orders
               </span>
-              <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">Timed openings with a play-along clock.</span>
+              <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">Timed build orders with a play-along clock.</span>
             </Link>
           </li>
         </ul>

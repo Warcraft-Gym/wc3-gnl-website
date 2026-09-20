@@ -16,7 +16,7 @@ export default function SubmitBuildPage() {
         kicker="Learn · Build orders"
         title="Submit a build"
         art="/graphics/build-orders-2.webp"
-        lead="Share an opening that works for you. A coach reviews it, then it goes up in the build list with your name on it."
+        lead="Share a build order that works for you. A coach reviews it, then it goes up in the build list with your name on it."
       >
       </PageHeader>
       <Container className="max-w-4xl py-10">

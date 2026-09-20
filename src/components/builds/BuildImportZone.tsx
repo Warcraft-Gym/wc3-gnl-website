@@ -369,7 +369,7 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
             </a>
           </>
         ) : null}
-        . Pick the player to import their opening.
+        . Pick the player whose build order to import.
       </p>
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {replay.players.map((p) => (

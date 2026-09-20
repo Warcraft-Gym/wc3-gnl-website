@@ -103,7 +103,7 @@ export default async function HomePage() {
               <p className="kicker justify-center">Play along</p>
               <h2 className="mt-3 text-[length:var(--wg-text-display)]">Build orders</h2>
               <p className="mt-4 text-lg text-muted">
-                Step-by-step openings for every race and matchup, with food counts
+                Step-by-step build orders for every race and matchup, with food counts
                 and a clock you can follow in your next game.
               </p>
             </div>
