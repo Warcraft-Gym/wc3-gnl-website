@@ -70,6 +70,10 @@ it directly.
 Once installed (NSIS on Windows, `.dmg` on macOS — not the portable exe,
 see below), the app keeps itself up to date:
 
+Release manifests (`latest.json`) reference GitHub API asset URLs
+(`https://api.github.com/repos/.../releases/assets/<id>`), and the app
+downloads those directly — there is no proxy in between.
+
 - **Auto-check on launch.** About 3 seconds after the picker window opens,
   the app silently checks for a newer release. This is controlled by the
   **Auto-update on launch** setting (Settings dialog), on by default.
