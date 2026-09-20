@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { missingTime } from "./match-time.mjs";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -44,10 +45,14 @@ const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
   minute: "2-digit",
 });
 
-export function formatMatchTime(iso?: string | null): string {
-  if (!iso) return "TBD";
+/** When a series is played. A series still to come and carrying no time is
+ *  "TBD"; one already played and carrying none never had its time written
+ *  down, and the old league seasons hold many of those. */
+export function formatMatchTime(iso?: string | null, played = false): string {
+  const missing = missingTime(played);
+  if (!iso) return missing;
   const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "TBD";
+  if (Number.isNaN(d.getTime())) return missing;
   return DATE_FMT.format(d);
 }
 
