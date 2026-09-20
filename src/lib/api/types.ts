@@ -25,8 +25,12 @@ export type Player = {
   name: string;
   slug: string;
   battleTag?: string;
+  /** The race the player declared. It is the fallback, not the ladder race. */
   race: Race;
-  /** Current W3Champions MMR for the player's race. */
+  /** Every ladder race with games in the newest W3Champions season that has
+   *  rows, sorted by MMR from high to low. */
+  races: W3cRaceStat[];
+  /** Current W3Champions MMR of the player's main ladder race. */
   mmr?: number;
   country?: string;
   teamId?: number;

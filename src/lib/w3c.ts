@@ -3,8 +3,8 @@ import type { Race } from "@/lib/utils";
 
 /**
  * Read-only client for the public W3Champions API, the same source
- * wc3.no's season view uses. Per-player ladder stats, recent matches and
- * the MMR timeline for the current ladder season. Everything is cached
+ * wc3.no's season view uses. Per-player ladder stats, recent matches and one
+ * MMR timeline per ladder race of the current season. Everything is cached
  * for ten minutes and degrades to empty results when W3C is unavailable.
  */
 
@@ -15,6 +15,7 @@ const REVALIDATE = 600;
 
 /** W3C race ids. */
 const RACE_BY_ID: Record<number, Race> = { 0: "random", 1: "human", 2: "orc", 4: "nightelf", 8: "undead" };
+const ID_BY_RACE: Record<Race, number> = { random: 0, human: 1, orc: 2, nightelf: 4, undead: 8 };
 const LEAGUE_BY_ORDER = ["Grand Master", "Master", "Adept", "Diamond", "Platinum", "Gold", "Silver", "Bronze", "Grass"];
 
 export type W3cLadderEntry = {
@@ -42,6 +43,9 @@ export type W3cMatch = {
 
 export type W3cTimelinePoint = { date: string; mmr: number };
 
+/** The MMR run of one ladder race this season, oldest point first. */
+export type W3cTimeline = { race: Race; points: W3cTimelinePoint[] };
+
 /** Record against each opponent race this ladder season. */
 export type VsRaceRecord = Partial<Record<Race, { wins: number; losses: number }>>;
 
@@ -57,7 +61,8 @@ export type W3cProfile = {
   sampleSize: number;
   vsRace: VsRaceRecord;
   heroes: W3cHero[];
-  timeline: W3cTimelinePoint[];
+  /** One timeline per ladder race with games, in the order of `ladder`. */
+  timelines: W3cTimeline[];
   profileUrl: string;
 };
 
@@ -121,12 +126,16 @@ export async function getW3cProfile(battleTag: string): Promise<W3cProfile | nul
     }))
     .sort((a, b) => b.games - a.games);
 
-  const main = ladder[0];
-  const timelineRaw = main
-    ? await w3c<RawTimeline>(
-        `/players/${tag}/mmr-rp-timeline?gateWay=${GATEWAY}&season=${season}&race=${Object.entries(RACE_BY_ID).find(([, r]) => r === main.race)?.[0] ?? 0}&gameMode=${GAME_MODE_1V1}`,
-      )
-    : null;
+  // One timeline per ladder race, in parallel. A race whose read fails keeps
+  // its empty points and does not fail the profile.
+  const timelines: W3cTimeline[] = await Promise.all(
+    ladder.map(async (entry) => {
+      const raw = await w3c<RawTimeline>(
+        `/players/${tag}/mmr-rp-timeline?gateWay=${GATEWAY}&season=${season}&race=${ID_BY_RACE[entry.race]}&gameMode=${GAME_MODE_1V1}`,
+      );
+      return { race: entry.race, points: (raw?.mmrRpAtDates ?? []).map((p) => ({ date: p.date, mmr: p.mmr })) };
+    }),
+  );
 
   const isMe = (p: { battleTag: string }) => p.battleTag.toLowerCase() === battleTag.toLowerCase();
   const sample = (search?.matches ?? []).filter((m) => m.teams.flatMap((t) => t.players).length === 2);
@@ -177,7 +186,7 @@ export async function getW3cProfile(battleTag: string): Promise<W3cProfile | nul
     sampleSize: sample.length,
     vsRace,
     heroes,
-    timeline: (timelineRaw?.mmrRpAtDates ?? []).map((p) => ({ date: p.date, mmr: p.mmr })),
+    timelines,
     profileUrl: `https://w3champions.com/player/${tag}`,
   };
 }

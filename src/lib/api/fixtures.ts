@@ -113,6 +113,7 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
       slug: slugify(pn),
       battleTag: `${pn}#${1000 + ti * 7 + pi}`,
       race,
+      races: [{ season: 25, race, mmr, games: 40, wins: 22, losses: 18 }],
       mmr,
       country,
       teamId: ti + 1,
