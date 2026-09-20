@@ -22,7 +22,6 @@ import type {
   LadderTeam,
 } from "./types";
 import { slugify, raceOf, isLive, type Race } from "@/lib/utils";
-import { mainRace } from "@/lib/races.mjs";
 
 /**
  * Maps the GNL FastAPI backend responses to the frontend domain types.
@@ -225,15 +224,19 @@ export function deriveWeeks(s: Season): Week[] {
 const W3C_RACE: Record<string, Race> = { HU: "human", OC: "orc", OR: "orc", NE: "nightelf", UD: "undead", RnD: "random", RANDOM: "random" };
 
 /**
- * The player's current W3Champions MMR: the MMR of their main ladder race, so
- * a roster number agrees with the player page. Falls back to the manually
- * entered `mmr` when nothing is synced.
+ * The player's current W3Champions MMR: the newest ladder season they have
+ * games in, and within it the row of their signup race, else their most played
+ * race. Falls back to the manually entered `mmr` when nothing is synced.
  */
 export function currentMmr(p: RawPlayer): number | undefined {
-  const rows = currentW3cRows(p);
+  const rows = (p.w3c_stats ?? []).filter((r) => r.mmr != null && (r.games ?? 0) > 0);
   if (!rows.length) return p.mmr ?? undefined;
-  const main = mainRace(rows, raceOf(p.signup_race ?? p.race));
-  return rows.find((r) => r.race === main)?.mmr ?? p.mmr ?? undefined;
+  const latest = Math.max(...rows.map((r) => r.wc3_season));
+  const season = rows.filter((r) => r.wc3_season === latest);
+  const race = raceOf(p.signup_race || p.race);
+  const own = season.find((r) => (r.race ? W3C_RACE[r.race] ?? raceOf(r.race) : undefined) === race);
+  const pick = own ?? [...season].sort((a, b) => (b.games ?? 0) - (a.games ?? 0))[0];
+  return pick?.mmr ?? p.mmr ?? undefined;
 }
 
 function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain = false, seasonId?: number): Player {
@@ -243,8 +246,7 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
     name: p.name,
     slug: slugify(p.name),
     battleTag: p.battleTag,
-    race: raceOf(p.signup_race ?? p.race),
-    races: currentW3cRows(p),
+    race: raceOf(p.signup_race || p.race),
     mmr: currentMmr(p),
     country: p.country,
     teamId,
@@ -584,7 +586,7 @@ function findPlayerSeason(
       entry: {
         season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
         team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
-        race: raceOf(raw.signup_race ?? raw.race),
+        race: raceOf(raw.signup_race || raw.race),
         isCaptain: captains.some((x) => x.id === raw.id),
         captainOnly: !rosterHit,
         record: {

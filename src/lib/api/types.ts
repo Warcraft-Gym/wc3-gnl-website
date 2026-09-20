@@ -28,10 +28,8 @@ export type Player = {
   /** The race this player signed up with for the season of this read, with the
    *  legacy profile race as the fallback. It is not the ladder race. */
   race: Race;
-  /** Every ladder race with games in the newest W3Champions season that has
-   *  rows, sorted by MMR from high to low. */
-  races: W3cRaceStat[];
-  /** Current W3Champions MMR of the player's main ladder race. */
+  /** Current W3Champions MMR of the signup race above, so the number and the
+   *  race badge of a roster row name the same race. */
   mmr?: number;
   country?: string;
   teamId?: number;
