@@ -8,7 +8,7 @@ import { PRIMARY_NAV, GNL_NAV } from "./nav-items";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
-import { DASHBOARD_URL } from "@/lib/links";
+import { DISCORD_URL } from "@/lib/links";
 
 export function MobileNav() {
   const [open, setOpen] = useState(false);
@@ -82,8 +82,8 @@ export function MobileNav() {
               </Link>
             ))}
 
-            <ButtonLink href={DASHBOARD_URL} size="lg" className="mt-5" target="_blank" rel="noreferrer" onClick={close}>
-              Player Dashboard
+            <ButtonLink href={DISCORD_URL} variant="discord" size="lg" className="mt-5" target="_blank" rel="noreferrer" onClick={close}>
+              <DiscordIcon size={18} /> Join Discord
             </ButtonLink>
           </nav>
         </div>

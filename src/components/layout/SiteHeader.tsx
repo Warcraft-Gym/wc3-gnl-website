@@ -3,7 +3,7 @@ import { DesktopNav } from "./DesktopNav";
 import { MobileNav } from "./MobileNav";
 import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
-import { DASHBOARD_URL, DISCORD_URL } from "@/lib/links";
+import { DISCORD_URL } from "@/lib/links";
 
 /** Floating translucent nav bar, inset from the viewport edges like the
  *  official site. Height is published as --wg-header-h for sticky offsets. */
@@ -26,18 +26,11 @@ export function SiteHeader() {
             target="_blank"
             rel="noreferrer"
             aria-label="Join the Discord"
-            className="max-lg:size-10 max-lg:px-0 max-sm:w-10"
+            className="max-md:size-10 max-md:px-0 max-sm:w-10"
           >
             <DiscordIcon size={16} />
-            <span className="max-lg:sr-only">Join Discord</span>
+            <span className="max-md:sr-only">Join Discord</span>
           </ButtonLink>
-          <div className="hidden md:block">
-            <ButtonLink href={DASHBOARD_URL} size="sm" target="_blank" rel="noreferrer">
-              {/* Short label until there is room for both buttons and the wordmark */}
-              <span className="lg:hidden">Dashboard</span>
-              <span className="max-lg:hidden">Player Dashboard</span>
-            </ButtonLink>
-          </div>
           <MobileNav />
         </div>
       </div>
