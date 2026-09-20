@@ -58,17 +58,6 @@ jobs:
           updaterJsonPreferNsis: true
           args: ${{ matrix.args }}
 
-      - name: Publish portable Windows exe (tag push)
-        if: matrix.platform == 'windows-latest' && startsWith(github.ref, 'refs/tags/overlay-v')
-        shell: pwsh
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $version = "${{ github.ref_name }}" -replace '^overlay-v', ''
-          $dest = "Warcraft-3-Gym-Overlay_${version}_portable.exe"
-          Copy-Item "apps/overlay/src-tauri/target/release/wc3gym-overlay.exe" $dest
-          gh release upload "${{ github.ref_name }}" $dest --clobber
-
       # Version-less copies so https://github.com/<repo>/releases/latest/download/<name>
       # always resolves to the newest build. The site links to these.
       - name: Publish stable-name Windows assets (tag push)
