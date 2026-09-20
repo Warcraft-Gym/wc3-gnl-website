@@ -36,6 +36,9 @@ below; flip it to `true` to publish.
 4. Settings (API base, shortcuts, overlay opacity/scale) are stored in the
    app's WebView local storage, not a config file under `%APPDATA%`.
    Uninstalling the app clears this app data along with it.
+5. Once installed, you don't need to come back here for future releases —
+   the app checks for updates itself and installs them in-app. See
+   [Updates](#updates) below.
 
 ### Portable (no install)
 
@@ -58,6 +61,44 @@ it directly.
    [GitHub Release](../../releases).
 2. Because the build is unsigned, Gatekeeper blocks a normal double-click
    open. **Right-click the app → Open → Open** (only needed once).
+3. Once installed, future releases arrive in-app — see
+   [Updates](#updates) below; you don't need to re-download the `.dmg`
+   for every release.
+
+## Updates
+
+Once installed (NSIS on Windows, `.dmg` on macOS — not the portable exe,
+see below), the app keeps itself up to date:
+
+- **Auto-check on launch.** About 3 seconds after the picker window opens,
+  the app silently checks for a newer release. This is controlled by the
+  **Auto-update on launch** setting (Settings dialog), on by default.
+- **Manual check.** **Settings → Check for updates** runs the same check
+  on demand, regardless of the auto-update setting.
+- **The banner.** When a newer version is found, a banner offers three
+  choices: **Update & restart** (downloads and installs it now), **Later**
+  (dismisses it for this session only — it reappears next launch), and
+  **Skip this version** (remembers the version and stays quiet about it
+  specifically; a *newer* release still shows a banner, and Settings'
+  manual check can always override a skip).
+- **Windows install.** Clicking **Update & restart** downloads the update
+  and installs it with a passive (no user interaction needed) progress
+  window, then relaunches the app automatically.
+- **macOS install.** The app replaces itself in place and relaunches.
+  Because this build is not Apple-signed, Gatekeeper may ask once after an
+  update, the same as the very first install — **right-click the app →
+  Open** if that happens.
+- **The portable exe cannot update itself.** It has no installer to
+  replace, so instead of an in-place install the banner offers a download
+  of the new portable exe; you replace the old file yourself.
+- **Signed releases.** Every release is signed with a minisign key baked
+  into the app, and the app refuses to install anything not signed by
+  that exact key — an update from a fork, a mirror, or a tampered file is
+  rejected, not installed. If that private key were ever lost, already
+  installed apps would keep working exactly as before, but could no
+  longer auto-update; you'd reinstall new releases manually from the
+  [releases page](../../releases) until a new signed release line is
+  established.
 
 ## Shortcuts
 
@@ -386,4 +427,11 @@ line as **pass/fail + notes**.
   step is gone entirely); toggle **Drop orders the game likely rejected**
   and compare the step count and any "dropped (likely rejected)" captions
   before and after.
+  _record: pass/fail + notes:_
+- [ ] **M-10** — Install 0.4.0 (NSIS on Windows / `.dmg` on macOS); once a
+  0.4.1 build is tagged, open the app → banner appears → **Update &
+  restart** → the app comes back as 0.4.1.
+  _record: pass/fail + notes:_
+- [ ] **M-11** — Run the portable 0.4.0 exe → the banner offers the
+  portable download instead of installing in place.
   _record: pass/fail + notes:_

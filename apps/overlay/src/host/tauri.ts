@@ -17,14 +17,19 @@ import { openUrl } from "@tauri-apps/plugin-opener";
 import { save, open } from "@tauri-apps/plugin-dialog";
 import { writeTextFile, readTextFile, readFile } from "@tauri-apps/plugin-fs";
 import { documentDir } from "@tauri-apps/api/path";
+import { check as checkUpdate, type Update } from "@tauri-apps/plugin-updater";
+import { relaunch as relaunchApp } from "@tauri-apps/plugin-process";
+import { invoke } from "@tauri-apps/api/core";
 import type {
   Host,
   ShortcutAction,
   ShortcutMap,
   ShortcutRegistrationResult,
+  UpdateInfo,
+  UpdateProgress,
   WindowBounds,
 } from "./bridge";
-import { WINDOW_OVERLAY } from "../config";
+import { WINDOW_OVERLAY, PORTABLE_DOWNLOAD_URL } from "../config";
 
 /** F004 — the only extension a private build's export/import file uses. */
 const BUILD_FILE_FILTER = [{ name: "wc3gym build", extensions: ["json"] }];
@@ -218,6 +223,67 @@ async function openBinaryFile(
   return { name: basename(path), bytes };
 }
 
+/** F002: holds the `Update` resource resolved by the last `checkForUpdate()`
+ *  call so `installUpdate()` can act on it without the `Host` interface
+ *  needing to round-trip the native object through the rest of the app. */
+let pendingUpdate: Update | null = null;
+
+/** F002: real `check()` from the updater plugin, mapped onto `UpdateInfo`.
+ *  The updater endpoint answers the same "is there a newer version" query
+ *  regardless of which exe asked, so a portable build still learns about
+ *  an update here — `portable` (from `isPortableBuild()`) is what tells the
+ *  UI to offer `PORTABLE_DOWNLOAD_URL` instead of an in-place install. */
+async function checkForUpdate(): Promise<UpdateInfo | null> {
+  const [update, portable] = await Promise.all([checkUpdate(), isPortableBuild()]);
+  pendingUpdate = update;
+  if (!update) return null;
+  return {
+    version: update.version,
+    currentVersion: update.currentVersion,
+    notes: update.body,
+    date: update.date,
+    portable,
+    downloadUrl: portable ? PORTABLE_DOWNLOAD_URL : undefined,
+  };
+}
+
+/** F002: downloads + installs the update found by the last
+ *  `checkForUpdate()` call, translating the plugin's `DownloadEvent` stream
+ *  into a running byte count `onProgress` can render as a percentage. */
+async function installUpdate(onProgress: (progress: UpdateProgress) => void): Promise<void> {
+  if (!pendingUpdate) throw new Error("installUpdate() called with no update — call checkForUpdate() first");
+  let downloaded = 0;
+  let contentLength: number | null = null;
+  await pendingUpdate.downloadAndInstall((event) => {
+    switch (event.event) {
+      case "Started":
+        contentLength = event.data.contentLength ?? null;
+        onProgress({ downloaded, contentLength });
+        break;
+      case "Progress":
+        downloaded += event.data.chunkLength;
+        onProgress({ downloaded, contentLength });
+        break;
+      case "Finished":
+        onProgress({ downloaded, contentLength });
+        break;
+    }
+  });
+}
+
+async function relaunch(): Promise<void> {
+  await relaunchApp();
+}
+
+/** F002: delegates to the Rust `is_installed_bundle` command (see
+ *  `src-tauri/src/lib.rs`), which inspects the running exe's own path — a
+ *  sibling uninstaller (Windows/NSIS) or a `.app/Contents/MacOS/` path
+ *  (macOS) means "installed", anything else (a bare exe the user downloaded
+ *  and ran directly) means "portable". */
+async function isPortableBuild(): Promise<boolean> {
+  return !(await invoke<boolean>("is_installed_bundle"));
+}
+
 export function createTauriHost(): Host {
   return {
     kind: "tauri",
@@ -237,5 +303,9 @@ export function createTauriHost(): Host {
     saveTextFile,
     openTextFile,
     openBinaryFile,
+    checkForUpdate,
+    installUpdate,
+    relaunch,
+    isPortableBuild,
   };
 }

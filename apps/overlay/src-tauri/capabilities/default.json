@@ -23,12 +23,15 @@
     "global-shortcut:allow-unregister",
     "global-shortcut:allow-unregister-all",
     "global-shortcut:allow-is-registered",
+    "updater:default",
+    "process:allow-restart",
     {
       "identifier": "opener:allow-open-url",
       "allow": [
         { "url": "https://wc3-gnl-website.vercel.app/*" },
         { "url": "https://discord.gg/*" },
-        { "url": "https://discord.com/*" }
+        { "url": "https://discord.com/*" },
+        { "url": "https://github.com/Warcraft-Gym/wc3-gnl-website/*" }
       ]
     },
     "dialog:allow-save",

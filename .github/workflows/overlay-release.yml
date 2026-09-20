@@ -45,13 +45,17 @@ jobs:
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           projectPath: apps/overlay
           tagName: ${{ github.ref_name }}
           releaseName: "Warcraft 3 Gym Overlay ${{ github.ref_name }}"
-          releaseBody: "See docs/overlay.md for install steps. Unsigned build — expect a SmartScreen prompt on Windows."
+          releaseBody: "Signed release — the app updates itself from here. Windows may still show a SmartScreen prompt on first install; the portable exe does not self-update."
           releaseDraft: false
           prerelease: false
+          includeUpdaterJson: true
+          updaterJsonPreferNsis: true
           args: ${{ matrix.args }}
 
       - name: Publish portable Windows exe (tag push)
@@ -83,7 +87,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          dmg=$(ls apps/overlay/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg | head -n 1)
+          dmg=$(find apps/overlay/src-tauri/target/universal-apple-darwin/release/bundle/dmg -maxdepth 1 -name '*.dmg' | head -1)
           cp "$dmg" "Warcraft-3-Gym-Overlay.dmg"
           gh release upload "${{ github.ref_name }}" "Warcraft-3-Gym-Overlay.dmg" --clobber
 

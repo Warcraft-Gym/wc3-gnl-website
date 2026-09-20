@@ -10,9 +10,13 @@ import type {
   ShortcutAction,
   ShortcutMap,
   ShortcutRegistrationResult,
+  UpdateInfo,
+  UpdateProgress,
   WindowBounds,
 } from "./bridge";
 import { tokenFromCode, unshiftKey } from "../lib/combo";
+import { PORTABLE_DOWNLOAD_URL } from "../config";
+import { APP_VERSION } from "../version";
 
 const BROADCAST_CHANNEL = "wc3gym";
 const HIDDEN_ATTR = "data-hidden";
@@ -306,6 +310,53 @@ async function openBinaryFile(
   });
 }
 
+/** F002: number of `onProgress` ticks `installUpdate`'s mock emits, spread
+ *  evenly over `MOCK_INSTALL_DURATION_MS` — C-904 asserts the progress bar
+ *  reaches 100% within 3 s, so 10 ticks over 1 s comfortably clears that. */
+const MOCK_INSTALL_STEPS = 10;
+const MOCK_INSTALL_DURATION_MS = 1000;
+
+/** F002: the browser host has no real updater — for validation (Playwright,
+ *  manual QA) it instead reads `?mockUpdate=<version>` (+ `&mockPortable=1`)
+ *  off the page URL and fabricates an `UpdateInfo` from it, so the full
+ *  banner → install → relaunch flow (or the portable download flow) can be
+ *  driven without a Tauri host. See C-904. Absent the query param, this
+ *  always resolves `null`, matching the pre-F002 "no updater" behavior. */
+async function checkForUpdate(): Promise<UpdateInfo | null> {
+  const params = new URLSearchParams(location.search);
+  const version = params.get("mockUpdate");
+  if (!version) return null;
+  const portable = params.get("mockPortable") === "1";
+  return {
+    version,
+    currentVersion: APP_VERSION,
+    notes: "Mock release notes",
+    portable,
+    downloadUrl: portable ? PORTABLE_DOWNLOAD_URL : undefined,
+  };
+}
+
+/** F002: simulates a download by reporting progress 0 → 100% over
+ *  `MOCK_INSTALL_DURATION_MS`, then resolving — there is nothing real to
+ *  download in the browser host. `contentLength` is fixed at 100 so
+ *  `downloaded` doubles as a direct percentage. */
+async function installUpdate(onProgress: (progress: UpdateProgress) => void): Promise<void> {
+  for (let step = 1; step <= MOCK_INSTALL_STEPS; step++) {
+    await new Promise((resolve) => setTimeout(resolve, MOCK_INSTALL_DURATION_MS / MOCK_INSTALL_STEPS));
+    onProgress({ downloaded: Math.round((step / MOCK_INSTALL_STEPS) * 100), contentLength: 100 });
+  }
+}
+
+/** F002: the browser host's stand-in for a native app restart. */
+async function relaunch(): Promise<void> {
+  location.reload();
+}
+
+/** F002: the browser host is never the portable build. */
+async function isPortableBuild(): Promise<boolean> {
+  return false;
+}
+
 export function createBrowserHost(): Host {
   return {
     kind: "browser",
@@ -325,5 +376,9 @@ export function createBrowserHost(): Host {
     openBinaryFile,
     saveTextFile,
     openTextFile,
+    checkForUpdate,
+    installUpdate,
+    relaunch,
+    isPortableBuild,
   };
 }
