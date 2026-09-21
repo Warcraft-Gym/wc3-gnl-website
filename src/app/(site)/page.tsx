@@ -86,7 +86,7 @@ export default async function HomePage() {
               </ButtonLink>
               {OVERLAY_BETA_LIVE ? (
                 <ButtonLink href="/tools/overlay">
-                  Try the in-game overlay
+                  Get the overlay
                 </ButtonLink>
               ) : null}
             </div>

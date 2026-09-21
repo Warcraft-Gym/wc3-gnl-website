@@ -57,7 +57,7 @@ export function LearnRaces() {
         </p>
         <div className="mt-7">
           <ButtonLink href="/learn" size="md">
-            Browse the guides
+            All guides
           </ButtonLink>
         </div>
       </div>

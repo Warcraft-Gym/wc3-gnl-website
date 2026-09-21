@@ -66,7 +66,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         <ButtonLink href="/gnl/about" size="lg">
-          How the league works
+          About the league
         </ButtonLink>
         <ButtonLink href="/gnl/schedule" size="lg">
           Follow {season.shortName}
