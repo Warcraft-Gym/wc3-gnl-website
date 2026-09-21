@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CreepMap as CreepMapType, MapMine, MapStart, RouteStop } from "@/lib/creep-routes/types";
-import { CampMarker } from "./CampMarker";
+import { CampMarker, radiusFor } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
 import { CampDetails } from "./CampDetails";
 import { cn } from "@/lib/utils";
@@ -76,9 +76,14 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
   const [hoverCamp, setHoverCamp] = useState<string | null>(null);
   const [walkIndex, setWalkIndex] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
+  // The SVG's own box, unpadded — `CampDetails` is anchored inside this
+  // wrapper, not the padded card, so its pixel coordinates (x*width,
+  // y*height below) line up exactly with the positioned ancestor its
+  // `position: absolute` resolves against. See `CampDetails`'s doc comment.
+  const svgBox = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const el = box.current;
+    const el = svgBox.current;
     if (!el) return;
     const ro = new ResizeObserver(([entry]) => setWidth(Math.round(entry.contentRect.width)));
     ro.observe(el);
@@ -126,42 +131,61 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
           is CSS-driven (`viewBox` + `w-full h-auto`, no numeric width/height
           attributes) rather than waiting on the client-only ResizeObserver.
           `width`/`height` state still feeds `CampDetails`'s pixel position,
-          which is a hover/focus enhancement, not first-paint content. */}
-      <svg
-        viewBox={`0 0 ${iw} ${ih}`}
-        role="img"
-        aria-label={label}
-        tabIndex={0}
-        onKeyDown={onKeyDown}
-        onBlur={() => setWalkIndex(null)}
-        className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
-      >
-        <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
-        {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} /> : null}
-        {map.starts.map((s) => (
-          <StartMarker key={s.player} start={s} iw={iw} ih={ih} />
-        ))}
-        {map.mines.map((m, i) => (
-          <MineMarker key={i} mine={m} iw={iw} ih={ih} />
-        ))}
-        {map.camps.map((camp) => {
-          const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
-          return (
-            <CampMarker
-              key={camp.id}
-              camp={camp}
-              imageWidth={iw}
-              imageHeight={ih}
-              active={activeStop != null && stopIndex === activeStop}
-              highlighted={highlightCamps?.has(camp.id) ?? false}
-              pressed={stopIndex !== -1}
-              onCampSelect={onCampSelect}
-              onPointerEnter={() => setHoverCamp(camp.id)}
-              onPointerLeave={() => setHoverCamp((h) => (h === camp.id ? null : h))}
-            />
-          );
-        })}
-      </svg>
+          which is a hover/focus enhancement, not first-paint content.
+
+          `svgBox` wraps only the `<svg>`, with no padding/border of its
+          own, so it's exactly the SVG's rendered box — `CampDetails` is
+          anchored inside it (not the padded card above), so a marker at
+          `x*width, y*height` and the panel's `position: absolute` agree on
+          the same origin. */}
+      <div ref={svgBox} className="relative">
+        <svg
+          viewBox={`0 0 ${iw} ${ih}`}
+          role="img"
+          aria-label={label}
+          tabIndex={0}
+          onKeyDown={onKeyDown}
+          onBlur={() => setWalkIndex(null)}
+          className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
+        >
+          <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
+          {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} /> : null}
+          {map.starts.map((s) => (
+            <StartMarker key={s.player} start={s} iw={iw} ih={ih} />
+          ))}
+          {map.mines.map((m, i) => (
+            <MineMarker key={i} mine={m} iw={iw} ih={ih} />
+          ))}
+          {map.camps.map((camp) => {
+            const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
+            return (
+              <CampMarker
+                key={camp.id}
+                camp={camp}
+                imageWidth={iw}
+                imageHeight={ih}
+                active={activeStop != null && stopIndex === activeStop}
+                highlighted={highlightCamps?.has(camp.id) ?? false}
+                pressed={stopIndex !== -1}
+                onCampSelect={onCampSelect}
+                onPointerEnter={() => setHoverCamp(camp.id)}
+                onPointerLeave={() => setHoverCamp((h) => (h === camp.id ? null : h))}
+              />
+            );
+          })}
+        </svg>
+
+        {detailCamp && width ? (
+          <CampDetails
+            camp={detailCamp}
+            x={detailCamp.x * width}
+            y={detailCamp.y * height}
+            containerWidth={width}
+            containerHeight={height}
+            markerRadius={radiusFor(detailCamp.level) * (width / iw)}
+          />
+        ) : null}
+      </div>
 
       <p aria-live="polite" className="sr-only">
         {detailCamp
@@ -170,10 +194,6 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
             }`
           : "No camp selected"}
       </p>
-
-      {detailCamp && width ? (
-        <CampDetails camp={detailCamp} x={detailCamp.x * width} y={detailCamp.y * height} containerWidth={width} />
-      ) : null}
     </div>
   );
 }

@@ -1,42 +1,90 @@
+import { useLayoutEffect, useRef, useState } from "react";
 import type { MapCamp } from "@/lib/creep-routes/types";
 import { BandDot } from "./RouteBadges";
 import { cn } from "@/lib/utils";
 
+/** Offset from the marker's edge to the panel's nearest edge, in pixels. */
+const OFFSET = 12;
+
 /**
  * The hover/focus panel for one camp: not a `title` tooltip (those show on
- * neither touch nor keyboard focus) but a real floating panel, positioned
- * over the point the pointer or the keyboard walk landed on and clamped
- * inside the map's container so it never spills off the card.
+ * neither touch nor keyboard focus) but a real floating panel, anchored
+ * `OFFSET`px clear of the marker's own circle that triggered it (hover or
+ * keyboard-walk focus alike — both feed the same `x`/`y`). It flips to the
+ * opposite side of the marker when it would otherwise overflow the map's
+ * right or bottom edge, and is clamped so it's never clipped or pushed off
+ * the card.
+ *
+ * The parent must be `position: relative` with no padding/border between
+ * it and the element whose pixel box `x`/`y`/`containerWidth`/
+ * `containerHeight` were measured from (see `CreepMap`) — otherwise the
+ * panel's containing block (the padding edge) won't line up with the
+ * coordinate system the marker position was computed in.
+ *
+ * `position: absolute` is set inline, not only via the Tailwind utility
+ * class: this component reuses the design system's `.panel` class for its
+ * background/border/blur, and `.panel` (in `globals.css`) also declares
+ * `position: relative` for its own unrelated purpose (`.panel`s are
+ * normally static cards, not always absolutely positioned overlays). Both
+ * rules live in the same `@layer utilities` at equal specificity, so which
+ * one wins is a source-order accident — it previously lost, and the panel
+ * rendered in normal document flow far below the map instead of over the
+ * marker. An inline style always outranks an external stylesheet rule
+ * (short of `!important`), so it's pinned here regardless of cascade order.
  */
 export function CampDetails({
   camp,
   x,
   y,
   containerWidth,
+  containerHeight,
+  markerRadius,
 }: {
   camp: MapCamp;
-  /** Marker centre in container pixels. */
+  /** Marker centre, in pixels, relative to the positioned ancestor. */
   x: number;
   y: number;
   containerWidth: number;
+  containerHeight: number;
+  /** The marker's own rendered radius, in the same pixel space as `x`/`y`,
+   *  so the panel clears the circle itself rather than just its centre. */
+  markerRadius: number;
 }) {
-  // Clamp so a camp near an edge doesn't push the panel off the card; the
-  // panel itself is ~13rem (208px) wide.
-  const PANEL_W = 208;
-  const half = PANEL_W / 2;
-  const left = Math.min(Math.max(x, half + 8), Math.max(half + 8, containerWidth - half - 8));
-  const above = y > 90;
+  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
+  const clear = markerRadius + OFFSET;
+
+  // Two-pass placement: render once (invisible) to measure the panel's real
+  // size — its height varies with the camp's creep count — then place it
+  // clear of the marker's own circle, flipping to the opposite side near
+  // the right/bottom edge and clamping so it's never clipped.
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const w = el.offsetWidth;
+    const h = el.offsetHeight;
+    const flipX = x + clear + w > containerWidth;
+    const flipY = y + clear + h > containerHeight;
+    const left = flipX ? x - clear - w : x + clear;
+    const top = flipY ? y - clear - h : y + clear;
+    setPos({
+      left: Math.min(Math.max(left, 0), Math.max(0, containerWidth - w)),
+      top: Math.min(Math.max(top, 0), Math.max(0, containerHeight - h)),
+    });
+  }, [camp.id, x, y, containerWidth, containerHeight, clear]);
 
   return (
     <div
+      ref={ref}
       aria-hidden
       className={cn(
-        "panel pointer-events-none absolute z-20 w-52 origin-bottom border-gold/40 bg-surface/95 p-3 text-xs shadow-[0_12px_30px_-10px_rgba(0,0,0,.9)] transition-opacity duration-[var(--wg-dur-fast)] motion-reduce:transition-none",
+        "panel pointer-events-none z-20 w-52 border-gold/40 bg-surface/95 p-3 text-xs shadow-[0_12px_30px_-10px_rgba(0,0,0,.9)] transition-opacity duration-[var(--wg-dur-fast)] motion-reduce:transition-none",
       )}
       style={{
-        left,
-        top: above ? y - 14 : y + 14,
-        transform: above ? "translate(-50%, -100%)" : "translate(-50%, 0)",
+        position: "absolute",
+        left: pos?.left ?? x,
+        top: pos?.top ?? y,
+        visibility: pos ? "visible" : "hidden",
       }}
     >
       <p className="flex items-center gap-1.5 font-display text-[0.7rem] font-bold uppercase tracking-[0.1em] text-fg">

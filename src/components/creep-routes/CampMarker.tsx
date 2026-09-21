@@ -2,8 +2,11 @@ import type { MapCamp } from "@/lib/creep-routes/types";
 import { BAND_TOKEN } from "./RouteBadges";
 
 /** Radius scales modestly with the camp's summed level, clamped so a level-1
- *  camp is still easy to hit and a level-20+ camp doesn't swallow the map. */
-function radiusFor(level: number) {
+ *  camp is still easy to hit and a level-20+ camp doesn't swallow the map.
+ *  In SVG user units (viewBox space) — exported so `CampDetails` can offset
+ *  its panel clear of the marker's actual rendered edge, not just its
+ *  centre. */
+export function radiusFor(level: number) {
   return Math.min(11, Math.max(5, 4 + level * 0.3));
 }
 
