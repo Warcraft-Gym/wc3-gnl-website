@@ -37,13 +37,16 @@ ladder pool uses. Two sources:
 ## Running it
 
 ```
-node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug]
+node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>]
 ```
 
 Writes `<dir>/<slug>.json` and `<dir>/<slug>.png` per map. `--debug` also
 writes `<dir>/<slug>.debug.png`: the minimap at 3x with camps (coloured by
 band), mines (gold) and starts (blue) drawn on top, for eyeballing that the
-world → minimap coordinate mapping lines up.
+world → minimap coordinate mapping lines up. `--creeps <path>` points the
+run at an alternate creep table JSON instead of the checked-in
+`src/lib/creep-routes/creeps.json`; omitting it uses the checked-in table,
+unchanged from before this flag existed.
 
 The committed catalogues live in `src/lib/creep-routes/maps/<slug>.json`
 with their minimap at `public/maps/<slug>.png` — run the script into a
@@ -85,41 +88,34 @@ itself does not know about the site's directory layout.
 laid out: `u = (x - xMin) / (xMax - xMin)`, `v = (yMax - y) / (yMax - yMin)`
 (image v grows downward, world y grows upward).
 
-## The creep table and its gaps
+## The creep table and its sourcing
 
 `src/lib/creep-routes/creeps.json` maps a creep's 4-character rawcode (e.g.
-`nftt`) to `{ name, level, sleeps, source }`. Every entry's `level` is read
-from `https://warcraft.wiki.gg` — the script refuses to guess: an unknown
-rawcode makes catalogue building throw, naming the id, instead of silently
+`nftt`) to `{ name, level, sleeps, source }`. The script refuses to guess:
+an unknown rawcode, or an entry missing a name/integer level 1-10/source
+URL, makes catalogue building throw, naming the id, instead of silently
 shipping a wrong level.
 
-As of this feature, **72 rawcodes are sourced**; the following are not,
-because no page on `warcraft.wiki.gg` could be found carrying a `|level=`
-field for them despite checking the exact name, a `(Warcraft III)`
-disambiguation, the wiki's `opensearch`, and cross-referencing six
-tileset "Creeps <Tileset>" navigation templates (Ashenvale, Barrens,
-Dalaran, Dungeon, Lordaeron, Northrend, Sunken, Village):
+There are two sourcing methods used across the table, both cited per-entry
+via the `source` URL:
 
-- `nmrl` "Murloc" (the base tier — `Murloc Huntsman`/`Nightcrawler`/
-  `Tiderunner`/`Flesheater` all have pages, plain `Murloc` does not)
-- `nwwd` "Dire Wendigo" (not one of the wiki's four documented Wendigo tiers:
-  Wendigo, Elder Wendigo, Wendigo Shaman, Ancient Wendigo)
-- `nslf` "Soulless" (no page under that title or a `(Warcraft III)` variant)
-- `ntka` "Tuskarr" (lore/race page only, no per-unit stats page)
-- `ntrh` "Hardened Sea Turtle", `ntrs` "Snapping Turtle" (not among the
-  wiki's Sunken Ruins turtle tiers: Hatchling, Sea Turtle, Giant, Gargantuan,
-  Dragon Turtle)
-- `nwiz`, `nwzg` "Wizard" (the wiki documents four "Renegade wizard" tiers —
-  Apprentice, Rogue, Renegade, Dark — but nothing ties either rawcode to a
-  specific one)
-- `nfps` "Searing Destroyer", `nhdc`, `nrdk` — HiveWorkshop's creep-camp list
-  either has no name for these or names a page that turned out to be
-  unrelated World of Warcraft content
+1. **`warcraft.wiki.gg`** (most entries): the per-unit wiki page's
+   infobox `|level=` field, e.g.
+   `https://warcraft.wiki.gg/wiki/Forest_Troll_Berserker`.
+2. **Blizzard's own game data, patch 1.27.1 (enUS)**, mirrored in the
+   [w3x2lni](https://github.com/sumneko/w3x2lni) repository — used for 11
+   rawcodes that had no findable `warcraft.wiki.gg` page (`nmrl`, `nwwd`,
+   `nslf`, `nwiz`, `nwzg`, `nfps`, `ntka`, `ntrh`, `ntrs`, `nhdc`, `nrdk`):
+   name from
+   [`neutralunitstrings.txt`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/neutralunitstrings.txt)
+   (`[id]` section, `Name=` field), level from
+   [`unitbalance.slk`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk)
+   (row keyed by `unitBalanceID`, `level` column), `sleeps` from
+   [`unitdata.slk`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Units/unitdata.slk)
+   (row keyed by `unitID`, `canSleep` column — all 11 are `1`/true). The
+   `source` recorded for these 11 entries is the `unitbalance.slk` URL
+   (the level field); the other two files are cited here as the name/sleeps
+   method rather than repeated per entry.
 
-Until these are sourced, catalogue building throws on any map that places
-one of these creeps — currently all nine bundle maps hit at least one (most
-commonly `nmrl`). See the feature handoff for the full list of which id
-blocks which map. The fix is either finding the right wiki page (a
-different title this script's author did not think to try) or reading the
-name/level straight out of the World Editor's Object Data for that rawcode
-and citing that as the source instead.
+As of this feature, all 83 rawcodes referenced by the nine generated
+catalogues are sourced.

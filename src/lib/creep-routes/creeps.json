@@ -47,6 +47,12 @@
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Enforcer_(Warcraft_III)"
   },
+  "nfps": {
+    "name": "Polar Furbolg Shaman",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "nfpt": {
     "name": "Fel Stalker",
     "level": 5,
@@ -155,6 +161,12 @@
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Rock_Golem"
   },
+  "nhdc": {
+    "name": "Deceiver",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "nith": {
     "name": "Ice Troll High Priest",
     "level": 4,
@@ -245,6 +257,12 @@
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Magnataur_Reaver"
   },
+  "nmrl": {
+    "name": "Murloc Tiderunner",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "nmrm": {
     "name": "Murloc Huntsman",
     "level": 2,
@@ -323,6 +341,12 @@
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Giant_Polar_Bear"
   },
+  "nrdk": {
+    "name": "Red Dragon Whelp",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "nrel": {
     "name": "Reef Elemental",
     "level": 2,
@@ -365,6 +389,12 @@
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Skeletal_Orc"
   },
+  "nslf": {
+    "name": "Sludge Flinger",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "nsqt": {
     "name": "Sasquatch",
     "level": 5,
@@ -382,6 +412,12 @@
     "level": 3,
     "sleeps": true,
     "source": "https://warcraft.wiki.gg/wiki/Stormreaver_Hermit"
+  },
+  "ntka": {
+    "name": "Tuskarr Spearman",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntks": {
     "name": "Tuskarr Sorcerer",
@@ -407,11 +443,29 @@
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Sea_Giant_(Warcraft_III)"
   },
+  "ntrh": {
+    "name": "Sea Turtle Hatchling",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
+  "ntrs": {
+    "name": "Sea Turtle",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "ntrt": {
     "name": "Sea Turtle",
     "level": 2,
     "sleeps": false,
     "source": "https://warcraft.wiki.gg/wiki/Sea_Turtle_(Warcraft_III)"
+  },
+  "nwiz": {
+    "name": "Apprentice Wizard",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nwlt": {
     "name": "Timber Wolf",
@@ -419,11 +473,23 @@
     "sleeps": true,
     "source": "https://warcraft.wiki.gg/wiki/Timber_Wolf_(Warcraft_III)"
   },
+  "nwwd": {
+    "name": "Dire Frost Wolf",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
   "nwwf": {
     "name": "Wendigo",
     "level": 4,
     "sleeps": true,
     "source": "https://warcraft.wiki.gg/wiki/Wendigo_(Warcraft_III)"
+  },
+  "nwzg": {
+    "name": "Renegade Wizard",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nwzr": {
     "name": "Rogue Wizard",

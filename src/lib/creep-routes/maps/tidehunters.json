@@ -1,0 +1,874 @@
+{
+  "slug": "tidehunters",
+  "name": "Tidehunters",
+  "mapVersion": "1.2",
+  "w3cMapId": 54,
+  "w3cName": "Tidehunters",
+  "sourceFile": "w3c_Tidehunters_v1.2.w3x",
+  "generatedAt": "2026-09-21T18:29:22.605Z",
+  "bounds": {
+    "xMin": -8192,
+    "xMax": 8192,
+    "yMin": -8192,
+    "yMax": 8192
+  },
+  "cameraBounds": [
+    -4992,
+    -5248,
+    5504,
+    5760,
+    -4992,
+    5760,
+    5504,
+    -5248
+  ],
+  "camps": [
+    {
+      "id": "c01",
+      "x": 0.49592370555425686,
+      "y": 0.5063517695913712,
+      "worldX": -66.78600819905598,
+      "worldY": -104.06739298502605,
+      "creeps": [
+        {
+          "id": "nlsn",
+          "name": "Makrura Snapper",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ntrt",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 2
+        }
+      ],
+      "level": 9,
+      "xp": 195,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c02",
+      "x": 0.4175003419319789,
+      "y": 0.5804638316233953,
+      "worldX": -1351.6743977864583,
+      "worldY": -1318.3194173177083,
+      "creeps": [
+        {
+          "id": "nsko",
+          "name": "Skeletal Orc",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nsrh",
+          "name": "Stormreaver Hermit",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nsra",
+          "name": "Stormreaver Apprentice",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 145,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c03",
+      "x": 0.647850401699543,
+      "y": 0.5348234269768,
+      "worldX": 2422.3809814453125,
+      "worldY": -570.5470275878906,
+      "creeps": [
+        {
+          "id": "ntrt",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ntrs",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 4,
+      "xp": 80,
+      "band": "easy",
+      "sleeps": false
+    },
+    {
+      "id": "c04",
+      "x": 0.46399868559092283,
+      "y": 0.34795593470335007,
+      "worldX": -589.8455352783203,
+      "worldY": 2491.0899658203125,
+      "creeps": [
+        {
+          "id": "ntrt",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ntrs",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 4,
+      "xp": 80,
+      "band": "easy",
+      "sleeps": false
+    },
+    {
+      "id": "c05",
+      "x": 0.3471796475350857,
+      "y": 0.4632895356044173,
+      "worldX": -2503.8086547851562,
+      "worldY": 601.4642486572266,
+      "creeps": [
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "ngns",
+          "name": "Gnoll Assassin",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 12,
+      "xp": 260,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c06",
+      "x": 0.5375313321128488,
+      "y": 0.654132891446352,
+      "worldX": 614.9133453369141,
+      "worldY": -2525.3132934570312,
+      "creeps": [
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngns",
+          "name": "Gnoll Assassin",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 12,
+      "xp": 260,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c07",
+      "x": 0.6794477760791778,
+      "y": 0.5943503245711327,
+      "worldX": 2940.07236328125,
+      "worldY": -1545.8357177734374,
+      "creeps": [
+        {
+          "id": "nftr",
+          "name": "Forest Troll Trapper",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 15,
+      "xp": 330,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c08",
+      "x": 0.4060182124376297,
+      "y": 0.3182195872068405,
+      "worldX": -1539.797607421875,
+      "worldY": 2978.290283203125,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nftr",
+          "name": "Forest Troll Trapper",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 15,
+      "xp": 330,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c09",
+      "x": 0.7052403688430786,
+      "y": 0.4208653047680855,
+      "worldX": 3362.658203125,
+      "worldY": 1296.5428466796875,
+      "creeps": [
+        {
+          "id": "nmrm",
+          "name": "Murloc Huntsman",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nmrr",
+          "name": "Murloc Nightcrawler",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 8,
+      "xp": 160,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c10",
+      "x": 0.5805015588800112,
+      "y": 0.29288378854592645,
+      "worldX": 1318.9375406901042,
+      "worldY": 3393.3920084635415,
+      "creeps": [
+        {
+          "id": "nmrr",
+          "name": "Murloc Nightcrawler",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nmrm",
+          "name": "Murloc Huntsman",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 8,
+      "xp": 160,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c11",
+      "x": 0.6763921856880188,
+      "y": 0.32316280603408815,
+      "worldX": 2890.0095703125,
+      "worldY": 2897.3005859375,
+      "creeps": [
+        {
+          "id": "nrel",
+          "name": "Reef Elemental",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nele",
+          "name": "Enraged Elemental",
+          "level": 4,
+          "count": 2
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 17,
+      "xp": 365,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c12",
+      "x": 0.3230987936258316,
+      "y": 0.6770077168941497,
+      "worldX": -2898.349365234375,
+      "worldY": -2900.09443359375,
+      "creeps": [
+        {
+          "id": "nmrv",
+          "name": "Murloc Tiderunner",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "nmsn",
+          "name": "Mur'gul Snarecaster",
+          "level": 4,
+          "count": 2
+        },
+        {
+          "id": "nmrm",
+          "name": "Murloc Huntsman",
+          "level": 2,
+          "count": 2
+        }
+      ],
+      "level": 13,
+      "xp": 275,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c13",
+      "x": 0.22685512900352478,
+      "y": 0.44861628363529843,
+      "worldX": -4475.20556640625,
+      "worldY": 841.8708089192709,
+      "creeps": [
+        {
+          "id": "nmrl",
+          "name": "Murloc Tiderunner",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "nmfs",
+          "name": "Murloc Flesheater",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nmrr",
+          "name": "Murloc Nightcrawler",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 145,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c14",
+      "x": 0.5512789996961752,
+      "y": 0.7746492226918538,
+      "worldX": 840.1551310221354,
+      "worldY": -4499.852864583333,
+      "creeps": [
+        {
+          "id": "nmrr",
+          "name": "Murloc Nightcrawler",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nmfs",
+          "name": "Murloc Flesheater",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nmrl",
+          "name": "Murloc Tiderunner",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 145,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c15",
+      "x": 0.8015477806329727,
+      "y": 0.4769215593114495,
+      "worldX": 4940.558837890625,
+      "worldY": 378.11717224121094,
+      "creeps": [
+        {
+          "id": "nmsn",
+          "name": "Mur'gul Snarecaster",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nmbg",
+          "name": "Mur'gul Blood-Gill",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nmtw",
+          "name": "Magnataur Warrior",
+          "level": 5,
+          "count": 2
+        }
+      ],
+      "level": 16,
+      "xp": 355,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c16",
+      "x": 0.5222896996419877,
+      "y": 0.19784676283597946,
+      "worldX": 365.1944389343262,
+      "worldY": 4950.4786376953125,
+      "creeps": [
+        {
+          "id": "nmtw",
+          "name": "Magnataur Warrior",
+          "level": 5,
+          "count": 2
+        },
+        {
+          "id": "nmbg",
+          "name": "Mur'gul Blood-Gill",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nmsn",
+          "name": "Mur'gul Snarecaster",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 16,
+      "xp": 355,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c17",
+      "x": 0.3597016384204229,
+      "y": 0.7738271554311116,
+      "worldX": -2298.6483561197915,
+      "worldY": -4486.384114583333,
+      "creeps": [
+        {
+          "id": "ntrt",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "ntrg",
+          "name": "Sea Giant",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 140,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c18",
+      "x": 0.2245459258556366,
+      "y": 0.6381084769964218,
+      "worldX": -4513.03955078125,
+      "worldY": -2262.769287109375,
+      "creeps": [
+        {
+          "id": "ntrt",
+          "name": "Sea Turtle",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "ntrg",
+          "name": "Sea Giant",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 140,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c19",
+      "x": 0.3228416442871094,
+      "y": 0.21658505002657574,
+      "worldX": -2902.5625,
+      "worldY": 4643.470540364583,
+      "creeps": [
+        {
+          "id": "nsgn",
+          "name": "Sea Giant",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 9,
+      "xp": 185,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c20",
+      "x": 0.7832803229490917,
+      "y": 0.6785090615351995,
+      "worldX": 4641.264811197917,
+      "worldY": -2924.6924641927085,
+      "creeps": [
+        {
+          "id": "nsgn",
+          "name": "Sea Giant",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 9,
+      "xp": 185,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c21",
+      "x": 0.762530192732811,
+      "y": 0.24062909930944443,
+      "worldX": 4301.294677734375,
+      "worldY": 4249.5328369140625,
+      "creeps": [
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nsgh",
+          "name": "Sea Giant Hunter",
+          "level": 5,
+          "count": 2
+        }
+      ],
+      "level": 18,
+      "xp": 420,
+      "band": "hard",
+      "sleeps": false
+    }
+  ],
+  "starts": [
+    {
+      "player": 0,
+      "x": 0.26171875,
+      "y": 0.32421875,
+      "worldX": -3904,
+      "worldY": 2880
+    },
+    {
+      "player": 1,
+      "x": 0.67578125,
+      "y": 0.73828125,
+      "worldX": 2880,
+      "worldY": -3904
+    }
+  ],
+  "mines": [
+    {
+      "x": 0.70703125,
+      "y": 0.7734375,
+      "worldX": 3392,
+      "worldY": -4480,
+      "gold": 13500
+    },
+    {
+      "x": 0.3515625,
+      "y": 0.78515625,
+      "worldX": -2432,
+      "worldY": -4672,
+      "gold": 10500
+    },
+    {
+      "x": 0.80859375,
+      "y": 0.4765625,
+      "worldX": 5056,
+      "worldY": 384,
+      "gold": 11500
+    },
+    {
+      "x": 0.21484375,
+      "y": 0.6484375,
+      "worldX": -4672,
+      "worldY": -2432,
+      "gold": 10500
+    },
+    {
+      "x": 0.5234375,
+      "y": 0.19140625,
+      "worldX": 384,
+      "worldY": 5056,
+      "gold": 11500
+    },
+    {
+      "x": 0.2265625,
+      "y": 0.29296875,
+      "worldX": -4480,
+      "worldY": 3392,
+      "gold": 13500
+    }
+  ],
+  "shops": [
+    {
+      "id": "nmg1-0",
+      "x": 0.333984375,
+      "y": 0.693359375
+    },
+    {
+      "id": "nmg1-1",
+      "x": 0.310546875,
+      "y": 0.693359375
+    },
+    {
+      "id": "ncrb-2",
+      "x": 0.7496528625488281,
+      "y": 0.624918594956398
+    },
+    {
+      "id": "ntrs-3",
+      "x": 0.8419507741928101,
+      "y": 0.7343257367610931
+    },
+    {
+      "id": "ngad-4",
+      "x": 0.6953125,
+      "y": 0.609375
+    },
+    {
+      "id": "ntav-5",
+      "x": 0.5625,
+      "y": 0.4375
+    },
+    {
+      "id": "nmrk-6",
+      "x": 0.6796875,
+      "y": 0.3203125
+    },
+    {
+      "id": "nfro-7",
+      "x": 0.5080599430948496,
+      "y": 0.712247908115387
+    },
+    {
+      "id": "nmg0-8",
+      "x": 0.306640625,
+      "y": 0.666015625
+    },
+    {
+      "id": "nskk-9",
+      "x": 0.621061846613884,
+      "y": 0.38265202939510345
+    },
+    {
+      "id": "ntrs-10",
+      "x": 0.2631143033504486,
+      "y": 0.15501821041107178
+    },
+    {
+      "id": "ncrb-11",
+      "x": 0.3747236877679825,
+      "y": 0.24937093257904053
+    },
+    {
+      "id": "nalb-12",
+      "x": 0.7908445596694946,
+      "y": 0.20584410429000854
+    },
+    {
+      "id": "nsea-13",
+      "x": 0.2736794352531433,
+      "y": 0.7356347739696503
+    },
+    {
+      "id": "nfro-14",
+      "x": 0.2857051491737366,
+      "y": 0.4940076358616352
+    },
+    {
+      "id": "ncrb-15",
+      "x": 0.597164198756218,
+      "y": 0.546793669462204
+    },
+    {
+      "id": "ngme-16",
+      "x": 0.4921875,
+      "y": 0.515625
+    },
+    {
+      "id": "nmg0-17",
+      "x": 0.833984375,
+      "y": 0.345703125
+    },
+    {
+      "id": "nmg1-18",
+      "x": 0.654296875,
+      "y": 0.166015625
+    },
+    {
+      "id": "ncrb-19",
+      "x": 0.45171405375003815,
+      "y": 0.4067072421312332
+    },
+    {
+      "id": "nsea-20",
+      "x": 0.23436617851257324,
+      "y": 0.7749922871589661
+    },
+    {
+      "id": "nsea-21",
+      "x": 0.24655500054359436,
+      "y": 0.7763720452785492
+    },
+    {
+      "id": "nsea-22",
+      "x": 0.17122387886047363,
+      "y": 0.7678913772106171
+    },
+    {
+      "id": "nsea-23",
+      "x": 0.18863800168037415,
+      "y": 0.8185731768608093
+    },
+    {
+      "id": "nsea-24",
+      "x": 0.24204021692276,
+      "y": 0.7761472463607788
+    },
+    {
+      "id": "nsea-25",
+      "x": 0.1927204132080078,
+      "y": 0.8197962939739227
+    },
+    {
+      "id": "nsea-26",
+      "x": 0.2701338231563568,
+      "y": 0.7403875440359116
+    },
+    {
+      "id": "ngad-27",
+      "x": 0.390625,
+      "y": 0.3046875
+    }
+  ]
+}

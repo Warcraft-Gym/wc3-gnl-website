@@ -1,0 +1,871 @@
+{
+  "slug": "springtime",
+  "name": "Springtime",
+  "mapVersion": "1.1",
+  "w3cMapId": 1075,
+  "w3cName": "Springtime",
+  "sourceFile": "w3c_Springtime_v1.1.w3x",
+  "generatedAt": "2026-09-21T18:29:22.581Z",
+  "bounds": {
+    "xMin": -8192,
+    "xMax": 8192,
+    "yMin": -8192,
+    "yMax": 8192
+  },
+  "cameraBounds": [
+    -5248,
+    -5504,
+    5248,
+    5504,
+    -5248,
+    5504,
+    5248,
+    -5504
+  ],
+  "camps": [
+    {
+      "id": "c01",
+      "x": 0.5338891216864189,
+      "y": 0.46990966610610485,
+      "worldX": 555.2393697102865,
+      "worldY": 493.0000305175781,
+      "creeps": [
+        {
+          "id": "nhdc",
+          "name": "Deceiver",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nsra",
+          "name": "Stormreaver Apprentice",
+          "level": 1,
+          "count": 2
+        }
+      ],
+      "level": 5,
+      "xp": 110,
+      "band": "easy",
+      "sleeps": true
+    },
+    {
+      "id": "c02",
+      "x": 0.46617482975125313,
+      "y": 0.5340870451182127,
+      "worldX": -554.1915893554688,
+      "worldY": -558.4821472167969,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 3,
+      "xp": 65,
+      "band": "easy",
+      "sleeps": false
+    },
+    {
+      "id": "c03",
+      "x": 0.6047019977122545,
+      "y": 0.5529737863689661,
+      "worldX": 1715.4375305175781,
+      "worldY": -867.9225158691406,
+      "creeps": [
+        {
+          "id": "nfrb",
+          "name": "Furbolg Champion",
+          "level": 7,
+          "count": 1
+        },
+        {
+          "id": "nfrl",
+          "name": "Furbolg",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 17,
+      "xp": 400,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c04",
+      "x": 0.3951191436499357,
+      "y": 0.4466661084443331,
+      "worldX": -1718.3679504394531,
+      "worldY": 873.8224792480469,
+      "creeps": [
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfrb",
+          "name": "Furbolg Champion",
+          "level": 7,
+          "count": 1
+        },
+        {
+          "id": "nfrl",
+          "name": "Furbolg",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 17,
+      "xp": 400,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c05",
+      "x": 0.40760849229991436,
+      "y": 0.643142394721508,
+      "worldX": -1513.7424621582031,
+      "worldY": -2345.2449951171875,
+      "creeps": [
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nplb",
+          "name": "Polar Bear",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 16,
+      "xp": 345,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c06",
+      "x": 0.5923915077000856,
+      "y": 0.356857605278492,
+      "worldX": 1513.7424621582031,
+      "worldY": 2345.2449951171875,
+      "creeps": [
+        {
+          "id": "nplb",
+          "name": "Polar Bear",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 16,
+      "xp": 345,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c07",
+      "x": 0.6815524945656458,
+      "y": 0.4518952655295531,
+      "worldX": 2974.5560709635415,
+      "worldY": 788.1479695638021,
+      "creeps": [
+        {
+          "id": "nwlt",
+          "name": "Timber Wolf",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nfrs",
+          "name": "Furbolg Shaman",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 8,
+      "xp": 165,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c08",
+      "x": 0.31791688998540246,
+      "y": 0.5469879396259785,
+      "worldX": -2983.2496744791665,
+      "worldY": -769.8504028320312,
+      "creeps": [
+        {
+          "id": "nwlt",
+          "name": "Timber Wolf",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nfrs",
+          "name": "Furbolg Shaman",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 8,
+      "xp": 165,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c09",
+      "x": 0.6231420636177063,
+      "y": 0.6703948030869166,
+      "worldX": 2017.5595703125,
+      "worldY": -2791.7484537760415,
+      "creeps": [
+        {
+          "id": "ntka",
+          "name": "Tuskarr Spearman",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ntkt",
+          "name": "Tuskarr Trapper",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nmam",
+          "name": "Mammoth",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 9,
+      "xp": 185,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c10",
+      "x": 0.3768579363822937,
+      "y": 0.32960519691308343,
+      "worldX": -2017.5595703125,
+      "worldY": 2791.7484537760415,
+      "creeps": [
+        {
+          "id": "ntka",
+          "name": "Tuskarr Spearman",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nmam",
+          "name": "Mammoth",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "ntkt",
+          "name": "Tuskarr Trapper",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 9,
+      "xp": 185,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c11",
+      "x": 0.5029246703488752,
+      "y": 0.2234727218747139,
+      "worldX": 47.91779899597168,
+      "worldY": 4530.6229248046875,
+      "creeps": [
+        {
+          "id": "nitp",
+          "name": "Ice Troll Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 13,
+      "xp": 275,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c12",
+      "x": 0.4984181030886248,
+      "y": 0.7771376296877861,
+      "worldX": -25.91779899597168,
+      "worldY": -4540.6229248046875,
+      "creeps": [
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nitp",
+          "name": "Ice Troll Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 13,
+      "xp": 275,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c13",
+      "x": 0.34700269500414527,
+      "y": 0.7438476035992304,
+      "worldX": -2506.7078450520835,
+      "worldY": -3995.1991373697915,
+      "creeps": [
+        {
+          "id": "ntks",
+          "name": "Tuskarr Sorcerer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ntkt",
+          "name": "Tuskarr Trapper",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfpt",
+          "name": "Fel Stalker",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 315,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c14",
+      "x": 0.6529973049958547,
+      "y": 0.2561523964007696,
+      "worldX": 2506.7078450520835,
+      "worldY": 3995.1991373697915,
+      "creeps": [
+        {
+          "id": "ntks",
+          "name": "Tuskarr Sorcerer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ntkt",
+          "name": "Tuskarr Trapper",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfpt",
+          "name": "Fel Stalker",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 315,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c15",
+      "x": 0.20962665975093842,
+      "y": 0.5231038206256926,
+      "worldX": -4757.476806640625,
+      "worldY": -378.53299713134766,
+      "creeps": [
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nwwf",
+          "name": "Wendigo",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 300,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c16",
+      "x": 0.7907395511865616,
+      "y": 0.4768961793743074,
+      "worldX": 4763.476806640625,
+      "worldY": 378.53299713134766,
+      "creeps": [
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nwwf",
+          "name": "Wendigo",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 300,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c17",
+      "x": 0.2440372072160244,
+      "y": 0.6514380276203156,
+      "worldX": -4193.694396972656,
+      "worldY": -2481.16064453125,
+      "creeps": [
+        {
+          "id": "nmgr",
+          "name": "Magnataur Reaver",
+          "level": 8,
+          "count": 1
+        },
+        {
+          "id": "nith",
+          "name": "Ice Troll High Priest",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nits",
+          "name": "Ice Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nplg",
+          "name": "Giant Polar Bear",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 22,
+      "xp": 555,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c18",
+      "x": 0.7571121901273727,
+      "y": 0.3485419414937496,
+      "worldX": 4212.526123046875,
+      "worldY": 2481.4888305664062,
+      "creeps": [
+        {
+          "id": "nits",
+          "name": "Ice Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nith",
+          "name": "Ice Troll High Priest",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nmgr",
+          "name": "Magnataur Reaver",
+          "level": 8,
+          "count": 1
+        },
+        {
+          "id": "nplg",
+          "name": "Giant Polar Bear",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 22,
+      "xp": 555,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c19",
+      "x": 0.6947788248459498,
+      "y": 0.7616948187351227,
+      "worldX": 3191.2562662760415,
+      "worldY": -4287.60791015625,
+      "creeps": [
+        {
+          "id": "ngna",
+          "name": "Gnoll",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "nwlt",
+          "name": "Timber Wolf",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 6,
+      "xp": 125,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c20",
+      "x": 0.30522117515405023,
+      "y": 0.23830518126487732,
+      "worldX": -3191.2562662760415,
+      "worldY": 4287.60791015625,
+      "creeps": [
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nwlt",
+          "name": "Timber Wolf",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngna",
+          "name": "Gnoll",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 6,
+      "xp": 125,
+      "band": "medium",
+      "sleeps": true
+    }
+  ],
+  "starts": [
+    {
+      "player": 0,
+      "x": 0.2421875,
+      "y": 0.34765625,
+      "worldX": -4224,
+      "worldY": 2496
+    },
+    {
+      "player": 1,
+      "x": 0.7578125,
+      "y": 0.65234375,
+      "worldX": 4224,
+      "worldY": -2496
+    }
+  ],
+  "mines": [
+    {
+      "x": 0.203125,
+      "y": 0.3203125,
+      "worldX": -4864,
+      "worldY": 2944,
+      "gold": 12500
+    },
+    {
+      "x": 0.51171875,
+      "y": 0.2109375,
+      "worldX": 192,
+      "worldY": 4736,
+      "gold": 12500
+    },
+    {
+      "x": 0.796875,
+      "y": 0.6796875,
+      "worldX": 4864,
+      "worldY": -2944,
+      "gold": 12500
+    },
+    {
+      "x": 0.5234375,
+      "y": 0.48046875,
+      "worldX": 384,
+      "worldY": 320,
+      "gold": 10000
+    },
+    {
+      "x": 0.48828125,
+      "y": 0.7890625,
+      "worldX": -192,
+      "worldY": -4736,
+      "gold": 12500
+    }
+  ],
+  "shops": [
+    {
+      "id": "n001-0",
+      "x": 0.2981500029563904,
+      "y": 0.8177845776081085
+    },
+    {
+      "id": "necr-1",
+      "x": 0.597870446741581,
+      "y": 0.610444188117981
+    },
+    {
+      "id": "necr-2",
+      "x": 0.33629070222377777,
+      "y": 0.28821638226509094
+    },
+    {
+      "id": "ntav-3",
+      "x": 0.54296875,
+      "y": 0.44140625
+    },
+    {
+      "id": "necr-4",
+      "x": 0.4026734530925751,
+      "y": 0.3891810402274132
+    },
+    {
+      "id": "nmr3-5",
+      "x": 0.19921875,
+      "y": 0.51953125
+    },
+    {
+      "id": "necr-6",
+      "x": 0.6518065631389618,
+      "y": 0.35885490477085114
+    },
+    {
+      "id": "nder-7",
+      "x": 0.5125046614557505,
+      "y": 0.30709442496299744
+    },
+    {
+      "id": "ngnh-8",
+      "x": 0.322265625,
+      "y": 0.224609375
+    },
+    {
+      "id": "nvul-9",
+      "x": 0.778613418340683,
+      "y": 0.18651482462882996
+    },
+    {
+      "id": "nfh0-10",
+      "x": 0.765625,
+      "y": 0.328125
+    },
+    {
+      "id": "npig-11",
+      "x": 0.27483800053596497,
+      "y": 0.46167199686169624
+    },
+    {
+      "id": "ngme-12",
+      "x": 0.40234375,
+      "y": 0.65234375
+    },
+    {
+      "id": "ngad-13",
+      "x": 0.3359375,
+      "y": 0.7578125
+    },
+    {
+      "id": "nmr3-14",
+      "x": 0.80078125,
+      "y": 0.48046875
+    },
+    {
+      "id": "nfh0-15",
+      "x": 0.234375,
+      "y": 0.67578125
+    },
+    {
+      "id": "ngad-16",
+      "x": 0.6640625,
+      "y": 0.2421875
+    },
+    {
+      "id": "necr-17",
+      "x": 0.6638713628053665,
+      "y": 0.7118278443813324
+    },
+    {
+      "id": "ntav-18",
+      "x": 0.45703125,
+      "y": 0.55859375
+    },
+    {
+      "id": "necr-19",
+      "x": 0.35032083094120026,
+      "y": 0.641653373837471
+    },
+    {
+      "id": "nder-20",
+      "x": 0.4990735035389662,
+      "y": 0.6900617480278015
+    },
+    {
+      "id": "nvul-21",
+      "x": 0.21082264184951782,
+      "y": 0.8125119805335999
+    },
+    {
+      "id": "npig-22",
+      "x": 0.7248465567827225,
+      "y": 0.5400644391775131
+    },
+    {
+      "id": "npig-23",
+      "x": 0.500542153371498,
+      "y": 0.49998898804187775
+    },
+    {
+      "id": "ngme-24",
+      "x": 0.59765625,
+      "y": 0.34765625
+    },
+    {
+      "id": "nfr2-25",
+      "x": 0.62109375,
+      "y": 0.5546875
+    },
+    {
+      "id": "nfr1-26",
+      "x": 0.37890625,
+      "y": 0.4375
+    },
+    {
+      "id": "n000-27",
+      "x": 0.7005244046449661,
+      "y": 0.182041198015213
+    },
+    {
+      "id": "ngnh-28",
+      "x": 0.677734375,
+      "y": 0.775390625
+    }
+  ]
+}

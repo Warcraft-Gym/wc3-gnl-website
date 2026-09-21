@@ -12,17 +12,19 @@ features use to route a hero through camps in xp order.
 
 Everything the script knows about a creep — its name, level and whether it
 sleeps until attacked — comes from `src/lib/creep-routes/creeps.json`, and
-every entry there carries the `warcraft.wiki.gg` URL it was read from. The
-script never guesses: a creep id it cannot find in that table makes
-catalogue building throw, naming the id, rather than shipping a wrong
-level. See `scripts/creep-maps/README.md` for exactly how to get map files,
-run the script, read the JSON it writes, and the current list of rawcodes
-that could not be sourced (and so currently block catalogue generation for
-every map that places one).
+every entry there carries a source URL it was read from (`warcraft.wiki.gg`
+for most entries; Blizzard's own 1.27.1 game data, mirrored in the
+`w3x2lni` repository, for 11 rawcodes no `warcraft.wiki.gg` page could be
+found for). The script never guesses: a creep id it cannot find in that
+table makes catalogue building throw, naming the id, rather than shipping a
+wrong level. See `scripts/creep-maps/README.md` for exactly how to get map
+files, run the script (including its `--creeps <path>` override for testing
+against a scratch table), and read the JSON it writes.
 
-This feature ships the script, its fixtures and tests, and the sourced
-creep table; it does not ship a full set of generated catalogues — see the
-README's "gaps" section for why, and the feature handoff for the exact
-per-map blockers. Later features build the route-planning UI on top of
-`src/lib/creep-routes/maps/<slug>.json` once catalogues exist for it to
-read.
+This feature ships the script, its fixtures and tests, the sourced creep
+table (83 rawcodes) and generated catalogues for all nine bundle maps
+(`src/lib/creep-routes/maps/<slug>.json` plus their minimaps at
+`public/maps/<slug>.png`): `autumn-leaves`, `echo-isles`, `last-refuge`,
+`northern-isles`, `shallow-grave`, `springtime`, `tidehunters`,
+`turtle-rock`, `twisted-meadows`. Later features build the route-planning
+UI on top of these catalogues.

@@ -1,0 +1,1128 @@
+{
+  "slug": "twisted-meadows",
+  "name": "Twisted Meadows",
+  "mapVersion": null,
+  "w3cMapId": 6,
+  "w3cName": "Twisted Meadows",
+  "sourceFile": "w3c_TwistedMeadows.w3x",
+  "generatedAt": "2026-09-21T18:29:22.656Z",
+  "bounds": {
+    "xMin": -10240,
+    "xMax": 10240,
+    "yMin": -10240,
+    "yMax": 10240
+  },
+  "cameraBounds": [
+    -7424,
+    -7936,
+    7424,
+    7424,
+    -7424,
+    7424,
+    7424,
+    -7936
+  ],
+  "camps": [
+    {
+      "id": "c01",
+      "x": 0.5268871585528057,
+      "y": 0.3917378743489583,
+      "worldX": 550.6490071614584,
+      "worldY": 2217.2083333333335,
+      "creeps": [
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 235,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c02",
+      "x": 0.3868392030398051,
+      "y": 0.4889497523506482,
+      "worldX": -2317.5331217447915,
+      "worldY": 226.30907185872397,
+      "creeps": [
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 235,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c03",
+      "x": 0.6082576473553976,
+      "y": 0.5416787495215734,
+      "worldX": 2217.1166178385415,
+      "worldY": -853.5807902018229,
+      "creeps": [
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 11,
+      "xp": 235,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c04",
+      "x": 0.4735709498325984,
+      "y": 0.630650273958842,
+      "worldX": -541.2669474283854,
+      "worldY": -2675.7176106770835,
+      "creeps": [
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 11,
+      "xp": 235,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c05",
+      "x": 0.6340522694587707,
+      "y": 0.4849529772996902,
+      "worldX": 2745.390478515625,
+      "worldY": 308.16302490234375,
+      "creeps": [
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 14,
+      "xp": 285,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c06",
+      "x": 0.37173354148864746,
+      "y": 0.5435256719589233,
+      "worldX": -2626.8970703125,
+      "worldY": -891.40576171875,
+      "creeps": [
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 285,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c07",
+      "x": 0.4779472857713699,
+      "y": 0.3634486150741577,
+      "worldX": -451.63958740234375,
+      "worldY": 2796.57236328125,
+      "creeps": [
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nftr",
+          "name": "Forest Troll Trapper",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 18,
+      "xp": 390,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c08",
+      "x": 0.5205487802624702,
+      "y": 0.653889513015747,
+      "worldX": 420.8390197753906,
+      "worldY": -3151.6572265625,
+      "creeps": [
+        {
+          "id": "nftr",
+          "name": "Forest Troll Trapper",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 390,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c09",
+      "x": 0.6697605053583782,
+      "y": 0.6126148541768391,
+      "worldX": 3476.6951497395835,
+      "worldY": -2306.3522135416665,
+      "creeps": [
+        {
+          "id": "ngno",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 2
+        },
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 255,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c10",
+      "x": 0.29076618353525796,
+      "y": 0.3973469793796539,
+      "worldX": -4285.108561197917,
+      "worldY": 2102.3338623046875,
+      "creeps": [
+        {
+          "id": "ngno",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 2
+        },
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 255,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c11",
+      "x": 0.6253315130869548,
+      "y": 0.2908093293507894,
+      "worldX": 2566.7893880208335,
+      "worldY": 4284.224934895833,
+      "creeps": [
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "ngno",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 2
+        }
+      ],
+      "level": 11,
+      "xp": 255,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c12",
+      "x": 0.38277837038040163,
+      "y": 0.7249209165573121,
+      "worldX": -2400.698974609375,
+      "worldY": -4606.38037109375,
+      "creeps": [
+        {
+          "id": "ngnb",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "ngno",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 2
+        }
+      ],
+      "level": 11,
+      "xp": 255,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c13",
+      "x": 0.7397618770599366,
+      "y": 0.31825828552246094,
+      "worldX": 4910.3232421875,
+      "worldY": 3722.0703125,
+      "creeps": [
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 2
+        },
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c14",
+      "x": 0.3091529107093811,
+      "y": 0.266290545463562,
+      "worldX": -3908.548388671875,
+      "worldY": 4786.36962890625,
+      "creeps": [
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 2
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c15",
+      "x": 0.2590094184875488,
+      "y": 0.7010438060760498,
+      "worldX": -4935.487109375,
+      "worldY": -4117.3771484375,
+      "creeps": [
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 2
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c16",
+      "x": 0.6866101217269898,
+      "y": 0.7658459568023682,
+      "worldX": 3821.77529296875,
+      "worldY": -5444.5251953125,
+      "creeps": [
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 2
+        },
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c17",
+      "x": 0.18997928619384769,
+      "y": 0.3947983276844025,
+      "worldX": -6349.22421875,
+      "worldY": 2154.5302490234376,
+      "creeps": [
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 15,
+      "xp": 315,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c18",
+      "x": 0.6212139201164246,
+      "y": 0.18703671455383303,
+      "worldX": 2482.461083984375,
+      "worldY": 6409.4880859375,
+      "creeps": [
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 15,
+      "xp": 315,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c19",
+      "x": 0.8171381044387818,
+      "y": 0.6150012588500976,
+      "worldX": 6494.98837890625,
+      "worldY": -2355.22578125,
+      "creeps": [
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        }
+      ],
+      "level": 15,
+      "xp": 315,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c20",
+      "x": 0.3771410632133484,
+      "y": 0.18296531677246092,
+      "worldX": -2516.151025390625,
+      "worldY": 6492.8703125,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 310,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c21",
+      "x": 0.3702290916442871,
+      "y": 0.8276808071136476,
+      "worldX": -2657.708203125,
+      "worldY": -6710.9029296875,
+      "creeps": [
+        {
+          "id": "nogr",
+          "name": "Ogre Warrior",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 15,
+      "xp": 315,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c22",
+      "x": 0.8423552370071411,
+      "y": 0.4069622349739075,
+      "worldX": 7011.43525390625,
+      "worldY": 1905.413427734375,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 310,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c23",
+      "x": 0.15383531570434572,
+      "y": 0.6316969919204711,
+      "worldX": -7089.452734375,
+      "worldY": -2697.15439453125,
+      "creeps": [
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 310,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c24",
+      "x": 0.6265094590187072,
+      "y": 0.8558209753036499,
+      "worldX": 2590.913720703125,
+      "worldY": -7287.21357421875,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngrk",
+          "name": "Mud Golem",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "ngst",
+          "name": "Rock Golem",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 310,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c25",
+      "x": 0.16469780921936036,
+      "y": 0.16663015842437745,
+      "worldX": -6866.9888671875,
+      "worldY": 6827.41435546875,
+      "creeps": [
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nrdk",
+          "name": "Red Dragon Whelp",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c26",
+      "x": 0.8538309288024901,
+      "y": 0.16964313983917237,
+      "worldX": 7246.457421875,
+      "worldY": 6765.70849609375,
+      "creeps": [
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nrdk",
+          "name": "Red Dragon Whelp",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c27",
+      "x": 0.8429404640197754,
+      "y": 0.8539302730560303,
+      "worldX": 7023.420703125,
+      "worldY": -7248.4919921875,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nrdk",
+          "name": "Red Dragon Whelp",
+          "level": 3,
+          "count": 2
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c28",
+      "x": 0.15459643840789794,
+      "y": 0.8616885805130006,
+      "worldX": -7073.86494140625,
+      "worldY": -7407.38212890625,
+      "creeps": [
+        {
+          "id": "nrdk",
+          "name": "Red Dragon Whelp",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 395,
+      "band": "hard",
+      "sleeps": false
+    }
+  ],
+  "starts": [
+    {
+      "player": 0,
+      "x": 0.275,
+      "y": 0.690625,
+      "worldX": -4608,
+      "worldY": -3904
+    },
+    {
+      "player": 1,
+      "x": 0.325,
+      "y": 0.28125,
+      "worldX": -3584,
+      "worldY": 4480
+    },
+    {
+      "player": 3,
+      "x": 0.6875,
+      "y": 0.746875,
+      "worldX": 3840,
+      "worldY": -5056
+    },
+    {
+      "player": 2,
+      "x": 0.728125,
+      "y": 0.33125,
+      "worldX": 4672,
+      "worldY": 3456
+    }
+  ],
+  "mines": [
+    {
+      "x": 0.3,
+      "y": 0.253125,
+      "worldX": -4096,
+      "worldY": 5056,
+      "gold": 12500
+    },
+    {
+      "x": 0.209375,
+      "y": 0.20625,
+      "worldX": -5952,
+      "worldY": 6016,
+      "gold": 10000
+    },
+    {
+      "x": 0.35625,
+      "y": 0.8375,
+      "worldX": -2944,
+      "worldY": -6912,
+      "gold": 12500
+    },
+    {
+      "x": 0.753125,
+      "y": 0.303125,
+      "worldX": 5184,
+      "worldY": 4032,
+      "gold": 12500
+    },
+    {
+      "x": 0.634375,
+      "y": 0.178125,
+      "worldX": 2752,
+      "worldY": 6592,
+      "gold": 12500
+    },
+    {
+      "x": 0.690625,
+      "y": 0.784375,
+      "worldX": 3904,
+      "worldY": -5824,
+      "gold": 12500
+    },
+    {
+      "x": 0.24375,
+      "y": 0.7125,
+      "worldX": -5248,
+      "worldY": -4352,
+      "gold": 12500
+    },
+    {
+      "x": 0.825,
+      "y": 0.63125,
+      "worldX": 6656,
+      "worldY": -2688,
+      "gold": 12500
+    },
+    {
+      "x": 0.18125,
+      "y": 0.38125,
+      "worldX": -6528,
+      "worldY": 2432,
+      "gold": 12500
+    },
+    {
+      "x": 0.1875,
+      "y": 0.83125,
+      "worldX": -6400,
+      "worldY": -6784,
+      "gold": 10000
+    },
+    {
+      "x": 0.828125,
+      "y": 0.2125,
+      "worldX": 6720,
+      "worldY": 5888,
+      "gold": 10000
+    },
+    {
+      "x": 0.81875,
+      "y": 0.815625,
+      "worldX": 6528,
+      "worldY": -6464,
+      "gold": 10000
+    }
+  ],
+  "shops": [
+    {
+      "id": "ngme-0",
+      "x": 0.3625,
+      "y": 0.534375
+    },
+    {
+      "id": "nmer-1",
+      "x": 0.484375,
+      "y": 0.35625
+    },
+    {
+      "id": "nmer-2",
+      "x": 0.509375,
+      "y": 0.665625
+    },
+    {
+      "id": "ngad-3",
+      "x": 0.64375,
+      "y": 0.859375
+    },
+    {
+      "id": "ngad-4",
+      "x": 0.85,
+      "y": 0.390625
+    },
+    {
+      "id": "ngad-5",
+      "x": 0.3625,
+      "y": 0.175
+    },
+    {
+      "id": "ngad-6",
+      "x": 0.153125,
+      "y": 0.65
+    },
+    {
+      "id": "nshe-7",
+      "x": 0.41574276685714723,
+      "y": 0.18533470630645751
+    },
+    {
+      "id": "npig-8",
+      "x": 0.25065429210662843,
+      "y": 0.5213669911026955
+    },
+    {
+      "id": "npig-9",
+      "x": 0.5274285465478897,
+      "y": 0.8050076007843018
+    },
+    {
+      "id": "npig-10",
+      "x": 0.5016535667702555,
+      "y": 0.25097429752349854
+    },
+    {
+      "id": "nshe-11",
+      "x": 0.445025771856308,
+      "y": 0.36688239574432374
+    },
+    {
+      "id": "npig-12",
+      "x": 0.5072722464799881,
+      "y": 0.24192426204681397
+    },
+    {
+      "id": "npig-13",
+      "x": 0.5019798161461949,
+      "y": 0.23567683696746827
+    },
+    {
+      "id": "ngme-14",
+      "x": 0.64375,
+      "y": 0.49375
+    },
+    {
+      "id": "nshe-15",
+      "x": 0.6200809478759766,
+      "y": 0.6318172812461853
+    },
+    {
+      "id": "npig-16",
+      "x": 0.5117941424250603,
+      "y": 0.7607294797897339
+    },
+    {
+      "id": "nshe-17",
+      "x": 0.738335657119751,
+      "y": 0.5531752467155456
+    },
+    {
+      "id": "nshe-18",
+      "x": 0.35031490325927733,
+      "y": 0.4296479165554047
+    },
+    {
+      "id": "nshe-19",
+      "x": 0.6602223753929138,
+      "y": 0.5733621895313263
+    },
+    {
+      "id": "nshe-20",
+      "x": 0.19154372215270996,
+      "y": 0.5134512469172478
+    },
+    {
+      "id": "npig-21",
+      "x": 0.49401697106659415,
+      "y": 0.7922329425811767
+    },
+    {
+      "id": "ntav-22",
+      "x": 0.496875,
+      "y": 0.525
+    }
+  ]
+}

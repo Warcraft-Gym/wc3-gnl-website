@@ -1,0 +1,820 @@
+{
+  "slug": "autumn-leaves",
+  "name": "Autumn Leaves v2",
+  "mapVersion": "2.0",
+  "w3cMapId": 44,
+  "w3cName": "Autumn Leaves v2",
+  "sourceFile": "w3c_AutumnLeaves_v2-0.w3x",
+  "generatedAt": "2026-09-21T18:29:22.437Z",
+  "bounds": {
+    "xMin": -8192,
+    "xMax": 8192,
+    "yMin": -8192,
+    "yMax": 8192
+  },
+  "cameraBounds": [
+    -5760,
+    -6016,
+    5760,
+    6016,
+    -5760,
+    6016,
+    5760,
+    -6016
+  ],
+  "camps": [
+    {
+      "id": "c01",
+      "x": 0.5658379644155502,
+      "y": 0.5747849494218826,
+      "worldX": 1078.689208984375,
+      "worldY": -1225.276611328125,
+      "creeps": [
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftk",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll Shadow Priest",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 15,
+      "xp": 325,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c02",
+      "x": 0.4356122249737382,
+      "y": 0.4239547047764063,
+      "worldX": -1054.9293060302734,
+      "worldY": 1245.9261169433594,
+      "creeps": [
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngns",
+          "name": "Gnoll Assassin",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nowe",
+          "name": "Enraged Wildkin",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 17,
+      "xp": 385,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c03",
+      "x": 0.6388077437877655,
+      "y": 0.4386393129825592,
+      "worldX": 2274.22607421875,
+      "worldY": 1005.33349609375,
+      "creeps": [
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        }
+      ],
+      "level": 9,
+      "xp": 195,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c04",
+      "x": 0.36042818427085876,
+      "y": 0.5611930166681608,
+      "worldX": -2286.74462890625,
+      "worldY": -1002.5863850911459,
+      "creeps": [
+        {
+          "id": "nomg",
+          "name": "Ogre Mauler",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 2
+        }
+      ],
+      "level": 9,
+      "xp": 195,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c05",
+      "x": 0.5037703950268527,
+      "y": 0.7249496777852377,
+      "worldX": 61.77415211995443,
+      "worldY": -3685.5755208333335,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nwwf",
+          "name": "Wendigo",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 10,
+      "xp": 210,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c06",
+      "x": 0.49722515248383087,
+      "y": 0.27316429714361823,
+      "worldX": -45.46310170491537,
+      "worldY": 3716.4761555989585,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nwwf",
+          "name": "Wendigo",
+          "level": 4,
+          "count": 1
+        }
+      ],
+      "level": 10,
+      "xp": 210,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c07",
+      "x": 0.6328325743476549,
+      "y": 0.6861418187618256,
+      "worldX": 2176.328898111979,
+      "worldY": -3049.74755859375,
+      "creeps": [
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 240,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c08",
+      "x": 0.36725812405347824,
+      "y": 0.3136729598045349,
+      "worldX": -2174.8428955078125,
+      "worldY": 3052.7822265625,
+      "creeps": [
+        {
+          "id": "nftt",
+          "name": "Forest Troll",
+          "level": 2,
+          "count": 1
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1
+        },
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 240,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c09",
+      "x": 0.2787516266107559,
+      "y": 0.3817604010303815,
+      "worldX": -3624.933349609375,
+      "worldY": 1937.2375895182292,
+      "creeps": [
+        {
+          "id": "nskg",
+          "name": "Burning Archer",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nslf",
+          "name": "Sludge Flinger",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nska",
+          "name": "Skeletal Archer",
+          "level": 1,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 145,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c10",
+      "x": 0.721986323595047,
+      "y": 0.6176038309931755,
+      "worldX": 3637.02392578125,
+      "worldY": -1926.8211669921875,
+      "creeps": [
+        {
+          "id": "nska",
+          "name": "Skeletal Archer",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "nslf",
+          "name": "Sludge Flinger",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nskg",
+          "name": "Burning Archer",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 7,
+      "xp": 145,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c11",
+      "x": 0.8168409764766693,
+      "y": 0.4442408209045728,
+      "worldX": 5191.12255859375,
+      "worldY": 913.5583902994791,
+      "creeps": [
+        {
+          "id": "ngns",
+          "name": "Gnoll Assassin",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nenf",
+          "name": "Enforcer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 13,
+      "xp": 290,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c12",
+      "x": 0.2729582140843073,
+      "y": 0.7283061742782593,
+      "worldX": -3719.8526204427085,
+      "worldY": -3740.568359375,
+      "creeps": [
+        {
+          "id": "nwwf",
+          "name": "Wendigo",
+          "level": 4,
+          "count": 2
+        },
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 11,
+      "xp": 230,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c13",
+      "x": 0.7278104076782862,
+      "y": 0.27142383654912317,
+      "worldX": 3732.4457194010415,
+      "worldY": 3744.9918619791665,
+      "creeps": [
+        {
+          "id": "ngnw",
+          "name": "Gnoll Warden",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nwwf",
+          "name": "Wendigo",
+          "level": 4,
+          "count": 2
+        }
+      ],
+      "level": 11,
+      "xp": 230,
+      "band": "medium",
+      "sleeps": true
+    },
+    {
+      "id": "c14",
+      "x": 0.1815129518508911,
+      "y": 0.5557262723644575,
+      "worldX": -5218.091796875,
+      "worldY": -913.0192464192709,
+      "creeps": [
+        {
+          "id": "ngnv",
+          "name": "Gnoll Overseer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "nenf",
+          "name": "Enforcer",
+          "level": 5,
+          "count": 1
+        },
+        {
+          "id": "ngns",
+          "name": "Gnoll Assassin",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 13,
+      "xp": 290,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c15",
+      "x": 0.8407796621322632,
+      "y": 0.5821816548705101,
+      "worldX": 5583.333984375,
+      "worldY": -1346.4642333984375,
+      "creeps": [
+        {
+          "id": "nwwd",
+          "name": "Dire Frost Wolf",
+          "level": 6,
+          "count": 2
+        },
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        }
+      ],
+      "level": 18,
+      "xp": 450,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c16",
+      "x": 0.15758981307347614,
+      "y": 0.41433873275915784,
+      "worldX": -5610.048502604167,
+      "worldY": 1403.4742024739583,
+      "creeps": [
+        {
+          "id": "nggr",
+          "name": "War Golem",
+          "level": 6,
+          "count": 1
+        },
+        {
+          "id": "nwwd",
+          "name": "Dire Frost Wolf",
+          "level": 6,
+          "count": 2
+        }
+      ],
+      "level": 18,
+      "xp": 450,
+      "band": "hard",
+      "sleeps": false
+    },
+    {
+      "id": "c17",
+      "x": 0.6819009371101856,
+      "y": 0.8265315070748329,
+      "worldX": 2980.2649536132812,
+      "worldY": -5349.8922119140625,
+      "creeps": [
+        {
+          "id": "nkog",
+          "name": "Kobold Geomancer",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nkot",
+          "name": "Kobold Tunneler",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nkol",
+          "name": "Kobold Taskmaster",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 295,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c18",
+      "x": 0.31819257512688637,
+      "y": 0.17179105430841446,
+      "worldX": -2978.7328491210938,
+      "worldY": 5377.3753662109375,
+      "creeps": [
+        {
+          "id": "nkot",
+          "name": "Kobold Tunneler",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nkog",
+          "name": "Kobold Geomancer",
+          "level": 3,
+          "count": 2
+        },
+        {
+          "id": "nkol",
+          "name": "Kobold Taskmaster",
+          "level": 5,
+          "count": 1
+        }
+      ],
+      "level": 14,
+      "xp": 295,
+      "band": "hard",
+      "sleeps": true
+    },
+    {
+      "id": "c19",
+      "x": 0.7897082045674324,
+      "y": 0.7534812614321709,
+      "worldX": 4746.5792236328125,
+      "worldY": -4153.0369873046875,
+      "creeps": [
+        {
+          "id": "nwiz",
+          "name": "Apprentice Wizard",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "nbrg",
+          "name": "Brigand",
+          "level": 2,
+          "count": 2
+        },
+        {
+          "id": "nwzr",
+          "name": "Rogue Wizard",
+          "level": 3,
+          "count": 1
+        }
+      ],
+      "level": 8,
+      "xp": 165,
+      "band": "medium",
+      "sleeps": false
+    },
+    {
+      "id": "c20",
+      "x": 0.2087273970246315,
+      "y": 0.24529873579740524,
+      "worldX": -4772.2103271484375,
+      "worldY": 4173.0255126953125,
+      "creeps": [
+        {
+          "id": "nwzr",
+          "name": "Rogue Wizard",
+          "level": 3,
+          "count": 1
+        },
+        {
+          "id": "nwiz",
+          "name": "Apprentice Wizard",
+          "level": 1,
+          "count": 1
+        },
+        {
+          "id": "nbrg",
+          "name": "Brigand",
+          "level": 2,
+          "count": 2
+        }
+      ],
+      "level": 8,
+      "xp": 165,
+      "band": "medium",
+      "sleeps": false
+    }
+  ],
+  "starts": [
+    {
+      "player": 0,
+      "x": 0.3671875,
+      "y": 0.78515625,
+      "worldX": -2176,
+      "worldY": -4672
+    },
+    {
+      "player": 1,
+      "x": 0.6328125,
+      "y": 0.21484375,
+      "worldX": 2176,
+      "worldY": 4672
+    }
+  ],
+  "mines": [
+    {
+      "x": 0.328125,
+      "y": 0.8125,
+      "worldX": -2816,
+      "worldY": -5120,
+      "gold": 12500
+    },
+    {
+      "x": 0.35546875,
+      "y": 0.5546875,
+      "worldX": -2368,
+      "worldY": -896,
+      "gold": 12000
+    },
+    {
+      "x": 0.671875,
+      "y": 0.1875,
+      "worldX": 2816,
+      "worldY": 5120,
+      "gold": 12500
+    },
+    {
+      "x": 0.68359375,
+      "y": 0.83984375,
+      "worldX": 3008,
+      "worldY": -5568,
+      "gold": 12000
+    },
+    {
+      "x": 0.64453125,
+      "y": 0.4453125,
+      "worldX": 2368,
+      "worldY": 896,
+      "gold": 12000
+    },
+    {
+      "x": 0.31640625,
+      "y": 0.16015625,
+      "worldX": -3008,
+      "worldY": 5568,
+      "gold": 12000
+    }
+  ],
+  "shops": [
+    {
+      "id": "nmer-0",
+      "x": 0.578125,
+      "y": 0.58203125
+    },
+    {
+      "id": "nbse-1",
+      "x": 0.685546875,
+      "y": 0.705078125
+    },
+    {
+      "id": "ngad-2",
+      "x": 0.421875,
+      "y": 0.41796875
+    },
+    {
+      "id": "ntn2-3",
+      "x": 0.806640625,
+      "y": 0.474609375
+    },
+    {
+      "id": "nrat-4",
+      "x": 0.277201384305954,
+      "y": 0.3892976716160774
+    },
+    {
+      "id": "nrat-5",
+      "x": 0.7231989204883575,
+      "y": 0.6097619086503983
+    },
+    {
+      "id": "ngme-6",
+      "x": 0.63671875,
+      "y": 0.6953125
+    },
+    {
+      "id": "ntn2-7",
+      "x": 0.810546875,
+      "y": 0.767578125
+    },
+    {
+      "id": "nder-8",
+      "x": 0.5846101343631744,
+      "y": 0.7947787642478943
+    },
+    {
+      "id": "nshe-9",
+      "x": 0.3852503225207329,
+      "y": 0.46481581777334213
+    },
+    {
+      "id": "nrac-10",
+      "x": 0.27244532108306885,
+      "y": 0.6702517420053482
+    },
+    {
+      "id": "nrac-11",
+      "x": 0.7284136116504669,
+      "y": 0.3203049302101135
+    },
+    {
+      "id": "nshe-12",
+      "x": 0.6195292845368385,
+      "y": 0.49549049139022827
+    },
+    {
+      "id": "nsno-13",
+      "x": 0.4795666392892599,
+      "y": 0.5991729125380516
+    },
+    {
+      "id": "ngme-14",
+      "x": 0.36328125,
+      "y": 0.3046875
+    },
+    {
+      "id": "nvil-15",
+      "x": 0.8722819685935974,
+      "y": 0.20584124326705933
+    },
+    {
+      "id": "ntav-16",
+      "x": 0.5,
+      "y": 0.5
+    },
+    {
+      "id": "nder-17",
+      "x": 0.41222311556339264,
+      "y": 0.20616191625595093
+    },
+    {
+      "id": "nder-18",
+      "x": 0.4378085881471634,
+      "y": 0.666504293680191
+    },
+    {
+      "id": "nder-19",
+      "x": 0.5613598115742207,
+      "y": 0.3354267179965973
+    },
+    {
+      "id": "hrdh-20",
+      "x": 0.6631371676921844,
+      "y": 0.6610642969608307
+    },
+    {
+      "id": "nsno-21",
+      "x": 0.5310525372624397,
+      "y": 0.36950990557670593
+    },
+    {
+      "id": "nfh1-22",
+      "x": 0.525390625,
+      "y": 0.720703125
+    },
+    {
+      "id": "ngnh-23",
+      "x": 0.732421875,
+      "y": 0.255859375
+    },
+    {
+      "id": "ngt2-24",
+      "x": 0.298828125,
+      "y": 0.728515625
+    },
+    {
+      "id": "ntn2-25",
+      "x": 0.189453125,
+      "y": 0.232421875
+    },
+    {
+      "id": "ntn2-26",
+      "x": 0.189453125,
+      "y": 0.537109375
+    }
+  ]
+}

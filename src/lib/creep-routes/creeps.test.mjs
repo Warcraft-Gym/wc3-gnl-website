@@ -30,7 +30,8 @@ test("every rawcode used by a generated map catalogue exists in creeps.json", ()
   let files;
   try {
     files = readdirSync(mapsDir).filter((f) => f.endsWith(".json"));
-  } catch {
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
     files = [];
   }
 

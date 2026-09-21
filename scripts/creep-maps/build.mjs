@@ -3,11 +3,14 @@
  * Builds a map catalogue (camps, starts, mines, shops, bounds) plus a
  * 256x256 minimap PNG from a `.w3x`/`.w3m` file.
  *
- *   node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug]
+ *   node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>]
  *
  * Writes `<dir>/<slug>.json` and `<dir>/<slug>.png` per map; `--debug` also
  * writes `<dir>/<slug>.debug.png` (the minimap at 3x with camps, mines and
  * starts drawn on top, for eyeballing that the coordinate mapping lines up).
+ * `--creeps <path>` points the run at an alternate creep table instead of
+ * the checked-in `src/lib/creep-routes/creeps.json` (useful for testing the
+ * pipeline against a scratch table without editing the real one).
  *
  * See README.md for where to get map files and what the JSON means.
  */
@@ -41,19 +44,22 @@ function parseArgs(argv) {
   const files = [];
   let out = null;
   let debug = false;
+  let creepsPath = null;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--out") {
       out = argv[++i];
     } else if (arg === "--debug") {
       debug = true;
+    } else if (arg === "--creeps") {
+      creepsPath = argv[++i];
     } else {
       files.push(arg);
     }
   }
-  if (files.length === 0) throw new Error("usage: build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug]");
+  if (files.length === 0) throw new Error("usage: build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>]");
   if (!out) throw new Error("usage: build.mjs requires --out <dir>");
-  return { files, out, debug };
+  return { files, out, debug, creepsPath };
 }
 
 /** Bundle file name → human name and version, e.g. "w3c_AutumnLeaves_v2-0"
@@ -68,13 +74,13 @@ function nameAndVersionFromFile(path) {
   return { name, version };
 }
 
-function buildCatalogue(mapPath) {
+function buildCatalogue(mapPath, creepsPath) {
   const map = openMap(mapPath);
   const doo = parseUnitsDoo(readMember(map, "war3mapUnits.doo"));
   const { bounds } = parseW3eBounds(readMember(map, "war3map.w3e"));
   const { cameraBounds } = parseW3i(readMember(map, "war3map.w3i"));
 
-  const creepTable = loadCreepTable();
+  const creepTable = creepsPath ? loadCreepTable(creepsPath) : loadCreepTable();
   const lookupCreep = (rawcode) => getCreep(rawcode, creepTable);
 
   const camps = buildCamps(doo.units, bounds, lookupCreep);
@@ -164,10 +170,10 @@ function renderDebugPng(minimap, catalogue) {
 }
 
 function main() {
-  const { files, out, debug } = parseArgs(process.argv.slice(2));
+  const { files, out, debug, creepsPath } = parseArgs(process.argv.slice(2));
 
   for (const file of files) {
-    const { catalogue, png, minimap } = buildCatalogue(file);
+    const { catalogue, png, minimap } = buildCatalogue(file, creepsPath);
     writeFileSync(join(out, `${catalogue.slug}.json`), JSON.stringify(catalogue, null, 2) + "\n");
     writeFileSync(join(out, `${catalogue.slug}.png`), png);
     if (debug) {
