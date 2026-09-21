@@ -1,4 +1,4 @@
-import { GNL_LADDER_LIVE } from "@/lib/flags";
+import { CREEP_ROUTES_LIVE, GNL_LADDER_LIVE } from "@/lib/flags";
 
 export type NavItem = { href: string; label: string; external?: boolean };
 
@@ -7,6 +7,7 @@ export const PRIMARY_NAV: NavItem[] = [
   { href: "/blog", label: "News" },
   { href: "/learn", label: "Learn" },
   { href: "/learn/builds", label: "Builds" },
+  ...(CREEP_ROUTES_LIVE ? [{ href: "/learn/creep-routes", label: "Creep routes" }] : []),
   { href: "/gnl/schedule", label: "League" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },

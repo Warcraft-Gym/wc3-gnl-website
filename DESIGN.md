@@ -135,6 +135,15 @@ A creep route page (`/learn/creep-routes/<slug>`) shows the minimap as SVG (`Cre
 - **The computed hero level.** `deriveRoute` (`src/lib/creep-routes/derive.mjs`) runs a hero through the route's camp stops in xp order and reports the level/xp after each stop ("Lv 2 · 312 xp"); this is derived, never authored, so it can never drift from the camp data.
 - **Keyboard and assistive tech.** The map SVG is one keyboard stop (`role="img"`, `aria-label` naming the map and its camp/stop counts); arrow keys walk the route's camp stops (or every camp, with no route), Escape clears, and an `aria-live` region names the current camp for anyone not hovering it. The step table is a real `<table>` and is the map's fallback for assistive tech — it needs no separate accessible view.
 
+### List
+
+`/learn/creep-routes` (`RouteRow`, `src/components/creep-routes/`) copies `BuildRow`'s grid, so the two list pages read as one family: race crest · title + summary + meta line · a right-hand column with the level badge and a time line, same breakpoints, same `panel` treatment, same left-edge accent bar (by `level` here — `standard` gold, `beginner` win-green — where `BuildRow` keys the same accent off `difficulty`).
+
+- **Row anatomy.** Crest (`/factions/large/<race>.webp`) · title + one-line summary · a meta line reading `vs <opponent icons>` (`VsRaces`, shared with builds) · map name (+ `v<mapVersion>` when known) · stop count · author, e.g. "Autumn Leaves v2 · 4 stops · by Gym coaches". The right column stacks the route's `LevelBadge` over a `tnum` line: the updated date and, when the route has a first stop, "starts `<day clock>`" (`toDayClock` of `stops[0].time`) — the same day-clock convention as the detail page, so a route's starting time of day is visible without opening it.
+- **Unit words.** Always the plural noun after the count, lower case, no abbreviation: "4 stops", "1 route" / "5 routes" (the result count in the filter bar), never "4 camps" (a route's stop count, not the map's camp count — those differ when a stop is a TP-home or shop visit).
+- **Filters live in the URL**, `?race=&vs=&map=&level=&q=&sort=`, applied with `router.replace(..., { scroll: false })` so the list is shareable and back/forward-safe; every control applies on change except the search box, debounced 300 ms — the same pattern as `/learn/builds`' `MatchupPicker`. `RouteFilters` (`src/components/creep-routes/RouteFilters.tsx`) is a sibling of `MatchupPicker`, not a reuse of it: a build's `difficulty` (beginner/intermediate/advanced) and a route's `level` (standard/beginner) are different vocabularies, and the map select has no build-list equivalent.
+- **No map thumbnail on the row.** `CreepMap` was considered per-row at ~120px (its `highlightCamps` prop exists for exactly this), but at that size on a narrow phone width the row either clips the crest/meta column or grows tall enough to break the list's scan rhythm; skipped for this feature. The full map lives on the detail page.
+
 ### New colour tokens
 
 | Token | Value | Job | Tested |

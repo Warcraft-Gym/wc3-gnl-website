@@ -191,10 +191,50 @@ this) — same trade-off as the build-orders NDJSON seed.
 
 ## Pages
 
-`/learn/creep-routes/<slug>` (`src/app/(site)/learn/creep-routes/[slug]/page.tsx`,
-gated by `CREEP_ROUTES_LIVE` in `src/lib/flags.ts`) is the only creep-route
-page shipped so far — no list page, nav entry or editor yet (later
-features). It follows the build-order detail page's shape: a race showcase
+`/learn/creep-routes` (`src/app/(site)/learn/creep-routes/page.tsx`) is the
+list, copying `/learn/builds`' pattern: an async `searchParams`, filters
+validated against the known ids and re-applied with `filterCreepRoutes`
+(`src/lib/creep-routes/routes.ts`), rows (`RouteRow`) and an empty state
+with "Clear filters" and "Submit a route" (the submit form itself is F005;
+the link exists now and 404s until then). Both list and detail pages are
+gated by `CREEP_ROUTES_LIVE` in `src/lib/flags.ts`.
+
+**URL params**, all optional, invalid values silently ignored:
+
+| Param | Values | Notes |
+|---|---|---|
+| `race` | a `BuildRace` id (`human`/`orc`/`nightelf`/`undead`) | the route's own race |
+| `vs` | a `BuildRace` id | matches a route written for that opponent, or for any opponent (`vsRaces: []`) |
+| `map` | a catalogue slug (e.g. `autumn-leaves`) | validated against the live map list, not a fixed enum |
+| `level` | `standard` \| `beginner` | |
+| `q` | free text, capped at 80 chars | matched against title, summary, author, map name |
+| `sort` | `updated` (default) \| `title` | |
+
+The filter bar (`RouteFilters`, `src/components/creep-routes/RouteFilters.tsx`)
+writes every change straight to the URL with `router.replace(..., { scroll:
+false })` — search is debounced 300 ms, everything else applies
+immediately — so a filtered view is a shareable, bookmarkable link, and the
+list stays one page to search engines (canonical `/learn/creep-routes`
+regardless of query string). It is a sibling of `MatchupPicker`
+(`src/components/builds/MatchupPicker.tsx`), not a reuse: a build's
+`difficulty` and a route's `level` are different enums, and the route list
+also needs a map select builds has no equivalent of. See `DESIGN.md`'s
+"Creep routes → List" section for the row anatomy and unit words.
+
+The Learn hub's `creep-routes` category card and the primary nav's "Creep
+routes" item (conditional on `CREEP_ROUTES_LIVE`, `src/components/layout/nav-items.ts`)
+both point at this list, replacing the old image-only category page for
+that slug; `src/app/(site)/learn/[category]/page.tsx` redirects
+`/learn/creep-routes` to the list explicitly (belt and suspenders — the
+App Router already resolves the static `creep-routes/page.tsx` ahead of
+the dynamic `[category]` segment for that exact path). The existing guide
+"Reading creep camps and item drops" isn't lost: it's linked from the list
+page and still lives at `/learn/guide/reading-creep-camps-and-drops`.
+`src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
+every other category) and every published route slug.
+
+`/learn/creep-routes/<slug>` (`src/app/(site)/learn/creep-routes/[slug]/page.tsx`)
+is the detail page shipped in an earlier feature. It follows the build-order detail page's shape: a race showcase
 header with the matchup, the route's level badge ("Standard"/"Beginner"),
 map name and `mapVersion`, author/maintainer/updated/source, `HowTo` +
 `BreadcrumbList` JSON-LD (`src/lib/seo.ts`), a companion-build card when
@@ -218,6 +258,8 @@ follow.
 `highlightCamps?`, `className?`) are deliberately reusable beyond this
 page: `onCampSelect` is unused here but renders camps as real `<button>`s
 (via `foreignObject`) instead of plain `<g>`s when given, for a future
-editor (F005) to hook camp clicks into; `highlightCamps` is ready for a
-future list/filter page (F004) to dim or ring a subset of camps without
-this feature needing to build that UI.
+editor (F005) to hook camp clicks into; `highlightCamps` was left ready for
+a list/filter page to dim or ring a subset of camps, but F004's list
+(`/learn/creep-routes`) ended up not using it — no per-row map thumbnail,
+see `DESIGN.md`'s "List" section — so it remains unused until an editor or
+a future map-first view wants it.
