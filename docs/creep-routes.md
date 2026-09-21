@@ -5,9 +5,9 @@
 `scripts/creep-maps/build.mjs` turns a W3Champions `.w3x`/`.w3m` map file
 into a **map catalogue**: JSON describing every creep camp (its creeps,
 summed level, xp and difficulty band), the two start spots, the gold mines,
-the neutral-passive shops and the terrain bounds, plus a minimap PNG
-(256x256, or narrower on one axis for a non-square map — see `image` and
-the letterbox crop below). `src/lib/creep-routes/xp.mjs` has the pure
+the neutral-passive shops and the playable bounds (see below), plus a
+minimap PNG (256x256, or narrower on one axis for a non-square map — see
+`image` and the letterbox crop below). `src/lib/creep-routes/xp.mjs` has the pure
 creep/hero XP math (`creepXp`, `heroXpForLevel`, `creepXpFactor`,
 `heroLevelAfter`) later features use to route a hero through camps in xp
 order.
@@ -18,30 +18,71 @@ rebuilt entirely from Blizzard's own 1.27.1 game data (mirrored in the
 `w3x2lni` repository) by `scripts/creep-maps/creep-table.mjs`; every entry
 carries a `source` URL. The script never guesses: a creep id it cannot find
 in that table makes catalogue building throw, naming the id, rather than
-shipping a wrong level. `war3mapMap.blp` is always rendered into a square
-256x256 canvas; a non-square map gets black letterbox padding on its
-shorter axis, which `build.mjs` detects and crops (`minimap.mjs` +
-`src/lib/creep-routes/minimap-crop.mjs`) so the PNG's aspect matches
-`bounds`'s aspect and the catalogue's normalised camp/start/mine
-coordinates line up with it directly; the crop result is recorded as
-`image: { width, height }`. If a map's real letterbox doesn't match its
-bounds-implied aspect closely enough, the build throws rather than ship a
-misaligned image. See `scripts/creep-maps/README.md` for exactly how to
-get map files, rebuild the creep table, run `build.mjs` (including its
+shipping a wrong level. See `scripts/creep-maps/README.md` for exactly how
+to get map files, rebuild the creep table, run `build.mjs` (including its
 `--creeps <path>` override for testing against a scratch table), and read
 the JSON it writes.
 
 This feature ships the script, its fixtures and tests, the SLK-sourced
-creep table (83 rawcodes) and generated catalogues for eight of the nine
-bundle maps (`src/lib/creep-routes/maps/<slug>.json` plus their minimaps at
+creep table (83 rawcodes) and generated catalogues for all nine bundle
+maps (`src/lib/creep-routes/maps/<slug>.json` plus their minimaps at
 `public/maps/<slug>.png`): `autumn-leaves`, `echo-isles`, `last-refuge`,
-`shallow-grave`, `springtime`, `tidehunters`, `turtle-rock`,
-`twisted-meadows`. `northern-isles` is not currently regenerated — its real
-minimap's letterbox doesn't pass the aspect sanity check (see the
-`001b-slk-table-and-letterbox` feature's handoff for the pixel-level
-investigation) — so it was dropped rather than shipped misaligned or with
-its creep data left stale. Later features build the route-planning UI on
-top of these catalogues.
+`northern-isles`, `shallow-grave`, `springtime`, `tidehunters`,
+`turtle-rock`, `twisted-meadows`. Later features build the route-planning
+UI on top of these catalogues.
+
+### The playable rectangle (F001-followup-3)
+
+Camps/starts/mines/shops normalise over the map's **playable rectangle**,
+not the raw terrain grid. `war3map.w3e` (terrain) covers a wider area than
+the minimap image (`war3mapMap.blp`, which is also what the in-game
+minimap and coff-creeps' Liquipedia-preview reference show) actually
+draws: `war3map.w3i` records an unplayable border on each side as
+`complements` (`int[4]`, file order **left, right, bottom, top**, one unit
+= one 128-world-unit terrain tile). `map-info.mjs`'s
+`computePlayableBounds(terrainBounds, complements)` computes
+`playable = { xMin: terrainBounds.xMin + left·128, xMax: terrainBounds.xMax
+− right·128, yMin: terrainBounds.yMin + bottom·128, yMax: terrainBounds.yMax
+− top·128 }`; the catalogue's `bounds` field *is* this playable rect (kept
+alongside the raw `terrainBounds` and `cameraBounds`, both for reference
+only). Mapping over the terrain rect instead put every marker roughly 23%
+too close to the map's centre — the bug this feature fixes. Verified
+against coff-creeps' own Autumn Leaves camp/spawn positions
+(`coff-reference.test.mjs`, backed by
+`scripts/creep-maps/__fixtures__/autumn-leaves/coff-reference.json`): every
+one of our 20 camps and both starts land within 0.01 normalised distance
+of coff's (max observed: **0.0000**).
+
+A creep/start/mine/shop unit placed in the unplayable border (decorative,
+never actually reachable) is **dropped**, never clamped into `[0, 1]` —
+`build.mjs` names the count in its stdout summary line
+(`N dropped outside the playable rect`) when it happens.
+
+Camp ids are still ordered by distance-then-angle from the map's *terrain*
+centre, not the playable rect's own (often off-centre — the unplayable
+border isn't symmetric on several maps) one: this keeps ids stable across
+this switch, since it's purely a stdout/data-visibility rounding decision,
+not a statement about where any camp actually is.
+
+`war3mapMap.blp` is always rendered into a square 256x256 canvas; a
+non-square map gets black letterbox padding on its shorter axis, which
+`build.mjs` detects and crops (`minimap.mjs` +
+`src/lib/creep-routes/minimap-crop.mjs`) so the PNG's aspect matches
+`bounds`'s (playable) aspect and the catalogue's normalised coordinates
+line up with it directly; the crop result is recorded as
+`image: { width, height }`. The crop is accepted if the result's aspect is
+within 3% of `bounds`'s aspect, **or** if it matches the in-game editor's
+own letterbox rounding: the editor rounds a letterboxed map's shorter
+content dimension *up* to a multiple of 16 pixels (and stretches slightly
+to fill it) rather than keeping the exact fraction, so
+`expectedHeight = ceil16(256 / boundsAspect)` (symmetric on width for a
+tall map) is accepted within 1 row/column. This is why `northern-isles`
+(playable aspect 1.2558, `ceil16(256/1.2558) = 208`) now builds — under the
+old terrain-rect aspect (1.3333) its real letterbox missed the plain 3%
+tolerance outright; under the playable aspect it's within tolerance
+already. `echo-isles` (playable aspect 1.381) needed the 16-px rule itself:
+`ceil16(256/1.381) = 192`, a 3.4% gap from the plain check. If neither
+check passes, the build throws rather than ship a misaligned image.
 
 ## Data model
 

@@ -48,3 +48,32 @@ test("a buffer with no bands but a non-square bounds aspect throws, naming both 
     return true;
   });
 });
+
+// F001-followup-3: over the *playable* rect (terrain minus the w3i
+// "complements" border), several bundle maps' bounds aspect no longer
+// matches the letterbox band split within the plain 3% tolerance — the
+// editor itself rounds the letterboxed content height up to a multiple of
+// 16 (and stretches slightly to fill it), so the crop accepts that rounded
+// height too. See the feature's evidence/bounds.mjs output.
+
+test("Echo Isles-like: aspect 1.381 crops to 256x192 (ceil16(256/1.381)=192, outside the plain 3% tolerance)", () => {
+  const buffer = makeBuffer(256, 256, 32); // 256 - 32*2 = 192 rows of content
+  const result = cropLetterbox(buffer, 256, 256, 1.381);
+  assert.equal(result.width, 256);
+  assert.equal(result.height, 192);
+});
+
+test("Northern Isles-like: aspect 1.2558 crops to 256x208 (ceil16(256/1.2558)=208)", () => {
+  const buffer = makeBuffer(256, 256, 24); // 256 - 24*2 = 208 rows of content
+  const result = cropLetterbox(buffer, 256, 256, 1.2558);
+  assert.equal(result.width, 256);
+  assert.equal(result.height, 208);
+});
+
+test("a genuinely mismatched crop (not a 16-px rounding away) still throws", () => {
+  const buffer = makeBuffer(256, 256, 48); // 256 - 48*2 = 160 rows; ceil16(256/1.381)=192, off by 32
+  assert.throws(() => cropLetterbox(buffer, 256, 256, 1.381), (error) => {
+    assert.match(error.message, /1\.381/);
+    return true;
+  });
+});

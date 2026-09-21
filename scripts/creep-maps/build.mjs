@@ -18,9 +18,9 @@ import { basename, join } from "node:path";
 import { writeFileSync } from "node:fs";
 import { openMap, readMember } from "./mpq.mjs";
 import { parseUnitsDoo } from "./units-doo.mjs";
-import { parseW3i, parseW3eBounds } from "./map-info.mjs";
+import { parseW3i, parseW3eBounds, computePlayableBounds } from "./map-info.mjs";
 import { decodeMinimapCropped, encodePng } from "./minimap.mjs";
-import { buildCamps, buildStarts, buildMines, buildShops } from "./camps.mjs";
+import { buildCamps, buildStarts, buildMines, buildShops, countDroppedOutsideBounds } from "./camps.mjs";
 import { slugify } from "./slug.mjs";
 import { loadCreepTable, getCreep } from "../../src/lib/creep-routes/creeps.mjs";
 
@@ -77,16 +77,29 @@ function nameAndVersionFromFile(path) {
 function buildCatalogue(mapPath, creepsPath) {
   const map = openMap(mapPath);
   const doo = parseUnitsDoo(readMember(map, "war3mapUnits.doo"));
-  const { bounds } = parseW3eBounds(readMember(map, "war3map.w3e"));
-  const { cameraBounds } = parseW3i(readMember(map, "war3map.w3i"));
+  const { bounds: terrainBounds } = parseW3eBounds(readMember(map, "war3map.w3e"));
+  const { cameraBounds, complements } = parseW3i(readMember(map, "war3map.w3i"));
+
+  // F001-followup-3: the minimap image (war3mapMap.blp) covers the
+  // *playable* rectangle, not the raw terrain grid — see
+  // computePlayableBounds's doc comment.
+  const bounds = computePlayableBounds(terrainBounds, complements);
+  const terrainCentre = {
+    x: (terrainBounds.xMin + terrainBounds.xMax) / 2,
+    y: (terrainBounds.yMin + terrainBounds.yMax) / 2,
+  };
 
   const creepTable = creepsPath ? loadCreepTable(creepsPath) : loadCreepTable();
   const lookupCreep = (rawcode) => getCreep(rawcode, creepTable);
 
-  const camps = buildCamps(doo.units, bounds, lookupCreep);
+  // Camp ids are ordered from the terrain centre, not the playable
+  // rect's own (often off-centre) one, so switching to playable bounds
+  // does not reshuffle ids that were already stable.
+  const camps = buildCamps(doo.units, bounds, lookupCreep, terrainCentre);
   const starts = buildStarts(doo.units, bounds);
   const mines = buildMines(doo.units, bounds);
   const shops = buildShops(doo.units, bounds);
+  const droppedOutsidePlayable = countDroppedOutsideBounds(doo.units, bounds);
 
   const { name, version } = nameAndVersionFromFile(mapPath);
   const slug = slugify(name);
@@ -105,6 +118,7 @@ function buildCatalogue(mapPath, creepsPath) {
     sourceFile: basename(mapPath),
     generatedAt: new Date().toISOString(),
     bounds,
+    terrainBounds,
     cameraBounds,
     image: { width, height },
     camps,
@@ -113,7 +127,7 @@ function buildCatalogue(mapPath, creepsPath) {
     shops,
   };
 
-  return { catalogue, png, minimap: { width, height, data } };
+  return { catalogue, png, minimap: { width, height, data }, droppedOutsidePlayable };
 }
 
 function drawDot(rgba, width, height, px, py, radius, [r, g, b, a]) {
@@ -178,7 +192,7 @@ function main() {
   const { files, out, debug, creepsPath } = parseArgs(process.argv.slice(2));
 
   for (const file of files) {
-    const { catalogue, png, minimap } = buildCatalogue(file, creepsPath);
+    const { catalogue, png, minimap, droppedOutsidePlayable } = buildCatalogue(file, creepsPath);
     writeFileSync(join(out, `${catalogue.slug}.json`), JSON.stringify(catalogue, null, 2) + "\n");
     writeFileSync(join(out, `${catalogue.slug}.png`), png);
     if (debug) {
@@ -186,7 +200,8 @@ function main() {
     }
     console.log(
       `${catalogue.slug}: ${catalogue.camps.length} camps, ${catalogue.starts.length} starts, ` +
-        `${catalogue.mines.length} mines, ${catalogue.shops.length} shops (mapVersion ${catalogue.mapVersion ?? "unknown"})`,
+        `${catalogue.mines.length} mines, ${catalogue.shops.length} shops (mapVersion ${catalogue.mapVersion ?? "unknown"})` +
+        (droppedOutsidePlayable ? `, ${droppedOutsidePlayable} dropped outside the playable rect` : ""),
     );
   }
 }

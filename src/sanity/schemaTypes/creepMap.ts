@@ -69,7 +69,8 @@ export const creepMap = defineType({
       name: "bounds",
       type: "object",
       group: "generated",
-      description: "Terrain bounds (game units) the camp/start/mine/shop x/y are normalised against.",
+      description:
+        "Playable-rect bounds (game units; terrain minus the map's unplayable border) the camp/start/mine/shop x/y are normalised against.",
       fields: [
         defineField({ name: "xMin", type: "number", validation: (rule) => rule.required() }),
         defineField({ name: "xMax", type: "number", validation: (rule) => rule.required() }),

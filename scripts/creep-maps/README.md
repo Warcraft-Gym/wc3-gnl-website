@@ -53,6 +53,31 @@ with their minimap at `public/maps/<slug>.png` — run the script into a
 scratch `--out` dir and copy the two files into place per map; the script
 itself does not know about the site's directory layout.
 
+### The playable rectangle
+
+`bounds` (and every normalised `x`/`y`) is the map's **playable
+rectangle**, not the raw `war3map.w3e` terrain grid: `war3map.w3i` records
+an unplayable border on each side as `complements` (`int[4]`, file order
+**left, right, bottom, top**, in 128-unit tiles); `map-info.mjs`'s
+`computePlayableBounds(terrainBounds, complements)` subtracts it out. The
+minimap image (`war3mapMap.blp`) only ever draws the playable rectangle —
+mapping over the full terrain grid instead put every marker roughly 23%
+too closer to the map's centre than the real in-game minimap (F001
+followup-3, opened from a user report; see
+`missions/2026-09-21-creep-routes/features/001c-playable-bounds/spec.md`
+for the evidence, and `coff-reference.test.mjs` for the executable proof
+against coff-creeps' own reference positions). `terrainBounds` and
+`cameraBounds` are both kept in the catalogue JSON for reference only.
+
+A creep/start/mine/shop unit sitting in the unplayable border (decorative)
+is dropped, never clamped into `[0, 1]`; `build.mjs`'s stdout summary line
+names the count when this happens (`N dropped outside the playable rect`).
+
+Camp ids are ordered by distance-then-angle from the map's **terrain**
+centre (not the playable rect's own, often off-centre one) so they stay
+stable regardless of how the playable rect happens to sit inside the
+terrain grid.
+
 ### The minimap letterbox crop
 
 `war3mapMap.blp` is always rendered into a 256x256 square canvas. Non-square
@@ -64,13 +89,27 @@ axis; `build.mjs` detects and crops those bands (`decodeMinimapCropped` in
 further client-side adjustment. The catalogue JSON records the post-crop
 size as `image: { width, height }`.
 
-If the cropped image's aspect doesn't match the bounds aspect within 3%,
-the whole build throws for that map — naming the map, the bounds aspect and
-the image aspect — rather than shipping a misaligned image. This did happen
-for `northern-isles` against the one bundle file available; see this
-feature's handoff (`missions/2026-09-21-creep-routes/features/001b-slk-table-and-letterbox/handoff.md`)
-for the full pixel-level investigation and why it was left unregenerated
-rather than forced through.
+The crop is accepted if the cropped image's aspect matches the bounds
+aspect within 3%, **or** if it matches the in-game editor's own letterbox
+rounding: the editor rounds a letterboxed map's shorter content dimension
+*up* to a multiple of 16 pixels (and stretches slightly to fill it) rather
+than keeping the exact `256/aspect` fraction, so `expectedHeight =
+ceil16(256 / boundsAspect)` (symmetric on width for a tall map) is also
+accepted, within 1 row/column for JPEG-ish BLP compression bleed. If
+neither check passes, the whole build throws for that map — naming the
+map, the bounds aspect and the image aspect — rather than shipping a
+misaligned image.
+
+`northern-isles` previously failed the plain 3% check under the old
+(terrain-rect) bounds aspect (1.3333 vs. a real letterbox of ~1.2308); under
+the playable-rect aspect (1.2558) it's within tolerance outright and now
+builds normally. `echo-isles` (playable aspect 1.381) needs the 16-px
+rounding rule itself (`ceil16(256/1.381) = 192`, a 3.4% gap from the plain
+check) — see this feature's handoff
+(`missions/2026-09-21-creep-routes/features/001c-playable-bounds/handoff.md`)
+for the full before/after picture; the pixel-level investigation that first
+found Northern Isles's real letterbox is in
+`missions/2026-09-21-creep-routes/features/001b-slk-table-and-letterbox/handoff.md`.
 
 ## What the JSON means
 
@@ -83,7 +122,8 @@ rather than forced through.
   "w3cName": "Autumn Leaves v2",
   "sourceFile": "w3c_AutumnLeaves_v2-0.w3x",
   "generatedAt": "2026-09-21T12:00:00.000Z",
-  "bounds": { "xMin": -8192, "xMax": 8192, "yMin": -8192, "yMax": 8192 }, // war3map.w3e terrain grid, world units
+  "bounds": { "xMin": -6272, "xMax": 6272, "yMin": -6272, "yMax": 6272 }, // playable rect, world units (terrain minus the w3i "complements" border)
+  "terrainBounds": { "xMin": -8192, "xMax": 8192, "yMin": -8192, "yMax": 8192 }, // war3map.w3e terrain grid, reference only
   "cameraBounds": [-5760, -6016, 5760, 6016, -5760, 6016, 5760, -6016],   // war3map.w3i, reference only
   "image": { "width": 256, "height": 256 }, // post-letterbox-crop PNG size; not always 256x256, see below
   "camps": [

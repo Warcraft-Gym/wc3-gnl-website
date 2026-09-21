@@ -9,10 +9,18 @@ function readCString(buf, offset) {
   return { value: buf.toString("utf8", offset, end), offset: end + 1 };
 }
 
-/** Parses `war3map.w3i`, returning `{ version, cameraBounds }`.
+/** Parses `war3map.w3i`, returning `{ version, cameraBounds, complements }`.
  *
  * `cameraBounds` is `[left, bottom, right, top, ...]` (the raw 8 floats),
- * kept only for reference — creep-routes uses the `.w3e` terrain bounds.
+ * kept only for reference — creep-routes uses the playable rect (below).
+ *
+ * `complements` is the `int[4]` right after the camera bounds: the width
+ * (in tiles) of the unplayable terrain border on each side, in file order
+ * **left, right, bottom, top** (verified against five bundle maps: Autumn
+ * Leaves `15,15,15,15`; Echo Isles `6,6,4,8`; Northern Isles `10,10,5,5`).
+ * This is what turns the full terrain grid (`.w3e`) into the *playable*
+ * rectangle the minimap image (`war3mapMap.blp`) actually covers — see
+ * `computePlayableBounds`.
  */
 export function parseW3i(input) {
   const buf = toBuffer(input);
@@ -35,7 +43,30 @@ export function parseW3i(input) {
     o += 4;
   }
 
-  return { version, cameraBounds };
+  const complements = [];
+  for (let i = 0; i < 4; i++) {
+    complements.push(buf.readInt32LE(o));
+    o += 4;
+  }
+
+  return { version, cameraBounds, complements };
+}
+
+/** Computes the playable rectangle — the full terrain grid (`terrainBounds`,
+ * from `.w3e`) minus the unplayable border `war3map.w3i` records as
+ * "complements" (`[left, right, bottom, top]`, in tiles; one tile = 128
+ * world units). This is the rectangle the minimap image (`war3mapMap.blp`)
+ * actually covers — camps/starts/mines normalise over *this*, not the raw
+ * terrain grid, to land on the same pixel as the in-game minimap and
+ * coff-creeps' reference (see `coff-reference.test.mjs`). */
+export function computePlayableBounds(terrainBounds, complements) {
+  const [left, right, bottom, top] = complements;
+  return {
+    xMin: terrainBounds.xMin + left * 128,
+    xMax: terrainBounds.xMax - right * 128,
+    yMin: terrainBounds.yMin + bottom * 128,
+    yMax: terrainBounds.yMax - top * 128,
+  };
 }
 
 /** Parses `war3map.w3e`'s fixed header, returning terrain `bounds`.

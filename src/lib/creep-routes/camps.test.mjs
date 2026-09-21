@@ -4,7 +4,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseUnitsDoo } from "../../../scripts/creep-maps/units-doo.mjs";
-import { parseW3eBounds } from "../../../scripts/creep-maps/map-info.mjs";
+import { parseW3i, parseW3eBounds, computePlayableBounds } from "../../../scripts/creep-maps/map-info.mjs";
 import { buildCamps, buildStarts, buildMines, buildShops } from "../../../scripts/creep-maps/camps.mjs";
 
 const FIXTURES = join(
@@ -12,11 +12,23 @@ const FIXTURES = join(
   "../../../scripts/creep-maps/__fixtures__/autumn-leaves",
 );
 
+// Playable rect = terrain minus war3map.w3i's "complements" border (F001
+// followup-3): Autumn Leaves is 15/15/15/15 tiles all around, terrain
+// ±8192 → playable ±6272. `buildCamps`/`buildStarts`/etc. normalise over
+// *this*, not the raw terrain grid — see `computePlayableBounds`.
 function loadFixture() {
   const doo = parseUnitsDoo(readFileSync(join(FIXTURES, "war3mapUnits.doo")));
-  const { bounds } = parseW3eBounds(readFileSync(join(FIXTURES, "war3map.w3e.header")));
-  return { units: doo.units, bounds };
+  const { bounds: terrainBounds } = parseW3eBounds(readFileSync(join(FIXTURES, "war3map.w3e.header")));
+  const { complements } = parseW3i(readFileSync(join(FIXTURES, "war3map.w3i")));
+  const bounds = computePlayableBounds(terrainBounds, complements);
+  return { units: doo.units, bounds, terrainBounds, complements };
 }
+
+test("Autumn Leaves fixture's playable rect is ±6272 (terrain ±8192 minus 15 tiles all around)", () => {
+  const { bounds, complements } = loadFixture();
+  assert.deepEqual(complements, [15, 15, 15, 15]);
+  assert.deepEqual(bounds, { xMin: -6272, xMax: 6272, yMin: -6272, yMax: 6272 });
+});
 
 // A stub lookup good enough to exercise clustering/geometry without
 // depending on the real (network-sourced) creeps.json.
