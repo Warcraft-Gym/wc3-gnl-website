@@ -301,46 +301,16 @@
       radial-gradient(48rem 30rem at 92% 8%, oklch(30% 0.06 70 / 0.8), transparent 60%),
       linear-gradient(180deg, oklch(12% 0.015 60), oklch(7% 0.012 50) 60%, oklch(5% 0.01 40));
   }
-  /* Ember sparks drifting upward (above any KeyArt image, below content) */
-  .keyart::after {
-    content: "";
-    position: absolute;
-    inset: -20% 0 0 0;
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0.7;
-    background-image:
-      radial-gradient(1.5px 1.5px at 12% 80%, oklch(85% 0.17 60), transparent),
-      radial-gradient(2px 2px at 30% 60%, oklch(80% 0.18 50), transparent),
-      radial-gradient(1px 1px at 48% 90%, oklch(90% 0.15 70), transparent),
-      radial-gradient(1.5px 1.5px at 66% 70%, oklch(82% 0.17 55), transparent),
-      radial-gradient(2px 2px at 82% 85%, oklch(78% 0.18 45), transparent),
-      radial-gradient(1px 1px at 92% 55%, oklch(88% 0.15 65), transparent);
-    background-size: 100% 100%;
-    animation: wg-embers 14s linear infinite;
-  }
-
   .keyart-blue::before {
     background-image:
       radial-gradient(60rem 34rem at 78% 70%, oklch(40% 0.14 255 / 0.55), transparent 62%),
       radial-gradient(44rem 28rem at 10% 0%, oklch(24% 0.06 250 / 0.7), transparent 60%),
       linear-gradient(180deg, oklch(9% 0.02 250), oklch(6% 0.02 250) 60%, oklch(4% 0.015 250));
   }
-  .keyart-blue::after {
-    background-image:
-      radial-gradient(1.5px 1.5px at 18% 78%, oklch(90% 0.08 230), transparent),
-      radial-gradient(1px 1px at 40% 60%, oklch(92% 0.06 220), transparent),
-      radial-gradient(2px 2px at 62% 88%, oklch(85% 0.1 240), transparent),
-      radial-gradient(1px 1px at 84% 66%, oklch(90% 0.08 230), transparent);
-  }
-
   .keyart-dark::before {
     background-image:
       radial-gradient(60rem 30rem at 50% 0%, oklch(18% 0.02 60 / 0.8), transparent 60%),
       linear-gradient(180deg, oklch(5% 0.006 60), oklch(3% 0.006 60));
-  }
-  .keyart-dark::after {
-    display: none;
   }
 
   /* Subtle film grain */
@@ -381,10 +351,6 @@
     animation: wg-pulse 1.3s var(--wg-ease) infinite;
   }
 
-  @keyframes wg-embers {
-    from { transform: translateY(0); }
-    to { transform: translateY(-18%); }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
