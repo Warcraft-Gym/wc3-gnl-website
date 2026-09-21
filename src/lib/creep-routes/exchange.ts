@@ -38,6 +38,9 @@ export const creepRouteExchangeSchema = z.object({
   race: z.enum(raceIds).optional(),
   vsRaces: z.array(z.enum(raceIds)).default([]),
   level: z.enum(levelIds).default("standard"),
+  /** Index into the chosen map's `starts` — which spawn is *your* base;
+   *  omitted means the first start (0). */
+  start: z.number().int().min(0).optional(),
   hero: z.string().optional(),
   build: z.string().optional(),
   patch: z.string().optional(),

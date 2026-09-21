@@ -82,6 +82,12 @@ export type CreepRoute = {
   vsRaces: BuildRace[];
   level: RouteLevel;
   map: { slug: string; name: string };
+  /** Index into `map.starts` — which spawn is *your* base. Unset/0 (the
+   *  default) is fine for every two-start map; only a map with more than
+   *  two spawns (Turtle Rock, Twisted Meadows) ever needs this set. The
+   *  opponent's base is never recorded — every other entry in
+   *  `map.starts` draws as the small muted "opponent" marker. */
+  start?: number;
   /** Icon key into GAME_ICON_OPTIONS (src/lib/builds/icons.ts), optional. */
   hero?: string;
   summary: string;

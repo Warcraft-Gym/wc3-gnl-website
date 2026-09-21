@@ -47,7 +47,7 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
     return { status: "error", message: "No maps are configured yet. Please try again later." };
   }
   const schema = createSubmissionSchema({
-    maps: maps.map((m) => ({ slug: m.slug, campIds: m.camps.map((c) => c.id) })),
+    maps: maps.map((m) => ({ slug: m.slug, campIds: m.camps.map((c) => c.id), startsCount: m.starts.length })),
     iconKeys: GAME_ICON_OPTIONS.map((o) => o.value),
     buildSlugs: builds.map((b) => b.slug),
   });
@@ -57,6 +57,7 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
     race: formData.get("race"),
     vsRaces: formData.getAll("vsRaces").filter(Boolean),
     level: formData.get("level"),
+    start: formData.get("start") ?? undefined,
     hero: formData.get("hero") ?? undefined,
     build: formData.get("build") ?? undefined,
     title: formData.get("title"),

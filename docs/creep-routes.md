@@ -99,11 +99,17 @@ data layer share:
   clock" below for how a hero's own level/xp are derived per stop.
 - **`CreepRoute`** — `slug`, `title`, `race`, `vsRaces[]` (empty = any),
   `level` (`"standard"` or `"beginner"`), `map: { slug, name }`, an optional
-  `hero` (icon key into `GAME_ICON_OPTIONS`), `summary`, `author` and credit
-  fields, an optional `build` link to a companion `buildOrder`, `patch`,
-  `mapVersion` (the catalogue version the route was written against),
-  `featured`, `publishedAt`, `updatedAt`, `stops[]`, and an optional
-  `description`.
+  `start` (an index into `map.starts` — which spawn is *your* base; unset
+  means 0, fine for every two-start map, only Turtle Rock and Twisted
+  Meadows' four-start layouts ever need it set to something else), an
+  optional `hero` (icon key into `GAME_ICON_OPTIONS`), `summary`, `author`
+  and credit fields, an optional `build` link to a companion `buildOrder`,
+  `patch`, `mapVersion` (the catalogue version the route was written
+  against), `featured`, `publishedAt`, `updatedAt`, `stops[]`, and an
+  optional `description`. A route is always drawn from *your* base: `start`
+  says which of `map.starts` that is, the opponent's is just whichever
+  other one is left — the map never labels the two "P0"/"P1", see
+  `CreepMap`'s `StartMarker` in `DESIGN.md`.
 - **`RouteStop`** — `campId: string | null`, `time` (real seconds), and
   optionally `action` (for a `campId: null` base action like `"TP home"`,
   buying from a shop, or taking an expansion), `units` (what the *player*
@@ -324,6 +330,12 @@ sees; this section is the mechanics.
   `StopEditor` right), `StopEditor` owns the stop list's mutations (add a
   camp stop, add a base action, reorder, remove, sort by time) and the
   live `deriveRoute` readout, `StopRow` is one stop.
+- **The "Your spawn" picker.** `RouteEditor` renders a small radio picker
+  under the map, but only when `map.starts.length > 2` (Turtle Rock,
+  Twisted Meadows) — every other map's two starts leave nothing to pick
+  once you've chosen a race. Picking an option sets `start`, an index into
+  `map.starts`, and `CreepMap`'s red "you" X moves to match immediately;
+  switching maps resets `start` to 0.
 - **A camp is on the route at most once via the click path** — `RouteSubmitForm`'s
   `onCampSelect` toggles: adds a stop if the camp isn't on the route yet,
   removes the existing one if it is; a prefilled/imported route with a
@@ -338,12 +350,18 @@ sees; this section is the mechanics.
   to use as-is — it infers e.g. `vsRaces: never[]` — so every export is
   re-typed on the way out). `createSubmissionSchema({ maps, iconKeys,
   buildSlugs })` builds the zod schema against a **live catalogue** passed
-  in by the caller — every map's slug and real camp ids (a stop's `campId`
+  in by the caller — every map's slug, real camp ids (a stop's `campId`
   is checked against the *chosen* map's own camps in a `superRefine`,
-  never a global camp-id set), every valid `GAME_ICON_OPTIONS` key, and
-  known build slugs for the optional companion link. A stop's `time`
-  accepts either clock form and transforms straight to real seconds
-  (`parseAnyClock`, `clock.mjs`); a `campId: null` stop requires `action`.
+  never a global camp-id set) and optionally its `starts.length`, every
+  valid `GAME_ICON_OPTIONS` key, and known build slugs for the optional
+  companion link. The route-level `start` field (an index into the chosen
+  map's `starts`, defaulting to unset/0) is checked the same way: a
+  `superRefine` rejects `start >= starts.length` for the chosen map, but
+  only when the caller passed `startsCount` for it — a caller that omits it
+  (e.g. a test that doesn't care) skips the bound check rather than failing
+  closed. A stop's `time` accepts either clock form and transforms straight
+  to real seconds (`parseAnyClock`, `clock.mjs`); a `campId: null` stop
+  requires `action`.
   `toCreepRouteDraft(valid, mapDocId, buildDocId?)` is pure and
   synchronous — no Sanity client — so it's directly testable; the caller
   resolves both ids.
@@ -403,9 +421,13 @@ builds every response DTO from the domain types (`types.ts`).
 **List item** (`ApiRouteListItem`) — a deliberately narrow, explicit field
 set, not "everything the domain type has minus `description`": no
 `build`, `authorDiscord`, `maintainer`, `sourceUrl` or `patch` either,
-since those are detail-only. Every stop carries a `dayClock` string
-(computed from `time`, not stored) alongside the real-seconds `time`, so a
-consumer never has to import `clock.mjs` itself:
+since those are detail-only. `start` (an index into `map.starts` — which
+spawn is the route author's own base) is included but omitted from the
+JSON entirely when unset, the same as any other optional field with no
+value; JSON's own `undefined`-key-dropping does that for free. Every stop
+carries a `dayClock` string (computed from `time`, not stored) alongside
+the real-seconds `time`, so a consumer never has to import `clock.mjs`
+itself:
 
 ```json
 {

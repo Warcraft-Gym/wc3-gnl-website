@@ -46,6 +46,14 @@ export function RouteSubmitForm({
   const [race, setRace] = useState<CrestOption | "">("");
   const [vsRaces, setVsRaces] = useState<BuildRace[]>([]);
   const [level, setLevel] = useState<RouteLevel>("standard");
+  // Index into the chosen map's `starts` — which spawn is your base. Reset
+  // to 0 whenever the map changes (see `handleMapChange` below), since a
+  // start index only means anything relative to the map it was picked on.
+  const [start, setStart] = useState(0);
+  const handleMapChange = (slug: string) => {
+    setMapSlug(slug);
+    setStart(0);
+  };
   const [hero, setHero] = useState("");
   const [buildSlug, setBuildSlug] = useState("");
   const [stops, setStops] = useState<StopRowData[]>([]);
@@ -102,6 +110,7 @@ export function RouteSubmitForm({
     if (r.race) setRace(r.race as BuildRace);
     setVsRaces(r.vsRaces as BuildRace[]);
     setLevel(r.level as RouteLevel);
+    setStart(r.start ?? 0);
     setHero(r.hero ?? "");
     setBuildSlug(r.build ?? "");
     setTags(r.tags.slice(0, 8));
@@ -212,6 +221,7 @@ export function RouteSubmitForm({
         <input key={r} type="hidden" name="vsRaces" value={r} />
       ))}
       <input type="hidden" name="level" value={level} />
+      <input type="hidden" name="start" value={String(start)} />
       <input type="hidden" name="hero" value={hero} />
       <input type="hidden" name="build" value={buildSlug} />
       <input type="hidden" name="tags" value={tags.join(",")} />
@@ -240,7 +250,7 @@ export function RouteSubmitForm({
           <RouteSetup
             maps={maps}
             mapSlug={mapSlug}
-            onMapChange={setMapSlug}
+            onMapChange={handleMapChange}
             race={race}
             onRaceChange={setRace}
             vsRaces={vsRaces}
@@ -263,6 +273,8 @@ export function RouteSubmitForm({
             stops={stops}
             setStops={setStops}
             onCampSelect={onCampSelect}
+            start={start}
+            onStartChange={setStart}
             iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
             fieldError={(k) => errors[k]}
           />

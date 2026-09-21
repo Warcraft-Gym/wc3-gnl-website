@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 
 export type CreepMapProps = {
   map: CreepMapType;
-  route?: { stops: RouteStop[] };
+  route?: { stops: RouteStop[]; start?: number };
   /** 0-based index into `route.stops`; enlarges/glows that stop's marker
    *  when it's a camp stop. Lifted by the page so the map and the step
    *  table's play-along clock stay in sync. */
@@ -21,24 +21,24 @@ export type CreepMapProps = {
   className?: string;
 };
 
-function StartMarker({ start, iw, ih }: { start: MapStart; iw: number; ih: number }) {
+/**
+ * A start spot, drawn from *your* perspective: your own base is a red X
+ * (`--wg-loss`, ~14px across at this 256-viewBox scale, 2px stroke), every
+ * other start is a small muted blue X (`--wg-win` at 60% opacity, ~10px) —
+ * wc3.no's convention, kept as a reference for harass/defend stops. No
+ * "P0"/"P1" text: a route is always drawn from your own base, so there is
+ * nothing left to disambiguate. Both marks get the same dark under-stroke
+ * `RoutePath`'s line uses, so they read over any terrain colour.
+ */
+function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih: number; isYou: boolean }) {
   const cx = start.x * iw;
   const cy = start.y * ih;
-  // Two players get two distinct rings: solid for P1, dashed for P2.
+  const s = isYou ? 7 : 5;
+  const d = `M${(cx - s).toFixed(1)},${(cy - s).toFixed(1)} L${(cx + s).toFixed(1)},${(cy + s).toFixed(1)} M${(cx - s).toFixed(1)},${(cy + s).toFixed(1)} L${(cx + s).toFixed(1)},${(cy - s).toFixed(1)}`;
   return (
-    <g data-start={start.player}>
-      <circle
-        cx={cx}
-        cy={cy}
-        r={7}
-        fill="none"
-        stroke="var(--wg-gold)"
-        strokeWidth="2"
-        strokeDasharray={start.player === 2 ? "2 2" : undefined}
-      />
-      <text x={cx} y={cy + 3} textAnchor="middle" className="tnum select-none fill-gold text-[7px] font-bold">
-        P{start.player}
-      </text>
+    <g data-start={isYou ? "you" : "opponent"} opacity={isYou ? 1 : 0.6}>
+      <path d={d} fill="none" stroke="var(--wg-bg)" strokeOpacity="0.75" strokeWidth={isYou ? 4 : 3} strokeLinecap="round" />
+      <path d={d} fill="none" stroke={isYou ? "var(--wg-loss)" : "var(--wg-win)"} strokeWidth={isYou ? 2 : 1.5} strokeLinecap="round" />
     </g>
   );
 }
@@ -64,8 +64,9 @@ function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number })
 
 /**
  * The creep map: the minimap image with camps (coloured by difficulty
- * band), the two start spots, the gold mines and — when a route is given —
- * the numbered route path. One SVG keyboard stop like `MmrChart`: arrow
+ * band), every start spot (your own base a red X, every other a small
+ * muted blue X — see `StartMarker`), the gold mines and — when a route is
+ * given — the numbered route path. One SVG keyboard stop like `MmrChart`: arrow
  * keys walk the route's camp stops (or every camp, with no route), Escape
  * clears, and an `aria-live` region names the current camp for anyone who
  * isn't hovering it. The real `<table>` fallback for assistive tech is
@@ -120,9 +121,11 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
     }
   }
 
-  const label = `${map.name} minimap, ${map.camps.length} creep camps${
-    route ? `, ${route.stops.length} route stops` : ""
-  }. Arrow keys walk the camps, escape clears the readout.`;
+  const youStartIndex = route?.start ?? 0;
+  const opponentStartCount = Math.max(0, map.starts.length - 1);
+  const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
+    opponentStartCount === 1 ? "" : "s"
+  }${route ? `, ${route.stops.length} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
 
   return (
     <div ref={box} className={cn("panel relative overflow-hidden p-3", className)}>
@@ -150,8 +153,8 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
           {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} /> : null}
-          {map.starts.map((s) => (
-            <StartMarker key={s.player} start={s} iw={iw} ih={ih} />
+          {map.starts.map((s, i) => (
+            <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
           ))}
           {map.mines.map((m, i) => (
             <MineMarker key={i} mine={m} iw={iw} ih={ih} />

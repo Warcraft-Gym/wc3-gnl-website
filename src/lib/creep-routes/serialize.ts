@@ -35,6 +35,9 @@ export type ApiRouteListItem = {
   vsRaces: CreepRoute["vsRaces"];
   level: CreepRoute["level"];
   map: { slug: string; name: string; mapVersion?: string };
+  /** Index into `map.starts` — which spawn is *your* base; omitted means
+   *  the first start (0). See `CreepRoute.start`'s own doc comment. */
+  start?: number;
   hero?: string;
   summary: string;
   author: string;
@@ -104,6 +107,7 @@ export function toApiRouteListItem(route: CreepRoute, origin: string): ApiRouteL
     vsRaces: route.vsRaces,
     level: route.level,
     map: { slug: route.map.slug, name: route.map.name, mapVersion: route.mapVersion },
+    start: route.start,
     hero: route.hero,
     summary: route.summary,
     author: route.author,

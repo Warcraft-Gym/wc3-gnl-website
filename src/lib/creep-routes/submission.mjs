@@ -91,6 +91,10 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   if (!maps || !maps.length) throw new Error("createSubmissionSchema needs at least one map");
   const mapSlugs = maps.map((m) => m.slug);
   const campsByMap = new Map(maps.map((m) => [m.slug, new Set(m.campIds)]));
+  // `startsCount` is optional on each catalogue entry (callers that don't
+  // care about the start-index bound, like a handful of pre-existing
+  // tests, can omit it); the check below only runs when it's known.
+  const startsCountByMap = new Map(maps.map((m) => [m.slug, m.startsCount]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
   const stopSchema = baseStopSchema(iconSet);
@@ -104,6 +108,10 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         .max(4)
         .transform((v) => [...new Set(v)]),
       level: z.enum(ROUTE_LEVEL_IDS, { error: "Pick a level" }),
+      /** Index into the chosen map's `starts` — which spawn is *your* base.
+       *  0 (the default, every two-start map) doesn't need to be sent at
+       *  all; only a >2-start map's picker sends something else. */
+      start: z.coerce.number().int().min(0).optional(),
       hero: z
         .string()
         .trim()
@@ -157,6 +165,14 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
           });
         }
       });
+      const startsCount = startsCountByMap.get(data.map);
+      if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
+        ctx.addIssue({
+          code: "custom",
+          message: `This map only has ${startsCount} spawn${startsCount === 1 ? "" : "s"}`,
+          path: ["start"],
+        });
+      }
     });
 }
 
@@ -201,6 +217,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId) {
     vsRaces: valid.vsRaces,
     level: valid.level,
     map: { _type: "reference", _ref: mapDocId },
+    start: valid.start || undefined,
     hero: valid.hero || undefined,
     patch: valid.patch || undefined,
     summary: valid.summary,

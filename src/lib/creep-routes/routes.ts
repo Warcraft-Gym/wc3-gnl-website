@@ -28,7 +28,7 @@ type RawRoute = Omit<CreepRoute, "stops" | "map"> & {
 
 const LIST_PROJECTION = `{
   "slug": slug.current,
-  title, race, level, patch, mapVersion,
+  title, race, level, patch, mapVersion, start,
   "vsRaces": coalesce(vsRaces, []),
   "map": map->{ "slug": slug.current, name },
   hero, summary, author, authorDiscord, maintainer, sourceUrl,
@@ -41,7 +41,7 @@ const LIST_PROJECTION = `{
 
 const DETAIL_PROJECTION = `{
   "slug": slug.current,
-  title, race, level, patch, mapVersion,
+  title, race, level, patch, mapVersion, start,
   "vsRaces": coalesce(vsRaces, []),
   "map": map->{ "slug": slug.current, name },
   hero, summary, author, authorDiscord, maintainer, sourceUrl,

@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { createSubmissionSchema, flattenErrors, toCreepRouteDraft } from "./submission.mjs";
 
 const maps = [
-  { slug: "autumn-leaves", campIds: ["c01", "c02", "c03"] },
+  { slug: "autumn-leaves", campIds: ["c01", "c02", "c03"], startsCount: 2 },
   { slug: "echo-isles", campIds: ["c01", "c02"] },
+  { slug: "twisted-meadows", campIds: ["c01", "c02"], startsCount: 4 },
 ];
 const iconKeys = ["hu-archmage", "nt-scroll-of-town-portal", "or-grunt"];
 
@@ -120,6 +121,26 @@ test("accepts a known bring icon and count", () => {
   );
   assert.equal(result.success, true);
   assert.deepEqual(result.data.stops[0].units, [{ icon: "hu-archmage", count: 1 }]);
+});
+
+test("rejects start >= the chosen map's starts.length", () => {
+  const result = schema().safeParse(payload({ start: 5 }));
+  assert.equal(result.success, false);
+  assert.ok(flattenErrors(result.error).start);
+});
+
+test("accepts a valid start index on a >2-start map", () => {
+  const result = schema().safeParse(
+    payload({ map: "twisted-meadows", start: 3, stops: [{ campId: "c01", time: "0:15" }, { campId: "c02", time: "1:30" }] }),
+  );
+  assert.equal(result.success, true);
+  assert.equal(result.data.start, 3);
+});
+
+test("start is optional and defaults to undefined (not 0) when omitted", () => {
+  const result = schema().safeParse(payload());
+  assert.equal(result.success, true);
+  assert.equal(result.data.start, undefined);
 });
 
 test("rejects a filled honeypot", () => {

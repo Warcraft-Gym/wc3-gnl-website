@@ -79,6 +79,14 @@ export const creepRoute = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "start",
+      title: "Your spawn",
+      type: "number",
+      group: "meta",
+      description: "Which spawn the route starts from; 0 unless the map has more than two.",
+      validation: (rule) => rule.integer().min(0),
+    }),
+    defineField({
       name: "hero",
       type: "string",
       group: "meta",

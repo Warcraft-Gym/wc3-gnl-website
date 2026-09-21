@@ -30,6 +30,9 @@ export type SubmissionInput = {
   race: string;
   vsRaces: string[];
   level: string;
+  /** Index into the chosen map's `starts` — which spawn is *your* base;
+   *  omitted (or 0) means the first start. */
+  start?: number;
   hero?: string;
   build?: string;
   title: string;
@@ -46,7 +49,9 @@ export type SubmissionInput = {
 };
 
 export type SubmissionCatalogue = {
-  maps: { slug: string; campIds: string[] }[];
+  /** `startsCount` is optional — omit it to skip the `start >= starts.length`
+   *  check (e.g. a caller that doesn't have the live map's `starts` handy). */
+  maps: { slug: string; campIds: string[]; startsCount?: number }[];
   iconKeys: string[];
   buildSlugs?: string[];
 };
