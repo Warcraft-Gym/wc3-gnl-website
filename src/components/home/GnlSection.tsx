@@ -2,8 +2,6 @@ import { Swords, GraduationCap, Users2, Trophy } from "lucide-react";
 import type { Season, Team } from "@/lib/api/types";
 import { TeamMedallions } from "@/components/home/TeamMedallions";
 import { ButtonLink } from "@/components/ui/Button";
-import { DISCORD_URL } from "@/lib/links";
-import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
 const PILLARS = [
   {
@@ -67,9 +65,6 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
       </div>
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
-        <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-          <DiscordIcon size={20} /> {season.isActive ? "Join the next season" : "Sign up on Discord"}
-        </ButtonLink>
         <ButtonLink href="/gnl/about" size="lg">
           How the league works
         </ButtonLink>
