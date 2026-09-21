@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";
@@ -58,7 +57,7 @@ export function LearnRaces() {
         </p>
         <div className="mt-7">
           <ButtonLink href="/learn" size="md">
-            Browse the guides <ArrowRight size={16} />
+            Browse the guides
           </ButtonLink>
         </div>
       </div>

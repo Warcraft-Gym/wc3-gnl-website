@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL } from "@/lib/links";
@@ -68,7 +67,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
 
       <div className="mt-8">
         <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-          <DiscordIcon size={20} /> Join the Discord <ArrowRight size={16} />
+          <DiscordIcon size={20} /> Join the Discord
         </ButtonLink>
       </div>
     </div>

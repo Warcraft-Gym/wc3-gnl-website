@@ -1,4 +1,3 @@
-import { ArrowRight, MonitorPlay } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { Rivets } from "@/components/ui/Rivets";
@@ -83,11 +82,11 @@ export default async function HomePage() {
             ) : null}
             <div className="mt-12 flex flex-wrap justify-center gap-3">
               <ButtonLink href="/learn/builds" variant="outline">
-                All build orders <ArrowRight size={16} />
+                All build orders
               </ButtonLink>
               {OVERLAY_BETA_LIVE ? (
                 <ButtonLink href="/tools/overlay" variant="outline">
-                  <MonitorPlay size={16} /> Try the in-game overlay
+                  Try the in-game overlay
                 </ButtonLink>
               ) : null}
             </div>
@@ -125,7 +124,7 @@ export default async function HomePage() {
           </div>
           <div className="mt-12 flex justify-center">
             <ButtonLink href="/blog" variant="outline">
-              All news <ArrowRight size={16} />
+              All news
             </ButtonLink>
           </div>
         </Container>
@@ -176,7 +175,7 @@ export default async function HomePage() {
                 <DiscordIcon size={20} /> Join the Discord
               </ButtonLink>
               <ButtonLink href="/learn" variant="outline" size="lg">
-                Start learning <ArrowRight size={18} />
+                Start learning
               </ButtonLink>
             </div>
           </div>
