@@ -282,7 +282,7 @@ export default async function PlayerPage({ params }: Params) {
                   ) : null}
                   {player.country ? (
                     <span className="inline-flex items-center gap-1.5">
-                      <Flag code={player.country} /> {player.country}
+                      <Flag code={player.country} size={18} /> {player.country}
                     </span>
                   ) : null}
                   {w3cUrl ? (

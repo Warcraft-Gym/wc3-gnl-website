@@ -113,7 +113,7 @@ src/
 └── sanity/                # schema types, desk structure, env, image builder
 scripts/                   # WordPress migrations and build-order transcription
 apps/overlay/              # the desktop overlay (separate workspace package)
-public/                    # key art, faction crests, classic WC3 icons, logos
+public/                    # key art, faction crests, classic WC3 icons, logos, country flags (flag-icons, MIT)
 ```
 
 ## Desktop overlay

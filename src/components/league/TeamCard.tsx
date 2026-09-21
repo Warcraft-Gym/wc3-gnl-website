@@ -47,7 +47,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
                 <li key={c.id} className="flex items-center gap-1.5 text-xs text-muted">
                   <Crown size={12} className="shrink-0 text-gold" />
                   {c.race ? <RaceBadge race={c.race} showLabel={false} /> : null}
-                  <Flag code={c.country} className="shrink-0" />
+                  <Flag code={c.country} size={14} className="shrink-0" />
                   <Link href={`/gnl/players/${c.slug}`} className="truncate text-fg transition-colors hover:text-gold">
                     {c.name}
                   </Link>
@@ -114,7 +114,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
           <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-1.5 text-muted">
               {p.race ? <RaceBadge race={p.race} showLabel={false} /> : null}
-              <Flag code={p.country} className="shrink-0 text-xs" />
+              <Flag code={p.country} size={14} className="shrink-0" />
               <Link href={`/gnl/players/${p.slug}`} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
                 {p.name}
               </Link>
