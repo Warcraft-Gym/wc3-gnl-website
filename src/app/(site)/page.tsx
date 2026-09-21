@@ -81,11 +81,11 @@ export default async function HomePage() {
               </ul>
             ) : null}
             <div className="mt-12 flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/learn/builds">
+              <ButtonLink href="/learn/builds" size="lg">
                 All build orders
               </ButtonLink>
               {OVERLAY_BETA_LIVE ? (
-                <ButtonLink href="/tools/overlay">
+                <ButtonLink href="/tools/overlay" size="lg">
                   Get the overlay
                 </ButtonLink>
               ) : null}
@@ -123,7 +123,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="mt-12 flex justify-center">
-            <ButtonLink href="/blog">
+            <ButtonLink href="/blog" size="lg">
               All news
             </ButtonLink>
           </div>
