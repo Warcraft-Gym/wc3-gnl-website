@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MonitorPlay } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { Rivets } from "@/components/ui/Rivets";
@@ -86,8 +86,8 @@ export default async function HomePage() {
                 All build orders <ArrowRight size={16} />
               </ButtonLink>
               {OVERLAY_BETA_LIVE ? (
-                <ButtonLink href="/tools/overlay" variant="ghost">
-                  Try the in-game overlay
+                <ButtonLink href="/tools/overlay" variant="outline">
+                  <MonitorPlay size={16} /> Try the in-game overlay
                 </ButtonLink>
               ) : null}
             </div>

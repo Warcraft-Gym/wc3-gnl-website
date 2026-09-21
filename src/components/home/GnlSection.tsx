@@ -73,7 +73,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
         <ButtonLink href="/gnl/about" variant="outline" size="lg">
           How the league works
         </ButtonLink>
-        <ButtonLink href="/gnl/schedule" variant="ghost" size="lg">
+        <ButtonLink href="/gnl/schedule" variant="outline" size="lg">
           Follow {season.shortName}
         </ButtonLink>
       </div>
