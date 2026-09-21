@@ -44,6 +44,11 @@
   --wg-undead: #9B6FE4; /* tested on black with the dataviz validator */
   --wg-random: oklch(72% 0.02 265);
 
+  /* --- Creep camp difficulty band (minimap marks only) --- */
+  --wg-camp-easy: #6BE0C8; /* tested on black, see DESIGN.md "Creep routes" */
+  --wg-camp-medium: #E0863A; /* tested on black, see DESIGN.md "Creep routes" */
+  --wg-camp-hard: #C23050; /* tested on black, see DESIGN.md "Creep routes" */
+
   /* --- Type --- */
   --wg-font-display: var(--font-display), "Cinzel", "Friz Quadrata", Georgia, serif;
   --wg-font-sans: var(--font-sans), "Lato", ui-sans-serif, system-ui, sans-serif;
@@ -106,6 +111,10 @@
   --color-nightelf: var(--wg-nightelf);
   --color-undead: var(--wg-undead);
   --color-random: var(--wg-random);
+
+  --color-camp-easy: var(--wg-camp-easy);
+  --color-camp-medium: var(--wg-camp-medium);
+  --color-camp-hard: var(--wg-camp-hard);
 
   --font-display: var(--wg-font-display);
   --font-sans: var(--wg-font-sans);

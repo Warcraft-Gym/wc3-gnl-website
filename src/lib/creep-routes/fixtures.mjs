@@ -12,24 +12,39 @@
  * none. Times are real seconds; camp ids are real camp ids taken from the
  * matching map's catalogue (never invented). Authors "Gym coaches".
  */
-import { readFileSync } from "node:fs";
-import { fileURLToPath } from "node:url";
+// Static JSON module imports (Node 22 + Turbopack both understand `with {
+// type: "json" }` natively) rather than a runtime `readFileSync` of a
+// directory built from `import.meta.url`/`import.meta.dirname`: the former
+// pattern trips up Turbopack's production build two different ways —
+// `new URL("./maps/", import.meta.url)` gets special-cased as an asset
+// reference and fails to resolve a directory, and `import.meta.dirname`
+// comes back `undefined` inside Turbopack's server-component module wrapper
+// even though it's set under plain `node --test`. Static imports sidestep
+// both: every JSON file is a real, statically analysable module specifier.
+import autumnLeaves from "./maps/autumn-leaves.json" with { type: "json" };
+import echoIsles from "./maps/echo-isles.json" with { type: "json" };
+import lastRefuge from "./maps/last-refuge.json" with { type: "json" };
+import shallowGrave from "./maps/shallow-grave.json" with { type: "json" };
+import springtime from "./maps/springtime.json" with { type: "json" };
+import tidehunters from "./maps/tidehunters.json" with { type: "json" };
+import turtleRock from "./maps/turtle-rock.json" with { type: "json" };
+import twistedMeadows from "./maps/twisted-meadows.json" with { type: "json" };
 
-const MAP_SLUGS = [
-  "autumn-leaves",
-  "echo-isles",
-  "last-refuge",
-  "shallow-grave",
-  "springtime",
-  "tidehunters",
-  "turtle-rock",
-  "twisted-meadows",
-];
+const RAW_MAPS = {
+  "autumn-leaves": autumnLeaves,
+  "echo-isles": echoIsles,
+  "last-refuge": lastRefuge,
+  "shallow-grave": shallowGrave,
+  springtime,
+  tidehunters,
+  "turtle-rock": turtleRock,
+  "twisted-meadows": twistedMeadows,
+};
 
-const MAPS_DIR = fileURLToPath(new URL("./maps/", import.meta.url));
+const MAP_SLUGS = Object.keys(RAW_MAPS);
 
 function loadMap(slug) {
-  const raw = JSON.parse(readFileSync(`${MAPS_DIR}${slug}.json`, "utf8"));
+  const raw = RAW_MAPS[slug];
   return {
     slug: raw.slug,
     name: raw.name,

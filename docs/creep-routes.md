@@ -167,3 +167,36 @@ is configured to get the eight generated maps live.
 Re-publishing overwrites any manual camp-position nudge an editor made in
 the Studio (the "Generated (edit with care)" field group warns about
 this) — same trade-off as the build-orders NDJSON seed.
+
+## Pages
+
+`/learn/creep-routes/<slug>` (`src/app/(site)/learn/creep-routes/[slug]/page.tsx`,
+gated by `CREEP_ROUTES_LIVE` in `src/lib/flags.ts`) is the only creep-route
+page shipped so far — no list page, nav entry or editor yet (later
+features). It follows the build-order detail page's shape: a race showcase
+header with the matchup, the route's level badge ("Standard"/"Beginner"),
+map name and `mapVersion`, author/maintainer/updated/source, `HowTo` +
+`BreadcrumbList` JSON-LD (`src/lib/seo.ts`), a companion-build card when
+`route.build` is set, a Discord discussion link and up to three related
+routes (same map or same race).
+
+The map and the step table are the page's core: `CreepMapPlayground.tsx`
+(a client island next to the page) lifts one piece of state, the active
+stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
+`RouteStepTable` (`RouteStepTable.tsx`) stay in sync when you press play.
+`CreepMap` always renders its `<svg>` — sized by CSS (`viewBox` + `w-full
+h-auto`), not gated behind a client-only `ResizeObserver` — so the map's
+camps, path and stop badges are present in the server-rendered HTML a curl
+or a crawler sees, not only after hydration; the `ResizeObserver` still
+runs, but only to place the hover/focus `CampDetails` panel in real pixels.
+See `DESIGN.md`'s "Creep routes" section for the camp band colours, the
+mark shapes and the day-clock convention this page and its components
+follow.
+
+`CreepMap`'s props (`map`, `route?`, `activeStop?`, `onCampSelect?`,
+`highlightCamps?`, `className?`) are deliberately reusable beyond this
+page: `onCampSelect` is unused here but renders camps as real `<button>`s
+(via `foreignObject`) instead of plain `<g>`s when given, for a future
+editor (F005) to hook camp clicks into; `highlightCamps` is ready for a
+future list/filter page (F004) to dim or ring a subset of camps without
+this feature needing to build that UI.

@@ -8,3 +8,8 @@ export const OVERLAY_BETA_LIVE = true;
 /** The GNL ladder challenge page (/gnl/ladder) and its entry in the league
  *  nav and sitemap. Off until the challenge is announced. */
 export const GNL_LADDER_LIVE = false;
+
+/** The creep route pages (/learn/creep-routes/<slug>). The list page, nav
+ *  entry and editor land in later features; this flag only gates the
+ *  detail page shipped here. */
+export const CREEP_ROUTES_LIVE = true;
