@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, PlusCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -74,11 +73,7 @@ export default async function BuildsPage({
         title="Build orders"
         art="/graphics/build-orders-2.webp"
         lead="Step-by-step build orders for every race and matchup, with timings, supply counts and a play-along clock."
-      >
-        <ButtonLink href="/learn/builds/submit" size="sm">
-          <PlusCircle size={15} /> Submit a build
-        </ButtonLink>
-      </PageHeader>
+      />
 
       <Container className="py-10">
         {/* Submit CTA */}
@@ -97,7 +92,7 @@ export default async function BuildsPage({
               </p>
             </div>
             <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">
-              Submit a build <ArrowRight size={16} />
+              Submit a build
             </ButtonLink>
           </div>
         </div>
