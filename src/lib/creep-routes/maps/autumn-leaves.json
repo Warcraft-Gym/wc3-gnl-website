@@ -5,7 +5,7 @@
   "w3cMapId": 44,
   "w3cName": "Autumn Leaves v2",
   "sourceFile": "w3c_AutumnLeaves_v2-0.w3x",
-  "generatedAt": "2026-09-21T18:29:22.437Z",
+  "generatedAt": "2026-09-21T18:48:29.605Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -22,6 +22,10 @@
     5760,
     -6016
   ],
+  "image": {
+    "width": 256,
+    "height": 256
+  },
   "camps": [
     {
       "id": "c01",
@@ -38,14 +42,14 @@
         },
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -55,8 +59,8 @@
           "count": 1
         }
       ],
-      "level": 15,
-      "xp": 325,
+      "level": 19,
+      "xp": 435,
       "band": "hard",
       "sleeps": true
     },
@@ -95,7 +99,7 @@
       "level": 17,
       "xp": 385,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c03",
@@ -106,19 +110,19 @@
       "creeps": [
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         }
       ],
-      "level": 9,
-      "xp": 195,
+      "level": 11,
+      "xp": 235,
       "band": "medium",
       "sleeps": true
     },
@@ -131,19 +135,19 @@
       "creeps": [
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         }
       ],
-      "level": 9,
-      "xp": 195,
+      "level": 11,
+      "xp": 235,
       "band": "medium",
       "sleeps": true
     },
@@ -156,14 +160,14 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
           "id": "nwwf",
-          "name": "Wendigo",
-          "level": 4,
+          "name": "Frost Wolf",
+          "level": 2,
           "count": 1
         },
         {
@@ -173,8 +177,8 @@
           "count": 1
         }
       ],
-      "level": 10,
-      "xp": 210,
+      "level": 9,
+      "xp": 185,
       "band": "medium",
       "sleeps": true
     },
@@ -187,8 +191,8 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
@@ -199,13 +203,13 @@
         },
         {
           "id": "nwwf",
-          "name": "Wendigo",
-          "level": 4,
+          "name": "Frost Wolf",
+          "level": 2,
           "count": 1
         }
       ],
-      "level": 10,
-      "xp": 210,
+      "level": 9,
+      "xp": 185,
       "band": "medium",
       "sleeps": true
     },
@@ -230,14 +234,14 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 11,
-      "xp": 240,
-      "band": "medium",
+      "level": 12,
+      "xp": 260,
+      "band": "hard",
       "sleeps": true
     },
     {
@@ -249,8 +253,8 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
@@ -266,9 +270,9 @@
           "count": 1
         }
       ],
-      "level": 11,
-      "xp": 240,
-      "band": "medium",
+      "level": 12,
+      "xp": 260,
+      "band": "hard",
       "sleeps": true
     },
     {
@@ -280,7 +284,7 @@
       "creeps": [
         {
           "id": "nskg",
-          "name": "Burning Archer",
+          "name": "Giant Skeleton Warrior",
           "level": 3,
           "count": 1
         },
@@ -292,7 +296,7 @@
         },
         {
           "id": "nska",
-          "name": "Skeletal Archer",
+          "name": "Skeleton Archer",
           "level": 1,
           "count": 1
         }
@@ -311,7 +315,7 @@
       "creeps": [
         {
           "id": "nska",
-          "name": "Skeletal Archer",
+          "name": "Skeleton Archer",
           "level": 1,
           "count": 1
         },
@@ -323,7 +327,7 @@
         },
         {
           "id": "nskg",
-          "name": "Burning Archer",
+          "name": "Giant Skeleton Warrior",
           "level": 3,
           "count": 1
         }
@@ -373,8 +377,8 @@
       "creeps": [
         {
           "id": "nwwf",
-          "name": "Wendigo",
-          "level": 4,
+          "name": "Frost Wolf",
+          "level": 2,
           "count": 2
         },
         {
@@ -384,8 +388,8 @@
           "count": 1
         }
       ],
-      "level": 11,
-      "xp": 230,
+      "level": 7,
+      "xp": 140,
       "band": "medium",
       "sleeps": true
     },
@@ -404,13 +408,13 @@
         },
         {
           "id": "nwwf",
-          "name": "Wendigo",
-          "level": 4,
+          "name": "Frost Wolf",
+          "level": 2,
           "count": 2
         }
       ],
-      "level": 11,
-      "xp": 230,
+      "level": 7,
+      "xp": 140,
       "band": "medium",
       "sleeps": true
     },
@@ -460,13 +464,13 @@
         },
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 450,
+      "level": 21,
+      "xp": 585,
       "band": "hard",
       "sleeps": false
     },
@@ -479,8 +483,8 @@
       "creeps": [
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         },
         {
@@ -490,8 +494,8 @@
           "count": 2
         }
       ],
-      "level": 18,
-      "xp": 450,
+      "level": 21,
+      "xp": 585,
       "band": "hard",
       "sleeps": false
     },

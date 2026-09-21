@@ -5,7 +5,7 @@
   "w3cMapId": 6,
   "w3cName": "Twisted Meadows",
   "sourceFile": "w3c_TwistedMeadows.w3x",
-  "generatedAt": "2026-09-21T18:29:22.656Z",
+  "generatedAt": "2026-09-21T18:48:29.782Z",
   "bounds": {
     "xMin": -10240,
     "xMax": 10240,
@@ -22,6 +22,10 @@
     7424,
     -7936
   ],
+  "image": {
+    "width": 256,
+    "height": 256
+  },
   "camps": [
     {
       "id": "c01",
@@ -132,14 +136,14 @@
       "creeps": [
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
@@ -149,8 +153,8 @@
           "count": 2
         }
       ],
-      "level": 14,
-      "xp": 285,
+      "level": 18,
+      "xp": 390,
       "band": "hard",
       "sleeps": true
     },
@@ -169,19 +173,19 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 285,
+      "level": 18,
+      "xp": 390,
       "band": "hard",
       "sleeps": true
     },
@@ -200,8 +204,8 @@
         },
         {
           "id": "nftr",
-          "name": "Forest Troll Trapper",
-          "level": 3,
+          "name": "Forest Troll",
+          "level": 2,
           "count": 2
         },
         {
@@ -211,8 +215,8 @@
           "count": 2
         }
       ],
-      "level": 18,
-      "xp": 390,
+      "level": 16,
+      "xp": 350,
       "band": "hard",
       "sleeps": false
     },
@@ -225,8 +229,8 @@
       "creeps": [
         {
           "id": "nftr",
-          "name": "Forest Troll Trapper",
-          "level": 3,
+          "name": "Forest Troll",
+          "level": 2,
           "count": 2
         },
         {
@@ -242,8 +246,8 @@
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 390,
+      "level": 16,
+      "xp": 350,
       "band": "hard",
       "sleeps": false
     },
@@ -256,21 +260,21 @@
       "creeps": [
         {
           "id": "ngno",
-          "name": "Gnoll Overseer",
-          "level": 5,
+          "name": "Gnoll",
+          "level": 1,
           "count": 2
         },
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 11,
-      "xp": 255,
-      "band": "medium",
-      "sleeps": false
+      "level": 5,
+      "xp": 110,
+      "band": "easy",
+      "sleeps": true
     },
     {
       "id": "c10",
@@ -281,21 +285,21 @@
       "creeps": [
         {
           "id": "ngno",
-          "name": "Gnoll Overseer",
-          "level": 5,
+          "name": "Gnoll",
+          "level": 1,
           "count": 2
         },
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 11,
-      "xp": 255,
-      "band": "medium",
-      "sleeps": false
+      "level": 5,
+      "xp": 110,
+      "band": "easy",
+      "sleeps": true
     },
     {
       "id": "c11",
@@ -306,21 +310,21 @@
       "creeps": [
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         },
         {
           "id": "ngno",
-          "name": "Gnoll Overseer",
-          "level": 5,
+          "name": "Gnoll",
+          "level": 1,
           "count": 2
         }
       ],
-      "level": 11,
-      "xp": 255,
-      "band": "medium",
-      "sleeps": false
+      "level": 5,
+      "xp": 110,
+      "band": "easy",
+      "sleeps": true
     },
     {
       "id": "c12",
@@ -331,21 +335,21 @@
       "creeps": [
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         },
         {
           "id": "ngno",
-          "name": "Gnoll Overseer",
-          "level": 5,
+          "name": "Gnoll",
+          "level": 1,
           "count": 2
         }
       ],
-      "level": 11,
-      "xp": 255,
-      "band": "medium",
-      "sleeps": false
+      "level": 5,
+      "xp": 110,
+      "band": "easy",
+      "sleeps": true
     },
     {
       "id": "c13",
@@ -356,25 +360,25 @@
       "creeps": [
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 2
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 2
         },
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 24,
+      "xp": 550,
       "band": "hard",
       "sleeps": true
     },
@@ -387,25 +391,25 @@
       "creeps": [
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 2
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 2
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 24,
+      "xp": 550,
       "band": "hard",
       "sleeps": true
     },
@@ -418,25 +422,25 @@
       "creeps": [
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 2
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 2
         },
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 24,
+      "xp": 550,
       "band": "hard",
       "sleeps": true
     },
@@ -449,25 +453,25 @@
       "creeps": [
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 2
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 2
         },
         {
           "id": "nftk",
-          "name": "Forest Troll High Priest",
-          "level": 4,
+          "name": "Forest Troll Warlord",
+          "level": 6,
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 24,
+      "xp": 550,
       "band": "hard",
       "sleeps": true
     },
@@ -480,14 +484,14 @@
       "creeps": [
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
@@ -497,8 +501,8 @@
           "count": 2
         }
       ],
-      "level": 15,
-      "xp": 315,
+      "level": 17,
+      "xp": 355,
       "band": "hard",
       "sleeps": true
     },
@@ -511,14 +515,14 @@
       "creeps": [
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
@@ -528,8 +532,8 @@
           "count": 2
         }
       ],
-      "level": 15,
-      "xp": 315,
+      "level": 17,
+      "xp": 355,
       "band": "hard",
       "sleeps": true
     },
@@ -542,7 +546,7 @@
       "creeps": [
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
@@ -554,13 +558,13 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         }
       ],
-      "level": 15,
-      "xp": 315,
+      "level": 17,
+      "xp": 355,
       "band": "hard",
       "sleeps": true
     },
@@ -573,14 +577,14 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -596,8 +600,8 @@
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 310,
+      "level": 18,
+      "xp": 395,
       "band": "hard",
       "sleeps": false
     },
@@ -616,19 +620,19 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         }
       ],
-      "level": 15,
-      "xp": 315,
+      "level": 17,
+      "xp": 355,
       "band": "hard",
       "sleeps": true
     },
@@ -641,14 +645,14 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -664,8 +668,8 @@
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 310,
+      "level": 18,
+      "xp": 395,
       "band": "hard",
       "sleeps": false
     },
@@ -684,8 +688,8 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
@@ -696,13 +700,13 @@
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 310,
+      "level": 18,
+      "xp": 395,
       "band": "hard",
       "sleeps": false
     },
@@ -715,14 +719,14 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 2
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -738,8 +742,8 @@
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 310,
+      "level": 18,
+      "xp": 395,
       "band": "hard",
       "sleeps": false
     },
@@ -764,19 +768,19 @@
         },
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 22,
+      "xp": 550,
       "band": "hard",
       "sleeps": false
     },
@@ -789,14 +793,14 @@
       "creeps": [
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
@@ -812,8 +816,8 @@
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 22,
+      "xp": 550,
       "band": "hard",
       "sleeps": false
     },
@@ -826,8 +830,8 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
@@ -838,8 +842,8 @@
         },
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         },
         {
@@ -849,8 +853,8 @@
           "count": 2
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 22,
+      "xp": 550,
       "band": "hard",
       "sleeps": false
     },
@@ -875,19 +879,19 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         }
       ],
-      "level": 18,
-      "xp": 395,
+      "level": 22,
+      "xp": 550,
       "band": "hard",
       "sleeps": false
     }

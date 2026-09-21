@@ -19,7 +19,7 @@ import { writeFileSync } from "node:fs";
 import { openMap, readMember } from "./mpq.mjs";
 import { parseUnitsDoo } from "./units-doo.mjs";
 import { parseW3i, parseW3eBounds } from "./map-info.mjs";
-import { decodeMinimap, encodePng } from "./minimap.mjs";
+import { decodeMinimapCropped, encodePng } from "./minimap.mjs";
 import { buildCamps, buildStarts, buildMines, buildShops } from "./camps.mjs";
 import { slugify } from "./slug.mjs";
 import { loadCreepTable, getCreep } from "../../src/lib/creep-routes/creeps.mjs";
@@ -92,6 +92,10 @@ function buildCatalogue(mapPath, creepsPath) {
   const slug = slugify(name);
   const pool = POOL_MAPS[slug];
 
+  const blp = readMember(map, "war3mapMap.blp");
+  const { width, height, data } = decodeMinimapCropped(blp, bounds, slug);
+  const png = encodePng(width, height, data);
+
   const catalogue = {
     slug,
     name: pool?.w3cName ?? name,
@@ -102,27 +106,24 @@ function buildCatalogue(mapPath, creepsPath) {
     generatedAt: new Date().toISOString(),
     bounds,
     cameraBounds,
+    image: { width, height },
     camps,
     starts,
     mines,
     shops,
   };
 
-  const blp = readMember(map, "war3mapMap.blp");
-  const { width, height, data } = decodeMinimap(blp);
-  const png = encodePng(width, height, data);
-
   return { catalogue, png, minimap: { width, height, data } };
 }
 
-function drawDot(rgba, size, px, py, radius, [r, g, b, a]) {
+function drawDot(rgba, width, height, px, py, radius, [r, g, b, a]) {
   for (let dy = -radius; dy <= radius; dy++) {
     for (let dx = -radius; dx <= radius; dx++) {
       if (dx * dx + dy * dy > radius * radius) continue;
       const x = Math.round(px + dx);
       const y = Math.round(py + dy);
-      if (x < 0 || y < 0 || x >= size || y >= size) continue;
-      const i = (y * size + x) * 4;
+      if (x < 0 || y < 0 || x >= width || y >= height) continue;
+      const i = (y * width + x) * 4;
       rgba[i] = r;
       rgba[i + 1] = g;
       rgba[i + 2] = b;
@@ -137,16 +138,20 @@ const BAND_COLOR = {
   hard: [230, 60, 60, 255],
 };
 
+/** Renders the (possibly non-square, post-crop) minimap at `scale`x with
+ * camps/starts/mines drawn on top, for eyeballing that world coordinates
+ * line up with the image. */
 function renderDebugPng(minimap, catalogue) {
   const scale = 3;
-  const size = minimap.width * scale;
-  const rgba = new Uint8Array(size * size * 4);
+  const outWidth = minimap.width * scale;
+  const outHeight = minimap.height * scale;
+  const rgba = new Uint8Array(outWidth * outHeight * 4);
   for (let y = 0; y < minimap.height; y++) {
     for (let x = 0; x < minimap.width; x++) {
       const si = (y * minimap.width + x) * 4;
       for (let sy = 0; sy < scale; sy++) {
         for (let sx = 0; sx < scale; sx++) {
-          const di = ((y * scale + sy) * size + (x * scale + sx)) * 4;
+          const di = ((y * scale + sy) * outWidth + (x * scale + sx)) * 4;
           rgba[di] = minimap.data[si];
           rgba[di + 1] = minimap.data[si + 1];
           rgba[di + 2] = minimap.data[si + 2];
@@ -157,16 +162,16 @@ function renderDebugPng(minimap, catalogue) {
   }
 
   for (const mine of catalogue.mines) {
-    drawDot(rgba, size, mine.x * size, mine.y * size, 4, [255, 215, 0, 255]);
+    drawDot(rgba, outWidth, outHeight, mine.x * outWidth, mine.y * outHeight, 4, [255, 215, 0, 255]);
   }
   for (const start of catalogue.starts) {
-    drawDot(rgba, size, start.x * size, start.y * size, 6, [40, 120, 255, 255]);
+    drawDot(rgba, outWidth, outHeight, start.x * outWidth, start.y * outHeight, 6, [40, 120, 255, 255]);
   }
   for (const camp of catalogue.camps) {
-    drawDot(rgba, size, camp.x * size, camp.y * size, 5, BAND_COLOR[camp.band]);
+    drawDot(rgba, outWidth, outHeight, camp.x * outWidth, camp.y * outHeight, 5, BAND_COLOR[camp.band]);
   }
 
-  return encodePng(size, size, rgba);
+  return encodePng(outWidth, outHeight, rgba);
 }
 
 function main() {

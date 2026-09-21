@@ -5,7 +5,7 @@
   "w3cMapId": 1075,
   "w3cName": "Springtime",
   "sourceFile": "w3c_Springtime_v1.1.w3x",
-  "generatedAt": "2026-09-21T18:29:22.581Z",
+  "generatedAt": "2026-09-21T18:48:29.711Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -22,6 +22,10 @@
     5248,
     -5504
   ],
+  "image": {
+    "width": 256,
+    "height": 256
+  },
   "camps": [
     {
       "id": "c01",
@@ -57,21 +61,21 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 3,
-      "xp": 65,
-      "band": "easy",
-      "sleeps": false
+      "level": 6,
+      "xp": 120,
+      "band": "medium",
+      "sleeps": true
     },
     {
       "id": "c03",
@@ -82,8 +86,8 @@
       "creeps": [
         {
           "id": "nfrb",
-          "name": "Furbolg Champion",
-          "level": 7,
+          "name": "Furbolg Tracker",
+          "level": 6,
           "count": 1
         },
         {
@@ -100,13 +104,13 @@
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         }
       ],
-      "level": 17,
-      "xp": 400,
+      "level": 18,
+      "xp": 405,
       "band": "hard",
       "sleeps": true
     },
@@ -119,8 +123,8 @@
       "creeps": [
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -131,8 +135,8 @@
         },
         {
           "id": "nfrb",
-          "name": "Furbolg Champion",
-          "level": 7,
+          "name": "Furbolg Tracker",
+          "level": 6,
           "count": 1
         },
         {
@@ -142,8 +146,8 @@
           "count": 1
         }
       ],
-      "level": 17,
-      "xp": 400,
+      "level": 18,
+      "xp": 405,
       "band": "hard",
       "sleeps": true
     },
@@ -162,7 +166,7 @@
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
@@ -182,7 +186,7 @@
       "level": 16,
       "xp": 345,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c06",
@@ -199,7 +203,7 @@
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         },
@@ -219,7 +223,7 @@
       "level": 16,
       "xp": 345,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c07",
@@ -300,7 +304,7 @@
       "level": 9,
       "xp": 185,
       "band": "medium",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c10",
@@ -331,7 +335,7 @@
       "level": 9,
       "xp": 185,
       "band": "medium",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c11",
@@ -416,15 +420,15 @@
         },
         {
           "id": "nfpt",
-          "name": "Fel Stalker",
-          "level": 5,
+          "name": "Polar Furbolg Tracker",
+          "level": 6,
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 315,
+      "level": 15,
+      "xp": 350,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c14",
@@ -447,15 +451,15 @@
         },
         {
           "id": "nfpt",
-          "name": "Fel Stalker",
-          "level": 5,
+          "name": "Polar Furbolg Tracker",
+          "level": 6,
           "count": 1
         }
       ],
-      "level": 14,
-      "xp": 315,
+      "level": 15,
+      "xp": 350,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c15",
@@ -472,14 +476,14 @@
         },
         {
           "id": "nwwf",
-          "name": "Wendigo",
-          "level": 4,
+          "name": "Frost Wolf",
+          "level": 2,
           "count": 1
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -509,14 +513,14 @@
         },
         {
           "id": "nwwf",
-          "name": "Wendigo",
-          "level": 4,
+          "name": "Frost Wolf",
+          "level": 2,
           "count": 1
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -566,7 +570,7 @@
       "level": 22,
       "xp": 555,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c18",
@@ -603,7 +607,7 @@
       "level": 22,
       "xp": 555,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c19",
@@ -614,7 +618,7 @@
       "creeps": [
         {
           "id": "ngna",
-          "name": "Gnoll",
+          "name": "Gnoll Poacher",
           "level": 1,
           "count": 1
         },
@@ -657,7 +661,7 @@
         },
         {
           "id": "ngna",
-          "name": "Gnoll",
+          "name": "Gnoll Poacher",
           "level": 1,
           "count": 1
         }

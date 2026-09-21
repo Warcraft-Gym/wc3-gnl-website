@@ -5,7 +5,7 @@
   "w3cMapId": 54,
   "w3cName": "Tidehunters",
   "sourceFile": "w3c_Tidehunters_v1.2.w3x",
-  "generatedAt": "2026-09-21T18:29:22.605Z",
+  "generatedAt": "2026-09-21T18:48:29.734Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -22,6 +22,10 @@
     5504,
     -5248
   ],
+  "image": {
+    "width": 256,
+    "height": 256
+  },
   "camps": [
     {
       "id": "c01",
@@ -38,15 +42,15 @@
         },
         {
           "id": "ntrt",
-          "name": "Sea Turtle",
-          "level": 2,
+          "name": "Giant Sea Turtle",
+          "level": 4,
           "count": 2
         }
       ],
-      "level": 9,
-      "xp": 195,
-      "band": "medium",
-      "sleeps": false
+      "level": 13,
+      "xp": 285,
+      "band": "hard",
+      "sleeps": true
     },
     {
       "id": "c02",
@@ -88,8 +92,8 @@
       "creeps": [
         {
           "id": "ntrt",
-          "name": "Sea Turtle",
-          "level": 2,
+          "name": "Giant Sea Turtle",
+          "level": 4,
           "count": 1
         },
         {
@@ -99,10 +103,10 @@
           "count": 1
         }
       ],
-      "level": 4,
-      "xp": 80,
-      "band": "easy",
-      "sleeps": false
+      "level": 6,
+      "xp": 125,
+      "band": "medium",
+      "sleeps": true
     },
     {
       "id": "c04",
@@ -113,8 +117,8 @@
       "creeps": [
         {
           "id": "ntrt",
-          "name": "Sea Turtle",
-          "level": 2,
+          "name": "Giant Sea Turtle",
+          "level": 4,
           "count": 1
         },
         {
@@ -124,10 +128,10 @@
           "count": 1
         }
       ],
-      "level": 4,
-      "xp": 80,
-      "band": "easy",
-      "sleeps": false
+      "level": 6,
+      "xp": 125,
+      "band": "medium",
+      "sleeps": true
     },
     {
       "id": "c05",
@@ -138,8 +142,8 @@
       "creeps": [
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         },
         {
@@ -161,10 +165,10 @@
           "count": 1
         }
       ],
-      "level": 12,
-      "xp": 260,
+      "level": 14,
+      "xp": 295,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c06",
@@ -175,8 +179,8 @@
       "creeps": [
         {
           "id": "ngnb",
-          "name": "Gnoll Poacher",
-          "level": 1,
+          "name": "Gnoll Brute",
+          "level": 3,
           "count": 1
         },
         {
@@ -198,10 +202,10 @@
           "count": 1
         }
       ],
-      "level": 12,
-      "xp": 260,
+      "level": 14,
+      "xp": 295,
       "band": "hard",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c07",
@@ -212,14 +216,14 @@
       "creeps": [
         {
           "id": "nftr",
-          "name": "Forest Troll Trapper",
-          "level": 3,
+          "name": "Forest Troll",
+          "level": 2,
           "count": 1
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -230,8 +234,8 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
@@ -241,8 +245,8 @@
           "count": 1
         }
       ],
-      "level": 15,
-      "xp": 330,
+      "level": 17,
+      "xp": 375,
       "band": "hard",
       "sleeps": false
     },
@@ -255,8 +259,8 @@
       "creeps": [
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         },
         {
@@ -267,14 +271,14 @@
         },
         {
           "id": "nftr",
-          "name": "Forest Troll Trapper",
-          "level": 3,
+          "name": "Forest Troll",
+          "level": 2,
           "count": 1
         },
         {
           "id": "nfsh",
-          "name": "Forest Troll Shadow Priest",
-          "level": 2,
+          "name": "Forest Troll High Priest",
+          "level": 4,
           "count": 1
         },
         {
@@ -284,8 +288,8 @@
           "count": 1
         }
       ],
-      "level": 15,
-      "xp": 330,
+      "level": 17,
+      "xp": 375,
       "band": "hard",
       "sleeps": false
     },
@@ -298,19 +302,19 @@
       "creeps": [
         {
           "id": "nmrm",
-          "name": "Murloc Huntsman",
-          "level": 2,
+          "name": "Murloc Nightcrawler",
+          "level": 3,
           "count": 1
         },
         {
           "id": "nmrr",
-          "name": "Murloc Nightcrawler",
-          "level": 3,
+          "name": "Murloc Huntsman",
+          "level": 2,
           "count": 2
         }
       ],
-      "level": 8,
-      "xp": 160,
+      "level": 7,
+      "xp": 140,
       "band": "medium",
       "sleeps": true
     },
@@ -323,19 +327,19 @@
       "creeps": [
         {
           "id": "nmrr",
-          "name": "Murloc Nightcrawler",
-          "level": 3,
+          "name": "Murloc Huntsman",
+          "level": 2,
           "count": 2
         },
         {
           "id": "nmrm",
-          "name": "Murloc Huntsman",
-          "level": 2,
+          "name": "Murloc Nightcrawler",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 8,
-      "xp": 160,
+      "level": 7,
+      "xp": 140,
       "band": "medium",
       "sleeps": true
     },
@@ -360,7 +364,7 @@
         },
         {
           "id": "nomg",
-          "name": "Ogre Mauler",
+          "name": "Ogre Magi",
           "level": 5,
           "count": 1
         }
@@ -379,8 +383,8 @@
       "creeps": [
         {
           "id": "nmrv",
-          "name": "Murloc Tiderunner",
-          "level": 1,
+          "name": "Mur'gul Marauder",
+          "level": 6,
           "count": 1
         },
         {
@@ -391,13 +395,13 @@
         },
         {
           "id": "nmrm",
-          "name": "Murloc Huntsman",
-          "level": 2,
+          "name": "Murloc Nightcrawler",
+          "level": 3,
           "count": 2
         }
       ],
-      "level": 13,
-      "xp": 275,
+      "level": 20,
+      "xp": 440,
       "band": "hard",
       "sleeps": true
     },
@@ -422,13 +426,13 @@
         },
         {
           "id": "nmrr",
-          "name": "Murloc Nightcrawler",
-          "level": 3,
+          "name": "Murloc Huntsman",
+          "level": 2,
           "count": 1
         }
       ],
-      "level": 7,
-      "xp": 145,
+      "level": 6,
+      "xp": 125,
       "band": "medium",
       "sleeps": true
     },
@@ -441,8 +445,8 @@
       "creeps": [
         {
           "id": "nmrr",
-          "name": "Murloc Nightcrawler",
-          "level": 3,
+          "name": "Murloc Huntsman",
+          "level": 2,
           "count": 1
         },
         {
@@ -458,8 +462,8 @@
           "count": 1
         }
       ],
-      "level": 7,
-      "xp": 145,
+      "level": 6,
+      "xp": 125,
       "band": "medium",
       "sleeps": true
     },
@@ -484,13 +488,13 @@
         },
         {
           "id": "nmtw",
-          "name": "Magnataur Warrior",
-          "level": 5,
+          "name": "Mur'gul Tidewarrior",
+          "level": 3,
           "count": 2
         }
       ],
-      "level": 16,
-      "xp": 355,
+      "level": 12,
+      "xp": 245,
       "band": "hard",
       "sleeps": true
     },
@@ -503,8 +507,8 @@
       "creeps": [
         {
           "id": "nmtw",
-          "name": "Magnataur Warrior",
-          "level": 5,
+          "name": "Mur'gul Tidewarrior",
+          "level": 3,
           "count": 2
         },
         {
@@ -520,8 +524,8 @@
           "count": 1
         }
       ],
-      "level": 16,
-      "xp": 355,
+      "level": 12,
+      "xp": 245,
       "band": "hard",
       "sleeps": true
     },
@@ -534,21 +538,21 @@
       "creeps": [
         {
           "id": "ntrt",
-          "name": "Sea Turtle",
-          "level": 2,
+          "name": "Giant Sea Turtle",
+          "level": 4,
           "count": 2
         },
         {
           "id": "ntrg",
-          "name": "Sea Giant",
-          "level": 3,
+          "name": "Gargantuan Sea Turtle",
+          "level": 7,
           "count": 1
         }
       ],
-      "level": 7,
-      "xp": 140,
-      "band": "medium",
-      "sleeps": false
+      "level": 15,
+      "xp": 360,
+      "band": "hard",
+      "sleeps": true
     },
     {
       "id": "c18",
@@ -559,21 +563,21 @@
       "creeps": [
         {
           "id": "ntrt",
-          "name": "Sea Turtle",
-          "level": 2,
+          "name": "Giant Sea Turtle",
+          "level": 4,
           "count": 2
         },
         {
           "id": "ntrg",
-          "name": "Sea Giant",
-          "level": 3,
+          "name": "Gargantuan Sea Turtle",
+          "level": 7,
           "count": 1
         }
       ],
-      "level": 7,
-      "xp": 140,
-      "band": "medium",
-      "sleeps": false
+      "level": 15,
+      "xp": 360,
+      "band": "hard",
+      "sleeps": true
     },
     {
       "id": "c19",
@@ -596,15 +600,15 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 9,
-      "xp": 185,
+      "level": 10,
+      "xp": 205,
       "band": "medium",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c20",
@@ -627,15 +631,15 @@
         },
         {
           "id": "nftt",
-          "name": "Forest Troll",
-          "level": 2,
+          "name": "Forest Troll Trapper",
+          "level": 3,
           "count": 1
         }
       ],
-      "level": 9,
-      "xp": 185,
+      "level": 10,
+      "xp": 205,
       "band": "medium",
-      "sleeps": false
+      "sleeps": true
     },
     {
       "id": "c21",
@@ -646,8 +650,8 @@
       "creeps": [
         {
           "id": "nggr",
-          "name": "War Golem",
-          "level": 6,
+          "name": "Granite Golem",
+          "level": 9,
           "count": 1
         },
         {
@@ -663,8 +667,8 @@
           "count": 2
         }
       ],
-      "level": 18,
-      "xp": 420,
+      "level": 21,
+      "xp": 555,
       "band": "hard",
       "sleeps": false
     }

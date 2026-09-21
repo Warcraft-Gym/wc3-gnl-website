@@ -6,6 +6,7 @@
  */
 import { deflateSync } from "node:zlib";
 import { decodeBLP, getBLPImageData } from "war3-model";
+import { cropLetterbox } from "../../src/lib/creep-routes/minimap-crop.mjs";
 
 function toArrayBuffer(input) {
   if (input instanceof ArrayBuffer) return input;
@@ -17,6 +18,20 @@ export function decodeMinimap(blpBuffer) {
   const image = decodeBLP(toArrayBuffer(blpBuffer));
   const { width, height, data } = getBLPImageData(image, 0);
   return { width, height, data };
+}
+
+/** Decodes `war3mapMap.blp` and crops its letterbox bands (see
+ * `minimap-crop.mjs`) so the result's aspect matches the map's own
+ * `bounds`. `mapLabel` (e.g. the map's slug) is only used to name the map
+ * in the thrown error on an aspect mismatch. */
+export function decodeMinimapCropped(blpBuffer, bounds, mapLabel) {
+  const { width, height, data } = decodeMinimap(blpBuffer);
+  const boundsAspect = (bounds.xMax - bounds.xMin) / (bounds.yMax - bounds.yMin);
+  try {
+    return cropLetterbox(data, width, height, boundsAspect);
+  } catch (error) {
+    throw new Error(`${mapLabel}: ${error.message}`);
+  }
 }
 
 function crc32(buf) {

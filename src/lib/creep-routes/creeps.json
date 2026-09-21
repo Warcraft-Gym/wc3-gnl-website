@@ -1,51 +1,51 @@
 {
   "nanb": {
-    "name": "Nerubian Webspinner",
-    "level": 3,
+    "name": "Barbed Arachnathid",
+    "level": 1,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Nerubian_Webspinner_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nanc": {
-    "name": "Nerubian Seer",
-    "level": 5,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Nerubian_Seer"
+    "name": "Crystal Arachnathid",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nano": {
-    "name": "Nerubian Spider Lord",
+    "name": "Overlord Arachnathid",
     "level": 5,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Nerubian_Spider_Lord"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nanw": {
-    "name": "Nerubian Warrior",
+    "name": "Warrior Arachnathid",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Nerubian_Warrior"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nass": {
     "name": "Assassin",
     "level": 4,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Assassin_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nbrg": {
     "name": "Brigand",
     "level": 2,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Brigand_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nele": {
     "name": "Enraged Elemental",
     "level": 4,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Enraged_Elemental"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nenf": {
     "name": "Enforcer",
     "level": 5,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Enforcer_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nfps": {
     "name": "Polar Furbolg Shaman",
@@ -54,112 +54,112 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nfpt": {
-    "name": "Fel Stalker",
-    "level": 5,
+    "name": "Polar Furbolg Tracker",
+    "level": 6,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Fel_Stalker_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nfrb": {
-    "name": "Furbolg Champion",
-    "level": 7,
+    "name": "Furbolg Tracker",
+    "level": 6,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Furbolg_Champion"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nfrl": {
     "name": "Furbolg",
     "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Furbolg_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nfrs": {
     "name": "Furbolg Shaman",
     "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Furbolg_Shaman_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nfsh": {
-    "name": "Forest Troll Shadow Priest",
-    "level": 2,
+    "name": "Forest Troll High Priest",
+    "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Shadow_Priest"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nftb": {
     "name": "Forest Troll Berserker",
     "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Berserker_(creep)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nftk": {
-    "name": "Forest Troll High Priest",
-    "level": 4,
+    "name": "Forest Troll Warlord",
+    "level": 6,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Forest_Troll_High_Priest"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nftr": {
-    "name": "Forest Troll Trapper",
-    "level": 3,
-    "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Trapper"
-  },
-  "nftt": {
     "name": "Forest Troll",
     "level": 2,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
+  "nftt": {
+    "name": "Forest Troll Trapper",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nggr": {
-    "name": "War Golem",
-    "level": 6,
+    "name": "Granite Golem",
+    "level": 9,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/War_Golem_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ngna": {
+    "name": "Gnoll Poacher",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
+  "ngnb": {
+    "name": "Gnoll Brute",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
+  "ngno": {
     "name": "Gnoll",
     "level": 1,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Gnoll_(Warcraft_III)"
-  },
-  "ngnb": {
-    "name": "Gnoll Poacher",
-    "level": 1,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Gnoll_Poacher_(Warcraft_III)"
-  },
-  "ngno": {
-    "name": "Gnoll Overseer",
-    "level": 5,
-    "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Gnoll_Overseer"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ngns": {
     "name": "Gnoll Assassin",
     "level": 3,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Gnoll_Assassin_(Warcraft_III)"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ngnv": {
     "name": "Gnoll Overseer",
     "level": 5,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Gnoll_Overseer"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ngnw": {
     "name": "Gnoll Warden",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Gnoll_Warden_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ngrk": {
     "name": "Mud Golem",
     "level": 2,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Mud_Golem_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ngst": {
     "name": "Rock Golem",
     "level": 6,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Rock_Golem"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nhdc": {
     "name": "Deceiver",
@@ -171,91 +171,91 @@
     "name": "Ice Troll High Priest",
     "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Ice_Troll_High_Priest"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nitp": {
     "name": "Ice Troll Priest",
     "level": 2,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Shadow_Priest"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nitr": {
     "name": "Ice Troll",
     "level": 2,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nits": {
     "name": "Ice Troll Berserker",
     "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Berserker_(creep)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nitt": {
     "name": "Ice Troll Trapper",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Trapper"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nitw": {
     "name": "Ice Troll Warlord",
     "level": 6,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Troll_Warlord"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nkob": {
     "name": "Kobold",
     "level": 1,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Kobold_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nkog": {
     "name": "Kobold Geomancer",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Kobold_Geomancer_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nkol": {
     "name": "Kobold Taskmaster",
     "level": 5,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Kobold_Taskmaster"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nkot": {
     "name": "Kobold Tunneler",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Kobold_Tunneler_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nlsn": {
     "name": "Makrura Snapper",
     "level": 5,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Makrura_Snapper"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmam": {
     "name": "Mammoth",
     "level": 3,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Mammoth_(Warcraft_III)"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmbg": {
     "name": "Mur'gul Blood-Gill",
     "level": 2,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Mur'gul_Blood-Gill"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmfs": {
     "name": "Murloc Flesheater",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Murloc_Flesheater_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmgr": {
     "name": "Magnataur Reaver",
     "level": 8,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Magnataur_Reaver"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmrl": {
     "name": "Murloc Tiderunner",
@@ -264,82 +264,82 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmrm": {
-    "name": "Murloc Huntsman",
-    "level": 2,
-    "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Murloc_Huntsman"
-  },
-  "nmrr": {
     "name": "Murloc Nightcrawler",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Murloc_Nightcrawler_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
+  },
+  "nmrr": {
+    "name": "Murloc Huntsman",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmrv": {
-    "name": "Murloc Tiderunner",
-    "level": 1,
+    "name": "Mur'gul Marauder",
+    "level": 6,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Murloc_Tiderunner"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmsn": {
     "name": "Mur'gul Snarecaster",
     "level": 4,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Mur'gul_Snarecaster"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nmtw": {
-    "name": "Magnataur Warrior",
-    "level": 5,
+    "name": "Mur'gul Tidewarrior",
+    "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Magnataur_Warrior"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nnwl": {
-    "name": "Nerubian Queen",
-    "level": 7,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Nerubian_Queen"
+    "name": "Nerubian Webspinner",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nogl": {
     "name": "Ogre Lord",
     "level": 7,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Ogre_Lord_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nogm": {
-    "name": "Ogre Magi",
+    "name": "Ogre Mauler",
     "level": 5,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Ogre_Magi_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nogr": {
     "name": "Ogre Warrior",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Ogre_Warrior"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nomg": {
-    "name": "Ogre Mauler",
+    "name": "Ogre Magi",
     "level": 5,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Ogre_Mauler_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nowe": {
     "name": "Enraged Wildkin",
     "level": 6,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Enraged_Wildkin"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nplb": {
     "name": "Polar Bear",
     "level": 4,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Polar_Bear_(Warcraft_III)"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nplg": {
     "name": "Giant Polar Bear",
     "level": 6,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Giant_Polar_Bear"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nrdk": {
     "name": "Red Dragon Whelp",
@@ -351,43 +351,43 @@
     "name": "Reef Elemental",
     "level": 2,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Reef_Elemental"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nrog": {
     "name": "Rogue",
     "level": 3,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Rogue_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nsgh": {
     "name": "Sea Giant Hunter",
     "level": 5,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Sea_Giant_Hunter"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nsgn": {
     "name": "Sea Giant",
     "level": 3,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Sea_Giant_(Warcraft_III)"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nska": {
-    "name": "Skeletal Archer",
+    "name": "Skeleton Archer",
     "level": 1,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Skeletal_Archer_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nskg": {
-    "name": "Burning Archer",
+    "name": "Giant Skeleton Warrior",
     "level": 3,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Burning_Archer"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nsko": {
     "name": "Skeletal Orc",
     "level": 3,
     "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Skeletal_Orc"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nslf": {
     "name": "Sludge Flinger",
@@ -399,19 +399,19 @@
     "name": "Sasquatch",
     "level": 5,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Sasquatch_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nsra": {
     "name": "Stormreaver Apprentice",
     "level": 1,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Stormreaver_Apprentice"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nsrh": {
     "name": "Stormreaver Hermit",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Stormreaver_Hermit"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntka": {
     "name": "Tuskarr Spearman",
@@ -422,26 +422,26 @@
   "ntks": {
     "name": "Tuskarr Sorcerer",
     "level": 5,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Tuskarr_Sorcerer"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntkt": {
     "name": "Tuskarr Trapper",
     "level": 4,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Tuskarr_Trapper"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntkw": {
     "name": "Tuskarr Warrior",
     "level": 4,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Tuskarr_Warrior"
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntrg": {
-    "name": "Sea Giant",
-    "level": 3,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Sea_Giant_(Warcraft_III)"
+    "name": "Gargantuan Sea Turtle",
+    "level": 7,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntrh": {
     "name": "Sea Turtle Hatchling",
@@ -456,10 +456,10 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "ntrt": {
-    "name": "Sea Turtle",
-    "level": 2,
-    "sleeps": false,
-    "source": "https://warcraft.wiki.gg/wiki/Sea_Turtle_(Warcraft_III)"
+    "name": "Giant Sea Turtle",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nwiz": {
     "name": "Apprentice Wizard",
@@ -471,7 +471,7 @@
     "name": "Timber Wolf",
     "level": 2,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Timber_Wolf_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nwwd": {
     "name": "Dire Frost Wolf",
@@ -480,10 +480,10 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nwwf": {
-    "name": "Wendigo",
-    "level": 4,
+    "name": "Frost Wolf",
+    "level": 2,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Wendigo_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   },
   "nwzg": {
     "name": "Renegade Wizard",
@@ -495,6 +495,6 @@
     "name": "Rogue Wizard",
     "level": 3,
     "sleeps": true,
-    "source": "https://warcraft.wiki.gg/wiki/Rogue_Wizard_(Warcraft_III)"
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk"
   }
 }

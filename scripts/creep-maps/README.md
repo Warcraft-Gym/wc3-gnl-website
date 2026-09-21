@@ -53,6 +53,25 @@ with their minimap at `public/maps/<slug>.png` — run the script into a
 scratch `--out` dir and copy the two files into place per map; the script
 itself does not know about the site's directory layout.
 
+### The minimap letterbox crop
+
+`war3mapMap.blp` is always rendered into a 256x256 square canvas. Non-square
+maps (bounds aspect != 1) get uniform black padding bands on their shorter
+axis; `build.mjs` detects and crops those bands (`decodeMinimapCropped` in
+`minimap.mjs`, backed by the pure `cropLetterbox` in
+`src/lib/creep-routes/minimap-crop.mjs`) so the written PNG's aspect matches
+`bounds`'s aspect and camps/starts/mines land on the right pixel with no
+further client-side adjustment. The catalogue JSON records the post-crop
+size as `image: { width, height }`.
+
+If the cropped image's aspect doesn't match the bounds aspect within 3%,
+the whole build throws for that map — naming the map, the bounds aspect and
+the image aspect — rather than shipping a misaligned image. This did happen
+for `northern-isles` against the one bundle file available; see this
+feature's handoff (`missions/2026-09-21-creep-routes/features/001b-slk-table-and-letterbox/handoff.md`)
+for the full pixel-level investigation and why it was left unregenerated
+rather than forced through.
+
 ## What the JSON means
 
 ```jsonc
@@ -66,6 +85,7 @@ itself does not know about the site's directory layout.
   "generatedAt": "2026-09-21T12:00:00.000Z",
   "bounds": { "xMin": -8192, "xMax": 8192, "yMin": -8192, "yMax": 8192 }, // war3map.w3e terrain grid, world units
   "cameraBounds": [-5760, -6016, 5760, 6016, -5760, 6016, 5760, -6016],   // war3map.w3i, reference only
+  "image": { "width": 256, "height": 256 }, // post-letterbox-crop PNG size; not always 256x256, see below
   "camps": [
     {
       "id": "c01",                  // stable: ordered by distance from map centre, then angle
@@ -96,26 +116,48 @@ an unknown rawcode, or an entry missing a name/integer level 1-10/source
 URL, makes catalogue building throw, naming the id, instead of silently
 shipping a wrong level.
 
-There are two sourcing methods used across the table, both cited per-entry
-via the `source` URL:
+**The table is built entirely from Blizzard's own game data** (patch
+1.27.1, enUS), mirrored in the [w3x2lni](https://github.com/sumneko/w3x2lni)
+repository, by `scripts/creep-maps/creep-table.mjs`:
 
-1. **`warcraft.wiki.gg`** (most entries): the per-unit wiki page's
-   infobox `|level=` field, e.g.
-   `https://warcraft.wiki.gg/wiki/Forest_Troll_Berserker`.
-2. **Blizzard's own game data, patch 1.27.1 (enUS)**, mirrored in the
-   [w3x2lni](https://github.com/sumneko/w3x2lni) repository — used for 11
-   rawcodes that had no findable `warcraft.wiki.gg` page (`nmrl`, `nwwd`,
-   `nslf`, `nwiz`, `nwzg`, `nfps`, `ntka`, `ntrh`, `ntrs`, `nhdc`, `nrdk`):
-   name from
-   [`neutralunitstrings.txt`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/neutralunitstrings.txt)
-   (`[id]` section, `Name=` field), level from
-   [`unitbalance.slk`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk)
-   (row keyed by `unitBalanceID`, `level` column), `sleeps` from
-   [`unitdata.slk`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Units/unitdata.slk)
-   (row keyed by `unitID`, `canSleep` column — all 11 are `1`/true). The
-   `source` recorded for these 11 entries is the `unitbalance.slk` URL
-   (the level field); the other two files are cited here as the name/sleeps
-   method rather than repeated per entry.
+```
+node scripts/creep-maps/creep-table.mjs \
+  --strings <neutralunitstrings.txt> \
+  --balance <unitbalance.slk> \
+  --data <unitdata.slk> \
+  [--ids <path-to-catalogue-dir-or-id-list>] [--all] \
+  --out src/lib/creep-routes/creeps.json
+```
 
-As of this feature, all 83 rawcodes referenced by the nine generated
-catalogues are sourced.
+By default it builds an entry for every rawcode referenced by a catalogue
+under `src/lib/creep-routes/maps/*.json`; `--ids <dir>` points at a
+different catalogue directory, `--ids <file>` reads an explicit rawcode
+list (JSON array or one per line), and `--all` builds every id with a
+`Name=` entry in the strings file (every neutral unit, not just ones
+current catalogues use). It fails loudly, naming every missing id, if a
+requested rawcode has no name, no integer level 1-10, or no `canSleep`
+flag in the three source files — same "never guess" rule as the runtime
+`getCreep` lookup.
+
+Name comes from
+[`neutralunitstrings.txt`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/neutralunitstrings.txt)
+(`[id]` section, `Name=` field); level from
+[`unitbalance.slk`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk)
+(row keyed by `unitBalanceID`, `level` column); `sleeps` from
+[`unitdata.slk`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Units/unitdata.slk)
+(row keyed by `unitID`, `canSleep` column). Both `.slk` files are read with
+the small SYLK parser in `src/lib/creep-routes/slk.mjs`. Every entry's
+`source` is the `unitbalance.slk` URL above.
+
+This replaces an earlier table built by hand from individual
+`warcraft.wiki.gg` pages. A cross-check against the SLK data (done in the
+follow-up that added the 11 rawcodes the wiki didn't have pages for) found
+2 of 5 spot-checked wiki entries named the *wrong unit* for their rawcode
+(`nanb` is "Barbed Arachnathid" level 1, not "Nerubian Webspinner" level 3;
+`nfpt` is "Polar Furbolg Tracker" level 6, not "Fel Stalker" level 5).
+Regenerating the whole table from `creep-table.mjs` found 26 of 83 entries
+(31%) disagreed with the wiki-sourced table on name and/or level — the SLK
+data is now the *only* method used; the wiki is, at most, a cross-check.
+
+As of this feature, all 83 rawcodes referenced by the generated catalogues
+are SLK-sourced.
