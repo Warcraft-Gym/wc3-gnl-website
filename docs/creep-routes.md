@@ -90,12 +90,13 @@ check passes, the build throws rather than ship a misaligned image.
 data layer share:
 
 - **`CreepMap`** — the catalogue shape (`slug`, `name`, `mapVersion`,
-  `w3cMapId`, `bounds`, `image`, `camps[]`, `starts[]`, `mines[]`, `shops[]`)
-  plus `minimapUrl`: `/maps/<slug>.png` for fixtures, the Sanity image asset
-  URL once a map is published. A `MapCamp`'s `level`/`xp`/`band` are the
-  camp's own totals (sum of its creeps' levels/base xp, and a difficulty
-  label) — not a hero's; see "Day clock" below for how a hero's own
-  level/xp are derived per stop.
+  `w3cMapId`, `bounds`, optional `terrainBounds`/`cameraBounds`
+  (reference-only, see "The playable rectangle" above), `image`, `camps[]`,
+  `starts[]`, `mines[]`, `shops[]`) plus `minimapUrl`: `/maps/<slug>.png`
+  for fixtures, the Sanity image asset URL once a map is published. A
+  `MapCamp`'s `level`/`xp`/`band` are the camp's own totals (sum of its
+  creeps' levels/base xp, and a difficulty label) — not a hero's; see "Day
+  clock" below for how a hero's own level/xp are derived per stop.
 - **`CreepRoute`** — `slug`, `title`, `race`, `vsRaces[]` (empty = any),
   `level` (`"standard"` or `"beginner"`), `map: { slug, name }`, an optional
   `hero` (icon key into `GAME_ICON_OPTIONS`), `summary`, `author` and credit
@@ -192,15 +193,16 @@ Each Sanity stop's `time` is stored as a `"m:ss"` string (validated with
 the same regex as build steps) and converted to real seconds
 (`clock.mjs`'s `parseClock`) when read, since the domain type
 (`RouteStop.time`) is numeric. A route whose `map` reference doesn't
-resolve (deleted, or — like Northern Isles today — never published) is
-**dropped from the list** rather than shown broken, with a `console.warn`
-in development.
+resolve (deleted, or — like every catalogue today, none of the nine
+`creepMap` documents have been published to Sanity yet, see "Publishing a
+map" below — never published) is **dropped from the list** rather than
+shown broken, with a `console.warn` in development.
 
 The Sanity webhook (`/api/revalidate`, `PATHS.creepRoute` /
 `PATHS.creepMap` in `src/app/api/revalidate/route.ts`) purges
-`/learn/creep-routes`, the route's detail page, `/`, and the (future)
+`/learn/creep-routes`, the route's detail page, `/`, and the
 `/api/creep-routes` endpoints when a `creepRoute` changes, and
-`/learn/creep-routes` plus the (future) `/api/creep-maps/<slug>` when a
+`/learn/creep-routes` plus the `/api/creep-maps` endpoints when a
 `creepMap` changes.
 
 ## Publishing a map
@@ -222,9 +224,11 @@ or if a slug has no catalogue/minimap on disk. `@sanity/client` isn't a
 direct dependency of this repo (it's transitive, via `next-sanity`); the
 script resolves it through `next-sanity`'s own dependency tree
 (`require.resolve("@sanity/client", { paths: [...] })`) instead of adding
-one. **Not run as part of this feature** — no write token was available —
-so the published documents don't exist in Sanity yet; run it once a token
-is configured to get the eight generated maps live.
+one. **Not run yet** — no write token was available in the environments
+these scripts were developed in — so the published documents don't exist
+in Sanity yet; run it once a token is configured to get all nine
+generated maps live. See "When the ladder pool rotates" below for when to
+re-run this after a map file changes.
 
 Re-publishing overwrites any manual camp-position nudge an editor made in
 the Studio (the "Generated (edit with care)" field group warns about
@@ -372,3 +376,181 @@ sees; this section is the mechanics.
   expected to write to — **nothing writes this export today**, F005 only
   ships the reader, same "cheap, do it now" reasoning as the rest of this
   seam.
+
+## The JSON API
+
+Four public, read-only endpoints, mirroring `/api/builds`'s own shape and
+headers exactly (`src/app/api/builds/_headers.ts`, reused by import, not
+copied): open CORS (`Access-Control-Allow-Origin: *`, so the desktop
+overlay can fetch cross-origin from `file://`/`tauri://`), a 5-minute
+shared cache on success (`Cache-Control: public, s-maxage=300,
+stale-while-revalidate=600`, 60 s on a 404), and `OPTIONS` support on every
+route. A 404 is always `{ "error": "not_found" }`. `src/lib/creep-routes/serialize.ts`
+builds every response DTO from the domain types (`types.ts`).
+
+| Endpoint | Returns | Notes |
+| --- | --- | --- |
+| `GET /api/creep-routes` | `{ routes: ApiRouteListItem[] }` | Approved routes. Optional `race`, `vs`, `map`, `level` query filters, same validation as `/learn/creep-routes`'s own URL params — an invalid value is silently ignored, not an error. |
+| `GET /api/creep-routes/<slug>` | `{ route: ApiRoute }` | Adds `description`, the optional companion `build` link, and `derived` (per-stop `heroLevelAfter`/`xpAfter`/`isNight` plus `finalLevel`/`finalXp`, from `derive.mjs`'s `deriveRoute` — a consumer doesn't need to reimplement the XP model). 404 if the slug doesn't exist. |
+| `GET /api/creep-maps` | `{ maps: ApiMapListItem[] }` | One row per catalogue; `camps` is a **count**, not the array, to keep the payload small. |
+| `GET /api/creep-maps/<slug>` | `{ map: ApiMap }` | The full catalogue: `bounds` (playable rect), `terrainBounds`/`cameraBounds` (reference-only, see "The playable rectangle" above), `image`, `camps[]` (with `creeps[]`), `starts`, `mines`, `shops`, an absolute `minimapUrl`. 404 if the slug doesn't exist. |
+
+**List item** (`ApiRouteListItem`) — a deliberately narrow, explicit field
+set, not "everything the domain type has minus `description`": no
+`build`, `authorDiscord`, `maintainer`, `sourceUrl` or `patch` either,
+since those are detail-only. Every stop carries a `dayClock` string
+(computed from `time`, not stored) alongside the real-seconds `time`, so a
+consumer never has to import `clock.mjs` itself:
+
+```json
+{
+  "routes": [
+    {
+      "slug": "orc-shadow-hunter-last-refuge",
+      "title": "Shadow Hunter creep route",
+      "race": "orc",
+      "vsRaces": ["undead"],
+      "level": "standard",
+      "map": { "slug": "last-refuge", "name": "Last Refuge", "mapVersion": "1.4" },
+      "hero": "or-shadow-hunter",
+      "summary": "Shadow Hunter's Healing Wave keeps this cheap: four medium camps on Last Refuge before the push.",
+      "author": "Gym coaches",
+      "stops": [
+        { "campId": "c01", "time": 15, "dayClock": "12:45" },
+        { "campId": "c02", "time": 80, "dayClock": "16:00", "condition": "Skip if the Undead scouted this side" }
+      ],
+      "featured": false,
+      "publishedAt": "2026-09-14T10:00:00Z",
+      "updatedAt": "2026-09-14T10:00:00Z"
+    }
+  ]
+}
+```
+
+`map.mapVersion` here is the **route's own** recorded `mapVersion` (the
+catalogue version it was written against, `CreepRoute.mapVersion`), not a
+live re-fetch of the map document's current version — cheap, and exactly
+what "mark routes whose `mapVersion` differs" (see the runbook below)
+needs to compare against.
+
+**Detail** (`ApiRoute`) adds `description`, `build`, and `derived`:
+
+```json
+{
+  "route": {
+    "...": "…all ApiRouteListItem fields…",
+    "build": { "slug": "human-fast-expand-archmage-rifles", "title": "Archmage fast expand into Rifles" },
+    "derived": {
+      "stops": [
+        { "heroLevelAfter": 1, "xpAfter": 116, "isNight": false },
+        { "heroLevelAfter": 2, "xpAfter": 248, "isNight": false }
+      ],
+      "finalLevel": 3,
+      "finalXp": 541
+    }
+  }
+}
+```
+
+**Map list** (`ApiMapListItem`):
+
+```json
+{
+  "maps": [
+    { "slug": "autumn-leaves", "name": "Autumn Leaves v2", "mapVersion": "2.0", "w3cMapId": 44, "image": { "width": 256, "height": 256 }, "camps": 20, "minimapUrl": "https://warcraft3.gym/maps/autumn-leaves.png" }
+  ]
+}
+```
+
+**Map detail** (`ApiMap`) is the entire catalogue — `bounds`,
+`terrainBounds`, `cameraBounds`, `image`, `camps[]` (each with its
+`creeps[]`), `starts`, `mines`, `shops` — with `minimapUrl` made absolute.
+`terrainBounds`/`cameraBounds` are optional on `CreepMap`: fixtures (still
+the only source in dev, see "Publishing a map" above) carry them straight
+from the generated catalogue, but neither the `creepMap` Sanity schema nor
+`publish.mjs` writes them to a published document today, since they were
+scoped as reference-only for the map-building pipeline itself, not for
+consumers — a Sanity-backed map's API response simply won't have these
+two keys until a future feature adds them to the schema and the publish
+script, should a consumer turn out to want them.
+
+## When the ladder pool rotates
+
+The W3Champions 1v1 ladder pool changes periodically (a map is swapped
+in/out, or gets a new version). When it does:
+
+1. **Get the new `.w3x`/`.w3m` files** for the current pool (see
+   `scripts/creep-maps/README.md` for where the launcher bundle's maps
+   live; a rotation usually means at least one map isn't in that bundle
+   yet and has to be sourced separately).
+2. **Run `build.mjs`** for every changed/new map:
+   ```
+   node scripts/creep-maps/build.mjs <map1.w3x> [<map2.w3x> …] --out src/lib/creep-routes/maps --debug
+   ```
+   (`--out` now creates the directory if it doesn't exist.) Check the
+   stdout summary line per map (camp/start/mine/shop counts, any "dropped
+   outside the playable rect") and eyeball the `--debug` overlay PNGs —
+   every colored dot should sit on land, not water — before trusting the
+   output. Copy the resulting minimap PNGs into `public/maps/`.
+3. **Run `creep-table.mjs`** only if the new/changed maps introduce creep
+   unit ids the table doesn't already have — `build.mjs` throws, naming
+   the unknown id, rather than guessing a level; that's the signal this
+   step is needed (see "Map catalogue script" above for what feeds the
+   table).
+4. **Run `publish.mjs`** for every changed map to push the new catalogue
+   (and, if the minimap changed, a new image asset) to Sanity:
+   ```
+   SANITY_API_WRITE_TOKEN=<editor token> node scripts/creep-maps/publish.mjs <slug1> <slug2>
+   ```
+   This overwrites any manual camp-position nudge an editor made for that
+   map in the Studio — same trade-off "Publishing a map" above already
+   describes.
+5. **Mark routes whose `mapVersion` differs.** A `creepRoute` document's
+   own `mapVersion` field (also in the JSON API's list-item `map.mapVersion`,
+   see above) records the catalogue version the route was written
+   against. After a rotation, compare it to the republished map's own
+   `mapVersion`: a mismatch doesn't mean the route is wrong (camp
+   positions and levels rarely change between minor versions), but it's
+   the signal a coach should spot-check that route before trusting it
+   again. There is no automated check for this today — a manual Studio
+   query (`*[_type == "creepRoute" && mapVersion != *[_type == "creepMap"
+   && slug.current == ^.map->slug.current][0].mapVersion]`) or a quick
+   script over the JSON API (`/api/creep-routes` gives every route's
+   `map.mapVersion` and `map.slug` in one call) both work; see the
+   Backlog below.
+
+## Backlog
+
+What this mission deliberately left undone, in the order a future
+mission would likely want to pick it up:
+
+- **Overlay panel.** The desktop overlay (`apps/overlay`) shows build
+  orders today; a creep-route panel driven by `/api/creep-routes` is the
+  natural next surface — the JSON API this feature ships is exactly the
+  seam it would read from.
+- **Replay → route import.** `/api/replay-import` already turns a `.w3g`
+  replay into a build-order draft; teaching it to also emit a creep-route
+  draft (camps cleared, in order, with real timestamps) would let a coach
+  generate a route from their own game instead of authoring one by hand.
+- **Merged build+route timeline.** A route's optional `build` link (and a
+  build's routes, via `getRoutesForBuild`) exist, but no page shows a
+  single interleaved timeline of build steps and camp clears — today
+  they're two separate step tables on two separate pages.
+- **Current-revision map files.** The fixtures (and, once published, the
+  Sanity documents) are built from the 2021–22 launcher bundle's map
+  files, not necessarily this ladder season's exact revision — see "When
+  the ladder pool rotates" above for the process to catch up; nobody has
+  run it yet against a live pool change.
+- **`build.mjs` not creating `--out`** — fixed in this feature
+  (`mkdirSync(out, { recursive: true })`), listed here only as the record
+  of when it was closed.
+- **Route page back-link not preserving filters.** Following a route from
+  a filtered `/learn/creep-routes?race=human&...` list to its detail page
+  and back loses the filters — the back link doesn't carry the query
+  string forward.
+- **The H1-under-sticky-nav site issue.** A pre-existing, site-wide layout
+  bug also seen on the build-order page's hero: on some viewports an `<h1>`
+  that wraps to a second line has that line clipped behind the sticky nav
+  bar (observed on a route detail page's title, e.g.
+  "Archmage standard creep route" — see F003's `user-test.md`). Not
+  specific to creep routes and not fixed by this mission.

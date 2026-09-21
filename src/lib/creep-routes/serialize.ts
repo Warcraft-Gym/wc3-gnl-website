@@ -1,56 +1,162 @@
 import { gameIconSrc } from "@/lib/builds/icons";
+import { toDayClock } from "./clock.mjs";
+import { deriveRoute } from "./derive.mjs";
 import type { CreepMap, CreepRoute, RouteStop } from "./types";
 
 /**
- * Public JSON API DTOs (the routes land in F006; this feature only ships the
- * serializer). Same shape as the domain types, with `minimapUrl` and each
- * unit icon turned into an absolute URL so a desktop overlay on a different
- * origin can load the art directly, mirroring `src/lib/builds/serialize.ts`.
+ * Public JSON API DTOs, consumed by `src/app/api/creep-routes/**` and
+ * `src/app/api/creep-maps/**` (F006). Mirrors `src/lib/builds/serialize.ts`'s
+ * shape — `minimapUrl`/each unit icon turned into an absolute URL so a
+ * desktop overlay on a different origin can load the art directly — with
+ * two creep-route-specific additions: every stop carries a `dayClock`
+ * string (derived from `time`, not stored), and the detail DTO carries
+ * `derived` (the running hero level/xp per stop, from `derive.mjs`'s
+ * `deriveRoute`, so a consumer doesn't need to reimplement the XP model).
  */
 
-export type ApiRouteStop = Omit<RouteStop, "units"> & {
+export type ApiRouteStop = {
+  campId: string | null;
+  time: number;
+  dayClock: string;
+  action?: string;
   units?: { icon: string; count: number; iconUrl: string }[];
+  note?: string;
+  condition?: string;
 };
 
-export type ApiRoute = Omit<CreepRoute, "stops" | "description"> & {
+/** List DTO. A deliberately explicit, narrower field set than the full
+ *  route — no `description`, `build`, `authorDiscord`, `maintainer`,
+ *  `sourceUrl`, `patch`: those are detail-only (see `ApiRoute`), keeping
+ *  the list payload small. */
+export type ApiRouteListItem = {
+  slug: string;
+  title: string;
+  race: CreepRoute["race"];
+  vsRaces: CreepRoute["vsRaces"];
+  level: CreepRoute["level"];
+  map: { slug: string; name: string; mapVersion?: string };
+  hero?: string;
+  summary: string;
+  author: string;
   stops: ApiRouteStop[];
-  description?: CreepRoute["description"];
+  featured: boolean;
+  publishedAt: string;
+  updatedAt: string;
 };
 
-export type ApiRouteListItem = Omit<ApiRoute, "description">;
+export type ApiRouteDerivedStop = { heroLevelAfter: number; xpAfter: number; isNight: boolean };
 
+/** Detail DTO — adds `description`, the optional companion `build` link,
+ *  and `derived` (requires the route's own `CreepMap` to compute — see
+ *  `toApiRoute`). */
+export type ApiRoute = ApiRouteListItem & {
+  description?: CreepRoute["description"];
+  build?: { slug: string; title: string } | null;
+  derived: {
+    stops: ApiRouteDerivedStop[];
+    finalLevel: number;
+    finalXp: number;
+  };
+};
+
+/** Map list DTO — `camps` is a *count*, not the full array, to keep the
+ *  map list payload small; `GET /api/creep-maps/<slug>` returns the full
+ *  catalogue (`ApiMap`). */
+export type ApiMapListItem = {
+  slug: string;
+  name: string;
+  mapVersion?: string;
+  w3cMapId: number;
+  image: { width: number; height: number };
+  camps: number;
+  minimapUrl: string;
+};
+
+/** Map detail DTO — the entire catalogue (`bounds`, `terrainBounds`,
+ *  `cameraBounds`, `image`, `camps[]` with creeps, `starts`, `mines`,
+ *  `shops`), `minimapUrl` made absolute. */
 export type ApiMap = Omit<CreepMap, "minimapUrl"> & { minimapUrl: string };
 
 function toApiStop(stop: RouteStop, origin: string): ApiRouteStop {
   const { units, ...rest } = stop;
-  if (!units?.length) return { ...rest };
   return {
     ...rest,
-    units: units.map((u) => ({ ...u, iconUrl: `${origin}${gameIconSrc(u.icon)}` })),
+    dayClock: toDayClock(stop.time),
+    ...(units?.length
+      ? { units: units.map((u) => ({ ...u, iconUrl: `${origin}${gameIconSrc(u.icon)}` })) }
+      : {}),
   };
 }
 
-/** Full detail DTO — includes `description` as stored (Portable Text blocks
- *  or plain strings), the client decides how to render it. */
-export function toApiRoute(route: CreepRoute, origin: string): ApiRoute {
-  return {
-    ...route,
-    stops: route.stops.map((stop) => toApiStop(stop, origin)),
-  };
+function absoluteMinimapUrl(map: CreepMap, origin: string): string {
+  return map.minimapUrl.startsWith("http") ? map.minimapUrl : `${origin}${map.minimapUrl}`;
 }
 
-/** List DTO — omits `description` to keep the list payload small. */
+/** List DTO — see `ApiRouteListItem`'s own doc comment for what's omitted
+ *  and why. `map.mapVersion` is the route's own recorded `mapVersion` (the
+ *  catalogue version the route was written against), not a re-fetch of the
+ *  live map document's version. */
 export function toApiRouteListItem(route: CreepRoute, origin: string): ApiRouteListItem {
-  const full = toApiRoute(route, origin);
-  return Object.fromEntries(
-    Object.entries(full).filter(([key]) => key !== "description"),
-  ) as ApiRouteListItem;
+  return {
+    slug: route.slug,
+    title: route.title,
+    race: route.race,
+    vsRaces: route.vsRaces,
+    level: route.level,
+    map: { slug: route.map.slug, name: route.map.name, mapVersion: route.mapVersion },
+    hero: route.hero,
+    summary: route.summary,
+    author: route.author,
+    stops: route.stops.map((stop) => toApiStop(stop, origin)),
+    featured: route.featured,
+    publishedAt: route.publishedAt,
+    updatedAt: route.updatedAt,
+  };
 }
 
-/** Map DTO — `minimapUrl` is already absolute-or-site-relative on the
- *  domain type; this makes it absolute (`<origin>/maps/<slug>.png`) when
- *  it's still a fixture's site-relative path. */
+/** Full detail DTO — includes `description` as stored (Portable Text
+ *  blocks or plain strings, the client decides how to render it), the
+ *  optional companion `build` link, and `derived` (the running hero
+ *  level/xp per stop from `deriveRoute(route, map)` — `map` is the route's
+ *  own map, already resolved by the caller, e.g.
+ *  `getCreepMapBySlug(route.map.slug)`). */
+export function toApiRoute(route: CreepRoute, map: CreepMap, origin: string): ApiRoute {
+  const listItem = toApiRouteListItem(route, origin);
+  const derived = deriveRoute(route, map) as {
+    stops: { heroLevelAfter: number; xpAfter: number; isNight: boolean }[];
+    finalLevel: number;
+    finalXp: number;
+  };
+  return {
+    ...listItem,
+    description: route.description,
+    build: route.build,
+    derived: {
+      stops: derived.stops.map((s) => ({
+        heroLevelAfter: s.heroLevelAfter,
+        xpAfter: s.xpAfter,
+        isNight: s.isNight,
+      })),
+      finalLevel: derived.finalLevel,
+      finalXp: derived.finalXp,
+    },
+  };
+}
+
+/** Map list DTO — see `ApiMapListItem`'s own doc comment. */
+export function toApiMapListItem(map: CreepMap, origin: string): ApiMapListItem {
+  return {
+    slug: map.slug,
+    name: map.name,
+    mapVersion: map.mapVersion,
+    w3cMapId: map.w3cMapId,
+    image: map.image,
+    camps: map.camps.length,
+    minimapUrl: absoluteMinimapUrl(map, origin),
+  };
+}
+
+/** Map detail DTO — see `ApiMap`'s own doc comment. */
 export function toApiMap(map: CreepMap, origin: string): ApiMap {
-  const minimapUrl = map.minimapUrl.startsWith("http") ? map.minimapUrl : `${origin}${map.minimapUrl}`;
-  return { ...map, minimapUrl };
+  return { ...map, minimapUrl: absoluteMinimapUrl(map, origin) };
 }

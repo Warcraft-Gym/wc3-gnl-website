@@ -3,10 +3,12 @@
  * can check it with no loader (see `fixtures.test.mjs`). `fixtures.ts`
  * re-exports this as typed `CreepMap[]`/`CreepRoute[]`.
  *
- * Maps: one `CreepMap` per generated catalogue under `maps/*.json` (eight of
- * the nine bundle maps today — `northern-isles` has no catalogue yet, see
- * `docs/creep-routes.md`), with `minimapUrl` pointing at the matching
- * `public/maps/<slug>.png`.
+ * Maps: one `CreepMap` per generated catalogue under `maps/*.json` (all nine
+ * bundle maps, including `northern-isles` — see `docs/creep-routes.md`),
+ * with `minimapUrl` pointing at the matching `public/maps/<slug>.png`.
+ * `fixtures.test.mjs` asserts this list has exactly one entry per file in
+ * that directory, so a future catalogue can't be forgotten the way
+ * `northern-isles` was (F006 found it on disk but unwired).
  *
  * Routes: seed routes for local dev and as the fallback when Sanity has
  * none. Times are real seconds; camp ids are real camp ids taken from the
@@ -24,6 +26,7 @@
 import autumnLeaves from "./maps/autumn-leaves.json" with { type: "json" };
 import echoIsles from "./maps/echo-isles.json" with { type: "json" };
 import lastRefuge from "./maps/last-refuge.json" with { type: "json" };
+import northernIsles from "./maps/northern-isles.json" with { type: "json" };
 import shallowGrave from "./maps/shallow-grave.json" with { type: "json" };
 import springtime from "./maps/springtime.json" with { type: "json" };
 import tidehunters from "./maps/tidehunters.json" with { type: "json" };
@@ -34,6 +37,7 @@ const RAW_MAPS = {
   "autumn-leaves": autumnLeaves,
   "echo-isles": echoIsles,
   "last-refuge": lastRefuge,
+  "northern-isles": northernIsles,
   "shallow-grave": shallowGrave,
   springtime,
   tidehunters,
@@ -51,6 +55,8 @@ function loadMap(slug) {
     mapVersion: raw.mapVersion ?? undefined,
     w3cMapId: raw.w3cMapId,
     bounds: raw.bounds,
+    terrainBounds: raw.terrainBounds,
+    cameraBounds: raw.cameraBounds,
     image: raw.image,
     camps: raw.camps,
     starts: raw.starts,

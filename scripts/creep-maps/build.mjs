@@ -15,7 +15,7 @@
  * See README.md for where to get map files and what the JSON means.
  */
 import { basename, join } from "node:path";
-import { writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync } from "node:fs";
 import { openMap, readMember } from "./mpq.mjs";
 import { parseUnitsDoo } from "./units-doo.mjs";
 import { parseW3i, parseW3eBounds, computePlayableBounds } from "./map-info.mjs";
@@ -190,6 +190,7 @@ function renderDebugPng(minimap, catalogue) {
 
 function main() {
   const { files, out, debug, creepsPath } = parseArgs(process.argv.slice(2));
+  mkdirSync(out, { recursive: true });
 
   for (const file of files) {
     const { catalogue, png, minimap, droppedOutsidePlayable } = buildCatalogue(file, creepsPath);

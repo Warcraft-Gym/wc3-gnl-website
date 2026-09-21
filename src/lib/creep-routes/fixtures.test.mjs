@@ -1,4 +1,7 @@
 import assert from "node:assert/strict";
+import { readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import test from "node:test";
 import { FIXTURE_MAPS, FIXTURE_ROUTES } from "./fixtures.mjs";
 
@@ -8,6 +11,25 @@ test("FIXTURE_MAPS has one entry per generated catalogue, each with a minimapUrl
     assert.equal(map.minimapUrl, `/maps/${map.slug}.png`);
     assert.ok(Array.isArray(map.camps) && map.camps.length > 0, `${map.slug} has camps`);
   }
+});
+
+test("FIXTURE_MAPS has exactly one entry per src/lib/creep-routes/maps/*.json file on disk", () => {
+  // Guards against a repeat of the northern-isles bug (F006): the
+  // catalogue file existed on disk but fixtures.mjs never imported it, so
+  // it was silently missing from the map selects and the API. Reading the
+  // directory here means a future catalogue that isn't wired in fails this
+  // test instead of just quietly not showing up anywhere.
+  const mapsDir = join(dirname(fileURLToPath(import.meta.url)), "maps");
+  const filesOnDisk = readdirSync(mapsDir)
+    .filter((f) => f.endsWith(".json"))
+    .map((f) => f.replace(/\.json$/, ""))
+    .sort();
+  const fixtureSlugs = FIXTURE_MAPS.map((m) => m.slug).sort();
+  assert.deepEqual(
+    fixtureSlugs,
+    filesOnDisk,
+    `FIXTURE_MAPS slugs (${JSON.stringify(fixtureSlugs)}) must match maps/*.json files on disk (${JSON.stringify(filesOnDisk)})`,
+  );
 });
 
 test("FIXTURE_ROUTES has at least five routes", () => {

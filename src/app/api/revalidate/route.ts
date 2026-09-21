@@ -48,7 +48,11 @@ const PATHS: Record<string, (slug?: string) => string[]> = {
     "/api/creep-routes",
     ...(slug ? [`/api/creep-routes/${slug}`] : []),
   ],
-  creepMap: (slug) => ["/learn/creep-routes", ...(slug ? [`/api/creep-maps/${slug}`] : [])],
+  creepMap: (slug) => [
+    "/learn/creep-routes",
+    "/api/creep-maps",
+    ...(slug ? [`/api/creep-maps/${slug}`] : []),
+  ],
 };
 
 export async function POST(req: NextRequest) {

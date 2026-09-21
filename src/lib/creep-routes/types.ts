@@ -39,7 +39,16 @@ export type CreepMap = {
   name: string;
   mapVersion?: string;
   w3cMapId: number;
+  /** Playable-rect bounds (terrain minus the map's unplayable border) —
+   *  what camp/start/mine/shop `x`/`y` are normalised against. See
+   *  `docs/creep-routes.md`'s "The playable rectangle". */
   bounds: { xMin: number; xMax: number; yMin: number; yMax: number };
+  /** Raw terrain-grid bounds, wider than `bounds`; reference-only, not used
+   *  for any coordinate math on the site. */
+  terrainBounds?: { xMin: number; xMax: number; yMin: number; yMax: number };
+  /** The `.w3i` camera bounds quad (four `x,y` corner pairs, flattened);
+   *  reference-only, carried straight through from the catalogue. */
+  cameraBounds?: number[];
   image: { width: number; height: number };
   camps: MapCamp[];
   starts: MapStart[];
