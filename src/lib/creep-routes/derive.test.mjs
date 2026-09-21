@@ -80,3 +80,22 @@ test("routeBounds reports first/last time and stop count", () => {
 test("routeBounds on an empty route", () => {
   assert.deepEqual(routeBounds({ stops: [] }), { firstTime: 0, lastTime: 0, stopCount: 0 });
 });
+
+test("deriveRoute floors XP per creep grant, same as xp.mjs's heroLevelAfter: a level-4 creep at hero level 4 grants floor(85 * 0.5) = 42, not 42.5", () => {
+  const map = {
+    slug: "test-map",
+    camps: [
+      {
+        id: "c1",
+        level: 4,
+        xp: 85,
+        band: "easy",
+        creeps: [{ id: "e", name: "E", level: 4, count: 1 }],
+      },
+    ],
+  };
+  const route = { slug: "test-route", stops: [{ campId: "c1", time: 10 }] };
+  const result = deriveRoute(route, map, { startLevel: 4 });
+  assert.equal(result.stops[0].xpAfter, 942);
+  assert.equal(Number.isInteger(result.stops[0].xpAfter), true);
+});

@@ -5,7 +5,7 @@
   "w3cMapId": 61,
   "w3cName": "Shallow Grave",
   "sourceFile": "w3c_ShallowGrave_v1.4.w3x",
-  "generatedAt": "2026-09-21T18:48:29.686Z",
+  "generatedAt": "2026-09-21T19:56:02.360Z",
   "bounds": {
     "xMin": -5120,
     "xMax": 11264,
@@ -61,7 +61,7 @@
       ],
       "level": 9,
       "xp": 190,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -92,7 +92,7 @@
       ],
       "level": 7,
       "xp": 145,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -197,7 +197,7 @@
       ],
       "level": 8,
       "xp": 160,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     },
     {
@@ -234,7 +234,7 @@
       ],
       "level": 9,
       "xp": 190,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -265,7 +265,7 @@
       ],
       "level": 8,
       "xp": 160,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     },
     {
@@ -296,7 +296,7 @@
       ],
       "level": 7,
       "xp": 145,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -389,7 +389,7 @@
       ],
       "level": 15,
       "xp": 320,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -420,7 +420,7 @@
       ],
       "level": 15,
       "xp": 320,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {

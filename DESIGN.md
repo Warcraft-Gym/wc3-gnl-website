@@ -127,7 +127,7 @@ The chart is the right side of the "W3Champions ladder" band, one full-width ban
 
 A creep route page (`/learn/creep-routes/<slug>`) shows the minimap as SVG (`CreepMap`, `src/components/creep-routes/`) beside a step table you can play along with (`RouteStepTable`). The map and the table are two views of the same `CreepRoute`, and share one piece of state — the active stop — so pressing play in the table lights the same marker on the map.
 
-- **Camp difficulty bands.** A camp's summed creep level sorts it into one of three bands, from `scripts/creep-maps/camps.mjs`'s `BAND_MAX_LEVEL`: **easy** at level 5 or under, **medium** at 6–11, **hard** at 12 or over. The band is a mark, never text, same rule as a race colour: a filled circle on the map, a small dot (`BandDot`) beside the camp id in the table and in the hover panel.
+- **Camp difficulty bands.** A camp's summed creep level sorts it into one of three bands, from `scripts/creep-maps/camps.mjs`'s `BAND_MAX_LEVEL`: **easy** at level 9 or under, **medium** at 10–15, **hard** at 16 or over. Chosen from the actual distribution of summed camp level across the eight catalogues (165 camps: min 5, p33 10, p50 14, p66 17, max 26) — easy stops at 9 because a level-1 hero can solo a camp that light, which is what players mean by a "green" camp; the previous 5/11 cutoffs put only 7 of 165 camps in "easy" and none at all on Autumn Leaves. The band is a mark, never text, same rule as a race colour: a filled circle on the map, a small dot (`BandDot`) beside the camp id in the table and in the hover panel.
 - **Marks on the map.** A camp is a filled circle in its band colour, radius scaling modestly with the camp's level; every mark carries `data-camp="<id>"`. A start spot is a gold ring — solid for player 1, dashed for player 2 — labelled "P1"/"P2", `data-start`. A gold mine is a small gold diamond (a square rotated 45°), `data-mine`. Camp contents (creeps, their levels, whether they sleep) always come from the map catalogue, looked up by `campId` — never authored on the route, so a route can never invent what's in a camp.
 - **The route path and stop numbers.** A route draws as a polyline through its camp stops in order, skipping `campId: null` stops (a TP-home, a shop visit — those show only in the table, never on the map). The line is `--wg-gold` with a `--wg-bg` under-stroke, so it reads over any terrain. Each camp stop gets a numbered gold badge, its number the stop's real 1-based position in `route.stops` — so a badge's number always matches the table row of the same colour, even when a non-camp stop sits between two camps and the map skips it. The active stop's marker enlarges and gets a soft pulsing ring; motion is compositor-only (`transform`/`opacity`) and respects `prefers-reduced-motion`.
 - **The day clock and the real clock.** Every time in a route shows both: the in-game day clock (`toDayClock`, e.g. "16:30") and the real "m:ss" clock counting up from the start of the route. Night (18:00–05:59 game time) gets a small moon glyph with a real `title`/`aria-label`, never a colour alone.
@@ -139,9 +139,9 @@ A creep route page (`/learn/creep-routes/<slug>`) shows the minimap as SVG (`Cre
 
 | Token | Value | Job | Tested |
 |---|---|---|---|
-| `--wg-camp-easy` | `#6BE0C8` | Easy camp mark (level <= 5) | Against `#000000`: 13.12:1. Pairwise vs medium 1.72:1, vs hard 3.42:1 |
-| `--wg-camp-medium` | `#E0863A` | Medium camp mark (level 6-11) | Against `#000000`: 7.64:1. Pairwise vs hard 1.99:1 |
-| `--wg-camp-hard` | `#C23050` | Hard camp mark (level >= 12) | Against `#000000`: 3.83:1 |
+| `--wg-camp-easy` | `#6BE0C8` | Easy camp mark (level <= 9) | Against `#000000`: 13.12:1. Pairwise vs medium 1.72:1, vs hard 3.42:1 |
+| `--wg-camp-medium` | `#E0863A` | Medium camp mark (level 10-15) | Against `#000000`: 7.64:1. Pairwise vs hard 1.99:1 |
+| `--wg-camp-hard` | `#C23050` | Hard camp mark (level >= 16) | Against `#000000`: 3.83:1 |
 
 The `dataviz` skill's `validate_palette.js` was not present on disk for this feature (see the F003 handoff); the three values above were checked instead with a small WCAG contrast script (`(L1+0.05)/(L2+0.05)` relative luminance) against a >= 3:1 floor on black for each mark and a >= 1.5:1 pairwise floor between bands, so the three read as visually distinct marks over any terrain.
 

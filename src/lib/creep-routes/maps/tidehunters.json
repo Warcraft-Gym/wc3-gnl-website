@@ -5,7 +5,7 @@
   "w3cMapId": 54,
   "w3cName": "Tidehunters",
   "sourceFile": "w3c_Tidehunters_v1.2.w3x",
-  "generatedAt": "2026-09-21T18:48:29.734Z",
+  "generatedAt": "2026-09-21T19:56:02.413Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -49,7 +49,7 @@
       ],
       "level": 13,
       "xp": 285,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -80,7 +80,7 @@
       ],
       "level": 7,
       "xp": 145,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     },
     {
@@ -105,7 +105,7 @@
       ],
       "level": 6,
       "xp": 125,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -130,7 +130,7 @@
       ],
       "level": 6,
       "xp": 125,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -167,7 +167,7 @@
       ],
       "level": 14,
       "xp": 295,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -204,7 +204,7 @@
       ],
       "level": 14,
       "xp": 295,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -315,7 +315,7 @@
       ],
       "level": 7,
       "xp": 140,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -340,7 +340,7 @@
       ],
       "level": 7,
       "xp": 140,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -433,7 +433,7 @@
       ],
       "level": 6,
       "xp": 125,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -464,7 +464,7 @@
       ],
       "level": 6,
       "xp": 125,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -495,7 +495,7 @@
       ],
       "level": 12,
       "xp": 245,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -526,7 +526,7 @@
       ],
       "level": 12,
       "xp": 245,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -551,7 +551,7 @@
       ],
       "level": 15,
       "xp": 360,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -576,7 +576,7 @@
       ],
       "level": 15,
       "xp": 360,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {

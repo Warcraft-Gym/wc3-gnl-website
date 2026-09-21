@@ -109,6 +109,27 @@ runs a hero through a route's stops in order, folding camp stops through
 `toDayClock`/`isNight` per stop. `routeBounds(route)` is a pure
 first/last-time and stop-count helper.
 
+## XP model
+
+`src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
+are sourced from https://warcraft.wiki.gg/wiki/Hero_(Warcraft_III)#Experience
+— a hero killing a creep camp gains XP per creep in it, tapered by
+`creepXpFactor(heroLevel)` (the *camp's* factor, fixed to the hero's level
+at the moment the camp is engaged, per the wiki's rule) to how far past the
+creeps' own level the hero has already climbed.
+
+The wiki's table gives that factor as a fraction (e.g. 0.5 at hero level
+4), so `creepXp(level) * factor` is not always a whole number — a level-4
+creep grants a level-4 hero `85 * 0.5 = 42.5` xp by the raw formula.
+Warcraft III itself only ever awards whole XP in-game, so **we floor each
+creep's XP grant** (`Math.floor(creepXp(level) * factor)`, not the running
+total) before adding it to the hero's total — `heroLevelAfter` (`xp.mjs`)
+and `deriveRoute` (`derive.mjs`) both do this at the point of the grant.
+This is our modelling choice, not something the wiki states explicitly;
+flooring per creep (rather than flooring the camp or route total) keeps
+the total deterministic regardless of how creeps are grouped or ordered
+within a camp.
+
 ## Review flow
 
 Sanity is the store; a `creepRoute` document has the exact same review gate

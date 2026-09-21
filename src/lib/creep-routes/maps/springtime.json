@@ -5,7 +5,7 @@
   "w3cMapId": 1075,
   "w3cName": "Springtime",
   "sourceFile": "w3c_Springtime_v1.1.w3x",
-  "generatedAt": "2026-09-21T18:48:29.711Z",
+  "generatedAt": "2026-09-21T19:56:02.387Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -74,7 +74,7 @@
       ],
       "level": 6,
       "xp": 120,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -247,7 +247,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -272,7 +272,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -303,7 +303,7 @@
       ],
       "level": 9,
       "xp": 185,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -334,7 +334,7 @@
       ],
       "level": 9,
       "xp": 185,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -365,7 +365,7 @@
       ],
       "level": 13,
       "xp": 275,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -396,7 +396,7 @@
       ],
       "level": 13,
       "xp": 275,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -427,7 +427,7 @@
       ],
       "level": 15,
       "xp": 350,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -458,7 +458,7 @@
       ],
       "level": 15,
       "xp": 350,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -495,7 +495,7 @@
       ],
       "level": 14,
       "xp": 300,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -532,7 +532,7 @@
       ],
       "level": 14,
       "xp": 300,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -637,7 +637,7 @@
       ],
       "level": 6,
       "xp": 125,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -668,7 +668,7 @@
       ],
       "level": 6,
       "xp": 125,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     }
   ],

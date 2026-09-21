@@ -40,7 +40,7 @@ export function CampDetails({
       }}
     >
       <p className="flex items-center gap-1.5 font-display text-[0.7rem] font-bold uppercase tracking-[0.1em] text-fg">
-        <BandDot band={camp.band} /> Camp {camp.id}
+        <BandDot band={camp.band} /> {`Camp ${camp.id}`}
       </p>
       <ul className="mt-1.5 space-y-0.5 text-muted">
         {camp.creeps.map((c, i) => (
@@ -48,14 +48,12 @@ export function CampDetails({
             <span className="truncate">
               {c.name} {c.count > 1 ? `×${c.count}` : ""}
             </span>
-            <span className="tnum text-faint">Lv {c.level}</span>
+            <span className="tnum text-faint">{`Lv ${c.level}`}</span>
           </li>
         ))}
       </ul>
       <p className="tnum mt-1.5 flex items-center justify-between border-t border-line/50 pt-1.5 text-faint">
-        <span>
-          Level {camp.level} · {camp.xp} xp
-        </span>
+        <span>{`Level ${camp.level} · ${camp.xp} xp`}</span>
         {camp.sleeps ? <span className="text-gold">Sleeps</span> : null}
       </p>
     </div>

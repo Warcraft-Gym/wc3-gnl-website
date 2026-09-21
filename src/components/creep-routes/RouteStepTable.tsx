@@ -85,7 +85,8 @@ export function RouteStepTable({
         </h2>
         <div className="flex items-center gap-2">
           <span className="tnum min-w-[7.5rem] text-right font-display text-base font-bold text-gold sm:text-lg">
-            {toDayClock(Math.max(0, elapsed))} <span className="text-muted">· {formatClock(elapsed)}</span>
+            {toDayClock(Math.max(0, elapsed))}{" "}
+            <span className="text-muted">{`· ${formatClock(elapsed)}`}</span>
           </span>
           <button
             type="button"
@@ -151,7 +152,7 @@ export function RouteStepTable({
                   <td className="px-2 py-2.5">
                     {d.camp ? (
                       <span className="inline-flex items-center gap-1.5">
-                        <BandDot band={d.band} /> Camp {d.camp.id}
+                        <BandDot band={d.band} /> {`Camp ${d.camp.id}`}
                       </span>
                     ) : (
                       <span className="text-muted">{stop.action ?? "-"}</span>
@@ -183,7 +184,7 @@ export function RouteStepTable({
                     </span>
                   </td>
                   <td className="tnum px-2 py-2.5 text-xs text-muted">
-                    Lv {d.heroLevelAfter} · {d.xpAfter} xp
+                    {`Lv ${d.heroLevelAfter} · ${d.xpAfter} xp`}
                   </td>
                 </tr>
               );

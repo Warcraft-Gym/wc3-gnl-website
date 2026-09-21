@@ -5,7 +5,7 @@
   "w3cMapId": 1051,
   "w3cName": "Echo Isles v2",
   "sourceFile": "w3c_EchoIsles.w3x",
-  "generatedAt": "2026-09-21T18:48:29.637Z",
+  "generatedAt": "2026-09-21T19:56:02.306Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -55,7 +55,7 @@
       ],
       "level": 13,
       "xp": 275,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -111,7 +111,7 @@
       ],
       "level": 13,
       "xp": 285,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -142,7 +142,7 @@
       ],
       "level": 13,
       "xp": 275,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -173,7 +173,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -204,7 +204,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -279,7 +279,7 @@
       ],
       "level": 9,
       "xp": 180,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -329,7 +329,7 @@
       ],
       "level": 9,
       "xp": 180,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {

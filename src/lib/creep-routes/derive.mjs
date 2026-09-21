@@ -34,7 +34,9 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
       const factor = creepXpFactor(level);
       for (const creep of camp.creeps) {
         for (let i = 0; i < creep.count; i++) {
-          xp += creepXp(creep.level) * factor;
+          // Floor each creep's grant, same rounding as xp.mjs's
+          // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
+          xp += Math.floor(creepXp(creep.level) * factor);
         }
       }
       level = levelForXp(xp);

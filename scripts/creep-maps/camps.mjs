@@ -10,9 +10,11 @@ import { creepXp } from "../../src/lib/creep-routes/xp.mjs";
  * camps of 3-4 creeps each on Autumn Leaves). */
 export const CAMP_CLUSTER_THRESHOLD = 700;
 
-/** Summed camp level → difficulty band (documented properly in DESIGN.md
- * by F003; this feature only needs the cutoffs to exist as one constant). */
-export const BAND_MAX_LEVEL = { easy: 5, medium: 11 };
+/** Summed camp level → difficulty band (documented properly in DESIGN.md;
+ * the cutoffs sit near the 33rd/66th percentile of summed camp level
+ * across the eight catalogues (min 5, p33 10, p50 14, p66 17, max 26) —
+ * easy tops out at 9 because a level-1 hero can solo a camp that light). */
+export const BAND_MAX_LEVEL = { easy: 9, medium: 15 };
 
 function bandFor(level) {
   if (level <= BAND_MAX_LEVEL.easy) return "easy";

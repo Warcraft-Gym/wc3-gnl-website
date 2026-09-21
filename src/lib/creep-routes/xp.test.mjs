@@ -29,3 +29,11 @@ test("heroLevelAfter worked example: camps [3,3,2] then [4,4,3] from level 1", (
   assert.equal(result.level, 2);
   assert.equal(result.xp, 312);
 });
+
+test("heroLevelAfter floors XP per creep grant, not the running total: a level-4 creep at hero level 4 grants floor(85 * 0.5) = 42, not 42.5", () => {
+  // Starting already at level 4 (900 xp) so creepXpFactor is the 0.5 tier.
+  const result = heroLevelAfter([[4]], 4);
+  assert.deepEqual(result.perCamp, [{ level: 4, xp: 942 }]);
+  assert.equal(result.xp, 942);
+  assert.equal(Number.isInteger(result.xp), true);
+});

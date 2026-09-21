@@ -5,7 +5,7 @@
   "w3cMapId": 44,
   "w3cName": "Autumn Leaves v2",
   "sourceFile": "w3c_AutumnLeaves_v2-0.w3x",
-  "generatedAt": "2026-09-21T18:48:29.605Z",
+  "generatedAt": "2026-09-21T19:56:02.273Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -179,7 +179,7 @@
       ],
       "level": 9,
       "xp": 185,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -210,7 +210,7 @@
       ],
       "level": 9,
       "xp": 185,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -241,7 +241,7 @@
       ],
       "level": 12,
       "xp": 260,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -272,7 +272,7 @@
       ],
       "level": 12,
       "xp": 260,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -303,7 +303,7 @@
       ],
       "level": 7,
       "xp": 145,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     },
     {
@@ -334,7 +334,7 @@
       ],
       "level": 7,
       "xp": 145,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     },
     {
@@ -365,7 +365,7 @@
       ],
       "level": 13,
       "xp": 290,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -390,7 +390,7 @@
       ],
       "level": 7,
       "xp": 140,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -415,7 +415,7 @@
       ],
       "level": 7,
       "xp": 140,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -446,7 +446,7 @@
       ],
       "level": 13,
       "xp": 290,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -527,7 +527,7 @@
       ],
       "level": 14,
       "xp": 295,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -558,7 +558,7 @@
       ],
       "level": 14,
       "xp": 295,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -589,7 +589,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     },
     {
@@ -620,7 +620,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": false
     }
   ],

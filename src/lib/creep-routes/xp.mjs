@@ -60,7 +60,9 @@ export function heroLevelAfter(camps, startLevel = 1) {
   for (const camp of camps) {
     const factor = creepXpFactor(level);
     for (const creepLevel of camp) {
-      xp += creepXp(creepLevel) * factor;
+      // Warcraft III awards whole XP: floor each creep's grant (not the
+      // running total) — our modelling choice, see docs/creep-routes.md.
+      xp += Math.floor(creepXp(creepLevel) * factor);
     }
     level = levelForXp(xp);
     perCamp.push({ level, xp });

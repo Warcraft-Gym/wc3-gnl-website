@@ -5,7 +5,7 @@
   "w3cMapId": 3,
   "w3cName": "Last Refuge",
   "sourceFile": "w3c_LastRefuge_v1.4.w3x",
-  "generatedAt": "2026-09-21T18:48:29.661Z",
+  "generatedAt": "2026-09-21T19:56:02.332Z",
   "bounds": {
     "xMin": -6144,
     "xMax": 6144,
@@ -55,7 +55,7 @@
       ],
       "level": 9,
       "xp": 185,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -179,7 +179,7 @@
       ],
       "level": 9,
       "xp": 185,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -241,7 +241,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -309,7 +309,7 @@
       ],
       "level": 8,
       "xp": 165,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -532,7 +532,7 @@
       ],
       "level": 9,
       "xp": 180,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -594,7 +594,7 @@
       ],
       "level": 9,
       "xp": 180,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {

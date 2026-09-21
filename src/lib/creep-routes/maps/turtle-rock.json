@@ -5,7 +5,7 @@
   "w3cMapId": 12,
   "w3cName": "Turtle Rock v2",
   "sourceFile": "w3c_TurtleRock.w3x",
-  "generatedAt": "2026-09-21T18:48:29.758Z",
+  "generatedAt": "2026-09-21T19:56:02.439Z",
   "bounds": {
     "xMin": -8192,
     "xMax": 8192,
@@ -49,7 +49,7 @@
       ],
       "level": 15,
       "xp": 360,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -74,7 +74,7 @@
       ],
       "level": 15,
       "xp": 360,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -99,7 +99,7 @@
       ],
       "level": 15,
       "xp": 360,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -124,7 +124,7 @@
       ],
       "level": 15,
       "xp": 360,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -149,7 +149,7 @@
       ],
       "level": 6,
       "xp": 135,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -174,7 +174,7 @@
       ],
       "level": 6,
       "xp": 135,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -199,7 +199,7 @@
       ],
       "level": 6,
       "xp": 135,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
@@ -224,7 +224,7 @@
       ],
       "level": 6,
       "xp": 135,
-      "band": "medium",
+      "band": "easy",
       "sleeps": true
     },
     {
