@@ -68,8 +68,13 @@ export function RouteSubmitForm({
     return () => window.clearTimeout(id);
   }, []);
 
-  // Appends a new stop for the clicked camp; clicking the same camp again
-  // appends another — a camp can be revisited.
+  // A camp is on the route at most once via the click path: clicking a camp
+  // that isn't on the route yet appends a stop; clicking a camp that's
+  // already there removes that stop (toggle) instead of adding a duplicate.
+  // Base-action stops (`campId: null`) are never touched by this — only
+  // camp clicks go through here. Prefilled/imported routes may still carry
+  // a repeated campId (older data, the schema allows it); this only guards
+  // the click path, so a duplicate from prefill removes just the one match.
   const nextTimeGuess = () => {
     if (!stops.length) return "0:15";
     const last = stops[stops.length - 1];
@@ -77,10 +82,14 @@ export function RouteSubmitForm({
     return secs == null ? "" : formatClock(secs + 20);
   };
   function onCampSelect(campId: string) {
-    setStops((rows) => [
-      ...rows,
-      { id: Date.now() + Math.random(), campId, action: "", timeText: nextTimeGuess(), units: [], note: "", condition: "" },
-    ]);
+    setStops((rows) => {
+      const idx = rows.findIndex((r) => r.campId === campId);
+      if (idx !== -1) return rows.filter((_, i) => i !== idx);
+      return [
+        ...rows,
+        { id: Date.now() + Math.random(), campId, action: "", timeText: nextTimeGuess(), units: [], note: "", condition: "" },
+      ];
+    });
   }
 
   // #route= deep link from a future overlay/replay importer.

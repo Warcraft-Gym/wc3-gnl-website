@@ -80,7 +80,7 @@ export function CampMarker({
             type="button"
             data-camp={camp.id}
             onClick={() => onCampSelect(camp.id)}
-            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}`}
+            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
             aria-pressed={pressed ?? false}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}
             className="cursor-pointer bg-transparent"

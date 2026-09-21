@@ -9,10 +9,11 @@ import type { IconRace } from "@/lib/builds/icons";
 
 /**
  * The click-to-author editor: `CreepMap` in edit mode on the left (every
- * camp is a real button — `onCampSelect` appends a stop, clicking the same
- * camp again appends another, a camp can be revisited), the stop list on
- * the right so the two stay visually tied together, map left / stops
- * right, sticky totals under the list (`StopEditor`).
+ * camp is a real button — `onCampSelect` toggles a stop for that camp: adds
+ * it if it isn't on the route yet, removes it if it already is, so a camp
+ * is on the route at most once via the click path), the stop list on the
+ * right so the two stay visually tied together, map left / stops right,
+ * sticky totals under the list (`StopEditor`).
  */
 export function RouteEditor({
   map,
@@ -42,7 +43,7 @@ export function RouteEditor({
       <div className="lg:sticky lg:top-24">
         <CreepMap map={map} route={routeForMap} onCampSelect={onCampSelect} />
         <p className="mt-2 text-xs text-faint">
-          Click a camp to add it as the next stop. Click it again to revisit it later in the route.
+          Click a camp to add it as the next stop; click it again to remove it.
         </p>
       </div>
       <StopEditor map={map} stops={stops} setStops={setStops} iconRace={iconRace} fieldError={fieldError} />

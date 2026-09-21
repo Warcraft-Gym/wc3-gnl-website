@@ -324,6 +324,11 @@ sees; this section is the mechanics.
   `StopEditor` right), `StopEditor` owns the stop list's mutations (add a
   camp stop, add a base action, reorder, remove, sort by time) and the
   live `deriveRoute` readout, `StopRow` is one stop.
+- **A camp is on the route at most once via the click path** — `RouteSubmitForm`'s
+  `onCampSelect` toggles: adds a stop if the camp isn't on the route yet,
+  removes the existing one if it is; a prefilled/imported route with a
+  repeated `campId` (older data, the schema allows it) is still accepted
+  as-is, only the click path enforces the rule.
 - **`src/lib/creep-routes/submission.mjs` + `submission.ts`.** Same split
   as `fixtures.mjs`/`fixtures.ts`: the `.mjs` file is the pure, plain-JS
   implementation `submission.test.mjs` checks directly with `node --test`
