@@ -255,11 +255,16 @@ export default async function PlayerPage({ params }: Params) {
                 <h1
                   className={cn(
                     "mt-1 flex flex-wrap items-center gap-3 font-extrabold leading-none [overflow-wrap:anywhere] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]",
-                    // Long single-word names step down a size so the stats block keeps its place beside them
-                    player.name.length >= 9 ? "text-[length:clamp(1.75rem,0.8rem+2.6vw,2.8rem)]" : "text-[length:var(--wg-text-display)]",
+                    // Longer names step down in size so they stay on one or two lines
+                    // next to the stats block instead of stacking word by word
+                    player.name.length >= 15
+                      ? "text-[length:clamp(1.4rem,0.6rem+1.9vw,2.1rem)]"
+                      : player.name.length >= 9
+                        ? "text-[length:clamp(1.75rem,0.8rem+2.6vw,2.8rem)]"
+                        : "text-[length:var(--wg-text-display)]",
                   )}
                 >
-                  {player.name}
+                  <span className="sm:whitespace-nowrap">{player.name}</span>
                   {isCaptain && !captainOnly ? <CaptainBadge /> : null}
                 </h1>
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
