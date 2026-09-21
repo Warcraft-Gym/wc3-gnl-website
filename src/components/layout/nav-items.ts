@@ -1,3 +1,5 @@
+import { GNL_LADDER_LIVE } from "@/lib/flags";
+
 export type NavItem = { href: string; label: string; external?: boolean };
 
 /** Primary site header nav. */
@@ -15,7 +17,7 @@ export const GNL_NAV: NavItem[] = [
   { href: "/gnl/schedule", label: "Schedule" },
   { href: "/gnl/standings", label: "Standings" },
   { href: "/gnl/teams", label: "Teams" },
-  { href: "/gnl/ladder", label: "Ladder" },
+  ...(GNL_LADDER_LIVE ? [{ href: "/gnl/ladder", label: "Ladder" }] : []),
   { href: "/gnl/fantasy", label: "Fantasy" },
   { href: "/gnl/rules", label: "Rules" },
   { href: "/gnl/about", label: "About" },

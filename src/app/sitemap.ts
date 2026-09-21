@@ -4,7 +4,7 @@ import { getGuides } from "@/lib/learn/guides";
 import { getBuilds } from "@/lib/builds/builds";
 import { getPosts } from "@/lib/content";
 import { getTeams, getWeeks } from "@/lib/api/gnl";
-import { OVERLAY_BETA_LIVE } from "@/lib/flags";
+import { GNL_LADDER_LIVE, OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { absoluteUrl } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -53,7 +53,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/gnl/schedule", 0.8, "daily"),
     page("/gnl/standings", 0.8, "daily"),
     page("/gnl/teams", 0.7, "weekly"),
-    page("/gnl/ladder", 0.6, "daily"),
+    ...(GNL_LADDER_LIVE ? [page("/gnl/ladder", 0.6, "daily")] : []),
     page("/gnl/fantasy", 0.5, "weekly"),
   ];
 

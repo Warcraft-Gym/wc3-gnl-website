@@ -13,6 +13,7 @@ import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getLadder, getSeason, getSeasons } from "@/lib/api/gnl";
 import { record, signed } from "@/lib/figures.mjs";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
+import { GNL_LADDER_LIVE } from "@/lib/flags";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 const fmt = new Intl.NumberFormat("en-US");
 
 export default async function LadderPage({ searchParams }: Props) {
+  if (!GNL_LADDER_LIVE) notFound();
   const seasons = await getSeasons();
   const season = await getSeason(parseSeasonParam((await searchParams).season));
   if (!season) notFound();
