@@ -41,6 +41,14 @@ const PATHS: Record<string, (slug?: string) => string[]> = {
   post: (slug) => ["/blog", ...(slug ? [`/blog/${slug}`] : []), "/"],
   tool: () => ["/tools"],
   guide: (slug) => ["/learn", ...(slug ? [`/learn/guide/${slug}`] : []), "/"],
+  creepRoute: (slug) => [
+    "/learn/creep-routes",
+    ...(slug ? [`/learn/creep-routes/${slug}`] : []),
+    "/",
+    "/api/creep-routes",
+    ...(slug ? [`/api/creep-routes/${slug}`] : []),
+  ],
+  creepMap: (slug) => ["/learn/creep-routes", ...(slug ? [`/api/creep-maps/${slug}`] : [])],
 };
 
 export async function POST(req: NextRequest) {

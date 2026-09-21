@@ -40,6 +40,38 @@ export const structure: StructureResolver = (S) =>
             ]),
         ),
       S.divider(),
+      S.listItem()
+        .title("Creep routes")
+        .child(
+          S.list()
+            .title("Creep routes")
+            .items([
+              // Same review-state convention as build orders: the queue
+              // works regardless of the Studio's draft/published perspective.
+              S.listItem()
+                .title("Pending review")
+                .child(
+                  S.documentList()
+                    .title("Pending review")
+                    .apiVersion("2024-10-01")
+                    .filter('_type == "creepRoute" && reviewStatus == "pending"')
+                    .defaultOrdering([{ field: "_updatedAt", direction: "desc" }]),
+                ),
+              S.listItem()
+                .title("Approved")
+                .child(
+                  S.documentList()
+                    .title("Approved")
+                    .apiVersion("2024-10-01")
+                    .filter('_type == "creepRoute" && coalesce(reviewStatus, "approved") == "approved"')
+                    .defaultOrdering([{ field: "publishedAt", direction: "desc" }]),
+                ),
+              S.divider(),
+              S.documentTypeListItem("creepRoute").title("All creep routes"),
+              S.documentTypeListItem("creepMap").title("Maps"),
+            ]),
+        ),
+      S.divider(),
       S.documentTypeListItem("post").title("Blog posts"),
       S.documentTypeListItem("guide").title("Learn guides"),
       S.divider(),
