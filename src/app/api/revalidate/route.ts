@@ -29,7 +29,9 @@ function isValid(header: string | null, body: string): boolean {
 
 type Payload = { _type?: string; slug?: { current?: string } | string };
 
-const PATHS: Record<string, (slug?: string) => string[]> = {
+// Exported so the admin CMS (src/lib/admin/articles.ts) can revalidate the
+// same paths immediately on publish, instead of waiting for the webhook.
+export const PATHS: Record<string, (slug?: string) => string[]> = {
   buildOrder: (slug) => [
     "/learn/builds",
     ...(slug ? [`/learn/builds/${slug}`] : []),

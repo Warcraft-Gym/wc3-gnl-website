@@ -124,6 +124,10 @@ const components: PortableTextComponents = {
   marks: {
     strong: ({ children }) => <strong>{children}</strong>,
     em: ({ children }) => <em>{children}</em>,
+    code: ({ children }) => (
+      <code className="rounded bg-surface px-1 py-0.5 font-mono text-sm">{children}</code>
+    ),
+    "strike-through": ({ children }) => <s>{children}</s>,
     link: ({ children, value }) => (
       <a
         href={value?.href}
