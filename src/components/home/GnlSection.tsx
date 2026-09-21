@@ -70,10 +70,10 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
         <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
           <DiscordIcon size={20} /> {season.isActive ? "Join the next season" : "Sign up on Discord"}
         </ButtonLink>
-        <ButtonLink href="/gnl/about" variant="outline" size="lg">
+        <ButtonLink href="/gnl/about" size="lg">
           How the league works
         </ButtonLink>
-        <ButtonLink href="/gnl/schedule" variant="outline" size="lg">
+        <ButtonLink href="/gnl/schedule" size="lg">
           Follow {season.shortName}
         </ButtonLink>
       </div>

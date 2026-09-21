@@ -81,11 +81,11 @@ export default async function HomePage() {
               </ul>
             ) : null}
             <div className="mt-12 flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/learn/builds" variant="outline">
+              <ButtonLink href="/learn/builds">
                 All build orders
               </ButtonLink>
               {OVERLAY_BETA_LIVE ? (
-                <ButtonLink href="/tools/overlay" variant="outline">
+                <ButtonLink href="/tools/overlay">
                   Try the in-game overlay
                 </ButtonLink>
               ) : null}
@@ -123,7 +123,7 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="mt-12 flex justify-center">
-            <ButtonLink href="/blog" variant="outline">
+            <ButtonLink href="/blog">
               All news
             </ButtonLink>
           </div>
@@ -174,7 +174,7 @@ export default async function HomePage() {
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
                 <DiscordIcon size={20} /> Join the Discord
               </ButtonLink>
-              <ButtonLink href="/learn" variant="outline" size="lg">
+              <ButtonLink href="/learn" size="lg">
                 Start learning
               </ButtonLink>
             </div>
