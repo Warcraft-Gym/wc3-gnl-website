@@ -365,7 +365,10 @@ sees; this section is the mechanics.
   shape (`EXCHANGE_FORMAT = "wc3gym-creep-route"`): a fragment identifier
   never reaches the server or its logs, decoded client-side
   (`decodeFromHash`/`parseExchange`) and used to prefill `RouteSubmitForm`
-  on mount. This is the seam a later feature's overlay/replay importer is
+  on mount — also applied on `hashchange`, so a link followed while the
+  editor is already open prefills too, not just a fresh load; a rejected
+  payload logs a `console.warn` in development instead of failing silently.
+  This is the seam a later feature's overlay/replay importer is
   expected to write to — **nothing writes this export today**, F005 only
   ships the reader, same "cheap, do it now" reasoning as the rest of this
   seam.

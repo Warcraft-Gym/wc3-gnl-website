@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-routes/submit/actions";
 import { RouteSetup } from "./RouteSetup";
@@ -108,18 +108,51 @@ export function RouteSubmitForm({
       })),
     );
   };
+  // Applies a `#route=` payload on mount, and again on `hashchange` so a
+  // link followed while the editor is already open (in-tab hash navigation,
+  // a Playwright `navigate` to a same-page URL) also prefills — not just a
+  // fresh page load. `lastHandledHashRef` guards against re-applying the
+  // same hash value twice (mount + a stray hashchange for the same value).
+  const lastHandledHashRef = useRef<string | null>(null);
   useEffect(() => {
-    const m = window.location.hash.match(new RegExp(`[#&]${IMPORT_HASH_KEY}=([^&]+)`));
-    if (!m) return;
-    const json = decodeFromHash(m[1]);
-    const id = window.setTimeout(() => {
-      if (json) {
-        const r = parseExchange(json);
-        if (r.ok) applyExchange(r.route);
+    let timeoutId: number | undefined;
+
+    const warnRejected = (reason: string) => {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn("[creep-routes] ignored #route= payload:", reason);
       }
-      history.replaceState(null, "", window.location.pathname + window.location.search);
-    }, 0);
-    return () => window.clearTimeout(id);
+    };
+
+    const applyFromHash = () => {
+      const m = window.location.hash.match(new RegExp(`[#&]${IMPORT_HASH_KEY}=([^&]+)`));
+      if (!m) return;
+      const raw = m[1];
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+      // The guard is checked/set inside the deferred callback, not here at
+      // match time: React 18 dev Strict Mode mounts this effect, cleans it
+      // up (cancelling this timeout), then mounts it again — setting the
+      // guard eagerly would make that second, real mount a no-op.
+      timeoutId = window.setTimeout(() => {
+        if (raw === lastHandledHashRef.current) return;
+        lastHandledHashRef.current = raw;
+        const json = decodeFromHash(raw);
+        if (json) {
+          const r = parseExchange(json);
+          if (r.ok) applyExchange(r.route);
+          else warnRejected(r.error);
+        } else {
+          warnRejected("malformed base64url #route= payload");
+        }
+        history.replaceState(null, "", window.location.pathname + window.location.search);
+      }, 0);
+    };
+
+    applyFromHash();
+    window.addEventListener("hashchange", applyFromHash);
+    return () => {
+      if (timeoutId != null) window.clearTimeout(timeoutId);
+      window.removeEventListener("hashchange", applyFromHash);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
