@@ -28,7 +28,8 @@ const variants: Record<Variant, string> = {
 const sizes: Record<Size, string> = {
   sm: "h-9 px-4 text-[0.72rem]",
   md: "h-11 px-6 text-[0.8rem]",
-  lg: "h-14 px-9 text-[0.95rem]",
+  // Large CTAs share a minimum width so a row of them lines up evenly.
+  lg: "h-14 min-w-72 px-9 text-[0.95rem]",
 };
 
 type CommonProps = {
