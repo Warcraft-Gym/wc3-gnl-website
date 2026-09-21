@@ -257,9 +257,74 @@ follow.
 `CreepMap`'s props (`map`, `route?`, `activeStop?`, `onCampSelect?`,
 `highlightCamps?`, `className?`) are deliberately reusable beyond this
 page: `onCampSelect` is unused here but renders camps as real `<button>`s
-(via `foreignObject`) instead of plain `<g>`s when given, for a future
-editor (F005) to hook camp clicks into; `highlightCamps` was left ready for
-a list/filter page to dim or ring a subset of camps, but F004's list
+(via `foreignObject`) instead of plain `<g>`s when given, wired up by the
+editor below (`RouteSubmitForm`); `highlightCamps` was left ready for a
+list/filter page to dim or ring a subset of camps, but F004's list
 (`/learn/creep-routes`) ended up not using it — no per-row map thumbnail,
-see `DESIGN.md`'s "List" section — so it remains unused until an editor or
-a future map-first view wants it.
+see `DESIGN.md`'s "List" section — so it remains unused until a future
+map-first view wants it.
+
+## Submission
+
+`/learn/creep-routes/submit` (`src/app/(site)/learn/creep-routes/submit/`)
+is the public submission flow: click camps on the map, fill in the setup
+row and the details form, submit — reviewed the same way a build-order
+submission is. See `DESIGN.md`'s "Editor" section for what the author
+sees; this section is the mechanics.
+
+- **`RouteSubmitForm` → `RouteSetup` + `RouteEditor` (`CreepMap` in edit
+  mode + `StopEditor` → `StopRow`)** is the component tree, split so no
+  file runs long: `RouteSetup` is the map/race/opponent(s)/level/hero/
+  companion-build row, `RouteEditor` is a thin layout wrapper (map left,
+  `StopEditor` right), `StopEditor` owns the stop list's mutations (add a
+  camp stop, add a base action, reorder, remove, sort by time) and the
+  live `deriveRoute` readout, `StopRow` is one stop.
+- **`src/lib/creep-routes/submission.mjs` + `submission.ts`.** Same split
+  as `fixtures.mjs`/`fixtures.ts`: the `.mjs` file is the pure, plain-JS
+  implementation `submission.test.mjs` checks directly with `node --test`
+  (no loader, no cross-module TS import — see the file's own header
+  comment for why), the `.ts` file is a typed façade the rest of the app
+  imports (TS's untyped-JS inference on the raw `.mjs` exports is too loose
+  to use as-is — it infers e.g. `vsRaces: never[]` — so every export is
+  re-typed on the way out). `createSubmissionSchema({ maps, iconKeys,
+  buildSlugs })` builds the zod schema against a **live catalogue** passed
+  in by the caller — every map's slug and real camp ids (a stop's `campId`
+  is checked against the *chosen* map's own camps in a `superRefine`,
+  never a global camp-id set), every valid `GAME_ICON_OPTIONS` key, and
+  known build slugs for the optional companion link. A stop's `time`
+  accepts either clock form and transforms straight to real seconds
+  (`parseAnyClock`, `clock.mjs`); a `campId: null` stop requires `action`.
+  `toCreepRouteDraft(valid, mapDocId, buildDocId?)` is pure and
+  synchronous — no Sanity client — so it's directly testable; the caller
+  resolves both ids.
+- **`src/lib/creep-routes/submit.ts`** (server-only) is `createBuildDraft`'s
+  twin: `canAcceptSubmissions()` is `Boolean(projectId && token)`, read
+  both by the server action (to gate the actual write) and by `page.tsx`
+  (a Server Component) so the "submissions are closed" notice is in the
+  first server-rendered HTML, not only after a failed client submit — the
+  same SSR-first rule `CreepMap`'s own sizing already follows (see above).
+  `createCreepRouteDraft` resolves the map's document id **deterministically**
+  as `creepMap.<slug>` (`scripts/creep-maps/publish.mjs`'s own convention),
+  never by querying Sanity for it — **if the chosen map hasn't been
+  published yet, the draft still references the id it will have once
+  `publish.mjs` runs for that slug**; nothing is lost or blocked, the
+  Studio just shows a dangling reference in the meantime, same as any
+  reference to a not-yet-existing document. The companion build (if any)
+  has no such deterministic id, so it's resolved by a live slug lookup at
+  write time; a lookup failure drops just that link, not the submission.
+- **`actions.ts`**'s `submitCreepRoute` mirrors `submitBuild` exactly: the
+  stops array arrives as a hidden `stopsJson` field (serialised
+  client-side, the same trick `BuildSubmitForm` uses for `stepsJson`),
+  honeypot (`website`, must stay empty), `startedAt` min-fill-time (8 s),
+  a per-IP in-memory throttle (1/minute, per serverless instance),
+  `canAcceptSubmissions()`, then `createCreepRouteDraft`. Field errors are
+  keyed the same way builds' are, `"stops.2.time"`, `"title"`, etc.
+- **`src/lib/creep-routes/exchange.ts`** is the `#route=` deep-link reader,
+  `src/lib/builds/exchange.ts`'s `#build=` pattern with a creep-route
+  shape (`EXCHANGE_FORMAT = "wc3gym-creep-route"`): a fragment identifier
+  never reaches the server or its logs, decoded client-side
+  (`decodeFromHash`/`parseExchange`) and used to prefill `RouteSubmitForm`
+  on mount. This is the seam a later feature's overlay/replay importer is
+  expected to write to — **nothing writes this export today**, F005 only
+  ships the reader, same "cheap, do it now" reasoning as the rest of this
+  seam.

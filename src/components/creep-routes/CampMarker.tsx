@@ -21,6 +21,7 @@ export function CampMarker({
   imageHeight,
   active,
   highlighted,
+  pressed,
   onCampSelect,
   onPointerEnter,
   onPointerLeave,
@@ -30,6 +31,9 @@ export function CampMarker({
   imageHeight: number;
   active?: boolean;
   highlighted?: boolean;
+  /** Whether the camp already has a stop on the route being edited (F005's
+   *  editor); exposed as `aria-pressed` on the real button below. */
+  pressed?: boolean;
   onCampSelect?: (campId: string) => void;
   onPointerEnter?: () => void;
   onPointerLeave?: () => void;
@@ -74,8 +78,10 @@ export function CampMarker({
         <foreignObject x={cx - size / 2} y={cy - size / 2} width={size} height={size}>
           <button
             type="button"
+            data-camp={camp.id}
             onClick={() => onCampSelect(camp.id)}
-            aria-label={`Camp ${camp.id}, ${camp.band} difficulty`}
+            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}`}
+            aria-pressed={pressed ?? false}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}
             className="cursor-pointer bg-transparent"
           />

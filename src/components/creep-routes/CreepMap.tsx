@@ -154,6 +154,7 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
               imageHeight={ih}
               active={activeStop != null && stopIndex === activeStop}
               highlighted={highlightCamps?.has(camp.id) ?? false}
+              pressed={stopIndex !== -1}
               onCampSelect={onCampSelect}
               onPointerEnter={() => setHoverCamp(camp.id)}
               onPointerLeave={() => setHoverCamp((h) => (h === camp.id ? null : h))}

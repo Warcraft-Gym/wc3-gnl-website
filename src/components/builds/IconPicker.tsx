@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { GameIcon } from "./GameIcon";
-import { GAME_ICONS, getGameIcon, type IconRace } from "@/lib/builds/icons";
+import { GAME_ICONS, getGameIcon, type IconKind, type IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
 const TABS: { id: IconRace | "all"; label: string }[] = [
@@ -42,10 +42,15 @@ export function IconPicker({
   value,
   onChange,
   race,
+  kind,
 }: {
   value: string;
   onChange: (key: string) => void;
   race?: IconRace;
+  /** Restricts the grid (and search) to one icon kind, e.g. "hero" for the
+   *  creep-route editor's hero field. Unset shows every kind, builds' own
+   *  usage. */
+  kind?: IconKind;
 }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<IconRace | "all">(race ?? "all");
@@ -81,10 +86,11 @@ export function IconPicker({
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
+    const pool = kind ? GAME_ICONS.filter((i) => i.kind === kind) : GAME_ICONS;
     // A search looks across every race; the tab only filters when browsing.
-    if (needle) return GAME_ICONS.filter((i) => i.title.toLowerCase().includes(needle));
-    return GAME_ICONS.filter((i) => tab === "all" || i.race === tab);
-  }, [tab, q]);
+    if (needle) return pool.filter((i) => i.title.toLowerCase().includes(needle));
+    return pool.filter((i) => tab === "all" || i.race === tab);
+  }, [tab, q, kind]);
 
   const current = getGameIcon(value);
 
