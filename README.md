@@ -33,7 +33,7 @@ for ESLint.
 
 | Route | What | Source |
 | --- | --- | --- |
-| `/` | Homepage: learn by race, latest guides, build orders, community, news, the GNL | all of the below |
+| `/` | Homepage: learn by race, build orders, community, news, the GNL | all of the below |
 | `/learn`, `/learn/<category>` | Guide hubs per race and topic; the new-players hub renders the full handbook | Sanity `guide` |
 | `/learn/guide/<slug>` | A guide, with its play-along build order when one was transcribed from it | Sanity `guide` + `buildOrder` |
 | `/learn/builds`, `/learn/builds/<slug>` | Build orders with filters, a step table and a play-along clock | Sanity `buildOrder` |
