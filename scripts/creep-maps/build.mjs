@@ -29,7 +29,7 @@
  */
 import { basename, join } from "node:path";
 import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
-import { openMap, readMember } from "./mpq.mjs";
+import { openMap, readMember, assertNoObjectOverrides } from "./mpq.mjs";
 import { parseUnitsDoo } from "./units-doo.mjs";
 import { parseW3i, parseW3eBounds, computePlayableBounds } from "./map-info.mjs";
 import { decodeMinimapCropped, encodePng } from "./minimap.mjs";
@@ -136,6 +136,7 @@ export function mapMetaFromFile(path) {
 
 function buildCatalogue(mapPath, creepsPath, livePool) {
   const map = openMap(mapPath);
+  assertNoObjectOverrides(map);
   const doo = parseUnitsDoo(readMember(map, "war3mapUnits.doo"));
   const { bounds: terrainBounds } = parseW3eBounds(readMember(map, "war3map.w3e"));
   const { cameraBounds, complements, randomItemTables } = parseW3i(readMember(map, "war3map.w3i"));

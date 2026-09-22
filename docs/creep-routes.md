@@ -1070,10 +1070,60 @@ they were carried by every catalogue and fixture from the start, but
 previously never made it past `publish.mjs` into a Sanity-backed map's API
 response.
 
+## Adding or updating a map
+
+The map archives are checked in under `map-sources/` — about 2 MB for the
+whole pool — so a rebuild is reproducible offline and does not depend on
+W3Champions' GitHub repo still holding that exact file. Rebuilding from them
+reproduces the committed catalogues byte for byte apart from `generatedAt`.
+
+```
+pnpm maps:add path/to/1v1_NewMap_v1.0@1234.w3x   # add or replace one map
+pnpm maps:rebuild                                 # rebuild every map
+```
+
+Either way the whole chain runs from *all* of `map-sources/`, so what is
+checked in is always the product of the checked-in inputs:
+
+1. collect every creep rawcode the maps place;
+2. rebuild `creeps.json` from Blizzard's unit tables for exactly those ids;
+3. build the catalogues and minimap PNGs, copying them into
+   `src/lib/creep-routes/maps/` and `public/maps/`;
+4. rebuild `items.json` for the pools those maps drop;
+5. fetch any icons that are new (`--no-icons` to skip);
+6. regenerate `src/lib/creep-routes/maps/index.mjs`, the generated list of
+   static imports `fixtures.mjs` reads — hand-maintaining that list is how
+   Northern Isles once shipped missing from every map select.
+
+Blizzard's tables are cached under `node_modules/.cache/` on first run. They
+are patch-1.27.1 game data, not ours to check in; only the distilled
+`creeps.json`/`items.json` live in the repo.
+
+Then: `pnpm test`, review the diff, commit, and
+`node scripts/creep-maps/publish.mjs --all` to push to Sanity — **production
+reads Sanity only**, so a map that is not published does not exist there.
+
+### What the command deliberately will not do
+
+If a map places a creep Blizzard's tables do not describe, it stops and names
+the rawcode rather than letting anyone fill the gap by hand. Creep level
+silently drives camp level, camp XP, the difficulty band and the route's whole
+hero-level projection — a plausible guess there is worse than a failure. (The
+one real case so far, `nggm`, is a post-1.27.1 Granite Golem variant, handled
+by a cited entry in `creep-table.mjs`'s `EXTRA_CREEP_INFO`.)
+
+For the same reason the build **refuses a map that redefines base units or
+items** through `war3map.w3u`/`w3t`: we describe creeps from Blizzard's data,
+so a customised map would be described wrongly with nothing failing. Every
+current ladder map passes — ten carry no such table, Shallow Grave's is an
+empty header, and Tidehunters declares two *custom* Granite Golem derivations
+it never places (custom definitions are additions, not overrides, and a placed
+one would trip the unknown-rawcode check anyway).
+
 ## When the ladder pool rotates
 
 The W3Champions 1v1 ladder pool changes periodically (a map is swapped
-in/out, or gets a new version). When it does:
+in/out, or gets a new version). To pick up what changed:
 
 1. **Fetch the current pool and its map files** — one command, no manual
    downloads:

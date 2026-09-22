@@ -3,8 +3,8 @@
  * can check it with no loader (see `fixtures.test.mjs`). `fixtures.ts`
  * re-exports this as typed `CreepMap[]`/`CreepRoute[]`.
  *
- * Maps: one `CreepMap` per generated catalogue under `maps/*.json` (all nine
- * bundle maps, including `northern-isles` — see `docs/creep-routes.md`),
+ * Maps: one `CreepMap` per generated catalogue under `maps/*.json` (every
+ * map in `map-sources/` — see `docs/creep-routes.md`),
  * with `minimapUrl` pointing at the matching `public/maps/<slug>.png`.
  * `fixtures.test.mjs` asserts this list has exactly one entry per file in
  * that directory, so a future catalogue can't be forgotten the way
@@ -15,42 +15,11 @@
  * more; camp ids are real camp ids taken from the matching map's catalogue
  * (never invented). Authors "Gym coaches".
  */
-// Static JSON module imports (Node 22 + Turbopack both understand `with {
-// type: "json" }` natively) rather than a runtime `readFileSync` of a
-// directory built from `import.meta.url`/`import.meta.dirname`: the former
-// pattern trips up Turbopack's production build two different ways —
-// `new URL("./maps/", import.meta.url)` gets special-cased as an asset
-// reference and fails to resolve a directory, and `import.meta.dirname`
-// comes back `undefined` inside Turbopack's server-component module wrapper
-// even though it's set under plain `node --test`. Static imports sidestep
-// both: every JSON file is a real, statically analysable module specifier.
-import autumnLeaves from "./maps/autumn-leaves.json" with { type: "json" };
-import echoIsles from "./maps/echo-isles.json" with { type: "json" };
-import lastRefuge from "./maps/last-refuge.json" with { type: "json" };
-import northernIsles from "./maps/northern-isles.json" with { type: "json" };
-import shallowGrave from "./maps/shallow-grave.json" with { type: "json" };
-import springtime from "./maps/springtime.json" with { type: "json" };
-import tidehunters from "./maps/tidehunters.json" with { type: "json" };
-import turtleRock from "./maps/turtle-rock.json" with { type: "json" };
-import twistedMeadows from "./maps/twisted-meadows.json" with { type: "json" };
-import hammerfall from "./maps/hammerfall.json" with { type: "json" };
-import scrimmage from "./maps/scrimmage.json" with { type: "json" };
-import fadingAutumn from "./maps/fading-autumn.json" with { type: "json" };
-
-const RAW_MAPS = {
-  "autumn-leaves": autumnLeaves,
-  "echo-isles": echoIsles,
-  "last-refuge": lastRefuge,
-  "northern-isles": northernIsles,
-  "shallow-grave": shallowGrave,
-  springtime,
-  tidehunters,
-  "turtle-rock": turtleRock,
-  "twisted-meadows": twistedMeadows,
-  hammerfall,
-  scrimmage,
-  "fading-autumn": fadingAutumn,
-};
+// The per-catalogue static imports live in the generated
+// `maps/index.mjs` (written by `scripts/creep-maps/add-map.mjs`): the
+// bundler cannot read a directory, and hand-maintaining one import per map
+// is how Northern Isles once shipped missing from every map select.
+import { RAW_MAPS } from "./maps/index.mjs";
 
 const MAP_SLUGS = Object.keys(RAW_MAPS);
 
