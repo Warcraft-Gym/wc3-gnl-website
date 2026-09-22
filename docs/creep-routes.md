@@ -1212,8 +1212,19 @@ After rebuilding, for every route on a map whose `mapVersion` changed:
 
 The site has no accounts, so there is nobody to authenticate an in-place edit
 against. Authors update a route by **resubmitting it and naming the one it
-replaces** — the submit form's "Updating an existing route?" field takes the
-old route's link or slug. Build orders work the same way.
+replaces**. In practice nobody types that: every route and build page carries
+a **"Suggest an update"** link beside the byline, which opens the submit form
+already filled in with that document and already naming it as the one being
+replaced. The "Updating an existing route?" field is still there to fill by
+hand for anyone arriving another way. Build orders work the same way.
+
+The link reuses the `#route=` / `#build=` prefill the form already reads for
+replay and overlay imports — the payload simply carries `supersedes` too,
+which is the only thing distinguishing an edit from a new submission. It is
+built server-side, so it sits in the HTML rather than waiting on hydration.
+`edit-link.mjs` (one per content type) holds the mapping, and its tests decode
+the link exactly as the form does: the encoder lives with the page and the
+decoder with the form, and nothing but agreement on the payload binds them.
 
 What happens then:
 
