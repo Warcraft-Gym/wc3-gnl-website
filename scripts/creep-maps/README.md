@@ -259,14 +259,19 @@ both parsed and carried through untouched until resolution:
   contributes nothing.
 - **`expandPool(itemdataIndex, cls, level)`** — every `itemdata.slk` row
   with that `class`/`Level` and `pickRandom === "1"`, corrected by
-  `POOL_OVERRIDES` (F011-followup-1): the raw SLK filter alone disagreed
-  with Liquipedia's own published pools on 9 of 12 pools, and — per an
+  `POOL_OVERRIDES` (F011-followup-1, re-derived against a corrected
+  reference by F011-followup-2): the raw SLK filter alone disagreed with
+  Liquipedia's own published pools on 9 of 12 pools, and — per an
   exhaustive, evidence-cited column comparison in `drops.mjs`'s own doc
   comment — isn't fixable by tightening the filter (patch-1.27.1's
   `class`/`Level`/`pickRandom` columns don't encode the table the live
-  client actually rolls from). See `docs/creep-routes.md`'s "The pool rule"
-  section for the full account, including the one pool (Power Up Level 1)
-  that still can't be fully reproduced.
+  client actually rolls from). F011-followup-1's first evidence file
+  (`evidence/liquipedia-pools.json`) was itself harvested with a flawed
+  regex (fixed-length segment cap, ran past the Items block into the next
+  camp's creep icons on the longer pools) — F011-followup-2's
+  `evidence/liquipedia-pools-corrected.json` fixes that and reaches 12/12
+  pools exact, with no residual gap. See `docs/creep-routes.md`'s "The pool
+  rule" section for the full account.
 
 `build.mjs` always computes `drops` (raw — `items: []`); passing
 `--itemdata`/`--itemstrings`/`--itemfunc` also expands and embeds `items`

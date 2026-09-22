@@ -5,7 +5,7 @@
   "w3cMapId": 6,
   "w3cName": "Twisted Meadows",
   "sourceFile": "w3c_TwistedMeadows.w3x",
-  "generatedAt": "2026-09-22T15:04:22.012Z",
+  "generatedAt": "2026-09-22T15:31:53.216Z",
   "bounds": {
     "xMin": -7936,
     "xMax": 7936,
@@ -297,9 +297,34 @@
               "icon": "BTNBelt"
             },
             {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
               "id": "ram4",
               "name": "Ring of the Archmagi",
               "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         },
@@ -389,9 +414,34 @@
               "icon": "BTNBelt"
             },
             {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
               "id": "ram4",
               "name": "Ring of the Archmagi",
               "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         },
@@ -484,6 +534,11 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
+            },
+            {
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
             }
           ]
         },
@@ -497,6 +552,11 @@
               "id": "clsd",
               "name": "Cloak of Shadows",
               "icon": "BTNCloak"
+            },
+            {
+              "id": "rag1",
+              "name": "Slippers of Agility +3",
+              "icon": "BTNSlippersOfAgility"
             },
             {
               "id": "rin1",
@@ -576,6 +636,11 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
+            },
+            {
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
             }
           ]
         },
@@ -589,6 +654,11 @@
               "id": "clsd",
               "name": "Cloak of Shadows",
               "icon": "BTNCloak"
+            },
+            {
+              "id": "rag1",
+              "name": "Slippers of Agility +3",
+              "icon": "BTNSlippersOfAgility"
             },
             {
               "id": "rin1",
@@ -1271,6 +1341,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -1289,6 +1364,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         },
@@ -1368,6 +1448,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -1386,6 +1471,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         },
@@ -1465,6 +1555,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -1483,6 +1578,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         },
@@ -1579,9 +1679,34 @@
               "icon": "BTNBelt"
             },
             {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
               "id": "ram4",
               "name": "Ring of the Archmagi",
               "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         },
@@ -1661,6 +1786,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -1679,6 +1809,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         },
@@ -1775,9 +1910,34 @@
               "icon": "BTNBelt"
             },
             {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
               "id": "ram4",
               "name": "Ring of the Archmagi",
               "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         },
@@ -1874,9 +2034,34 @@
               "icon": "BTNBelt"
             },
             {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
               "id": "ram4",
               "name": "Ring of the Archmagi",
               "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         },
@@ -1973,9 +2158,34 @@
               "icon": "BTNBelt"
             },
             {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
               "id": "ram4",
               "name": "Ring of the Archmagi",
               "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         },
@@ -2062,6 +2272,16 @@
               "icon": "BTNAzureDragon"
             },
             {
+              "id": "fgfh",
+              "name": "Spiked Collar",
+              "icon": "BTNFelHound"
+            },
+            {
+              "id": "fgrg",
+              "name": "Stone Token",
+              "icon": "BTNRockGolem"
+            },
+            {
               "id": "iotw",
               "name": "Idol of the Wild",
               "icon": "BTNFurbolgTracker"
@@ -2075,6 +2295,11 @@
               "id": "pres",
               "name": "Potion of Restoration",
               "icon": "BTNPotionOfRestoration"
+            },
+            {
+              "id": "sres",
+              "name": "Scroll of Restoration",
+              "icon": "BTNScrollOfHealing"
             }
           ]
         },
@@ -2161,6 +2386,16 @@
               "icon": "BTNAzureDragon"
             },
             {
+              "id": "fgfh",
+              "name": "Spiked Collar",
+              "icon": "BTNFelHound"
+            },
+            {
+              "id": "fgrg",
+              "name": "Stone Token",
+              "icon": "BTNRockGolem"
+            },
+            {
               "id": "iotw",
               "name": "Idol of the Wild",
               "icon": "BTNFurbolgTracker"
@@ -2174,6 +2409,11 @@
               "id": "pres",
               "name": "Potion of Restoration",
               "icon": "BTNPotionOfRestoration"
+            },
+            {
+              "id": "sres",
+              "name": "Scroll of Restoration",
+              "icon": "BTNScrollOfHealing"
             }
           ]
         },
@@ -2260,6 +2500,16 @@
               "icon": "BTNAzureDragon"
             },
             {
+              "id": "fgfh",
+              "name": "Spiked Collar",
+              "icon": "BTNFelHound"
+            },
+            {
+              "id": "fgrg",
+              "name": "Stone Token",
+              "icon": "BTNRockGolem"
+            },
+            {
               "id": "iotw",
               "name": "Idol of the Wild",
               "icon": "BTNFurbolgTracker"
@@ -2273,6 +2523,11 @@
               "id": "pres",
               "name": "Potion of Restoration",
               "icon": "BTNPotionOfRestoration"
+            },
+            {
+              "id": "sres",
+              "name": "Scroll of Restoration",
+              "icon": "BTNScrollOfHealing"
             }
           ]
         },
@@ -2359,6 +2614,16 @@
               "icon": "BTNAzureDragon"
             },
             {
+              "id": "fgfh",
+              "name": "Spiked Collar",
+              "icon": "BTNFelHound"
+            },
+            {
+              "id": "fgrg",
+              "name": "Stone Token",
+              "icon": "BTNRockGolem"
+            },
+            {
               "id": "iotw",
               "name": "Idol of the Wild",
               "icon": "BTNFurbolgTracker"
@@ -2372,6 +2637,11 @@
               "id": "pres",
               "name": "Potion of Restoration",
               "icon": "BTNPotionOfRestoration"
+            },
+            {
+              "id": "sres",
+              "name": "Scroll of Restoration",
+              "icon": "BTNScrollOfHealing"
             }
           ]
         },

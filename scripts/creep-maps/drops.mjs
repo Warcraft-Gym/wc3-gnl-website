@@ -95,51 +95,95 @@ export function campDrops(creepUnits, randomItemTables = []) {
 /** F011-followup-1: documented corrections layered on top of the raw
  *  `pickRandom=1 AND class AND Level` filter below.
  *
- * The raw filter disagreed with Liquipedia's own published pools
- * (`evidence/liquipedia-pools.json`, harvested from six map previews via
- * `Template:Creep_map/Creep_spot`, `action=parse`) on 9 of 12 pools. A
- * column-by-column comparison proves this isn't fixable by tightening the
- * filter: in the "Charged Level 4" pool, Book of the Dead (`fgsk`:
- * class=Charged, Level=4, oldLevel=6, pickRandom=1, usable=1, uses=1) is a
- * genuine member, while Wand of the Wind (`wcyc`: class=Charged, Level=4,
- * oldLevel=6, pickRandom=1, usable=1, uses=3) is not — every column that
- * could plausibly gate membership (class, Level, oldLevel, pickRandom,
- * usable, sellable, ignoreCD, goldcost, prio) is either identical between
- * the two or doesn't separate them consistently across the other pools
- * (checked exhaustively; see this feature's handoff). And Ankh of
- * Reincarnation (`ankh`) is a genuine "Charged Level 4" member despite its
- * *own* `Level` column reading 5 — `Level` itself can't be the pool key.
+ * F011-followup-1's first evidence file (`evidence/liquipedia-pools.json`)
+ * turned out to be harvested with a flawed regex: it capped each pool's
+ * segment at a fixed length and, for the longer pools, ran past the end of
+ * the Items block into the *next* camp's creep icons — so it both truncated
+ * some pools (Permanent Level 4 down to 4 items instead of 9) and
+ * contaminated others (a stray `BTNRune` credited to "Power Up Level 1").
+ * F011-followup-1 faithfully implemented that flawed file, which cost real
+ * pool members (Wand of Mana Stealing dropped from Charged 3; Ring of
+ * Skull and Talisman of Evasion dropped from Permanent 3; five items
+ * dropped from Permanent 4).
  *
- * This isn't a stale-mirror problem either: the same mismatches reproduce
- * against `itemdata.slk` from a much newer w3x2lni mirror (`zhCN-1.32.8`,
- * patch 1.32.8) — the columns simply don't encode the random-item table
- * the live client actually rolls; that table is external to the
- * redistributed SLK. Liquipedia's own per-(class,level) table (the same
- * template render that produced the evidence file) is authoritative
- * instead. `POOL_OVERRIDES` is the exact, evidence-cited diff between the
- * raw SLK filter and that table for the 11 of 12 pools it was possible to
- * fully resolve.
+ * This feature (F011-followup-2) replaces it with
+ * `evidence/liquipedia-pools-corrected.json`: the same six map previews,
+ * but each pool's segment is cut at the next pool label *or* the next
+ * `Creep Spot` block, and the list kept is the *modal* list across all
+ * occurrences (`confidence` in the JSON records how often, e.g. "Permanent
+ * Level 1": 20/20 identical, "Permanent Level 3": 17/20). Spot-checked
+ * directly against a fresh, no-map-context render of
+ * `Template:Creep_map/Creep_spot` for "Charged Level 4" (`item1=Charged,
+ * itemlevel1=4`), which reproduces the corrected file's 6-item list
+ * (Ankh of Reincarnation, Book of the Dead, Healing Wards, Health Stone,
+ * Mana Stone, Wand of the Wind) exactly — see this feature's handoff for
+ * the raw API response.
  *
- * One pool couldn't be fully reproduced: Liquipedia's evidence lists a
- * `BTNRune` icon in "Power Up Level 1" alongside `BTNManual`/`BTNTome`, but
- * every `itemfunc.txt` entry using that icon (14 "Rune of ..." single-use
- * battle items, e.g. `rhe1` Rune of Lesser Healing) is
- * `pickRandom=0`/`class=PowerUp`/`Level=0` in *both* mirrors, and a live
- * re-render of the same template with no map context shows no rune at all
- * in the current Power Up Level 1 pool (just Manual of Health + the three
- * stat tomes) — there's no candidate item id to add. This gap is left
- * unresolved rather than guessed at; `item-pools.test.mjs` names it
- * explicitly instead of asserting a false equality. */
+ * A column-by-column comparison of `itemdata.slk` (all 35 columns) proves
+ * the raw filter can't be tightened into the real rule: in the "Charged
+ * Level 4" pool, Book of the Dead (`fgsk`: class=Charged, Level=4,
+ * oldLevel=6, pickRandom=1, usable=1, uses=1) is a genuine member, while
+ * Red Drake Egg (`fgrd`: class=Charged, Level=4, oldLevel=6, pickRandom=1,
+ * usable=1, uses=1) is not — no column separates them consistently across
+ * the other pools either (see F011-followup-1's handoff for the exhaustive
+ * check). And Ankh of Reincarnation (`ankh`) is a genuine "Charged Level 4"
+ * member despite its *own* `Level` column reading 5 (it's the raw "Charged
+ * Level 5" filter that picks it up) — `Level` itself can't be the pool key,
+ * confirming items really do move between the SLK's own level and the live
+ * table's pool one level over.
+ *
+ * `POOL_OVERRIDES` is the minimal, evidence-cited add/remove diff against
+ * the corrected table needed to reach 12/12 exact — re-derived from
+ * scratch against the corrected file (not carried over from
+ * F011-followup-1's table, which was fit to the flawed one and, on
+ * several pools, removed items that the raw filter already had right).
+ * The pattern: several items sit one pool level off in the raw SLK
+ * relative to the live table — an item's own SLK `Level` slides down by
+ * one class-holding level, but only for a handful of ids:
+ *   - Ankh of Reincarnation (`ankh`) and Healing Wards (`whwd`): raw SLK
+ *     Level 5, live pool Charged Level 4 (Charged Level 5, observed 4/4).
+ *   - Spiked Collar/"Fel Hound" icon (`fgfh`) and Stone Token/"Rock Golem"
+ *     icon (`fgrg`): raw SLK Level 4, live pool Charged Level 5, observed
+ *     2/3 and 4/4 respectively.
+ *   - Crystal Ball (`crys`): raw SLK Permanent Level 5, live pool Charged
+ *     Level 2, observed 5/5.
+ *   - Legion Doom-Horn/"Horn of Doom" icon (`lgdh`): raw SLK Permanent
+ *     Level 4, live pool Permanent Level 5, observed 9/10.
+ *   - Circlet of Nobility (`cnob`): raw SLK Permanent Level 2, live pool
+ *     Permanent Level 3, observed 17/20.
+ *   - Boots of Speed (`bspd`) and Wand of Lightning Shield/"Star Wand" icon
+ *     (`wlsd`): raw SLK members of their own class+level that the live
+ *     table simply doesn't carry (24/24 and 5/5 respectively) — no
+ *     replacement pool identified, dropped outright, same treatment as
+ *     Red Drake Egg (`fgrd`, "Red Dragon" icon) and Talisman of the Wild
+ *     (`totw`, "Stone" icon), which the raw Charged Level 4 filter also
+ *     includes but neither corrected pool lists at all (2/3 and 4/4).
+ *   - Ring of Protection +4 (`rde3`, "Ring Green" icon): raw SLK
+ *     Permanent Level 6, live table doesn't carry it there (8/8) — same
+ *     "no replacement" case.
+ *   - Tome of Experience (`texp`, "Tome Brown" icon): raw SLK Power Up
+ *     Level 2, live table doesn't carry it there (29/30).
+ * Ring of Superiority (`rnsp`) and Ring of the Archmagi tier 4 (`ram4`)
+ * are added the same way F011-followup-1 found them (see
+ * `EXTRA_ITEM_INFO` below) — both genuinely belong per the corrected file
+ * too (Permanent Level 1 observed 20/20, Permanent Level 4 observed
+ * 17/17).
+ *
+ * Power Up Level 1's earlier "unresolvable `BTNRune`" gap is gone: the
+ * corrected file's Power Up Level 1 is just Manual of Health + the three
+ * stat tomes (observed 47/50) — exactly what the raw filter already
+ * produces with **no** override. The `BTNRune` credit was the flawed
+ * file's own contamination bleeding in from the next camp's creep icons,
+ * not a real pool member. */
 export const POOL_OVERRIDES = {
   "Charged|2": { add: ["crys"], remove: ["wlsd"] },
-  "Charged|3": { remove: ["woms"] },
-  "Charged|4": { add: ["ankh", "whwd"], remove: ["fgfh", "fgrd", "fgrg", "wcyc", "totw"] },
-  "Charged|5": { add: ["fgbd", "iotw"], remove: ["ankh", "sres", "whwd"] },
-  "Permanent|1": { add: ["rnsp"], remove: ["rag1"] },
+  "Charged|4": { add: ["ankh", "whwd"], remove: ["fgfh", "fgrd", "fgrg", "totw"] },
+  "Charged|5": { add: ["fgbd", "iotw", "fgfh", "fgrg"], remove: ["ankh", "whwd"] },
+  "Permanent|1": { add: ["rnsp"] },
   "Permanent|2": { remove: ["bspd", "cnob"] },
-  "Permanent|3": { add: ["cnob"], remove: ["evtl", "rlif"] },
-  "Permanent|4": { add: ["ram4"], remove: ["brac", "ciri", "lgdh", "lhst", "rwiz", "sbch"] },
-  "Permanent|5": { remove: ["crys", "kpin", "mcou", "ward"] },
+  "Permanent|3": { add: ["cnob"] },
+  "Permanent|4": { add: ["ram4"], remove: ["lgdh"] },
+  "Permanent|5": { add: ["lgdh"], remove: ["crys"] },
   "Permanent|6": { remove: ["rde3"] },
   "PowerUp|2": { remove: ["texp"] },
 };

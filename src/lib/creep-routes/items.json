@@ -29,6 +29,18 @@
     "level": 4,
     "icon": "BTNBelt"
   },
+  "brac": {
+    "name": "Runed Bracers",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNRunedBracers"
+  },
+  "ciri": {
+    "name": "Robe of the Magi +6",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNRobeOfTheMagi"
+  },
   "clfm": {
     "name": "Cloak of Flames",
     "class": "Permanent",
@@ -53,11 +65,29 @@
     "level": 5,
     "icon": "BTNCrystalBall"
   },
+  "evtl": {
+    "name": "Talisman of Evasion",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNTalisman"
+  },
   "fgbd": {
     "name": "Blue Drake Egg",
     "class": "Charged",
     "level": 5,
     "icon": "BTNAzureDragon"
+  },
+  "fgfh": {
+    "name": "Spiked Collar",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNFelHound"
+  },
+  "fgrg": {
+    "name": "Stone Token",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNRockGolem"
   },
   "fgsk": {
     "name": "Book of the Dead",
@@ -95,11 +125,35 @@
     "level": 5,
     "icon": "BTNFurbolgTracker"
   },
+  "kpin": {
+    "name": "Khadgar's Pipe of Insight",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNPipeOfInsight"
+  },
+  "lgdh": {
+    "name": "Legion Doom-Horn",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNHornOfDoom"
+  },
+  "lhst": {
+    "name": "The Lion Horn of Stormwind",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNLionHorn"
+  },
   "manh": {
     "name": "Manual of Health",
     "class": "PowerUp",
     "level": 1,
     "icon": "BTNManual"
+  },
+  "mcou": {
+    "name": "Medallion of Courage",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNMedalionOfCourage"
   },
   "mnst": {
     "name": "Mana Stone",
@@ -161,6 +215,12 @@
     "level": 3,
     "icon": "BTNPeriapt"
   },
+  "rag1": {
+    "name": "Slippers of Agility +3",
+    "class": "Permanent",
+    "level": 1,
+    "icon": "BTNSlippersOfAgility"
+  },
   "ram4": {
     "name": "Ring of the Archmagi",
     "class": "Permanent",
@@ -221,6 +281,12 @@
     "level": 1,
     "icon": "BTNMantleOfIntelligence"
   },
+  "rlif": {
+    "name": "Ring of Regeneration",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNRingSkull"
+  },
   "rnsp": {
     "name": "Ring of Superiority",
     "class": "Permanent",
@@ -239,11 +305,29 @@
     "level": 0,
     "icon": "BTNRune"
   },
+  "rwiz": {
+    "name": "Sobi Mask",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNSobiMask"
+  },
+  "sbch": {
+    "name": "Scourge Bone Chimes",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNBoneChimes"
+  },
   "spsh": {
     "name": "Amulet of Spell Shield",
     "class": "Permanent",
     "level": 6,
     "icon": "BTNSpellShieldAmulet"
+  },
+  "sres": {
+    "name": "Scroll of Restoration",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNScrollOfHealing"
   },
   "sror": {
     "name": "Scroll of the Beast",
@@ -299,6 +383,18 @@
     "level": 1,
     "icon": "BTNTome"
   },
+  "ward": {
+    "name": "Warsong Battle Drums",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNDrum"
+  },
+  "wcyc": {
+    "name": "Wand of the Wind",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNWandOfCyclone"
+  },
   "whwd": {
     "name": "Healing Wards",
     "class": "Charged",
@@ -310,6 +406,12 @@
     "class": "Charged",
     "level": 2,
     "icon": "BTNWand"
+  },
+  "woms": {
+    "name": "Wand of Mana Stealing",
+    "class": "Charged",
+    "level": 3,
+    "icon": "BTNWandOfManaSteal"
   },
   "wswd": {
     "name": "Sentry Wards",

@@ -5,7 +5,7 @@
   "w3cMapId": 1051,
   "w3cName": "Echo Isles v2",
   "sourceFile": "w3c_EchoIsles.w3x",
-  "generatedAt": "2026-09-22T15:04:21.956Z",
+  "generatedAt": "2026-09-22T15:31:53.129Z",
   "bounds": {
     "xMin": -7424,
     "xMax": 7424,
@@ -179,6 +179,11 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
+            },
+            {
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
             }
           ]
         },
@@ -894,6 +899,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -912,6 +922,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -977,6 +992,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -995,6 +1015,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -1046,6 +1071,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -1064,6 +1094,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         },
@@ -1143,6 +1178,11 @@
               "icon": "BTNCirclet"
             },
             {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
               "id": "penr",
               "name": "Pendant of Energy",
               "icon": "BTNPendantOfEnergy"
@@ -1161,6 +1201,11 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         },

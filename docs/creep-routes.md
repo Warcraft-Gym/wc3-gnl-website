@@ -247,48 +247,70 @@ also expands and embeds each entry's `items` (`{ id, name, icon }[]`).
 catalogue's `drops` reference — read by `item-table.mjs`'s own README
 section for the exact recipe.
 
-**The pool rule (F011-followup-1, corrected)**: `expandPool` starts from
-`itemdata.slk`'s raw `pickRandom === "1" AND class AND Level` filter, then
-applies `POOL_OVERRIDES` — a small, evidence-cited add/remove diff, *not*
-another column condition. A user report ("the blue icons are wrong")
-traced to the raw filter disagreeing with Liquipedia's own published pools
-(`evidence/liquipedia-pools.json`, harvested from six map previews) on 9 of
-12 pools — the investigation (see `drops.mjs`'s own doc comment for full
-detail) found this isn't fixable by tightening the filter: in the "Charged
-Level 4" pool, Book of the Dead (`fgsk`: class=Charged, Level=4, oldLevel=6,
-pickRandom=1, uses=1) is a genuine member while Wand of the Wind (`wcyc`:
-same class/Level/oldLevel/pickRandom, uses=3) is not — no SLK column
-separates the two consistently, and Ankh of Reincarnation (`ankh`) is a
-genuine "Charged Level 4" member despite its own `Level` column reading 5.
-Checked against a second, much newer w3x2lni mirror (`zhCN-1.32.8`) too, so
-it isn't a stale-checked-in-file problem: the SLK's `class`/`Level`/
-`pickRandom` columns simply don't encode the table the live client actually
-rolls from; that table lives outside the redistributed SLK. Two items
-`POOL_OVERRIDES` adds (`fgbd` Blue Drake Egg, `iotw` Idol of the Wild —
-Charged Level 5) don't exist under any name in the 1.27.1 mirror at all;
-their id/class/level come from the `zhCN-1.32.8` mirror and their
-name/icon from a live Liquipedia template re-render (`EXTRA_ITEM_INFO` in
-`drops.mjs`, consulted by `item-table.mjs`'s `buildItemsTable` instead of
-throwing "missing").
+**The pool rule (F011-followup-2, corrected reference)**: `expandPool`
+starts from `itemdata.slk`'s raw `pickRandom === "1" AND class AND Level`
+filter, then applies `POOL_OVERRIDES` — a small, evidence-cited add/remove
+diff, *not* another column condition. A user report ("the item icons are
+wrong") traced first (F011-followup-1) to the raw filter disagreeing with
+Liquipedia's own published pools on 9 of 12 pools, then (F011-followup-2,
+this correction) to that first evidence file
+(`evidence/liquipedia-pools.json`) itself being flawed: harvested with a
+regex that capped each pool's segment at a fixed length and, for the
+longer pools, ran past the end of the Items block into the *next* camp's
+creep icons — truncating some pools (Permanent Level 4 read as 4 items
+instead of 9) and contaminating others (crediting a stray `BTNRune` to
+"Power Up Level 1"). F011-followup-1 faithfully implemented that flawed
+file, which cost real pool members (Wand of Mana Stealing dropped from
+Charged 3; Ring of Skull and Talisman of Evasion from Permanent 3; five
+items from Permanent 4).
 
-**Residual caveat — one pool not fully reproduced**: "Power Up Level 1"
-still doesn't match Liquipedia exactly. The evidence lists a `BTNRune` icon
-there, but every `itemfunc.txt` entry with that icon (14 single-use "Rune of
-..." battle items, checked in both mirrors) is `pickRandom=0`/
-`class=PowerUp`/`Level=0`, and a live re-render of the same template with no
-map context shows no rune in the current pool at all (just Manual of Health
-+ the three stat tomes). There's no candidate item id to add, so this gap is
-left named rather than guessed at — `item-pools.test.mjs` asserts it
-explicitly (11 of 12 pools match exactly; the 12th is missing exactly the
-one documented icon, nothing else).
+The corrected reference (`evidence/liquipedia-pools-corrected.json`): same
+six map previews, but each pool's segment is cut at the next pool label
+*or* the next `Creep Spot` block, and the list kept is the *modal* list
+across all occurrences (a `confidence` map records how often, e.g.
+"Permanent Level 1": 20/20 identical, "Charged Level 4": 2/3). Spot-checked
+directly against a fresh, no-map-context render of
+`Template:Creep_map/Creep_spot` for "Charged Level 4"
+(`item1=Charged&itemlevel1=4`), which reproduces the corrected file's
+6-item list exactly.
+
+A column-by-column comparison of `itemdata.slk` (all 35 columns) proves the
+raw filter can't be tightened into the real rule: in the "Charged Level 4"
+pool, Book of the Dead (`fgsk`: class=Charged, Level=4, oldLevel=6,
+pickRandom=1, uses=1) is a genuine member while Red Drake Egg (`fgrd`: same
+class/Level/oldLevel/pickRandom, uses=1) is not — no SLK column separates
+the two consistently, and Ankh of Reincarnation (`ankh`) is a genuine
+"Charged Level 4" member despite its own `Level` column reading 5 (its raw
+SLK level is one level higher than its live pool — the same one-level
+drift affects a handful of other ids; see `drops.mjs`'s own doc comment for
+the full, per-item citation list). Checked against a second, much newer
+w3x2lni mirror (`zhCN-1.32.8`) too, so it isn't a stale-checked-in-file
+problem: the SLK's `class`/`Level`/`pickRandom` columns simply don't encode
+the table the live client actually rolls from; that table lives outside the
+redistributed SLK. Two items `POOL_OVERRIDES` adds (`fgbd` Blue Drake Egg,
+`iotw` Idol of the Wild — Charged Level 5) don't exist under any name in the
+1.27.1 mirror at all; their id/class/level come from the `zhCN-1.32.8`
+mirror and their name/icon from a live Liquipedia template re-render
+(`EXTRA_ITEM_INFO` in `drops.mjs`, consulted by `item-table.mjs`'s
+`buildItemsTable` instead of throwing "missing").
+
+**No residual gap**: all 12 pools now match the corrected reference
+exactly — `item-pools.test.mjs` asserts exact set equality for every pool,
+with no documented-gap exemption. "Power Up Level 1"'s earlier
+"unresolvable `BTNRune`" gap (F011-followup-1) is gone: the corrected
+file's Power Up Level 1 is just Manual of Health + the three stat tomes,
+exactly what the raw filter already produces with **no** override — the
+`BTNRune` credit was the flawed file's own contamination, not a real pool
+member.
 
 `item-pools.test.mjs` runs offline against `scripts/creep-maps/
 __fixtures__/itemdata-sample.json` (a minimal extract of the real
 `itemdata.slk`/`itemfunc.txt` — every `pickRandom=1` Permanent/Charged/
 PowerUp row plus the override-only ids that fail that filter) and
-`scripts/creep-maps/__fixtures__/liquipedia-pools.json` (the evidence file,
-copied verbatim), since the real source files are never checked into the
-repo (see "Getting map files" in `scripts/creep-maps/README.md`).
+`scripts/creep-maps/__fixtures__/liquipedia-pools.json` (the corrected
+evidence file, copied verbatim), since the real source files are never
+checked into the repo (see "Getting map files" in
+`scripts/creep-maps/README.md`).
 
 **Cross-check vs. Liquipedia's own Autumn Leaves preview**
 (`evidence/liquipedia-autumn-leaves-preview.json`, the page's own `parse`

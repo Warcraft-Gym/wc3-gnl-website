@@ -93,21 +93,23 @@ test("expandPool with class 'Any' matches every class at that level", () => {
   assert.deepEqual(expandPool(index, "Any", 3), ["a", "b"]);
 });
 
-// F011-followup-1: POOL_OVERRIDES corrects the raw filter's disagreement
-// with Liquipedia's published pools (evidence/liquipedia-pools.json) — see
-// drops.mjs's own doc comment for the full investigation and per-pool
-// citations. This exercises the add/remove mechanics against a synthetic
-// index so it doesn't depend on the real itemdata.slk shape.
+// F011-followup-2: POOL_OVERRIDES corrects the raw filter's disagreement
+// with Liquipedia's corrected published pools
+// (evidence/liquipedia-pools-corrected.json) — see drops.mjs's own doc
+// comment for the full investigation and per-pool citations. This
+// exercises the add/remove mechanics against a synthetic index so it
+// doesn't depend on the real itemdata.slk shape.
 test("expandPool applies POOL_OVERRIDES on top of the raw filter", () => {
   const index = itemdataIndex([
     // fgsk (Book of the Dead): a genuine raw-filter match that stays.
     { itemID: "fgsk", class: "Charged", Level: "4", pickRandom: "1" },
-    // wcyc (Wand of the Wind): a raw-filter match POOL_OVERRIDES removes
-    // (real column evidence in drops.mjs: identical shape to fgsk, but not
-    // a live pool member).
-    { itemID: "wcyc", class: "Charged", Level: "4", pickRandom: "1" },
+    // fgfh (Spiked Collar, "Fel Hound" icon): a raw-filter match
+    // POOL_OVERRIDES removes — the corrected evidence places it in the
+    // live "Charged Level 5" pool instead (observed 2/3 occurrences).
+    { itemID: "fgfh", class: "Charged", Level: "4", pickRandom: "1" },
     // ankh (Ankh of Reincarnation): its own Level column reads 5, so the
-    // raw filter never finds it at Level 4 — POOL_OVERRIDES adds it back.
+    // raw filter never finds it at Level 4 — POOL_OVERRIDES adds it back
+    // (corrected evidence: Charged Level 4, observed 2/3 occurrences).
     { itemID: "ankh", class: "Charged", Level: "5", pickRandom: "1" },
   ]);
   // POOL_OVERRIDES["Charged|4"] also adds "whwd" (Healing Wards, same
@@ -117,7 +119,7 @@ test("expandPool applies POOL_OVERRIDES on top of the raw filter", () => {
   // via itemdata.slk at all (see EXTRA_ITEM_INFO); `whwd` is a real id
   // here, just not one this synthetic index happens to carry.
   assert.deepEqual(expandPool(index, "Charged", 4), ["ankh", "fgsk", "whwd"]);
-  assert.ok(POOL_OVERRIDES["Charged|4"].remove.includes("wcyc"));
+  assert.ok(POOL_OVERRIDES["Charged|4"].remove.includes("fgfh"));
   assert.ok(POOL_OVERRIDES["Charged|4"].add.includes("ankh"));
 });
 
