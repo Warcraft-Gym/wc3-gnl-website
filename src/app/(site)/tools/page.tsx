@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { cn } from "@/lib/utils";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, ExternalLink } from "lucide-react";
@@ -39,13 +40,20 @@ function fromCommunityTool(t: CommunityTool): CardProps {
   return { href: t.url, title: t.title, body: t.body, by: t.by, badge: t.badge, imageSrc, Icon: Wrench };
 }
 
-function ToolCard({ tool }: { tool: CardProps }) {
+/** `wide`: the one card of a group runs image beside text across the row,
+ *  so a group of one does not leave two thirds of the grid empty. */
+function ToolCard({ tool, wide = false }: { tool: CardProps; wide?: boolean }) {
   const { href, Icon, title, body, by, badge, imageSrc } = tool;
   const external = href.startsWith("http");
   const host = external ? new URL(href).hostname.replace(/^www\./, "") : null;
   const inner = (
     <>
-      <span className="relative -mx-6 -mt-6 mb-5 block aspect-video overflow-hidden rounded-t border-b border-line/70 bg-bg-deep">
+      <span
+        className={cn(
+          "relative -mx-6 -mt-6 mb-5 block aspect-video overflow-hidden rounded-t border-b border-line/70 bg-bg-deep",
+          wide && "sm:-my-6 sm:mb-0 sm:mr-0 sm:aspect-auto sm:min-h-64 sm:rounded-l sm:rounded-tr-none sm:border-b-0 sm:border-r",
+        )}
+      >
         <Image
           src={imageSrc}
           alt=""
@@ -55,6 +63,7 @@ function ToolCard({ tool }: { tool: CardProps }) {
         />
         <span aria-hidden className="absolute inset-0 bg-[linear-gradient(180deg,transparent_55%,rgba(0,0,0,.55))]" />
       </span>
+      <div className={cn("flex flex-1 flex-col", wide && "sm:justify-center")}>
       <div className="flex items-start justify-between gap-3">
         <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
           <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
@@ -81,9 +90,13 @@ function ToolCard({ tool }: { tool: CardProps }) {
           </>
         )}
       </span>
+      </div>
     </>
   );
-  const cls = "panel group flex h-full flex-col overflow-hidden p-6 transition-colors hover:border-gold/50";
+  const cls = cn(
+    "panel group flex h-full flex-col overflow-hidden p-6 transition-colors hover:border-gold/50",
+    wide && "sm:grid sm:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] sm:gap-8",
+  );
   return external ? (
     <a href={href} target="_blank" rel="noreferrer" className={cls}>
       {inner}
@@ -112,9 +125,9 @@ export default async function ToolsPage() {
         {OVERLAY_BETA_LIVE ? (
           <section className="mb-14">
             <p className="kicker mb-5">From the Gym</p>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={cn("grid gap-4", GYM_TOOLS.length > 1 && "sm:grid-cols-2 lg:grid-cols-3")}>
               {GYM_TOOLS.map((t) => (
-                <ToolCard key={t.href} tool={fromGymTool(t)} />
+                <ToolCard key={t.href} tool={fromGymTool(t)} wide={GYM_TOOLS.length === 1} />
               ))}
             </div>
           </section>
@@ -126,9 +139,9 @@ export default async function ToolsPage() {
               <p className="kicker">{group.title}</p>
               {group.blurb ? <p className="mt-2 max-w-2xl text-sm text-muted">{group.blurb}</p> : null}
             </div>
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <div className={cn("grid gap-4", group.tools.length > 1 && "sm:grid-cols-2 lg:grid-cols-3")}>
               {group.tools.map((t) => (
-                <ToolCard key={t.id} tool={fromCommunityTool(t)} />
+                <ToolCard key={t.id} tool={fromCommunityTool(t)} wide={group.tools.length === 1} />
               ))}
             </div>
           </section>

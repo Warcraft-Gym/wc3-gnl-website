@@ -39,20 +39,20 @@ export function StandingsTable({
     <div className="overflow-x-auto rounded-lg border border-line">
       <table
         className={cn(
-          "w-full border-collapse text-sm",
-          compact ? "min-w-[20rem]" : "min-w-[40rem]",
+          "w-full border-collapse text-sm max-sm:[&_td]:px-2 max-sm:[&_th]:px-2",
+          compact ? "sm:min-w-[20rem]" : "sm:min-w-[40rem]",
         )}
       >
         <thead>
           <tr className="border-b border-line bg-surface/60 text-left font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">
             <th className="w-10 px-4 py-3 text-center font-medium">#</th>
             <th className="px-2 py-3 font-medium">Team</th>
-            <th className={cn("px-3 py-3 text-center font-medium", compact && "max-sm:hidden")}>P</th>
+            <th className="px-3 py-3 text-center font-medium max-sm:hidden">P</th>
             <th className="px-3 py-3 text-center font-medium">W</th>
-            <th className="px-3 py-3 text-center font-medium">D</th>
+            <th className="px-3 py-3 text-center font-medium max-sm:hidden">D</th>
             <th className="px-3 py-3 text-center font-medium">L</th>
-            {!compact && <th className="px-3 py-3 text-center font-medium">Form</th>}
-            <th className={cn("px-3 py-3 text-right font-medium", compact && "max-sm:hidden")}>Diff</th>
+            {!compact && <th className="px-3 py-3 text-center font-medium max-sm:hidden">Form</th>}
+            <th className="px-3 py-3 text-right font-medium max-sm:hidden">Diff</th>
             <th className="px-4 py-3 text-right font-medium">Pts</th>
           </tr>
         </thead>
@@ -88,31 +88,32 @@ export function StandingsTable({
                       name={row.team.name}
                       size="sm"
                     />
-                    <span className="min-w-0">
+                    {/* A table cell grows to its content, so the name gets a cap on
+                        phones and the captains line waits for a wider screen. */}
+                    <span className="min-w-0 max-sm:max-w-[8.5rem]">
                       <span className="block truncate font-display font-bold uppercase text-fg transition-colors group-hover:text-gold">
                         {row.team.name}
                       </span>
                       {row.captains.length && !compact ? (
-                        <span className="block truncate text-xs font-normal normal-case text-faint">
+                        <span className="block truncate text-xs font-normal normal-case text-faint max-sm:hidden">
                           Captain{row.captains.length > 1 ? "s" : ""} {row.captains.join(" & ")}
                         </span>
                       ) : null}
                     </span>
                   </Link>
                 </td>
-                <td className={cn("tnum px-3 py-3 text-center text-muted", compact && "max-sm:hidden")}>{row.played}</td>
+                <td className="tnum px-3 py-3 text-center text-muted max-sm:hidden">{row.played}</td>
                 <td className="tnum px-3 py-3 text-center text-win">{row.wins}</td>
-                <td className="tnum px-3 py-3 text-center text-muted">{row.draws}</td>
+                <td className="tnum px-3 py-3 text-center text-muted max-sm:hidden">{row.draws}</td>
                 <td className="tnum px-3 py-3 text-center text-loss">{row.losses}</td>
                 {!compact && (
-                  <td className="px-3 py-3 text-center">
+                  <td className="px-3 py-3 text-center max-sm:hidden">
                     <FormPips form={row.form} />
                   </td>
                 )}
                 <td
                   className={cn(
-                    "tnum px-3 py-3 text-right text-xs",
-                    compact && "max-sm:hidden",
+                    "tnum px-3 py-3 text-right text-xs max-sm:hidden",
                     row.mapDiff > 0 ? "text-win/80" : row.mapDiff < 0 ? "text-loss/80" : "text-faint",
                   )}
                 >

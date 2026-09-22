@@ -42,6 +42,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 - Name the Gym Newbie League in full, or as GNL where the label style is short. Never call it "the league": a league is the general term, and GNL and KOTH are both leagues. The navigation item "League" is the route to the GNL pages and keeps its name.
 - A score is not a record. A series score keeps its colon, "2 : 1", and a points pair is written by hand with no percent.
 - Every figure that sits in a column uses tabular numerals (`.tnum`). Numbers align right in a table.
+- A table on a phone keeps the figures that decide its order and drops the rest instead of scrolling sideways: the standings keep W, L and Pts, and P, D, Form and Diff wait for a wider screen.
 
 ## Results
 

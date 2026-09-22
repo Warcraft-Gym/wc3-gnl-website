@@ -115,7 +115,7 @@ export default async function GuidePage({ params }: Params) {
             </span>
             <span className="text-faint">{date}</span>
           </div>
-          <h1 className="text-[length:var(--wg-text-display)] font-extrabold">
+          <h1 className={cn("font-extrabold", guide.title.length > 26 ? "text-[length:clamp(1.9rem,1rem+2.4vw,2.9rem)]" : "text-[length:var(--wg-text-display)]")}>
             {guide.title}
           </h1>
           <p className="mt-5 text-lg text-muted">{guide.excerpt}</p>

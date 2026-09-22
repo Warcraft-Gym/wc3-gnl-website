@@ -50,7 +50,7 @@ export default async function AboutGymPage() {
       />
 
       <Container className="py-10">
-        <div className="max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
+        <div className="max-w-3xl space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg lg:max-w-none lg:columns-2 lg:gap-14 lg:space-y-0 [&>p]:break-inside-avoid lg:[&>p]:mb-5">
           <p>
             Warcraft 3 Gym began as a Discord server where players of all skill levels and
             experience could come together, learn to play and get better. The original goal was
