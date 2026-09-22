@@ -11,6 +11,7 @@ import { DISCORD_BUILDS_CHANNEL_URL } from "@/lib/links";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { CreepMapPlayground } from "./CreepMapPlayground";
 import { Matchup, TagChip } from "@/components/builds/BuildBadges";
+import { BuildRow } from "@/components/builds/BuildRow";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
@@ -18,6 +19,7 @@ import { getCreepRouteBySlug, getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { BUILD_RACES } from "@/lib/builds/types";
+import { getBuildBySlug } from "@/lib/builds/builds";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
 
@@ -77,6 +79,19 @@ export default async function CreepRoutePage({ params }: Params) {
 
   const mapVersionMismatch =
     route.mapVersion && map.mapVersion && route.mapVersion !== map.mapVersion;
+
+  // Companion build: the route only stores { slug, title } — the row
+  // component (`BuildRow`, the same one `/learn/builds` renders, F009-
+  // followup-4 item 2) needs a full `BuildOrder`, so fetch it here. A
+  // deleted/unpublished build resolves to `undefined`; render nothing for
+  // it rather than falling back to a bare link, same rule as every other
+  // optional block on this page.
+  const companionBuild = route.build ? await getBuildBySlug(route.build.slug) : undefined;
+  if (route.build && !companionBuild && process.env.NODE_ENV !== "production") {
+    console.warn(
+      `[creep-routes] companion build "${route.build.slug}" referenced by route "${route.slug}" did not resolve (deleted or unpublished) — hiding the Companion build block.`,
+    );
+  }
 
   const howToSteps = route.stops.map((s) => {
     const camp = s.campId ? map.camps.find((c) => c.id === s.campId) : undefined;
@@ -199,35 +214,39 @@ export default async function CreepRoutePage({ params }: Params) {
 
       <Container className="grid gap-10 pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
         <section className="min-w-0 max-w-2xl">
-          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
+          {/* No empty-state placeholder here (F009-followup-4): the whole
+              block, heading included, is absent when the route has no
+              description — "No notes yet." read as noise on a published
+              page that simply has nothing more to say. */}
           {route.description && route.description.length ? (
-            isPortableText(route.description) ? (
-              <div className="prose-invert max-w-none">
-                <PortableBody value={route.description} />
-              </div>
-            ) : (
-              <div className="space-y-4 text-[1.02rem] leading-7 text-muted">
-                {(route.description as string[]).map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-            )
-          ) : (
-            <p className="text-sm text-faint">No notes yet.</p>
-          )}
+            <>
+              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
+              {isPortableText(route.description) ? (
+                <div className="prose-invert max-w-none">
+                  <PortableBody value={route.description} />
+                </div>
+              ) : (
+                <div className="space-y-4 text-[1.02rem] leading-7 text-muted">
+                  {(route.description as string[]).map((p, i) => (
+                    <p key={i}>{p}</p>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : null}
 
-          {route.build ? (
-            <Link
-              href={`/learn/builds/${route.build.slug}`}
-              className="mt-5 flex items-center gap-3 rounded border border-gold/40 bg-gold/5 px-4 py-3 text-sm transition-colors hover:border-gold hover:bg-gold/10"
-            >
-              <span className="min-w-0">
-                <span className="block font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold">
-                  Companion build
-                </span>
-                <span className="block truncate text-fg">{route.build.title}</span>
-              </span>
-            </Link>
+          {/* Companion build: the same `BuildRow` `/learn/builds` renders
+              (F009-followup-4 item 2, user request), mirroring the inverse
+              "Creep routes for this build" section on `/learn/builds/[slug]`
+              which reuses `RouteRow`. Absent entirely when the route has no
+              build link, or when the linked build didn't resolve. */}
+          {companionBuild ? (
+            <div className={route.description && route.description.length ? "mt-8" : ""}>
+              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Companion build</h2>
+              <ul className="grid gap-3">
+                <BuildRow build={companionBuild} />
+              </ul>
+            </div>
           ) : null}
 
           <div className="panel mt-5 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
