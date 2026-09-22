@@ -85,7 +85,7 @@ Vercel (this app, Next.js)
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity read access. Defaults are baked in so the Studio always loads. |
 | `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts. |
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
-| `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Production defaults to `https://warcraft3.gym`. |
+| `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Otherwise the origin is the project's production host on Vercel (`VERCEL_PROJECT_PRODUCTION_URL`, the custom domain once one is attached), falling back to `https://warcraft3.gym`. Share cards and canonicals use it, so it must be a host that answers. |
 
 No variable is needed for analytics: `@vercel/analytics` and
 `@vercel/speed-insights` are rendered in `src/app/layout.tsx` and only report
