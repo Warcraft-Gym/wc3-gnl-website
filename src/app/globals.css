@@ -44,10 +44,18 @@
   --wg-undead: #9B6FE4; /* tested on black with the dataviz validator */
   --wg-random: oklch(72% 0.02 265);
 
-  /* --- Creep camp difficulty band (minimap marks only) --- */
-  --wg-camp-easy: #6BE0C8; /* tested on black, see DESIGN.md "Creep routes" */
-  --wg-camp-medium: #E0863A; /* tested on black, see DESIGN.md "Creep routes" */
-  --wg-camp-hard: #C23050; /* tested on black, see DESIGN.md "Creep routes" */
+  /* --- Creep camp difficulty band (minimap marks only) ---
+   * Liquipedia's own marker colours (dominant opaque pixel of their
+   * marker PNGs), not our own dataviz palette — matched deliberately so a
+   * route reader who already knows Liquipedia's map previews recognises
+   * the bands at a glance. Measured contrast against black (WCAG relative
+   * luminance): easy 9.2:1, medium 9.34:1, hard 2.99:1 — the hard red
+   * alone is below the 3:1 "graphical object" minimum, so every camp
+   * circle also gets a light outline ring (see `CampMarker`) to guarantee
+   * >=3:1 against any terrain. See DESIGN.md "Creep routes". */
+  --wg-camp-easy: #68c040;
+  --wg-camp-medium: #d0a838;
+  --wg-camp-hard: #b01818;
 
   /* --- Type --- */
   --wg-font-display: var(--font-display), "Cinzel", "Friz Quadrata", Georgia, serif;

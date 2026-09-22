@@ -134,7 +134,7 @@ found Northern Isles's real letterbox is in
       "creeps": [{ "id": "nftt", "name": "Forest Troll", "level": 2, "count": 2 }],
       "level": 12,                  // summed creep levels (per-instance, not per distinct type)
       "xp": 480,                    // summed creepXp(level) per creep instance, before hero-level factor
-      "band": "hard",               // "easy" <=5, "medium" 6-11, "hard" >=12 (BAND_MAX_LEVEL in camps.mjs)
+      "band": "medium",              // "easy" <=9, "medium" 10-19, "hard" >=20 (BAND_MAX_LEVEL in camps.mjs; matches Liquipedia's own cutoffs)
       "sleeps": true                // true only if every creep in the camp sleeps
     }
   ],

@@ -2,6 +2,7 @@
 
 import { useMemo } from "react";
 import { CreepMap } from "./CreepMap";
+import { MapLegend } from "./MapLegend";
 import { StopEditor } from "./StopEditor";
 import type { StopRowData } from "./StopRow";
 import type { CreepMap as CreepMapType } from "@/lib/creep-routes/types";
@@ -49,6 +50,7 @@ export function RouteEditor({
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
       <div className="lg:sticky lg:top-24">
         <CreepMap map={map} route={routeForMap} onCampSelect={onCampSelect} />
+        <MapLegend />
         <p className="mt-2 text-xs text-faint">
           Click a camp to add it as the next stop; click it again to remove it.
         </p>

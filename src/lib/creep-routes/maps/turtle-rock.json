@@ -5,7 +5,7 @@
   "w3cMapId": 12,
   "w3cName": "Turtle Rock v2",
   "sourceFile": "w3c_TurtleRock.w3x",
-  "generatedAt": "2026-09-21T20:49:28.216Z",
+  "generatedAt": "2026-09-22T00:42:45.402Z",
   "bounds": {
     "xMin": -6656,
     "xMax": 6656,
@@ -261,7 +261,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -292,7 +292,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -323,7 +323,7 @@
       ],
       "level": 17,
       "xp": 390,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -410,7 +410,7 @@
       ],
       "level": 17,
       "xp": 390,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {

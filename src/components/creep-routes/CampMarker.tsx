@@ -58,6 +58,11 @@ export function CampMarker({
           />
         </circle>
       ) : null}
+      {/* Liquipedia's hard-band red is only ~3:1 against black on its own
+       *  (see globals.css); this light halo — drawn just outside the dark
+       *  under-stroke below — keeps every band's mark readable against any
+       *  terrain colour, light or dark. */}
+      <circle cx={cx} cy={cy} r={r + 1.5} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />
       <circle
         cx={cx}
         cy={cy}

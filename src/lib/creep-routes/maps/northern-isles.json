@@ -5,7 +5,7 @@
   "w3cMapId": 4,
   "w3cName": "Northern Isles",
   "sourceFile": "w3c_NorthernIsles.w3x",
-  "generatedAt": "2026-09-21T20:49:28.120Z",
+  "generatedAt": "2026-09-22T00:42:45.356Z",
   "bounds": {
     "xMin": -4864,
     "xMax": 8960,
@@ -67,7 +67,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -104,7 +104,7 @@
       ],
       "level": 18,
       "xp": 400,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -191,7 +191,7 @@
       ],
       "level": 16,
       "xp": 380,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -216,7 +216,7 @@
       ],
       "level": 16,
       "xp": 380,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {

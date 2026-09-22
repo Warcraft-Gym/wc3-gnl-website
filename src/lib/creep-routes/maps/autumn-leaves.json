@@ -5,7 +5,7 @@
   "w3cMapId": 44,
   "w3cName": "Autumn Leaves v2",
   "sourceFile": "w3c_AutumnLeaves_v2-0.w3x",
-  "generatedAt": "2026-09-21T20:49:28.034Z",
+  "generatedAt": "2026-09-22T00:42:45.317Z",
   "bounds": {
     "xMin": -6272,
     "xMax": 6272,
@@ -67,7 +67,7 @@
       ],
       "level": 19,
       "xp": 435,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -104,7 +104,7 @@
       ],
       "level": 17,
       "xp": 385,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {

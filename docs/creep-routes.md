@@ -84,6 +84,102 @@ already. `echo-isles` (playable aspect 1.381) needed the 16-px rule itself:
 `ceil16(256/1.381) = 192`, a 3.4% gap from the plain check. If neither
 check passes, the build throws rather than ship a misaligned image.
 
+### Camp difficulty bands (F008)
+
+`scripts/creep-maps/camps.mjs`'s `BAND_MAX_LEVEL` (`{ easy: 9, medium: 19
+}`, hard above) sorts a camp's summed creep level into `easy`/`medium`/
+`hard` — see "Data model" below for where `band` lands on `MapCamp`. These
+cutoffs match Liquipedia's own "Easy/Medium/Hard Creep Spot [N]" labels (N
+= summed creep level, the same basis as `level` here), read from six of
+their map previews via the MediaWiki API (`action=parse&page=<Map>/Preview`,
+a descriptive User-Agent, polite delays): Hillsbrad Creek, Autumn Leaves,
+Echo Isles, Last Refuge, Turtle Rock, Twisted Meadows — easy 5-9, medium
+10-19, hard 20-26. A prior feature had derived its own cutoffs (easy <=9,
+medium <=15) from this repo's own percentile distribution; F008 replaced
+the medium/hard line (15 -> 19) to match Liquipedia's instead, on the
+theory that matching a resource players already read beats a marginally
+different percentile split of our own. Regenerating a catalogue after a
+`BAND_MAX_LEVEL` change only touches each camp's `band` field (and
+`generatedAt`) — camp positions, levels and creep contents are untouched,
+verified with `cmp` against the previously-committed minimap PNGs (which
+`build.mjs` also rewrites unconditionally; they come out byte-identical
+because bands never feed minimap rendering). Across the nine catalogues'
+183 camps: 55 easy, 102 medium, 26 hard.
+
+### Map icons (F008)
+
+Gold mines and neutral buildings (taverns, goblin merchants, mercenary
+camps…) draw with Liquipedia's own icons, matching the marker colours
+above. The originals are Blizzard art, hosted on Liquipedia — CC-BY-SA
+covers Liquipedia's own text, not this art, so every route page and the
+editor credit "Map icons via Liquipedia" in the legend (`MapLegend.tsx`,
+see `DESIGN.md`).
+
+**Fetch recipe** — Liquipedia's HTML pages are Cloudflare-blocked to a
+scripted fetch; the MediaWiki API is not. Two calls, both against the
+shared media repo (`liquipedia.net/commons/api.php`, not the per-game
+wiki — these icons live in Liquipedia's shared "lpcommons" repository, not
+the `warcraft` wiki's own `allimages`), a descriptive `User-Agent`, `--compressed`
+(the API 406s a request with no `Accept-Encoding: gzip`), and >= 2s between
+calls:
+
+```
+GET https://liquipedia.net/commons/api.php?action=query&list=allimages&aiprefix=Wc3_&ailimit=500&format=json
+  -> every Wc3_*.png/.jpg filename and its page id
+
+GET https://liquipedia.net/commons/api.php?action=query&titles=File:<name>|File:<name2>|...
+    &prop=imageinfo&iiprop=url|size&format=json
+  -> each file's real download URL (liquipedia.net/commons/images/<a>/<ab>/<name>)
+```
+
+Then a plain `GET` of each `imageinfo.url` (same UA, same delay) downloads
+the original.
+
+**Every icon file and its source**, all under `public/map-icons/<name>.png`,
+downscaled from the Liquipedia original to fit within 64x64 (aspect kept —
+`scripts/creep-maps/icons.mjs`'s `fitDimensions`; a mine's 256x211 original
+becomes exactly 64x53) with a small dependency-free PNG decoder/box-resizer
+in that same module (no `sharp` in the lockfile, same constraint
+`minimap.mjs`'s own encoder documents) built on `node:zlib` and
+`minimap.mjs`'s existing `encodePng`:
+
+| File | rawcode(s) | Source (`File:` page) |
+|---|---|---|
+| `gold-mine.png` | `ngol` (`map.mines[]`, its own array — not resolved via `NEUTRAL_ICONS`) | `https://liquipedia.net/commons/File:Wc3_goldmine.png` |
+| `tavern.png` | `ntav` | `https://liquipedia.net/commons/File:Wc3_tavern.png` |
+| `goblin-merchant.png` | `ngme` | `https://liquipedia.net/commons/File:Wc3_merchant.png` |
+| `mercenary-camp.png` | `nmer`, `nmr0`, `nmr2`-`nmr9`, `nmra`-`nmrf` (tileset variants; `nmr1` is not a real unit) | `https://liquipedia.net/commons/File:Wc3_merccamp.png` |
+| `goblin-laboratory.png` | `ngad` | `https://liquipedia.net/commons/File:Wc3_laboratory.png` |
+| `marketplace.png` | `nmrk` | `https://liquipedia.net/commons/File:Wc3_marketplace.png` |
+| `fountain-of-health.png` | `nfoh` | `https://liquipedia.net/commons/File:Wc3_fountainhealth.png` |
+| `fountain-of-mana.png` | `nmoo` | `https://liquipedia.net/commons/File:Wc3_fountainmana.png` |
+| `goblin-shipyard.png` | `nshp` | `https://liquipedia.net/commons/File:Wc3_shipyard.png` |
+
+The first five came from the evidence gathered ahead of this feature
+(`Hillsbrad_Creek/Preview`'s own images); `marketplace`/`fountain-of-health`/
+`fountain-of-mana`/`goblin-shipyard` were found via the `allimages` call
+above and fetched the same way. Two rawcodes the spec flagged as possible
+extras — Dragon Roost (`ndrr`/`ndrg`/…) and Way Gate (`nwgt`) — have no
+matching file under Liquipedia's `Wc3_` prefix (checked: no `*roost*`,
+`*gate*` or `*dragon*` match besides an unrelated map-preview image); they
+are not in any of the nine catalogues' shops either, so `NEUTRAL_ICONS`
+(below) simply has no entry for them — a future catalogue that needs one
+gets a clear "no icon" signal (nothing drawn, the rawcode named in
+`build.mjs`'s stdout) rather than a guess.
+
+**Rawcode -> icon** is `src/lib/creep-routes/neutral-icons.ts`'s
+`NEUTRAL_ICONS` map (backed by `neutral-icons.mjs`, same split as
+`submission.mjs`/`.ts`): `CreepMap`'s `NeutralMarker` looks up a shop's
+rawcode (`MapShop.id`'s first four characters — every WC3 rawcode is
+exactly four) and renders nothing for a rawcode with no entry — most
+neutral-passive units on a map are decorative critters and huts (rats,
+sheep, gnoll huts…), not real shops, and inventing an icon for one would
+misrepresent the map. Names are Blizzard's own
+(`neutralunitstrings.txt`'s `Name=` field, the same source
+`creep-table.mjs` uses for creeps), not transcribed from the wiki — F001's
+creep-table rebuild found the wiki unreliable for two of five
+spot-checked entries.
+
 ## Data model
 
 `src/lib/creep-routes/types.ts` defines the domain types the site and the
@@ -563,6 +659,11 @@ mission would likely want to pick it up:
 - **Merged build+route view.** A route's optional `build` link (and a
   build's routes, via `getRoutesForBuild`) exist, but no page shows the two
   together — today they're two separate step tables on two separate pages.
+- **Item drop tables per camp.** Liquipedia's map previews list each
+  camp's item drop table (from the map's own item tables); our
+  `units-doo.mjs` parser already reads `droppedItemSets` off the placed
+  units, but nothing surfaces it yet — a natural follow-up to F008, which
+  only brought over the colours/bands/icons.
 - **Current-revision map files.** The fixtures (and, once published, the
   Sanity documents) are built from the 2021–22 launcher bundle's map
   files, not necessarily this ladder season's exact revision — see "When

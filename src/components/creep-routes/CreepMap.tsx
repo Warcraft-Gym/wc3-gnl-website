@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { CreepMap as CreepMapType, MapMine, MapStart, RouteStop } from "@/lib/creep-routes/types";
+import type { CreepMap as CreepMapType, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker, radiusFor } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
 import { CampDetails } from "./CampDetails";
+import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { cn } from "@/lib/utils";
 
 export type CreepMapProps = {
@@ -43,22 +44,61 @@ function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih
   );
 }
 
+/** Gold mine, drawn with Liquipedia's own icon (`/map-icons/gold-mine.png`,
+ *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map.
+ *  `<image>`'s default `preserveAspectRatio` ("xMidYMid meet") fits the
+ *  icon inside the box without distorting it, so a fixed square box works
+ *  for every icon regardless of its own aspect ratio. */
+const MINE_ICON_WIDTH = 16;
+
 function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number }) {
   const cx = mine.x * iw;
   const cy = mine.y * ih;
-  const s = 5;
+  const w = MINE_ICON_WIDTH * (iw / 256);
+  const h = w * (53 / 64);
   return (
-    <rect
+    <image
       data-mine=""
-      x={cx - s}
-      y={cy - s}
-      width={s * 2}
-      height={s * 2}
-      transform={`rotate(45 ${cx} ${cy})`}
-      fill="var(--wg-gold)"
-      stroke="var(--wg-bg)"
-      strokeWidth="1"
-    />
+      href="/map-icons/gold-mine.png"
+      x={cx - w / 2}
+      y={cy - h / 2}
+      width={w}
+      height={h}
+      aria-label="Gold mine"
+      style={{ pointerEvents: "none" }}
+    >
+      <title>Gold mine</title>
+    </image>
+  );
+}
+
+/** A neutral building (tavern, goblin merchant, mercenary camp…), drawn
+ *  with Liquipedia's icon for that unit — see `neutral-icons.ts` for the
+ *  rawcode -> icon map. A shop whose rawcode has no icon (a decorative
+ *  critter/hut, not a real shop — `hrdh`, `ntn2`, `nrat`… on Autumn Leaves)
+ *  renders nothing, per that module's doc comment. */
+const SHOP_ICON_WIDTH = 14;
+
+function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number }) {
+  const icon = neutralIconFor(shop.id);
+  if (!icon) return null;
+  const cx = shop.x * iw;
+  const cy = shop.y * ih;
+  const w = SHOP_ICON_WIDTH * (iw / 256);
+  const h = w;
+  return (
+    <image
+      data-shop={shop.id}
+      href={`/map-icons/${icon.icon}.png`}
+      x={cx - w / 2}
+      y={cy - h / 2}
+      width={w}
+      height={h}
+      aria-label={icon.label}
+      style={{ pointerEvents: "none" }}
+    >
+      <title>{icon.label}</title>
+    </image>
   );
 }
 
@@ -156,9 +196,6 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
           {map.starts.map((s, i) => (
             <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
           ))}
-          {map.mines.map((m, i) => (
-            <MineMarker key={i} mine={m} iw={iw} ih={ih} />
-          ))}
           {map.camps.map((camp) => {
             const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
             return (
@@ -176,6 +213,17 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
               />
             );
           })}
+          {/* Mines and shops draw last, over the camps: a gold mine is
+              often guarded by (and normalised very close to, sometimes
+              almost on top of) the camp that sits on it — see the F008
+              handoff — so the icon needs to win the paint order to stay
+              visible, not disappear under the camp's own, larger circle. */}
+          {map.mines.map((m, i) => (
+            <MineMarker key={i} mine={m} iw={iw} ih={ih} />
+          ))}
+          {map.shops.map((s) => (
+            <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
+          ))}
         </svg>
 
         {detailCamp && width ? (

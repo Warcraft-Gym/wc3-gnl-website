@@ -5,7 +5,7 @@
   "w3cMapId": 6,
   "w3cName": "Twisted Meadows",
   "sourceFile": "w3c_TwistedMeadows.w3x",
-  "generatedAt": "2026-09-21T20:49:28.241Z",
+  "generatedAt": "2026-09-22T00:42:45.415Z",
   "bounds": {
     "xMin": -7936,
     "xMax": 7936,
@@ -161,7 +161,7 @@
       ],
       "level": 18,
       "xp": 390,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -192,7 +192,7 @@
       ],
       "level": 18,
       "xp": 390,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -223,7 +223,7 @@
       ],
       "level": 16,
       "xp": 350,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -254,7 +254,7 @@
       ],
       "level": 16,
       "xp": 350,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -509,7 +509,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -540,7 +540,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -571,7 +571,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -608,7 +608,7 @@
       ],
       "level": 18,
       "xp": 395,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -639,7 +639,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -676,7 +676,7 @@
       ],
       "level": 18,
       "xp": 395,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -713,7 +713,7 @@
       ],
       "level": 18,
       "xp": 395,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -750,7 +750,7 @@
       ],
       "level": 18,
       "xp": 395,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {

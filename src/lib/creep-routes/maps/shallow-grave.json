@@ -5,7 +5,7 @@
   "w3cMapId": 61,
   "w3cName": "Shallow Grave",
   "sourceFile": "w3c_ShallowGrave_v1.4.w3x",
-  "generatedAt": "2026-09-21T20:49:28.143Z",
+  "generatedAt": "2026-09-22T00:42:45.368Z",
   "bounds": {
     "xMin": -3072,
     "xMax": 9216,
@@ -135,7 +135,7 @@
       ],
       "level": 19,
       "xp": 415,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -172,7 +172,7 @@
       ],
       "level": 19,
       "xp": 415,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -333,7 +333,7 @@
       ],
       "level": 18,
       "xp": 400,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -364,7 +364,7 @@
       ],
       "level": 16,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -457,7 +457,7 @@
       ],
       "level": 18,
       "xp": 400,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -556,7 +556,7 @@
       ],
       "level": 16,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {

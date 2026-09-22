@@ -5,7 +5,7 @@
   "w3cMapId": 3,
   "w3cName": "Last Refuge",
   "sourceFile": "w3c_LastRefuge_v1.4.w3x",
-  "generatedAt": "2026-09-21T20:49:28.095Z",
+  "generatedAt": "2026-09-22T00:42:45.345Z",
   "bounds": {
     "xMin": -5376,
     "xMax": 5376,
@@ -154,7 +154,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -216,7 +216,7 @@
       ],
       "level": 17,
       "xp": 355,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -284,7 +284,7 @@
       ],
       "level": 18,
       "xp": 400,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -352,7 +352,7 @@
       ],
       "level": 18,
       "xp": 400,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -414,7 +414,7 @@
       ],
       "level": 18,
       "xp": 395,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -575,7 +575,7 @@
       ],
       "level": 18,
       "xp": 395,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -631,7 +631,7 @@
       ],
       "level": 17,
       "xp": 390,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     },
     {
@@ -662,7 +662,7 @@
       ],
       "level": 17,
       "xp": 390,
-      "band": "hard",
+      "band": "medium",
       "sleeps": true
     }
   ],

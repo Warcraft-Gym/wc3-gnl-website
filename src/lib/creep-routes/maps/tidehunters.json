@@ -5,7 +5,7 @@
   "w3cMapId": 54,
   "w3cName": "Tidehunters",
   "sourceFile": "w3c_Tidehunters_v1.2.w3x",
-  "generatedAt": "2026-09-21T20:49:28.192Z",
+  "generatedAt": "2026-09-22T00:42:45.391Z",
   "bounds": {
     "xMin": -5504,
     "xMax": 6016,
@@ -253,7 +253,7 @@
       ],
       "level": 17,
       "xp": 375,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -296,7 +296,7 @@
       ],
       "level": 17,
       "xp": 375,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
@@ -377,7 +377,7 @@
       ],
       "level": 17,
       "xp": 365,
-      "band": "hard",
+      "band": "medium",
       "sleeps": false
     },
     {
