@@ -10,3 +10,5 @@ export const GITHUB_URL = "https://github.com/Warcraft-Gym";
 /** The player dashboard (availability, scheduling, results, fantasy) is a
  *  separate app. */
 export const DASHBOARD_URL = "https://wc3-gym-frontend.vercel.app";
+/** This site's source and issue tracker, for bug reports and suggestions. */
+export const GITHUB_ISSUES_URL = "https://github.com/Warcraft-Gym/wc3-gnl-website/issues";

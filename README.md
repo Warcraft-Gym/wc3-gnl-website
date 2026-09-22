@@ -87,6 +87,18 @@ Vercel (this app, Next.js)
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
 | `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Production defaults to `https://warcraft3.gym`. |
 
+No variable is needed for analytics: `@vercel/analytics` and
+`@vercel/speed-insights` are rendered in `src/app/layout.tsx` and only report
+when the site runs on Vercel.
+
+### Analytics
+
+Page views and Core Web Vitals go to Vercel Analytics and Speed Insights.
+Both are cookie-free and collect no personal data (the visitor IP is used to
+derive a coarse location and is not stored), so there is no consent banner.
+The `/privacy` page describes this in plain words; update it if you add any
+other tracking.
+
 ## Project structure
 
 ```text
