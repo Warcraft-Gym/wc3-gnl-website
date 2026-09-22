@@ -146,7 +146,54 @@ export function parseW3i(input) {
   c.i32();
   c.i32();
 
+  // Everything from here on is the part of `war3map.w3i` whose layout moved
+  // between format versions. We only ever need `randomItemTables` from it,
+  // and only for a unit whose `itemTablePointer` is set — which no map in
+  // the current ladder pool has (every drop is inline in
+  // `war3mapUnits.doo`). Reforged's v33 files reorder this tail, so rather
+  // than guess at a layout we cannot verify, a tail we cannot read yields
+  // `randomItemTables: null` — *unknown*, distinct from `[]` (*none*).
+  // `drops.mjs` throws if a unit actually needs a table we never read, so
+  // this degrades safely instead of silently losing drops.
+  const randomItemTables = parseTail(c, buf, version);
+
+  return { version, cameraBounds, complements, randomItemTables };
+}
+
+/** The highest `war3map.w3i` format version whose tail layout this parser is
+ *  known to walk correctly (verified against the launcher bundle). At or
+ *  below it, a tail that does not consume the file exactly means the file is
+ *  corrupt and we say so; above it (Reforged's v33 reorders this section) we
+ *  cannot tell corruption from an unknown layout, so we report "unknown"
+ *  instead of throwing on a map that is perfectly fine. */
+const KNOWN_TAIL_VERSION = 31;
+
+/** The variable tail of `war3map.w3i`: player list, forces, upgrade/tech
+ *  overrides, random unit tables, then the random item tables we want.
+ *  Returns `null` when the layout does not match what we know — see
+ *  `parseW3i`'s note. A correct walk consumes the file exactly, so anything
+ *  short or long means we mis-stepped and whatever we "read" is noise. */
+function parseTail(c, buf, version) {
+  const strict = version <= KNOWN_TAIL_VERSION;
+  let tables;
+  try {
+    tables = readTail(c);
+  } catch (cause) {
+    if (strict) {
+      throw new Error(`war3map.w3i: ${cause.message} (format version ${version})`, { cause });
+    }
+    return null;
+  }
+  if (c.offset === buf.length) return tables;
+  if (strict) {
+    throw new Error(`war3map.w3i: parsed ${c.offset} bytes but the file is ${buf.length} bytes`);
+  }
+  return null;
+}
+
+function readTail(c) {
   const playerCount = c.i32();
+  if (playerCount < 0 || playerCount > 28) throw new Error("implausible player count");
   for (let p = 0; p < playerCount; p++) {
     c.i32(); // player number
     c.i32(); // type
@@ -162,6 +209,7 @@ export function parseW3i(input) {
   }
 
   const forceCount = c.i32();
+  if (forceCount < 0 || forceCount > 28) throw new Error("implausible force count");
   for (let f = 0; f < forceCount; f++) {
     c.i32(); // flags
     c.i32(); // player bitmask
@@ -169,6 +217,7 @@ export function parseW3i(input) {
   }
 
   const upgradeCount = c.i32();
+  if (upgradeCount < 0 || upgradeCount > 2000) throw new Error("implausible upgrade count");
   for (let u = 0; u < upgradeCount; u++) {
     c.i32(); // player bitmask
     c.chars(4); // upgrade id
@@ -177,12 +226,14 @@ export function parseW3i(input) {
   }
 
   const techCount = c.i32();
+  if (techCount < 0 || techCount > 2000) throw new Error("implausible tech count");
   for (let t = 0; t < techCount; t++) {
     c.i32(); // player bitmask
     c.chars(4); // tech id
   }
 
   const randomUnitTableCount = c.i32();
+  if (randomUnitTableCount < 0 || randomUnitTableCount > 500) throw new Error("implausible random unit table count");
   for (let g = 0; g < randomUnitTableCount; g++) {
     c.i32(); // table number
     c.cstr(); // name
@@ -196,6 +247,7 @@ export function parseW3i(input) {
   }
 
   const randomItemTableCount = c.i32();
+  if (randomItemTableCount < 0 || randomItemTableCount > 500) throw new Error("implausible random item table count");
   const randomItemTables = [];
   for (let t = 0; t < randomItemTableCount; t++) {
     const id = c.i32();
@@ -215,11 +267,7 @@ export function parseW3i(input) {
     randomItemTables.push({ id, name, sets });
   }
 
-  if (c.offset !== buf.length) {
-    throw new Error(`war3map.w3i: parsed ${c.offset} bytes but the file is ${buf.length} bytes`);
-  }
-
-  return { version, cameraBounds, complements, randomItemTables };
+  return randomItemTables;
 }
 
 /** Computes the playable rectangle — the full terrain grid (`terrainBounds`,
@@ -228,7 +276,7 @@ export function parseW3i(input) {
  * world units). This is the rectangle the minimap image (`war3mapMap.blp`)
  * actually covers — camps/starts/mines normalise over *this*, not the raw
  * terrain grid, to land on the same pixel as the in-game minimap and
- * coff-creeps' reference (see `coff-reference.test.mjs`). */
+ * the validated placement reference (see `camp-placement.test.mjs`). */
 export function computePlayableBounds(terrainBounds, complements) {
   const [left, right, bottom, top] = complements;
   return {

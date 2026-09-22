@@ -29,18 +29,19 @@ function DropDiamond({ index, title }: { index: number; title?: string }) {
   );
 }
 
-/** The `Item` column in the Creeps table only ever shows a marker when the
- *  whole camp has exactly one drop pool: `war3mapUnits.doo` records each
- *  creep's own `droppedItemSets`, but the build script (`drops.mjs`)
- *  already unions and dedupes every creep's sets into one camp-level
- *  `drops[]` before it reaches the catalogue (see the F011 handoff) — so
- *  *which* creep guards *which* multi-pool drop set is gone by the time
- *  this component sees the data. Marking every creep with the single pool
- *  a one-pool camp has is still true (it's the only thing anything here
- *  can drop); guessing an attribution for a multi-pool camp would not be —
- *  so those are left blank rather than invented. Flagged in the handoff. */
-function singleDropIndex(drops: MapCampDrop[]) {
-  return drops.length === 1 ? 0 : null;
+/** Stable key for a drop pool, matching how `drops.mjs` groups them — used
+ *  to line a creep's own drop up with the camp-level `drops[]` entry (and so
+ *  with its diamond colour in the Items table). */
+function dropKey(drop: { kind: string; class?: string; level?: number; id?: string }) {
+  return drop.kind === "class" ? `class:${drop.class}:${drop.level}` : `item:${drop.id}`;
+}
+
+/** Camp-level drop index per pool key, so the Creeps table can mark exactly
+ *  which creep carries which pool. The catalogue now records each creep's
+ *  own drop sets (`creeps[].drops`), so this is a real attribution rather
+ *  than the guess the one-pool-camp heuristic used to make. */
+function dropIndexByKey(drops: MapCampDrop[]) {
+  return new Map(drops.map((d, i) => [dropKey(d), i]));
 }
 
 function dropTitle(drop: MapCampDrop) {
@@ -225,7 +226,7 @@ export function CampCard({
     };
   }, [pinned]);
 
-  const hasSingleDrop = useMemo(() => singleDropIndex(camp.drops ?? []) !== null, [camp.drops]);
+  const dropIndex = useMemo(() => dropIndexByKey(camp.drops ?? []), [camp.drops]);
 
   if (typeof document === "undefined") return null;
 
@@ -302,9 +303,14 @@ export function CampCard({
                 <td className="tnum px-2 py-1.5 text-right text-muted">{c.level}</td>
                 <td className="tnum px-2 py-1.5 text-right text-muted">{creepXp(c.level)}</td>
                 <td className="px-2 py-1.5 text-center">
-                  {hasSingleDrop ? (
-                    <span className="inline-flex justify-center">
-                      <DropDiamond index={0} title={dropTitle(camp.drops[0])} />
+                  {c.drops?.length ? (
+                    <span className="inline-flex justify-center gap-1">
+                      {c.drops.map((d, j) => {
+                        const idx = dropIndex.get(dropKey(d));
+                        return idx === undefined ? null : (
+                          <DropDiamond key={j} index={idx} title={dropTitle(camp.drops[idx])} />
+                        );
+                      })}
                     </span>
                   ) : null}
                 </td>
@@ -324,7 +330,14 @@ export function CampCard({
                   <td className="w-6 px-3 py-2 align-middle">
                     <DropDiamond index={i} title={dropTitle(drop)} />
                   </td>
-                  <td className="w-28 py-2 pr-2 align-middle text-muted">{dropSetLabel(drop)}</td>
+                  <td className="w-28 py-2 pr-2 align-middle text-muted">
+                    {dropSetLabel(drop)}
+                    {drop.count > 1 ? (
+                      <span className="tnum ml-1 text-faint" title={`This camp drops ${drop.count} of this pool`}>
+                        ×{drop.count}
+                      </span>
+                    ) : null}
+                  </td>
                   <td className="py-2 pr-3 align-middle">
                     {drop.items.length ? (
                       <span className="flex flex-wrap items-center gap-1">

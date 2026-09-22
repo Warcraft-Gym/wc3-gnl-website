@@ -72,8 +72,8 @@ mapping over the full terrain grid instead put every marker roughly 23%
 too closer to the map's centre than the real in-game minimap (F001
 followup-3, opened from a user report; see
 `missions/2026-09-21-creep-routes/features/001c-playable-bounds/spec.md`
-for the evidence, and `coff-reference.test.mjs` for the executable proof
-against coff-creeps' own reference positions). `terrainBounds` and
+for the evidence, and `camp-placement.test.mjs` for the executable
+regression guard). `terrainBounds` and
 `cameraBounds` are both kept in the catalogue JSON for reference only.
 
 A creep/start/mine/shop unit sitting in the unplayable border (decorative)
@@ -323,3 +323,37 @@ node scripts/creep-maps/fetch-icons.mjs --scratch <scratch-dir-for-originals>
 Keys Liquipedia doesn't have (never guessed or substituted) are recorded in
 `scripts/creep-maps/icons-missing.json` (`{ side, icon }[]`); the UI falls
 back to a lettered chip for those.
+
+
+## fetch-pool.mjs — the current ladder maps
+
+```
+node scripts/creep-maps/fetch-pool.mjs --out <dir> [--mode 1] [--dry-run]
+```
+
+Joins the live pool (`website-backend.w3champions.com/api/ladder/active-modes`,
+mode `1` = 1v1, public) with the map files in
+`github.com/w3champions/map-updater-scripts` (branch `master`,
+`maps/w3c_maps/clean_maps/`) on the W3Champions map id — the `@<id>` suffix
+in each file name. Writes the files plus a `pool.json` manifest; `--dry-run`
+reports drift without downloading.
+
+Notes:
+
+- `clean_maps` files are bare MPQ archives with **no `HM3W` header**;
+  `mpq.mjs` accepts both shapes and reports `headerless: true`.
+- Several current maps use `war3map.w3i` **format version 33** (Reforged),
+  which reorders the tail of that file. `map-info.mjs` parses the header and
+  camera/complements block (identical across v31 and v33) and returns
+  `randomItemTables: null` — *unknown*, not *none* — when it cannot walk the
+  tail. No map in the current pool needs those tables (every drop is inline
+  in `war3mapUnits.doo`), and `drops.mjs` throws if one ever does, so this
+  degrades safely rather than silently losing loot. For versions at or below
+  31, whose layout is known, a tail that does not consume the file exactly
+  is still a hard error.
+- The launcher bundle at `update-service.w3champions.com/api/maps` is frozen
+  at the 2021–22 repack. Do not use it as a source.
+- Creeps added after patch 1.27.1 are not in the enUS tables the creep table
+  is built from. `creep-table.mjs` carries a small, individually cited
+  `EXTRA_CREEP_INFO` map for those (currently just `nggm`, the moss-covered
+  Granite Golem variant on Tidehunters).

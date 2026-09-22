@@ -263,12 +263,6 @@
     "level": 2,
     "icon": "BTNRejuvPotion"
   },
-  "rhe2": {
-    "name": "Rune of Healing",
-    "class": "PowerUp",
-    "level": 0,
-    "icon": "BTNRune"
-  },
   "rhth": {
     "name": "Khadgar's Gem of Health",
     "class": "Permanent",
@@ -298,12 +292,6 @@
     "class": "Permanent",
     "level": 1,
     "icon": "BTNGauntletsOfOgrePower"
-  },
-  "rwat": {
-    "name": "Rune of the Watcher",
-    "class": "PowerUp",
-    "level": 0,
-    "icon": "BTNRune"
   },
   "rwiz": {
     "name": "Sobi Mask",

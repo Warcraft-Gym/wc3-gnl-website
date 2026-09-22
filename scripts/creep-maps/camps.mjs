@@ -5,7 +5,7 @@
  * included, so mines are shops minus the mine typeId.
  */
 import { creepXp } from "../../src/lib/creep-routes/xp.mjs";
-import { campDrops } from "./drops.mjs";
+import { campDrops, unitDrops } from "./drops.mjs";
 
 /** Single-linkage clustering distance, in world units (verified: gives 20
  * camps of 3-4 creeps each on Autumn Leaves). */
@@ -138,20 +138,37 @@ export function buildCamps(units, bounds, lookupCreep, idCentre, randomItemTable
 
   return withPosition.map((camp, index) => {
     const id = `c${String(index + 1).padStart(2, "0")}`;
-    const byType = new Map();
+
+    // Group by type *and* by what the unit drops: two Forest Troll Trappers
+    // that both carry a Power Up 1 are one row with `count: 2`, but a
+    // Trapper holding the camp's permanent and a Trapper holding nothing
+    // stay separate rows — collapsing them would throw away exactly the
+    // attribution this field exists to keep.
+    const byTypeAndDrops = new Map();
     for (const unit of camp.clusterUnits) {
-      byType.set(unit.typeId, (byType.get(unit.typeId) ?? 0) + 1);
+      const drops = unitDrops(unit, randomItemTables);
+      const key = `${unit.typeId}|${JSON.stringify(drops)}`;
+      const existing = byTypeAndDrops.get(key);
+      if (existing) existing.count += 1;
+      else byTypeAndDrops.set(key, { rawcode: unit.typeId, drops, count: 1 });
     }
 
     let level = 0;
     let xp = 0;
     let allSleep = true;
-    const creeps = [...byType.entries()].map(([rawcode, count]) => {
+    const creeps = [...byTypeAndDrops.values()].map(({ rawcode, count, drops }) => {
       const info = lookupCreep(rawcode);
       level += info.level * count;
       xp += creepXpTotal(info.level, count);
       if (!info.sleeps) allSleep = false;
-      return { id: rawcode, name: info.name, level: info.level, count, icon: info.icon };
+      return {
+        id: rawcode,
+        name: info.name,
+        level: info.level,
+        count,
+        icon: info.icon,
+        ...(drops.length > 0 ? { drops } : {}),
+      };
     });
 
     const { x, y } = normalise(camp.worldX, camp.worldY, bounds);

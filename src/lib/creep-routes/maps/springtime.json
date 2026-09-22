@@ -1,11 +1,11 @@
 {
   "slug": "springtime",
   "name": "Springtime",
-  "mapVersion": "1.1",
+  "mapVersion": "1.4",
   "w3cMapId": 1075,
   "w3cName": "Springtime",
-  "sourceFile": "w3c_Springtime_v1.1.w3x",
-  "generatedAt": "2026-09-22T15:31:53.178Z",
+  "sourceFile": "1v1_Springtime_v1.4@1075.w3x",
+  "generatedAt": "2026-09-22T16:39:37.668Z",
   "bounds": {
     "xMin": -5760,
     "xMax": 5760,
@@ -35,63 +35,6 @@
   "camps": [
     {
       "id": "c01",
-      "x": 0.5481978619540179,
-      "y": 0.4572048584620158,
-      "worldX": 555.2393697102865,
-      "worldY": 493.0000305175781,
-      "creeps": [
-        {
-          "id": "nhdc",
-          "name": "Deceiver",
-          "level": 3,
-          "count": 1,
-          "icon": "BTNAcolyte"
-        },
-        {
-          "id": "nsra",
-          "name": "Stormreaver Apprentice",
-          "level": 1,
-          "count": 2,
-          "icon": "BTNOrcWarlock"
-        }
-      ],
-      "level": 5,
-      "xp": 110,
-      "band": "easy",
-      "sleeps": true,
-      "drops": [
-        {
-          "kind": "class",
-          "class": "PowerUp",
-          "level": 1,
-          "chance": 100,
-          "items": [
-            {
-              "id": "manh",
-              "name": "Manual of Health",
-              "icon": "BTNManual"
-            },
-            {
-              "id": "tdex",
-              "name": "Tome of Agility",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tint",
-              "name": "Tome of Intelligence",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tstr",
-              "name": "Tome of Strength",
-              "icon": "BTNTome"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c02",
       "x": 0.4518930912017822,
       "y": 0.5484793530570136,
       "worldX": -554.1915893554688,
@@ -109,7 +52,15 @@
           "name": "Gnoll Brute",
           "level": 3,
           "count": 1,
-          "icon": "BTNGnoll"
+          "icon": "BTNGnoll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 6,
@@ -122,6 +73,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -153,25 +105,26 @@
       ]
     },
     {
-      "id": "c03",
-      "x": 0.6489095078574286,
-      "y": 0.5753404961691962,
-      "worldX": 1715.4375305175781,
-      "worldY": -867.9225158691406,
+      "id": "c02",
+      "x": 0.6518608967463175,
+      "y": 0.5737779961691962,
+      "worldX": 1749.4375305175781,
+      "worldY": -849.9225158691406,
       "creeps": [
         {
           "id": "nfrb",
           "name": "Furbolg Tracker",
           "level": 6,
           "count": 1,
-          "icon": "BTNFurbolgTracker"
-        },
-        {
-          "id": "nfrl",
-          "name": "Furbolg",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNFurbolg"
+          "icon": "BTNFurbolgTracker",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftb",
@@ -179,6 +132,13 @@
           "level": 4,
           "count": 1,
           "icon": "BTNForestTroll"
+        },
+        {
+          "id": "nfrl",
+          "name": "Furbolg",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNFurbolg"
         },
         {
           "id": "nfsh",
@@ -198,6 +158,7 @@
           "class": "Permanent",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "afac",
@@ -245,32 +206,109 @@
               "icon": "BTNBoneChimes"
             }
           ]
+        }
+      ]
+    },
+    {
+      "id": "c03",
+      "x": 0.34792788558536103,
+      "y": 0.4258145451545715,
+      "worldX": -1751.8707580566406,
+      "worldY": 854.6164398193359,
+      "creeps": [
+        {
+          "id": "nfsh",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNForestTrollShadowPriest"
         },
         {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNForestTroll"
+        },
+        {
+          "id": "nfrl",
+          "name": "Furbolg",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNFurbolg"
+        },
+        {
+          "id": "nfrb",
+          "name": "Furbolg Tracker",
+          "level": 6,
+          "count": 1,
+          "icon": "BTNFurbolgTracker",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 4,
+              "chance": 100
+            }
+          ]
+        }
+      ],
+      "level": 18,
+      "xp": 405,
+      "band": "medium",
+      "sleeps": true,
+      "drops": [
+        {
           "kind": "class",
-          "class": "PowerUp",
-          "level": 1,
+          "class": "Permanent",
+          "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
-              "id": "manh",
-              "name": "Manual of Health",
-              "icon": "BTNManual"
+              "id": "afac",
+              "name": "Alleria's Flute of Accuracy",
+              "icon": "BTNAlleriaFlute"
             },
             {
-              "id": "tdex",
-              "name": "Tome of Agility",
-              "icon": "BTNTome"
+              "id": "belv",
+              "name": "Boots of Quel'Thalas +6",
+              "icon": "BTNBoots"
             },
             {
-              "id": "tint",
-              "name": "Tome of Intelligence",
-              "icon": "BTNTome"
+              "id": "bgst",
+              "name": "Belt of Giant Strength +6",
+              "icon": "BTNBelt"
             },
             {
-              "id": "tstr",
-              "name": "Tome of Strength",
-              "icon": "BTNTome"
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
+              "id": "ram4",
+              "name": "Ring of the Archmagi",
+              "icon": "BTNRingOfTheArchmagi"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
             }
           ]
         }
@@ -278,17 +316,32 @@
     },
     {
       "id": "c04",
-      "x": 0.3508361154132419,
-      "y": 0.4241473542319404,
-      "worldX": -1718.3679504394531,
-      "worldY": 873.8224792480469,
+      "x": 0.6307670593261718,
+      "y": 0.29488193723890516,
+      "worldX": 1506.4365234375,
+      "worldY": 2362.9600830078125,
       "creeps": [
         {
-          "id": "nfsh",
-          "name": "Forest Troll High Priest",
+          "id": "nomg",
+          "name": "Ogre Magi",
+          "level": 5,
+          "count": 1,
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nplb",
+          "name": "Polar Bear",
           "level": 4,
           "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
+          "icon": "BTNFrostBear"
         },
         {
           "id": "nftb",
@@ -298,103 +351,49 @@
           "icon": "BTNForestTroll"
         },
         {
-          "id": "nfrb",
-          "name": "Furbolg Tracker",
-          "level": 6,
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
           "count": 1,
-          "icon": "BTNFurbolgTracker"
-        },
-        {
-          "id": "nfrl",
-          "name": "Furbolg",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNFurbolg"
+          "icon": "BTNICeTroll"
         }
       ],
-      "level": 18,
-      "xp": 405,
+      "level": 16,
+      "xp": 345,
       "band": "medium",
       "sleeps": true,
       "drops": [
         {
           "kind": "class",
-          "class": "Permanent",
-          "level": 4,
+          "class": "Charged",
+          "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
-              "id": "afac",
-              "name": "Alleria's Flute of Accuracy",
-              "icon": "BTNAlleriaFlute"
+              "id": "pghe",
+              "name": "Potion of Greater Healing",
+              "icon": "BTNPotionGreen"
             },
             {
-              "id": "belv",
-              "name": "Boots of Quel'Thalas +6",
-              "icon": "BTNBoots"
+              "id": "pgma",
+              "name": "Potion of Greater Mana",
+              "icon": "BTNPotionBlueBig"
             },
             {
-              "id": "bgst",
-              "name": "Belt of Giant Strength +6",
-              "icon": "BTNBelt"
+              "id": "pnvu",
+              "name": "Potion of Invulnerability",
+              "icon": "BTNGreaterInvulneralbility"
             },
             {
-              "id": "brac",
-              "name": "Runed Bracers",
-              "icon": "BTNRunedBracers"
+              "id": "sror",
+              "name": "Scroll of the Beast",
+              "icon": "BTNSnazzyScrollGreen"
             },
             {
-              "id": "ciri",
-              "name": "Robe of the Magi +6",
-              "icon": "BTNRobeOfTheMagi"
-            },
-            {
-              "id": "lhst",
-              "name": "The Lion Horn of Stormwind",
-              "icon": "BTNLionHorn"
-            },
-            {
-              "id": "ram4",
-              "name": "Ring of the Archmagi",
-              "icon": "BTNRingOfTheArchmagi"
-            },
-            {
-              "id": "rwiz",
-              "name": "Sobi Mask",
-              "icon": "BTNSobiMask"
-            },
-            {
-              "id": "sbch",
-              "name": "Scourge Bone Chimes",
-              "icon": "BTNBoneChimes"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "class": "PowerUp",
-          "level": 1,
-          "chance": 100,
-          "items": [
-            {
-              "id": "manh",
-              "name": "Manual of Health",
-              "icon": "BTNManual"
-            },
-            {
-              "id": "tdex",
-              "name": "Tome of Agility",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tint",
-              "name": "Tome of Intelligence",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tstr",
-              "name": "Tome of Strength",
-              "icon": "BTNTome"
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
             }
           ]
         }
@@ -402,10 +401,10 @@
     },
     {
       "id": "c05",
-      "x": 0.3685987446043226,
-      "y": 0.7035802947150336,
-      "worldX": -1513.7424621582031,
-      "worldY": -2345.2449951171875,
+      "x": 0.3691880544026693,
+      "y": 0.7051338407728407,
+      "worldX": -1506.95361328125,
+      "worldY": -2363.141845703125,
       "creeps": [
         {
           "id": "nitt",
@@ -419,14 +418,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
-        },
-        {
-          "id": "nftb",
-          "name": "Forest Troll Berserker",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNForestTroll"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nplb",
@@ -434,6 +434,13 @@
           "level": 4,
           "count": 1,
           "icon": "BTNFrostBear"
+        },
+        {
+          "id": "nftb",
+          "name": "Forest Troll Berserker",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNForestTroll"
         }
       ],
       "level": 16,
@@ -446,6 +453,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -471,34 +479,6 @@
               "id": "woms",
               "name": "Wand of Mana Stealing",
               "icon": "BTNWandOfManaSteal"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "class": "PowerUp",
-          "level": 1,
-          "chance": 100,
-          "items": [
-            {
-              "id": "manh",
-              "name": "Manual of Health",
-              "icon": "BTNManual"
-            },
-            {
-              "id": "tdex",
-              "name": "Tome of Agility",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tint",
-              "name": "Tome of Intelligence",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tstr",
-              "name": "Tome of Strength",
-              "icon": "BTNTome"
             }
           ]
         }
@@ -506,114 +486,10 @@
     },
     {
       "id": "c06",
-      "x": 0.6314012553956774,
-      "y": 0.29641970528496636,
-      "worldX": 1513.7424621582031,
-      "worldY": 2345.2449951171875,
-      "creeps": [
-        {
-          "id": "nplb",
-          "name": "Polar Bear",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNFrostBear"
-        },
-        {
-          "id": "nomg",
-          "name": "Ogre Magi",
-          "level": 5,
-          "count": 1,
-          "icon": "BTNOgreMagi"
-        },
-        {
-          "id": "nftb",
-          "name": "Forest Troll Berserker",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNForestTroll"
-        },
-        {
-          "id": "nitt",
-          "name": "Ice Troll Trapper",
-          "level": 3,
-          "count": 1,
-          "icon": "BTNICeTroll"
-        }
-      ],
-      "level": 16,
-      "xp": 345,
-      "band": "medium",
-      "sleeps": true,
-      "drops": [
-        {
-          "kind": "class",
-          "class": "Charged",
-          "level": 3,
-          "chance": 100,
-          "items": [
-            {
-              "id": "pghe",
-              "name": "Potion of Greater Healing",
-              "icon": "BTNPotionGreen"
-            },
-            {
-              "id": "pgma",
-              "name": "Potion of Greater Mana",
-              "icon": "BTNPotionBlueBig"
-            },
-            {
-              "id": "pnvu",
-              "name": "Potion of Invulnerability",
-              "icon": "BTNGreaterInvulneralbility"
-            },
-            {
-              "id": "sror",
-              "name": "Scroll of the Beast",
-              "icon": "BTNSnazzyScrollGreen"
-            },
-            {
-              "id": "woms",
-              "name": "Wand of Mana Stealing",
-              "icon": "BTNWandOfManaSteal"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "class": "PowerUp",
-          "level": 1,
-          "chance": 100,
-          "items": [
-            {
-              "id": "manh",
-              "name": "Manual of Health",
-              "icon": "BTNManual"
-            },
-            {
-              "id": "tdex",
-              "name": "Tome of Agility",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tint",
-              "name": "Tome of Intelligence",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tstr",
-              "name": "Tome of Strength",
-              "icon": "BTNTome"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c07",
-      "x": 0.7582079922711407,
-      "y": 0.4315843776420311,
-      "worldX": 2974.5560709635415,
-      "worldY": 788.1479695638021,
+      "x": 0.23468124248363356,
+      "y": 0.5701034439934625,
+      "worldX": -3056.4720865885415,
+      "worldY": -807.5916748046875,
       "creeps": [
         {
           "id": "nwlt",
@@ -627,7 +503,15 @@
           "name": "Furbolg Shaman",
           "level": 4,
           "count": 1,
-          "icon": "BTNFurbolgShaman"
+          "icon": "BTNFurbolgShaman",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 8,
@@ -640,6 +524,73 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
+          "items": [
+            {
+              "id": "crys",
+              "name": "Crystal Ball",
+              "icon": "BTNCrystalBall"
+            },
+            {
+              "id": "rej3",
+              "name": "Replenishment Potion",
+              "icon": "BTNRejuvPotion"
+            },
+            {
+              "id": "will",
+              "name": "Wand of Illusion",
+              "icon": "BTNWand"
+            },
+            {
+              "id": "wswd",
+              "name": "Sentry Wards",
+              "icon": "BTNSentryWard"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c07",
+      "x": 0.7655222786797418,
+      "y": 0.4293768035040961,
+      "worldX": 3058.816650390625,
+      "worldY": 813.5792236328125,
+      "creeps": [
+        {
+          "id": "nfrs",
+          "name": "Furbolg Shaman",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNFurbolgShaman",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nwlt",
+          "name": "Timber Wolf",
+          "level": 2,
+          "count": 2,
+          "icon": "BTNTimberWolf"
+        }
+      ],
+      "level": 8,
+      "xp": 165,
+      "band": "easy",
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Charged",
+          "level": 2,
+          "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -667,67 +618,10 @@
     },
     {
       "id": "c08",
-      "x": 0.24103735464590567,
-      "y": 0.5668272919125027,
-      "worldX": -2983.2496744791665,
-      "worldY": -769.8504028320312,
-      "creeps": [
-        {
-          "id": "nwlt",
-          "name": "Timber Wolf",
-          "level": 2,
-          "count": 2,
-          "icon": "BTNTimberWolf"
-        },
-        {
-          "id": "nfrs",
-          "name": "Furbolg Shaman",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNFurbolgShaman"
-        }
-      ],
-      "level": 8,
-      "xp": 165,
-      "band": "easy",
-      "sleeps": true,
-      "drops": [
-        {
-          "kind": "class",
-          "class": "Charged",
-          "level": 2,
-          "chance": 100,
-          "items": [
-            {
-              "id": "crys",
-              "name": "Crystal Ball",
-              "icon": "BTNCrystalBall"
-            },
-            {
-              "id": "rej3",
-              "name": "Replenishment Potion",
-              "icon": "BTNRejuvPotion"
-            },
-            {
-              "id": "will",
-              "name": "Wand of Illusion",
-              "icon": "BTNWand"
-            },
-            {
-              "id": "wswd",
-              "name": "Sentry Wards",
-              "icon": "BTNSentryWard"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c09",
-      "x": 0.6751353793674045,
-      "y": 0.7423392755013924,
-      "worldX": 2017.5595703125,
-      "worldY": -2791.7484537760415,
+      "x": 0.6737464904785156,
+      "y": 0.742570756982874,
+      "worldX": 2001.5595703125,
+      "worldY": -2794.4151204427085,
       "creeps": [
         {
           "id": "ntka",
@@ -748,7 +642,15 @@
           "name": "Mammoth",
           "level": 3,
           "count": 1,
-          "icon": "BTNMammoth"
+          "icon": "BTNMammoth",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 9,
@@ -761,6 +663,75 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
+          "items": [
+            {
+              "id": "gcel",
+              "name": "Gloves of Haste",
+              "icon": "BTNGlove"
+            },
+            {
+              "id": "rat6",
+              "name": "Claws of Attack +6",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde1",
+              "name": "Ring of Protection +2",
+              "icon": "BTNRingGreen"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c09",
+      "x": 0.32579054655852147,
+      "y": 0.25673479857268156,
+      "worldX": -2006.8929036458333,
+      "worldY": 2802.4151204427085,
+      "creeps": [
+        {
+          "id": "ntka",
+          "name": "Tuskarr Spearman",
+          "level": 2,
+          "count": 1,
+          "icon": "BTNTuskaarGold"
+        },
+        {
+          "id": "nmam",
+          "name": "Mammoth",
+          "level": 3,
+          "count": 1,
+          "icon": "BTNMammoth",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "ntkt",
+          "name": "Tuskarr Trapper",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNTuskaarGold"
+        }
+      ],
+      "level": 9,
+      "xp": 185,
+      "band": "easy",
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 2,
+          "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -783,90 +754,54 @@
     },
     {
       "id": "c10",
-      "x": 0.32486462063259547,
-      "y": 0.2576607244986075,
-      "worldX": -2017.5595703125,
-      "worldY": 2791.7484537760415,
+      "x": 0.4925418575604757,
+      "y": 0.8889429622226291,
+      "worldX": -85.91780090332031,
+      "worldY": -4480.6229248046875,
       "creeps": [
-        {
-          "id": "ntka",
-          "name": "Tuskarr Spearman",
-          "level": 2,
-          "count": 1,
-          "icon": "BTNTuskaarGold"
-        },
-        {
-          "id": "nmam",
-          "name": "Mammoth",
-          "level": 3,
-          "count": 1,
-          "icon": "BTNMammoth"
-        },
-        {
-          "id": "ntkt",
-          "name": "Tuskarr Trapper",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNTuskaarGold"
-        }
-      ],
-      "level": 9,
-      "xp": 185,
-      "band": "easy",
-      "sleeps": true,
-      "drops": [
-        {
-          "kind": "class",
-          "class": "Permanent",
-          "level": 2,
-          "chance": 100,
-          "items": [
-            {
-              "id": "gcel",
-              "name": "Gloves of Haste",
-              "icon": "BTNGlove"
-            },
-            {
-              "id": "rat6",
-              "name": "Claws of Attack +6",
-              "icon": "BTNClawsOfAttack"
-            },
-            {
-              "id": "rde1",
-              "name": "Ring of Protection +2",
-              "icon": "BTNRingGreen"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c11",
-      "x": 0.5041595311628447,
-      "y": 0.1067167599995931,
-      "worldX": 47.91779899597168,
-      "worldY": 4530.6229248046875,
-      "creeps": [
-        {
-          "id": "nitp",
-          "name": "Ice Troll Priest",
-          "level": 2,
-          "count": 1,
-          "icon": "BTNIceTrollShadowPriest"
-        },
         {
           "id": "nitt",
           "name": "Ice Troll Trapper",
           "level": 3,
-          "count": 2,
-          "icon": "BTNICeTroll"
+          "count": 1,
+          "icon": "BTNICeTroll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nsqt",
           "name": "Sasquatch",
           "level": 5,
           "count": 1,
-          "icon": "BTNSasquatch"
+          "icon": "BTNSasquatch",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1,
+          "icon": "BTNICeTroll"
+        },
+        {
+          "id": "nitp",
+          "name": "Ice Troll Priest",
+          "level": 2,
+          "count": 1,
+          "icon": "BTNIceTrollShadowPriest"
         }
       ],
       "level": 13,
@@ -879,6 +814,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -902,6 +838,119 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
+          "items": [
+            {
+              "id": "manh",
+              "name": "Manual of Health",
+              "icon": "BTNManual"
+            },
+            {
+              "id": "tdex",
+              "name": "Tome of Agility",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tint",
+              "name": "Tome of Intelligence",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tstr",
+              "name": "Tome of Strength",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c11",
+      "x": 0.5088470313284132,
+      "y": 0.11070981555514865,
+      "worldX": 101.91780090332031,
+      "worldY": 4484.6229248046875,
+      "creeps": [
+        {
+          "id": "nitp",
+          "name": "Ice Troll Priest",
+          "level": 2,
+          "count": 1,
+          "icon": "BTNIceTrollShadowPriest"
+        },
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1,
+          "icon": "BTNICeTroll"
+        },
+        {
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
+          "count": 1,
+          "icon": "BTNICeTroll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1,
+          "icon": "BTNSasquatch",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
+        }
+      ],
+      "level": 13,
+      "xp": 275,
+      "band": "medium",
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 2,
+          "chance": 100,
+          "count": 1,
+          "items": [
+            {
+              "id": "gcel",
+              "name": "Gloves of Haste",
+              "icon": "BTNGlove"
+            },
+            {
+              "id": "rat6",
+              "name": "Claws of Attack +6",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde1",
+              "name": "Ring of Protection +2",
+              "icon": "BTNRingGreen"
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 1,
+          "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",
@@ -929,86 +978,87 @@
     },
     {
       "id": "c12",
-      "x": 0.49775019105937746,
-      "y": 0.8941512955559625,
-      "worldX": -25.91779899597168,
-      "worldY": -4540.6229248046875,
+      "x": 0.7176140396683304,
+      "y": 0.15380694777877243,
+      "worldX": 2506.9137369791665,
+      "worldY": 3988.1439615885415,
       "creeps": [
         {
-          "id": "nitt",
-          "name": "Ice Troll Trapper",
-          "level": 3,
-          "count": 2,
-          "icon": "BTNICeTroll"
-        },
-        {
-          "id": "nitp",
-          "name": "Ice Troll Priest",
-          "level": 2,
+          "id": "ntkt",
+          "name": "Tuskarr Trapper",
+          "level": 4,
           "count": 1,
-          "icon": "BTNIceTrollShadowPriest"
+          "icon": "BTNTuskaarGold"
         },
         {
-          "id": "nsqt",
-          "name": "Sasquatch",
+          "id": "nfpt",
+          "name": "Polar Furbolg Tracker",
+          "level": 6,
+          "count": 1,
+          "icon": "BTNPolarFurbolgTracker",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "ntks",
+          "name": "Tuskarr Sorcerer",
           "level": 5,
           "count": 1,
-          "icon": "BTNSasquatch"
+          "icon": "BTNTuskaarBrown"
         }
       ],
-      "level": 13,
-      "xp": 275,
+      "level": 15,
+      "xp": 350,
       "band": "medium",
       "sleeps": true,
       "drops": [
         {
           "kind": "class",
           "class": "Permanent",
-          "level": 2,
+          "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
-              "id": "gcel",
-              "name": "Gloves of Haste",
-              "icon": "BTNGlove"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
-              "id": "rat6",
-              "name": "Claws of Attack +6",
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
+              "id": "penr",
+              "name": "Pendant of Energy",
+              "icon": "BTNPendantOfEnergy"
+            },
+            {
+              "id": "prvt",
+              "name": "Periapt of Vitality",
+              "icon": "BTNPeriapt"
+            },
+            {
+              "id": "rat9",
+              "name": "Claws of Attack +9",
               "icon": "BTNClawsOfAttack"
             },
             {
-              "id": "rde1",
-              "name": "Ring of Protection +2",
+              "id": "rde2",
+              "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "class": "PowerUp",
-          "level": 1,
-          "chance": 100,
-          "items": [
-            {
-              "id": "manh",
-              "name": "Manual of Health",
-              "icon": "BTNManual"
             },
             {
-              "id": "tdex",
-              "name": "Tome of Agility",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tint",
-              "name": "Tome of Intelligence",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tstr",
-              "name": "Tome of Strength",
-              "icon": "BTNTome"
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -1016,10 +1066,10 @@
     },
     {
       "id": "c13",
-      "x": 0.28240383289478443,
-      "y": 0.846805480674461,
-      "worldX": -2506.7078450520835,
-      "worldY": -3995.1991373697915,
+      "x": 0.2825918904057256,
+      "y": 0.8464822486594871,
+      "worldX": -2504.5414225260415,
+      "worldY": -3991.4755045572915,
       "creeps": [
         {
           "id": "ntks",
@@ -1040,7 +1090,15 @@
           "name": "Polar Furbolg Tracker",
           "level": 6,
           "count": 1,
-          "icon": "BTNPolarFurbolgTracker"
+          "icon": "BTNPolarFurbolgTracker",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 15,
@@ -1053,6 +1111,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1095,35 +1154,50 @@
     },
     {
       "id": "c14",
-      "x": 0.7175961671052156,
-      "y": 0.15319451932553893,
-      "worldX": 2506.7078450520835,
-      "worldY": 3995.1991373697915,
+      "x": 0.08709656397501628,
+      "y": 0.5329052852259741,
+      "worldX": -4756.6475830078125,
+      "worldY": -379.06888580322266,
       "creeps": [
         {
-          "id": "ntks",
-          "name": "Tuskarr Sorcerer",
-          "level": 5,
+          "id": "nitt",
+          "name": "Ice Troll Trapper",
+          "level": 3,
           "count": 1,
-          "icon": "BTNTuskaarBrown"
+          "icon": "BTNICeTroll"
         },
         {
-          "id": "ntkt",
-          "name": "Tuskarr Trapper",
+          "id": "nwwf",
+          "name": "Frost Wolf",
+          "level": 2,
+          "count": 1,
+          "icon": "BTNTimberWolf"
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll High Priest",
           "level": 4,
           "count": 1,
-          "icon": "BTNTuskaarGold"
+          "icon": "BTNForestTrollShadowPriest"
         },
         {
-          "id": "nfpt",
-          "name": "Polar Furbolg Tracker",
-          "level": 6,
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
           "count": 1,
-          "icon": "BTNPolarFurbolgTracker"
+          "icon": "BTNSasquatch",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
-      "level": 15,
-      "xp": 350,
+      "level": 14,
+      "xp": 300,
       "band": "medium",
       "sleeps": true,
       "drops": [
@@ -1132,6 +1206,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1174,11 +1249,33 @@
     },
     {
       "id": "c15",
-      "x": 0.08702458275689019,
-      "y": 0.5328587671120961,
-      "worldX": -4757.476806640625,
-      "worldY": -378.53299713134766,
+      "x": 0.9129649904039171,
+      "y": 0.46659319996833803,
+      "worldX": 4757.356689453125,
+      "worldY": 384.8463363647461,
       "creeps": [
+        {
+          "id": "nsqt",
+          "name": "Sasquatch",
+          "level": 5,
+          "count": 1,
+          "icon": "BTNSasquatch",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nfsh",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNForestTrollShadowPriest"
+        },
         {
           "id": "nitt",
           "name": "Ice Troll Trapper",
@@ -1192,20 +1289,6 @@
           "level": 2,
           "count": 1,
           "icon": "BTNTimberWolf"
-        },
-        {
-          "id": "nfsh",
-          "name": "Forest Troll High Priest",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
-        },
-        {
-          "id": "nsqt",
-          "name": "Sasquatch",
-          "level": 5,
-          "count": 1,
-          "icon": "BTNSasquatch"
         }
       ],
       "level": 14,
@@ -1218,6 +1301,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1260,110 +1344,25 @@
     },
     {
       "id": "c16",
-      "x": 0.9134962505764431,
-      "y": 0.4671412328879038,
-      "worldX": 4763.476806640625,
-      "worldY": 378.53299713134766,
+      "x": 0.8613020632002089,
+      "y": 0.2941666497124566,
+      "worldX": 4162.199768066406,
+      "worldY": 2371.2001953125,
       "creeps": [
         {
-          "id": "nitt",
-          "name": "Ice Troll Trapper",
-          "level": 3,
+          "id": "nplg",
+          "name": "Giant Polar Bear",
+          "level": 6,
           "count": 1,
-          "icon": "BTNICeTroll"
-        },
-        {
-          "id": "nwwf",
-          "name": "Frost Wolf",
-          "level": 2,
-          "count": 1,
-          "icon": "BTNTimberWolf"
-        },
-        {
-          "id": "nfsh",
-          "name": "Forest Troll High Priest",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
-        },
-        {
-          "id": "nsqt",
-          "name": "Sasquatch",
-          "level": 5,
-          "count": 1,
-          "icon": "BTNSasquatch"
-        }
-      ],
-      "level": 14,
-      "xp": 300,
-      "band": "medium",
-      "sleeps": true,
-      "drops": [
-        {
-          "kind": "class",
-          "class": "Permanent",
-          "level": 3,
-          "chance": 100,
-          "items": [
+          "icon": "BTNFrostBear",
+          "drops": [
             {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
-            {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
-            },
-            {
-              "id": "penr",
-              "name": "Pendant of Energy",
-              "icon": "BTNPendantOfEnergy"
-            },
-            {
-              "id": "prvt",
-              "name": "Periapt of Vitality",
-              "icon": "BTNPeriapt"
-            },
-            {
-              "id": "rat9",
-              "name": "Claws of Attack +9",
-              "icon": "BTNClawsOfAttack"
-            },
-            {
-              "id": "rde2",
-              "name": "Ring of Protection +3",
-              "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
             }
           ]
-        }
-      ]
-    },
-    {
-      "id": "c17",
-      "x": 0.13596402804056804,
-      "y": 0.7153785281711155,
-      "worldX": -4193.694396972656,
-      "worldY": -2481.16064453125,
-      "creeps": [
-        {
-          "id": "nmgr",
-          "name": "Magnataur Reaver",
-          "level": 8,
-          "count": 1,
-          "icon": "BTNMagnataurBrown"
-        },
-        {
-          "id": "nith",
-          "name": "Ice Troll High Priest",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNIceTrollShaman"
         },
         {
           "id": "nits",
@@ -1373,11 +1372,26 @@
           "icon": "BTNIceTrollBeserker"
         },
         {
-          "id": "nplg",
-          "name": "Giant Polar Bear",
-          "level": 6,
+          "id": "nmgr",
+          "name": "Magnataur Reaver",
+          "level": 8,
           "count": 1,
-          "icon": "BTNFrostBear"
+          "icon": "BTNMagnataurBrown",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nith",
+          "name": "Ice Troll High Priest",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNIceTrollShaman"
         }
       ],
       "level": 22,
@@ -1390,6 +1404,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1441,27 +1456,170 @@
         {
           "kind": "class",
           "class": "PowerUp",
-          "level": 2,
+          "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
-              "id": "tdx2",
-              "name": "Tome of Agility +2",
+              "id": "manh",
+              "name": "Manual of Health",
+              "icon": "BTNManual"
+            },
+            {
+              "id": "tdex",
+              "name": "Tome of Agility",
               "icon": "BTNTome"
             },
             {
-              "id": "tin2",
-              "name": "Tome of Intelligence +2",
+              "id": "tint",
+              "name": "Tome of Intelligence",
               "icon": "BTNTome"
             },
             {
-              "id": "tpow",
-              "name": "Tome of Knowledge",
-              "icon": "BTNTomeRed"
+              "id": "tstr",
+              "name": "Tome of Strength",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "c17",
+      "x": 0.14069371753268772,
+      "y": 0.7098263846503363,
+      "worldX": -4139.2083740234375,
+      "worldY": -2417.199951171875,
+      "creeps": [
+        {
+          "id": "nplg",
+          "name": "Giant Polar Bear",
+          "level": 6,
+          "count": 1,
+          "icon": "BTNFrostBear",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nmgr",
+          "name": "Magnataur Reaver",
+          "level": 8,
+          "count": 1,
+          "icon": "BTNMagnataurBrown",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nith",
+          "name": "Ice Troll High Priest",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNIceTrollShaman"
+        },
+        {
+          "id": "nits",
+          "name": "Ice Troll Berserker",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNIceTrollBeserker"
+        }
+      ],
+      "level": 22,
+      "xp": 555,
+      "band": "hard",
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 5,
+          "chance": 100,
+          "count": 1,
+          "items": [
+            {
+              "id": "ajen",
+              "name": "Ancient Janggo of Endurance",
+              "icon": "BTNJanggo"
             },
             {
-              "id": "tst2",
-              "name": "Tome of Strength +2",
+              "id": "clfm",
+              "name": "Cloak of Flames",
+              "icon": "BTNCloakOfFlames"
+            },
+            {
+              "id": "hcun",
+              "name": "Hood of Cunning",
+              "icon": "BTNHoodOfCunning"
+            },
+            {
+              "id": "hval",
+              "name": "Helm of Valor",
+              "icon": "BTNHelmOfValor"
+            },
+            {
+              "id": "kpin",
+              "name": "Khadgar's Pipe of Insight",
+              "icon": "BTNPipeOfInsight"
+            },
+            {
+              "id": "lgdh",
+              "name": "Legion Doom-Horn",
+              "icon": "BTNHornOfDoom"
+            },
+            {
+              "id": "mcou",
+              "name": "Medallion of Courage",
+              "icon": "BTNMedalionOfCourage"
+            },
+            {
+              "id": "ratc",
+              "name": "Claws of Attack +12",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "ward",
+              "name": "Warsong Battle Drums",
+              "icon": "BTNDrum"
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 1,
+          "chance": 100,
+          "count": 1,
+          "items": [
+            {
+              "id": "manh",
+              "name": "Manual of Health",
+              "icon": "BTNManual"
+            },
+            {
+              "id": "tdex",
+              "name": "Tome of Agility",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tint",
+              "name": "Tome of Intelligence",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tstr",
+              "name": "Tome of Strength",
               "icon": "BTNTome"
             }
           ]
@@ -1470,142 +1628,11 @@
     },
     {
       "id": "c18",
-      "x": 0.8656706704033745,
-      "y": 0.2845929834577772,
-      "worldX": 4212.526123046875,
-      "worldY": 2481.4888305664062,
+      "x": 0.7765558101512768,
+      "y": 0.8745030014603228,
+      "worldX": 3185.9229329427085,
+      "worldY": -4314.274576822917,
       "creeps": [
-        {
-          "id": "nits",
-          "name": "Ice Troll Berserker",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNIceTrollBeserker"
-        },
-        {
-          "id": "nith",
-          "name": "Ice Troll High Priest",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNIceTrollShaman"
-        },
-        {
-          "id": "nmgr",
-          "name": "Magnataur Reaver",
-          "level": 8,
-          "count": 1,
-          "icon": "BTNMagnataurBrown"
-        },
-        {
-          "id": "nplg",
-          "name": "Giant Polar Bear",
-          "level": 6,
-          "count": 1,
-          "icon": "BTNFrostBear"
-        }
-      ],
-      "level": 22,
-      "xp": 555,
-      "band": "hard",
-      "sleeps": true,
-      "drops": [
-        {
-          "kind": "class",
-          "class": "Permanent",
-          "level": 5,
-          "chance": 100,
-          "items": [
-            {
-              "id": "ajen",
-              "name": "Ancient Janggo of Endurance",
-              "icon": "BTNJanggo"
-            },
-            {
-              "id": "clfm",
-              "name": "Cloak of Flames",
-              "icon": "BTNCloakOfFlames"
-            },
-            {
-              "id": "hcun",
-              "name": "Hood of Cunning",
-              "icon": "BTNHoodOfCunning"
-            },
-            {
-              "id": "hval",
-              "name": "Helm of Valor",
-              "icon": "BTNHelmOfValor"
-            },
-            {
-              "id": "kpin",
-              "name": "Khadgar's Pipe of Insight",
-              "icon": "BTNPipeOfInsight"
-            },
-            {
-              "id": "lgdh",
-              "name": "Legion Doom-Horn",
-              "icon": "BTNHornOfDoom"
-            },
-            {
-              "id": "mcou",
-              "name": "Medallion of Courage",
-              "icon": "BTNMedalionOfCourage"
-            },
-            {
-              "id": "ratc",
-              "name": "Claws of Attack +12",
-              "icon": "BTNClawsOfAttack"
-            },
-            {
-              "id": "ward",
-              "name": "Warsong Battle Drums",
-              "icon": "BTNDrum"
-            }
-          ]
-        },
-        {
-          "kind": "class",
-          "class": "PowerUp",
-          "level": 2,
-          "chance": 100,
-          "items": [
-            {
-              "id": "tdx2",
-              "name": "Tome of Agility +2",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tin2",
-              "name": "Tome of Intelligence +2",
-              "icon": "BTNTome"
-            },
-            {
-              "id": "tpow",
-              "name": "Tome of Knowledge",
-              "icon": "BTNTomeRed"
-            },
-            {
-              "id": "tst2",
-              "name": "Tome of Strength +2",
-              "icon": "BTNTome"
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "c19",
-      "x": 0.7770187731142397,
-      "y": 0.8721881866455078,
-      "worldX": 3191.2562662760415,
-      "worldY": -4287.60791015625,
-      "creeps": [
-        {
-          "id": "ngna",
-          "name": "Gnoll Poacher",
-          "level": 1,
-          "count": 1,
-          "icon": "BTNGnollArcher"
-        },
         {
           "id": "nwlt",
           "name": "Timber Wolf",
@@ -1618,7 +1645,22 @@
           "name": "Gnoll Warden",
           "level": 3,
           "count": 1,
-          "icon": "BTNGnollWarden"
+          "icon": "BTNGnollWarden",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "ngna",
+          "name": "Gnoll Poacher",
+          "level": 1,
+          "count": 1,
+          "icon": "BTNGnollArcher"
         }
       ],
       "level": 6,
@@ -1631,6 +1673,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -1662,18 +1705,26 @@
       ]
     },
     {
-      "id": "c20",
-      "x": 0.22298122688576028,
-      "y": 0.12781181335449218,
-      "worldX": -3191.2562662760415,
-      "worldY": 4287.60791015625,
+      "id": "c19",
+      "x": 0.22344418984872322,
+      "y": 0.12549699853967736,
+      "worldX": -3185.9229329427085,
+      "worldY": 4314.274576822917,
       "creeps": [
         {
           "id": "ngnw",
           "name": "Gnoll Warden",
           "level": 3,
           "count": 1,
-          "icon": "BTNGnollWarden"
+          "icon": "BTNGnollWarden",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nwlt",
@@ -1700,6 +1751,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -1756,10 +1808,17 @@
       "gold": 12500
     },
     {
-      "x": 0.5166666666666667,
-      "y": 0.08888888888888889,
-      "worldX": 192,
-      "worldY": 4736,
+      "x": 0.4777777777777778,
+      "y": 0.9055555555555556,
+      "worldX": -256,
+      "worldY": -4672,
+      "gold": 12500
+    },
+    {
+      "x": 0.5222222222222223,
+      "y": 0.09444444444444444,
+      "worldX": 256,
+      "worldY": 4672,
       "gold": 12500
     },
     {
@@ -1775,90 +1834,83 @@
       "worldX": 384,
       "worldY": 320,
       "gold": 10000
-    },
-    {
-      "x": 0.48333333333333334,
-      "y": 0.9111111111111111,
-      "worldX": -192,
-      "worldY": -4736,
-      "gold": 12500
     }
   ],
   "shops": [
     {
-      "id": "n001-0",
+      "id": "nqb1-0",
       "x": 0.21292444864908855,
       "y": 0.9519602881537543
     },
     {
-      "id": "necr-1",
-      "x": 0.6391935242546929,
-      "y": 0.657076178656684
+      "id": "nqb1-1",
+      "x": 0.7851902643839518,
+      "y": 0.04779192606608073
     },
     {
       "id": "necr-2",
-      "x": 0.2671689987182617,
-      "y": 0.19879663255479602
+      "x": 0.6371101909213596,
+      "y": 0.657076178656684
     },
     {
-      "id": "ntav-3",
-      "x": 0.5611111111111111,
-      "y": 0.4166666666666667
+      "id": "necr-3",
+      "x": 0.27064122094048393,
+      "y": 0.19671329922146266
     },
     {
-      "id": "necr-4",
-      "x": 0.3615800221761068,
+      "id": "ntav-4",
+      "x": 0.5722222222222222,
+      "y": 0.4222222222222222
+    },
+    {
+      "id": "necr-5",
+      "x": 0.3629689110649957,
       "y": 0.34239081276787653
     },
     {
-      "id": "nmr3-5",
+      "id": "nmr3-6",
       "x": 0.07222222222222222,
       "y": 0.5277777777777778
     },
     {
-      "id": "necr-6",
+      "id": "nfr2-7",
+      "x": 0.6722222222222223,
+      "y": 0.5888888888888889
+    },
+    {
+      "id": "necr-8",
       "x": 0.7159026675754123,
       "y": 0.2992603090074327
     },
     {
-      "id": "nder-7",
-      "x": 0.517784407403734,
-      "y": 0.22564540439181857
+      "id": "nder-9",
+      "x": 0.5082160128487481,
+      "y": 0.23481029934353298
     },
     {
-      "id": "ngnh-8",
+      "id": "ngnh-10",
       "x": 0.24722222222222223,
       "y": 0.10833333333333334
     },
     {
-      "id": "nvul-9",
+      "id": "nvul-11",
       "x": 0.8962501949734158,
       "y": 0.05415441724989149
     },
     {
-      "id": "nfh0-10",
+      "id": "nfh0-12",
       "x": 0.8777777777777778,
       "y": 0.25555555555555554
     },
     {
-      "id": "npig-11",
+      "id": "npig-13",
       "x": 0.17976960076226128,
       "y": 0.4454890622033013
     },
     {
-      "id": "ngme-12",
-      "x": 0.3611111111111111,
-      "y": 0.7166666666666667
-    },
-    {
-      "id": "ngad-13",
+      "id": "ngad-14",
       "x": 0.26666666666666666,
       "y": 0.8666666666666667
-    },
-    {
-      "id": "nmr3-14",
-      "x": 0.9277777777777778,
-      "y": 0.4722222222222222
     },
     {
       "id": "nfh0-15",
@@ -1872,63 +1924,63 @@
     },
     {
       "id": "necr-17",
-      "x": 0.7330614937676324,
-      "y": 0.8012662675645617
+      "x": 0.7295892715454102,
+      "y": 0.803349600897895
     },
     {
       "id": "ntav-18",
-      "x": 0.4388888888888889,
-      "y": 0.5833333333333334
+      "x": 0.42777777777777776,
+      "y": 0.5777777777777777
     },
     {
-      "id": "necr-19",
-      "x": 0.2871229595608181,
-      "y": 0.7014625761244032
-    },
-    {
-      "id": "nder-20",
-      "x": 0.49868231614430747,
-      "y": 0.77031004163954
-    },
-    {
-      "id": "nvul-21",
-      "x": 0.08872553507486979,
-      "y": 0.9444614834255642
-    },
-    {
-      "id": "npig-22",
-      "x": 0.8197817696465386,
-      "y": 0.5569805357191298
-    },
-    {
-      "id": "npig-23",
+      "id": "npig-19",
       "x": 0.5007710625727971,
       "y": 0.49998433854844837
     },
     {
-      "id": "ngme-24",
-      "x": 0.6388888888888888,
-      "y": 0.2833333333333333
-    },
-    {
-      "id": "nfr2-25",
-      "x": 0.6722222222222223,
-      "y": 0.5777777777777777
-    },
-    {
-      "id": "nfr1-26",
+      "id": "nfr1-20",
       "x": 0.3277777777777778,
       "y": 0.4111111111111111
     },
     {
-      "id": "n000-27",
-      "x": 0.7851902643839518,
-      "y": 0.04779192606608073
+      "id": "necr-21",
+      "x": 0.2871229595608181,
+      "y": 0.7014625761244032
     },
     {
-      "id": "ngnh-28",
+      "id": "nder-22",
+      "x": 0.4956976592540741,
+      "y": 0.7646166059705947
+    },
+    {
+      "id": "nvul-23",
+      "x": 0.08872553507486979,
+      "y": 0.9444614834255642
+    },
+    {
+      "id": "npig-24",
+      "x": 0.8197817696465386,
+      "y": 0.5569805357191298
+    },
+    {
+      "id": "ngme-25",
+      "x": 0.6388888888888888,
+      "y": 0.2833333333333333
+    },
+    {
+      "id": "ngme-26",
+      "x": 0.3611111111111111,
+      "y": 0.7166666666666667
+    },
+    {
+      "id": "ngnh-27",
       "x": 0.7527777777777778,
       "y": 0.8916666666666667
+    },
+    {
+      "id": "nmr3-28",
+      "x": 0.9277777777777778,
+      "y": 0.4722222222222222
     }
   ]
 }

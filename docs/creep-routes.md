@@ -50,7 +50,7 @@ undocumented at the doc-file level (gaps.md #6) and added this note.
 Camps/starts/mines/shops normalise over the map's **playable rectangle**,
 not the raw terrain grid. `war3map.w3e` (terrain) covers a wider area than
 the minimap image (`war3mapMap.blp`, which is also what the in-game
-minimap and coff-creeps' Liquipedia-preview reference show) actually
+minimap also shows) actually
 draws: `war3map.w3i` records an unplayable border on each side as
 `complements` (`int[4]`, file order **left, right, bottom, top**, one unit
 = one 128-world-unit terrain tile). `map-info.mjs`'s
@@ -60,12 +60,15 @@ draws: `war3map.w3i` records an unplayable border on each side as
 − top·128 }`; the catalogue's `bounds` field *is* this playable rect (kept
 alongside the raw `terrainBounds` and `cameraBounds`, both for reference
 only). Mapping over the terrain rect instead put every marker roughly 23%
-too close to the map's centre — the bug this feature fixes. Verified
-against coff-creeps' own Autumn Leaves camp/spawn positions
-(`coff-reference.test.mjs`, backed by
-`scripts/creep-maps/__fixtures__/autumn-leaves/coff-reference.json`): every
-one of our 20 camps and both starts land within 0.01 normalised distance
-of coff's (max observed: **0.0000**).
+too close to the map's centre — the bug this feature fixes. The placement
+was validated two independent ways: against the in-game minimap image the
+map itself ships (`war3mapMap.blp`), and against the map's pathing map
+(`war3map.wpm`), where land/water agreement rose from ~52% under the raw
+terrain rect to ~80% under the playable rect. That validated result is
+frozen in
+`scripts/creep-maps/__fixtures__/autumn-leaves/camp-placement.json` and
+enforced by `camp-placement.test.mjs`, so a later change to the bounds
+maths, the letterbox rule or the clustering cannot move a camp unnoticed.
 
 A creep/start/mine/shop unit placed in the unplayable border (decorative,
 never actually reachable) is **dropped**, never clamped into `[0, 1]` —
@@ -347,6 +350,28 @@ decision as F008's map icons, at the user's request) — this doc section and
 `scripts/creep-maps/README.md`'s "Icons" section are the record of where it
 came from.
 
+### Per-creep drop attribution
+
+`war3mapUnits.doo` records drop sets **per unit**, and the catalogue now
+keeps that: each entry in `camps[].creeps[]` carries its own `drops[]`
+(`class` + `level` for a random pool, `id` for a concrete item). The
+camp-level `camps[].drops[]` still groups those pools and resolves each to
+its item list, and gained a **`count`**: two Forest Troll Trappers each
+carrying a Power Up 1 is `count: 2`, because the camp really does drop two
+items. The old shape deduped them into one entry and lost that.
+
+Creeps are grouped by type **and** by what they drop, so "two Trappers, both
+holding a Power Up 1" is one row with `count: 2`, while a Trapper holding
+the camp's permanent and a Trapper holding nothing stay separate rows —
+which of the five creeps guards the item is exactly the question a route
+author asks. The camp card marks the right creep row instead of the previous
+heuristic, which showed a marker on *every* creep and only when the camp had
+exactly one pool.
+
+Every value here is parsed from the map archive itself — no drop is
+inferred from a creep's identity, so a map that gives an unusual creep an
+unusual drop is reported as it actually is.
+
 ## Data model
 
 `src/lib/creep-routes/types.ts` defines the domain types the site and the
@@ -500,8 +525,7 @@ camp.
 (the ladder default) splits a creep kill's XP evenly across *every* hero
 the killing player currently has alive, not just the one that lands the
 kill — a two-hero player earns half as much xp per hero as a one-hero
-player creeping the same camp. This calculator models a single hero (the
-same simplification coff-creeps' route calculator makes) and does not
+player creeping the same camp. This calculator models a single hero and does not
 discount for a second/third hero; a heroes-count toggle that divides the
 per-kill grant accordingly is backlog, not shipped.
 
@@ -1024,14 +1048,33 @@ response.
 The W3Champions 1v1 ladder pool changes periodically (a map is swapped
 in/out, or gets a new version). When it does:
 
-1. **Get the new `.w3x`/`.w3m` files** for the current pool (see
-   `scripts/creep-maps/README.md` for where the launcher bundle's maps
-   live; a rotation usually means at least one map isn't in that bundle
-   yet and has to be sourced separately).
+1. **Fetch the current pool and its map files** — one command, no manual
+   downloads:
+   ```
+   node scripts/creep-maps/fetch-pool.mjs --out <scratch-dir>
+   ```
+   It joins two public sources on the W3Champions map id: the live pool
+   (`website-backend.w3champions.com/api/ladder/active-modes`, mode `1` =
+   1v1, no auth) and the files themselves from the
+   `w3champions/map-updater-scripts` repo (`maps/w3c_maps/clean_maps/`,
+   branch `master`, named `1v1_<Name>_<version>@<id>.w3x`). It also writes
+   a `pool.json` manifest. Use `--dry-run` to see what would change without
+   downloading — that alone answers "are we behind?".
+
+   Two things to know. These are **clean** archives: no 512-byte `HM3W`
+   header, just the MPQ — `mpq.mjs` accepts both shapes. And the
+   *launcher bundle* at `update-service.w3champions.com/api/maps` is **not**
+   a source: it is frozen at the 2021–22 repack (v10/v11 folders) and will
+   never carry a current version.
 2. **Run `build.mjs`** for every changed/new map:
    ```
-   node scripts/creep-maps/build.mjs <map1.w3x> [<map2.w3x> …] --out src/lib/creep-routes/maps --debug
+   node scripts/creep-maps/build.mjs <scratch-dir>/*.w3x <scratch-dir>/*.w3m \
+     --pool <scratch-dir>/pool.json --out src/lib/creep-routes/maps --debug
    ```
+   `--pool` supplies the authoritative display names; the `@<id>` in each
+   file name supplies `w3cMapId`, so neither needs the hand-maintained
+   table in `build.mjs` any more (that table is now only a fallback for
+   legacy bundle file names).
    (`--out` now creates the directory if it doesn't exist.) Check the
    stdout summary line per map (camp/start/mine/shop counts, any "dropped
    outside the playable rect") and eyeball the `--debug` overlay PNGs —
@@ -1063,6 +1106,30 @@ in/out, or gets a new version). When it does:
    script over the JSON API (`/api/creep-routes` gives every route's
    `map.mapVersion` and `map.slug` in one call) both work; see the
    Backlog below.
+
+### Re-point routes whose map changed shape (do not skip this)
+
+A map revision can add, remove and **renumber** camps. Camp ids are assigned
+by distance from the terrain centre, so inserting one camp can shift every
+id after it — a `campId` that still *exists* may now mean a different camp.
+
+This is not hypothetical. Echo Isles v2.2 added three camps (16 → 19) and
+moved all sixteen existing ids. The beginner fixture route's last stop,
+written as "step up once both easy camps are clear", silently went from an
+easy level-8 murloc camp to a **medium level-13** one.
+
+After rebuilding, for every route on a map whose `mapVersion` changed:
+
+1. Diff old vs new: for each old camp id, find the nearest new camp and
+   compare creep composition. Matching composition at a small distance is a
+   safe re-point; anything else needs a human.
+2. Update the route's `campId`s, then bump its `mapVersion` to the new
+   catalogue value.
+3. Routes carry `mapVersion` precisely so the route page can render
+   "Written for vX; the catalogue is vY". That warning only fires when the
+   route *has* a `mapVersion` — `fixtures.test.mjs` fails the build if a
+   fixture route is missing one or disagrees with its catalogue. Sanity
+   routes should be checked the same way at review time.
 
 ## Backlog
 

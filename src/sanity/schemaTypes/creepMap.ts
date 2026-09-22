@@ -146,6 +146,26 @@ export const creepMap = defineType({
                       type: "string",
                       description: "BTN<Name> key — public/wc3-icons/creeps/<icon>.png (F011).",
                     }),
+                    defineField({
+                      name: "drops",
+                      type: "array",
+                      description:
+                        "What this creep itself drops — class+level for a random pool, id for a concrete item. " +
+                        "Generated; the expanded item list lives on the camp's own drops[].",
+                      of: [
+                        defineArrayMember({
+                          type: "object",
+                          name: "creepDrop",
+                          fields: [
+                            defineField({ name: "kind", type: "string", validation: (rule) => rule.required() }),
+                            defineField({ name: "class", type: "string" }),
+                            defineField({ name: "level", type: "number" }),
+                            defineField({ name: "id", type: "string" }),
+                            defineField({ name: "chance", type: "number" }),
+                          ],
+                        }),
+                      ],
+                    }),
                   ],
                   preview: {
                     select: { name: "name", level: "level", count: "count" },
@@ -157,7 +177,9 @@ export const creepMap = defineType({
             defineField({
               name: "drops",
               type: "array",
-              description: "Possible item drops for this camp, unioned from its creeps (F011). Generated.",
+              description:
+                "Possible item drops for this camp, grouped from its creeps' own drop sets. `count` is how many " +
+                "of that pool the camp yields (two creeps carrying a Power Up 1 = 2). Generated.",
               of: [
                 defineArrayMember({
                   type: "object",
@@ -168,6 +190,11 @@ export const creepMap = defineType({
                     defineField({ name: "level", type: "number" }),
                     defineField({ name: "id", type: "string" }),
                     defineField({ name: "chance", type: "number" }),
+                    defineField({
+                      name: "count",
+                      type: "number",
+                      description: "How many of this pool the camp drops.",
+                    }),
                     defineField({
                       name: "items",
                       type: "array",

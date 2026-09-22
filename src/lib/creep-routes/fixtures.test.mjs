@@ -85,3 +85,26 @@ test("at least one beginner route, one with vsRaces set, one with a condition, o
   assert.ok(FIXTURE_ROUTES.some((r) => r.stops.some((s) => s.condition)));
   assert.ok(FIXTURE_ROUTES.some((r) => r.stops.some((s) => s.campId === null && s.action)));
 });
+
+test("every fixture route declares the catalogue mapVersion it was written against", () => {
+  // A map revision can add, remove and renumber camps, so a `campId` that
+  // still *exists* after a rotation may point at a completely different
+  // camp. Echo Isles v2.2 did exactly that: it added three camps and shifted
+  // every id, quietly turning this suite's beginner route's last stop from
+  // an easy level-8 murloc camp into a medium level-13 one. The route page
+  // renders a "written for vX, catalogue is vY" warning — but only when the
+  // route carries a `mapVersion` at all, which that route did not. Requiring
+  // one here is what makes the warning trustworthy.
+  for (const route of FIXTURE_ROUTES) {
+    const map = FIXTURE_MAPS.find((m) => m.slug === route.map.slug);
+    assert.ok(map, `${route.slug} references unknown map ${route.map.slug}`);
+    if (map.mapVersion === undefined) continue; // map itself is unversioned
+    assert.ok(route.mapVersion, `${route.slug} has no mapVersion (map is v${map.mapVersion})`);
+    assert.equal(
+      route.mapVersion,
+      map.mapVersion,
+      `${route.slug} is written for v${route.mapVersion} but ${map.slug} is v${map.mapVersion} — ` +
+        "re-point its campIds against the new catalogue, then bump its mapVersion",
+    );
+  }
+});

@@ -55,6 +55,16 @@ function setsForUnit(unit, randomItemTables) {
   const sets = [...(unit.droppedItemSets ?? [])];
   const pointer = unit.itemTablePointer;
   if (pointer !== undefined && pointer !== null && pointer !== -1) {
+    // `null` means `map-info.mjs` could not read this file's `war3map.w3i`
+    // tail (an unrecognised format version). Empty is fine — the map has no
+    // tables — but *unknown* plus a unit that points into them would mean
+    // silently dropping real loot, so refuse instead.
+    if (randomItemTables === null) {
+      throw new Error(
+        `unit ${unit.typeId} points at random item table ${pointer}, but war3map.w3i's ` +
+          "table section could not be parsed for this map's format version",
+      );
+    }
     const table = randomItemTables.find((t) => t.id === pointer);
     if (table) {
       for (const items of table.sets) sets.push({ items });
@@ -63,24 +73,45 @@ function setsForUnit(unit, randomItemTables) {
   return sets;
 }
 
-/** A camp's drops: the union of every creep unit's resolved drop sets,
- *  deduped by class+level (random pools) or by id (concrete items) — when
- *  the same pool/id shows up more than once (several creeps in the camp
- *  carry it), the highest chance seen wins. Sets with zero items (a real
- *  shape `war3mapUnits.doo` can carry — an empty roll) contribute nothing.
- *  `items` is left empty here; a build step fills it in once item data is
- *  available (see `build.mjs`). Sorted for a deterministic catalogue diff. */
+/** Every drop *slot* one creep unit carries, in file order:
+ *  `[{ kind, class, level, chance }]` for random pools, `{ kind: "item", id,
+ *  chance }` for a concrete item. One entry per item in per set — a unit
+ *  that rolls two Power Up 1s yields two entries, because the camp really
+ *  does drop two items.
+ *
+ *  The catalogue keeps this per-creep view (`camps[].creeps[].drops`):
+ *  "which of these five creeps is the one holding the permanent" is the
+ *  question a route author actually asks. */
+export function unitDrops(unit, randomItemTables = []) {
+  const drops = [];
+  for (const set of setsForUnit(unit, randomItemTables)) {
+    for (const { itemId, chance } of set.items) {
+      drops.push({ ...classifyItemId(itemId), chance });
+    }
+  }
+  return drops;
+}
+
+/** A camp's drops: every creep unit's slots grouped by class+level (random
+ *  pools) or by id (concrete items). `count` is how many slots the camp has
+ *  of that pool — two creeps each carrying Power Up 1 means `count: 2` and
+ *  two items on the ground, which the old shape (a plain deduped union)
+ *  could not express. `chance` is the highest seen for the group. Sets with
+ *  zero items (a real shape `war3mapUnits.doo` can carry — an empty roll)
+ *  contribute nothing. `items` is left empty here; a build step fills it in
+ *  once item data is available (see `build.mjs`). Sorted for a
+ *  deterministic catalogue diff. */
 export function campDrops(creepUnits, randomItemTables = []) {
   const byKey = new Map();
   for (const unit of creepUnits) {
-    for (const set of setsForUnit(unit, randomItemTables)) {
-      for (const { itemId, chance } of set.items) {
-        const classified = classifyItemId(itemId);
-        const key = dedupeKey(classified);
-        const existing = byKey.get(key);
-        if (!existing || chance > existing.chance) {
-          byKey.set(key, { ...classified, chance, items: [] });
-        }
+    for (const { chance, ...classified } of unitDrops(unit, randomItemTables)) {
+      const key = dedupeKey(classified);
+      const existing = byKey.get(key);
+      if (existing) {
+        existing.count += 1;
+        existing.chance = Math.max(existing.chance, chance);
+      } else {
+        byKey.set(key, { ...classified, chance, count: 1, items: [] });
       }
     }
   }

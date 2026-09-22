@@ -33,6 +33,9 @@ import springtime from "./maps/springtime.json" with { type: "json" };
 import tidehunters from "./maps/tidehunters.json" with { type: "json" };
 import turtleRock from "./maps/turtle-rock.json" with { type: "json" };
 import twistedMeadows from "./maps/twisted-meadows.json" with { type: "json" };
+import hammerfall from "./maps/hammerfall.json" with { type: "json" };
+import scrimmage from "./maps/scrimmage.json" with { type: "json" };
+import fadingAutumn from "./maps/fading-autumn.json" with { type: "json" };
 
 const RAW_MAPS = {
   "autumn-leaves": autumnLeaves,
@@ -44,6 +47,9 @@ const RAW_MAPS = {
   tidehunters,
   "turtle-rock": turtleRock,
   "twisted-meadows": twistedMeadows,
+  hammerfall,
+  scrimmage,
+  "fading-autumn": fadingAutumn,
 };
 
 const MAP_SLUGS = Object.keys(RAW_MAPS);
@@ -134,14 +140,22 @@ export const FIXTURE_ROUTES = [
     author: "Gym coaches",
     build: { slug: "nightelf-tavern-hero-hunts", title: "Tavern hero into Huntresses" },
     patch: "2.0.3",
+    // Re-pointed when the catalogue moved to Echo Isles v2.2, which added
+    // three camps and renumbered the rest: the ids below are the camps whose
+    // creep composition matches the ones this route was written for
+    // (c08 -> c12, c12 -> c14, c05 -> c08). Without this the last stop, meant
+    // as "step up", pointed at a medium level-13 camp instead of the easy
+    // level-8 murlocs — see `docs/creep-routes.md`, "When the ladder pool
+    // rotates".
+    mapVersion: "2.2",
     featured: false,
     publishedAt: "2026-09-03T10:00:00Z",
     updatedAt: "2026-09-03T10:00:00Z",
     stops: [
-      { campId: "c08", note: "Easy camp, safe to solo" },
+      { campId: "c12", note: "Easy camp, safe to solo" },
       { campId: null, action: "TP home", note: "Buy the Ring of Protection off the Wisp's stock" },
-      { campId: "c12", note: "Second easy camp" },
-      { campId: "c05", note: "Step up once both easy camps are clear" },
+      { campId: "c14", note: "Second easy camp" },
+      { campId: "c08", note: "Step up once both easy camps are clear" },
     ],
   },
   {
@@ -178,7 +192,7 @@ export const FIXTURE_ROUTES = [
     summary: "Shadow Hunter's Healing Wave keeps this cheap: four medium camps on Last Refuge before the push.",
     author: "Gym coaches",
     patch: "2.0.3",
-    mapVersion: "1.4",
+    mapVersion: "1.5",
     featured: false,
     publishedAt: "2026-09-14T10:00:00Z",
     updatedAt: "2026-09-14T10:00:00Z",

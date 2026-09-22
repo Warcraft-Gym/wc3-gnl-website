@@ -1,11 +1,11 @@
 {
   "slug": "last-refuge",
   "name": "Last Refuge",
-  "mapVersion": "1.4",
+  "mapVersion": "1.5",
   "w3cMapId": 3,
   "w3cName": "Last Refuge",
-  "sourceFile": "w3c_LastRefuge_v1.4.w3x",
-  "generatedAt": "2026-09-22T15:31:53.143Z",
+  "sourceFile": "1v1_LastRefuge_v1.5@3.w3x",
+  "generatedAt": "2026-09-22T16:39:37.614Z",
   "bounds": {
     "xMin": -5376,
     "xMax": 5376,
@@ -41,6 +41,21 @@
       "worldY": 1339.0595703125,
       "creeps": [
         {
+          "id": "nfsh",
+          "name": "Forest Troll High Priest",
+          "level": 4,
+          "count": 1,
+          "icon": "BTNForestTrollShadowPriest",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
+        },
+        {
           "id": "nftr",
           "name": "Forest Troll",
           "level": 2,
@@ -53,13 +68,6 @@
           "level": 3,
           "count": 1,
           "icon": "BTNForestTrollTrapper"
-        },
-        {
-          "id": "nfsh",
-          "name": "Forest Troll High Priest",
-          "level": 4,
-          "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
         }
       ],
       "level": 9,
@@ -72,6 +80,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -109,7 +118,15 @@
           "name": "Gnoll Overseer",
           "level": 5,
           "count": 1,
-          "icon": "BTNGnollKing"
+          "icon": "BTNGnollKing",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "ngnw",
@@ -136,6 +153,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -168,7 +186,15 @@
           "name": "Gnoll Overseer",
           "level": 5,
           "count": 1,
-          "icon": "BTNGnollKing"
+          "icon": "BTNGnollKing",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "ngns",
@@ -195,6 +221,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -226,7 +253,22 @@
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
-          "count": 2,
+          "count": 1,
+          "icon": "BTNForestTrollTrapper",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 2,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll Trapper",
+          "level": 3,
+          "count": 1,
           "icon": "BTNForestTrollTrapper"
         },
         {
@@ -241,7 +283,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 17,
@@ -254,6 +304,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -287,6 +338,7 @@
           "class": "PowerUp",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "tdx2",
@@ -324,7 +376,15 @@
           "name": "Forest Troll High Priest",
           "level": 4,
           "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
+          "icon": "BTNForestTrollShadowPriest",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
@@ -351,6 +411,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -394,7 +455,7 @@
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
-          "count": 2,
+          "count": 1,
           "icon": "BTNForestTrollTrapper"
         },
         {
@@ -402,7 +463,30 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
+        },
+        {
+          "id": "nftt",
+          "name": "Forest Troll Trapper",
+          "level": 3,
+          "count": 1,
+          "icon": "BTNForestTrollTrapper",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 17,
@@ -415,6 +499,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -448,6 +533,7 @@
           "class": "PowerUp",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "tdx2",
@@ -492,7 +578,15 @@
           "name": "Murloc Nightcrawler",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocNightCrawler"
+          "icon": "BTNMurlocNightCrawler",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrl",
@@ -512,6 +606,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -575,7 +670,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 18,
@@ -588,6 +691,7 @@
           "class": "Charged",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ankh",
@@ -642,7 +746,15 @@
           "name": "Murloc Nightcrawler",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocNightCrawler"
+          "icon": "BTNMurlocNightCrawler",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrl",
@@ -662,6 +774,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -694,10 +807,10 @@
     },
     {
       "id": "c10",
-      "x": 0.3240755569367182,
-      "y": 0.775534573055449,
-      "worldX": -1891.5396118164062,
-      "worldY": -3218.5477294921875,
+      "x": 0.32370353312719435,
+      "y": 0.7740464778173537,
+      "worldX": -1895.5396118164062,
+      "worldY": -3202.5477294921875,
       "creeps": [
         {
           "id": "nogm",
@@ -718,7 +831,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftb",
@@ -738,6 +859,7 @@
           "class": "Charged",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ankh",
@@ -785,7 +907,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
@@ -805,6 +935,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -837,14 +968,30 @@
           "name": "Rock Golem",
           "level": 6,
           "count": 1,
-          "icon": "BTNRockGolem"
+          "icon": "BTNRockGolem",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
           "count": 2,
-          "icon": "BTNForestTrollTrapper"
+          "icon": "BTNForestTrollTrapper",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "ngrk",
@@ -871,6 +1018,7 @@
           "class": "Permanent",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "afac",
@@ -924,6 +1072,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 2,
           "items": [
             {
               "id": "manh",
@@ -968,7 +1117,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 11,
@@ -981,6 +1138,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -1020,7 +1178,15 @@
           "name": "Ogre Lord",
           "level": 7,
           "count": 1,
-          "icon": "BTNOgreLord"
+          "icon": "BTNOgreLord",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nomg",
@@ -1034,7 +1200,15 @@
           "name": "Forest Troll High Priest",
           "level": 4,
           "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
+          "icon": "BTNForestTrollShadowPriest",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 24,
@@ -1047,6 +1221,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1100,6 +1275,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",
@@ -1144,7 +1320,15 @@
           "name": "Ogre Lord",
           "level": 7,
           "count": 1,
-          "icon": "BTNOgreLord"
+          "icon": "BTNOgreLord",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nomg",
@@ -1158,7 +1342,15 @@
           "name": "Forest Troll High Priest",
           "level": 4,
           "count": 1,
-          "icon": "BTNForestTrollShadowPriest"
+          "icon": "BTNForestTrollShadowPriest",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 24,
@@ -1171,6 +1363,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1224,6 +1417,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",
@@ -1261,7 +1455,15 @@
           "name": "Ogre Warrior",
           "level": 3,
           "count": 1,
-          "icon": "BTNOgre"
+          "icon": "BTNOgre",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
@@ -1281,6 +1483,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -1303,17 +1506,25 @@
     },
     {
       "id": "c17",
-      "x": 0.4731371277854556,
-      "y": 0.9283591588338217,
-      "worldX": -288.82960205078126,
-      "worldY": -4861.71767578125,
+      "x": 0.47197602760224117,
+      "y": 0.9323031016758511,
+      "worldX": -301.3137512207031,
+      "worldY": -4904.12294921875,
       "creeps": [
         {
           "id": "ngst",
           "name": "Rock Golem",
           "level": 6,
           "count": 1,
-          "icon": "BTNRockGolem"
+          "icon": "BTNRockGolem",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "ngrk",
@@ -1334,7 +1545,15 @@
           "name": "Forest Troll Trapper",
           "level": 3,
           "count": 2,
-          "icon": "BTNForestTrollTrapper"
+          "icon": "BTNForestTrollTrapper",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 18,
@@ -1347,6 +1566,7 @@
           "class": "Permanent",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "afac",
@@ -1400,6 +1620,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 2,
           "items": [
             {
               "id": "manh",
@@ -1437,7 +1658,15 @@
           "name": "Ogre Warrior",
           "level": 3,
           "count": 1,
-          "icon": "BTNOgre"
+          "icon": "BTNOgre",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
@@ -1457,6 +1686,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -1489,7 +1719,21 @@
           "name": "Gargantuan Sea Turtle",
           "level": 7,
           "count": 1,
-          "icon": "BTNSeaTurtleGreen"
+          "icon": "BTNSeaTurtleGreen",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            },
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrm",
@@ -1516,6 +1760,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1559,6 +1804,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",
@@ -1596,7 +1842,21 @@
           "name": "Gargantuan Sea Turtle",
           "level": 7,
           "count": 1,
-          "icon": "BTNSeaTurtleGreen"
+          "icon": "BTNSeaTurtleGreen",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            },
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrm",
@@ -1623,6 +1883,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1666,6 +1927,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",

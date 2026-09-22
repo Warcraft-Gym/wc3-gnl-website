@@ -110,6 +110,30 @@ function resolveIds(args, names) {
   return idsFromCatalogueDir(DEFAULT_MAPS_DIR);
 }
 
+/** Creeps the current ladder pool places that the 1.27.1 enUS tables do not
+ * know about, because Blizzard added them after that patch. Each entry must
+ * cite where its values come from; this is a last resort, not a dumping
+ * ground, and `buildTable` still refuses any id that is in neither the SLK
+ * tables nor here.
+ *
+ * `nggm` — placed once on Tidehunters v1.2. Absent from 1.27.1 entirely; it
+ * is the moss-covered art variant of `nggr` "Granite Golem", which 1.27.1
+ * does carry. Verified identical where both are known: `nggr` is level 9 /
+ * `canSleep 0` in 1.27.1, and `nggm` is level 9 in the 1.32.8 tables
+ * (`data/zhCN-1.32.8/mpq/Units/unitbalance.slk` in the same mirror — the
+ * numbers are language-independent). Liquipedia's own Tidehunters preview
+ * calls it plainly "Granite Golem", so that is the name players use and the
+ * one we show. Icon reused from `nggr` (`BTNRockGolem`). */
+const EXTRA_CREEP_INFO = {
+  nggm: {
+    name: "Granite Golem",
+    level: 9,
+    sleeps: false,
+    icon: "BTNRockGolem",
+    source: "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/zhCN-1.32.8/mpq/Units/unitbalance.slk",
+  },
+};
+
 /** Builds `{ name, level, sleeps, source, icon? }` for every id in `ids`,
  * sorted. Throws naming every id missing a name, a valid level, a sleeps
  * flag, or (only when `arts` is given) an `Art=` line — never guesses. */
@@ -126,6 +150,12 @@ function buildTable(ids, names, balanceById, dataById, arts) {
     const art = arts ? arts.get(id) : undefined;
 
     if (!name || !balance || !validLevel || !data || data.canSleep === undefined || (arts && !art)) {
+      const extra = EXTRA_CREEP_INFO[id];
+      if (extra) {
+        table[id] = { ...extra };
+        if (!arts) delete table[id].icon;
+        continue;
+      }
       missing.push(id);
       continue;
     }

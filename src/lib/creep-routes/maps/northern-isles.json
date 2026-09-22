@@ -1,11 +1,11 @@
 {
   "slug": "northern-isles",
   "name": "Northern Isles",
-  "mapVersion": null,
+  "mapVersion": "1.3",
   "w3cMapId": 4,
   "w3cName": "Northern Isles",
-  "sourceFile": "w3c_NorthernIsles.w3x",
-  "generatedAt": "2026-09-22T15:31:53.154Z",
+  "sourceFile": "1v1_NorthernIsles_v1.3@4.w3x",
+  "generatedAt": "2026-09-22T16:39:37.625Z",
   "bounds": {
     "xMin": -4864,
     "xMax": 8960,
@@ -59,7 +59,15 @@
           "name": "Gnoll Overseer",
           "level": 5,
           "count": 1,
-          "icon": "BTNGnollKing"
+          "icon": "BTNGnollKing",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "ngnw",
@@ -79,6 +87,7 @@
           "class": "Permanent",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "afac",
@@ -162,7 +171,15 @@
           "name": "Ice Troll Warlord",
           "level": 6,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNICeTroll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 18,
@@ -175,6 +192,7 @@
           "class": "Charged",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ankh",
@@ -229,7 +247,15 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater"
+          "icon": "BTNMurlocFlesheater",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrr",
@@ -249,6 +275,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -293,7 +320,15 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater"
+          "icon": "BTNMurlocFlesheater",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrr",
@@ -313,6 +348,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -357,7 +393,15 @@
           "name": "Polar Furbolg Tracker",
           "level": 6,
           "count": 1,
-          "icon": "BTNPolarFurbolgTracker"
+          "icon": "BTNPolarFurbolgTracker",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 16,
@@ -370,6 +414,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -429,7 +474,15 @@
           "name": "Polar Furbolg Tracker",
           "level": 6,
           "count": 1,
-          "icon": "BTNPolarFurbolgTracker"
+          "icon": "BTNPolarFurbolgTracker",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 16,
@@ -442,6 +495,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -494,7 +548,15 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater"
+          "icon": "BTNMurlocFlesheater",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrr",
@@ -514,6 +576,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -556,7 +619,15 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater"
+          "icon": "BTNMurlocFlesheater",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nmrr",
@@ -576,6 +647,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -632,7 +704,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nitp",
@@ -652,6 +732,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -718,7 +799,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nitp",
@@ -738,6 +827,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -797,14 +887,30 @@
           "name": "Overlord Arachnathid",
           "level": 5,
           "count": 1,
-          "icon": "BTNArachnathidpurple"
+          "icon": "BTNArachnathidpurple",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nnwl",
           "name": "Nerubian Webspinner",
           "level": 3,
           "count": 1,
-          "icon": "BTNNerubianQueen"
+          "icon": "BTNNerubianQueen",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nanc",
@@ -831,6 +937,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -859,6 +966,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -891,7 +999,15 @@
           "name": "Overlord Arachnathid",
           "level": 5,
           "count": 1,
-          "icon": "BTNArachnathidpurple"
+          "icon": "BTNArachnathidpurple",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nanw",
@@ -919,7 +1035,15 @@
           "name": "Nerubian Webspinner",
           "level": 3,
           "count": 1,
-          "icon": "BTNNerubianQueen"
+          "icon": "BTNNerubianQueen",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 13,
@@ -932,6 +1056,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -960,6 +1085,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -1006,7 +1132,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 13,
@@ -1019,6 +1153,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -1061,7 +1196,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "ntkt",
@@ -1088,6 +1231,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -1130,7 +1274,15 @@
           "name": "Ogre Warrior",
           "level": 3,
           "count": 1,
-          "icon": "BTNOgre"
+          "icon": "BTNOgre",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nitr",
@@ -1157,6 +1309,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -1196,7 +1349,15 @@
           "name": "Magnataur Reaver",
           "level": 8,
           "count": 1,
-          "icon": "BTNMagnataurBrown"
+          "icon": "BTNMagnataurBrown",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nfps",
@@ -1210,7 +1371,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 20,
@@ -1223,6 +1392,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1276,6 +1446,7 @@
           "class": "PowerUp",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "tdx2",
@@ -1313,7 +1484,15 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nogr",
@@ -1327,7 +1506,15 @@
           "name": "Magnataur Reaver",
           "level": 8,
           "count": 1,
-          "icon": "BTNMagnataurBrown"
+          "icon": "BTNMagnataurBrown",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nfps",
@@ -1347,6 +1534,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1400,6 +1588,7 @@
           "class": "PowerUp",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "tdx2",
@@ -1451,7 +1640,15 @@
           "name": "Ogre Warrior",
           "level": 3,
           "count": 1,
-          "icon": "BTNOgre"
+          "icon": "BTNOgre",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 8,
@@ -1464,6 +1661,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -1487,18 +1685,18 @@
   ],
   "starts": [
     {
+      "player": 1,
+      "x": 0.8472222222222222,
+      "y": 0.19767441860465115,
+      "worldX": 6848,
+      "worldY": 3328
+    },
+    {
       "player": 0,
       "x": 0.1527777777777778,
       "y": 0.8023255813953488,
       "worldX": -2752,
       "worldY": -3328
-    },
-    {
-      "player": 1,
-      "x": 0.8518518518518519,
-      "y": 0.20348837209302326,
-      "worldX": 6912,
-      "worldY": 3264
     }
   ],
   "mines": [
@@ -1552,144 +1750,144 @@
       "y": 0.5
     },
     {
-      "id": "ngme-1",
+      "id": "nfro-1",
+      "x": 0.8380398926911531,
+      "y": 0.5026960483817167
+    },
+    {
+      "id": "ngme-2",
       "x": 0.4074074074074074,
       "y": 0.38372093023255816
     },
     {
-      "id": "nshe-2",
+      "id": "nshe-3",
       "x": 0.28844184787185106,
-      "y": 0.8643771770388581
+      "y": 0.8469353165737418
     },
     {
-      "id": "nmrk-3",
+      "id": "nmrk-4",
       "x": 0.5925925925925926,
       "y": 0.6162790697674418
     },
     {
-      "id": "nmh0-4",
+      "id": "nmh0-5",
       "x": 0.40046296296296297,
       "y": 0.7412790697674418
     },
     {
-      "id": "nfro-5",
+      "id": "nfro-6",
       "x": 0.1591803232828776,
       "y": 0.5082075762194257
     },
     {
-      "id": "nfro-6",
+      "id": "nfro-7",
       "x": 0.3506190120070069,
       "y": 0.5491668956224308
     },
     {
-      "id": "nmh0-7",
+      "id": "nmh0-8",
       "x": 0.22453703703703703,
       "y": 0.5901162790697675
     },
     {
-      "id": "ngad-8",
+      "id": "ngad-9",
       "x": 0.24074074074074073,
       "y": 0.3953488372093023
     },
     {
-      "id": "nsea-9",
+      "id": "nsea-10",
       "x": 0.8335934038515445,
       "y": 0.7047037080276845
     },
     {
-      "id": "nmh0-10",
+      "id": "nmh0-11",
       "x": 0.06712962962962964,
       "y": 0.5377906976744186
     },
     {
-      "id": "nmh1-11",
+      "id": "nmh1-12",
       "x": 0.3541666666666667,
       "y": 0.747093023255814
     },
     {
-      "id": "nsno-12",
+      "id": "nsno-13",
       "x": 0.5559413697984483,
       "y": 0.5785156848818757
     },
     {
-      "id": "nmh1-13",
+      "id": "nmh1-14",
       "x": 0.09027777777777778,
       "y": 0.48546511627906974
     },
     {
-      "id": "nsno-14",
+      "id": "nsno-15",
       "x": 0.43552115228441024,
       "y": 0.4021937569906545
     },
     {
-      "id": "npng-15",
+      "id": "npng-16",
       "x": 0.6724790996975369,
       "y": 0.7534864115160566
     },
     {
-      "id": "nmh0-16",
+      "id": "nmh0-17",
       "x": 0.7476851851851852,
       "y": 0.39244186046511625
     },
     {
-      "id": "nfro-17",
+      "id": "nfro-18",
       "x": 0.6366225348578559,
       "y": 0.4540503524070562
     },
     {
-      "id": "nshe-18",
+      "id": "nshe-19",
       "x": 0.7115581653736256,
-      "y": 0.1356228229611419
+      "y": 0.15306468342625817
     },
     {
-      "id": "nmh0-19",
+      "id": "nmh0-20",
       "x": 0.5995370370370371,
       "y": 0.25872093023255816
     },
     {
-      "id": "ngad-20",
+      "id": "ngad-21",
       "x": 0.7592592592592593,
       "y": 0.6104651162790697
     },
     {
-      "id": "npig-21",
+      "id": "npig-22",
       "x": 0.44718273480733234,
       "y": 0.8740968926008358
     },
     {
-      "id": "npig-22",
+      "id": "npig-23",
       "x": 0.5543528839393899,
       "y": 0.11788297253985737
     },
     {
-      "id": "nsea-23",
+      "id": "nsea-24",
       "x": 0.1715846061706543,
       "y": 0.29685348688169966
     },
     {
-      "id": "nmh0-24",
+      "id": "nmh0-25",
       "x": 0.9189814814814815,
-      "y": 0.4331395348837209
+      "y": 0.4273255813953488
     },
     {
-      "id": "nmh1-25",
+      "id": "nmh1-26",
       "x": 0.6412037037037037,
       "y": 0.25290697674418605
     },
     {
-      "id": "nmh1-26",
+      "id": "nmh1-27",
       "x": 0.9097222222222222,
       "y": 0.5203488372093024
     },
     {
-      "id": "npng-27",
+      "id": "npng-28",
       "x": 0.3245552491258692,
       "y": 0.2519117399703625
-    },
-    {
-      "id": "nfro-28",
-      "x": 0.8380398926911531,
-      "y": 0.5026960483817167
     }
   ]
 }

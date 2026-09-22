@@ -41,10 +41,11 @@ import { parseIniField } from "./txt-sections.mjs";
 import { expandPool } from "./drops.mjs";
 import { idsFromCatalogues, buildItemsTable } from "./item-table.mjs";
 
-// The W3Champions 1v1 ladder pool (https://website-backend.w3champions.com/
-// api/ladder/active-modes, mode id 1), fetched 2026-09-21. Keyed by the slug
-// this script derives from the map's own file name, so a catalogue can
-// carry the W3C id/name it corresponds to without a network call per run.
+// LEGACY fallback for catalogues built from the 2021–22 launcher bundle,
+// whose file names carry no `@<id>` suffix. Snapshot of the 1v1 pool taken
+// 2026-09-21. Files fetched by `fetch-pool.mjs` carry their own id, and
+// `--pool <pool.json>` supplies the authoritative display names, so neither
+// path needs this table. Keyed by the slug derived from the file name.
 const POOL_MAPS = {
   "autumn-leaves": { w3cMapId: 44, w3cName: "Autumn Leaves v2" },
   "last-refuge": { w3cMapId: 3, w3cName: "Last Refuge" },
@@ -65,6 +66,7 @@ function parseArgs(argv) {
   let itemdata = null;
   let itemstrings = null;
   let itemfunc = null;
+  let poolPath = null;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--out") {
@@ -79,6 +81,8 @@ function parseArgs(argv) {
       itemstrings = argv[++i];
     } else if (arg === "--itemfunc") {
       itemfunc = argv[++i];
+    } else if (arg === "--pool") {
+      poolPath = argv[++i];
     } else {
       files.push(arg);
     }
@@ -86,7 +90,7 @@ function parseArgs(argv) {
   if (files.length === 0) {
     throw new Error(
       "usage: build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>] " +
-        "[--itemdata <path> --itemstrings <path> --itemfunc <path>]",
+        "[--itemdata <path> --itemstrings <path> --itemfunc <path>] [--pool <pool.json>]",
     );
   }
   if (!out) throw new Error("usage: build.mjs requires --out <dir>");
@@ -94,22 +98,43 @@ function parseArgs(argv) {
   if (itemFlags.some(Boolean) && !itemFlags.every(Boolean)) {
     throw new Error("--itemdata, --itemstrings and --itemfunc must be given together, or not at all");
   }
-  return { files, out, debug, creepsPath, itemdata, itemstrings, itemfunc };
+  return { files, out, debug, creepsPath, itemdata, itemstrings, itemfunc, poolPath };
 }
 
-/** Bundle file name → human name and version, e.g. "w3c_AutumnLeaves_v2-0"
- * → { name: "Autumn Leaves", version: "2.0" }. Names with no version suffix
- * (most of the bundle's older revisions) get `version: null`. */
-function nameAndVersionFromFile(path) {
-  const stem = basename(path).replace(/\.(w3x|w3m)$/i, "").replace(/^w3c_/i, "");
+/** Map file name → `{ name, version, w3cMapId }`. Handles both naming
+ * schemes we ingest:
+ *
+ * - **Legacy launcher bundle**: `w3c_AutumnLeaves_v2-0.w3x`
+ *   → `{ name: "Autumn Leaves", version: "2.0", w3cMapId: null }`.
+ * - **Current `clean_maps`** (see `fetch-pool.mjs`):
+ *   `1v1_2v2_TurtleRock_v2.0@12.w3x`
+ *   → `{ name: "Turtle Rock", version: "2.0", w3cMapId: 12 }`.
+ *   The `@<id>` suffix is the W3Champions map id, so a catalogue built from
+ *   a current file needs no hand-maintained id table.
+ *
+ * Mode prefixes (`1v1_`, `2v2_`, `4v4_`, `FFA_`, in any combination) and the
+ * launcher's repack stamp (`w3c_260919_1153_`) are noise and are stripped.
+ * Names with no version suffix get `version: null`. */
+export function mapMetaFromFile(path) {
+  let stem = basename(path).replace(/\.(w3x|w3m)$/i, "");
+
+  const idMatch = stem.match(/@(\d+)$/);
+  const w3cMapId = idMatch ? Number(idMatch[1]) : null;
+  if (idMatch) stem = stem.slice(0, idMatch.index);
+
+  // Leading mode tags and the `w3c_[<date>_<time>_]` repack stamp.
+  stem = stem.replace(/^(?:(?:1v1|2v2|3v3|4v4|FFA|ATR)_)+/i, "");
+  stem = stem.replace(/^w3c_(?:\d{6}_\d{4}_)?/i, "");
+  stem = stem.replace(/^(?:(?:1v1|2v2|3v3|4v4|FFA|ATR)_)+/i, "");
+
   const versionMatch = stem.match(/_v(\d+(?:[-.]\d+)*)$/i);
   const version = versionMatch ? versionMatch[1].replace(/-/g, ".") : null;
   const withoutVersion = versionMatch ? stem.slice(0, versionMatch.index) : stem;
-  const name = withoutVersion.replace(/([a-z0-9])([A-Z])/g, "$1 $2").trim();
-  return { name, version };
+  const name = withoutVersion.replace(/_/g, " ").replace(/([a-z0-9])([A-Z])/g, "$1 $2").trim();
+  return { name, version, w3cMapId };
 }
 
-function buildCatalogue(mapPath, creepsPath) {
+function buildCatalogue(mapPath, creepsPath, livePool) {
   const map = openMap(mapPath);
   const doo = parseUnitsDoo(readMember(map, "war3mapUnits.doo"));
   const { bounds: terrainBounds } = parseW3eBounds(readMember(map, "war3map.w3e"));
@@ -136,8 +161,12 @@ function buildCatalogue(mapPath, creepsPath) {
   const shops = buildShops(doo.units, bounds);
   const droppedOutsidePlayable = countDroppedOutsideBounds(doo.units, bounds);
 
-  const { name, version } = nameAndVersionFromFile(mapPath);
+  const { name, version, w3cMapId } = mapMetaFromFile(mapPath);
   const slug = slugify(name);
+  // The live pool (`--pool`) wins, then the id carried by a `clean_maps`
+  // file name, then the legacy hand-maintained table. A map that is in none
+  // of them still builds — it just has no W3Champions identity.
+  const live = w3cMapId === null ? null : (livePool?.get(w3cMapId) ?? null);
   const pool = POOL_MAPS[slug];
 
   const blp = readMember(map, "war3mapMap.blp");
@@ -146,10 +175,10 @@ function buildCatalogue(mapPath, creepsPath) {
 
   const catalogue = {
     slug,
-    name: pool?.w3cName ?? name,
+    name: live?.name ?? pool?.w3cName ?? name,
     mapVersion: version,
-    w3cMapId: pool?.w3cMapId ?? null,
-    w3cName: pool?.w3cName ?? null,
+    w3cMapId: w3cMapId ?? pool?.w3cMapId ?? null,
+    w3cName: live?.name ?? pool?.w3cName ?? null,
     sourceFile: basename(mapPath),
     generatedAt: new Date().toISOString(),
     bounds,
@@ -259,10 +288,17 @@ function embedDropItems(catalogues, { itemdata, itemstrings, itemfunc }) {
 }
 
 function main() {
-  const { files, out, debug, creepsPath, itemdata, itemstrings, itemfunc } = parseArgs(process.argv.slice(2));
+  const { files, out, debug, creepsPath, itemdata, itemstrings, itemfunc, poolPath } =
+    parseArgs(process.argv.slice(2));
+
+  // `pool.json` as written by `fetch-pool.mjs`: the live ladder pool, used
+  // for display names and to flag a map that has left the pool.
+  const livePool = poolPath
+    ? new Map(JSON.parse(readFileSync(poolPath, "utf8")).maps.map((m) => [m.id, m]))
+    : null;
   mkdirSync(out, { recursive: true });
 
-  const built = files.map((file) => ({ file, ...buildCatalogue(file, creepsPath) }));
+  const built = files.map((file) => ({ file, ...buildCatalogue(file, creepsPath, livePool) }));
 
   // Embedding runs once, across every catalogue in this invocation, so a
   // pool one map's camp references resolves correctly even if it's not the

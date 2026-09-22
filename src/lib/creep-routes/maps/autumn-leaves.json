@@ -4,8 +4,8 @@
   "mapVersion": "2.0",
   "w3cMapId": 44,
   "w3cName": "Autumn Leaves v2",
-  "sourceFile": "w3c_AutumnLeaves_v2-0.w3x",
-  "generatedAt": "2026-09-22T15:31:53.116Z",
+  "sourceFile": "1v1_AutumnLeaves_v2.0@44.w3x",
+  "generatedAt": "2026-09-22T16:39:37.579Z",
   "bounds": {
     "xMin": -6272,
     "xMax": 6272,
@@ -52,7 +52,15 @@
           "name": "Forest Troll Warlord",
           "level": 6,
           "count": 1,
-          "icon": "BTNForestTroll"
+          "icon": "BTNForestTroll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nfsh",
@@ -79,6 +87,7 @@
           "class": "Charged",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ankh",
@@ -147,7 +156,15 @@
           "name": "Enraged Wildkin",
           "level": 6,
           "count": 1,
-          "icon": "BTNOwlBear"
+          "icon": "BTNOwlBear",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 4,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 17,
@@ -160,6 +177,7 @@
           "class": "Permanent",
           "level": 4,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "afac",
@@ -222,7 +240,21 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            },
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
@@ -242,6 +274,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -275,6 +308,7 @@
           "class": "PowerUp",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "tdx2",
@@ -312,7 +346,21 @@
           "name": "Ogre Magi",
           "level": 5,
           "count": 1,
-          "icon": "BTNOgreMagi"
+          "icon": "BTNOgreMagi",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            },
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftt",
@@ -332,6 +380,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -365,6 +414,7 @@
           "class": "PowerUp",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "tdx2",
@@ -416,7 +466,15 @@
           "name": "Forest Troll Berserker",
           "level": 4,
           "count": 1,
-          "icon": "BTNForestTroll"
+          "icon": "BTNForestTroll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 9,
@@ -429,6 +487,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -468,7 +527,15 @@
           "name": "Forest Troll Berserker",
           "level": 4,
           "count": 1,
-          "icon": "BTNForestTroll"
+          "icon": "BTNForestTroll",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nwwf",
@@ -488,6 +555,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -520,7 +588,15 @@
           "name": "Sasquatch",
           "level": 5,
           "count": 1,
-          "icon": "BTNSasquatch"
+          "icon": "BTNSasquatch",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nftb",
@@ -547,6 +623,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -593,7 +670,15 @@
           "name": "Sasquatch",
           "level": 5,
           "count": 1,
-          "icon": "BTNSasquatch"
+          "icon": "BTNSasquatch",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 12,
@@ -606,6 +691,7 @@
           "class": "Permanent",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "gcel",
@@ -645,7 +731,15 @@
           "name": "Sludge Flinger",
           "level": 3,
           "count": 1,
-          "icon": "BTNSludgeCreature"
+          "icon": "BTNSludgeCreature",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nska",
@@ -665,6 +759,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -714,7 +809,15 @@
           "name": "Sludge Flinger",
           "level": 3,
           "count": 1,
-          "icon": "BTNSludgeCreature"
+          "icon": "BTNSludgeCreature",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nskg",
@@ -734,6 +837,7 @@
           "class": "Permanent",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "clsd",
@@ -790,7 +894,15 @@
           "name": "Gnoll Overseer",
           "level": 5,
           "count": 1,
-          "icon": "BTNGnollKing"
+          "icon": "BTNGnollKing",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 13,
@@ -803,6 +915,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -852,7 +965,15 @@
           "name": "Gnoll Warden",
           "level": 3,
           "count": 1,
-          "icon": "BTNGnollWarden"
+          "icon": "BTNGnollWarden",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 7,
@@ -865,6 +986,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",
@@ -902,7 +1024,15 @@
           "name": "Gnoll Warden",
           "level": 3,
           "count": 1,
-          "icon": "BTNGnollWarden"
+          "icon": "BTNGnollWarden",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "PowerUp",
+              "level": 1,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nwwf",
@@ -922,6 +1052,7 @@
           "class": "PowerUp",
           "level": 1,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "manh",
@@ -959,7 +1090,15 @@
           "name": "Gnoll Overseer",
           "level": 5,
           "count": 1,
-          "icon": "BTNGnollKing"
+          "icon": "BTNGnollKing",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nenf",
@@ -986,6 +1125,7 @@
           "class": "Charged",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "pghe",
@@ -1035,7 +1175,15 @@
           "name": "Granite Golem",
           "level": 9,
           "count": 1,
-          "icon": "BTNRockGolem"
+          "icon": "BTNRockGolem",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 21,
@@ -1048,6 +1196,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1110,7 +1259,15 @@
           "name": "Granite Golem",
           "level": 9,
           "count": 1,
-          "icon": "BTNRockGolem"
+          "icon": "BTNRockGolem",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 5,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nwwd",
@@ -1130,6 +1287,7 @@
           "class": "Permanent",
           "level": 5,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "ajen",
@@ -1206,7 +1364,15 @@
           "name": "Kobold Taskmaster",
           "level": 5,
           "count": 1,
-          "icon": "BTNKobold"
+          "icon": "BTNKobold",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 14,
@@ -1219,6 +1385,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1285,7 +1452,15 @@
           "name": "Kobold Taskmaster",
           "level": 5,
           "count": 1,
-          "icon": "BTNKobold"
+          "icon": "BTNKobold",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Permanent",
+              "level": 3,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 14,
@@ -1298,6 +1473,7 @@
           "class": "Permanent",
           "level": 3,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "cnob",
@@ -1364,7 +1540,15 @@
           "name": "Rogue Wizard",
           "level": 3,
           "count": 1,
-          "icon": "BTNBanditMage"
+          "icon": "BTNBanditMage",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         }
       ],
       "level": 8,
@@ -1377,6 +1561,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",
@@ -1414,7 +1599,15 @@
           "name": "Rogue Wizard",
           "level": 3,
           "count": 1,
-          "icon": "BTNBanditMage"
+          "icon": "BTNBanditMage",
+          "drops": [
+            {
+              "kind": "class",
+              "class": "Charged",
+              "level": 2,
+              "chance": 100
+            }
+          ]
         },
         {
           "id": "nwiz",
@@ -1441,6 +1634,7 @@
           "class": "Charged",
           "level": 2,
           "chance": 100,
+          "count": 1,
           "items": [
             {
               "id": "crys",

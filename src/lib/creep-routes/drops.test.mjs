@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { classifyItemId, campDrops, expandPool, POOL_OVERRIDES } from "../../../scripts/creep-maps/drops.mjs";
+import { classifyItemId, campDrops, unitDrops, expandPool, POOL_OVERRIDES } from "../../../scripts/creep-maps/drops.mjs";
 
 test("classifyItemId decodes random-pool codes by class letter", () => {
   assert.deepEqual(classifyItemId("YiI3"), { kind: "class", class: "Permanent", level: 3 });
@@ -25,15 +25,57 @@ test("classifyItemId falls back to a concrete item for anything else", () => {
   assert.deepEqual(classifyItemId("YzI3"), { kind: "item", id: "YzI3" });
 });
 
-test("campDrops unions and dedupes across creeps, keeping the highest chance", () => {
+test("campDrops groups across creeps, counting slots and keeping the highest chance", () => {
   const units = [
     { droppedItemSets: [{ items: [{ itemId: "YiI2", chance: 30 }] }] },
     { droppedItemSets: [{ items: [{ itemId: "YiI2", chance: 80 }, { itemId: "ckng", chance: 10 }] }] },
   ];
   const drops = campDrops(units);
   assert.deepEqual(drops, [
-    { kind: "class", class: "Permanent", level: 2, chance: 80, items: [] },
-    { kind: "item", id: "ckng", chance: 10, items: [] },
+    { kind: "class", class: "Permanent", level: 2, chance: 80, count: 2, items: [] },
+    { kind: "item", id: "ckng", chance: 10, count: 1, items: [] },
+  ]);
+});
+
+test("campDrops counts one slot per item, so a camp with two of a pool says two", () => {
+  // Two Forest Troll Trappers, each carrying a Power Up 1 — the camp really
+  // drops two items, which the old deduped shape could not express.
+  const trapper = { droppedItemSets: [{ items: [{ itemId: "YkI1", chance: 100 }] }] };
+  const drops = campDrops([trapper, { ...trapper }]);
+  assert.equal(drops.length, 1);
+  assert.equal(drops[0].count, 2);
+  assert.equal(drops[0].class, "PowerUp");
+});
+
+test("unitDrops reports one entry per drop slot, in file order", () => {
+  const unit = {
+    droppedItemSets: [
+      { items: [{ itemId: "YiI4", chance: 100 }] },
+      { items: [{ itemId: "YkI1", chance: 100 }, { itemId: "YkI1", chance: 100 }] },
+    ],
+  };
+  assert.deepEqual(unitDrops(unit), [
+    { kind: "class", class: "Permanent", level: 4, chance: 100 },
+    { kind: "class", class: "PowerUp", level: 1, chance: 100 },
+    { kind: "class", class: "PowerUp", level: 1, chance: 100 },
+  ]);
+});
+
+test("unitDrops is empty for a unit with no sets", () => {
+  assert.deepEqual(unitDrops({}), []);
+  assert.deepEqual(unitDrops({ droppedItemSets: [] }), []);
+});
+
+test("campDrops throws when a unit needs random item tables that could not be parsed", () => {
+  // `map-info.mjs` returns `null` (not `[]`) when it cannot read a
+  // `war3map.w3i` tail; losing a real drop silently would be worse than failing.
+  assert.throws(
+    () => campDrops([{ droppedItemSets: [], itemTablePointer: 2 }], null),
+    /could not be parsed/,
+  );
+  // `null` is harmless as long as nothing actually points into the tables.
+  assert.deepEqual(campDrops([{ droppedItemSets: [{ items: [{ itemId: "YiI2", chance: 50 }] }] }], null), [
+    { kind: "class", class: "Permanent", level: 2, chance: 50, count: 1, items: [] },
   ]);
 });
 
@@ -54,8 +96,8 @@ test("campDrops resolves a unit's itemTablePointer against the map-level random 
   ];
   const drops = campDrops(units, randomItemTables);
   assert.deepEqual(drops, [
-    { kind: "class", class: "Charged", level: 3, chance: 50, items: [] },
-    { kind: "item", id: "rwat", chance: 25, items: [] },
+    { kind: "class", class: "Charged", level: 3, chance: 50, count: 1, items: [] },
+    { kind: "item", id: "rwat", chance: 25, count: 1, items: [] },
   ]);
 });
 
