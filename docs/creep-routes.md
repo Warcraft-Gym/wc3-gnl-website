@@ -677,11 +677,20 @@ after hydration. See `DESIGN.md`'s "Creep routes" section for the camp
 band colours and mark shapes this page and its components follow.
 
 `CreepMap`'s props (`map`, `route?`, `activeStop?`, `onCampSelect?`,
-`highlightCamps?`, `onCampCardPin?`, `onCampCardHoverEnter?`,
-`onCampCardHoverLeave?`, `openCampId?`, `className?`) are deliberately
-reusable beyond this page: `onCampSelect` is unused here but renders camps
-as real `<button>`s (via `foreignObject`) instead of plain `<g>`s when
-given, wired up by the editor below (`RouteSubmitForm`); `highlightCamps`
+`interactiveCampIds?`, `groupMarkers?`, `walkAllCamps?`,
+`deemphasizeOffRoute?`, `highlightCamps?`, `onCampCardPin?`,
+`onCampCardHoverEnter?`, `onCampCardHoverLeave?`, `openCampId?`,
+`className?`) are deliberately reusable beyond this page: `onCampSelect` is
+unused here but renders camps as real `<button>`s (via `foreignObject`)
+instead of plain `<g>`s when given, wired up by the editor below
+(`RouteSubmitForm`). `interactiveCampIds` restricts which camps are
+clickable when set; every current caller leaves it unset (every camp
+interactive) — the route page used to pass its own route's camp ids here
+until F012-followup-3 (below) removed that restriction. `groupMarkers`,
+`walkAllCamps` and `deemphasizeOffRoute` are the route page's own knobs,
+added by F012-followup-3 — see `DESIGN.md`'s "Every camp opens its card on
+the route page" bullet for what each one does and why the editor leaves
+all three unset. `highlightCamps`
 was left ready for a list/filter page to dim or ring a subset of camps,
 but F004's list (`/learn/creep-routes`) ended up not using it — no per-row
 map thumbnail, see `DESIGN.md`'s "List" section — so it remains unused

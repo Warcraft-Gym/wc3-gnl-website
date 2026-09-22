@@ -39,6 +39,7 @@ export const CampMarker = memo(function CampMarker({
   active,
   highlighted,
   pressed,
+  secondary,
   onCampSelect,
   asGroup,
   onCampCardOpen,
@@ -52,6 +53,14 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
+  /** F012-followup-3: this camp is interactive but NOT one of the route's
+   *  own stops — fades the outer halo ring (`rgba(255,255,255,.55)` down to
+   *  `.22`) so a route's own camps still read as the emphasised ones (they
+   *  also carry the numbered badge and the path, drawn by `RoutePath`, and
+   *  `pressed`'s `aria-pressed`/", on the route" — this is the marker's own,
+   *  purely visual, third cue). Deliberately subtle: the band colour fill
+   *  itself is untouched, so the camp is still fully readable at a glance. */
+  secondary?: boolean;
   onCampSelect?: (campId: string) => void;
   /** See the component doc comment: renders the `<g>` itself as the click
    *  target instead of adding a nested `<button>`. */
@@ -114,8 +123,16 @@ export const CampMarker = memo(function CampMarker({
       {/* Liquipedia's hard-band red is only ~3:1 against black on its own
        *  (see globals.css); this light halo — drawn just outside the dark
        *  under-stroke below — keeps every band's mark readable against any
-       *  terrain colour, light or dark. */}
-      <circle cx={cx} cy={cy} r={r + 1.5} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />
+       *  terrain colour, light or dark. `secondary` fades it (not the band
+       *  fill itself) — see the prop's doc comment above. */}
+      <circle
+        cx={cx}
+        cy={cy}
+        r={r + 1.5}
+        fill="none"
+        stroke={secondary ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.55)"}
+        strokeWidth="1.5"
+      />
       <circle
         cx={cx}
         cy={cy}

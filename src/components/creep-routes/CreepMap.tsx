@@ -31,11 +31,39 @@ export type CreepMapProps = {
    *  select-a-stop click (F009). */
   onCampSelect?: (campId: string) => void;
   /** Restricts which camps become clickable buttons when `onCampSelect` is
-   *  given — the read-only route page only wants its own route's camps
-   *  clickable (clicking any other camp would be a dead, inert-looking
-   *  button); the editor wants every camp clickable (any camp can become a
-   *  stop) and leaves this unset. Unset/omitted means "every camp". */
+   *  given. Unset/omitted (every current caller, as of F012-followup-3)
+   *  means "every camp" — the editor always left this unset (any camp can
+   *  become a stop), and the read-only route page used to pass its own
+   *  route's camp ids here to keep every *other* camp inert; that
+   *  restriction was the F012-followup-3 bug report ("the camp-card
+   *  functionality must be available … for every camp, not only for the
+   *  camps that happen to be on the route"), so the route page now leaves
+   *  this unset too and uses `deemphasizeOffRoute` for the visual
+   *  distinction instead. Kept as a generic restriction mechanism for a
+   *  future caller that genuinely needs a subset clickable. */
   interactiveCampIds?: Set<string>;
+  /** Renders every interactive marker's outer `<g>` itself as the focusable
+   *  click target (`role="button" tabIndex=0`, exactly one `data-camp` per
+   *  camp — C-017 depends on that count) instead of the editor's nested
+   *  `foreignObject`/`<button>` shape (two `data-camp` per camp: the outer
+   *  `<g>` and the button). Independent of `interactiveCampIds`/which camps
+   *  are actually interactive: F012-followup-3 split this out once the
+   *  route page needed *every* camp clickable while keeping the
+   *  single-`data-camp`-per-camp shape it already had. Unset (the editor)
+   *  keeps the classic button shape, unchanged. */
+  groupMarkers?: boolean;
+  /** F012-followup-3: the arrow-key walk visits every camp on the map, not
+   *  only `route`'s own stops — the route page wants every camp reachable
+   *  now that every camp opens its card, not just the route's own. Unset
+   *  (the editor) keeps walking `route`'s own stops in order, unchanged. */
+  walkAllCamps?: boolean;
+  /** F012-followup-3: gives a camp that ISN'T one of `route`'s own stops a
+   *  visually secondary marker (a fainter halo ring, see `CampMarker`) —
+   *  used once every camp on the page is interactive, so the route's own
+   *  stops (already carrying the numbered badge and the path) still read
+   *  as the emphasised ones instead of every camp looking identical. Unset
+   *  (the editor) leaves every marker's ring exactly as before. */
+  deemphasizeOffRoute?: boolean;
   highlightCamps?: Set<string>;
   /** F012a: pins the camp card for the given camp (already resolved from
    *  `map.camps`) and the DOM element that triggered it, for
@@ -147,7 +175,8 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
  * band), every start spot (your own base a red X, every other a small
  * muted blue X — see `StartMarker`), the gold mines and — when a route is
  * given — the numbered route path. One SVG keyboard stop like `MmrChart`: arrow
- * keys walk the route's camp stops (or every camp, with no route), Escape
+ * keys walk the route's camp stops (or every camp, with no route, or every
+ * camp when `walkAllCamps` — F012-followup-3, the route page), Escape
  * clears, and an `aria-live` region names the current camp for anyone who
  * isn't hovering it. The real `<table>` fallback for assistive tech is
  * `RouteStepTable`, rendered by the page below this component.
@@ -173,6 +202,9 @@ export function CreepMap({
   activeStop = null,
   onCampSelect,
   interactiveCampIds,
+  groupMarkers = false,
+  walkAllCamps = false,
+  deemphasizeOffRoute = false,
   highlightCamps,
   onCampCardPin,
   onCampCardHoverEnter,
@@ -194,12 +226,16 @@ export function CreepMap({
 
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
-  // Keyboard walk order: the route's camp stops in order, or every camp on
-  // the map when there is no route to walk.
+  // Keyboard walk order: every camp on the map when `walkAllCamps` (the
+  // route page, F012-followup-3 — every camp is interactive there now, so
+  // every camp should be walkable too) or there is no route to walk at
+  // all; otherwise the route's own camp stops in order (the editor keeps
+  // this — its walk order is unaffected by this feature).
   const walkCampIds = useMemo(() => {
+    if (walkAllCamps) return map.camps.map((c) => c.id);
     if (route) return route.stops.map((s) => s.campId).filter((id): id is string => !!id);
     return map.camps.map((c) => c.id);
-  }, [route, map.camps]);
+  }, [walkAllCamps, route, map.camps]);
 
   const walkCampId = walkIndex != null ? (walkCampIds[walkIndex] ?? null) : null;
   const detailCampId = hoverCamp ?? walkCampId;
@@ -383,7 +419,8 @@ export function CreepMap({
                 onCampSelect={isInteractive ? handleCampClick : undefined}
                 onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
                 cardOpen={openCampId === camp.id}
-                asGroup={Boolean(interactiveCampIds)}
+                asGroup={groupMarkers}
+                secondary={deemphasizeOffRoute && stopIndex === -1}
               />
             );
           })}

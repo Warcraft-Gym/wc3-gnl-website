@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useState } from "react";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
@@ -25,21 +25,27 @@ import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/ty
  * the card closes (Escape, the close button, an outside click, or another
  * camp pinned) — the card itself doesn't know or care which kind of
  * element opened it.
+ *
+ * F012-followup-3: every camp on the map is now interactive (hover/click
+ * opens the card, arrow-key walk reaches it), not only the route's own
+ * stops — the user asked for the editor's "every camp works" behaviour on
+ * this read-only page too. The route's own stops keep their emphasis
+ * three ways, none of which needed touching here since they were already
+ * driven by `route` itself, not by which camps were clickable: the
+ * numbered badge and the path (`RoutePath`), `aria-pressed`/", on the
+ * route" in the marker's own label, and — new — a fainter halo ring on
+ * every *other* camp's marker (`deemphasizeOffRoute`, see `CampMarker`'s
+ * `secondary` prop).
  */
 export function CreepMapPlayground({ map, route }: { map: CreepMapType; route: CreepRoute }) {
   const [activeStop, setActiveStop] = useState<number | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
-  // Only the route's own camps are clickable on this page — clicking any
-  // other camp on the map would be a dead, inert-looking button, exactly
-  // what F009's review flagged for the *whole* map before this feature.
-  const routeCampIds = useMemo(
-    () => new Set(route.stops.map((s) => s.campId).filter((id): id is string => !!id)),
-    [route.stops],
-  );
-
   // A second click on the same marker clears the selection, same as a
-  // second click on the same table row.
+  // second click on the same table row. Clicking a camp that ISN'T one of
+  // the route's own stops (every camp is clickable now, F012-followup-3)
+  // finds no matching row — `findIndex` returns -1 — and this is a no-op:
+  // no table row is selected, nothing crashes.
   const onMarkerSelect = useCallback(
     (campId: string) => {
       const idx = route.stops.findIndex((s) => s.campId === campId);
@@ -57,7 +63,9 @@ export function CreepMapPlayground({ map, route }: { map: CreepMapType; route: C
           route={route}
           activeStop={activeStop}
           onCampSelect={onMarkerSelect}
-          interactiveCampIds={routeCampIds}
+          groupMarkers
+          walkAllCamps
+          deemphasizeOffRoute
           onCampCardPin={pin}
           onCampCardHoverEnter={hoverEnter}
           onCampCardHoverLeave={hoverLeave}
