@@ -96,7 +96,7 @@ export default function AboutPage() {
         {/* CTA */}
         <div className="mt-14 flex flex-wrap gap-3">
           <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-            <DiscordIcon size={20} /> Join the Gym Discord
+            <DiscordIcon size={20} /> Join the Discord
           </ButtonLink>
           <ButtonLink href="/gnl/rules" variant="outline" size="lg">
             Read the full rules

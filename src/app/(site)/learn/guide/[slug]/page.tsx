@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ListOrdered } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { KeyArt } from "@/components/ui/KeyArt";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { urlFor } from "@/sanity/image";
 import { GuideCard } from "@/components/learn/GuideCard";
@@ -13,6 +14,14 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
+
+/** The faction art for the four race categories; topics get the shared scene. */
+const RACE_ART: Partial<Record<string, string>> = {
+  human: "/factions/headers/human.webp",
+  "night-elf": "/factions/headers/nightelf.webp",
+  orc: "/factions/headers/orc.webp",
+  undead: "/factions/headers/undead.webp",
+};
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -93,16 +102,15 @@ export default async function GuidePage({ params }: Params) {
           { name: guide.title, path: `/learn/guide/${guide.slug}` },
         ])}
       />
-      <div className="relative overflow-hidden border-b border-line/70">
+      {/* Masthead: a race guide runs its race art under the nav bar, like a
+          build page; a topic guide keeps the shared scene */}
+      <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
+        <KeyArt src={RACE_ART[guide.category] ?? "/keyart/feature-undead-city.webp"} position="center 30%" overlay="soft" priority />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-50"
-          style={{
-            backgroundImage:
-              "radial-gradient(34rem 20rem at 82% -20%, var(--wg-gold-glow), transparent 60%)",
-          }}
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.85)_0%,rgba(0,0,0,.6)_50%,rgba(0,0,0,.2)_100%)]"
         />
-        <Container className="max-w-3xl py-14 sm:py-20">
+        <Container className="relative z-10 max-w-3xl pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
             href={category ? `/learn/${category.id}` : "/learn"}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"

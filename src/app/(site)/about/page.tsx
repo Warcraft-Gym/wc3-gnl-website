@@ -129,7 +129,7 @@ export default async function AboutGymPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-                <DiscordIcon size={20} /> Join the Gym Discord
+                <DiscordIcon size={20} /> Join the Discord
               </ButtonLink>
               <ButtonLink href="/learn" variant="outline" size="lg">
                 Start learning <ArrowRight size={18} />

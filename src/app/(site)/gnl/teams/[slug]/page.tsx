@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Crown } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { KeyArt } from "@/components/ui/KeyArt";
 import { Surface } from "@/components/ui/Surface";
 import { RaceBadge } from "@/components/ui/Badge";
 import { Flag } from "@/components/ui/Flag";
@@ -76,16 +77,14 @@ export default async function TeamPage({ params, searchParams }: Params) {
 
   return (
     <>
-      <div className="relative overflow-hidden border-b border-line/70">
+      {/* Masthead: the league scene runs under the nav bar, as on the other GNL pages */}
+      <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
+        <KeyArt src="/keyart/feature-undead-city.webp" position="center 40%" overlay="soft" priority />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-60"
-          style={{
-            backgroundImage:
-              "radial-gradient(34rem 20rem at 90% -10%, var(--wg-gold-glow), transparent 60%)",
-          }}
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.8)_0%,rgba(0,0,0,.55)_45%,rgba(0,0,0,.2)_100%)]"
         />
-        <Container className="py-12 sm:py-16">
+        <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-14 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3rem)]">
           <Link
             href={withSeason("/gnl/teams", season.number === seasons[0]?.number ? undefined : season.number)}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
@@ -160,6 +159,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
             </div>
           ) : null}
         </Container>
+        <div className="rivets relative z-10" aria-hidden />
       </div>
 
       <Container className="py-10">

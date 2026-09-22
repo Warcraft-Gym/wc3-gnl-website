@@ -91,9 +91,9 @@ export default async function PostPage({ params }: Params) {
         <Container className="max-w-3xl py-14 sm:py-20">
           <Link
             href="/blog"
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> Back to blog
+            <ArrowLeft size={15} /> All news
           </Link>
           <div className="mb-4 flex items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.16em]">
             <span className="text-gold">{CATEGORY_LABEL[post.category]}</span>

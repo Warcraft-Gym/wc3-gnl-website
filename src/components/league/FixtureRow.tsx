@@ -68,7 +68,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
               <span className={homeWon ? "text-gold" : "text-faint"}>
                 {m.home.score}
               </span>
-              <span className="mx-1 text-faint">-</span>
+              <span className="mx-1 text-faint">:</span>
               <span className={awayWon ? "text-gold" : "text-faint"}>
                 {m.away.score}
               </span>
@@ -174,7 +174,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
               <span className={homeWon ? "text-gold" : "text-fg"}>
                 {fixture.home.score}
               </span>
-              <span className="mx-1.5 text-faint">-</span>
+              <span className="mx-1.5 text-faint">:</span>
               <span className={awayWon ? "text-gold" : "text-fg"}>
                 {fixture.away.score}
               </span>

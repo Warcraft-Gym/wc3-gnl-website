@@ -40,7 +40,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 - A figure names its scope: this season, all GNL seasons, or a W3Champions ladder season. A ladder figure stands beside the W3Champions mark.
 - A ladder count always names its W3Champions season, as "Ladder games · S25". The league stores ladder games from season 23 only, so the site prints no all-time ladder total. With no season the tile shows an em dash.
 - Name the Gym Newbie League in full, or as GNL where the label style is short. Never call it "the league": a league is the general term, and GNL and KOTH are both leagues. The navigation item "League" is the route to the GNL pages and keeps its name.
-- A score is not a record. A series score keeps its colon, "2 : 1", and a points pair is written by hand with no percent.
+- A score is not a record. A series score keeps its colon, "2 : 1", and so does a fixture's points pair, "23 : 21", on the schedule, the fixture card and the team page alike. Neither carries a percent.
 - Every figure that sits in a column uses tabular numerals (`.tnum`). Numbers align right in a table.
 - A table on a phone keeps the figures that decide its order and drops the rest instead of scrolling sideways: the standings keep W, L and Pts, and P, D, Form and Diff wait for a wider screen.
 
