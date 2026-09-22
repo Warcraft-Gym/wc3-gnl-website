@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       publishedTime: build.publishedAt,
       modifiedTime: build.updatedAt,
       authors: [build.author],
-      images: [{ url: `/factions/headers/${build.race}.webp`, width: 1600, height: 700 }],
+      // The share image is the generated card in opengraph-image.tsx.
     },
     twitter: { card: "summary_large_image", title, description: build.summary },
   };

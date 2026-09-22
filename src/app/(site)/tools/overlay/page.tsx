@@ -10,6 +10,7 @@ import { OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/tools/overlay" },
   title: "Build order overlay",
   description:
     "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",

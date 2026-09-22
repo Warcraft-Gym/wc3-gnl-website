@@ -15,6 +15,8 @@ import { getTeamPage } from "@/lib/api/gnl";
 import { record } from "@/lib/figures.mjs";
 import { parseSeasonParam as parseSeason, withSeason, type SeasonSearchParams } from "@/lib/api/season-params";
 import { cn, RACES, type Race } from "@/lib/utils";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, sportsTeamJsonLd } from "@/lib/seo";
 
 // Reads ?season= and the live backend, so it renders per request like the
 // other league pages.
@@ -77,6 +79,23 @@ export default async function TeamPage({ params, searchParams }: Params) {
 
   return (
     <>
+      <JsonLd
+        data={sportsTeamJsonLd({
+          path: `/gnl/teams/${team.slug}`,
+          name: team.name,
+          description: `${team.name} in the Gym Newbie League ${season.shortName}.`,
+          logo: team.logoUrl,
+          members: team.players.map((p) => p.name),
+          coaches: team.captains.map((c) => c.name),
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Gym Newbie League", path: "/gnl/schedule" },
+          { name: "Teams", path: "/gnl/teams" },
+          { name: team.name, path: `/gnl/teams/${team.slug}` },
+        ])}
+      />
       {/* Masthead: the league scene runs under the nav bar, as on the other GNL pages */}
       <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
         <KeyArt src="/keyart/feature-undead-city.webp" position="center 40%" overlay="soft" priority />

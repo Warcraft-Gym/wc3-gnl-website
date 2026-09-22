@@ -21,6 +21,8 @@ import type { VsRaceRecord } from "@/lib/w3c";
 import { record, resultLabel, signed } from "@/lib/figures.mjs";
 import { mainRace } from "@/lib/races.mjs";
 import { cn, RACES } from "@/lib/utils";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo";
 import type { MatchStatus, PlayerSeries } from "@/lib/api/types";
 
 type Params = { params: Promise<{ slug: string }> };
@@ -215,6 +217,22 @@ export default async function PlayerPage({ params }: Params) {
 
   return (
     <>
+      <JsonLd
+        data={profilePageJsonLd({
+          path: `/gnl/players/${slug}`,
+          name: player.name,
+          description: `${player.name} plays in the Gym Newbie League${team ? ` for ${team.name}` : ""}.`,
+          team: team?.name,
+          sameAs: w3cUrl ? [w3cUrl] : undefined,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Gym Newbie League", path: "/gnl/schedule" },
+          { name: "Teams", path: "/gnl/teams" },
+          { name: player.name, path: `/gnl/players/${slug}` },
+        ])}
+      />
       {/* Masthead: the main race showcase runs under the nav bar. A Random
           main race and no main race both get the shared scene, because a race
           scene states a race. */}

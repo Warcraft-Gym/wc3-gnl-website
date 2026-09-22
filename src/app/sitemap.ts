@@ -3,7 +3,7 @@ import { LEARN_CATEGORIES } from "@/lib/learn/data";
 import { getGuides } from "@/lib/learn/guides";
 import { getBuilds } from "@/lib/builds/builds";
 import { getPosts } from "@/lib/content";
-import { getTeams, getWeeks } from "@/lib/api/gnl";
+import { getPlayers, getTeams, getWeeks } from "@/lib/api/gnl";
 import { GNL_LADDER_LIVE, OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { absoluteUrl } from "@/lib/site";
 
@@ -32,11 +32,12 @@ async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [guides, builds, { posts }, { teams }, { weeks }] = await Promise.all([
+  const [guides, builds, { posts }, { teams }, { players }, { weeks }] = await Promise.all([
     safe(getGuides(), []),
     safe(getBuilds(), []),
     safe(getPosts(), { posts: [], source: "fixture" as const }),
     safe(getTeams(), { teams: [], source: "fixture" as const }),
+    safe(getPlayers(), { players: [], source: "fixture" as const }),
     safe(getWeeks(), { weeks: [], source: "fixture" as const }),
   ]);
 
@@ -47,6 +48,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/blog", 0.8, "daily"),
     page("/about", 0.6, "monthly"),
     page("/tools", 0.6, "monthly"),
+    page("/privacy", 0.3, "yearly"),
     ...(OVERLAY_BETA_LIVE ? [page("/tools/overlay", 0.6, "monthly")] : []),
     page("/gnl/about", 0.7, "monthly"),
     page("/gnl/rules", 0.5, "monthly"),
@@ -64,6 +66,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...builds.map((b) => page(`/learn/builds/${b.slug}`, 0.7, "monthly", b.updatedAt)),
     ...posts.map((p) => page(`/blog/${p.slug}`, 0.6, "monthly", p.publishedAt)),
     ...teams.map((t) => page(`/gnl/teams/${t.slug}`, 0.5, "weekly")),
+    // One URL per player: the profile carries every season they played.
+    ...[...new Map(players.map((p) => [p.slug, p])).values()].map((p) => page(`/gnl/players/${p.slug}`, 0.5, "weekly")),
     ...weeks.map((w) => page(`/gnl/schedule/${w.number}`, 0.5, "daily")),
   ];
 }

@@ -72,6 +72,71 @@ export function articleJsonLd(a: {
   };
 }
 
+/** A player page is a profile of a person who competes in the league. */
+export function profilePageJsonLd(p: {
+  path: string;
+  name: string;
+  description: string;
+  team?: string;
+  sameAs?: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ProfilePage",
+    mainEntityOfPage: absoluteUrl(p.path),
+    inLanguage: "en",
+    mainEntity: {
+      "@type": "Person",
+      name: p.name,
+      description: p.description,
+      url: absoluteUrl(p.path),
+      ...(p.team ? { memberOf: { "@type": "SportsTeam", name: p.team } } : {}),
+      ...(p.sameAs?.length ? { sameAs: p.sameAs } : {}),
+    },
+    publisher: { "@id": ORG_ID },
+  };
+}
+
+/** A team page: the roster of one season of the league. */
+export function sportsTeamJsonLd(t: {
+  path: string;
+  name: string;
+  description: string;
+  logo?: string;
+  members: string[];
+  coaches?: string[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "SportsTeam",
+    "@id": absoluteUrl(t.path),
+    name: t.name,
+    description: t.description,
+    url: absoluteUrl(t.path),
+    sport: "Esports",
+    ...(t.logo ? { logo: t.logo } : {}),
+    memberOf: { "@type": "SportsOrganization", name: "Gym Newbie League", url: absoluteUrl("/gnl/about") },
+    ...(t.members.length ? { athlete: t.members.map((name) => ({ "@type": "Person", name })) } : {}),
+    ...(t.coaches?.length ? { coach: t.coaches.map((name) => ({ "@type": "Person", name })) } : {}),
+    publisher: { "@id": ORG_ID },
+  };
+}
+
+/** A list page: the items in the order the page shows them. */
+export function itemListJsonLd(items: { name: string; path: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    numberOfItems: items.length,
+    itemListElement: items.map((item, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: item.name,
+      url: absoluteUrl(item.path),
+    })),
+  };
+}
+
 /** A build order is a HowTo: ordered steps with a position and text. */
 export function howToJsonLd(b: {
   path: string;

@@ -4,6 +4,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { BuildSubmitForm } from "@/components/builds/BuildSubmitForm";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/learn/builds/submit" },
   title: "Submit a build order",
   description: "Share a Warcraft III build order with the Gym. A coach reviews it and publishes it with your name on it.",
   robots: { index: false },

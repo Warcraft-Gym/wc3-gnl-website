@@ -18,9 +18,6 @@ export const SITE_TAGLINE = "Learn Warcraft III and compete in the GNL";
 export const SITE_DESCRIPTION =
   "Free Warcraft III guides and build orders for every race, a friendly Discord with coaching, and the Gym Newbie League: a community team league with weekly best-of-three series.";
 
-/** Default share image: the homepage key art. 1200x630 is what every network wants. */
-export const DEFAULT_OG_IMAGE = "/opengraph-image.png";
-
 export function absoluteUrl(path: string): string {
   return new URL(path, SITE_URL).toString();
 }
