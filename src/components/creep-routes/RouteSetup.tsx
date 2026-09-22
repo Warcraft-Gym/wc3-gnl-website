@@ -51,7 +51,16 @@ export function RouteSetup({
   const iconRace = (race && race !== "any" ? race : undefined) as IconRace | undefined;
 
   return (
-    <section className="panel space-y-6 p-5 sm:p-7">
+    // `.panel`'s `backdrop-filter` makes this section its own stacking
+    // context (not just `position: relative`), so its `z-index: auto`
+    // ordinarily loses to the *next* `.panel` section below it (the map/
+    // stop editor) purely because that one comes later in the DOM — even
+    // though the hero picker's own popover is `z-40` inside here. `z-10`
+    // raises this whole section above that sibling so an open popover that
+    // overflows past this section's bottom edge (e.g. the hero picker with
+    // many rows) paints on top of the map/stop editor instead of under it.
+    // Still well below the site header/sub-nav (`z-40`/`z-50`).
+    <section className="panel z-10 space-y-6 p-5 sm:p-7">
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className={label} htmlFor="route-map">Map</label>
