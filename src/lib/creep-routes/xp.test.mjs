@@ -43,3 +43,63 @@ test("heroLevelAfter floors XP per creep grant, not the running total: a level-4
   assert.equal(result.xp, 942);
   assert.equal(Number.isInteger(result.xp), true);
 });
+
+/* ------------------------------------------------------------------ *
+ *  The citation, made executable
+ *
+ *  `xp.mjs` says its numbers come from Blizzard's `Units/MiscGame.txt`
+ *  (patch 1.27.1). These tests re-derive the tables from the constants that
+ *  file publishes, so the claim is verified rather than asserted — and a
+ *  well-meant "correction" to one of the hardcoded values fails here.
+ * ------------------------------------------------------------------ */
+
+/** Verbatim from MiscGame.txt, enUS 1.27.1. */
+const MISC_GAME = {
+  GrantNormalXP: 25,
+  GrantNormalXPFormulaB: 5,
+  GrantNormalXPFormulaC: 5,
+  NeedHeroXP: 200,
+  NeedHeroXPFormulaB: 100,
+  NeedHeroXPFormulaC: 0,
+  HeroFactorXP: [80, 70, 60, 50, 0],
+};
+
+/** A creep of `level` is worth `GrantNormalXP` plus `B*l + C` for every level
+ *  above the first. */
+function grantNormalXp(level) {
+  let xp = MISC_GAME.GrantNormalXP;
+  for (let l = 2; l <= level; l++) xp += MISC_GAME.GrantNormalXPFormulaB * l + MISC_GAME.GrantNormalXPFormulaC;
+  return xp;
+}
+
+/** Cumulative XP needed to *be* `level`: `B*l + C` per step, which yields
+ *  `NeedHeroXP` for level 2. */
+function needHeroXp(level) {
+  let xp = 0;
+  for (let l = 2; l <= level; l++) xp += MISC_GAME.NeedHeroXPFormulaB * l + MISC_GAME.NeedHeroXPFormulaC;
+  return xp;
+}
+
+test("creepXp reproduces GrantNormalXP's formula for levels 1-10", () => {
+  for (let level = 1; level <= 10; level++) {
+    assert.equal(creepXp(level), grantNormalXp(level), `creep level ${level}`);
+  }
+  // Spot values, so a formula that drifts in both places still fails.
+  assert.deepEqual([1, 2, 3, 4, 5, 6].map(creepXp), [25, 40, 60, 85, 115, 150]);
+});
+
+test("heroXpForLevel reproduces NeedHeroXP's formula, including the published 200", () => {
+  for (let level = 1; level <= 10; level++) {
+    assert.equal(heroXpForLevel(level), needHeroXp(level), `hero level ${level}`);
+  }
+  assert.equal(heroXpForLevel(2), MISC_GAME.NeedHeroXP);
+  assert.deepEqual([1, 2, 3, 4, 5, 6].map(heroXpForLevel), [0, 200, 500, 900, 1400, 2000]);
+});
+
+test("creepXpFactor is HeroFactorXP as a fraction, zero from level 5 on", () => {
+  MISC_GAME.HeroFactorXP.forEach((percent, i) => {
+    assert.equal(creepXpFactor(i + 1), percent / 100, `hero level ${i + 1}`);
+  });
+  assert.equal(creepXpFactor(6), 0);
+  assert.equal(creepXpFactor(99), 0);
+});

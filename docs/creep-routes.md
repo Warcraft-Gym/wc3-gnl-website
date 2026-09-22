@@ -485,11 +485,29 @@ runs a hero through a route's stops **in order**, folding camp stops
 through `xp.mjs`'s per-kill math (skipping non-camp stops).
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
-are sourced from Blizzard's own `MiscGame.txt` (patch 1.27.1: `NeedHeroXP`,
-`GrantNormalXP`, `HeroFactorXP`), cross-checked against
-https://warcraft.wiki.gg/wiki/Hero_(Warcraft_III)#Experience — a hero
-killing a creep gains XP tapered by `creepXpFactor(heroLevel)`, how far past
-the creep's own level the hero has already climbed.
+come from Blizzard's own
+[`Units/MiscGame.txt`](https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/MiscGame.txt)
+(patch 1.27.1 enUS). Not transcribed from a table — *generated* by the
+constants that file publishes:
+
+| Constant | Value | Gives |
+|---|---|---|
+| `GrantNormalXP` | 25 | a level-1 creep is worth 25 |
+| `GrantNormalXPFormulaB` / `C` | 5 / 5 | each further creep level adds `5L + 5` → 25, 40, 60, 85, 115, 150, 190… |
+| `NeedHeroXP` | 200 | a hero needs 200 to reach level 2 |
+| `NeedHeroXPFormulaB` / `C` | 100 / 0 | each further hero level costs `100L` more → 0, 200, 500, 900, 1400, 2000 |
+| `HeroFactorXP` | 80,70,60,50,0 | the share kept at hero level 1, 2, 3, 4, 5+ |
+
+`xp.test.mjs` re-derives both tables from those constants and fails on any
+disagreement, so the citation is executable rather than prose. The same
+numbers appear on
+https://warcraft.wiki.gg/wiki/Hero_(Warcraft_III)#Experience and are useful
+as a second opinion, but the game files are the source of truth here — an
+earlier wiki-sourced creep table in this project disagreed with the SLK data
+on 26 of 83 entries.
+
+A hero killing a creep gains XP tapered by `creepXpFactor(heroLevel)`: how
+far past the creep's own level the hero has already climbed.
 
 **The reduction factor applies per kill, not once per camp.** An earlier
 version of this calculator (through F006) fixed the factor to the hero's
