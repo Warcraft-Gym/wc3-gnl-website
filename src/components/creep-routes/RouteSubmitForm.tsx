@@ -39,7 +39,7 @@ export function RouteSubmitForm({
   submissionsOpen,
 }: {
   maps: CreepMap[];
-  builds: { slug: string; title: string }[];
+  builds: { slug: string; title: string; race: BuildRace }[];
   defaultMapSlug?: string;
   /** `?race=`/`?vs=`/`?level=` prefill — validated by the page against the
    *  known ids before reaching here (F010, gaps.md #3). */

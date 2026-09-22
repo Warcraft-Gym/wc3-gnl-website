@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo } from "react";
 import Image from "next/image";
 import { RaceCrestRow, RaceCrestMultiRow, type CrestOption } from "@/components/builds/RaceCrestPicker";
 import { IconPicker } from "@/components/builds/IconPicker";
@@ -54,13 +55,29 @@ export function RouteSetup({
   onLevelChange: (l: RouteLevel) => void;
   hero: string;
   onHeroChange: (h: string) => void;
-  builds: { slug: string; title: string }[];
+  builds: { slug: string; title: string; race: BuildRace }[];
   buildSlug: string;
   onBuildChange: (s: string) => void;
   errors: Record<string, string>;
 }) {
   const iconRace = (race && race !== "any" ? race : undefined) as IconRace | undefined;
   const selectedMap = maps.find((m) => m.slug === mapSlug);
+
+  // A creep route is played by one race, so only that race's build orders can
+  // be its companion. Before the race is chosen (or for "any") there is
+  // nothing to narrow by, so the full list stands.
+  const raceBuilds = useMemo(
+    () => (race && race !== "any" ? builds.filter((b) => b.race === race) : builds),
+    [builds, race],
+  );
+
+  // Picking a build and *then* switching race would otherwise leave a
+  // mismatched slug in state — invisible, because the select renders no
+  // matching option, and still submitted via the form's hidden `build` field.
+  // `onBuildChange` is a `useState` setter, so this settles in one pass.
+  useEffect(() => {
+    if (buildSlug && !raceBuilds.some((b) => b.slug === buildSlug)) onBuildChange("");
+  }, [buildSlug, raceBuilds, onBuildChange]);
 
   return (
     // `.panel`'s `backdrop-filter` makes this section its own stacking
@@ -171,13 +188,17 @@ export function RouteSetup({
             className={cn(select, "mt-1.5 w-full")}
           >
             <option value="">None</option>
-            {builds.map((b) => (
+            {raceBuilds.map((b) => (
               <option key={b.slug} value={b.slug}>
                 {b.title}
               </option>
             ))}
           </select>
-          <p className={hint}>The build order this route is played with.</p>
+          <p className={hint}>
+            {race && race !== "any" && raceBuilds.length === 0
+              ? "No build orders published for this race yet."
+              : "The build order this route is played with."}
+          </p>
         </div>
       </div>
     </section>

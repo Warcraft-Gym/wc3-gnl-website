@@ -47,7 +47,7 @@ export default async function SubmitCreepRoutePage({ searchParams }: { searchPar
       <Container className="max-w-6xl py-10">
         <RouteSubmitForm
           maps={maps}
-          builds={builds.map((b) => ({ slug: b.slug, title: b.title }))}
+          builds={builds.map((b) => ({ slug: b.slug, title: b.title, race: b.race }))}
           defaultMapSlug={defaultMapSlug}
           defaultRace={defaultRace}
           defaultVsRaces={defaultVs ? [defaultVs] : undefined}
