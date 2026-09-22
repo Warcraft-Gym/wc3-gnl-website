@@ -5,10 +5,15 @@
  * (github.com/w3champions/launcher, hotkeys/icons/classic) at 64px. As in the
  * game data, Ancient Protector uses BTNTreant and Goblin Laboratory uses
  * BTNAmmoDump. The UI falls back to a text chip if an image is ever missing.
+ *
+ * The entries below are the ones a build asks for most, hand named and
+ * grouped. Everything else the game draws, the hero and unit abilities above
+ * all, is in icons-generated.ts, written by scripts/icons-sync.mjs. Use
+ * ALL_ICONS to offer every icon, GAME_ICONS for the curated ones alone.
  */
 
 export type IconRace = "human" | "orc" | "nightelf" | "undead" | "neutral";
-export type IconKind = "hero" | "unit" | "building" | "upgrade" | "misc";
+export type IconKind = "hero" | "unit" | "building" | "upgrade" | "ability" | "misc";
 
 export type GameIcon = {
   key: string;
@@ -16,6 +21,8 @@ export type GameIcon = {
   race: IconRace;
   kind: IconKind;
 };
+
+import { GENERATED_ICONS } from "./icons-generated";
 
 const H = (key: string, title: string, kind: IconKind): GameIcon => ({ key, title, race: "human", kind });
 const O = (key: string, title: string, kind: IconKind): GameIcon => ({ key, title, race: "orc", kind });
@@ -177,7 +184,15 @@ export const GAME_ICONS: GameIcon[] = [
   X("nt-scout", "Scout", "misc"),
 ];
 
-const BY_KEY = new Map(GAME_ICONS.map((i) => [i.key, i]));
+/**
+ * Every icon the site can draw: the curated ones above, then the rest of the
+ * classic command-button art (abilities, research, the neutral creeps) from
+ * scripts/icons-sync.mjs. A curated entry always wins, since it carries the
+ * name players use and the race the picker groups by.
+ */
+export const ALL_ICONS: GameIcon[] = [...GAME_ICONS, ...GENERATED_ICONS];
+
+const BY_KEY = new Map(ALL_ICONS.map((i) => [i.key, i]));
 
 export function getGameIcon(key?: string | null): GameIcon | undefined {
   return key ? BY_KEY.get(key) : undefined;
@@ -188,7 +203,7 @@ export function gameIconSrc(key: string): string {
 }
 
 /** Studio option list, grouped so the dropdown reads naturally. */
-export const GAME_ICON_OPTIONS = GAME_ICONS.map((i) => ({
+export const GAME_ICON_OPTIONS = ALL_ICONS.map((i) => ({
   title: `${{ human: "HU", orc: "OR", nightelf: "NE", undead: "UD", neutral: "NT" }[i.race]} · ${i.title}`,
   value: i.key,
 }));

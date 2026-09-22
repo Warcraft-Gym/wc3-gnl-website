@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { GameIcon } from "./GameIcon";
-import { GAME_ICONS, getGameIcon, type IconRace } from "@/lib/builds/icons";
+import { ALL_ICONS, getGameIcon, type IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
 const TABS: { id: IconRace | "all"; label: string }[] = [
@@ -81,9 +81,17 @@ export function IconPicker({
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    // A search looks across every race; the tab only filters when browsing.
-    if (needle) return GAME_ICONS.filter((i) => i.title.toLowerCase().includes(needle));
-    return GAME_ICONS.filter((i) => tab === "all" || i.race === tab);
+    // A search looks across every race, with the names that open with the
+    // words typed first, so "storm" finds Storm Bolt before Stormhammers.
+    if (needle) {
+      return ALL_ICONS.filter((i) => i.title.toLowerCase().includes(needle)).sort((a, b) => {
+        const rank = (t: string) => (t.toLowerCase().startsWith(needle) ? 0 : 1);
+        return rank(a.title) - rank(b.title) || a.title.length - b.title.length;
+      });
+    }
+    // Browsing keeps the curated order, so the units and buildings a build
+    // asks for most sit above the rest of the art.
+    return ALL_ICONS.filter((i) => tab === "all" || i.race === tab);
   }, [tab, q]);
 
   const current = getGameIcon(value);

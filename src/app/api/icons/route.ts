@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { GAME_ICONS, gameIconSrc } from "@/lib/builds/icons";
+import { ALL_ICONS, gameIconSrc } from "@/lib/builds/icons";
 import { okHeaders, preflightHeaders } from "../builds/_headers";
 
 /**
@@ -12,7 +12,7 @@ import { okHeaders, preflightHeaders } from "../builds/_headers";
 export async function GET(request: Request) {
   const origin = new URL(request.url).origin;
   const body = {
-    icons: GAME_ICONS.map((icon) => ({ ...icon, url: `${origin}${gameIconSrc(icon.key)}` })),
+    icons: ALL_ICONS.map((icon) => ({ ...icon, url: `${origin}${gameIconSrc(icon.key)}` })),
   };
   return NextResponse.json(body, { status: 200, headers: okHeaders() });
 }
