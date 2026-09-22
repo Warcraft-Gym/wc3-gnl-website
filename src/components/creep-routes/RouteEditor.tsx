@@ -27,6 +27,9 @@ export function RouteEditor({
   iconRace,
   fieldError,
   onOpenCard,
+  onHoverEnter,
+  onHoverLeave,
+  openCampId,
 }: {
   map: CreepMapType;
   stops: StopRowData[];
@@ -39,11 +42,19 @@ export function RouteEditor({
   onStartChange: (start: number) => void;
   iconRace?: IconRace;
   fieldError?: (key: string) => string | undefined;
-  /** Opens the F012 camp card — forwarded to the map (right-click a
+  /** Pins the F012 camp card — forwarded to the map (right-click a
    *  marker, `CampMarker`'s doc comment explains why not a left click
    *  here) and to each stop row's ⓘ button (`StopRow`, a left click, no
    *  competing meaning to protect there). */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** F012a: hovering (or arrow-key-walking to) a map marker opens the card
+   *  unpinned — forwarded to the map only; stop rows have no hover
+   *  behaviour of their own (only their ⓘ button, via `onOpenCard`). */
+  onHoverEnter?: (camp: MapCamp, el: CampCardTrigger) => void;
+  onHoverLeave?: () => void;
+  /** F012a: the camp id the card is currently showing, or null — threaded
+   *  to the map (marker `aria-expanded`) and each stop row's ⓘ button. */
+  openCampId?: string | null;
 }) {
   // What the map needs to draw the live path: campId, in order — order
   // alone drives the polyline and the numbered badges.
@@ -55,11 +66,19 @@ export function RouteEditor({
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
       <div className="lg:sticky lg:top-24">
-        <CreepMap map={map} route={routeForMap} onCampSelect={onCampSelect} onCampCardOpen={onOpenCard} />
+        <CreepMap
+          map={map}
+          route={routeForMap}
+          onCampSelect={onCampSelect}
+          onCampCardPin={onOpenCard}
+          onCampCardHoverEnter={onHoverEnter}
+          onCampCardHoverLeave={onHoverLeave}
+          openCampId={openCampId}
+        />
         <MapLegend />
         <p className="mt-2 text-xs text-faint">
-          Click a camp to add it as the next stop; click it again to remove it. Right-click a camp,
-          or the ⓘ on its stop row, to see what&apos;s inside.
+          Hover a camp to see what&apos;s inside; click to add it as the next stop; right-click or
+          the ⓘ pins the card.
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -85,7 +104,15 @@ export function RouteEditor({
           </div>
         ) : null}
       </div>
-      <StopEditor map={map} stops={stops} setStops={setStops} iconRace={iconRace} fieldError={fieldError} onOpenCard={onOpenCard} />
+      <StopEditor
+        map={map}
+        stops={stops}
+        setStops={setStops}
+        iconRace={iconRace}
+        fieldError={fieldError}
+        onOpenCard={onOpenCard}
+        openCampId={openCampId}
+      />
     </div>
   );
 }

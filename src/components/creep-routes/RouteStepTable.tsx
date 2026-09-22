@@ -36,11 +36,14 @@ import { cn } from "@/lib/utils";
  * Every row carries `data-stop`, the map's numbered badges carry
  * `data-stop-marker` instead, so the two never double-count.
  *
- * F012: the same row click/Enter that toggles `active` above also opens
- * the camp card (`onOpenCard`), purely additive — the selection toggle
- * itself is unchanged ("existing selection stays" per the spec). The Camp
- * cell lost its composition line ("1× X · 1× Y…") in the same feature —
- * that's now in the card the row opens, not duplicated here.
+ * F012/F012a: the same row click/Enter that toggles `active` above also
+ * pins the camp card (`onOpenCard`), purely additive — the selection
+ * toggle itself is unchanged ("existing selection stays" per the spec).
+ * The Camp cell lost its composition line ("1× X · 1× Y…") in F012 — that's
+ * now in the card the row opens, not duplicated here. Rows don't hover-open
+ * the card themselves (only map markers do, per the F012a spec); a row's
+ * `aria-expanded` still reflects `openCampId` so a screen reader knows the
+ * card is showing this row's camp, however it got opened.
  */
 export function RouteStepTable({
   route,
@@ -48,6 +51,7 @@ export function RouteStepTable({
   active = null,
   onActiveChange,
   onOpenCard,
+  openCampId = null,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -55,13 +59,16 @@ export function RouteStepTable({
    *  (`CreepMapPlayground`) so the map and the table always agree. */
   active?: number | null;
   onActiveChange?: (index: number | null) => void;
-  /** Opens the F012 camp card for a camp stop's camp — the existing
+  /** Pins the F012 camp card for a camp stop's camp — the existing
    *  select/toggle above is untouched (`onActiveChange`, "existing
    *  selection stays" per the spec); this is purely additive, called
    *  alongside it on every row click/Enter so the same click both selects
-   *  the row (as before) and opens the card. Undefined for a base-action
+   *  the row (as before) and pins the card. Undefined for a base-action
    *  row (no camp to show). */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** F012a: the camp id the card is currently showing, or null — drives
+   *  this row's own `aria-expanded` (C-025). */
+  openCampId?: string | null;
 }) {
   const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -137,6 +144,7 @@ export function RouteStepTable({
                     }
                   }}
                   aria-current={isActive ? "step" : undefined}
+                  aria-expanded={d.camp ? d.camp.id === openCampId : undefined}
                   className={cn(
                     "cursor-pointer border-t border-line/40 transition-colors",
                     (isActive || isHovered) && "bg-gold/10",

@@ -20,14 +20,18 @@ export function StopEditor({
   iconRace,
   fieldError,
   onOpenCard,
+  openCampId,
 }: {
   map: CreepMap;
   stops: StopRowData[];
   setStops: React.Dispatch<React.SetStateAction<StopRowData[]>>;
   iconRace?: IconRace;
   fieldError?: (key: string) => string | undefined;
-  /** Opens the F012 camp card from a stop row's ⓘ button — see `StopRow`. */
+  /** Pins the F012 camp card from a stop row's ⓘ button — see `StopRow`. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** F012a: the camp id the card is currently showing, or null — threaded
+   *  to each stop row's ⓘ button (`aria-expanded`, C-025). */
+  openCampId?: string | null;
 }) {
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
   const derived = useMemo(() => deriveRoute(toDerivable(stops), map), [stops, map]);
@@ -117,6 +121,7 @@ export function StopEditor({
                 else removeButtonRefs.current.delete(s.id);
               }}
               onOpenCard={onOpenCard}
+              cardOpen={Boolean(s.campId) && s.campId === openCampId}
             />
           ))}
         </ol>

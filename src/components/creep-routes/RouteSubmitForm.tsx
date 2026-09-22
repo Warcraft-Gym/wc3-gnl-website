@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-routes/submit/actions";
@@ -9,12 +9,13 @@ import { RouteEditor } from "./RouteEditor";
 import { RouteDetailsFields } from "./RouteDetailsFields";
 import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
+import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopRow";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
-import type { CampCardTrigger, CreepMap, MapCamp, RouteLevel } from "@/lib/creep-routes/types";
+import type { CreepMap, RouteLevel } from "@/lib/creep-routes/types";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
 
 const initial: SubmitState = { status: "idle" };
@@ -66,16 +67,7 @@ export function RouteSubmitForm({
   const [hero, setHero] = useState("");
   const [buildSlug, setBuildSlug] = useState("");
   const [stops, setStops] = useState<StopRowData[]>([]);
-  const [card, setCard] = useState<{ camp: MapCamp; trigger: CampCardTrigger } | null>(null);
-  const lastCardTriggerRef = useRef<CampCardTrigger | null>(null);
-  const openCard = useCallback((camp: MapCamp, el: CampCardTrigger) => {
-    lastCardTriggerRef.current = el;
-    setCard({ camp, trigger: el });
-  }, []);
-  const closeCard = useCallback(() => {
-    setCard(null);
-    lastCardTriggerRef.current?.focus();
-  }, []);
+  const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState({
     title: "", summary: "", patch: "", author: "", authorDiscord: "", sourceUrl: "", description: "",
@@ -304,12 +296,24 @@ export function RouteSubmitForm({
               onStartChange={setStart}
               iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
               fieldError={(k) => errors[k]}
-              onOpenCard={openCard}
+              onOpenCard={pin}
+              onHoverEnter={hoverEnter}
+              onHoverLeave={hoverLeave}
+              openCampId={openCampId}
             />
           </div>
         </section>
 
-        {card ? <CampCard camp={card.camp} anchorEl={card.trigger} onClose={closeCard} /> : null}
+        {card ? (
+          <CampCard
+            camp={card.camp}
+            anchorEl={card.trigger}
+            pinned={card.pinned}
+            onClose={close}
+            onPointerEnter={cancelHoverLeave}
+            onPointerLeave={hoverLeave}
+          />
+        ) : null}
 
         <RouteDetailsFields
           text={text}

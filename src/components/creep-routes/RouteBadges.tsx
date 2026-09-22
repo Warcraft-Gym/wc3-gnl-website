@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 
 /** The three camp difficulty bands, mirroring `scripts/creep-maps/camps.mjs`'s
  *  `BAND_MAX_LEVEL` (easy <= 9, medium <= 19, hard above — Liquipedia's own
- *  cutoffs). Reused by the map marks, the step table's Camp column and
- *  `CampDetails`. */
+ *  cutoffs). Reused by the map marks, the step table's Camp column and the
+ *  camp card's title. */
 export const BAND_LABEL: Record<string, string> = { easy: "Easy", medium: "Medium", hard: "Hard" };
 export const BAND_TOKEN: Record<string, string> = {
   easy: "var(--wg-camp-easy)",

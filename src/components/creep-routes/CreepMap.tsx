@@ -2,12 +2,22 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
-import { CampMarker, radiusFor } from "./CampMarker";
+import { CampMarker } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
-import { CampDetails } from "./CampDetails";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { cn } from "@/lib/utils";
+
+/** `(hover: none)` covers touch and other coarse pointers — the F012a
+ *  spec's exception: no hover behaviour at all there, tap still opens the
+ *  card (pinned) via the existing click path. Combined with the `>= 768px`
+ *  breakpoint the card itself already uses for popover-vs-sheet, so a
+ *  narrow *touch* viewport and a narrow *fine-pointer* window (a small
+ *  desktop browser) are told apart correctly: only the latter still hovers. */
+function canHoverCard() {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(hover: hover)").matches && window.matchMedia("(min-width: 768px)").matches;
+}
 
 export type CreepMapProps = {
   map: CreepMapType;
@@ -27,14 +37,26 @@ export type CreepMapProps = {
    *  stop) and leaves this unset. Unset/omitted means "every camp". */
   interactiveCampIds?: Set<string>;
   highlightCamps?: Set<string>;
-  /** Opens the F012 camp card for the given camp (already resolved from
-   *  `map.camps`, so the caller never has to look it up again) and the DOM
-   *  element that triggered it, for anchoring/focus-return. Only reaches a
-   *  given marker when that marker is itself interactive (`isInteractive`
-   *  below) — a marker that isn't clickable at all doesn't get a card
-   *  either. See `CampMarker`'s doc comment for how the route page (click)
-   *  and the editor (right-click) each wire this differently. */
-  onCampCardOpen?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** F012a: pins the camp card for the given camp (already resolved from
+   *  `map.camps`) and the DOM element that triggered it, for
+   *  anchoring/focus-return — a click (route page), right-click/ⓘ
+   *  (editor), or Enter/Space on a focused marker. Only reaches a given
+   *  marker when that marker is itself interactive (`isInteractive` below)
+   *  — a marker that isn't clickable at all doesn't get a card either. See
+   *  `CampMarker`'s doc comment for how the route page (click) and the
+   *  editor (right-click) each wire this differently. */
+  onCampCardPin?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** F012a: pointer-enter on an interactive marker (`(hover: hover)`, `>=
+   *  768px` — coarse pointers and narrow viewports get no hover at all,
+   *  per the spec) or an arrow-key walk step opens the card **unpinned**
+   *  after ~120ms; ignored once a card is pinned. */
+  onCampCardHoverEnter?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** Pointer-leave (or the arrow-key walk moving on/clearing) — closes an
+   *  unpinned card after ~180ms unless cancelled first. */
+  onCampCardHoverLeave?: () => void;
+  /** The camp id the card is currently showing (pinned or not), or null —
+   *  every trigger sets its own `aria-expanded` from this (C-025). */
+  openCampId?: string | null;
   className?: string;
 };
 
@@ -135,28 +157,40 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
  * a per-marker inline closure would recreate on every render and defeat
  * `CampMarker`'s own `React.memo` the moment any one camp is hovered — see
  * the F009 review, code-b.md item 3.
+ *
+ * F012a: the lightweight hover panel this used to render itself is retired
+ * — hovering (or arrow-key-walking to) an interactive camp now opens the
+ * *same* `CampCard` the caller renders, unpinned, via
+ * `onCampCardHoverEnter`/`onCampCardHoverLeave` (the caller owns the
+ * card's timers — see `useCampCard`). `hoverCamp`/`walkCampId` stay local
+ * state here only for the `aria-live` readout, which is unaffected (still
+ * names the camp under the pointer or walk step for anyone not looking at
+ * the card).
  */
-export function CreepMap({ map, route, activeStop = null, onCampSelect, interactiveCampIds, highlightCamps, onCampCardOpen, className }: CreepMapProps) {
-  const [width, setWidth] = useState(0);
+export function CreepMap({
+  map,
+  route,
+  activeStop = null,
+  onCampSelect,
+  interactiveCampIds,
+  highlightCamps,
+  onCampCardPin,
+  onCampCardHoverEnter,
+  onCampCardHoverLeave,
+  openCampId = null,
+  className,
+}: CreepMapProps) {
   const [hoverCamp, setHoverCamp] = useState<string | null>(null);
   const [walkIndex, setWalkIndex] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
-  // The SVG's own box, unpadded — `CampDetails` is anchored inside this
-  // wrapper, not the padded card, so its pixel coordinates (x*width,
-  // y*height below) line up exactly with the positioned ancestor its
-  // `position: absolute` resolves against. See `CampDetails`'s doc comment.
+  // The SVG's own box, unpadded — the arrow-key walk's `[data-camp]` lookup
+  // below queries inside this same wrapper. The card's map-marker anchor
+  // point (via `getBoundingClientRect()` on the marker itself) doesn't
+  // depend on this at all — unlike the retired hover panel, which needed
+  // the container's own pixel size.
   const svgBox = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const el = svgBox.current;
-    if (!el) return;
-    const ro = new ResizeObserver(([entry]) => setWidth(Math.round(entry.contentRect.width)));
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, []);
-
   const { width: iw, height: ih } = map.image;
-  const height = width ? Math.round((width * ih) / iw) : 0;
 
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
@@ -171,6 +205,15 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
   const detailCampId = hoverCamp ?? walkCampId;
   const detailCamp = detailCampId ? (campById.get(detailCampId) ?? null) : null;
 
+  // A camp is only ever hover/walk-card-eligible when it's a clickable
+  // marker to begin with — same restriction `isInteractive` applies below
+  // for the click path (the read-only route page only wants its own
+  // route's camps interactive at all).
+  const isCampInteractive = useCallback(
+    (campId: string) => Boolean(onCampSelect) && (!interactiveCampIds || interactiveCampIds.has(campId)),
+    [onCampSelect, interactiveCampIds],
+  );
+
   function onKeyDown(e: React.KeyboardEvent) {
     if (!walkCampIds.length) return;
     if (e.key === "ArrowRight" || e.key === "ArrowDown") {
@@ -182,30 +225,70 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
     } else if (e.key === "Escape") {
       setWalkIndex(null);
       e.preventDefault();
+    } else if ((e.key === "Enter" || e.key === " ") && walkCampId && isCampInteractive(walkCampId)) {
+      // "Enter/Space pins" (F012a spec item 2) — the currently-walked camp.
+      // The marker itself has no DOM focus during an arrow-key walk (the
+      // `<svg>` does), so the anchor is looked up the same way the
+      // hover-open effect below does.
+      const camp = campById.get(walkCampId);
+      const el = svgBox.current?.querySelector<SVGGElement>(`[data-camp="${walkCampId}"]`) ?? null;
+      if (camp && el) onCampCardPin?.(camp, el);
+      e.preventDefault();
     }
   }
+
+  // Arrow-key walk "behaves like hover" (F012a spec item 2): every step
+  // opens the card unpinned, same as a real pointer hover; walking off the
+  // end (or Escape, above) closes it the same way pointer-leave would.
+  useEffect(() => {
+    if (!onCampCardHoverEnter && !onCampCardHoverLeave) return;
+    if (!walkCampId || !isCampInteractive(walkCampId)) {
+      onCampCardHoverLeave?.();
+      return;
+    }
+    const camp = campById.get(walkCampId);
+    const el = svgBox.current?.querySelector<SVGGElement>(`[data-camp="${walkCampId}"]`) ?? null;
+    if (camp && el) onCampCardHoverEnter?.(camp, el);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [walkCampId, campById, isCampInteractive]);
 
   // Delegated hover: reads the nearest `[data-camp]` ancestor-or-self of
   // whatever sub-element the pointer actually landed on, so moving between
   // two sub-elements of the *same* marker (e.g. the background circle and
   // the foreignObject button) never registers as a leave-then-re-enter —
   // `relatedTarget` is checked against the same closest-match before
-  // clearing.
-  const handlePointerOver = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    const el = (e.target as Element).closest?.("[data-camp]");
-    const campId = el?.getAttribute("data-camp");
-    if (campId) setHoverCamp((h) => (h === campId ? h : campId));
-  }, []);
-  const handlePointerOut = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
-    const from = (e.target as Element).closest?.("[data-camp]");
-    const campId = from?.getAttribute("data-camp");
-    if (!campId) return;
-    const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest("[data-camp]") : null;
-    if (to === from) return; // moved within the same marker, not a real leave
-    setHoverCamp((h) => (h === campId ? null : h));
-  }, []);
+  // clearing. Also drives the F012a card's own hover-open/close, gated by
+  // `canHoverCard()` (the spec's coarse-pointer/narrow-viewport exception —
+  // C-025's `data-camp`/`aria-label` counts are untouched by any of this,
+  // it only ever calls the *card* callbacks, never changes a marker's own
+  // markup).
+  const handlePointerOver = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      const el = (e.target as Element).closest?.("[data-camp]");
+      const campId = el?.getAttribute("data-camp");
+      if (!campId) return;
+      setHoverCamp((h) => (h === campId ? h : campId));
+      if (canHoverCard() && isCampInteractive(campId)) {
+        const camp = campById.get(campId);
+        if (camp && (el instanceof HTMLElement || el instanceof SVGElement)) onCampCardHoverEnter?.(camp, el);
+      }
+    },
+    [campById, isCampInteractive, onCampCardHoverEnter],
+  );
+  const handlePointerOut = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
+      const from = (e.target as Element).closest?.("[data-camp]");
+      const campId = from?.getAttribute("data-camp");
+      if (!campId) return;
+      const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest("[data-camp]") : null;
+      if (to === from) return; // moved within the same marker, not a real leave
+      setHoverCamp((h) => (h === campId ? null : h));
+      if (canHoverCard() && isCampInteractive(campId)) onCampCardHoverLeave?.();
+    },
+    [isCampInteractive, onCampCardHoverLeave],
+  );
 
-  // A camp click always shows that camp's details panel (the same effect a
+  // A camp click always shows that camp's details (the same effect a
   // keyboard-walk step or a hover gives) — set, never toggled off: a real
   // mouse click always fires `pointerover` first (the delegated handler
   // above already set `hoverCamp` to this same id before the click even
@@ -226,12 +309,12 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
   // `CampCard` needs — every caller of this component already has
   // `campById` computed for `onCampSelect` too, but doing it once here
   // saves every single caller from repeating the same lookup.
-  const handleCampCardOpen = useCallback(
+  const handleCampCardPin = useCallback(
     (campId: string, el: CampCardTrigger) => {
       const camp = campById.get(campId);
-      if (camp) onCampCardOpen?.(camp, el);
+      if (camp) onCampCardPin?.(camp, el);
     },
-    [campById, onCampCardOpen],
+    [campById, onCampCardPin],
   );
 
   const youStartIndex = route?.start ?? 0;
@@ -242,18 +325,13 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
 
   return (
     <div ref={box} className={cn("panel relative overflow-hidden p-3", className)}>
-      {/* No `width === 0` gate: the map must be in the server-rendered HTML
-          (a curl gets exactly what a browser gets pre-hydration), so sizing
-          is CSS-driven (`viewBox` + `w-full h-auto`, no numeric width/height
-          attributes) rather than waiting on the client-only ResizeObserver.
-          `width`/`height` state still feeds `CampDetails`'s pixel position,
-          which is a hover/focus enhancement, not first-paint content.
+      {/* Sizing is CSS-driven (`viewBox` + `w-full h-auto`, no numeric
+          width/height state) so the map is complete in the server-rendered
+          HTML (a curl gets exactly what a browser gets pre-hydration).
 
           `svgBox` wraps only the `<svg>`, with no padding/border of its
-          own, so it's exactly the SVG's rendered box — `CampDetails` is
-          anchored inside it (not the padded card above), so a marker at
-          `x*width, y*height` and the panel's `position: absolute` agree on
-          the same origin. */}
+          own — the arrow-key walk's `[data-camp]` lookup (above) queries
+          inside it. */}
       <div ref={svgBox} className="relative">
         <svg
           viewBox={`0 0 ${iw} ${ih}`}
@@ -273,7 +351,7 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
           ))}
           {map.camps.map((camp) => {
             const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
-            const isInteractive = Boolean(onCampSelect) && (!interactiveCampIds || interactiveCampIds.has(camp.id));
+            const isInteractive = isCampInteractive(camp.id);
             return (
               <CampMarker
                 key={camp.id}
@@ -284,7 +362,8 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
                 highlighted={highlightCamps?.has(camp.id) ?? false}
                 pressed={stopIndex !== -1}
                 onCampSelect={isInteractive ? handleCampClick : undefined}
-                onCampCardOpen={isInteractive ? handleCampCardOpen : undefined}
+                onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
+                cardOpen={openCampId === camp.id}
                 asGroup={Boolean(interactiveCampIds)}
               />
             );
@@ -301,17 +380,6 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
             <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
           ))}
         </svg>
-
-        {detailCamp && width ? (
-          <CampDetails
-            camp={detailCamp}
-            x={detailCamp.x * width}
-            y={detailCamp.y * height}
-            containerWidth={width}
-            containerHeight={height}
-            markerRadius={radiusFor(detailCamp.level) * (width / iw)}
-          />
-        ) : null}
       </div>
 
       <p aria-live="polite" className="sr-only">

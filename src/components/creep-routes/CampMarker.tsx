@@ -6,11 +6,9 @@ import { cn } from "@/lib/utils";
 
 /** Radius scales modestly with the camp's summed level, clamped so a level-1
  *  camp is still easy to hit and a level-20+ camp doesn't swallow the map.
- *  In SVG user units (viewBox space) — exported so `CampDetails` can offset
- *  its panel clear of the marker's actual rendered edge, not just its
- *  centre. Fixed regardless of `active`: the "grow when active" effect is a
- *  `transform: scale()` on a wrapper `<g>`, not a change to this radius —
- *  see the wrapper below. */
+ *  In SVG user units (viewBox space). Fixed regardless of `active`: the
+ *  "grow when active" effect is a `transform: scale()` on a wrapper `<g>`,
+ *  not a change to this radius — see the wrapper below. */
 export function radiusFor(level: number) {
   return Math.min(11, Math.max(5, 4 + level * 0.3));
 }
@@ -44,6 +42,7 @@ export const CampMarker = memo(function CampMarker({
   onCampSelect,
   asGroup,
   onCampCardOpen,
+  cardOpen,
 }: {
   camp: MapCamp;
   imageWidth: number;
@@ -57,9 +56,11 @@ export const CampMarker = memo(function CampMarker({
   /** See the component doc comment: renders the `<g>` itself as the click
    *  target instead of adding a nested `<button>`. */
   asGroup?: boolean;
-  /** Opens the F012 camp card for this marker. Wired two different ways
+  /** Pins the F012 camp card for this marker (F012a: hover already opens it
+   *  unpinned — see `CreepMap`'s delegated pointer handlers — this is the
+   *  click/keyboard-activate path that pins). Wired two different ways
    *  depending on `asGroup`: on the read-only route page (`asGroup`), a
-   *  plain click already selects the row *and* opens the card — there's no
+   *  plain click already selects the row *and* pins the card — there's no
    *  competing "click" meaning to protect. In the editor (not `asGroup`), a
    *  left click still only adds/removes a stop (`onCampSelect`) — changing
    *  that would silently break the click-to-author flow — so the card
@@ -67,6 +68,10 @@ export const CampMarker = memo(function CampMarker({
    *  comment and DESIGN.md §Creep routes for the "say which" note the F012
    *  spec asked for. */
   onCampCardOpen?: (campId: string, el: CampCardTrigger) => void;
+  /** F012a: whether the camp card is currently open (pinned or hovered) for
+   *  *this* camp — drives `aria-expanded` on the marker's own interactive
+   *  element (C-025). */
+  cardOpen?: boolean;
 }) {
   const reduced = useReducedMotion();
   const cx = camp.x * imageWidth;
@@ -135,6 +140,7 @@ export const CampMarker = memo(function CampMarker({
         tabIndex={0}
         aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
         aria-pressed={pressed ?? false}
+        aria-expanded={cardOpen ?? false}
         onClick={(e) => {
           onCampSelect(camp.id);
           onCampCardOpen?.(camp.id, e.currentTarget);
@@ -174,6 +180,7 @@ export const CampMarker = memo(function CampMarker({
             }}
             aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
             aria-pressed={pressed ?? false}
+            aria-expanded={cardOpen ?? false}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}
             className="cursor-pointer bg-transparent"
           />

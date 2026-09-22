@@ -635,27 +635,30 @@ The map and the step table are the page's core: `CreepMapPlayground.tsx`
 stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
 `RouteStepTable` (`RouteStepTable.tsx`) stay in sync when you hover, focus
 or click a stop row (or a marker). `CreepMap` always renders its `<svg>` —
-sized by CSS (`viewBox` + `w-full h-auto`), not gated behind a client-only
-`ResizeObserver` — so the map's camps, path and stop badges are present in
-the server-rendered HTML a curl or a crawler sees, not only after
-hydration; the `ResizeObserver` still runs, but only to place the
-hover/focus `CampDetails` panel in real pixels. See `DESIGN.md`'s "Creep
-routes" section for the camp band colours and mark shapes this page and
-its components follow.
+sized by CSS (`viewBox` + `w-full h-auto`), not gated behind any
+client-only measurement — so the map's camps, path and stop badges are
+present in the server-rendered HTML a curl or a crawler sees, not only
+after hydration. See `DESIGN.md`'s "Creep routes" section for the camp
+band colours and mark shapes this page and its components follow.
 
 `CreepMap`'s props (`map`, `route?`, `activeStop?`, `onCampSelect?`,
-`highlightCamps?`, `onCampCardOpen?`, `className?`) are deliberately
+`highlightCamps?`, `onCampCardPin?`, `onCampCardHoverEnter?`,
+`onCampCardHoverLeave?`, `openCampId?`, `className?`) are deliberately
 reusable beyond this page: `onCampSelect` is unused here but renders camps
 as real `<button>`s (via `foreignObject`) instead of plain `<g>`s when
 given, wired up by the editor below (`RouteSubmitForm`); `highlightCamps`
 was left ready for a list/filter page to dim or ring a subset of camps,
 but F004's list (`/learn/creep-routes`) ended up not using it — no per-row
 map thumbnail, see `DESIGN.md`'s "List" section — so it remains unused
-until a future map-first view wants it. `onCampCardOpen` (F012) is the
-route page's own wiring for the camp card below — `CreepMap` resolves the
-campId `CampMarker` reports into the full `MapCamp` before calling it
-(`campById`, already built for `onCampSelect`), so every caller gets a
-ready-to-render camp, not a second lookup.
+until a future map-first view wants it. `onCampCardPin`/`onCampCardHoverEnter`/
+`onCampCardHoverLeave` (F012, hover added F012a) are the route page's own
+wiring for the camp card below — `CreepMap` resolves the campId
+`CampMarker` reports (or, for the arrow-key walk, a `[data-camp]` DOM
+lookup inside its own SVG wrapper) into the full `MapCamp` before calling
+any of them (`campById`, already built for `onCampSelect`), so every
+caller gets a ready-to-render camp, not a second lookup. `openCampId` is
+the camp id the card is currently showing (pinned or hovered), threaded
+back down so every trigger can set its own `aria-expanded`.
 
 **The camp card (F012).** `CampCard` (`src/components/creep-routes/CampCard.tsx`)
 is a portal-rendered (`createPortal(…, document.body)`) dialog, so it's
@@ -665,12 +668,32 @@ hands it a `MapCamp` and the DOM element that opened it
 (`CampCardTrigger = HTMLElement | SVGElement`, `src/lib/creep-routes/types.ts`,
 since a map marker's trigger is an SVG `<g>` and a table row's is an HTML
 `<tr>`). `CreepMapPlayground` (this page) and `RouteSubmitForm` (the
-editor, below) each own one small piece of state — `{ camp, trigger } |
-null` — so there's exactly one card open at a time regardless of which
-side opened it, and each remembers the trigger to refocus on close. See
-`DESIGN.md`'s "Creep routes → The camp card" for the full anatomy
-(Creeps table, Items section, the single-drop-pool caveat on the Item
-marker column) and the popover/bottom-sheet responsive split.
+editor, below) each own one shared state machine —
+`useCampCard()` (`src/components/creep-routes/useCampCard.ts`), `{ camp,
+trigger, pinned } | null` — so there's exactly one card open at a time
+regardless of which side opened it, and each remembers the trigger to
+refocus on close. See `DESIGN.md`'s "Creep routes → The camp card" for the
+full anatomy (Creeps table, Items section, the single-drop-pool caveat on
+the Item marker column) and the popover/bottom-sheet responsive split.
+
+**The card opens on hover, pins on click (F012a).** Hovering an
+interactive marker (`(hover: hover)` and `>= 768px` both required — a
+coarse pointer or a narrow fine-pointer window gets no hover, tap/click
+still opens the card directly, pinned) calls `onCampCardHoverEnter`, which
+`useCampCard()`'s `hoverEnter` turns into an **unpinned** open after
+`HOVER_OPEN_DELAY_MS` (~120ms); pointer-leave — from the marker or, via
+`CampCard`'s own `onPointerEnter`/`onPointerLeave` props, the card itself —
+calls `hoverLeave`, which closes an unpinned card after
+`HOVER_CLOSE_DELAY_MS` (~180ms) unless cancelled first (`cancelHoverLeave`,
+wired to the card's `onPointerEnter`). The arrow-key walk drives the same
+two callbacks from an effect watching `walkCampId`, so it "behaves like
+hover" too; Enter/Space on the walked camp calls `pin` instead, same as a
+click/right-click/ⓘ. `pin`/`close` are immediate, no timers. `CampCard`'s
+`pinned` prop is what actually changes in the DOM: unpinned is
+`aria-modal="false"`, no focus trap, no scroll lock, no initial-focus
+steal; pinned is `aria-modal="true"` with a focus trap and a scroll lock.
+`CampDetails`, the map's previous hover-only preview, is deleted — this is
+the only hover panel now.
 
 ## Submission
 
@@ -708,16 +731,21 @@ sees; this section is the mechanics.
   removes the existing one if it is; a prefilled/imported route with a
   repeated `campId` (older data, the schema allows it) is still accepted
   as-is, only the click path enforces the rule.
-- **The camp card in the editor (F012).** Left-click on a map marker is
-  already spoken for (`onCampSelect`, above), so previewing a camp's
-  contents there is a **right-click** (`onContextMenu`, `e.preventDefault()`
-  so the browser's own context menu never appears) instead — see
-  `CampMarker`'s doc comment. Every stop row also carries an ⓘ button
-  (`StopRow`, replacing the old `campComposition` summary line) that opens
-  the same card without needing the map at all. Both call `onOpenCard`,
-  threaded `RouteSubmitForm` → `RouteEditor` → (`CreepMap`'s
-  `onCampCardOpen` / `StopEditor` → `StopRow`'s `onOpenCard`) — one state,
-  one card, regardless of which of the two triggers opened it.
+- **The camp card in the editor (F012, hover added F012a).** Hovering a
+  map marker opens the card unpinned, same as the route page — left-click
+  is already spoken for (`onCampSelect`, above) and stays exactly that, so
+  *pinning* the card there is a **right-click** (`onContextMenu`,
+  `e.preventDefault()` so the browser's own context menu never appears)
+  instead — see `CampMarker`'s doc comment. Every stop row also carries an
+  ⓘ button (`StopRow`, replacing the old `campComposition` summary line)
+  that pins the same card without needing the map at all — stop rows have
+  no hover behaviour of their own. All three call into the same
+  `useCampCard()` instance, threaded `RouteSubmitForm` → `RouteEditor` →
+  (`CreepMap`'s `onCampCardPin`/`onCampCardHoverEnter`/`onCampCardHoverLeave`
+  / `StopEditor` → `StopRow`'s `onOpenCard`) — one state, one card,
+  regardless of which of the triggers opened it. The hint line under the
+  map (`RouteEditor`) reads "Hover a camp to see what's inside; click to
+  add it as the next stop; right-click or the ⓘ pins the card."
 - **`src/lib/creep-routes/submission.mjs` + `submission.ts`.** Same split
   as `fixtures.mjs`/`fixtures.ts`: the `.mjs` file is the pure, plain-JS
   implementation `submission.test.mjs` checks directly with `node --test`

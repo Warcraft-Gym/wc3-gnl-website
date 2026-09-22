@@ -64,6 +64,7 @@ export function StopRow({
   canMoveDown,
   removeButtonRef,
   onOpenCard,
+  cardOpen,
 }: {
   index: number;
   stop: StopRowData;
@@ -80,10 +81,13 @@ export function StopRow({
   /** Lets `StopEditor` refocus this exact button after a *different* row
    *  is removed (F009, code-b.md item 4) — see its own doc comment. */
   removeButtonRef?: (el: HTMLButtonElement | null) => void;
-  /** Opens the F012 camp card for this stop's camp — the ⓘ button that
+  /** Pins the F012 camp card for this stop's camp — the ⓘ button that
    *  replaced the composition line (`campComposition`, F009). Only shown
    *  when `camp` resolved. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** F012a: whether the card is currently open (pinned or hover-shown) for
+   *  this stop's camp — drives the ⓘ button's `aria-expanded` (C-025). */
+  cardOpen?: boolean;
 }) {
   function addUnit() {
     if (stop.units.length >= 6) return;
@@ -112,6 +116,7 @@ export function StopRow({
                   type="button"
                   onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
                   aria-label={`What's in ${campLabel(camp)}`}
+                  aria-expanded={cardOpen ?? false}
                   title="What's in this camp"
                   className="ml-auto grid size-6 shrink-0 place-items-center rounded text-faint hover:text-gold"
                 >

@@ -58,28 +58,38 @@ function focusableElements(root: HTMLElement) {
 }
 
 /**
- * The camp card (F012): a Liquipedia-style preview box for one camp —
- * title, a Creeps table (icon/name, count, level, per-creep XP, item
- * marker) and an Items section (one row per drop set: its marker, label,
- * the possible item icons). A popover anchored to `anchorEl` on >= 768px
- * (flips/clamps to stay on-screen, same technique `CampDetails` uses for
- * its own hover panel, just measured from `getBoundingClientRect()`
- * instead of a map's own pixel space — `CampDetails` stays the map's
- * lightweight hover/keyboard-walk preview; this is the click-to-open, full
- * detail card that replaces the old open-on-hover creep list from that
- * component); a full-width bottom sheet under 768px. `role="dialog"`,
- * `aria-labelledby` the title, a focus trap while open (Tab wraps inside),
- * Escape and an outside click both call `onClose` — the caller is expected
- * to return focus to whatever opened the card (this component only knows
- * the anchor's position, not its focus semantics, since the same card is
- * opened from very different triggers: a map marker, a table row, an
- * editor stop's info button).
+ * The camp card (F012, hover/pin behaviour added in F012a): a
+ * Liquipedia-style preview box for one camp — title, a Creeps table
+ * (icon/name, count, level, per-creep XP, item marker) and an Items section
+ * (one row per drop set: its marker, label, the possible item icons). A
+ * popover anchored to `anchorEl` on >= 768px (flips/clamps to stay
+ * on-screen, measured from `getBoundingClientRect()`); a full-width bottom
+ * sheet under 768px. `role="dialog"`,
+ * `aria-labelledby` the title, Escape and an outside click both call
+ * `onClose` — the caller is expected to return focus to whatever opened the
+ * card (this component only knows the anchor's position, not its focus
+ * semantics, since the same card is opened from very different triggers: a
+ * map marker, a table row, an editor stop's info button).
+ *
+ * F012a: hovering a marker opens this same card **unpinned** — a click (or
+ * Enter/Space, or right-click/ⓘ in the editor) **pins** it. `pinned` drives
+ * the modal-vs-non-modal split the spec asks for (C-025): pinned is a real
+ * modal (`aria-modal="true"`, a focus trap, initial focus moves into it,
+ * body scroll locked so it can't be scrolled behind); unpinned is
+ * non-modal (`aria-modal="false"`, no focus trap, no scroll lock, the
+ * page's own focus is left alone) — a hover preview must never steal focus
+ * or block the page under it. `onPointerEnter`/`onPointerLeave` let the
+ * caller's hover timers know when the pointer is over the card itself
+ * (moving from the marker into the card keeps it open, per the spec).
  */
 export function CampCard({
   camp,
   band,
   anchorEl,
+  pinned,
   onClose,
+  onPointerEnter,
+  onPointerLeave,
   titleId,
 }: {
   camp: MapCamp;
@@ -87,9 +97,16 @@ export function CampCard({
    *  can override it (e.g. a synthetic camp without its own band). */
   band?: string;
   /** The element that opened the card — the popover anchors near it on
-   *  desktop; ignored (bottom sheet, centred) below 768px. */
+   *  desktop; ignored (bottom sheet, centred) below 768px. Also excluded
+   *  from the outside-click close check, so clicking the trigger itself
+   *  (which pins the card) never first reads as "outside". */
   anchorEl: CampCardTrigger | null;
+  /** Modal (focus-trapped, scroll-locked) when pinned; a non-modal hover
+   *  preview otherwise — see the component doc comment. */
+  pinned: boolean;
   onClose: () => void;
+  onPointerEnter?: () => void;
+  onPointerLeave?: () => void;
   titleId?: string;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -110,10 +127,10 @@ export function CampCard({
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Two-pass placement, same technique as `CampDetails`: render once to
-  // measure the card's real size (it varies with creep/drop counts), then
-  // place it clear of the anchor, flipping above when it would overflow
-  // the viewport's bottom edge, and clamped so it's never off-screen.
+  // Two-pass placement: render once to measure the card's real size (it
+  // varies with creep/drop counts), then place it clear of the anchor,
+  // flipping above when it would overflow the viewport's bottom edge, and
+  // clamped so it's never off-screen.
   useLayoutEffect(() => {
     // Nothing to measure/position for the mobile bottom sheet — `pos` is
     // only ever read while `isDesktop` (see the `style` below), so a stale
@@ -138,20 +155,31 @@ export function CampCard({
     // different camp at the same anchor (the size can change).
   }, [isDesktop, anchorEl, camp.id]);
 
-  // Focus trap + Escape, and initial focus into the card (the close
-  // button — always present, always the first focusable element).
+  // Escape always closes, pinned or not (C-025: even a non-modal hover
+  // preview must be dismissable from the keyboard).
   useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+      }
+    }
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [onClose]);
+
+  // Focus trap + initial focus into the card (the close button — always
+  // present, always the first focusable element) — **pinned only**: an
+  // unpinned hover preview must not steal focus or trap Tab (spec item 3,
+  // C-025's "unpinned is not modal, does not trap focus").
+  useEffect(() => {
+    if (!pinned) return;
     const el = containerRef.current;
     if (!el) return;
     const items = focusableElements(el);
     (items[0] ?? el).focus();
 
     function onKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        e.preventDefault();
-        onClose();
-        return;
-      }
       if (e.key !== "Tab" || !el) return;
       const focusables = focusableElements(el);
       if (!focusables.length) return;
@@ -168,27 +196,34 @@ export function CampCard({
     }
     document.addEventListener("keydown", onKeyDown);
     return () => document.removeEventListener("keydown", onKeyDown);
-  }, [onClose, camp.id]);
+  }, [pinned, camp.id]);
 
   // Outside click closes — mirrors `IconPicker`'s own popover pattern.
+  // `anchorEl` (the trigger) is excluded too: clicking it is what *pins*
+  // the card (the trigger's own `onClick`, fired right after this
+  // `mousedown`), not a click "outside" the disclosure it owns.
   useEffect(() => {
     function onMouseDown(e: MouseEvent) {
       const el = containerRef.current;
-      if (el && !el.contains(e.target as Node)) onClose();
+      const target = e.target as Node;
+      if (el && !el.contains(target) && !(anchorEl && anchorEl.contains(target))) onClose();
     }
     document.addEventListener("mousedown", onMouseDown);
     return () => document.removeEventListener("mousedown", onMouseDown);
-  }, [onClose]);
+  }, [onClose, anchorEl]);
 
-  // Body scroll lock while open — mainly for the mobile bottom sheet,
-  // where the card itself can be taller than the viewport.
+  // Body scroll lock — **pinned only**: an unpinned hover preview "must
+  // not... block the page" (spec item 3), so the page must stay scrollable
+  // under it. Mainly matters for the mobile bottom sheet, where the pinned
+  // card itself can be taller than the viewport.
   useEffect(() => {
+    if (!pinned) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
     return () => {
       document.body.style.overflow = prev;
     };
-  }, []);
+  }, [pinned]);
 
   const hasSingleDrop = useMemo(() => singleDropIndex(camp.drops ?? []) !== null, [camp.drops]);
 
@@ -198,20 +233,27 @@ export function CampCard({
     <div
       ref={containerRef}
       role="dialog"
-      aria-modal="true"
+      aria-modal={pinned ? "true" : "false"}
       aria-labelledby={headingId}
       tabIndex={-1}
+      onPointerEnter={onPointerEnter}
+      onPointerLeave={onPointerLeave}
       className={cn(
         "panel z-50 w-[22rem] max-w-[calc(100vw-1rem)] border-gold/40 bg-surface/98 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] outline-none",
+        // Unpinned is a hover preview, not a click target competing with
+        // whatever's under it — it still needs its own pointer-enter/leave
+        // (above) to know the pointer is over it, so `pointer-events` stays
+        // `auto` (the default) here too; "pointer-events on the card itself
+        // only" (spec item 3) is about *not adding a backdrop that blocks
+        // the rest of the page*, which this component never had.
         !isDesktop && "max-h-[85vh] w-full max-w-none rounded-b-none border-b-0",
       )}
       // `.panel` (globals.css) declares its own `position: relative` in the
       // same `@layer utilities` Tailwind's `fixed`/`inset-x-0`/`bottom-0`
       // utilities live in — equal specificity, so which one wins is a
-      // source-order accident (see `CampDetails`'s own doc comment for the
-      // same gotcha, and why it pins position with an inline style too). An
-      // inline style always outranks an external stylesheet rule, so
-      // position/placement is set here rather than via Tailwind classes.
+      // source-order accident. An inline style always outranks an external
+      // stylesheet rule, so position/placement is set here rather than via
+      // Tailwind classes.
       style={
         isDesktop
           ? { position: "fixed", left: pos?.left ?? -9999, top: pos?.top ?? -9999, visibility: pos ? "visible" : "hidden" }
