@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
+import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "../../lib/creep-routes/submission.mjs";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -245,14 +246,18 @@ export const creepRoute = defineType({
             }),
             defineField({
               name: "note",
-              type: "string",
-              validation: (rule) => rule.max(160),
+              // `text`, not `string`: notes are prose and reviewers need a
+              // textarea, same as the public editor gives authors.
+              type: "text",
+              rows: 3,
+              description: "What to do at this camp and why.",
+              validation: (rule) => rule.max(STOP_NOTE_MAX),
             }),
             defineField({
               name: "condition",
               type: "string",
               description: "Conditional guidance for this stop, e.g. \"only if wolves are alive\".",
-              validation: (rule) => rule.max(60),
+              validation: (rule) => rule.max(STOP_CONDITION_MAX),
             }),
           ],
           preview: {

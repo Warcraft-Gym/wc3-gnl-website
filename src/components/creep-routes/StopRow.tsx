@@ -5,6 +5,7 @@ import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
 import { BandDot } from "./RouteBadges";
 import { cn } from "@/lib/utils";
 
@@ -22,21 +23,38 @@ export type StopRowData = {
 const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
 
+/** Same surface as `input`, but height-less and vertically resizable — a
+ *  note is prose, so it wraps instead of scrolling sideways in a one-line
+ *  box. Three rows by default, which fits a typical note without pushing
+ *  the rest of the stop off screen. */
+const textarea =
+  "w-full resize-y rounded border border-line bg-surface/60 px-3 py-2 text-sm leading-relaxed text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
+
 /** The Note field, plus its "what does this do" hint. Shared by the camp
  *  and base-action layouts below — a base-action row has no Bring/Condition
  *  (F009: those make no sense for "TP home"), but every stop gets a note. */
 function NoteField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const remaining = STOP_NOTE_MAX - value.length;
   return (
     <div>
-      <input
+      <textarea
         aria-label="Note"
         placeholder="Note (optional)"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        maxLength={160}
-        className={input}
+        maxLength={STOP_NOTE_MAX}
+        rows={3}
+        className={textarea}
       />
-      <p className="mt-1 text-[0.65rem] text-faint">What to do at this camp and why</p>
+      <div className="mt-1 flex items-baseline justify-between gap-3">
+        <p className="text-[0.65rem] text-faint">What to do at this camp and why</p>
+        {/* Only once it is actually close, so the hint doesn't nag. */}
+        {remaining <= 100 ? (
+          <p className={cn("tnum text-[0.65rem]", remaining === 0 ? "text-loss" : "text-faint")}>
+            {remaining} left
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -160,7 +178,11 @@ export function StopRow({
       </div>
 
       {stop.campId ? (
-        <div className="mt-2.5 grid gap-2.5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
+        // Stacked, not columned: the note is up to 160 characters and the
+        // condition up to 60, so both get the full row rather than a quarter
+        // of it (the note used to be half of a half). Bring is a chip row
+        // and reads better with the room too.
+        <div className="mt-2.5 space-y-2.5">
           {/* Bring */}
           <div>
             <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
@@ -192,20 +214,20 @@ export function StopRow({
             </div>
           </div>
 
-          {/* Note + condition */}
-          <div className="grid gap-2.5 sm:grid-cols-2">
-            <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} />
-            <div>
-              <input
-                aria-label="Condition"
-                placeholder='Condition, e.g. "if harassed"'
-                value={stop.condition}
-                onChange={(e) => onChange({ condition: e.target.value })}
-                maxLength={60}
-                className={input}
-              />
-              <p className="mt-1 text-[0.65rem] text-faint">Short trigger shown before the note, e.g. if harassed, if no scout</p>
-            </div>
+          {/* Note */}
+          <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} />
+
+          {/* Condition */}
+          <div>
+            <input
+              aria-label="Condition"
+              placeholder='Condition, e.g. "if harassed"'
+              value={stop.condition}
+              onChange={(e) => onChange({ condition: e.target.value })}
+              maxLength={STOP_CONDITION_MAX}
+              className={input}
+            />
+            <p className="mt-1 text-[0.65rem] text-faint">Short trigger shown before the note, e.g. if harassed, if no scout</p>
           </div>
         </div>
       ) : (

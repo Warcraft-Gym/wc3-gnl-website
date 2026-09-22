@@ -17,6 +17,14 @@ import { z } from "zod";
  * src/lib/creep-routes/types.ts).
  */
 
+/** Per-stop free-text limits. Exported so the editor's inputs and the
+ *  Sanity schema cap at exactly what the validator accepts, instead of three
+ *  copies of a magic number drifting apart — a stop note is the one place
+ *  authors write real prose ("pull the ogre with the hero, let the wolves
+ *  reset, then finish"), so it gets room. */
+export const STOP_NOTE_MAX = 600;
+export const STOP_CONDITION_MAX = 120;
+
 const RACE_IDS = ["human", "orc", "nightelf", "undead"];
 const ROUTE_LEVEL_IDS = ["standard", "beginner"];
 
@@ -50,8 +58,12 @@ function baseStopSchema(iconSet) {
       campId: z.string().trim().min(1).nullable(),
       action: z.string().trim().max(60, "Max 60 characters").optional(),
       units: z.array(unitSchema(iconSet)).max(6, "Up to 6").optional(),
-      note: z.string().trim().max(160, "Max 160 characters").optional(),
-      condition: z.string().trim().max(60, "Max 60 characters").optional(),
+      note: z.string().trim().max(STOP_NOTE_MAX, `Max ${STOP_NOTE_MAX} characters`).optional(),
+      condition: z
+        .string()
+        .trim()
+        .max(STOP_CONDITION_MAX, `Max ${STOP_CONDITION_MAX} characters`)
+        .optional(),
     })
     .refine((stop) => stop.campId !== null || Boolean(stop.action), {
       message: 'Name the base action, e.g. "TP home"',
