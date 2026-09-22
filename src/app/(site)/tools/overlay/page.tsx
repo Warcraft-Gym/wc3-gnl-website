@@ -90,12 +90,12 @@ export default async function OverlayPage() {
           </ButtonLink>
         ) : null}
         {release?.windowsPortable ? (
-          <ButtonLink href={release.windowsPortable} variant="outline" size="md">
+          <ButtonLink href={release.windowsPortable} size="md">
             <Download size={16} /> Windows portable
           </ButtonLink>
         ) : null}
         {release?.macDmg ? (
-          <ButtonLink href={release.macDmg} variant="outline" size="md">
+          <ButtonLink href={release.macDmg} size="md">
             <Apple size={16} /> macOS
           </ButtonLink>
         ) : null}

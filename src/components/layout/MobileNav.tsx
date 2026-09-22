@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import { PRIMARY_NAV, GNL_NAV } from "./nav-items";
+import { PRIMARY_NAV, LEARN_NAV, GNL_NAV } from "./nav-items";
 import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
@@ -65,6 +65,22 @@ export function MobileNav() {
               ),
             )}
 
+            <p className="kicker mt-5 mb-1">Learn</p>
+            {LEARN_NAV.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={close}
+                className={cn(
+                  "border-b border-line/40 py-2.5 text-sm font-bold transition-colors",
+                  pathname === item.href
+                    ? "text-gold"
+                    : "text-muted hover:text-fg",
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
             <p className="kicker mt-5 mb-1">GNL 18</p>
             {GNL_NAV.map((item) => (
               <Link

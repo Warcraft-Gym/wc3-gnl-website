@@ -131,7 +131,7 @@ export default async function AboutGymPage() {
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
                 <DiscordIcon size={20} /> Join the Discord
               </ButtonLink>
-              <ButtonLink href="/learn" variant="outline" size="lg">
+              <ButtonLink href="/learn" size="lg">
                 Start learning <ArrowRight size={18} />
               </ButtonLink>
             </div>

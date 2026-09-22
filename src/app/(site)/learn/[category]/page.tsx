@@ -115,7 +115,7 @@ export default async function LearnCategoryPage({ params }: Params) {
                   Timed step-by-step builds with a play-along clock. Pick one and follow it in your next game.
                 </p>
               </div>
-              <ButtonLink href={buildsHref} variant="outline" size="sm" className="shrink-0">
+              <ButtonLink href={buildsHref} size="sm" className="shrink-0">
                 All {cat.title} builds <ArrowRight size={14} />
               </ButtonLink>
             </div>

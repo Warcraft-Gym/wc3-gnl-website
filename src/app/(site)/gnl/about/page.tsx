@@ -98,7 +98,7 @@ export default function AboutPage() {
           <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
             <DiscordIcon size={20} /> Join the Discord
           </ButtonLink>
-          <ButtonLink href="/gnl/rules" variant="outline" size="lg">
+          <ButtonLink href="/gnl/rules" size="lg">
             Read the full rules
           </ButtonLink>
         </div>
