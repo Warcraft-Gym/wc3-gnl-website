@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-routes/submit/actions";
@@ -94,7 +94,24 @@ export function RouteSubmitForm({
   // camp clicks go through here. Prefilled/imported routes may still carry
   // a repeated campId (older data, the schema allows it); this only guards
   // the click path, so a duplicate from prefill removes just the one match.
-  function onCampSelect(campId: string) {
+  //
+  // `useCallback` (F012b, root-cause fix): a fresh function identity on
+  // every render used to cascade into `CreepMap`'s `isCampInteractive`
+  // (memoized on `[onCampSelect, interactiveCampIds]`), which fed the
+  // arrow-key-walk "behaves like hover" effect's own dependency array. That
+  // effect re-ran on *every* render — not just real walk-index transitions
+  // — and since there's no active walk in the editor it always took the
+  // "walk cleared" branch and called `onCampCardHoverLeave()` unconditionally.
+  // The moment `hoverEnter`'s 120ms timer opened the card (`openCampId`
+  // flowing back down through props), that re-render re-fired the effect,
+  // which called `hoverLeave` immediately, whose own 180ms timer then closed
+  // the card that had *just* opened — the card flashed open and silently
+  // closed before a human dwelling ~1s ever saw it. `CreepMapPlayground`
+  // (route page) never hit this because its own `onMarkerSelect` was already
+  // `useCallback`d. See `CreepMap`'s walk effect below for the matching
+  // hardening, so this class of bug can't recur even if a future caller
+  // forgets to memoize its own `onCampSelect`.
+  const onCampSelect = useCallback((campId: string) => {
     setStops((rows) => {
       const idx = rows.findIndex((r) => r.campId === campId);
       if (idx !== -1) return rows.filter((_, i) => i !== idx);
@@ -103,7 +120,7 @@ export function RouteSubmitForm({
         { id: Date.now() + Math.random(), campId, action: "", units: [], note: "", condition: "" },
       ];
     });
-  }
+  }, []);
 
   // #route= deep link from a future overlay/replay importer.
   const applyExchange = (r: ExchangeCreepRoute) => {

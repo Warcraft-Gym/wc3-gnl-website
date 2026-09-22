@@ -240,8 +240,27 @@ export function CreepMap({
   // Arrow-key walk "behaves like hover" (F012a spec item 2): every step
   // opens the card unpinned, same as a real pointer hover; walking off the
   // end (or Escape, above) closes it the same way pointer-leave would.
+  //
+  // `prevWalkCampId` guard (F012b root-cause fix): this effect must fire on
+  // real transitions of `walkCampId` only, not on every render where
+  // `isCampInteractive`/`campById` merely change *identity* (e.g. a caller
+  // whose own `onCampSelect` isn't memoized — the exact bug the editor had:
+  // `RouteSubmitForm`'s `onCampSelect` was recreated every render, which
+  // cascaded into a fresh `isCampInteractive` on every render, which reran
+  // this effect on every render, which — since there's no active walk most
+  // of the time — always took the `!walkCampId` branch below and called
+  // `onCampCardHoverLeave()` unconditionally. The moment a *pointer* hover
+  // opened the card, the resulting re-render (`openCampId` flowing back
+  // down) re-fired this effect and closed the card that had just opened,
+  // ~180ms later — indistinguishable from "hover does nothing" to a human
+  // tester). The ref makes the effect itself correct regardless of caller
+  // memoization discipline: it only calls the hover callbacks when the walk
+  // step actually changed since the last time this effect ran.
+  const prevWalkCampId = useRef<string | null>(null);
   useEffect(() => {
     if (!onCampCardHoverEnter && !onCampCardHoverLeave) return;
+    if (prevWalkCampId.current === walkCampId) return;
+    prevWalkCampId.current = walkCampId;
     if (!walkCampId || !isCampInteractive(walkCampId)) {
       onCampCardHoverLeave?.();
       return;
