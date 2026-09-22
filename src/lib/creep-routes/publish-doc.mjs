@@ -7,7 +7,13 @@
  * map catalogue (the parsed `maps/<slug>.json` shape) and the already-
  * uploaded minimap image asset's id, returns the exact document
  * `createOrReplace` writes — no network, no filesystem, no randomness (the
- * document id is deterministic: `creepMap.<slug>`).
+ * document id is deterministic: `creepMap-<slug>`).
+ *
+ * The id uses a hyphen, not a dot. Sanity treats a `.` in a document id as a
+ * private namespace: such documents are readable only with a token, never by
+ * the anonymous reader a public dataset serves the site with. `creepMap.<slug>`
+ * published without error and was then invisible in production. Hyphens match
+ * what build orders already use (`build-<slug>`).
  */
 
 /** Keys a camp's `drops[]` (and each drop's own `items[]`) so Sanity's
@@ -32,7 +38,7 @@ function keyDrop(drop, index) {
  *  never reached Sanity before). */
 export function buildCreepMapDoc(slug, catalogue, minimapAssetId) {
   return {
-    _id: `creepMap.${slug}`,
+    _id: `creepMap-${slug}`,
     _type: "creepMap",
     title: catalogue.name,
     slug: { _type: "slug", current: slug },
@@ -49,7 +55,16 @@ export function buildCreepMapDoc(slug, catalogue, minimapAssetId) {
       ...c,
       _type: "camp",
       _key: c.id,
-      creeps: (c.creeps ?? []).map((creep) => ({ ...creep, _type: "creep", _key: creep.id })),
+      // Keyed by rawcode *and* index: since creeps group by type and by what
+      // they drop, one camp can hold two rows of the same rawcode (the
+      // Trapper carrying the permanent and the one carrying nothing). The
+      // rawcode alone stopped being unique when per-creep drops landed, and
+      // duplicate `_key`s break array editing in the Studio.
+      creeps: (c.creeps ?? []).map((creep, i) => ({
+        ...creep,
+        _type: "creep",
+        _key: `${creep.id}-${i}`,
+      })),
       drops: (c.drops ?? []).map(keyDrop),
     })),
     starts: catalogue.starts.map((s, i) => ({ ...s, _type: "start", _key: `start-${i}` })),

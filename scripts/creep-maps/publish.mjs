@@ -66,7 +66,7 @@ async function publishMap(client, slug) {
   });
   const doc = buildCreepMapDoc(slug, catalogue, asset._id);
   await client.createOrReplace(doc);
-  console.log(`published ${slug}: creepMap.${slug} (${catalogue.camps.length} camps)`);
+  console.log(`published ${slug}: creepMap-${slug} (${catalogue.camps.length} camps)`);
 }
 
 async function main() {

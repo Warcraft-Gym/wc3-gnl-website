@@ -1,6 +1,11 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { readFileSync, readdirSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { buildCreepMapDoc } from "./publish-doc.mjs";
+
+const MAPS_DIR = join(dirname(fileURLToPath(import.meta.url)), "maps");
 
 function catalogue(overrides = {}) {
   return {
@@ -21,9 +26,9 @@ function catalogue(overrides = {}) {
   };
 }
 
-test("builds a document with the deterministic creepMap.<slug> id", () => {
+test("builds a document with the deterministic creepMap-<slug> id", () => {
   const doc = buildCreepMapDoc("autumn-leaves", catalogue(), "image-abc123");
-  assert.equal(doc._id, "creepMap.autumn-leaves");
+  assert.equal(doc._id, "creepMap-autumn-leaves");
   assert.equal(doc._type, "creepMap");
   assert.deepEqual(doc.slug, { _type: "slug", current: "autumn-leaves" });
 });
@@ -93,10 +98,57 @@ test("F011: keys creeps[] and drops[]/drops[].items[] all the way down", () => {
   const doc = buildCreepMapDoc("autumn-leaves", c, "image-abc123");
   const [camp] = doc.camps;
   assert.equal(camp.creeps[0]._type, "creep");
-  assert.equal(camp.creeps[0]._key, "nftt");
+  assert.equal(camp.creeps[0]._key, "nftt-0");
   assert.equal(camp.drops[0]._type, "drop");
   assert.equal(camp.drops[0]._key, "Permanent-2");
   assert.equal(camp.drops[0].items[0]._type, "dropItem");
   assert.equal(camp.drops[0].items[0]._key, "clsd");
   assert.equal(camp.drops[1]._key, "ckng");
+});
+
+test("every keyed array in a published map document has unique _keys", () => {
+  // Sanity requires `_key` to be unique within an array; duplicates break
+  // editing and patching in the Studio. Creeps are the trap: they group by
+  // rawcode *and* drops, so one camp can hold two rows of the same rawcode.
+  const walk = (node, path) => {
+    if (Array.isArray(node)) {
+      const keys = node.filter((v) => v && typeof v === "object" && "_key" in v).map((v) => v._key);
+      assert.equal(
+        new Set(keys).size,
+        keys.length,
+        `${path} has duplicate _key values: ${keys.filter((k, i) => keys.indexOf(k) !== i).join(", ")}`,
+      );
+      node.forEach((v, i) => walk(v, `${path}[${i}]`));
+    } else if (node && typeof node === "object") {
+      for (const [k, v] of Object.entries(node)) walk(v, `${path}.${k}`);
+    }
+  };
+
+  for (const file of readdirSync(MAPS_DIR).filter((f) => f.endsWith(".json"))) {
+    const catalogue = JSON.parse(readFileSync(join(MAPS_DIR, file), "utf8"));
+    walk(buildCreepMapDoc(catalogue.slug, catalogue, "image-test-256x256-png"), catalogue.slug);
+  }
+});
+
+test("no generated id contains a dot — Sanity makes dotted ids private", () => {
+  // A `.` in a document id puts it in a private namespace: readable with a
+  // token, invisible to the anonymous reader the public site uses. The first
+  // publish used `creepMap.<slug>` and the maps simply never appeared in
+  // production, with no error anywhere.
+  const walk = (node, path) => {
+    if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
+    if (node && typeof node === "object") {
+      for (const key of ["_id", "_ref"]) {
+        if (typeof node[key] === "string") {
+          assert.ok(!node[key].includes("."), `${path}.${key} = "${node[key]}" contains a dot`);
+        }
+      }
+      for (const [k, v] of Object.entries(node)) walk(v, `${path}.${k}`);
+    }
+  };
+
+  for (const file of readdirSync(MAPS_DIR).filter((f) => f.endsWith(".json"))) {
+    const catalogue = JSON.parse(readFileSync(join(MAPS_DIR, file), "utf8"));
+    walk(buildCreepMapDoc(catalogue.slug, catalogue, "image-test-256x256-png"), catalogue.slug);
+  }
 });

@@ -21,14 +21,15 @@ export function canAcceptSubmissions(): boolean {
   return Boolean(projectId && token);
 }
 
-/** `scripts/creep-maps/publish.mjs`'s deterministic id, `creepMap.<slug>`.
+/** `scripts/creep-maps/publish.mjs`'s deterministic id, `creepMap-<slug>`.
+ *  Hyphen, not dot: a dot makes the document private to token-holders.
  *  A route can reference a map before it has been published (see the
  *  handoff for the "map not yet in Sanity" case): the reference simply
  *  points at the id the map will have once `publish.mjs` runs for that
  *  slug, so the Studio shows a dangling reference rather than the draft
  *  being lost or blocked. */
 function mapDocId(slug: string): string {
-  return `creepMap.${slug}`;
+  return `creepMap-${slug}`;
 }
 
 export async function createCreepRouteDraft(valid: SubmissionInput): Promise<{ id: string; slug: string }> {

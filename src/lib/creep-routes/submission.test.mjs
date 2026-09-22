@@ -162,11 +162,11 @@ test("createSubmissionSchema throws without at least one map", () => {
 test("toCreepRouteDraft() produces a pending draft referencing the map", () => {
   const result = schema().safeParse(payload());
   assert.equal(result.success, true);
-  const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves");
+  const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves");
   assert.equal(draft._type, "creepRoute");
   assert.equal(draft.reviewStatus, "pending");
   assert.match(draft._id, /^drafts\./);
-  assert.deepEqual(draft.map, { _type: "reference", _ref: "creepMap.autumn-leaves" });
+  assert.deepEqual(draft.map, { _type: "reference", _ref: "creepMap-autumn-leaves" });
   assert.equal(draft.stops.length, 2);
   assert.ok(!("time" in draft.stops[0]), "a draft stop must not carry a time field");
   assert.equal(draft.build, undefined);
@@ -175,8 +175,8 @@ test("toCreepRouteDraft() produces a pending draft referencing the map", () => {
 test("toCreepRouteDraft() references the companion build when given one", () => {
   const result = schema().safeParse(payload());
   assert.equal(result.success, true);
-  const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves", "buildOrder.abc123");
-  assert.deepEqual(draft.build, { _type: "reference", _ref: "buildOrder.abc123" });
+  const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves", "buildOrder-abc123");
+  assert.deepEqual(draft.build, { _type: "reference", _ref: "buildOrder-abc123" });
 });
 
 test("tags survive the schema transform (comma list, trimmed, lowercased, capped at 8)", () => {
@@ -188,14 +188,14 @@ test("tags survive the schema transform (comma list, trimmed, lowercased, capped
 test("toCreepRouteDraft() carries tags through to the draft", () => {
   const result = schema().safeParse(payload({ tags: "fast-expand, archmage" }));
   assert.equal(result.success, true);
-  const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves");
+  const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves");
   assert.deepEqual(draft.tags, ["fast-expand", "archmage"]);
 });
 
 test("toCreepRouteDraft() carries an empty tags array through when none were given", () => {
   const result = schema().safeParse(payload());
   assert.equal(result.success, true);
-  const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves");
+  const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves");
   assert.deepEqual(draft.tags, []);
 });
 

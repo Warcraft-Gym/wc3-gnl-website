@@ -592,7 +592,16 @@ The Sanity webhook (`/api/revalidate`, `PATHS.creepRoute` /
 catalogue (`src/lib/creep-routes/maps/<slug>.json`) and its minimap
 (`public/maps/<slug>.png`), uploads the PNG as a Sanity image asset, and
 `createOrReplace`s a `creepMap` document with a deterministic id
-(`creepMap.<slug>`), so re-running is safe. The document itself is built by
+(`creepMap-<slug>`), so re-running is safe.
+
+> **The id must not contain a dot.** Sanity treats a `.` in a document id as
+> a private namespace: the document is readable with a token and invisible to
+> the anonymous reader a public dataset serves the site with. The first
+> publish used `creepMap.<slug>`; every map wrote successfully, the Studio
+> showed them, and production still said "No maps are configured yet" with no
+> error anywhere. Hyphens match what build orders already use
+> (`build-<slug>`), and `publish-doc.test.mjs` now fails on any generated
+> `_id`/`_ref` containing a dot. The document itself is built by
 `buildCreepMapDoc(slug, catalogue, minimapAssetId)`
 (`src/lib/creep-routes/publish-doc.mjs`) — a pure function with no network
 call, factored out so it's directly unit-tested (`publish-doc.test.mjs`,
@@ -877,7 +886,7 @@ sees; this section is the mechanics.
   first server-rendered HTML, not only after a failed client submit — the
   same SSR-first rule `CreepMap`'s own sizing already follows (see above).
   `createCreepRouteDraft` resolves the map's document id **deterministically**
-  as `creepMap.<slug>` (`scripts/creep-maps/publish.mjs`'s own convention),
+  as `creepMap-<slug>` (`scripts/creep-maps/publish.mjs`'s own convention),
   never by querying Sanity for it — **if the chosen map hasn't been
   published yet, the draft still references the id it will have once
   `publish.mjs` runs for that slug**; nothing is lost or blocked, the
