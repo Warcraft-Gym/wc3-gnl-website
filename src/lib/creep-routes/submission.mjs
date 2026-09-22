@@ -130,8 +130,16 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         ),
       description: z.string().trim().max(6000, "Max 6000 characters").optional(),
       stops: z.array(stopSchema).min(2, "Add at least two stops").max(30, "Max 30 stops"),
-      /** Honeypot, must stay empty. */
-      website: z.string().max(0).optional(),
+      /** Honeypot: a real submitter never fills this (it's visually hidden,
+       *  `tabIndex={-1}`). Accepted as *any* string here — rejecting a
+       *  nonempty value at the schema level (the old `z.string().max(0)`)
+       *  made the honeypot check at the bottom of `submitCreepRoute` dead
+       *  code (a filled field always failed `parsed.success` first, well
+       *  before that line could ever run) and surfaced a generic "fix the
+       *  highlighted fields" error — the opposite of a silent trap. The
+       *  post-parse check in `decideSubmission` below is what actually
+       *  reacts to it now (code-a.md, "Should fix"). */
+      website: z.string().optional(),
       /** Client timestamp when the form was opened; bots submit instantly. */
       startedAt: z.coerce.number().optional(),
     })
@@ -155,6 +163,35 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         });
       }
     });
+}
+
+/** A `stopsJson` form value larger than this is rejected *before*
+ *  `JSON.parse` ever runs — `actions.ts:36` used to parse an unbounded
+ *  string straight from the form, with the schema's `stops.max(30)` bound
+ *  only kicking in after a full parse succeeded (code-a.md, "Must fix"). */
+export const MAX_STOPS_JSON_BYTES = 64 * 1024;
+
+/** True when a raw `stopsJson` form value is too large to even attempt to
+ *  parse. Pure and synchronous, checked byte length (not `.length`, which
+ *  undercounts multi-byte characters) via `Buffer`, always available under
+ *  plain Node — no dependency. */
+export function stopsJsonTooLarge(raw) {
+  return Buffer.byteLength(raw, "utf8") > MAX_STOPS_JSON_BYTES;
+}
+
+/** The two spam guards `submitCreepRoute` runs right after a successful
+ *  parse, factored out as a pure decision so they're testable without
+ *  mocking `next/headers` or Sanity: a filled honeypot always fakes success
+ *  (never reaches `createCreepRouteDraft` — the caller returns on this
+ *  branch before that import is ever invoked), a too-fast `startedAt`
+ *  rejects with a message, anything else proceeds. `now`/`minFillSeconds`
+ *  are injectable for tests; the action passes its own `MIN_FILL_SECONDS`. */
+export function decideSubmission(data, { now = Date.now(), minFillSeconds = 8 } = {}) {
+  if (data.website) return { action: "fake-ok" };
+  if (data.startedAt !== undefined && now - data.startedAt < minFillSeconds * 1000) {
+    return { action: "reject", reason: "too-fast" };
+  }
+  return { action: "proceed" };
 }
 
 function shortKey() {
@@ -206,6 +243,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId) {
     authorDiscord: valid.authorDiscord || undefined,
     sourceUrl: valid.sourceUrl || undefined,
     build: buildDocId ? { _type: "reference", _ref: buildDocId } : undefined,
+    tags: valid.tags,
     featured: false,
     publishedAt: new Date().toISOString(),
     stops: valid.stops.map((s) => ({

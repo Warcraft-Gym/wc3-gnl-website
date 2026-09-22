@@ -7,6 +7,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { RouteFilters } from "@/components/creep-routes/RouteFilters";
 import { RouteRow } from "@/components/creep-routes/RouteRow";
+import { RouteListUrlRecorder } from "@/components/creep-routes/RouteListUrlRecorder";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { filterCreepRoutes, getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
@@ -66,6 +67,19 @@ export default async function CreepRoutesPage({
   const isFiltered = Boolean(race || vsRace || map || level || q);
   const category = getCategory("creep-routes");
 
+  // The empty state's "Be the first to add one" carries the active filters
+  // through to the editor (`?map=&race=&vs=&level=`, submit/page.tsx) so
+  // "no routes for this matchup yet" leads straight into authoring one for
+  // it, rather than a blank editor (F010, gaps.md #3).
+  const submitParams = new URLSearchParams();
+  if (map) submitParams.set("map", map);
+  if (race) submitParams.set("race", race);
+  if (vsRace) submitParams.set("vs", vsRace);
+  if (level) submitParams.set("level", level);
+  const submitHref = submitParams.size
+    ? `/learn/creep-routes/submit?${submitParams.toString()}`
+    : "/learn/creep-routes/submit";
+
   return (
     <>
       <PageHeader
@@ -100,6 +114,7 @@ export default async function CreepRoutesPage({
         {/* Matchup + filters, the way in */}
         <section className="mt-12">
           <Suspense>
+            <RouteListUrlRecorder />
             <RouteFilters
               race={race}
               vsRace={vsRace}
@@ -135,7 +150,7 @@ export default async function CreepRoutesPage({
               <Link href="/learn/creep-routes" className="text-xs uppercase tracking-wide text-muted hover:text-gold">
                 Clear filters
               </Link>
-              <Link href="/learn/creep-routes/submit" className="text-xs uppercase tracking-wide text-gold hover:underline">
+              <Link href={submitHref} className="text-xs uppercase tracking-wide text-gold hover:underline">
                 Be the first to add one
               </Link>
             </div>

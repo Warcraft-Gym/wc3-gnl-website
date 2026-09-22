@@ -16,7 +16,7 @@ const USE_FIXTURES = process.env.NODE_ENV !== "production";
 
 const MAP_PROJECTION = `{
   "slug": slug.current,
-  name, mapVersion, w3cMapId, bounds, image, camps, starts, mines, shops,
+  name, mapVersion, w3cMapId, bounds, terrainBounds, cameraBounds, image, camps, starts, mines, shops,
   "minimapUrl": minimap.asset->url,
   sourceFile, generatedAt
 }`;

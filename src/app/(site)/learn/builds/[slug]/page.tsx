@@ -17,6 +17,9 @@ import { getBuildBySlug, getBuilds } from "@/lib/builds/builds";
 import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
+import { CREEP_ROUTES_LIVE } from "@/lib/flags";
+import { getRoutesForBuild } from "@/lib/creep-routes/routes";
+import { RouteRow } from "@/components/creep-routes/RouteRow";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -66,6 +69,10 @@ export default async function BuildPage({ params }: Params) {
   const related = (await getBuilds())
     .filter((b) => b.race === build.race && b.slug !== build.slug)
     .slice(0, 3);
+  // gaps.md #1: `getRoutesForBuild` already existed in the data layer but
+  // no page rendered its result — this build page had no link back to the
+  // creep routes that reference it.
+  const routes = CREEP_ROUTES_LIVE ? await getRoutesForBuild(build.slug) : [];
 
   return (
     <article>
@@ -209,6 +216,17 @@ export default async function BuildPage({ params }: Params) {
           </div>
         </section>
       </Container>
+
+      {routes.length ? (
+        <Container className="pb-16">
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Creep routes for this build</h2>
+          <ul className="grid gap-3">
+            {routes.map((r) => (
+              <RouteRow key={r.slug} route={r} />
+            ))}
+          </ul>
+        </Container>
+      ) : null}
 
       {related.length ? (
         <Container className="pb-16">

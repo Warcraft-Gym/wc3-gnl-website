@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, ExternalLink, MapPin } from "lucide-react";
+import { ExternalLink, MapPin } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { ButtonLink } from "@/components/ui/Button";
@@ -11,6 +11,7 @@ import { PortableBody } from "@/components/sanity/PortableBody";
 import { CreepMapPlayground } from "./CreepMapPlayground";
 import { Matchup, TagChip } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
+import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
@@ -112,12 +113,7 @@ export default async function CreepRoutePage({ params }: Params) {
           className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.8)_0%,rgba(0,0,0,.55)_45%,rgba(0,0,0,.15)_100%)]"
         />
         <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
-          <Link
-            href="/learn/creep-routes"
-            className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
-          >
-            <ArrowLeft size={15} /> All creep routes
-          </Link>
+          <RouteBackLink />
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
             <Matchup race={route.race} vsRaces={route.vsRaces} size={22} />
             <LevelBadge level={route.level} />

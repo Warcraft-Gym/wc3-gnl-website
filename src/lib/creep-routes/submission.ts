@@ -65,3 +65,17 @@ export const toCreepRouteDraft = impl.toCreepRouteDraft as (
   mapDocId: string,
   buildDocId?: string,
 ) => Record<string, unknown>;
+
+export const MAX_STOPS_JSON_BYTES = impl.MAX_STOPS_JSON_BYTES as number;
+
+export const stopsJsonTooLarge = impl.stopsJsonTooLarge as (raw: string) => boolean;
+
+export type SubmissionDecision =
+  | { action: "fake-ok" }
+  | { action: "reject"; reason: "too-fast" }
+  | { action: "proceed" };
+
+export const decideSubmission = impl.decideSubmission as (
+  data: SubmissionInput,
+  opts?: { now?: number; minFillSeconds?: number },
+) => SubmissionDecision;

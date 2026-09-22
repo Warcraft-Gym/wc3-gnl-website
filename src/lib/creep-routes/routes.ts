@@ -1,8 +1,10 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
-import type { BuildRace, BuildVsRace } from "@/lib/builds/types";
 import { FIXTURE_ROUTES } from "./fixtures";
-import type { CreepRoute, RouteLevel } from "./types";
+import type { CreepRoute } from "./types";
+import { filterCreepRoutes, type CreepRouteFilter } from "./filter";
+
+export { filterCreepRoutes, type CreepRouteFilter };
 
 /**
  * Creep-route data access. Reads published `creepRoute` documents from
@@ -11,7 +13,11 @@ import type { CreepRoute, RouteLevel } from "./types";
  * or has no routes; production always shows exactly what Sanity has.
  * Mirrors `src/lib/builds/builds.ts`. A route has no time dimension, so a
  * stop read from Sanity needs no conversion — it is already the domain
- * shape.
+ * shape. `filterCreepRoutes` itself lives in `filter.mjs`/`.ts` (same
+ * `.mjs`-pure/`.ts`-typed split as `submission.mjs`/`.ts`) so it's directly
+ * testable with `node --test` — this file can't be run that way itself
+ * (`server-only`, no type-stripping loader wired up for `.ts`) — and
+ * re-exported here so callers don't need to know it moved.
  */
 
 const USE_FIXTURES = process.env.NODE_ENV !== "production";
@@ -27,6 +33,7 @@ const LIST_PROJECTION = `{
   "map": map->{ "slug": slug.current, name },
   hero, summary, author, authorDiscord, maintainer, sourceUrl,
   "build": build->{ "slug": slug.current, title },
+  "tags": coalesce(tags, []),
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
@@ -40,6 +47,7 @@ const DETAIL_PROJECTION = `{
   "map": map->{ "slug": slug.current, name },
   hero, summary, author, authorDiscord, maintainer, sourceUrl,
   "build": build->{ "slug": slug.current, title },
+  "tags": coalesce(tags, []),
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
@@ -59,6 +67,10 @@ function byUpdatedDesc(a: CreepRoute, b: CreepRoute) {
   return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
 }
 
+// Server-only (calls into `normalizeRoute`/`console.warn`, both fine
+// without Sanity, but the function itself is only ever reached from a
+// `sanityClient()` fetch above) — no direct unit test; accepted, documented
+// gap (gaps.md #5, docs/creep-routes.md's "Review flow" section).
 function dropUnresolvedMaps(docs: RawRoute[]): CreepRoute[] {
   const routes: CreepRoute[] = [];
   for (const doc of docs) {
@@ -128,38 +140,22 @@ export async function getCreepRouteBySlug(slug: string): Promise<CreepRoute | un
   return USE_FIXTURES ? FIXTURE_ROUTES.find((r) => r.slug === slug) : undefined;
 }
 
-export type CreepRouteFilter = {
-  race?: BuildRace;
-  vsRace?: BuildVsRace;
-  map?: string;
-  level?: RouteLevel;
-  q?: string;
-};
-
-/** Filter helper shared by the list page. `vsRace` matches routes written
- *  for that opponent (among others) or for any opponent; `map` matches the
- *  map slug. */
-export function filterCreepRoutes(routes: CreepRoute[], f: CreepRouteFilter): CreepRoute[] {
-  const q = f.q?.trim().toLowerCase();
-  return routes.filter((r) => {
-    if (f.race && r.race !== f.race) return false;
-    if (f.vsRace && f.vsRace !== "any" && r.vsRaces.length && !r.vsRaces.includes(f.vsRace)) return false;
-    if (f.map && r.map.slug !== f.map) return false;
-    if (f.level && r.level !== f.level) return false;
-    if (q) {
-      const hay = [r.title, r.summary, r.author, r.map.name].join(" ").toLowerCase();
-      if (!hay.includes(q)) return false;
-    }
-    return true;
-  });
-}
-
 export async function getFeaturedCreepRoute(): Promise<CreepRoute | undefined> {
   const routes = await getCreepRoutes();
   return routes.find((r) => r.featured);
 }
 
-/** Approved routes that link to a given build order (usually one or two). */
+/** Approved routes that link to a given build order (usually one or two).
+ *  Falls back to fixtures the same way `getCreepRoutes` does — a *live*
+ *  but *empty* Sanity result (e.g. this dev environment: real Sanity
+ *  builds, but zero `creepRoute` documents published yet, see "Publishing
+ *  a map" in docs/creep-routes.md) still shows the fixture pairing in
+ *  development, rather than silently hiding a build's routes card because
+ *  Sanity happens to be configured *for other content types*. Found via
+ *  F010's own browser verification: without this, `/learn/builds/[slug]`'s
+ *  new "Creep routes for this build" card (item 7) could never be observed
+ *  in exactly this environment — `getRoutesForBuild` used to return
+ *  Sanity's empty array unconditionally instead of falling through. */
 export async function getRoutesForBuild(buildSlug: string): Promise<CreepRoute[]> {
   if (isSanityConfigured()) {
     const client = sanityClient();
@@ -170,12 +166,13 @@ export async function getRoutesForBuild(buildSlug: string): Promise<CreepRoute[]
           { buildSlug },
           { next: { revalidate: 300 } },
         );
-        return dropUnresolvedMaps(docs);
+        const live = dropUnresolvedMaps(docs);
+        if (live.length || !USE_FIXTURES) return live;
       } catch (err) {
         if (process.env.NODE_ENV !== "production") {
           console.warn("[creep-routes] Sanity build-routes fetch failed -", String(err));
         }
-        return [];
+        if (!USE_FIXTURES) return [];
       }
     }
   }

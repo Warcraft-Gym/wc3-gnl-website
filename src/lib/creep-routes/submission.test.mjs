@@ -1,6 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { createSubmissionSchema, flattenErrors, toCreepRouteDraft } from "./submission.mjs";
+import {
+  createSubmissionSchema,
+  decideSubmission,
+  flattenErrors,
+  MAX_STOPS_JSON_BYTES,
+  stopsJsonTooLarge,
+  toCreepRouteDraft,
+} from "./submission.mjs";
 
 const maps = [
   { slug: "autumn-leaves", campIds: ["c01", "c02", "c03"], startsCount: 2 },
@@ -134,9 +141,13 @@ test("start is optional and defaults to undefined (not 0) when omitted", () => {
   assert.equal(result.data.start, undefined);
 });
 
-test("rejects a filled honeypot", () => {
+test("accepts a filled honeypot at the schema level (the decision happens post-parse, see decideSubmission)", () => {
+  // The schema no longer rejects a nonempty `website` itself — rejecting it
+  // there made the honeypot check dead code (code-a.md, "Should fix"). A
+  // filled honeypot still gets a silent fake-ok, just decided afterwards.
   const result = schema().safeParse(payload({ website: "http://spam.example" }));
-  assert.equal(result.success, false);
+  assert.equal(result.success, true);
+  assert.equal(result.data.website, "http://spam.example");
 });
 
 test("rejects an unknown map", () => {
@@ -166,4 +177,66 @@ test("toCreepRouteDraft() references the companion build when given one", () => 
   assert.equal(result.success, true);
   const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves", "buildOrder.abc123");
   assert.deepEqual(draft.build, { _type: "reference", _ref: "buildOrder.abc123" });
+});
+
+test("tags survive the schema transform (comma list, trimmed, lowercased, capped at 8)", () => {
+  const result = schema().safeParse(payload({ tags: " Fast-Expand, Archmage ,Archmage, a,b,c,d,e,f,g " }));
+  assert.equal(result.success, true);
+  assert.deepEqual(result.data.tags, ["fast-expand", "archmage", "archmage", "a", "b", "c", "d", "e"]);
+});
+
+test("toCreepRouteDraft() carries tags through to the draft", () => {
+  const result = schema().safeParse(payload({ tags: "fast-expand, archmage" }));
+  assert.equal(result.success, true);
+  const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves");
+  assert.deepEqual(draft.tags, ["fast-expand", "archmage"]);
+});
+
+test("toCreepRouteDraft() carries an empty tags array through when none were given", () => {
+  const result = schema().safeParse(payload());
+  assert.equal(result.success, true);
+  const draft = toCreepRouteDraft(result.data, "creepMap.autumn-leaves");
+  assert.deepEqual(draft.tags, []);
+});
+
+test("stopsJsonTooLarge: a string at the cap is accepted, one byte over is rejected", () => {
+  const atCap = "a".repeat(MAX_STOPS_JSON_BYTES);
+  const overCap = "a".repeat(MAX_STOPS_JSON_BYTES + 1);
+  assert.equal(stopsJsonTooLarge(atCap), false);
+  assert.equal(stopsJsonTooLarge(overCap), true);
+});
+
+test("stopsJsonTooLarge: an ordinary small payload is accepted", () => {
+  assert.equal(stopsJsonTooLarge(JSON.stringify([{ campId: "c01" }, { campId: "c02" }])), false);
+});
+
+test("decideSubmission: a filled honeypot fakes success", () => {
+  const decision = decideSubmission({ website: "http://spam.example" });
+  assert.deepEqual(decision, { action: "fake-ok" });
+});
+
+test("decideSubmission: an empty honeypot and no startedAt proceeds", () => {
+  const decision = decideSubmission({ website: "" });
+  assert.deepEqual(decision, { action: "proceed" });
+});
+
+test("decideSubmission: submitted faster than minFillSeconds rejects", () => {
+  const now = 1_000_000;
+  const decision = decideSubmission({ website: "", startedAt: now - 3000 }, { now, minFillSeconds: 8 });
+  assert.deepEqual(decision, { action: "reject", reason: "too-fast" });
+});
+
+test("decideSubmission: submitted after minFillSeconds proceeds", () => {
+  const now = 1_000_000;
+  const decision = decideSubmission({ website: "", startedAt: now - 9000 }, { now, minFillSeconds: 8 });
+  assert.deepEqual(decision, { action: "proceed" });
+});
+
+test("decideSubmission: the honeypot check wins over the fill-time check", () => {
+  const now = 1_000_000;
+  const decision = decideSubmission(
+    { website: "http://spam.example", startedAt: now - 9000 },
+    { now, minFillSeconds: 8 },
+  );
+  assert.deepEqual(decision, { action: "fake-ok" });
 });

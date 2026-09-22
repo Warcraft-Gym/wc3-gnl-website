@@ -30,11 +30,19 @@ export function RouteSubmitForm({
   maps,
   builds,
   defaultMapSlug,
+  defaultRace,
+  defaultVsRaces,
+  defaultLevel,
   submissionsOpen,
 }: {
   maps: CreepMap[];
   builds: { slug: string; title: string }[];
   defaultMapSlug?: string;
+  /** `?race=`/`?vs=`/`?level=` prefill — validated by the page against the
+   *  known ids before reaching here (F010, gaps.md #3). */
+  defaultRace?: BuildRace;
+  defaultVsRaces?: BuildRace[];
+  defaultLevel?: RouteLevel;
   submissionsOpen: boolean;
 }) {
   const [state, formAction, pending] = useActionState(submitCreepRoute, initial);
@@ -42,9 +50,9 @@ export function RouteSubmitForm({
   const [mapSlug, setMapSlug] = useState(defaultMapSlug ?? maps[0]?.slug ?? "");
   const map = maps.find((m) => m.slug === mapSlug) ?? maps[0];
 
-  const [race, setRace] = useState<CrestOption | "">("");
-  const [vsRaces, setVsRaces] = useState<BuildRace[]>([]);
-  const [level, setLevel] = useState<RouteLevel>("standard");
+  const [race, setRace] = useState<CrestOption | "">(defaultRace ?? "");
+  const [vsRaces, setVsRaces] = useState<BuildRace[]>(defaultVsRaces ?? []);
+  const [level, setLevel] = useState<RouteLevel>(defaultLevel ?? "standard");
   // Index into the chosen map's `starts` — which spawn is your base. Reset
   // to 0 whenever the map changes (see `handleMapChange` below), since a
   // start index only means anything relative to the map it was picked on.

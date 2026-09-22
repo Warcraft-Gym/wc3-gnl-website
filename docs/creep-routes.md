@@ -31,6 +31,20 @@ maps (`src/lib/creep-routes/maps/<slug>.json` plus their minimaps at
 `turtle-rock`, `twisted-meadows`. Later features build the route-planning
 UI on top of these catalogues.
 
+### The random-unit-table flag (F010, doc-only)
+
+`scripts/creep-maps/units-doo.mjs`'s placed-unit parser reads a trailing
+`randomFlag` `int32` per unit: `-1` means "not a random-unit table entry" —
+an ordinary, specific unit (every creep in these nine catalogues) — and
+consumes no further bytes; `0`/`1`/`2` are the three random-table shapes
+(a level-based table, a group/position pick, and an explicit
+id/chance list respectively), each consuming a different tail; anything
+else throws, naming the unrecognised flag, rather than guessing a layout
+and silently misreading the rest of the file (verified against
+`war3mapUnits.doo`'s full byte length in `units-doo.test.mjs` — see C-011).
+This was already handled correctly in code; F010's review pass found it
+undocumented at the doc-file level (gaps.md #6) and added this note.
+
 ### The playable rectangle (F001-followup-3)
 
 Camps/starts/mines/shops normalise over the map's **playable rectangle**,
@@ -193,6 +207,14 @@ data layer share:
   `MapCamp`'s `level`/`xp`/`band` are the camp's own totals (sum of its
   creeps' levels/base xp, and a difficulty label) — not a hero's; see "XP
   model" below for how a hero's own level/xp are derived per stop.
+  `terrainBounds`/`cameraBounds` reach a *published* map document as of
+  F010: `creepMap.ts`'s schema has the two fields (collapsed, "reference
+  only — generated"), `publish.mjs`'s document builder (`buildCreepMapDoc`,
+  `src/lib/creep-routes/publish-doc.mjs`, unit-tested — see
+  `publish-doc.test.mjs`) writes them, and `MAP_PROJECTION` in `maps.ts`
+  projects them — before F010 they existed in every catalogue and every
+  fixture but silently never made it past `publish.mjs`, so a Sanity-backed
+  map's API response was missing both keys.
 - **`CreepRoute`** — `slug`, `title`, `race`, `vsRaces[]` (empty = any),
   `level` (`"standard"` or `"beginner"` — the UI word for this field is
   "Difficulty" as of F009, see "Difficulty naming" below; the field itself
@@ -203,9 +225,13 @@ data layer share:
   `GAME_ICON_OPTIONS`), `summary`, `author` and credit fields, an optional
   `build` link to a companion `buildOrder`, `patch`, `mapVersion` (the
   catalogue version the route was written against), an optional `tags[]`
-  (shown as chips, exactly like builds — persistence, i.e. a Sanity field
-  and an editor field, is F010; F009 only added the type and display code,
-  the two fixture routes below that carry tags are its only source today),
+  (shown as chips, exactly like builds; F009 added the type and display
+  code, F010 wires up persistence — `creepRoute.ts`'s schema has a `tags`
+  field, `toCreepRouteDraft` writes `valid.tags`, both Sanity projections
+  read `coalesce(tags, [])`, and the JSON API's list DTO includes it — a
+  submitted route's tags used to be collected by the form, validated by the
+  schema, and then silently discarded: no schema field existed to hold
+  them),
   `featured`, `publishedAt`, `updatedAt`, `stops[]`, and an optional
   `description`. A route is always drawn from *your* base: `start` says
   which of `map.starts` that is, the opponent's is just whichever other one
@@ -335,6 +361,21 @@ routes" group with **Pending review** / **Approved** / **All creep routes**
 / **Maps** lists, same filters as build orders. A `creepRoute` references
 its `creepMap` (required) and, optionally, a companion `buildOrder`.
 
+**Studio review ergonomics (F010).** A reviewing coach sees only a bare
+camp id ("c09") per stop in the Studio — `campLabel` (F009's human-readable
+label, "Giant Skeleton Warrior +2") needs the camp's own map data to
+resolve, which isn't available inside a Sanity preview `prepare()` function
+without an extra dereferencing fetch this schema doesn't do; the stop
+array-member preview stays `"Camp <campId>"` / a note subtitle rather than
+attempting one. Both the `map` reference field and the `stops` array field
+carry a `description` pointing a coach at
+`/learn/creep-routes/submit?map=<slug>` on the site, where camp ids *are*
+visible on a real map (`FieldGroupDefinition` has no `description` of its
+own in this Sanity version — the `stops` field's description is the
+closest available approximation of a "group note", since it's the group's
+one real field). A camp thumbnail rendered directly inside the Studio
+preview stays backlog (gaps.md #2; see "Backlog" below).
+
 `src/lib/creep-routes/routes.ts` and `maps.ts` mirror
 `src/lib/builds/builds.ts`: Sanity first when configured
 (`coalesce(reviewStatus, "approved") == "approved"`, `map->{...}`
@@ -346,7 +387,17 @@ whose `map` reference doesn't
 resolve (deleted, or — like every catalogue today, none of the nine
 `creepMap` documents have been published to Sanity yet, see "Publishing a
 map" below — never published) is **dropped from the list** rather than
-shown broken, with a `console.warn` in development.
+shown broken (`dropUnresolvedMaps`, `routes.ts` — server-only, no direct
+unit test, accepted gap: gaps.md #5), with a `console.warn` in development.
+
+**Production logging gap.** Every Sanity-fetch failure in `maps.ts`/
+`routes.ts` (`console.warn(...)`, five call sites) is gated behind
+`process.env.NODE_ENV !== "production"` — mirrors `builds.ts`'s existing
+pattern exactly, so this is pre-existing style, not something F010
+introduced, but it means a genuine Sanity outage in production degrades
+silently to fixtures/`[]` with zero observability. Routing these through a
+real logger/error-tracker that fires in production too is backlog (see
+"Backlog" below).
 
 The Sanity webhook (`/api/revalidate`, `PATHS.creepRoute` /
 `PATHS.creepMap` in `src/app/api/revalidate/route.ts`) purges
@@ -361,7 +412,12 @@ The Sanity webhook (`/api/revalidate`, `PATHS.creepRoute` /
 catalogue (`src/lib/creep-routes/maps/<slug>.json`) and its minimap
 (`public/maps/<slug>.png`), uploads the PNG as a Sanity image asset, and
 `createOrReplace`s a `creepMap` document with a deterministic id
-(`creepMap.<slug>`), so re-running is safe:
+(`creepMap.<slug>`), so re-running is safe. The document itself is built by
+`buildCreepMapDoc(slug, catalogue, minimapAssetId)`
+(`src/lib/creep-routes/publish-doc.mjs`) — a pure function with no network
+call, factored out so it's directly unit-tested (`publish-doc.test.mjs`,
+F010) without mocking Sanity; `publish.mjs` itself just uploads the asset
+and calls it:
 
 ```
 SANITY_API_WRITE_TOKEN=<editor token> node scripts/creep-maps/publish.mjs autumn-leaves echo-isles
@@ -390,9 +446,13 @@ this) — same trade-off as the build-orders NDJSON seed.
 list, copying `/learn/builds`' pattern: an async `searchParams`, filters
 validated against the known ids and re-applied with `filterCreepRoutes`
 (`src/lib/creep-routes/routes.ts`), rows (`RouteRow`) and an empty state
-with "Clear filters" and "Submit a route" (the submit form itself is F005;
-the link exists now and 404s until then). Both list and detail pages are
-gated by `CREEP_ROUTES_LIVE` in `src/lib/flags.ts`.
+with "Clear filters" and "Be the first to add one" (F010: this link now
+carries the active `map`/`race`/`vs`/`level` filters into the editor —
+"no routes for this matchup yet" leads straight into authoring one for it,
+see the editor's own `?map=&race=&vs=&level=` prefill under "Submission"
+below — rather than the plain, unfiltered `/learn/creep-routes/submit`).
+Both list and detail pages are gated by `CREEP_ROUTES_LIVE` in
+`src/lib/flags.ts`.
 
 **URL params**, all optional, invalid values silently ignored:
 
@@ -416,6 +476,24 @@ regardless of query string). It is a sibling of `MatchupPicker`
 also needs a map select builds has no equivalent of. See `DESIGN.md`'s
 "Creep routes → List" section for the row anatomy and unit words.
 
+**`RouteListUrlRecorder` (F010).** A tiny always-`null` client component,
+mounted alongside `RouteFilters`, that records the list's current URL
+(with whatever filters are active) to `sessionStorage` on every change —
+what `RouteBackLink` (below) reads to send a visitor back to the exact
+filtered view they came from. The gap this closes (gaps.md #4) — a route
+page's "All creep routes" link always returning to the *unfiltered* list —
+sounds like a `document.referrer` problem, and F010's own spec named
+`document.referrer` as the mechanism; it isn't reliable here in practice:
+verified with Playwright that clicking a `next/link` from the list to a
+route page is a client-side transition (`history.pushState`), and a
+browser only ever sets `document.referrer` on an *actual* navigation (a
+full page load) — it stayed empty across every such click in testing, so a
+`document.referrer`-only implementation would silently never fire for the
+one interaction this feature is meant to fix. `RouteBackLink` reads
+`sessionStorage` first and only falls back to `document.referrer` (still
+useful for a hard navigation — an external link, a fresh tab landing
+straight on the list before going to a route) if nothing is stored.
+
 The Learn hub's `creep-routes` category card and the primary nav's "Creep
 routes" item (conditional on `CREEP_ROUTES_LIVE`, `src/components/layout/nav-items.ts`)
 both point at this list, replacing the old image-only category page for
@@ -430,13 +508,28 @@ every other category) and every published route slug.
 
 `/learn/creep-routes/<slug>` (`src/app/(site)/learn/creep-routes/[slug]/page.tsx`)
 is the detail page shipped in an earlier feature. It follows the build-order detail page's shape: a race showcase
-header with the matchup, the route's difficulty badge ("Standard"/"Beginner" —
+header with the matchup, `RouteBackLink` ("All creep routes", F010 — see
+above; a plain `next/link` before this feature, now filter-preserving),
+the route's difficulty badge ("Standard"/"Beginner" —
 see "Difficulty naming" above), map name and `· map v<mapVersion>`,
-author/maintainer/updated/source, tags (`TagChip`, F009, shown when
-`route.tags` is non-empty), `HowTo` + `BreadcrumbList` JSON-LD
-(`src/lib/seo.ts` — step names use `campLabel`, not the raw camp id), a
-companion-build card when `route.build` is set, a Discord discussion link
-and up to three related routes (same map or same race).
+author/maintainer/updated/source, tags (`TagChip`, F009, persisted as of
+F010 — shown when `route.tags` is non-empty), `HowTo` + `BreadcrumbList`
+JSON-LD (`src/lib/seo.ts` — step names use `campLabel`, not the raw camp
+id), a companion-build card when `route.build` is set, a Discord discussion
+link and up to three related routes (same map or same race). The
+companion build itself, as of F010, links back: `/learn/builds/<slug>`
+shows a "Creep routes for this build" card (`getRoutesForBuild`, reused
+`RouteRow`) whenever at least one approved route references it — this data
+existed since an earlier feature but no page ever rendered it (gaps.md
+#1). Wiring it up surfaced a real fallback gap in `getRoutesForBuild`
+itself, fixed alongside: unlike `getCreepRoutes`/`getBuildBySlug`, it used
+to return Sanity's result unconditionally whenever Sanity was configured —
+even an *empty* one — never falling through to the fixture pairing the way
+its siblings do. In an environment with real Sanity build orders but zero
+published `creepRoute` documents (this repo's own dev setup today, see
+"Publishing a map" above), that meant the card could never appear at all,
+for any build, fixture-paired or not; found via this feature's own browser
+verification, not assumed from the spec.
 
 The map and the step table are the page's core: `CreepMapPlayground.tsx`
 (a client island next to the page) lifts one piece of state, the active
@@ -469,6 +562,16 @@ row and the details form, submit — reviewed the same way a build-order
 submission is. See `DESIGN.md`'s "Editor" section for what the author
 sees; this section is the mechanics.
 
+- **URL prefill (F010).** `?map=<slug>&race=<id>&vs=<id>&level=<id>`
+  preselects the setup row — `map` already worked (an earlier feature); F010
+  added `race`/`vs`/`level`, each validated against the known ids in
+  `page.tsx` (silently ignored if unrecognised, same rule the list page's
+  own URL params follow) before being passed to `RouteSubmitForm` as
+  `defaultRace`/`defaultVsRaces`/`defaultLevel` (plain `useState` initial
+  values — no effect needed, the form only reads them once on mount). This
+  is what makes "author a route for this matchup" a shareable link — the
+  list page's empty state now uses it (see "Pages" above), and it's the
+  seam a future "add the missing route" prompt elsewhere could reuse.
 - **`RouteSubmitForm` → `RouteSetup` + `RouteEditor` (`CreepMap` in edit
   mode + `StopEditor` → `StopRow`)** is the component tree, split so no
   file runs long: `RouteSetup` is the map/race/opponent(s)/level/hero/
@@ -509,7 +612,18 @@ sees; this section is the mechanics.
   field (F007).
   `toCreepRouteDraft(valid, mapDocId, buildDocId?)` is pure and
   synchronous — no Sanity client — so it's directly testable; the caller
-  resolves both ids.
+  resolves both ids, and (F010) it now also writes `valid.tags` onto the
+  draft — it used to be collected and validated by the schema and then
+  simply never read here, so a submitter's tags were silently discarded
+  before ever reaching Sanity.
+  Two more pure exports live here (F010, same "test the decision, not the
+  framework glue" reasoning): `stopsJsonTooLarge(raw)` — `MAX_STOPS_JSON_BYTES`
+  (64 KB) checked via `Buffer.byteLength`, called by `actions.ts` *before*
+  `JSON.parse`, so an oversized `stopsJson` form value is rejected before a
+  full parse is even attempted, not after (the `stops.max(30)` bound only
+  ever applied post-parse); and `decideSubmission(data, { now,
+  minFillSeconds })` — the honeypot/fill-time decision as a pure function,
+  see below.
 - **`src/lib/creep-routes/submit.ts`** (server-only) is `createBuildDraft`'s
   twin: `canAcceptSubmissions()` is `Boolean(projectId && token)`, read
   both by the server action (to gate the actual write) and by `page.tsx`
@@ -527,11 +641,29 @@ sees; this section is the mechanics.
   write time; a lookup failure drops just that link, not the submission.
 - **`actions.ts`**'s `submitCreepRoute` mirrors `submitBuild` exactly: the
   stops array arrives as a hidden `stopsJson` field (serialised
-  client-side, the same trick `BuildSubmitForm` uses for `stepsJson`),
-  honeypot (`website`, must stay empty), `startedAt` min-fill-time (8 s),
-  a per-IP in-memory throttle (1/minute, per serverless instance),
-  `canAcceptSubmissions()`, then `createCreepRouteDraft`. Field errors are
-  keyed the same way builds' are, `"stops.2.action"`, `"title"`, etc.
+  client-side, the same trick `BuildSubmitForm` uses for `stepsJson`,
+  size-capped via `stopsJsonTooLarge` before it's parsed), honeypot
+  (`website`), `startedAt` min-fill-time (8 s), a per-IP in-memory throttle
+  (1/minute, per serverless instance), `canAcceptSubmissions()`, then
+  `createCreepRouteDraft`. Field errors are keyed the same way builds' are,
+  `"stops.2.action"`, `"title"`, etc.
+  **Honeypot, reachable (F010).** The schema used to reject any nonempty
+  `website` itself (`z.string().max(0)`) — every real honeypot hit therefore
+  failed schema parsing first, well before the `if (data.website) return {
+  status: "ok", slug: "" }` line below it could ever run: dead code,
+  surfacing a generic "fix the highlighted fields" error rather than the
+  intended silent success (code-a.md, "Should fix" — it also tips off a
+  bot that something rejected it, the opposite of a honeypot's point). The
+  schema now accepts any string for `website`; the actual decision moved to
+  `submission.mjs`'s `decideSubmission(data, { minFillSeconds })`, a pure
+  function `actions.ts` calls right after a successful parse: a filled
+  honeypot returns `{ action: "fake-ok" }` (the caller returns the silent
+  `{ status: "ok", slug: "" }` immediately — `createCreepRouteDraft` is
+  never imported into that code path, let alone called), a too-fast
+  `startedAt` returns `{ action: "reject", reason: "too-fast" }`, anything
+  else `{ action: "proceed" }`. `submission.test.mjs` checks all three
+  branches directly, plus that the honeypot check wins when both trip at
+  once.
 - **`src/lib/creep-routes/exchange.ts`** is the `#route=` deep-link reader,
   `src/lib/builds/exchange.ts`'s `#build=` pattern with a creep-route
   shape (`EXCHANGE_FORMAT = "wc3gym-creep-route"`): a fragment identifier
@@ -554,7 +686,25 @@ overlay can fetch cross-origin from `file://`/`tauri://`), a 5-minute
 shared cache on success (`Cache-Control: public, s-maxage=300,
 stale-while-revalidate=600`, 60 s on a 404), and `OPTIONS` support on every
 route. A 404 is always `{ "error": "not_found" }`. `src/lib/creep-routes/serialize.ts`
-builds every response DTO from the domain types (`types.ts`).
+builds every response DTO from the domain types (`types.ts`) — as of F010
+it's a typed façade over `serialize.mjs`'s pure implementation (same split
+as `submission.mjs`/`.ts`: `gameIconSrc` and `deriveRoute` are injected
+parameters in the `.mjs` file rather than direct imports, since a plain
+`node --test` run can't resolve the `.ts` modules they live in without a
+bundler), so the DTO shapes are directly unit-tested — `serialize.test.mjs`
+— which found no bugs but did catch that `ApiRouteListItem` was missing
+`tags` entirely (added alongside the tags-persistence fix above). The list
+API's own query-param validation (`?race=`/`?vs=`/`?map=`/`?level=`, an
+invalid value silently dropped) is likewise a pure, unit-tested helper,
+`parseRouteQuery` (`query.mjs`/`.ts`, `query.test.mjs`) — `/api/creep-routes`'s
+route handler calls it instead of validating inline. `filterCreepRoutes`
+itself made the same move to `filter.mjs`/`.ts` (`filter.test.mjs` covers
+race/vsRace — including the "any opponent" semantics — map, level and `q`,
+alone and combined); `routes.ts` re-exports it so no caller's import path
+changed. `derive.mjs` gained a typed façade too, `derive.ts` — `serialize.ts`
+now imports `deriveRoute` from there instead of casting the raw `.mjs`
+call's return value inline, the one thing `serialize.ts` used to carry an
+undocumented `as {...}` for.
 
 | Endpoint | Returns | Notes |
 | --- | --- | --- |
@@ -569,7 +719,8 @@ set, not "everything the domain type has minus `description`": no
 since those are detail-only. `start` (an index into `map.starts` — which
 spawn is the route author's own base) is included but omitted from the
 JSON entirely when unset, the same as any other optional field with no
-value; JSON's own `undefined`-key-dropping does that for free. A stop has
+value; JSON's own `undefined`-key-dropping does that for free. `tags`
+(F010) is always present, `[]` when the route has none. A stop has
 no time field (F007) — just `campId`, `action`, `units`, `note`,
 `condition`, in route order:
 
@@ -586,6 +737,7 @@ no time field (F007) — just `campId`, `action`, `units`, `note`,
       "hero": "or-shadow-hunter",
       "summary": "Shadow Hunter's Healing Wave keeps this cheap: four medium camps on Last Refuge before the push.",
       "author": "Gym coaches",
+      "tags": [],
       "stops": [
         { "campId": "c01" },
         { "campId": "c02", "condition": "Skip if the Undead scouted this side" }
@@ -636,14 +788,14 @@ needs to compare against.
 **Map detail** (`ApiMap`) is the entire catalogue — `bounds`,
 `terrainBounds`, `cameraBounds`, `image`, `camps[]` (each with its
 `creeps[]`), `starts`, `mines`, `shops` — with `minimapUrl` made absolute.
-`terrainBounds`/`cameraBounds` are optional on `CreepMap`: fixtures (still
-the only source in dev, see "Publishing a map" above) carry them straight
-from the generated catalogue, but neither the `creepMap` Sanity schema nor
-`publish.mjs` writes them to a published document today, since they were
-scoped as reference-only for the map-building pipeline itself, not for
-consumers — a Sanity-backed map's API response simply won't have these
-two keys until a future feature adds them to the schema and the publish
-script, should a consumer turn out to want them.
+`terrainBounds`/`cameraBounds` are optional on `CreepMap` (still reference
+only — no coordinate math on the site uses them, see "The playable
+rectangle" above), but as of F010 both reach a *published* document too:
+the `creepMap` Sanity schema has the fields, `publish.mjs` writes them
+(`buildCreepMapDoc`, unit-tested), and `MAP_PROJECTION` projects them —
+they were carried by every catalogue and fixture from the start, but
+previously never made it past `publish.mjs` into a Sanity-backed map's API
+response.
 
 ## When the ladder pool rotates
 
@@ -703,9 +855,22 @@ mission would likely want to pick it up:
   replay into a build-order draft; teaching it to also emit a creep-route
   draft (camps cleared, in order) would let a coach generate a route from
   their own game instead of authoring one by hand.
-- **Merged build+route view.** A route's optional `build` link (and a
-  build's routes, via `getRoutesForBuild`) exist, but no page shows the two
-  together — today they're two separate step tables on two separate pages.
+- **Merged build+route view.** A route's optional `build` link, and (as of
+  F010) a build's own routes card on `/learn/builds/[slug]`, both link the
+  two together, but no page shows their two step tables *combined* into one
+  reading experience — they're still two separate pages, just cross-linked
+  now.
+- **Studio camp preview.** A reviewing coach sees a bare camp id per stop in
+  the Studio, with only a text hint pointing them at the live editor to
+  cross-reference it (F010, "Studio review ergonomics" above); a real map
+  thumbnail rendered inside the Studio's own preview is the follow-up
+  (gaps.md #2).
+- **Production Sanity-fetch logging.** `maps.ts`/`routes.ts` only
+  `console.warn` on a Sanity fetch failure in development (mirrors
+  `builds.ts`'s existing pattern) — a genuine outage in production degrades
+  silently to fixtures/`[]` with zero observability; routing these through a
+  real logger/error-tracker that fires in production too is the follow-up
+  (F010, "Review flow" above).
 - **Item drop tables per camp.** Liquipedia's map previews list each
   camp's item drop table (from the map's own item tables); our
   `units-doo.mjs` parser already reads `droppedItemSets` off the placed
@@ -719,10 +884,9 @@ mission would likely want to pick it up:
 - **`build.mjs` not creating `--out`** — fixed in this feature
   (`mkdirSync(out, { recursive: true })`), listed here only as the record
   of when it was closed.
-- **Route page back-link not preserving filters.** Following a route from
-  a filtered `/learn/creep-routes?race=human&...` list to its detail page
-  and back loses the filters — the back link doesn't carry the query
-  string forward.
+- **Route page back-link not preserving filters** — fixed in F010
+  (`RouteBackLink` + `RouteListUrlRecorder`, "Pages" above), listed here
+  only as the record of when it was closed.
 - **The H1-under-sticky-nav site issue.** A pre-existing, site-wide layout
   bug also seen on the build-order page's hero: on some viewports an `<h1>`
   that wraps to a second line has that line clipped behind the sticky nav

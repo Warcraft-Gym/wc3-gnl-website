@@ -23,6 +23,7 @@ import { readFileSync, existsSync, readdirSync } from "node:fs";
 import { createRequire } from "node:module";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildCreepMapDoc } from "../../src/lib/creep-routes/publish-doc.mjs";
 
 const require = createRequire(import.meta.url);
 
@@ -63,23 +64,7 @@ async function publishMap(client, slug) {
   const asset = await client.assets.upload("image", readFileSync(pngPath), {
     filename: `${slug}.png`,
   });
-  const doc = {
-    _id: `creepMap.${slug}`,
-    _type: "creepMap",
-    title: catalogue.name,
-    slug: { _type: "slug", current: slug },
-    w3cMapId: catalogue.w3cMapId,
-    mapVersion: catalogue.mapVersion ?? undefined,
-    minimap: { _type: "image", asset: { _type: "reference", _ref: asset._id } },
-    sourceFile: catalogue.sourceFile,
-    generatedAt: catalogue.generatedAt,
-    bounds: catalogue.bounds,
-    image: catalogue.image,
-    camps: catalogue.camps.map((c) => ({ ...c, _type: "camp", _key: c.id })),
-    starts: catalogue.starts.map((s, i) => ({ ...s, _type: "start", _key: `start-${i}` })),
-    mines: catalogue.mines.map((m, i) => ({ ...m, _type: "mine", _key: `mine-${i}` })),
-    shops: catalogue.shops.map((s) => ({ ...s, _type: "shop", _key: s.id })),
-  };
+  const doc = buildCreepMapDoc(slug, catalogue, asset._id);
   await client.createOrReplace(doc);
   console.log(`published ${slug}: creepMap.${slug} (${catalogue.camps.length} camps)`);
 }

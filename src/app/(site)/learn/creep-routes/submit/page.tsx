@@ -7,6 +7,8 @@ import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
 import { getBuilds } from "@/lib/builds/builds";
 import { canAcceptSubmissions } from "@/lib/creep-routes/submit";
+import { BUILD_RACES, type BuildRace } from "@/lib/builds/types";
+import { ROUTE_LEVELS, type RouteLevel } from "@/lib/creep-routes/types";
 
 export const metadata: Metadata = {
   title: "Submit a creep route",
@@ -15,13 +17,24 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 
-type Search = { map?: string };
+// `?map=&race=&vs=&level=` prefills the setup row — a "start a route for
+// this matchup" link (e.g. the list page's "Be the first to add one" empty
+// state, below) would otherwise be impossible to share; every value is
+// validated against the known ids, same silent-ignore-if-invalid rule the
+// list page's own URL params already follow (gaps.md #3).
+type Search = { map?: string; race?: string; vs?: string; level?: string };
+
+const RACE_IDS = new Set(BUILD_RACES.map((r) => r.id));
+const LEVEL_IDS = new Set(ROUTE_LEVELS.map((l) => l.id));
 
 export default async function SubmitCreepRoutePage({ searchParams }: { searchParams: Promise<Search> }) {
   if (!CREEP_ROUTES_LIVE) notFound();
   const sp = await searchParams;
   const [maps, builds] = await Promise.all([getCreepMaps(), getBuilds()]);
   const defaultMapSlug = maps.some((m) => m.slug === sp.map) ? sp.map : maps[0]?.slug;
+  const defaultRace = RACE_IDS.has(sp.race as BuildRace) ? (sp.race as BuildRace) : undefined;
+  const defaultVs = RACE_IDS.has(sp.vs as BuildRace) ? (sp.vs as BuildRace) : undefined;
+  const defaultLevel = LEVEL_IDS.has(sp.level as RouteLevel) ? (sp.level as RouteLevel) : undefined;
 
   return (
     <>
@@ -36,6 +49,9 @@ export default async function SubmitCreepRoutePage({ searchParams }: { searchPar
           maps={maps}
           builds={builds.map((b) => ({ slug: b.slug, title: b.title }))}
           defaultMapSlug={defaultMapSlug}
+          defaultRace={defaultRace}
+          defaultVsRaces={defaultVs ? [defaultVs] : undefined}
+          defaultLevel={defaultLevel}
           submissionsOpen={canAcceptSubmissions()}
         />
       </Container>

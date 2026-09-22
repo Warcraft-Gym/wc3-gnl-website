@@ -1,7 +1,13 @@
 "use server";
 
 import { headers } from "next/headers";
-import { createSubmissionSchema, flattenErrors, type FieldErrors } from "@/lib/creep-routes/submission";
+import {
+  createSubmissionSchema,
+  decideSubmission,
+  flattenErrors,
+  stopsJsonTooLarge,
+  type FieldErrors,
+} from "@/lib/creep-routes/submission";
 import { canAcceptSubmissions, createCreepRouteDraft } from "@/lib/creep-routes/submit";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
 import { getBuilds } from "@/lib/builds/builds";
@@ -31,9 +37,16 @@ function throttled(ip: string): boolean {
 }
 
 export async function submitCreepRoute(_prev: SubmitState, formData: FormData): Promise<SubmitState> {
+  const stopsJsonRaw = String(formData.get("stopsJson") ?? "[]");
+  // Reject an oversized payload before it is ever `JSON.parse`d — the
+  // schema's `stops.max(30)` bound only applies after a full parse
+  // succeeds (code-a.md, "Must fix").
+  if (stopsJsonTooLarge(stopsJsonRaw)) {
+    return { status: "error", message: "Please fix the highlighted fields.", fields: { stops: "That's too much data for the stops list." } };
+  }
   let stops: unknown = [];
   try {
-    stops = JSON.parse(String(formData.get("stopsJson") ?? "[]"));
+    stops = JSON.parse(stopsJsonRaw);
   } catch {
     return { status: "error", message: "The stops could not be read. Please try again." };
   }
@@ -78,9 +91,12 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
   }
   const data = parsed.data;
 
-  // Spam guards: honeypot filled, or submitted faster than a human could.
-  if (data.website) return { status: "ok", slug: "" };
-  if (data.startedAt && Date.now() - data.startedAt < MIN_FILL_SECONDS * 1000) {
+  // Spam guards, decided purely (see `decideSubmission`'s own doc comment):
+  // a filled honeypot always fakes success without ever reaching
+  // `createCreepRouteDraft` below; a too-fast submit rejects with a message.
+  const decision = decideSubmission(data, { minFillSeconds: MIN_FILL_SECONDS });
+  if (decision.action === "fake-ok") return { status: "ok", slug: "" };
+  if (decision.action === "reject") {
     return { status: "error", message: "That was quick, give it another look and submit again." };
   }
 

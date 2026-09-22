@@ -77,6 +77,8 @@ export const creepRoute = defineType({
       type: "reference",
       to: [{ type: "creepMap" }],
       group: "meta",
+      description:
+        "Camp ids below (c01, c09, …) aren't shown on a map here — to see where a camp actually is, open /learn/creep-routes/submit?map=<slug> on the site (swap <slug> for this map's slug).",
       validation: (rule) => rule.required(),
     }),
     defineField({
@@ -106,6 +108,13 @@ export const creepRoute = defineType({
       type: "string",
       group: "meta",
       description: "The map catalogue version this route was written against, e.g. 2.0",
+    }),
+    defineField({
+      name: "tags",
+      type: "array",
+      group: "meta",
+      of: [defineArrayMember({ type: "string" })],
+      options: { layout: "tags" },
     }),
     defineField({
       name: "summary",
@@ -193,6 +202,14 @@ export const creepRoute = defineType({
       name: "stops",
       type: "array",
       group: "stops",
+      // `FieldGroupDefinition` has no `description` of its own (Sanity
+      // 6.10) — this is the group's one real field, so its description
+      // reads as the group's note in practice. A reviewing coach sees only
+      // a bare camp id ("c09") per stop below; there is no map preview in
+      // the Studio to cross-reference it against (F010, gaps.md #2 — a
+      // real map preview inside the Studio stays backlog).
+      description:
+        "A reviewing coach can't see camp ids on a map here. To check what a camp id actually is, open /learn/creep-routes/submit?map=<slug> on the site (swap <slug> for this route's map).",
       validation: (rule) => rule.required().min(2),
       of: [
         defineArrayMember({

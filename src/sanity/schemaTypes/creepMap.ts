@@ -89,6 +89,28 @@ export const creepMap = defineType({
       ],
     }),
     defineField({
+      name: "terrainBounds",
+      type: "object",
+      group: "generated",
+      description:
+        "Raw terrain-grid bounds (wider than bounds, the playable rect above) — reference only, generated; not used for any coordinate math on the site.",
+      options: { collapsible: true, collapsed: true },
+      fields: [
+        defineField({ name: "xMin", type: "number" }),
+        defineField({ name: "xMax", type: "number" }),
+        defineField({ name: "yMin", type: "number" }),
+        defineField({ name: "yMax", type: "number" }),
+      ],
+    }),
+    defineField({
+      name: "cameraBounds",
+      type: "array",
+      group: "generated",
+      description:
+        "The .w3i camera bounds quad (four x,y corner pairs, flattened) — reference only, generated, carried straight through from the catalogue.",
+      of: [defineArrayMember({ type: "number" })],
+    }),
+    defineField({
       name: "camps",
       type: "array",
       group: "generated",
