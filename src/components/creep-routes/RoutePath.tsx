@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import type { CreepMap, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
+import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
 
 /**
  * The route itself: a polyline through the camp stops in order (non-camp
@@ -41,11 +42,13 @@ export const RoutePath = memo(function RoutePath({
       <path d={d} fill="none" stroke="var(--wg-bg)" strokeOpacity="0.75" strokeWidth="5" strokeLinejoin="round" strokeLinecap="round" />
       <path d={d} fill="none" stroke="var(--wg-gold)" strokeWidth="2.5" strokeLinejoin="round" strokeLinecap="round" />
       {points.map((p) => {
-        const cx = p.camp.x * iw;
-        // Badge floats just above the camp mark, offset in the same pixel
-        // units as the viewBox (image width), so it reads the same on a
-        // 256x256 map and a 256x192 one.
-        const badgeY = p.camp.y * ih - 13;
+        // Badge floats just above the camp mark, in the same units as the
+        // viewBox so it reads the same on a 256x256 map and a 256x192 one —
+        // and flips below, rather than clipping, for a camp near the top
+        // edge. See `badge-position.mjs`.
+        const badge = badgePosition(p.camp.x, p.camp.y, iw, ih);
+        const cx = badge.x;
+        const badgeY = badge.y;
         const isActive = activeStop === p.index;
         return (
           <g key={p.index} data-stop-marker={p.index + 1}>
