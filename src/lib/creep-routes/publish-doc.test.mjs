@@ -66,3 +66,37 @@ test("carries w3cMapId, mapVersion, sourceFile, generatedAt straight through", (
   assert.equal(doc.sourceFile, "w3c_AutumnLeaves_v2-0.w3x");
   assert.equal(doc.generatedAt, "2026-08-01T00:00:00Z");
 });
+
+test("F011: keys creeps[] and drops[]/drops[].items[] all the way down", () => {
+  const c = catalogue({
+    camps: [
+      {
+        id: "c01",
+        x: 0.1,
+        y: 0.2,
+        level: 5,
+        band: "easy",
+        creeps: [{ id: "nftt", name: "Forest Troll Trapper", level: 3, count: 1, icon: "BTNForestTrollTrapper" }],
+        drops: [
+          {
+            kind: "class",
+            class: "Permanent",
+            level: 2,
+            chance: 100,
+            items: [{ id: "clsd", name: "Cloak of Shadows", icon: "BTNCloak" }],
+          },
+          { kind: "item", id: "ckng", chance: 50, items: [{ id: "ckng", name: "Crown of Kings +5", icon: "BTNHelmutPurple" }] },
+        ],
+      },
+    ],
+  });
+  const doc = buildCreepMapDoc("autumn-leaves", c, "image-abc123");
+  const [camp] = doc.camps;
+  assert.equal(camp.creeps[0]._type, "creep");
+  assert.equal(camp.creeps[0]._key, "nftt");
+  assert.equal(camp.drops[0]._type, "drop");
+  assert.equal(camp.drops[0]._key, "Permanent-2");
+  assert.equal(camp.drops[0].items[0]._type, "dropItem");
+  assert.equal(camp.drops[0].items[0]._key, "clsd");
+  assert.equal(camp.drops[1]._key, "ckng");
+});

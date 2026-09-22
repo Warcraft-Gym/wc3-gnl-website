@@ -5,6 +5,7 @@
  * included, so mines are shops minus the mine typeId.
  */
 import { creepXp } from "../../src/lib/creep-routes/xp.mjs";
+import { campDrops } from "./drops.mjs";
 
 /** Single-linkage clustering distance, in world units (verified: gives 20
  * camps of 3-4 creeps each on Autumn Leaves). */
@@ -106,8 +107,14 @@ function centroid(units) {
  * is off-centre on several maps (Echo Isles, Last Refuge, Shallow Grave,
  * Tidehunters, Turtle Rock, Twisted Meadows — their `complements` border
  * isn't symmetric), which would otherwise reshuffle camp ids for a change
- * that has nothing to do with where any camp actually is. */
-export function buildCamps(units, bounds, lookupCreep, idCentre) {
+ * that has nothing to do with where any camp actually is.
+ *
+ * `randomItemTables` (F011, defaults to `[]`) is `war3map.w3i`'s map-level
+ * random item tables (`map-info.mjs`'s `parseW3i`) — passed straight
+ * through to `drops.mjs`'s `campDrops` for any creep whose
+ * `itemTablePointer` points at one instead of carrying its own inline
+ * `droppedItemSets`. */
+export function buildCamps(units, bounds, lookupCreep, idCentre, randomItemTables = []) {
   const creepUnits = units.filter((u) => u.player === 24 && withinBounds(u.x, u.y, bounds));
   const clusters = singleLinkageClusters(creepUnits, CAMP_CLUSTER_THRESHOLD);
 
@@ -144,7 +151,7 @@ export function buildCamps(units, bounds, lookupCreep, idCentre) {
       level += info.level * count;
       xp += creepXpTotal(info.level, count);
       if (!info.sleeps) allSleep = false;
-      return { id: rawcode, name: info.name, level: info.level, count };
+      return { id: rawcode, name: info.name, level: info.level, count, icon: info.icon };
     });
 
     const { x, y } = normalise(camp.worldX, camp.worldY, bounds);
@@ -159,6 +166,7 @@ export function buildCamps(units, bounds, lookupCreep, idCentre) {
       xp,
       band: bandFor(level),
       sleeps: allSleep,
+      drops: campDrops(camp.clusterUnits, randomItemTables),
     };
   });
 }

@@ -141,10 +141,64 @@ export const creepMap = defineType({
                     defineField({ name: "name", type: "string" }),
                     defineField({ name: "level", type: "number" }),
                     defineField({ name: "count", type: "number" }),
+                    defineField({
+                      name: "icon",
+                      type: "string",
+                      description: "BTN<Name> key — public/wc3-icons/creeps/<icon>.png (F011).",
+                    }),
                   ],
                   preview: {
                     select: { name: "name", level: "level", count: "count" },
                     prepare: ({ name, level, count }) => ({ title: name, subtitle: `L${level} x${count}` }),
+                  },
+                }),
+              ],
+            }),
+            defineField({
+              name: "drops",
+              type: "array",
+              description: "Possible item drops for this camp, unioned from its creeps (F011). Generated.",
+              of: [
+                defineArrayMember({
+                  type: "object",
+                  name: "drop",
+                  fields: [
+                    defineField({ name: "kind", type: "string", validation: (rule) => rule.required() }),
+                    defineField({ name: "class", type: "string" }),
+                    defineField({ name: "level", type: "number" }),
+                    defineField({ name: "id", type: "string" }),
+                    defineField({ name: "chance", type: "number" }),
+                    defineField({
+                      name: "items",
+                      type: "array",
+                      description: "The expanded pool (or the single concrete item) — id/name/icon per possible drop.",
+                      of: [
+                        defineArrayMember({
+                          type: "object",
+                          name: "dropItem",
+                          fields: [
+                            defineField({ name: "id", type: "string" }),
+                            defineField({ name: "name", type: "string" }),
+                            defineField({
+                              name: "icon",
+                              type: "string",
+                              description: "BTN<Name> key — public/wc3-icons/items/<icon>.png.",
+                            }),
+                          ],
+                          preview: {
+                            select: { name: "name" },
+                            prepare: ({ name }) => ({ title: name }),
+                          },
+                        }),
+                      ],
+                    }),
+                  ],
+                  preview: {
+                    select: { kind: "kind", cls: "class", level: "level", id: "id", items: "items" },
+                    prepare: ({ kind, cls, level, id, items }) => ({
+                      title: kind === "class" ? `${cls} L${level}` : id,
+                      subtitle: `${(items as unknown[] | undefined)?.length ?? 0} possible item(s)`,
+                    }),
                   },
                 }),
               ],

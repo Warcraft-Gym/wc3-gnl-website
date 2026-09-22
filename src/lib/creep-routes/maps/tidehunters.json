@@ -5,7 +5,7 @@
   "w3cMapId": 54,
   "w3cName": "Tidehunters",
   "sourceFile": "w3c_Tidehunters_v1.2.w3x",
-  "generatedAt": "2026-09-22T00:42:45.391Z",
+  "generatedAt": "2026-09-22T11:13:40.253Z",
   "bounds": {
     "xMin": -5504,
     "xMax": 6016,
@@ -44,19 +44,79 @@
           "id": "nlsn",
           "name": "Makrura Snapper",
           "level": 5,
-          "count": 1
+          "count": 1,
+          "icon": "BTNLobstrokkRed"
         },
         {
           "id": "ntrt",
           "name": "Giant Sea Turtle",
           "level": 4,
-          "count": 2
+          "count": 2,
+          "icon": "BTNSeaTurtleGreen"
         }
       ],
       "level": 13,
       "xp": 285,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Charged",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "rej3",
+              "name": "Replenishment Potion",
+              "icon": "BTNRejuvPotion"
+            },
+            {
+              "id": "will",
+              "name": "Wand of Illusion",
+              "icon": "BTNWand"
+            },
+            {
+              "id": "wlsd",
+              "name": "Wand of Lightning Shield",
+              "icon": "BTNStarWand"
+            },
+            {
+              "id": "wswd",
+              "name": "Sentry Wards",
+              "icon": "BTNSentryWard"
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 1,
+          "chance": 100,
+          "items": [
+            {
+              "id": "manh",
+              "name": "Manual of Health",
+              "icon": "BTNManual"
+            },
+            {
+              "id": "tdex",
+              "name": "Tome of Agility",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tint",
+              "name": "Tome of Intelligence",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tstr",
+              "name": "Tome of Strength",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c02",
@@ -69,25 +129,63 @@
           "id": "nsko",
           "name": "Skeletal Orc",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSkeletalOrc"
         },
         {
           "id": "nsrh",
           "name": "Stormreaver Hermit",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNOrcWarlock"
         },
         {
           "id": "nsra",
           "name": "Stormreaver Apprentice",
           "level": 1,
-          "count": 1
+          "count": 1,
+          "icon": "BTNOrcWarlock"
         }
       ],
       "level": 7,
       "xp": 145,
       "band": "easy",
-      "sleeps": false
+      "sleeps": false,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "tdx2",
+              "name": "Tome of Agility +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "texp",
+              "name": "Tome of Experience",
+              "icon": "BTNTomeBrown"
+            },
+            {
+              "id": "tin2",
+              "name": "Tome of Intelligence +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tpow",
+              "name": "Tome of Knowledge",
+              "icon": "BTNTomeRed"
+            },
+            {
+              "id": "tst2",
+              "name": "Tome of Strength +2",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c03",
@@ -100,19 +198,51 @@
           "id": "ntrt",
           "name": "Giant Sea Turtle",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaTurtleGreen"
         },
         {
           "id": "ntrs",
           "name": "Sea Turtle",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaTurtleGreen"
         }
       ],
       "level": 6,
       "xp": 125,
       "band": "easy",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 1,
+          "chance": 100,
+          "items": [
+            {
+              "id": "clsd",
+              "name": "Cloak of Shadows",
+              "icon": "BTNCloak"
+            },
+            {
+              "id": "rag1",
+              "name": "Slippers of Agility +3",
+              "icon": "BTNSlippersOfAgility"
+            },
+            {
+              "id": "rin1",
+              "name": "Mantle of Intelligence +3",
+              "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rst1",
+              "name": "Gauntlets of Ogre Strength +3",
+              "icon": "BTNGauntletsOfOgrePower"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c04",
@@ -125,19 +255,51 @@
           "id": "ntrt",
           "name": "Giant Sea Turtle",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaTurtleGreen"
         },
         {
           "id": "ntrs",
           "name": "Sea Turtle",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaTurtleGreen"
         }
       ],
       "level": 6,
       "xp": 125,
       "band": "easy",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 1,
+          "chance": 100,
+          "items": [
+            {
+              "id": "clsd",
+              "name": "Cloak of Shadows",
+              "icon": "BTNCloak"
+            },
+            {
+              "id": "rag1",
+              "name": "Slippers of Agility +3",
+              "icon": "BTNSlippersOfAgility"
+            },
+            {
+              "id": "rin1",
+              "name": "Mantle of Intelligence +3",
+              "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rst1",
+              "name": "Gauntlets of Ogre Strength +3",
+              "icon": "BTNGauntletsOfOgrePower"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c05",
@@ -150,31 +312,75 @@
           "id": "ngnb",
           "name": "Gnoll Brute",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnoll"
         },
         {
           "id": "ngnv",
           "name": "Gnoll Overseer",
           "level": 5,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnollKing"
         },
         {
           "id": "ngnw",
           "name": "Gnoll Warden",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnollWarden"
         },
         {
           "id": "ngns",
           "name": "Gnoll Assassin",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnollArcher"
         }
       ],
       "level": 14,
       "xp": 295,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 3,
+          "chance": 100,
+          "items": [
+            {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
+              "id": "penr",
+              "name": "Pendant of Energy",
+              "icon": "BTNPendantOfEnergy"
+            },
+            {
+              "id": "prvt",
+              "name": "Periapt of Vitality",
+              "icon": "BTNPeriapt"
+            },
+            {
+              "id": "rat9",
+              "name": "Claws of Attack +9",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde2",
+              "name": "Ring of Protection +3",
+              "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c06",
@@ -187,31 +393,75 @@
           "id": "ngnb",
           "name": "Gnoll Brute",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnoll"
         },
         {
           "id": "ngnw",
           "name": "Gnoll Warden",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnollWarden"
         },
         {
           "id": "ngnv",
           "name": "Gnoll Overseer",
           "level": 5,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnollKing"
         },
         {
           "id": "ngns",
           "name": "Gnoll Assassin",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNGnollArcher"
         }
       ],
       "level": 14,
       "xp": 295,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 3,
+          "chance": 100,
+          "items": [
+            {
+              "id": "evtl",
+              "name": "Talisman of Evasion",
+              "icon": "BTNTalisman"
+            },
+            {
+              "id": "penr",
+              "name": "Pendant of Energy",
+              "icon": "BTNPendantOfEnergy"
+            },
+            {
+              "id": "prvt",
+              "name": "Periapt of Vitality",
+              "icon": "BTNPeriapt"
+            },
+            {
+              "id": "rat9",
+              "name": "Claws of Attack +9",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde2",
+              "name": "Ring of Protection +3",
+              "icon": "BTNRingGreen"
+            },
+            {
+              "id": "rlif",
+              "name": "Ring of Regeneration",
+              "icon": "BTNRingSkull"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c07",
@@ -224,37 +474,97 @@
           "id": "nftr",
           "name": "Forest Troll",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTroll"
         },
         {
           "id": "nfsh",
           "name": "Forest Troll High Priest",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTrollShadowPriest"
         },
         {
           "id": "ngrk",
           "name": "Mud Golem",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNRockGolem"
         },
         {
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTrollTrapper"
         },
         {
           "id": "ngst",
           "name": "Rock Golem",
           "level": 6,
-          "count": 1
+          "count": 1,
+          "icon": "BTNRockGolem"
         }
       ],
       "level": 17,
       "xp": 375,
       "band": "medium",
-      "sleeps": false
+      "sleeps": false,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 4,
+          "chance": 100,
+          "items": [
+            {
+              "id": "afac",
+              "name": "Alleria's Flute of Accuracy",
+              "icon": "BTNAlleriaFlute"
+            },
+            {
+              "id": "belv",
+              "name": "Boots of Quel'Thalas +6",
+              "icon": "BTNBoots"
+            },
+            {
+              "id": "bgst",
+              "name": "Belt of Giant Strength +6",
+              "icon": "BTNBelt"
+            },
+            {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lgdh",
+              "name": "Legion Doom-Horn",
+              "icon": "BTNHornOfDoom"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c08",
@@ -267,37 +577,97 @@
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTrollTrapper"
         },
         {
           "id": "ngst",
           "name": "Rock Golem",
           "level": 6,
-          "count": 1
+          "count": 1,
+          "icon": "BTNRockGolem"
         },
         {
           "id": "nftr",
           "name": "Forest Troll",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTroll"
         },
         {
           "id": "nfsh",
           "name": "Forest Troll High Priest",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTrollShadowPriest"
         },
         {
           "id": "ngrk",
           "name": "Mud Golem",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNRockGolem"
         }
       ],
       "level": 17,
       "xp": 375,
       "band": "medium",
-      "sleeps": false
+      "sleeps": false,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 4,
+          "chance": 100,
+          "items": [
+            {
+              "id": "afac",
+              "name": "Alleria's Flute of Accuracy",
+              "icon": "BTNAlleriaFlute"
+            },
+            {
+              "id": "belv",
+              "name": "Boots of Quel'Thalas +6",
+              "icon": "BTNBoots"
+            },
+            {
+              "id": "bgst",
+              "name": "Belt of Giant Strength +6",
+              "icon": "BTNBelt"
+            },
+            {
+              "id": "brac",
+              "name": "Runed Bracers",
+              "icon": "BTNRunedBracers"
+            },
+            {
+              "id": "ciri",
+              "name": "Robe of the Magi +6",
+              "icon": "BTNRobeOfTheMagi"
+            },
+            {
+              "id": "lgdh",
+              "name": "Legion Doom-Horn",
+              "icon": "BTNHornOfDoom"
+            },
+            {
+              "id": "lhst",
+              "name": "The Lion Horn of Stormwind",
+              "icon": "BTNLionHorn"
+            },
+            {
+              "id": "rwiz",
+              "name": "Sobi Mask",
+              "icon": "BTNSobiMask"
+            },
+            {
+              "id": "sbch",
+              "name": "Scourge Bone Chimes",
+              "icon": "BTNBoneChimes"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c09",
@@ -310,19 +680,56 @@
           "id": "nmrm",
           "name": "Murloc Nightcrawler",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurlocNightCrawler"
         },
         {
           "id": "nmrr",
           "name": "Murloc Huntsman",
           "level": 2,
-          "count": 2
+          "count": 2,
+          "icon": "BTNMurloc"
         }
       ],
       "level": 7,
       "xp": 140,
       "band": "easy",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "tdx2",
+              "name": "Tome of Agility +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "texp",
+              "name": "Tome of Experience",
+              "icon": "BTNTomeBrown"
+            },
+            {
+              "id": "tin2",
+              "name": "Tome of Intelligence +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tpow",
+              "name": "Tome of Knowledge",
+              "icon": "BTNTomeRed"
+            },
+            {
+              "id": "tst2",
+              "name": "Tome of Strength +2",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c10",
@@ -335,19 +742,56 @@
           "id": "nmrr",
           "name": "Murloc Huntsman",
           "level": 2,
-          "count": 2
+          "count": 2,
+          "icon": "BTNMurloc"
         },
         {
           "id": "nmrm",
           "name": "Murloc Nightcrawler",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurlocNightCrawler"
         }
       ],
       "level": 7,
       "xp": 140,
       "band": "easy",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "tdx2",
+              "name": "Tome of Agility +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "texp",
+              "name": "Tome of Experience",
+              "icon": "BTNTomeBrown"
+            },
+            {
+              "id": "tin2",
+              "name": "Tome of Intelligence +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tpow",
+              "name": "Tome of Knowledge",
+              "icon": "BTNTomeRed"
+            },
+            {
+              "id": "tst2",
+              "name": "Tome of Strength +2",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c11",
@@ -360,25 +804,63 @@
           "id": "nrel",
           "name": "Reef Elemental",
           "level": 2,
-          "count": 2
+          "count": 2,
+          "icon": "BTNSeaElemental"
         },
         {
           "id": "nele",
           "name": "Enraged Elemental",
           "level": 4,
-          "count": 2
+          "count": 2,
+          "icon": "BTNSummonWaterElemental"
         },
         {
           "id": "nomg",
           "name": "Ogre Magi",
           "level": 5,
-          "count": 1
+          "count": 1,
+          "icon": "BTNOgreMagi"
         }
       ],
       "level": 17,
       "xp": 365,
       "band": "medium",
-      "sleeps": false
+      "sleeps": false,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Charged",
+          "level": 3,
+          "chance": 100,
+          "items": [
+            {
+              "id": "pghe",
+              "name": "Potion of Greater Healing",
+              "icon": "BTNPotionGreen"
+            },
+            {
+              "id": "pgma",
+              "name": "Potion of Greater Mana",
+              "icon": "BTNPotionBlueBig"
+            },
+            {
+              "id": "pnvu",
+              "name": "Potion of Invulnerability",
+              "icon": "BTNGreaterInvulneralbility"
+            },
+            {
+              "id": "sror",
+              "name": "Scroll of the Beast",
+              "icon": "BTNSnazzyScrollGreen"
+            },
+            {
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c12",
@@ -391,25 +873,78 @@
           "id": "nmrv",
           "name": "Mur'gul Marauder",
           "level": 6,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurgulBloodGill"
         },
         {
           "id": "nmsn",
           "name": "Mur'gul Snarecaster",
           "level": 4,
-          "count": 2
+          "count": 2,
+          "icon": "BTNMurgulShadowCaster"
         },
         {
           "id": "nmrm",
           "name": "Murloc Nightcrawler",
           "level": 3,
-          "count": 2
+          "count": 2,
+          "icon": "BTNMurlocNightCrawler"
         }
       ],
       "level": 20,
       "xp": 440,
       "band": "hard",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Charged",
+          "level": 4,
+          "chance": 100,
+          "items": [
+            {
+              "id": "fgfh",
+              "name": "Spiked Collar",
+              "icon": "BTNFelHound"
+            },
+            {
+              "id": "fgrd",
+              "name": "Red Drake Egg",
+              "icon": "BTNRedDragon"
+            },
+            {
+              "id": "fgrg",
+              "name": "Stone Token",
+              "icon": "BTNRockGolem"
+            },
+            {
+              "id": "fgsk",
+              "name": "Book of the Dead",
+              "icon": "BTNBookOfTheDead"
+            },
+            {
+              "id": "hlst",
+              "name": "Health Stone",
+              "icon": "BTNHealthStone"
+            },
+            {
+              "id": "mnst",
+              "name": "Mana Stone",
+              "icon": "BTNManaStone"
+            },
+            {
+              "id": "totw",
+              "name": "Talisman of the Wild",
+              "icon": "BTNStone"
+            },
+            {
+              "id": "wcyc",
+              "name": "Wand of the Wind",
+              "icon": "BTNWandOfCyclone"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c13",
@@ -422,25 +957,58 @@
           "id": "nmrl",
           "name": "Murloc Tiderunner",
           "level": 1,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurloc"
         },
         {
           "id": "nmfs",
           "name": "Murloc Flesheater",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurlocFlesheater"
         },
         {
           "id": "nmrr",
           "name": "Murloc Huntsman",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurloc"
         }
       ],
       "level": 6,
       "xp": 125,
       "band": "easy",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 1,
+          "chance": 100,
+          "items": [
+            {
+              "id": "clsd",
+              "name": "Cloak of Shadows",
+              "icon": "BTNCloak"
+            },
+            {
+              "id": "rag1",
+              "name": "Slippers of Agility +3",
+              "icon": "BTNSlippersOfAgility"
+            },
+            {
+              "id": "rin1",
+              "name": "Mantle of Intelligence +3",
+              "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rst1",
+              "name": "Gauntlets of Ogre Strength +3",
+              "icon": "BTNGauntletsOfOgrePower"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c14",
@@ -453,25 +1021,58 @@
           "id": "nmrr",
           "name": "Murloc Huntsman",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurloc"
         },
         {
           "id": "nmfs",
           "name": "Murloc Flesheater",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurlocFlesheater"
         },
         {
           "id": "nmrl",
           "name": "Murloc Tiderunner",
           "level": 1,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurloc"
         }
       ],
       "level": 6,
       "xp": 125,
       "band": "easy",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 1,
+          "chance": 100,
+          "items": [
+            {
+              "id": "clsd",
+              "name": "Cloak of Shadows",
+              "icon": "BTNCloak"
+            },
+            {
+              "id": "rag1",
+              "name": "Slippers of Agility +3",
+              "icon": "BTNSlippersOfAgility"
+            },
+            {
+              "id": "rin1",
+              "name": "Mantle of Intelligence +3",
+              "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rst1",
+              "name": "Gauntlets of Ogre Strength +3",
+              "icon": "BTNGauntletsOfOgrePower"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c15",
@@ -484,25 +1085,63 @@
           "id": "nmsn",
           "name": "Mur'gul Snarecaster",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurgulShadowCaster"
         },
         {
           "id": "nmbg",
           "name": "Mur'gul Blood-Gill",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurgulBloodGill"
         },
         {
           "id": "nmtw",
           "name": "Mur'gul Tidewarrior",
           "level": 3,
-          "count": 2
+          "count": 2,
+          "icon": "BTNMurgulTideWarrior"
         }
       ],
       "level": 12,
       "xp": 245,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "bspd",
+              "name": "Boots of Speed",
+              "icon": "BTNBootsOfSpeed"
+            },
+            {
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
+            },
+            {
+              "id": "gcel",
+              "name": "Gloves of Haste",
+              "icon": "BTNGlove"
+            },
+            {
+              "id": "rat6",
+              "name": "Claws of Attack +6",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde1",
+              "name": "Ring of Protection +2",
+              "icon": "BTNRingGreen"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c16",
@@ -515,25 +1154,63 @@
           "id": "nmtw",
           "name": "Mur'gul Tidewarrior",
           "level": 3,
-          "count": 2
+          "count": 2,
+          "icon": "BTNMurgulTideWarrior"
         },
         {
           "id": "nmbg",
           "name": "Mur'gul Blood-Gill",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurgulBloodGill"
         },
         {
           "id": "nmsn",
           "name": "Mur'gul Snarecaster",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNMurgulShadowCaster"
         }
       ],
       "level": 12,
       "xp": 245,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "bspd",
+              "name": "Boots of Speed",
+              "icon": "BTNBootsOfSpeed"
+            },
+            {
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
+            },
+            {
+              "id": "gcel",
+              "name": "Gloves of Haste",
+              "icon": "BTNGlove"
+            },
+            {
+              "id": "rat6",
+              "name": "Claws of Attack +6",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde1",
+              "name": "Ring of Protection +2",
+              "icon": "BTNRingGreen"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c17",
@@ -546,19 +1223,56 @@
           "id": "ntrt",
           "name": "Giant Sea Turtle",
           "level": 4,
-          "count": 2
+          "count": 2,
+          "icon": "BTNSeaTurtleGreen"
         },
         {
           "id": "ntrg",
           "name": "Gargantuan Sea Turtle",
           "level": 7,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaTurtleGreen"
         }
       ],
       "level": 15,
       "xp": 360,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Charged",
+          "level": 3,
+          "chance": 100,
+          "items": [
+            {
+              "id": "pghe",
+              "name": "Potion of Greater Healing",
+              "icon": "BTNPotionGreen"
+            },
+            {
+              "id": "pgma",
+              "name": "Potion of Greater Mana",
+              "icon": "BTNPotionBlueBig"
+            },
+            {
+              "id": "pnvu",
+              "name": "Potion of Invulnerability",
+              "icon": "BTNGreaterInvulneralbility"
+            },
+            {
+              "id": "sror",
+              "name": "Scroll of the Beast",
+              "icon": "BTNSnazzyScrollGreen"
+            },
+            {
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c18",
@@ -571,19 +1285,56 @@
           "id": "ntrt",
           "name": "Giant Sea Turtle",
           "level": 4,
-          "count": 2
+          "count": 2,
+          "icon": "BTNSeaTurtleGreen"
         },
         {
           "id": "ntrg",
           "name": "Gargantuan Sea Turtle",
           "level": 7,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaTurtleGreen"
         }
       ],
       "level": 15,
       "xp": 360,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Charged",
+          "level": 3,
+          "chance": 100,
+          "items": [
+            {
+              "id": "pghe",
+              "name": "Potion of Greater Healing",
+              "icon": "BTNPotionGreen"
+            },
+            {
+              "id": "pgma",
+              "name": "Potion of Greater Mana",
+              "icon": "BTNPotionBlueBig"
+            },
+            {
+              "id": "pnvu",
+              "name": "Potion of Invulnerability",
+              "icon": "BTNGreaterInvulneralbility"
+            },
+            {
+              "id": "sror",
+              "name": "Scroll of the Beast",
+              "icon": "BTNSnazzyScrollGreen"
+            },
+            {
+              "id": "woms",
+              "name": "Wand of Mana Stealing",
+              "icon": "BTNWandOfManaSteal"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c19",
@@ -596,25 +1347,63 @@
           "id": "nsgn",
           "name": "Sea Giant",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaGiant"
         },
         {
           "id": "nftb",
           "name": "Forest Troll Berserker",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTroll"
         },
         {
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTrollTrapper"
         }
       ],
       "level": 10,
       "xp": 205,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "bspd",
+              "name": "Boots of Speed",
+              "icon": "BTNBootsOfSpeed"
+            },
+            {
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
+            },
+            {
+              "id": "gcel",
+              "name": "Gloves of Haste",
+              "icon": "BTNGlove"
+            },
+            {
+              "id": "rat6",
+              "name": "Claws of Attack +6",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde1",
+              "name": "Ring of Protection +2",
+              "icon": "BTNRingGreen"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c20",
@@ -627,25 +1416,63 @@
           "id": "nsgn",
           "name": "Sea Giant",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNSeaGiant"
         },
         {
           "id": "nftb",
           "name": "Forest Troll Berserker",
           "level": 4,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTroll"
         },
         {
           "id": "nftt",
           "name": "Forest Troll Trapper",
           "level": 3,
-          "count": 1
+          "count": 1,
+          "icon": "BTNForestTrollTrapper"
         }
       ],
       "level": 10,
       "xp": 205,
       "band": "medium",
-      "sleeps": true
+      "sleeps": true,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "bspd",
+              "name": "Boots of Speed",
+              "icon": "BTNBootsOfSpeed"
+            },
+            {
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
+            },
+            {
+              "id": "gcel",
+              "name": "Gloves of Haste",
+              "icon": "BTNGlove"
+            },
+            {
+              "id": "rat6",
+              "name": "Claws of Attack +6",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "rde1",
+              "name": "Ring of Protection +2",
+              "icon": "BTNRingGreen"
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "c21",
@@ -658,25 +1485,116 @@
           "id": "nggr",
           "name": "Granite Golem",
           "level": 9,
-          "count": 1
+          "count": 1,
+          "icon": "BTNRockGolem"
         },
         {
           "id": "ngrk",
           "name": "Mud Golem",
           "level": 2,
-          "count": 1
+          "count": 1,
+          "icon": "BTNRockGolem"
         },
         {
           "id": "nsgh",
           "name": "Sea Giant Hunter",
           "level": 5,
-          "count": 2
+          "count": 2,
+          "icon": "BTNSeaGiantGreen"
         }
       ],
       "level": 21,
       "xp": 555,
       "band": "hard",
-      "sleeps": false
+      "sleeps": false,
+      "drops": [
+        {
+          "kind": "class",
+          "class": "Permanent",
+          "level": 5,
+          "chance": 100,
+          "items": [
+            {
+              "id": "ajen",
+              "name": "Ancient Janggo of Endurance",
+              "icon": "BTNJanggo"
+            },
+            {
+              "id": "clfm",
+              "name": "Cloak of Flames",
+              "icon": "BTNCloakOfFlames"
+            },
+            {
+              "id": "crys",
+              "name": "Crystal Ball",
+              "icon": "BTNCrystalBall"
+            },
+            {
+              "id": "hcun",
+              "name": "Hood of Cunning",
+              "icon": "BTNHoodOfCunning"
+            },
+            {
+              "id": "hval",
+              "name": "Helm of Valor",
+              "icon": "BTNHelmOfValor"
+            },
+            {
+              "id": "kpin",
+              "name": "Khadgar's Pipe of Insight",
+              "icon": "BTNPipeOfInsight"
+            },
+            {
+              "id": "mcou",
+              "name": "Medallion of Courage",
+              "icon": "BTNMedalionOfCourage"
+            },
+            {
+              "id": "ratc",
+              "name": "Claws of Attack +12",
+              "icon": "BTNClawsOfAttack"
+            },
+            {
+              "id": "ward",
+              "name": "Warsong Battle Drums",
+              "icon": "BTNDrum"
+            }
+          ]
+        },
+        {
+          "kind": "class",
+          "class": "PowerUp",
+          "level": 2,
+          "chance": 100,
+          "items": [
+            {
+              "id": "tdx2",
+              "name": "Tome of Agility +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "texp",
+              "name": "Tome of Experience",
+              "icon": "BTNTomeBrown"
+            },
+            {
+              "id": "tin2",
+              "name": "Tome of Intelligence +2",
+              "icon": "BTNTome"
+            },
+            {
+              "id": "tpow",
+              "name": "Tome of Knowledge",
+              "icon": "BTNTomeRed"
+            },
+            {
+              "id": "tst2",
+              "name": "Tome of Strength +2",
+              "icon": "BTNTome"
+            }
+          ]
+        }
+      ]
     }
   ],
   "starts": [

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Rebuilds `creeps.json` (rawcode -> `{ name, level, sleeps, source }`)
- * from Blizzard's own game data (patch 1.27.1 enUS, mirrored in the
+ * Rebuilds `creeps.json` (rawcode -> `{ name, level, sleeps, source, icon?
+ * }`) from Blizzard's own game data (patch 1.27.1 enUS, mirrored in the
  * w3x2lni repository) instead of transcribing wiki pages by hand: a
  * cross-check found 2 of 5 spot-checked wiki-sourced entries named the
  * wrong unit for their rawcode (see this feature's handoff), so the SLK
@@ -11,6 +11,7 @@
  *     --strings <neutralunitstrings.txt> \
  *     --balance <unitbalance.slk> \
  *     --data <unitdata.slk> \
+ *     [--func <neutralunitfunc.txt>] \
  *     [--ids <path-to-catalogue-dir-or-id-list>] \
  *     [--all] \
  *     --out src/lib/creep-routes/creeps.json
@@ -23,15 +24,23 @@
  * `Name=` entry in the strings file, i.e. every neutral unit the game
  * knows about, not just the ones current catalogues use.
  *
+ * `--func` (F011) adds `icon: "BTN<Name>"` per entry, read from
+ * `neutralunitfunc.txt`'s `Art=ReplaceableTextures\CommandButtons\BTN<Name>.blp`
+ * — the key `fetch-icons.mjs` fetches from Liquipedia and the key
+ * `public/wc3-icons/creeps/<key>.png` files use. Omitted (no `icon` field
+ * at all) when `--func` isn't given, same opt-in shape as every other
+ * optional source in this script.
+ *
  * Fails loudly (exit 1, naming every missing id) instead of guessing: a
- * requested id absent from any of the three source files — no name, no
- * integer level 1-10, or no `canSleep` flag — stops the run before
- * `--out` is written.
+ * requested id absent from any of the required source files — no name, no
+ * integer level 1-10, no `canSleep` flag, or (only when `--func` is given)
+ * no `Art=` line — stops the run before `--out` is written.
  */
 import { readFileSync, readdirSync, writeFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseSlk, indexByColumn } from "../../src/lib/creep-routes/slk.mjs";
+import { parseIniField, iconKeyFromArt } from "./txt-sections.mjs";
 
 // Cited per entry as `source`: this is where the `level` (and, by the same
 // method, `sleeps`/`name` from the sibling files) came from.
@@ -41,12 +50,13 @@ const BALANCE_SOURCE_URL =
 const DEFAULT_MAPS_DIR = fileURLToPath(new URL("../../src/lib/creep-routes/maps/", import.meta.url));
 
 function parseArgs(argv) {
-  const args = { strings: null, balance: null, data: null, ids: null, all: false, out: null };
+  const args = { strings: null, balance: null, data: null, func: null, ids: null, all: false, out: null };
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--strings") args.strings = argv[++i];
     else if (arg === "--balance") args.balance = argv[++i];
     else if (arg === "--data") args.data = argv[++i];
+    else if (arg === "--func") args.func = argv[++i];
     else if (arg === "--ids") args.ids = argv[++i];
     else if (arg === "--all") args.all = true;
     else if (arg === "--out") args.out = argv[++i];
@@ -54,29 +64,11 @@ function parseArgs(argv) {
   }
   if (!args.strings || !args.balance || !args.data || !args.out) {
     throw new Error(
-      "usage: creep-table.mjs --strings <path> --balance <path> --data <path> [--ids <dir-or-list>] [--all] --out <path>",
+      "usage: creep-table.mjs --strings <path> --balance <path> --data <path> [--func <path>] " +
+        "[--ids <dir-or-list>] [--all] --out <path>",
     );
   }
   return args;
-}
-
-/** Parses `neutralunitstrings.txt`'s `[rawcode]` sections into
- * `Map<rawcode, name>`, one entry per section's `Name=` field. */
-function parseNeutralStrings(text) {
-  const names = new Map();
-  let section = null;
-  for (const line of text.split(/\r?\n/)) {
-    const trimmed = line.trim();
-    const sectionMatch = trimmed.match(/^\[(.+)\]$/);
-    if (sectionMatch) {
-      section = sectionMatch[1];
-      continue;
-    }
-    if (section && trimmed.startsWith("Name=")) {
-      names.set(section, trimmed.slice("Name=".length));
-    }
-  }
-  return names;
 }
 
 /** Every creep rawcode any catalogue's camps reference, from every
@@ -118,10 +110,10 @@ function resolveIds(args, names) {
   return idsFromCatalogueDir(DEFAULT_MAPS_DIR);
 }
 
-/** Builds `{ name, level, sleeps, source }` for every id in `ids`, sorted.
- * Throws naming every id missing a name, a valid level, or a sleeps flag —
- * never guesses. */
-function buildTable(ids, names, balanceById, dataById) {
+/** Builds `{ name, level, sleeps, source, icon? }` for every id in `ids`,
+ * sorted. Throws naming every id missing a name, a valid level, a sleeps
+ * flag, or (only when `arts` is given) an `Art=` line — never guesses. */
+function buildTable(ids, names, balanceById, dataById, arts) {
   const table = {};
   const missing = [];
 
@@ -131,8 +123,9 @@ function buildTable(ids, names, balanceById, dataById) {
     const data = dataById.get(id);
     const level = balance ? Number(balance.level) : NaN;
     const validLevel = Number.isInteger(level) && level >= 1 && level <= 10;
+    const art = arts ? arts.get(id) : undefined;
 
-    if (!name || !balance || !validLevel || !data || data.canSleep === undefined) {
+    if (!name || !balance || !validLevel || !data || data.canSleep === undefined || (arts && !art)) {
       missing.push(id);
       continue;
     }
@@ -142,11 +135,12 @@ function buildTable(ids, names, balanceById, dataById) {
       level,
       sleeps: data.canSleep === "1",
       source: BALANCE_SOURCE_URL,
+      ...(art ? { icon: iconKeyFromArt(art) } : {}),
     };
   }
 
   if (missing.length > 0) {
-    throw new Error(`missing from the SLK/strings tables: ${missing.join(", ")}`);
+    throw new Error(`missing from the SLK/strings${arts ? "/func" : ""} tables: ${missing.join(", ")}`);
   }
   return table;
 }
@@ -154,16 +148,17 @@ function buildTable(ids, names, balanceById, dataById) {
 function main() {
   const args = parseArgs(process.argv.slice(2));
 
-  const names = parseNeutralStrings(readFileSync(args.strings, "utf8"));
+  const names = parseIniField(readFileSync(args.strings, "utf8"), "Name");
   const balanceById = indexByColumn(parseSlk(readFileSync(args.balance, "utf8")), "unitBalanceID");
   const dataById = indexByColumn(parseSlk(readFileSync(args.data, "utf8")), "unitID");
+  const arts = args.func ? parseIniField(readFileSync(args.func, "utf8"), "Art") : null;
 
   const ids = resolveIds(args, names);
   if (ids.size === 0) {
     throw new Error("no rawcodes to build: empty --ids source, and no catalogues found under the default maps dir");
   }
 
-  const table = buildTable(ids, names, balanceById, dataById);
+  const table = buildTable(ids, names, balanceById, dataById, arts);
 
   writeFileSync(args.out, JSON.stringify(table, null, 2) + "\n");
   console.log(`wrote ${Object.keys(table).length} entries to ${args.out}`);

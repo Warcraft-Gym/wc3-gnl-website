@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { join } from "node:path";
 import { loadCreepTable, getCreep } from "./creeps.mjs";
 
-test("every entry in creeps.json has a name, integer level 1-10 and a source URL", () => {
+test("every entry in creeps.json has a name, integer level 1-10, a source URL and an icon", () => {
   const table = loadCreepTable();
   assert.ok(Object.keys(table).length > 0);
   for (const [rawcode, entry] of Object.entries(table)) {
@@ -16,6 +16,7 @@ test("every entry in creeps.json has a name, integer level 1-10 and a source URL
     );
     assert.ok(typeof entry.sleeps === "boolean", `${rawcode} has a non-boolean sleeps`);
     assert.ok(/^https:\/\//.test(entry.source), `${rawcode} has no https source: ${entry.source}`);
+    assert.ok(entry.icon && /^BTN/.test(entry.icon), `${rawcode} has no BTN icon: ${entry.icon}`);
   }
 });
 

@@ -3,7 +3,8 @@
  * Builds a map catalogue (camps, starts, mines, shops, bounds) plus a
  * 256x256 minimap PNG from a `.w3x`/`.w3m` file.
  *
- *   node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>]
+ *   node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>] \
+ *     [--itemdata <itemdata.slk> --itemstrings <itemstrings.txt> --itemfunc <itemfunc.txt>]
  *
  * Writes `<dir>/<slug>.json` and `<dir>/<slug>.png` per map; `--debug` also
  * writes `<dir>/<slug>.debug.png` (the minimap at 3x with camps, mines and
@@ -12,10 +13,22 @@
  * the checked-in `src/lib/creep-routes/creeps.json` (useful for testing the
  * pipeline against a scratch table without editing the real one).
  *
+ * Every camp always carries `drops` (F011: from `war3mapUnits.doo`'s inline
+ * drop tables and, when used, `war3map.w3i`'s map-level random item tables —
+ * see `drops.mjs`), with each entry's `items` left empty. Passing all three
+ * `--itemdata`/`--itemstrings`/`--itemfunc` flags additionally *expands and
+ * embeds* those items (name/icon per id, from the same source files
+ * `item-table.mjs` uses for the separate `items.json` dictionary) — done
+ * once, across every file in this invocation, so a pool referenced by one
+ * map's camp still resolves correctly even if only visited via another
+ * map's camp first. Omit all three (or the whole run keeps `items: []`
+ * throughout) to build catalogues without touching the item source files at
+ * all, e.g. for `C-010`'s plain single-map smoke check.
+ *
  * See README.md for where to get map files and what the JSON means.
  */
 import { basename, join } from "node:path";
-import { mkdirSync, writeFileSync } from "node:fs";
+import { mkdirSync, writeFileSync, readFileSync } from "node:fs";
 import { openMap, readMember } from "./mpq.mjs";
 import { parseUnitsDoo } from "./units-doo.mjs";
 import { parseW3i, parseW3eBounds, computePlayableBounds } from "./map-info.mjs";
@@ -23,6 +36,10 @@ import { decodeMinimapCropped, encodePng } from "./minimap.mjs";
 import { buildCamps, buildStarts, buildMines, buildShops, countDroppedOutsideBounds } from "./camps.mjs";
 import { slugify } from "./slug.mjs";
 import { loadCreepTable, getCreep } from "../../src/lib/creep-routes/creeps.mjs";
+import { parseSlk, indexByColumn } from "../../src/lib/creep-routes/slk.mjs";
+import { parseIniField } from "./txt-sections.mjs";
+import { expandPool } from "./drops.mjs";
+import { idsFromCatalogues, buildItemsTable } from "./item-table.mjs";
 
 // The W3Champions 1v1 ladder pool (https://website-backend.w3champions.com/
 // api/ladder/active-modes, mode id 1), fetched 2026-09-21. Keyed by the slug
@@ -45,6 +62,9 @@ function parseArgs(argv) {
   let out = null;
   let debug = false;
   let creepsPath = null;
+  let itemdata = null;
+  let itemstrings = null;
+  let itemfunc = null;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i];
     if (arg === "--out") {
@@ -53,13 +73,28 @@ function parseArgs(argv) {
       debug = true;
     } else if (arg === "--creeps") {
       creepsPath = argv[++i];
+    } else if (arg === "--itemdata") {
+      itemdata = argv[++i];
+    } else if (arg === "--itemstrings") {
+      itemstrings = argv[++i];
+    } else if (arg === "--itemfunc") {
+      itemfunc = argv[++i];
     } else {
       files.push(arg);
     }
   }
-  if (files.length === 0) throw new Error("usage: build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>]");
+  if (files.length === 0) {
+    throw new Error(
+      "usage: build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>] " +
+        "[--itemdata <path> --itemstrings <path> --itemfunc <path>]",
+    );
+  }
   if (!out) throw new Error("usage: build.mjs requires --out <dir>");
-  return { files, out, debug, creepsPath };
+  const itemFlags = [itemdata, itemstrings, itemfunc];
+  if (itemFlags.some(Boolean) && !itemFlags.every(Boolean)) {
+    throw new Error("--itemdata, --itemstrings and --itemfunc must be given together, or not at all");
+  }
+  return { files, out, debug, creepsPath, itemdata, itemstrings, itemfunc };
 }
 
 /** Bundle file name → human name and version, e.g. "w3c_AutumnLeaves_v2-0"
@@ -78,7 +113,7 @@ function buildCatalogue(mapPath, creepsPath) {
   const map = openMap(mapPath);
   const doo = parseUnitsDoo(readMember(map, "war3mapUnits.doo"));
   const { bounds: terrainBounds } = parseW3eBounds(readMember(map, "war3map.w3e"));
-  const { cameraBounds, complements } = parseW3i(readMember(map, "war3map.w3i"));
+  const { cameraBounds, complements, randomItemTables } = parseW3i(readMember(map, "war3map.w3i"));
 
   // F001-followup-3: the minimap image (war3mapMap.blp) covers the
   // *playable* rectangle, not the raw terrain grid — see
@@ -95,7 +130,7 @@ function buildCatalogue(mapPath, creepsPath) {
   // Camp ids are ordered from the terrain centre, not the playable
   // rect's own (often off-centre) one, so switching to playable bounds
   // does not reshuffle ids that were already stable.
-  const camps = buildCamps(doo.units, bounds, lookupCreep, terrainCentre);
+  const camps = buildCamps(doo.units, bounds, lookupCreep, terrainCentre, randomItemTables);
   const starts = buildStarts(doo.units, bounds);
   const mines = buildMines(doo.units, bounds);
   const shops = buildShops(doo.units, bounds);
@@ -188,12 +223,58 @@ function renderDebugPng(minimap, catalogue) {
   return encodePng(outWidth, outHeight, rgba);
 }
 
+/** Resolves one raw drop entry's `items` (`{ id, name, icon }[]`) against
+ *  `itemsTable` (`item-table.mjs`'s `buildItemsTable` output) and
+ *  `itemdataIndex` (for pool expansion). Throws naming the missing id
+ *  rather than silently dropping it — `itemsTable` is built from the exact
+ *  id set every drop in this run references, so a miss here means a coding
+ *  bug, not a data gap. */
+function resolveDropItems(drop, itemsTable, itemdataIndex) {
+  const ids = drop.kind === "item" ? [drop.id] : expandPool(itemdataIndex, drop.class, drop.level);
+  return ids.map((id) => {
+    const item = itemsTable[id];
+    if (!item) {
+      const where = drop.kind === "item" ? `concrete drop ${id}` : `${drop.class} L${drop.level} pool member ${id}`;
+      throw new Error(`build.mjs: ${where} is missing from the resolved items table`);
+    }
+    return { id, name: item.name, icon: item.icon };
+  });
+}
+
+function embedDropItems(catalogues, { itemdata, itemstrings, itemfunc }) {
+  const itemdataIndex = indexByColumn(parseSlk(readFileSync(itemdata, "utf8")), "itemID");
+  const names = parseIniField(readFileSync(itemstrings, "utf8"), "Name");
+  const arts = parseIniField(readFileSync(itemfunc, "utf8"), "Art");
+
+  const ids = idsFromCatalogues(catalogues, itemdataIndex);
+  const itemsTable = ids.size > 0 ? buildItemsTable(ids, { names, arts, itemdataIndex }) : {};
+
+  for (const catalogue of catalogues) {
+    for (const camp of catalogue.camps) {
+      for (const drop of camp.drops) {
+        drop.items = resolveDropItems(drop, itemsTable, itemdataIndex);
+      }
+    }
+  }
+}
+
 function main() {
-  const { files, out, debug, creepsPath } = parseArgs(process.argv.slice(2));
+  const { files, out, debug, creepsPath, itemdata, itemstrings, itemfunc } = parseArgs(process.argv.slice(2));
   mkdirSync(out, { recursive: true });
 
-  for (const file of files) {
-    const { catalogue, png, minimap, droppedOutsidePlayable } = buildCatalogue(file, creepsPath);
+  const built = files.map((file) => ({ file, ...buildCatalogue(file, creepsPath) }));
+
+  // Embedding runs once, across every catalogue in this invocation, so a
+  // pool one map's camp references resolves correctly even if it's not the
+  // first map to reference it (see the file header comment).
+  if (itemdata) {
+    embedDropItems(
+      built.map((b) => b.catalogue),
+      { itemdata, itemstrings, itemfunc },
+    );
+  }
+
+  for (const { catalogue, png, minimap, droppedOutsidePlayable } of built) {
     writeFileSync(join(out, `${catalogue.slug}.json`), JSON.stringify(catalogue, null, 2) + "\n");
     writeFileSync(join(out, `${catalogue.slug}.png`), png);
     if (debug) {

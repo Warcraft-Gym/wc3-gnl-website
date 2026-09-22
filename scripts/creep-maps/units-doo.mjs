@@ -8,6 +8,9 @@
  * `player === 24` is neutral hostile (creeps), `player === 27` is neutral
  * passive (shops, mine-adjacent decor), `typeId === "sloc"` is a start
  * location and `typeId === "ngol"` a gold mine.
+ *
+ * F011: `itemTablePointer`/`droppedItemSets` (a unit's inline drop table)
+ * are kept, not discarded — see `drops.mjs`'s `campDrops`.
  */
 
 class Cursor {
@@ -107,17 +110,30 @@ function readUnit(c, version, subversion) {
   const hp = c.int32();
   const mp = c.int32();
 
+  // -1 = this unit has no map-level random item table assigned (F011: a
+  // pointer into war3map.w3i's random item tables, see map-info.mjs's
+  // parseW3i — resolved by drops.mjs's campDrops, not here).
+  let itemTablePointer = -1;
   if (subversion >= 11) {
-    c.int32(); // itemTablePointer
+    itemTablePointer = c.int32();
   }
 
+  // F011: kept (was parsed and discarded) — a unit's own inline drop table.
+  // Each set is one roll the game makes when the unit dies; `items` are the
+  // (itemId, chance) options within that roll. `itemId` is a concrete 4-char
+  // item code (e.g. "ckng") or a random-pool pseudo-code ("YiI3" = Permanent
+  // level 3) — see drops.mjs's `classifyItemId`.
   const droppedItemSetCount = c.int32();
+  const droppedItemSets = [];
   for (let s = 0; s < droppedItemSetCount; s++) {
     const itemCount = c.int32();
+    const items = [];
     for (let it = 0; it < itemCount; it++) {
-      c.char4(); // itemId
-      c.int32(); // chance
+      const itemId = c.char4();
+      const chance = c.int32();
+      items.push({ itemId, chance });
     }
+    droppedItemSets.push({ items });
   }
 
   const gold = c.int32();
@@ -184,6 +200,8 @@ function readUnit(c, version, subversion) {
     mp,
     gold,
     heroLevel,
+    itemTablePointer,
+    droppedItemSets,
     customColor,
     waygate,
     creationNumber,

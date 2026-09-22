@@ -85,7 +85,9 @@ export function toApiMapListItem(map, origin) {
   };
 }
 
-/** Map detail DTO — the entire catalogue, `minimapUrl` made absolute. */
+/** Map detail DTO — the entire catalogue, `minimapUrl` made absolute. A
+ *  full spread, so `camps[].creeps[].icon` and `camps[].drops` (F011) pass
+ *  through untouched — see `serialize.test.mjs`. */
 export function toApiMap(map, origin) {
   return { ...map, minimapUrl: absoluteMinimapUrl(map, origin) };
 }

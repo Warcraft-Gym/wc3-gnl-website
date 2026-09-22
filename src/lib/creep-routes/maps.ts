@@ -14,6 +14,11 @@ import type { CreepMap } from "./types";
 
 const USE_FIXTURES = process.env.NODE_ENV !== "production";
 
+// `camps` is projected as a bare field (no sub-selector), so GROQ returns
+// every nested property as stored — F011's `camps[].creeps[].icon` and
+// `camps[].drops[]` (added to the `creepMap` schema) flow through
+// automatically once a published document carries them; no projection
+// change needed.
 const MAP_PROJECTION = `{
   "slug": slug.current,
   name, mapVersion, w3cMapId, bounds, terrainBounds, cameraBounds, image, camps, starts, mines, shops,

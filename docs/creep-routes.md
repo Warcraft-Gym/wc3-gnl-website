@@ -196,6 +196,100 @@ misrepresent the map. Names are Blizzard's own
 creep-table rebuild found the wiki unreliable for two of five
 spot-checked entries.
 
+### Item drops and creep/item icons (F011)
+
+The data half of a Liquipedia-style camp preview (F012 builds the box).
+Every camp carries `drops` — its creeps' possible item drops, resolved from
+the map file itself, never invented — and every creep gets an `icon`.
+
+**Sources, in the map file:**
+
+- `war3mapUnits.doo` (`units-doo.mjs`): each placed unit's own
+  `droppedItemSets` — `[{ items: [{ itemId, chance }] }]`, one set per
+  independent roll the game makes on death. `itemId` is a concrete 4-char
+  item id or a random-pool pseudo-code.
+- `war3map.w3i` (`map-info.mjs`'s `parseW3i`, extended this feature to walk
+  the whole file — players, forces, upgrade/tech availability, random
+  *unit* tables — to reach the section that matters here): `randomItemTables`,
+  a map-level pool a unit can point at via its own `itemTablePointer`
+  instead of carrying an inline set (`-1` = none). Every field from
+  `campaignBg` onward was reverse-engineered byte-exact against all nine
+  bundle maps' real `war3map.w3i` (each consumes to exactly its own file
+  length; the parsed player records' `x`/`y` also independently matched
+  `units-doo.test.mjs`'s known Autumn Leaves start positions) — none of the
+  nine bundle maps actually populate this section (every unit's
+  `itemTablePointer` is `-1`), so the *resolution* logic is exercised only
+  by a synthetic `drops.test.mjs` case; the *parsing* is exercised for real
+  by every one of the nine maps' byte-exact-consumption check.
+
+**The random-pool pseudo-code** is `"Y" + classLetter + "I" + levelDigit`
+(`"YiI3"` = Permanent level 3; `"YYI4"` = any class, level 4):
+
+| Letter | Class |
+|---|---|
+| `i` | Permanent |
+| `j` | Charged |
+| `k` | Power Up |
+| `l` | Artifact |
+| `m` | Purchasable |
+| `n` | Campaign |
+| `o` | Miscellaneous |
+
+`scripts/creep-maps/drops.mjs` (pure, `drops.test.mjs`) resolves a camp's
+`drops`: `classifyItemId` decodes one code; `campDrops` unions every creep
+unit's resolved sets, deduped by class+level (a pool) or id (a concrete
+item), highest chance wins on a collision; `expandPool` expands a
+class+level pool to its real member ids from `itemdata.slk`'s
+`pickRandom === "1"` rows. `build.mjs` always computes `drops` (raw shape,
+`items: []`); given `--itemdata`/`--itemstrings`/`--itemfunc`, it also
+expands and embeds each entry's `items` (`{ id, name, icon }[]`).
+`scripts/creep-maps/item-table.mjs` separately builds
+`src/lib/creep-routes/items.json` — the global dictionary for every item any
+catalogue's `drops` reference — read by `item-table.mjs`'s own README
+section for the exact recipe.
+
+**Patch caveat**: `itemdata.slk` is 1.27.1 data; a current Liquipedia page
+can show a different pool size for the same class+level (their own fact
+sheet: "Liquipedia shows 7 for Permanent L3 on a newer patch"), and a real
+map's own drop tables can carry *more* pools per creep than an older
+Liquipedia preview snapshot lists. Neither is a bug — see the cross-check
+below.
+
+**Cross-check vs. Liquipedia's own Autumn Leaves preview**
+(`evidence/liquipedia-autumn-leaves-preview.json`, the page's own `parse`
+API output — `drops.test.mjs`): of Autumn Leaves' 20 camps (10 distinct
+creep compositions, mostly mirrored pairs), **16 camps (8 of 10
+compositions) match Liquipedia's own pool listing exactly**; the remaining
+4 (2 compositions — `c03`/`c04`, `c12`/`c13`) carry one real *extra* pool
+each, verified directly against the raw `.doo` bytes (Ogre Magi's own unit
+entry independently carries both a Permanent L1 *and* a Power Up L2 drop
+set; Gnoll Warden's carries a Power Up L1 set Liquipedia's preview doesn't
+list) — a map-revision/extraction gap on Liquipedia's side, not a parsing
+bug here. One further note: `c09`/`c10`'s pool matches exactly (Permanent
+L1), but the contributing creep's own name/level reads "Giant Skeleton
+Warrior" L3 (this repo's Blizzard-SLK-sourced `creeps.json`, see F001-
+followup-2) where Liquipedia's page shows "Skeleton Warrior" L1 for the
+same spot — a pre-existing, already-documented SLK-vs-wiki naming
+difference, not new to this feature.
+
+**Icons**: `creeps.json` gains `icon: "BTN<Name>"` per entry
+(`creep-table.mjs`'s new `--func <neutralunitfunc.txt>` flag, `Art=` field);
+`items.json` carries the same shape from `itemfunc.txt`. Both parsed with
+one shared reader, `scripts/creep-maps/txt-sections.mjs`. Actual icon files
+are fetched from Liquipedia by `scripts/creep-maps/fetch-icons.mjs`
+(`File:Wc3<key>.png` on the shared `commons` wiki, the same source and
+polite API recipe as F008's `icons.mjs` — descriptive `User-Agent`, >=2s
+between every request including the image download itself, MediaWiki API
+only), downscaled to fit within 64x64 (`icons.mjs`'s `downscaleIconPng`),
+written to `public/wc3-icons/creeps/<key>.png` /
+`public/wc3-icons/items/<key>.png`. A key Liquipedia doesn't have is
+recorded — never guessed or substituted — in
+`scripts/creep-maps/icons-missing.json`; the UI (F012) falls back to a
+lettered chip for those. No UI attribution credit for this art (same
+decision as F008's map icons, at the user's request) — this doc section and
+`scripts/creep-maps/README.md`'s "Icons" section are the record of where it
+came from.
+
 ## Data model
 
 `src/lib/creep-routes/types.ts` defines the domain types the site and the
@@ -208,7 +302,10 @@ data layer share:
   for fixtures, the Sanity image asset URL once a map is published. A
   `MapCamp`'s `level`/`xp`/`band` are the camp's own totals (sum of its
   creeps' levels/base xp, and a difficulty label) — not a hero's; see "XP
-  model" below for how a hero's own level/xp are derived per stop.
+  model" below for how a hero's own level/xp are derived per stop. Each
+  `creeps[]` entry carries an `icon` (F011: `"BTN<Name>"`), and the camp
+  itself carries `drops: MapCampDrop[]` (F011 — see "Item drops and
+  creep/item icons" above for the full model).
   `terrainBounds`/`cameraBounds` reach a *published* map document as of
   F010: `creepMap.ts`'s schema has the two fields (collapsed, "reference
   only — generated"), `publish.mjs`'s document builder (`buildCreepMapDoc`,
@@ -873,11 +970,10 @@ mission would likely want to pick it up:
   silently to fixtures/`[]` with zero observability; routing these through a
   real logger/error-tracker that fires in production too is the follow-up
   (F010, "Review flow" above).
-- **Item drop tables per camp.** Liquipedia's map previews list each
-  camp's item drop table (from the map's own item tables); our
-  `units-doo.mjs` parser already reads `droppedItemSets` off the placed
-  units, but nothing surfaces it yet — a natural follow-up to F008, which
-  only brought over the colours/bands/icons.
+- **Item drop tables per camp** — done in F011 (`camps[].drops`, creep/item
+  icons; see "Item drops and creep/item icons" above), listed here only as
+  the record of when it was closed. F012 builds the UI (the actual preview
+  box) on top of this data.
 - **Current-revision map files.** The fixtures (and, once published, the
   Sanity documents) are built from the 2021–22 launcher bundle's map
   files, not necessarily this ladder season's exact revision — see "When

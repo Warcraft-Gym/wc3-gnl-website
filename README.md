@@ -129,6 +129,7 @@ apps/overlay/              # the desktop overlay (separate workspace package)
 public/
 ├── maps/                  # generated creep-map minimap PNGs (see scripts/creep-maps/)
 ├── map-icons/             # gold-mine + neutral-building icons, via Liquipedia (see docs/creep-routes.md)
+├── wc3-icons/             # creep/item button icons, via Liquipedia (creeps/, items/ — see docs/creep-routes.md)
 └── ...                    # key art, faction crests, classic WC3 icons, logos, country flags (flag-icons, MIT)
 ```
 

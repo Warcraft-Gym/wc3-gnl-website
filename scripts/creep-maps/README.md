@@ -37,7 +37,8 @@ ladder pool uses. Two sources:
 ## Running it
 
 ```
-node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>]
+node scripts/creep-maps/build.mjs <map.w3x> [more.w3x…] --out <dir> [--debug] [--creeps <path>] \
+  [--itemdata <itemdata.slk> --itemstrings <itemstrings.txt> --itemfunc <itemfunc.txt>]
 ```
 
 Writes `<dir>/<slug>.json` and `<dir>/<slug>.png` per map. `--debug` also
@@ -47,6 +48,12 @@ world → minimap coordinate mapping lines up. `--creeps <path>` points the
 run at an alternate creep table JSON instead of the checked-in
 `src/lib/creep-routes/creeps.json`; omitting it uses the checked-in table,
 unchanged from before this flag existed.
+
+Every camp always carries `drops` (F011 — see "Item drops" below); passing
+all three `--itemdata`/`--itemstrings`/`--itemfunc` flags together also
+expands and embeds each drop's `items` (id/name/icon). Omit all three to
+build without touching those source files at all — every drop's `items`
+then stays `[]` (this is what a plain, single-map smoke build does).
 
 The committed catalogues live in `src/lib/creep-routes/maps/<slug>.json`
 with their minimap at `public/maps/<slug>.png` — run the script into a
@@ -131,11 +138,17 @@ found Northern Isles's real letterbox is in
       "id": "c01",                  // stable: ordered by distance from map centre, then angle
       "x": 0.5, "y": 0.5,           // normalised 0-1 minimap position
       "worldX": 0, "worldY": 0,     // world units
-      "creeps": [{ "id": "nftt", "name": "Forest Troll", "level": 2, "count": 2 }],
+      "creeps": [{ "id": "nftt", "name": "Forest Troll", "level": 2, "count": 2, "icon": "BTNForestTrollTrapper" }],
       "level": 12,                  // summed creep levels (per-instance, not per distinct type)
       "xp": 480,                    // summed creepXp(level) per creep instance, before hero-level factor
       "band": "medium",              // "easy" <=9, "medium" 10-19, "hard" >=20 (BAND_MAX_LEVEL in camps.mjs; matches Liquipedia's own cutoffs)
-      "sleeps": true                // true only if every creep in the camp sleeps
+      "sleeps": true,               // true only if every creep in the camp sleeps
+      "drops": [                    // F011 — see "Item drops" below
+        {
+          "kind": "class", "class": "Permanent", "level": 2, "chance": 100,
+          "items": [{ "id": "clsd", "name": "Cloak of Shadows", "icon": "BTNCloak" }]
+        }
+      ]
     }
   ],
   "starts": [{ "player": 0, "x": 0.37, "y": 0.79, "worldX": -2176, "worldY": -4672 }],
@@ -201,3 +214,104 @@ data is now the *only* method used; the wiki is, at most, a cross-check.
 
 As of this feature, all 83 rawcodes referenced by the generated catalogues
 are SLK-sourced.
+
+## Item drops (F011)
+
+A camp's possible item drops come from two sources in the map file itself,
+both parsed and carried through untouched until resolution:
+
+- **`war3mapUnits.doo`** (`units-doo.mjs`) — every placed unit's own
+  `droppedItemSets`: `[{ items: [{ itemId, chance }] }]`, one set per
+  independent roll the game makes when the unit dies. `itemId` is either a
+  concrete 4-char item id (`"ckng"` = Crown of Kings +5) or a random-pool
+  pseudo-code.
+- **`war3map.w3i`** (`map-info.mjs`'s `parseW3i`) — the map-level
+  `randomItemTables` a unit can point at instead, via its own
+  `itemTablePointer` (`-1` = none; matched by the table's own `id`, not
+  array position). None of the nine bundle maps actually use this — every
+  unit's `itemTablePointer` is `-1` — so it's only exercised by a synthetic
+  test (`map-info.test.mjs`, `drops.test.mjs`).
+
+**The random-pool pseudo-code** is `"Y" + classLetter + "I" + levelDigit`
+(e.g. `"YiI3"` = Permanent level 3); `"Y"` as the class letter itself means
+"any class" (`"YYI4"` = any class, level 4):
+
+| Letter | Class (matches `itemdata.slk`'s own `class` column) |
+|---|---|
+| `i` | `Permanent` |
+| `j` | `Charged` |
+| `k` | `PowerUp` |
+| `l` | `Artifact` |
+| `m` | `Purchasable` |
+| `n` | `Campaign` |
+| `o` | `Miscellaneous` |
+
+`scripts/creep-maps/drops.mjs` (pure, `drops.test.mjs`):
+
+- **`classifyItemId(code)`** decodes one item code per the table above,
+  falling back to `{ kind: "item", id: code }` for anything that doesn't
+  match (a concrete id).
+- **`campDrops(creepUnits, randomItemTables)`** unions every creep unit's
+  resolved drop sets (inline + map-level table, when pointed at), deduped
+  by `class+level` (a pool) or `id` (a concrete item) — the *highest*
+  chance seen wins when more than one creep in the camp carries the same
+  pool/item. A set with zero items (a real shape the file can carry)
+  contributes nothing.
+- **`expandPool(itemdataIndex, cls, level)`** — the real in-game pool for a
+  `class`+`level`: every `itemdata.slk` row with that `class`/`Level` and
+  `pickRandom === "1"`. Verified against the spec's own fact sheet, straight
+  from the SLK: Permanent L1-L6 = 4/5/6/9/9/6 items, Charged L2-L4 =
+  4/5/8, Power Up L1-L2 = 4/5, Artifact L7-L8 = 4/3.
+
+`build.mjs` always computes `drops` (raw — `items: []`); passing
+`--itemdata`/`--itemstrings`/`--itemfunc` also expands and embeds `items`
+(see "What the JSON means" above). `scripts/creep-maps/item-table.mjs`
+builds the separate `src/lib/creep-routes/items.json` dictionary (`{ "<id>":
+{ name, class, level, icon } }`) — every item id any catalogue's camps'
+`drops` actually reference, name from `itemstrings.txt`, icon key from
+`itemfunc.txt`'s `Art=` (same `BTN<Name>` shape creeps use):
+
+```
+node scripts/creep-maps/item-table.mjs \
+  --itemdata <itemdata.slk> --itemstrings <itemstrings.txt> --itemfunc <itemfunc.txt> \
+  [--maps <catalogue-dir>] \
+  --out src/lib/creep-routes/items.json
+```
+
+**Patch caveat**: `itemdata.slk`'s pool sizes are from patch 1.27.1 — a
+current Liquipedia page can show a *different* count for the same
+class+level (their own fact sheet: "Liquipedia shows 7 for Permanent L3 on
+a newer patch"), and a real map's own `droppedItemSets` can carry *more*
+pools per creep than an older Liquipedia preview snapshot shows (verified
+directly against the real `war3mapUnits.doo` bytes for Autumn Leaves' `c03`/
+`c04`/`c12`/`c13` — see `drops.test.mjs`'s cross-check and this feature's
+handoff for the full table). Neither is a bug; both are just two different,
+independently-sourced snapshots of the same underlying (and occasionally
+patched) game data.
+
+## Icons (F011)
+
+`creeps.json` gets an `icon: "BTN<Name>"` per entry from
+`neutralunitfunc.txt`'s `Art=` (`creep-table.mjs`'s `--func` flag);
+`items.json` gets the same shape from `itemfunc.txt`. Both text files share
+one parser, `scripts/creep-maps/txt-sections.mjs`'s `parseIniField` (one
+`[rawcode]`-sectioned file, any `Key=` field) and `iconKeyFromArt` (strips
+the `ReplaceableTextures\CommandButtons\` path and the `.blp` extension).
+
+`scripts/creep-maps/fetch-icons.mjs` fetches every icon key either table
+references from Liquipedia (`File:Wc3<key>.png` on the shared `commons`
+wiki — same source and API recipe as F008's `icons.mjs`: descriptive
+`User-Agent`, `>=2s` between *every* request including the actual image
+download, MediaWiki API only, never an HTML page), downscales each to fit
+within 64x64 (`icons.mjs`'s `downscaleIconPng`), and writes
+`public/wc3-icons/creeps/<key>.png` / `public/wc3-icons/items/<key>.png`. A
+key shared by more than one rawcode/item id is fetched once. Already-present
+files are skipped, so an interrupted run is safe to resume:
+
+```
+node scripts/creep-maps/fetch-icons.mjs --scratch <scratch-dir-for-originals>
+```
+
+Keys Liquipedia doesn't have (never guessed or substituted) are recorded in
+`scripts/creep-maps/icons-missing.json` (`{ side, icon }[]`); the UI falls
+back to a lettered chip for those.

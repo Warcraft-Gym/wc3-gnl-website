@@ -10,6 +10,21 @@
  * document id is deterministic: `creepMap.<slug>`).
  */
 
+/** Keys a camp's `drops[]` (and each drop's own `items[]`) so Sanity's
+ *  array-of-objects convention is satisfied all the way down (F011: new
+ *  nested arrays, not present before this feature). A drop's own key is
+ *  its dedupe identity (`class+level` or `id` — see `drops.mjs`); an item's
+ *  key is just its id, unique within one drop's `items`. */
+function keyDrop(drop, index) {
+  const key = drop.kind === "class" ? `${drop.class}-${drop.level}` : drop.id;
+  return {
+    ...drop,
+    _type: "drop",
+    _key: key || `drop-${index}`,
+    items: (drop.items ?? []).map((it) => ({ ...it, _type: "dropItem", _key: it.id })),
+  };
+}
+
 /** `terrainBounds`/`cameraBounds` are optional on a catalogue (older
  *  fixtures/test doubles may omit them) — written through as-is when
  *  present, omitted from the document entirely when not, same as every
@@ -30,7 +45,13 @@ export function buildCreepMapDoc(slug, catalogue, minimapAssetId) {
     terrainBounds: catalogue.terrainBounds ?? undefined,
     cameraBounds: catalogue.cameraBounds ?? undefined,
     image: catalogue.image,
-    camps: catalogue.camps.map((c) => ({ ...c, _type: "camp", _key: c.id })),
+    camps: catalogue.camps.map((c) => ({
+      ...c,
+      _type: "camp",
+      _key: c.id,
+      creeps: (c.creeps ?? []).map((creep) => ({ ...creep, _type: "creep", _key: creep.id })),
+      drops: (c.drops ?? []).map(keyDrop),
+    })),
     starts: catalogue.starts.map((s, i) => ({ ...s, _type: "start", _key: `start-${i}` })),
     mines: catalogue.mines.map((m, i) => ({ ...m, _type: "mine", _key: `mine-${i}` })),
     shops: catalogue.shops.map((s) => ({ ...s, _type: "shop", _key: s.id })),

@@ -103,3 +103,36 @@ test("toApiMap: the full catalogue, minimapUrl made absolute", () => {
   assert.equal(item.camps.length, 2);
   assert.equal(item.minimapUrl, "https://site.example/maps/autumn-leaves.png");
 });
+
+test("toApiMap: exposes each camp's drops and each creep's icon (F011)", () => {
+  const mapWithDrops = {
+    ...map,
+    camps: [
+      {
+        ...map.camps[0],
+        creeps: [{ id: "u1", name: "Wolf", level: 3, count: 1, icon: "BTNTimberWolf" }],
+        drops: [
+          {
+            kind: "class",
+            class: "Permanent",
+            level: 3,
+            chance: 100,
+            items: [{ id: "afac", name: "Ankh of Reincarnation", icon: "BTNAnkh" }],
+          },
+        ],
+      },
+      map.camps[1],
+    ],
+  };
+  const item = toApiMap(mapWithDrops, "https://site.example");
+  assert.equal(item.camps[0].creeps[0].icon, "BTNTimberWolf");
+  assert.deepEqual(item.camps[0].drops, [
+    {
+      kind: "class",
+      class: "Permanent",
+      level: 3,
+      chance: 100,
+      items: [{ id: "afac", name: "Ankh of Reincarnation", icon: "BTNAnkh" }],
+    },
+  ]);
+});

@@ -1,9 +1,11 @@
-/** The sourced creep table: rawcode → `{ name, level, sleeps, source }`.
+/** The sourced creep table: rawcode → `{ name, level, sleeps, source, icon
+ * }`.
  *
- * Every entry must carry a `source` URL — see `creeps.json` and the
- * feature README for where the numbers come from. An id missing from the
- * table is never guessed: `getCreep` throws, naming the id, so a new map
- * fails loudly instead of shipping an unsourced level.
+ * Every entry must carry a `source` URL and an `icon` (F011: `"BTN<Name>"`,
+ * see `creep-table.mjs`'s `--func`) — see `creeps.json` and the feature
+ * README for where the numbers come from. An id missing from the table is
+ * never guessed: `getCreep` throws, naming the id, so a new map fails
+ * loudly instead of shipping an unsourced level or a missing icon.
  */
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
@@ -31,6 +33,9 @@ export function getCreep(rawcode, table) {
   }
   if (!entry.source || typeof entry.source !== "string") {
     throw new Error(`creep ${rawcode} has no source URL in creeps.json`);
+  }
+  if (!entry.icon || typeof entry.icon !== "string") {
+    throw new Error(`creep ${rawcode} has no icon in creeps.json`);
   }
   return entry;
 }
