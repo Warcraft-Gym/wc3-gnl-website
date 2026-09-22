@@ -37,7 +37,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseSlk, indexByColumn } from "../../src/lib/creep-routes/slk.mjs";
 import { parseIniField, iconKeyFromArt } from "./txt-sections.mjs";
-import { expandPool } from "./drops.mjs";
+import { expandPool, EXTRA_ITEM_INFO } from "./drops.mjs";
 
 const DEFAULT_MAPS_DIR = fileURLToPath(new URL("../../src/lib/creep-routes/maps/", import.meta.url));
 
@@ -79,14 +79,23 @@ export function idsFromCatalogues(catalogues, itemdataIndex) {
   return ids;
 }
 
-/** Builds `{ name, class, level, icon }` for every id in `ids`, sorted.
- *  Throws naming every id missing a name, an `Art=` line, or an
- *  `itemdata.slk` record with an integer `Level` — never guesses. */
+/** Builds `{ name, class, level, icon }` for every id in `ids`, sorted. An
+ *  id in `drops.mjs`'s `EXTRA_ITEM_INFO` (one of the four `POOL_OVERRIDES`
+ *  additions patch 1.27.1's own SLK/strings/func tables can't resolve) uses
+ *  that sourced record directly. Otherwise throws naming every id missing a
+ *  name, an `Art=` line, or an `itemdata.slk` record with an integer
+ *  `Level` — never guesses. */
 export function buildItemsTable(ids, { names, arts, itemdataIndex }) {
   const table = {};
   const missing = [];
 
   for (const id of [...ids].sort()) {
+    const extra = EXTRA_ITEM_INFO[id];
+    if (extra) {
+      table[id] = { name: extra.name, class: extra.class, level: extra.level, icon: extra.icon };
+      continue;
+    }
+
     const name = names.get(id);
     const art = arts.get(id);
     const rec = itemdataIndex.get(id);

@@ -1,0 +1,78 @@
+{
+ "source": "Liquipedia <Map>/Preview pages via api.php action=parse (Autumn Leaves, Echo Isles, Hillsbrad Creek, Last Refuge, Turtle Rock, Twisted Meadows), 2026-09-22",
+ "note": "icon names per drop pool as Liquipedia renders them; each entry is the largest observed list for that class+level",
+ "pools": {
+  "Power Up|1": [
+   "BTNManual",
+   "BTNTome",
+   "BTNRune"
+  ],
+  "Permanent|2": [
+   "BTNClawsOfAttack",
+   "BTNGlove",
+   "BTNRingGreen"
+  ],
+  "Permanent|1": [
+   "BTNCloak",
+   "BTNGauntletsOfOgrePower",
+   "BTNMantleOfIntelligence",
+   "BTNRingGold"
+  ],
+  "Charged|2": [
+   "BTNCrystalBall",
+   "BTNRejuvPotion",
+   "BTNSentryWard",
+   "BTNWand"
+  ],
+  "Charged|3": [
+   "BTNPotionGreen",
+   "BTNPotionBlueBig",
+   "BTNGreaterInvulneralbility",
+   "BTNSnazzyScrollGreen"
+  ],
+  "Power Up|2": [
+   "BTNTome",
+   "BTNTomeRed"
+  ],
+  "Permanent|3": [
+   "BTNCirclet",
+   "BTNClawsOfAttack",
+   "BTNPendantOfEnergy",
+   "BTNPeriapt",
+   "BTNRingGreen"
+  ],
+  "Charged|4": [
+   "BTNAnkh",
+   "BTNBookOfTheDead",
+   "BTNHealingWard",
+   "BTNHealthStone",
+   "BTNManaStone"
+  ],
+  "Permanent|4": [
+   "BTNAlleriaFlute",
+   "BTNBelt",
+   "BTNBoots",
+   "BTNRingOfTheArchmagi"
+  ],
+  "Permanent|5": [
+   "BTNJanggo",
+   "BTNClawsOfAttack",
+   "BTNCloakOfFlames",
+   "BTNHelmOfValor",
+   "BTNHoodOfCunning"
+  ],
+  "Permanent|6": [
+   "BTNSpellShieldAmulet",
+   "BTNPeriapt1",
+   "BTNOrbOfDarkness",
+   "BTNPendantOfMana",
+   "BTNStaffOfSilence"
+  ],
+  "Charged|5": [
+   "BTNAzureDragon",
+   "BTNFurbolgTracker",
+   "BTNPotionOfDivinity",
+   "BTNPotionOfRestoration"
+  ]
+ }
+}

@@ -6,16 +6,19 @@ function itemdataIndex(rows) {
   return new Map(rows.map((r) => [r.itemID, r]));
 }
 
+// Uses "Artifact" (no `POOL_OVERRIDES` entry at any level — see
+// `drops.mjs`, F011-followup-1) so this stays a pure test of the union/
+// expansion plumbing, independent of that feature's pool corrections.
 test("idsFromCatalogues unions concrete ids and pool-expanded ids across catalogues", () => {
   const index = itemdataIndex([
-    { itemID: "clsd", class: "Permanent", Level: "1", pickRandom: "1" },
-    { itemID: "afac", class: "Permanent", Level: "1", pickRandom: "1" },
+    { itemID: "clsd", class: "Artifact", Level: "1", pickRandom: "1" },
+    { itemID: "afac", class: "Artifact", Level: "1", pickRandom: "1" },
     { itemID: "ckng", class: "Artifact", Level: "7", pickRandom: "1" },
   ]);
   const catalogues = [
     {
       camps: [
-        { drops: [{ kind: "class", class: "Permanent", level: 1, chance: 50 }] },
+        { drops: [{ kind: "class", class: "Artifact", level: 1, chance: 50 }] },
         { drops: [{ kind: "item", id: "ckng", chance: 10 }] },
       ],
     },

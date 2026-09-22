@@ -5,7 +5,7 @@
   "w3cMapId": 1051,
   "w3cName": "Echo Isles v2",
   "sourceFile": "w3c_EchoIsles.w3x",
-  "generatedAt": "2026-09-22T11:13:40.189Z",
+  "generatedAt": "2026-09-22T15:04:21.956Z",
   "bounds": {
     "xMin": -7424,
     "xMax": 7424,
@@ -73,16 +73,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -189,11 +179,6 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
-            },
-            {
-              "id": "woms",
-              "name": "Wand of Mana Stealing",
-              "icon": "BTNWandOfManaSteal"
             }
           ]
         },
@@ -261,6 +246,11 @@
           "chance": 100,
           "items": [
             {
+              "id": "crys",
+              "name": "Crystal Ball",
+              "icon": "BTNCrystalBall"
+            },
+            {
               "id": "rej3",
               "name": "Replenishment Potion",
               "icon": "BTNRejuvPotion"
@@ -269,11 +259,6 @@
               "id": "will",
               "name": "Wand of Illusion",
               "icon": "BTNWand"
-            },
-            {
-              "id": "wlsd",
-              "name": "Wand of Lightning Shield",
-              "icon": "BTNStarWand"
             },
             {
               "id": "wswd",
@@ -352,16 +337,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -455,11 +430,6 @@
               "icon": "BTNTome"
             },
             {
-              "id": "texp",
-              "name": "Tome of Experience",
-              "icon": "BTNTomeBrown"
-            },
-            {
               "id": "tin2",
               "name": "Tome of Intelligence +2",
               "icon": "BTNTome"
@@ -524,11 +494,6 @@
               "icon": "BTNTome"
             },
             {
-              "id": "texp",
-              "name": "Tome of Experience",
-              "icon": "BTNTomeBrown"
-            },
-            {
               "id": "tin2",
               "name": "Tome of Intelligence +2",
               "icon": "BTNTome"
@@ -580,16 +545,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -700,16 +655,6 @@
           "chance": 100,
           "items": [
             {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
-            {
               "id": "gcel",
               "name": "Gloves of Haste",
               "icon": "BTNGlove"
@@ -762,16 +707,6 @@
           "chance": 100,
           "items": [
             {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
-            {
               "id": "gcel",
               "name": "Gloves of Haste",
               "icon": "BTNGlove"
@@ -823,16 +758,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -964,9 +889,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
               "id": "penr",
@@ -987,11 +912,6 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -1052,9 +972,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
               "id": "penr",
@@ -1075,11 +995,6 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -1126,9 +1041,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
               "id": "penr",
@@ -1149,11 +1064,6 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
             }
           ]
         },
@@ -1228,9 +1138,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
               "id": "penr",
@@ -1251,11 +1161,6 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
             }
           ]
         },

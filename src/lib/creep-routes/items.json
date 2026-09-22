@@ -29,24 +29,6 @@
     "level": 4,
     "icon": "BTNBelt"
   },
-  "brac": {
-    "name": "Runed Bracers",
-    "class": "Permanent",
-    "level": 4,
-    "icon": "BTNRunedBracers"
-  },
-  "bspd": {
-    "name": "Boots of Speed",
-    "class": "Permanent",
-    "level": 2,
-    "icon": "BTNBootsOfSpeed"
-  },
-  "ciri": {
-    "name": "Robe of the Magi +6",
-    "class": "Permanent",
-    "level": 4,
-    "icon": "BTNRobeOfTheMagi"
-  },
   "clfm": {
     "name": "Cloak of Flames",
     "class": "Permanent",
@@ -71,29 +53,11 @@
     "level": 5,
     "icon": "BTNCrystalBall"
   },
-  "evtl": {
-    "name": "Talisman of Evasion",
-    "class": "Permanent",
-    "level": 3,
-    "icon": "BTNTalisman"
-  },
-  "fgfh": {
-    "name": "Spiked Collar",
+  "fgbd": {
+    "name": "Blue Drake Egg",
     "class": "Charged",
-    "level": 4,
-    "icon": "BTNFelHound"
-  },
-  "fgrd": {
-    "name": "Red Drake Egg",
-    "class": "Charged",
-    "level": 4,
-    "icon": "BTNRedDragon"
-  },
-  "fgrg": {
-    "name": "Stone Token",
-    "class": "Charged",
-    "level": 4,
-    "icon": "BTNRockGolem"
+    "level": 5,
+    "icon": "BTNAzureDragon"
   },
   "fgsk": {
     "name": "Book of the Dead",
@@ -125,35 +89,17 @@
     "level": 5,
     "icon": "BTNHelmOfValor"
   },
-  "kpin": {
-    "name": "Khadgar's Pipe of Insight",
-    "class": "Permanent",
+  "iotw": {
+    "name": "Idol of the Wild",
+    "class": "Charged",
     "level": 5,
-    "icon": "BTNPipeOfInsight"
-  },
-  "lgdh": {
-    "name": "Legion Doom-Horn",
-    "class": "Permanent",
-    "level": 4,
-    "icon": "BTNHornOfDoom"
-  },
-  "lhst": {
-    "name": "The Lion Horn of Stormwind",
-    "class": "Permanent",
-    "level": 4,
-    "icon": "BTNLionHorn"
+    "icon": "BTNFurbolgTracker"
   },
   "manh": {
     "name": "Manual of Health",
     "class": "PowerUp",
     "level": 1,
     "icon": "BTNManual"
-  },
-  "mcou": {
-    "name": "Medallion of Courage",
-    "class": "Permanent",
-    "level": 5,
-    "icon": "BTNMedalionOfCourage"
   },
   "mnst": {
     "name": "Mana Stone",
@@ -215,11 +161,11 @@
     "level": 3,
     "icon": "BTNPeriapt"
   },
-  "rag1": {
-    "name": "Slippers of Agility +3",
+  "ram4": {
+    "name": "Ring of the Archmagi",
     "class": "Permanent",
-    "level": 1,
-    "icon": "BTNSlippersOfAgility"
+    "level": 4,
+    "icon": "BTNRingOfTheArchmagi"
   },
   "rat6": {
     "name": "Claws of Attack +6",
@@ -251,12 +197,6 @@
     "level": 3,
     "icon": "BTNRingGreen"
   },
-  "rde3": {
-    "name": "Ring of Protection +4",
-    "class": "Permanent",
-    "level": 6,
-    "icon": "BTNRingGreen"
-  },
   "rej3": {
     "name": "Replenishment Potion",
     "class": "Charged",
@@ -281,11 +221,11 @@
     "level": 1,
     "icon": "BTNMantleOfIntelligence"
   },
-  "rlif": {
-    "name": "Ring of Regeneration",
+  "rnsp": {
+    "name": "Ring of Superiority",
     "class": "Permanent",
-    "level": 3,
-    "icon": "BTNRingSkull"
+    "level": 1,
+    "icon": "BTNRingGold"
   },
   "rst1": {
     "name": "Gauntlets of Ogre Strength +3",
@@ -299,29 +239,11 @@
     "level": 0,
     "icon": "BTNRune"
   },
-  "rwiz": {
-    "name": "Sobi Mask",
-    "class": "Permanent",
-    "level": 4,
-    "icon": "BTNSobiMask"
-  },
-  "sbch": {
-    "name": "Scourge Bone Chimes",
-    "class": "Permanent",
-    "level": 4,
-    "icon": "BTNBoneChimes"
-  },
   "spsh": {
     "name": "Amulet of Spell Shield",
     "class": "Permanent",
     "level": 6,
     "icon": "BTNSpellShieldAmulet"
-  },
-  "sres": {
-    "name": "Scroll of Restoration",
-    "class": "Charged",
-    "level": 5,
-    "icon": "BTNScrollOfHealing"
   },
   "sror": {
     "name": "Scroll of the Beast",
@@ -347,12 +269,6 @@
     "level": 2,
     "icon": "BTNTome"
   },
-  "texp": {
-    "name": "Tome of Experience",
-    "class": "PowerUp",
-    "level": 2,
-    "icon": "BTNTomeBrown"
-  },
   "tin2": {
     "name": "Tome of Intelligence +2",
     "class": "PowerUp",
@@ -364,12 +280,6 @@
     "class": "PowerUp",
     "level": 1,
     "icon": "BTNTome"
-  },
-  "totw": {
-    "name": "Talisman of the Wild",
-    "class": "Charged",
-    "level": 4,
-    "icon": "BTNStone"
   },
   "tpow": {
     "name": "Tome of Knowledge",
@@ -389,18 +299,6 @@
     "level": 1,
     "icon": "BTNTome"
   },
-  "ward": {
-    "name": "Warsong Battle Drums",
-    "class": "Permanent",
-    "level": 5,
-    "icon": "BTNDrum"
-  },
-  "wcyc": {
-    "name": "Wand of the Wind",
-    "class": "Charged",
-    "level": 4,
-    "icon": "BTNWandOfCyclone"
-  },
   "whwd": {
     "name": "Healing Wards",
     "class": "Charged",
@@ -412,18 +310,6 @@
     "class": "Charged",
     "level": 2,
     "icon": "BTNWand"
-  },
-  "wlsd": {
-    "name": "Wand of Lightning Shield",
-    "class": "Charged",
-    "level": 2,
-    "icon": "BTNStarWand"
-  },
-  "woms": {
-    "name": "Wand of Mana Stealing",
-    "class": "Charged",
-    "level": 3,
-    "icon": "BTNWandOfManaSteal"
   },
   "wswd": {
     "name": "Sentry Wards",

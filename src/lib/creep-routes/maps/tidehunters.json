@@ -5,7 +5,7 @@
   "w3cMapId": 54,
   "w3cName": "Tidehunters",
   "sourceFile": "w3c_Tidehunters_v1.2.w3x",
-  "generatedAt": "2026-09-22T11:13:40.253Z",
+  "generatedAt": "2026-09-22T15:04:22.049Z",
   "bounds": {
     "xMin": -5504,
     "xMax": 6016,
@@ -67,6 +67,11 @@
           "chance": 100,
           "items": [
             {
+              "id": "crys",
+              "name": "Crystal Ball",
+              "icon": "BTNCrystalBall"
+            },
+            {
               "id": "rej3",
               "name": "Replenishment Potion",
               "icon": "BTNRejuvPotion"
@@ -75,11 +80,6 @@
               "id": "will",
               "name": "Wand of Illusion",
               "icon": "BTNWand"
-            },
-            {
-              "id": "wlsd",
-              "name": "Wand of Lightning Shield",
-              "icon": "BTNStarWand"
             },
             {
               "id": "wswd",
@@ -164,11 +164,6 @@
               "icon": "BTNTome"
             },
             {
-              "id": "texp",
-              "name": "Tome of Experience",
-              "icon": "BTNTomeBrown"
-            },
-            {
               "id": "tin2",
               "name": "Tome of Intelligence +2",
               "icon": "BTNTome"
@@ -226,14 +221,14 @@
               "icon": "BTNCloak"
             },
             {
-              "id": "rag1",
-              "name": "Slippers of Agility +3",
-              "icon": "BTNSlippersOfAgility"
-            },
-            {
               "id": "rin1",
               "name": "Mantle of Intelligence +3",
               "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rnsp",
+              "name": "Ring of Superiority",
+              "icon": "BTNRingGold"
             },
             {
               "id": "rst1",
@@ -283,14 +278,14 @@
               "icon": "BTNCloak"
             },
             {
-              "id": "rag1",
-              "name": "Slippers of Agility +3",
-              "icon": "BTNSlippersOfAgility"
-            },
-            {
               "id": "rin1",
               "name": "Mantle of Intelligence +3",
               "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rnsp",
+              "name": "Ring of Superiority",
+              "icon": "BTNRingGold"
             },
             {
               "id": "rst1",
@@ -349,9 +344,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
               "id": "penr",
@@ -372,11 +367,6 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -430,9 +420,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "evtl",
-              "name": "Talisman of Evasion",
-              "icon": "BTNTalisman"
+              "id": "cnob",
+              "name": "Circlet of Nobility",
+              "icon": "BTNCirclet"
             },
             {
               "id": "penr",
@@ -453,11 +443,6 @@
               "id": "rde2",
               "name": "Ring of Protection +3",
               "icon": "BTNRingGreen"
-            },
-            {
-              "id": "rlif",
-              "name": "Ring of Regeneration",
-              "icon": "BTNRingSkull"
             }
           ]
         }
@@ -533,34 +518,9 @@
               "icon": "BTNBelt"
             },
             {
-              "id": "brac",
-              "name": "Runed Bracers",
-              "icon": "BTNRunedBracers"
-            },
-            {
-              "id": "ciri",
-              "name": "Robe of the Magi +6",
-              "icon": "BTNRobeOfTheMagi"
-            },
-            {
-              "id": "lgdh",
-              "name": "Legion Doom-Horn",
-              "icon": "BTNHornOfDoom"
-            },
-            {
-              "id": "lhst",
-              "name": "The Lion Horn of Stormwind",
-              "icon": "BTNLionHorn"
-            },
-            {
-              "id": "rwiz",
-              "name": "Sobi Mask",
-              "icon": "BTNSobiMask"
-            },
-            {
-              "id": "sbch",
-              "name": "Scourge Bone Chimes",
-              "icon": "BTNBoneChimes"
+              "id": "ram4",
+              "name": "Ring of the Archmagi",
+              "icon": "BTNRingOfTheArchmagi"
             }
           ]
         }
@@ -636,34 +596,9 @@
               "icon": "BTNBelt"
             },
             {
-              "id": "brac",
-              "name": "Runed Bracers",
-              "icon": "BTNRunedBracers"
-            },
-            {
-              "id": "ciri",
-              "name": "Robe of the Magi +6",
-              "icon": "BTNRobeOfTheMagi"
-            },
-            {
-              "id": "lgdh",
-              "name": "Legion Doom-Horn",
-              "icon": "BTNHornOfDoom"
-            },
-            {
-              "id": "lhst",
-              "name": "The Lion Horn of Stormwind",
-              "icon": "BTNLionHorn"
-            },
-            {
-              "id": "rwiz",
-              "name": "Sobi Mask",
-              "icon": "BTNSobiMask"
-            },
-            {
-              "id": "sbch",
-              "name": "Scourge Bone Chimes",
-              "icon": "BTNBoneChimes"
+              "id": "ram4",
+              "name": "Ring of the Archmagi",
+              "icon": "BTNRingOfTheArchmagi"
             }
           ]
         }
@@ -706,11 +641,6 @@
               "id": "tdx2",
               "name": "Tome of Agility +2",
               "icon": "BTNTome"
-            },
-            {
-              "id": "texp",
-              "name": "Tome of Experience",
-              "icon": "BTNTomeBrown"
             },
             {
               "id": "tin2",
@@ -768,11 +698,6 @@
               "id": "tdx2",
               "name": "Tome of Agility +2",
               "icon": "BTNTome"
-            },
-            {
-              "id": "texp",
-              "name": "Tome of Experience",
-              "icon": "BTNTomeBrown"
             },
             {
               "id": "tin2",
@@ -852,11 +777,6 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
-            },
-            {
-              "id": "woms",
-              "name": "Wand of Mana Stealing",
-              "icon": "BTNWandOfManaSteal"
             }
           ]
         }
@@ -903,19 +823,9 @@
           "chance": 100,
           "items": [
             {
-              "id": "fgfh",
-              "name": "Spiked Collar",
-              "icon": "BTNFelHound"
-            },
-            {
-              "id": "fgrd",
-              "name": "Red Drake Egg",
-              "icon": "BTNRedDragon"
-            },
-            {
-              "id": "fgrg",
-              "name": "Stone Token",
-              "icon": "BTNRockGolem"
+              "id": "ankh",
+              "name": "Ankh of Reincarnation",
+              "icon": "BTNAnkh"
             },
             {
               "id": "fgsk",
@@ -933,14 +843,9 @@
               "icon": "BTNManaStone"
             },
             {
-              "id": "totw",
-              "name": "Talisman of the Wild",
-              "icon": "BTNStone"
-            },
-            {
-              "id": "wcyc",
-              "name": "Wand of the Wind",
-              "icon": "BTNWandOfCyclone"
+              "id": "whwd",
+              "name": "Healing Wards",
+              "icon": "BTNHealingWard"
             }
           ]
         }
@@ -992,14 +897,14 @@
               "icon": "BTNCloak"
             },
             {
-              "id": "rag1",
-              "name": "Slippers of Agility +3",
-              "icon": "BTNSlippersOfAgility"
-            },
-            {
               "id": "rin1",
               "name": "Mantle of Intelligence +3",
               "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rnsp",
+              "name": "Ring of Superiority",
+              "icon": "BTNRingGold"
             },
             {
               "id": "rst1",
@@ -1056,14 +961,14 @@
               "icon": "BTNCloak"
             },
             {
-              "id": "rag1",
-              "name": "Slippers of Agility +3",
-              "icon": "BTNSlippersOfAgility"
-            },
-            {
               "id": "rin1",
               "name": "Mantle of Intelligence +3",
               "icon": "BTNMantleOfIntelligence"
+            },
+            {
+              "id": "rnsp",
+              "name": "Ring of Superiority",
+              "icon": "BTNRingGold"
             },
             {
               "id": "rst1",
@@ -1114,16 +1019,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -1183,16 +1078,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -1264,11 +1149,6 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
-            },
-            {
-              "id": "woms",
-              "name": "Wand of Mana Stealing",
-              "icon": "BTNWandOfManaSteal"
             }
           ]
         }
@@ -1326,11 +1206,6 @@
               "id": "sror",
               "name": "Scroll of the Beast",
               "icon": "BTNSnazzyScrollGreen"
-            },
-            {
-              "id": "woms",
-              "name": "Wand of Mana Stealing",
-              "icon": "BTNWandOfManaSteal"
             }
           ]
         }
@@ -1376,16 +1251,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -1445,16 +1310,6 @@
           "level": 2,
           "chance": 100,
           "items": [
-            {
-              "id": "bspd",
-              "name": "Boots of Speed",
-              "icon": "BTNBootsOfSpeed"
-            },
-            {
-              "id": "cnob",
-              "name": "Circlet of Nobility",
-              "icon": "BTNCirclet"
-            },
             {
               "id": "gcel",
               "name": "Gloves of Haste",
@@ -1525,11 +1380,6 @@
               "icon": "BTNCloakOfFlames"
             },
             {
-              "id": "crys",
-              "name": "Crystal Ball",
-              "icon": "BTNCrystalBall"
-            },
-            {
               "id": "hcun",
               "name": "Hood of Cunning",
               "icon": "BTNHoodOfCunning"
@@ -1540,24 +1390,9 @@
               "icon": "BTNHelmOfValor"
             },
             {
-              "id": "kpin",
-              "name": "Khadgar's Pipe of Insight",
-              "icon": "BTNPipeOfInsight"
-            },
-            {
-              "id": "mcou",
-              "name": "Medallion of Courage",
-              "icon": "BTNMedalionOfCourage"
-            },
-            {
               "id": "ratc",
               "name": "Claws of Attack +12",
               "icon": "BTNClawsOfAttack"
-            },
-            {
-              "id": "ward",
-              "name": "Warsong Battle Drums",
-              "icon": "BTNDrum"
             }
           ]
         },
@@ -1571,11 +1406,6 @@
               "id": "tdx2",
               "name": "Tome of Agility +2",
               "icon": "BTNTome"
-            },
-            {
-              "id": "texp",
-              "name": "Tome of Experience",
-              "icon": "BTNTomeBrown"
             },
             {
               "id": "tin2",

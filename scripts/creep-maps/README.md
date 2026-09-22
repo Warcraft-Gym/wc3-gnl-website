@@ -257,11 +257,16 @@ both parsed and carried through untouched until resolution:
   chance seen wins when more than one creep in the camp carries the same
   pool/item. A set with zero items (a real shape the file can carry)
   contributes nothing.
-- **`expandPool(itemdataIndex, cls, level)`** — the real in-game pool for a
-  `class`+`level`: every `itemdata.slk` row with that `class`/`Level` and
-  `pickRandom === "1"`. Verified against the spec's own fact sheet, straight
-  from the SLK: Permanent L1-L6 = 4/5/6/9/9/6 items, Charged L2-L4 =
-  4/5/8, Power Up L1-L2 = 4/5, Artifact L7-L8 = 4/3.
+- **`expandPool(itemdataIndex, cls, level)`** — every `itemdata.slk` row
+  with that `class`/`Level` and `pickRandom === "1"`, corrected by
+  `POOL_OVERRIDES` (F011-followup-1): the raw SLK filter alone disagreed
+  with Liquipedia's own published pools on 9 of 12 pools, and — per an
+  exhaustive, evidence-cited column comparison in `drops.mjs`'s own doc
+  comment — isn't fixable by tightening the filter (patch-1.27.1's
+  `class`/`Level`/`pickRandom` columns don't encode the table the live
+  client actually rolls from). See `docs/creep-routes.md`'s "The pool rule"
+  section for the full account, including the one pool (Power Up Level 1)
+  that still can't be fully reproduced.
 
 `build.mjs` always computes `drops` (raw — `items: []`); passing
 `--itemdata`/`--itemstrings`/`--itemfunc` also expands and embeds `items`
@@ -278,16 +283,14 @@ node scripts/creep-maps/item-table.mjs \
   --out src/lib/creep-routes/items.json
 ```
 
-**Patch caveat**: `itemdata.slk`'s pool sizes are from patch 1.27.1 — a
-current Liquipedia page can show a *different* count for the same
-class+level (their own fact sheet: "Liquipedia shows 7 for Permanent L3 on
-a newer patch"), and a real map's own `droppedItemSets` can carry *more*
-pools per creep than an older Liquipedia preview snapshot shows (verified
-directly against the real `war3mapUnits.doo` bytes for Autumn Leaves' `c03`/
-`c04`/`c12`/`c13` — see `drops.test.mjs`'s cross-check and this feature's
-handoff for the full table). Neither is a bug; both are just two different,
-independently-sourced snapshots of the same underlying (and occasionally
-patched) game data.
+**Patch caveat**: a real map's own `droppedItemSets` can carry *more* pools
+per creep than a Liquipedia preview snapshot shows (verified directly
+against the real `war3mapUnits.doo` bytes for Autumn Leaves' `c03`/`c04`/
+`c12`/`c13` — see `drops.test.mjs`'s cross-check). Not a bug; two
+independently-sourced snapshots of the same underlying game data. Pool
+*membership* itself (which items a given class+level can roll) is now
+sourced from Liquipedia's own table rather than `itemdata.slk` directly —
+see `POOL_OVERRIDES` above and `docs/creep-routes.md`.
 
 ## Icons (F011)
 
