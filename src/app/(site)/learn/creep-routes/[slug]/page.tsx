@@ -212,59 +212,52 @@ export default async function CreepRoutePage({ params }: Params) {
         <CreepMapPlayground map={map} route={route} />
       </Container>
 
-      <Container className="grid gap-10 pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
-        <section className="min-w-0 max-w-2xl">
-          {/* No empty-state placeholder here (F009-followup-4): the whole
-              block, heading included, is absent when the route has no
-              description — "No notes yet." read as noise on a published
-              page that simply has nothing more to say. */}
-          {route.description && route.description.length ? (
-            <>
-              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
-              {isPortableText(route.description) ? (
-                <div className="prose-invert max-w-none">
-                  <PortableBody value={route.description} />
-                </div>
-              ) : (
-                <div className="space-y-4 text-[1.02rem] leading-7 text-muted">
-                  {(route.description as string[]).map((p, i) => (
-                    <p key={i}>{p}</p>
-                  ))}
-                </div>
-              )}
-            </>
-          ) : null}
+      {/* "About this route" keeps the narrow, two-column layout the whole
+          section used to share (F009-followup-5 moved Companion build and
+          the Discord panel out of it). No empty-state placeholder
+          (F009-followup-4): the block, heading included, is absent when
+          the route has no description — and so is this wrapping band, so
+          an empty description never leaves a blank gap above Companion
+          build. */}
+      {route.description && route.description.length ? (
+        <Container className="grid gap-10 pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
+          <section className="min-w-0 max-w-2xl">
+            <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
+            {isPortableText(route.description) ? (
+              <div className="prose-invert max-w-none">
+                <PortableBody value={route.description} />
+              </div>
+            ) : (
+              <div className="space-y-4 text-[1.02rem] leading-7 text-muted">
+                {(route.description as string[]).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
+          </section>
+          <div className="hidden lg:block" aria-hidden />
+        </Container>
+      ) : null}
 
-          {/* Companion build: the same `BuildRow` `/learn/builds` renders
-              (F009-followup-4 item 2, user request), mirroring the inverse
-              "Creep routes for this build" section on `/learn/builds/[slug]`
-              which reuses `RouteRow`. Absent entirely when the route has no
-              build link, or when the linked build didn't resolve. */}
-          {companionBuild ? (
-            <div className={route.description && route.description.length ? "mt-8" : ""}>
-              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Companion build</h2>
-              <ul className="grid gap-3">
-                <BuildRow build={companionBuild} />
-              </ul>
-            </div>
-          ) : null}
-
-          <div className="panel mt-5 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
-            <div>
-              <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
-                Questions about this route?
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
-              </p>
-            </div>
-            <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
-              <DiscordIcon size={15} /> Discuss on Discord
-            </ButtonLink>
-          </div>
-        </section>
-        <div className="hidden lg:block" aria-hidden />
-      </Container>
+      {/* Companion build: full-width sibling band of "More creep routes"
+          below (F009-followup-5, user request: "make the Companion build
+          spread the full width as the More creep routes section") — same
+          `Container`, same `<h2>` heading treatment, same
+          `<ul className="grid gap-3">` list wrapper, so the two read as
+          one family instead of one being a narrow card. The `BuildRow`
+          this renders is the same one `/learn/builds` renders
+          (F009-followup-4 item 2, user request), mirroring the inverse
+          "Creep routes for this build" section on `/learn/builds/[slug]`
+          which reuses `RouteRow`. Absent entirely when the route has no
+          build link, or when the linked build didn't resolve. */}
+      {companionBuild ? (
+        <Container className="pb-16">
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Companion build</h2>
+          <ul className="grid gap-3">
+            <BuildRow build={companionBuild} />
+          </ul>
+        </Container>
+      ) : null}
 
       {related.length ? (
         <Container className="pb-16">
@@ -287,6 +280,28 @@ export default async function CreepRoutePage({ params }: Params) {
           </ul>
         </Container>
       ) : null}
+
+      {/* Discord panel: now last (F009-followup-5's ordering rule —
+          description → Companion build → More creep routes → Discord),
+          its own full-width `Container` so it stays a sibling band, but
+          the card itself keeps its original `max-w-2xl` width and
+          left-aligned position rather than stretching edge to edge — it
+          is a card, not a list section with a heading like the two above. */}
+      <Container className="pb-16">
+        <div className="panel flex max-w-2xl flex-col items-start gap-4 border-[#5865F2]/40 p-5">
+          <div>
+            <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+              Questions about this route?
+            </p>
+            <p className="mt-1 text-sm text-muted">
+              Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
+            </p>
+          </div>
+          <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
+            <DiscordIcon size={15} /> Discuss on Discord
+          </ButtonLink>
+        </div>
+      </Container>
     </article>
   );
 }
