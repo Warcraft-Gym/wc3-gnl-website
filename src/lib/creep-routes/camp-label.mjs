@@ -30,3 +30,20 @@ export function campComposition(camp) {
   const creeps = camp?.creeps ?? [];
   return creeps.map((c) => `${c.count}× ${c.name}`).join(" · ");
 }
+
+/** A condition already reads as a trigger to a human — "if harassed",
+ *  "Skip if the Undead scouted this side" — so the step table's condition
+ *  chip must never prefix a second "if" onto text that already starts with
+ *  one (F009-followup-1: the chip read "if Skip if the Undead scouted this
+ *  side"). Renders the author's text exactly as written; only prepends
+ *  "If " when it doesn't already open with a recognised trigger word
+ *  (if/when/unless/skip/only/after/before, case-insensitive) — so
+ *  "harassed" still reads as a condition ("If harassed") while an
+ *  author-written trigger is left untouched. */
+const CONDITION_PREFIX_RE = /^(if|when|unless|skip|only|after|before)\b/i;
+
+export function conditionLabel(text) {
+  const value = text ?? "";
+  if (!value) return value;
+  return CONDITION_PREFIX_RE.test(value) ? value : `If ${value}`;
+}

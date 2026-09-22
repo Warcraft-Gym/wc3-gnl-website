@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { campLabel, campComposition } from "./camp-label.mjs";
+import { campLabel, campComposition, conditionLabel } from "./camp-label.mjs";
 import autumnLeaves from "./maps/autumn-leaves.json" with { type: "json" };
 
 // c09: Giant Skeleton Warrior (lvl 3), Sludge Flinger (lvl 3), Skeleton
@@ -56,4 +56,32 @@ test("campComposition: multi-count creeps show the real count", () => {
 
 test("campComposition: an empty camp is an empty string, not a throw", () => {
   assert.equal(campComposition({ id: "c00", creeps: [] }), "");
+});
+
+test('conditionLabel: a condition that already starts with "if" renders unchanged', () => {
+  assert.equal(conditionLabel("if harassed"), "if harassed");
+});
+
+test('conditionLabel: an author-written "Skip if…" is never double-prefixed', () => {
+  assert.equal(
+    conditionLabel("Skip if the Undead scouted this side"),
+    "Skip if the Undead scouted this side",
+  );
+});
+
+test('conditionLabel: plain text with no trigger word gets a leading "If "', () => {
+  assert.equal(conditionLabel("harassed"), "If harassed");
+});
+
+test("conditionLabel: every recognised trigger word is left alone, case-insensitively", () => {
+  assert.equal(conditionLabel("When the scout leaves"), "When the scout leaves");
+  assert.equal(conditionLabel("unless you're ahead"), "unless you're ahead");
+  assert.equal(conditionLabel("ONLY on the standard build"), "ONLY on the standard build");
+  assert.equal(conditionLabel("After the first Fiend"), "After the first Fiend");
+  assert.equal(conditionLabel("before minute 5"), "before minute 5");
+});
+
+test("conditionLabel: empty/undefined condition is left as an empty string", () => {
+  assert.equal(conditionLabel(""), "");
+  assert.equal(conditionLabel(undefined), "");
 });

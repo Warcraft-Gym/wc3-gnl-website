@@ -378,3 +378,81 @@
     transition-duration: 0.001ms !important;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ *  Route step table — stacked cards below 768px (F009-followup-1).
+ *  Keeps the real <table>/<th> markup (screen readers on wider
+ *  viewports still get a real table); below the breakpoint every <tr>
+ *  becomes a CSS grid so a route's stops read as cards instead of a
+ *  cramped, horizontally-scrolling table. Layout per card: line 1/2 =
+ *  number + camp (label, level, composition) + hero-after on the
+ *  right; line 3 = Bring; line 4 = Notes, both full width. See
+ *  DESIGN.md "Creep routes" > "Table anatomy".
+ * ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .route-step-table,
+  .route-step-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .route-step-table caption {
+    display: block;
+  }
+  .route-step-table thead {
+    display: none;
+  }
+  .route-step-table tr {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      "num camp hero"
+      "num camp hero"
+      "bring bring bring"
+      "notes notes notes";
+    column-gap: 0.5rem;
+    row-gap: 0.4rem;
+    padding: 0.85rem 1rem !important;
+  }
+  .route-step-table td {
+    display: block;
+    padding: 0 !important;
+  }
+  .route-step-table td:nth-child(1) {
+    grid-area: num;
+    align-self: start;
+    text-align: left !important;
+  }
+  .route-step-table td:nth-child(2) {
+    grid-area: camp;
+    min-width: 0;
+  }
+  .route-step-table td:nth-child(3) {
+    grid-area: bring;
+  }
+  .route-step-table td:nth-child(4) {
+    grid-area: notes;
+  }
+  .route-step-table td:nth-child(5) {
+    grid-area: hero;
+    align-self: start;
+    text-align: right;
+  }
+  /* A mini uppercase label stands in for the hidden column header — only
+     where the cell's own content doesn't already say what it is. */
+  .route-step-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--wg-font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wg-text-faint);
+    margin-bottom: 0.2rem;
+  }
+  .route-step-table td:nth-child(1)::before,
+  .route-step-table td:nth-child(2)::before,
+  .route-step-table td:nth-child(5)::before {
+    content: none;
+  }
+}

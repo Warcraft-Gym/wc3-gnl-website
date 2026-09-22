@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
-import { campLabel, campComposition } from "@/lib/creep-routes/camp-label.mjs";
+import { campLabel, campComposition, conditionLabel } from "@/lib/creep-routes/camp-label.mjs";
 import type { CreepMap, CreepRoute } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BandDot } from "./RouteBadges";
@@ -65,17 +65,30 @@ export function RouteStepTable({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full border-collapse text-sm">
+        <table className="route-step-table w-full border-collapse text-sm md:table-fixed">
           <caption className="border-b border-line/60 px-4 py-2 text-left text-xs text-muted sm:px-5">
             Bring: units to take into the fight · Hero after: your hero&apos;s level and XP once the camp is cleared.
           </caption>
+          {/* `table-fixed` + these widths are what stop the browser from
+              collapsing Notes toward zero as Camp/Bring content grows (the
+              reported bug: Camp ate almost the full row). Notes has no
+              explicit width — it takes whatever's left, which is the
+              majority of the row once # and Hero after are pinned and
+              Camp/Bring are kept modest; see DESIGN.md "Table anatomy". */}
+          <colgroup>
+            <col style={{ width: "2.5rem" }} />
+            <col style={{ width: "17%" }} />
+            <col style={{ width: "12%" }} />
+            <col />
+            <col style={{ width: "7rem" }} />
+          </colgroup>
           <thead>
             <tr className="text-left font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
-              <th className="w-8 px-3 py-2.5 text-center font-medium sm:px-4">#</th>
+              <th className="px-3 py-2.5 text-center font-medium sm:px-4">#</th>
               <th className="px-2 py-2.5 font-medium">Camp</th>
               <th className="px-2 py-2.5 font-medium">Bring</th>
               <th className="px-2 py-2.5 font-medium">Notes</th>
-              <th className="w-28 px-2 py-2.5 font-medium">Hero after</th>
+              <th className="whitespace-nowrap px-2 py-2.5 font-medium">Hero after</th>
             </tr>
           </thead>
           <tbody>
@@ -110,14 +123,14 @@ export function RouteStepTable({
                     (isActive || isHovered) && "bg-gold/10",
                   )}
                 >
-                  <td className="tnum px-3 py-2.5 text-center text-xs text-faint sm:px-4">
+                  <td data-label="#" className="tnum px-3 py-2.5 text-center text-xs text-faint sm:px-4">
                     {isActive ? (
                       <span aria-hidden className="inline-block size-2 rounded-full bg-gold shadow-[0_0_10px_var(--wg-gold-glow)]" />
                     ) : (
                       i + 1
                     )}
                   </td>
-                  <td className="px-2 py-2.5">
+                  <td data-label="Camp" className="px-2 py-2.5">
                     {d.camp ? (
                       <div className="min-w-0">
                         <span className="inline-flex flex-wrap items-center gap-1.5">
@@ -125,13 +138,13 @@ export function RouteStepTable({
                           <span className="font-medium text-fg">{campLabel(d.camp)}</span>
                           <span className="tnum text-faint">Lv {d.camp.level}</span>
                         </span>
-                        <p className="mt-0.5 truncate text-xs text-faint">{campComposition(d.camp)}</p>
+                        <p className="mt-0.5 line-clamp-2 text-xs text-faint">{campComposition(d.camp)}</p>
                       </div>
                     ) : (
                       <span className="text-muted">{stop.action ?? "-"}</span>
                     )}
                   </td>
-                  <td className="px-2 py-2.5">
+                  <td data-label="Bring" className="px-2 py-2.5">
                     {stop.units?.length ? (
                       <span className="flex flex-wrap items-center gap-1.5">
                         {stop.units.map((u, ui) => (
@@ -142,24 +155,24 @@ export function RouteStepTable({
                         ))}
                       </span>
                     ) : (
-                      <span className="text-faint">-</span>
+                      <span className="text-faint">—</span>
                     )}
                   </td>
-                  <td className="px-2 py-2.5 text-xs text-muted">
-                    <span className="flex flex-col gap-1">
-                      {stop.note ? <span>{stop.note}</span> : null}
+                  <td data-label="Notes" className="px-2 py-2.5 text-xs text-muted">
+                    <span className="flex flex-col items-start gap-1">
                       {stop.condition ? (
                         <span
                           title="Condition"
-                          className="inline-flex w-fit items-center rounded border border-arcane/40 bg-arcane/10 px-1.5 py-0.5 text-[0.65rem] text-arcane"
+                          className="inline-flex w-fit max-w-full items-center whitespace-normal rounded border border-arcane/40 bg-arcane/10 px-1.5 py-0.5 text-[0.65rem] leading-snug text-arcane"
                         >
-                          if {stop.condition}
+                          {conditionLabel(stop.condition)}
                         </span>
                       ) : null}
+                      {stop.note ? <span>{stop.note}</span> : null}
                       {!stop.note && !stop.condition ? <span className="text-faint">-</span> : null}
                     </span>
                   </td>
-                  <td className="tnum px-2 py-2.5 text-xs text-muted">
+                  <td data-label="Hero after" className="tnum whitespace-nowrap px-2 py-2.5 text-xs text-muted">
                     {`Lv ${d.heroLevelAfter} · ${d.xpAfter} xp`}
                   </td>
                 </tr>
