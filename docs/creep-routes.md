@@ -125,9 +125,11 @@ because bands never feed minimap rendering). Across the nine catalogues'
 Gold mines and neutral buildings (taverns, goblin merchants, mercenary
 camps…) draw with Liquipedia's own icons, matching the marker colours
 above. The originals are Blizzard art, hosted on Liquipedia — CC-BY-SA
-covers Liquipedia's own text, not this art, so every route page and the
-editor credit "Map icons via Liquipedia" in the legend (`MapLegend.tsx`,
-see `DESIGN.md`).
+covers Liquipedia's own text, not this art. The site's UI carries no
+"Map icons via Liquipedia" credit (F009-followup-2 removed it from
+`MapLegend.tsx` on the route page and the editor, at the user's request);
+the source URLs and attribution below are the sole record of where each
+icon came from.
 
 **Fetch recipe** — Liquipedia's HTML pages are Cloudflare-blocked to a
 scripted fetch; the MediaWiki API is not. Two calls, both against the

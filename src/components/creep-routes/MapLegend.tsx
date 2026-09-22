@@ -3,10 +3,12 @@ import { cn } from "@/lib/utils";
 /**
  * One line under the map (route page and editor alike) naming every mark
  * `CreepMap` draws: the three band dots and their level ranges, the
- * red/blue base X, the gold-mine icon, and a small attribution — the map
- * icons are Blizzard art hosted on Liquipedia (see `docs/creep-routes.md`'s
- * "Map icons" section), not this site's own asset. `flex-wrap` keeps it to
- * one row on desktop and lets it wrap on mobile without special-casing.
+ * red/blue base X, and the gold-mine icon. No source attribution here by
+ * design (F009-followup-2, user request) — the map icons are Blizzard art
+ * hosted on Liquipedia, but that's a provenance note, not something a
+ * reader needs; the source URLs and credit live in `docs/creep-routes.md`'s
+ * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
+ * lets it wrap on mobile without special-casing.
  */
 export function MapLegend({ className }: { className?: string }) {
   return (
@@ -35,7 +37,6 @@ export function MapLegend({ className }: { className?: string }) {
         <img src="/map-icons/gold-mine.png" alt="" aria-hidden width={14} height={12} className="inline-block" />
         Gold mine
       </span>
-      <span>Map icons via Liquipedia</span>
     </p>
   );
 }

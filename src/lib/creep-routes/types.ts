@@ -83,7 +83,12 @@ export type CreepRoute = {
   /** Opponent races the route is written for; empty means any opponent. */
   vsRaces: BuildRace[];
   level: RouteLevel;
-  map: { slug: string; name: string };
+  /** `minimapUrl` is the map's own band-free minimap thumbnail — carried
+   *  alongside `slug`/`name` so a route list/detail surface can show it
+   *  without a second `CreepMap` fetch (F009-followup-2: "the map is the
+   *  second-level heading on every route surface"). Optional because older
+   *  callers/fixtures may not populate it. */
+  map: { slug: string; name: string; minimapUrl?: string };
   /** Index into `map.starts` — which spawn is *your* base. Unset/0 (the
    *  default) is fine for every two-start map; only a map with more than
    *  two spawns (Turtle Rock, Twisted Meadows) ever needs this set. The

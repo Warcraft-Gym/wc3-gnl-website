@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
@@ -13,8 +14,24 @@ import { filterCreepRoutes, getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
 import { getCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
-import { ROUTE_LEVELS, type RouteLevel } from "@/lib/creep-routes/types";
+import { ROUTE_LEVELS, type CreepRoute, type RouteLevel } from "@/lib/creep-routes/types";
 import { BUILD_RACES, type BuildRace, type BuildVsRace } from "@/lib/builds/types";
+
+/** Buckets an already-sorted route list by map, groups ordered
+ *  alphabetically by map name (the list's default, filter-free view has no
+ *  other natural grouping order), routes within a group keeping whatever
+ *  order the page's own sort control gave them — "sorted as before"
+ *  (F009-followup-2, item 2: grouping only applies when no map filter is
+ *  set, so a filtered list is never grouped by the one map it already is). */
+function groupRoutesByMap(routes: CreepRoute[]) {
+  const groups = new Map<string, { map: CreepRoute["map"]; routes: CreepRoute[] }>();
+  for (const r of routes) {
+    const existing = groups.get(r.map.slug);
+    if (existing) existing.routes.push(r);
+    else groups.set(r.map.slug, { map: r.map, routes: [r] });
+  }
+  return [...groups.values()].sort((a, b) => a.map.name.localeCompare(b.map.name));
+}
 
 export const metadata: Metadata = {
   title: "Warcraft III creep routes",
@@ -56,6 +73,7 @@ export default async function CreepRoutesPage({
 
   const [all, mapList] = await Promise.all([getCreepRoutes(), getCreepMaps()]);
   const map = mapList.some((m) => m.slug === sp.map) ? sp.map : undefined;
+  const activeMap = map ? mapList.find((m) => m.slug === map) : undefined;
 
   let routes = filterCreepRoutes(all, { race, vsRace, map, level, q });
   routes = [...routes].sort((a, b) =>
@@ -136,13 +154,58 @@ export default async function CreepRoutesPage({
           .
         </p>
 
-        {/* Results */}
+        {/* Results. A map filter states its map above the results
+            ("Routes on Autumn Leaves v2 · 3", F009-followup-2 item 3);
+            with no map filter the list groups by map instead, a heading
+            with thumbnail per group — reads better than one flat list once
+            routes span several maps, without hiding a map filter's own
+            single-map heading behind a redundant per-group one. */}
+        {routes.length && activeMap ? (
+          <h2 className="mt-6 flex items-center gap-2.5 font-display text-sm font-bold uppercase tracking-[0.06em] text-fg">
+            {activeMap.minimapUrl ? (
+              <Image
+                src={activeMap.minimapUrl}
+                alt=""
+                width={28}
+                height={28}
+                className="size-7 shrink-0 rounded object-cover ring-1 ring-line/60"
+              />
+            ) : null}
+            Routes on {activeMap.name} <span className="tnum font-normal normal-case text-faint">· {routes.length}</span>
+          </h2>
+        ) : null}
         {routes.length ? (
-          <ul className="mt-6 grid gap-2.5">
-            {routes.map((r) => (
-              <RouteRow key={r.slug} route={r} />
-            ))}
-          </ul>
+          map ? (
+            <ul className="mt-6 grid gap-2.5">
+              {routes.map((r) => (
+                <RouteRow key={r.slug} route={r} />
+              ))}
+            </ul>
+          ) : (
+            <div className="mt-6 space-y-8">
+              {groupRoutesByMap(routes).map((group) => (
+                <section key={group.map.slug}>
+                  <h2 className="mb-3 flex items-center gap-2.5 font-display text-sm font-bold uppercase tracking-[0.06em] text-fg">
+                    {group.map.minimapUrl ? (
+                      <Image
+                        src={group.map.minimapUrl}
+                        alt=""
+                        width={28}
+                        height={28}
+                        className="size-7 shrink-0 rounded object-cover ring-1 ring-line/60"
+                      />
+                    ) : null}
+                    {group.map.name} <span className="tnum font-normal normal-case text-faint">· {group.routes.length}</span>
+                  </h2>
+                  <ul className="grid gap-2.5">
+                    {group.routes.map((r) => (
+                      <RouteRow key={r.slug} route={r} />
+                    ))}
+                  </ul>
+                </section>
+              ))}
+            </div>
+          )
         ) : (
           <div className="mt-6 rounded border border-dashed border-line px-5 py-12 text-center">
             <p className="text-sm text-muted">No creep routes match those filters yet.</p>

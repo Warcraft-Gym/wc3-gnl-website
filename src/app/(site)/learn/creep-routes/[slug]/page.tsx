@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ExternalLink, MapPin } from "lucide-react";
+import Image from "next/image";
+import { ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { ButtonLink } from "@/components/ui/Button";
@@ -121,21 +122,37 @@ export default async function CreepRoutePage({ params }: Params) {
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {route.patch}</span>
             ) : null}
           </div>
-          <h1 className="mt-4 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+          {/* The map, as prominent as the matchup line above (F009-followup-2,
+              user request: "the map name should be much more prominent since
+              it's an important value") — a kicker above the title, not a
+              muted meta line below it. Carries the old "written for v2.0"
+              line (now "map v2.0", matching the list row's own wording) and
+              the mapVersion-mismatch warning, both moved up from the meta
+              line that used to sit under the summary. */}
+          <div className="mt-4 flex items-center gap-2.5">
+            <Image
+              src={map.minimapUrl}
+              alt=""
+              width={40}
+              height={40}
+              className="size-10 shrink-0 rounded object-cover ring-1 ring-line/60"
+            />
+            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+              <span className="font-display text-[1.05rem] font-bold uppercase tracking-[0.05em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.8)]">
+                {route.map.name}
+              </span>
+              {map.mapVersion ? <span className="text-xs text-faint">map v{map.mapVersion}</span> : null}
+              {mapVersionMismatch ? (
+                <span className="rounded border border-gold/40 bg-gold/5 px-1.5 py-0.5 text-xs text-gold">
+                  Written for v{route.mapVersion}; the catalogue is v{map.mapVersion}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <h1 className="mt-3 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
             {route.title}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-muted [text-shadow:0_1px_12px_rgba(0,0,0,.8)]">{route.summary}</p>
-          <p className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1.5 text-xs text-faint">
-            <span className="inline-flex items-center gap-1.5 text-muted">
-              <MapPin size={13} className="text-gold" /> {route.map.name}
-              {map.mapVersion ? <span className="text-faint"> · written for v{map.mapVersion}</span> : null}
-            </span>
-            {mapVersionMismatch ? (
-              <span className="rounded border border-gold/40 bg-gold/5 px-1.5 py-0.5 text-gold">
-                Written for v{route.mapVersion}; the catalogue is v{map.mapVersion}
-              </span>
-            ) : null}
-          </p>
           <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-faint">
             <span>
               By <span className="text-muted">{route.author}</span>

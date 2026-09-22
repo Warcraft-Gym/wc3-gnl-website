@@ -23,14 +23,17 @@ export { filterCreepRoutes, type CreepRouteFilter };
 const USE_FIXTURES = process.env.NODE_ENV !== "production";
 
 type RawRoute = Omit<CreepRoute, "map"> & {
-  map: { slug: string; name: string } | null;
+  map: { slug: string; name: string; minimapUrl?: string } | null;
 };
 
+// `minimapUrl` rides along on `map->` (not a second read) so every route
+// surface can show the map's thumbnail without re-fetching the full
+// `CreepMap` catalogue (F009-followup-2).
 const LIST_PROJECTION = `{
   "slug": slug.current,
   title, race, level, patch, mapVersion, start,
   "vsRaces": coalesce(vsRaces, []),
-  "map": map->{ "slug": slug.current, name },
+  "map": map->{ "slug": slug.current, name, "minimapUrl": minimap.asset->url },
   hero, summary, author, authorDiscord, maintainer, sourceUrl,
   "build": build->{ "slug": slug.current, title },
   "tags": coalesce(tags, []),
@@ -44,7 +47,7 @@ const DETAIL_PROJECTION = `{
   "slug": slug.current,
   title, race, level, patch, mapVersion, start,
   "vsRaces": coalesce(vsRaces, []),
-  "map": map->{ "slug": slug.current, name },
+  "map": map->{ "slug": slug.current, name, "minimapUrl": minimap.asset->url },
   hero, summary, author, authorDiscord, maintainer, sourceUrl,
   "build": build->{ "slug": slug.current, title },
   "tags": coalesce(tags, []),

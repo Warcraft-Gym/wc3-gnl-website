@@ -193,10 +193,14 @@ export const FIXTURE_ROUTES = [
 
 // Sanity check the seed data at import time (this file is also `node --test`ed
 // directly by fixtures.test.mjs): every camp stop's campId must exist on its
-// route's map, since camp contents are never invented, only looked up.
+// route's map, since camp contents are never invented, only looked up. Also
+// carries the map's own `minimapUrl` onto `route.map` (mirroring the Sanity
+// projection in routes.ts) so every fixture route can show a map thumbnail
+// without a second lookup (F009-followup-2).
 for (const route of FIXTURE_ROUTES) {
   const map = MAP_BY_SLUG.get(route.map.slug);
   if (!map) throw new Error(`fixture route ${route.slug} references unknown map ${route.map.slug}`);
+  route.map.minimapUrl = map.minimapUrl;
   for (const stop of route.stops) {
     if (stop.campId && !map.camps.some((c) => c.id === stop.campId)) {
       throw new Error(`fixture route ${route.slug} references unknown camp ${stop.campId} on ${map.slug}`);
