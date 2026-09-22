@@ -23,7 +23,12 @@ import { EXCHANGE_FORMAT_SINGLE, EXCHANGE_FORMAT_MULTI } from "./exchange-codec.
 
 const stepSchema = z.object({
   time: z.string().optional(),
-  supply: z.number().optional(),
+  /** `nullish` for the same reason as a route's `start`: an unset field
+   *  serialised as `null` must not fail the whole payload. */
+  supply: z
+    .number()
+    .nullish()
+    .transform((v) => v ?? undefined),
   instruction: z.string(),
   icon: z.string().optional(),
 });

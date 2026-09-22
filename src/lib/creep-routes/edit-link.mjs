@@ -40,7 +40,11 @@ export function toExchangeRoute(route) {
     race: route.race,
     vsRaces: route.vsRaces ?? [],
     level: route.level ?? "standard",
-    start: route.start,
+    // `?? undefined`, not `|| undefined`: start 0 is a real spawn index.
+    // Sanity returns `null` for a field that was never set, and `null`
+    // serialises where `undefined` is dropped — so a bare passthrough put
+    // `"start": null` in the payload and the schema rejected the lot.
+    start: route.start ?? undefined,
     hero: route.hero || undefined,
     build: route.build?.slug || undefined,
     patch: route.patch || undefined,

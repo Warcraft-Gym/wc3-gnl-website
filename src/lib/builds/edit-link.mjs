@@ -25,7 +25,10 @@ export function toExchangeBuild(build) {
     supersedes: build.slug,
     steps: (build.steps ?? []).map((s) => ({
       time: s.time || undefined,
-      supply: s.supply,
+      // `?? undefined` for the same reason as a route's `start`: supply 0 is
+      // meaningful, and Sanity's `null` for an unset field would fail the
+      // schema's `z.number().optional()`.
+      supply: s.supply ?? undefined,
       instruction: s.instruction,
       icon: s.icon || undefined,
     })),

@@ -138,3 +138,77 @@ test("a build with no steps gets no link", async () => {
   const { buildEditHref } = await import("../builds/edit-link.mjs");
   assert.equal(buildEditHref({ slug: "x", title: "T", steps: [] }), undefined);
 });
+
+/* ------------------------------------------------------------------ *
+ *  Sanity-shaped input
+ *
+ *  Fixtures leave an unset optional field `undefined`, which JSON.stringify
+ *  drops. Sanity returns `null`, which serialises. So a payload built from a
+ *  published route carried `"start": null`, the schema's `.optional()`
+ *  rejected it, and the submit form — which ignores a payload it cannot
+ *  parse — came up blank. Every check passed beforehand, because every
+ *  check used a fixture.
+ * ------------------------------------------------------------------ */
+
+test("a route straight from Sanity, with nulls for unset fields, still round-trips", () => {
+  const fromSanity = {
+    slug: "dh-fast-3rd-level-2d9a",
+    title: "DH fast 3rd level",
+    map: { slug: "shallow-grave", name: "Shallow Grave" },
+    race: "nightelf",
+    vsRaces: [],
+    level: "standard",
+    start: null,
+    hero: "ne-demon-hunter",
+    build: null,
+    patch: null,
+    tags: [],
+    summary: "You start with lightning shield creep, then rogue camp for level 2.",
+    author: "AllSupGoToHeaven",
+    authorDiscord: "allsupsgotoheaven",
+    sourceUrl: null,
+    description: null,
+    stops: [{ campId: "c14" }, { campId: "c05" }, { campId: "c10" }],
+  };
+
+  const payload = toExchangeRoute(fromSanity);
+  // `null` must not survive into the JSON: `.optional()` accepts `undefined`,
+  // never `null`.
+  const json = JSON.stringify({ format: "wc3gym-creep-route", route: payload });
+  assert.ok(!json.includes("null"), `payload still carries a null: ${json}`);
+
+  const decoded = decodeHref(routeEditHref(fromSanity)).route;
+  assert.equal(decoded.supersedes, fromSanity.slug);
+  assert.equal(decoded.stops.length, 3);
+  assert.equal("start" in decoded, false, "an unset start should be absent, not null");
+});
+
+test("start 0 is preserved — it is a real spawn index, not an absent value", () => {
+  const payload = toExchangeRoute({
+    slug: "x",
+    title: "T",
+    map: { slug: "autumn-leaves" },
+    race: "human",
+    level: "standard",
+    summary: "s",
+    author: "a",
+    start: 0,
+    stops: [{ campId: "c01" }],
+  });
+  assert.equal(payload.start, 0);
+});
+
+test("a build step's supply survives the same treatment", async () => {
+  const { toExchangeBuild } = await import("../builds/edit-link.mjs");
+  const payload = toExchangeBuild({
+    slug: "b",
+    title: "T",
+    race: "human",
+    steps: [
+      { instruction: "Farm", supply: null },
+      { instruction: "Altar", supply: 0 },
+    ],
+  });
+  assert.equal("supply" in payload.steps[0] && payload.steps[0].supply === null, false);
+  assert.equal(payload.steps[1].supply, 0);
+});

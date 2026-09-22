@@ -40,7 +40,16 @@ export const creepRouteExchangeSchema = z.object({
   level: z.enum(levelIds).default("standard"),
   /** Index into the chosen map's `starts` — which spawn is *your* base;
    *  omitted means the first start (0). */
-  start: z.number().int().min(0).optional(),
+  /** `nullish`, not `optional`: a producer that serialises an unset field as
+   *  `null` (Sanity does) would otherwise fail the whole payload, and the
+   *  form silently ignores a payload it cannot parse. Normalised back to
+   *  `undefined` so consumers see one shape. */
+  start: z
+    .number()
+    .int()
+    .min(0)
+    .nullish()
+    .transform((v) => v ?? undefined),
   hero: z.string().optional(),
   build: z.string().optional(),
   patch: z.string().optional(),
