@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, PencilLine } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { ButtonLink } from "@/components/ui/Button";
@@ -14,6 +14,7 @@ import { Matchup, TagChip } from "@/components/builds/BuildBadges";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
+import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes, getSupersedingRouteSlug } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
@@ -78,6 +79,10 @@ export default async function CreepRoutePage({ params }: Params) {
 
   const map = await getCreepMapBySlug(route.map.slug);
   if (!map) notFound();
+
+  // Built server-side so the link is in the HTML: no hydration wait, and it
+  // still works with JavaScript disabled up to the point the form needs it.
+  const editHref = routeEditHref(route);
 
   const allRoutes = await getCreepRoutes();
   const related = allRoutes
@@ -197,6 +202,16 @@ export default async function CreepRoutePage({ params }: Params) {
                 className="inline-flex items-center gap-1 text-gold hover:underline"
               >
                 Source <ExternalLink size={11} />
+              </a>
+            ) : null}
+            {/* No accounts, so an author cannot edit in place. This opens the
+                submit form prefilled with this route and already naming it as
+                the one being replaced, so "editing" is a review of a diff
+                rather than retyping the whole thing. Anyone may suggest an
+                update; a coach decides. */}
+            {editHref ? (
+              <a href={editHref} className="inline-flex items-center gap-1 text-gold hover:underline">
+                <PencilLine size={11} /> Suggest an update
               </a>
             ) : null}
           </p>

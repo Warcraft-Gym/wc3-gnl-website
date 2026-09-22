@@ -16,7 +16,8 @@ import { ROUTE_LEVELS } from "./types";
 const raceIds = BUILD_RACES.map((r) => r.id) as [string, ...string[]];
 const levelIds = ROUTE_LEVELS.map((l) => l.id) as [string, ...string[]];
 
-export const EXCHANGE_FORMAT = "wc3gym-creep-route";
+export { EXCHANGE_FORMAT, IMPORT_HASH_KEY, encodeForHash, decodeFromHash } from "./exchange-codec.mjs";
+import { EXCHANGE_FORMAT } from "./exchange-codec.mjs";
 
 const unitSchema = z.object({
   icon: z.string(),
@@ -48,6 +49,11 @@ export const creepRouteExchangeSchema = z.object({
   author: z.string().default(""),
   authorDiscord: z.string().optional(),
   sourceUrl: z.string().optional(),
+  /** Slug of the route this payload is an update to. Set by the "Suggest an
+   *  update" link on a route page so the submit form arrives prefilled *and*
+   *  already naming what it replaces. A plain import (replay, overlay) omits
+   *  it, because that is a new route rather than an edit. */
+  supersedes: z.string().optional(),
   stops: z.array(stopSchema).min(1),
   description: z.string().optional(),
 });
@@ -77,23 +83,4 @@ export function parseExchange(json: string): ParseResult {
   };
 }
 
-/** Deep link key: `#route=<base64url of the export JSON>`. */
-export const IMPORT_HASH_KEY = "route";
 
-export function encodeForHash(json: string): string {
-  const bytes = new TextEncoder().encode(json);
-  let bin = "";
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-export function decodeFromHash(value: string): string | null {
-  try {
-    const b64 = value.replace(/-/g, "+").replace(/_/g, "/");
-    const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
-    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
-  } catch {
-    return null;
-  }
-}

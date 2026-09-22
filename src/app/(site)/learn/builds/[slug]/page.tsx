@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink, PencilLine } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { ButtonLink } from "@/components/ui/Button";
@@ -14,6 +14,7 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { getBuildBySlug, getSupersedingBuildSlug, getBuilds } from "@/lib/builds/builds";
+import { buildEditHref } from "@/lib/builds/edit-link.mjs";
 import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
@@ -64,6 +65,8 @@ function isPortableText(v: unknown[]): v is Record<string, unknown>[] {
 export default async function BuildPage({ params }: Params) {
   const { slug } = await params;
   const build = await getBuildBySlug(slug);
+  const editHref = build ? buildEditHref(build) : undefined;
+
   if (!build) {
     // Archived and replaced: send readers to the current version rather than
     // 404ing a link that is already out in Discord.
@@ -143,6 +146,14 @@ export default async function BuildPage({ params }: Params) {
                 className="inline-flex items-center gap-1 text-gold hover:underline"
               >
                 Source <ExternalLink size={11} />
+              </a>
+            ) : null}
+            {/* No accounts, so nobody can edit in place. This opens the submit
+                form prefilled with this build and already naming it as the one
+                being replaced. Anyone may suggest an update; a coach decides. */}
+            {editHref ? (
+              <a href={editHref} className="inline-flex items-center gap-1 text-gold hover:underline">
+                <PencilLine size={11} /> Suggest an update
               </a>
             ) : null}
           </p>

@@ -127,9 +127,10 @@ export function RouteSubmitForm({
     setText({
       title: r.title, summary: r.summary, patch: r.patch ?? "", author: r.author,
       authorDiscord: r.authorDiscord ?? "", sourceUrl: r.sourceUrl ?? "",
-      // Not carried by the exchange payload: a deep-linked import is a new
-      // route, not an update to an existing one.
-      supersedes: "",
+      // Set when the payload came from a route page's "Suggest an update"
+      // link; a plain import (replay, overlay) omits it, because that is a
+      // new route rather than an edit.
+      supersedes: r.supersedes ?? "",
       description: r.description ?? "",
     });
     if (maps.some((m) => m.slug === r.map)) setMapSlug(r.map);

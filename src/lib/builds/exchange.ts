@@ -12,8 +12,14 @@ import { BUILD_DIFFICULTIES, BUILD_RACES } from "./types";
 const raceIds = BUILD_RACES.map((r) => r.id) as [string, ...string[]];
 const difficultyIds = BUILD_DIFFICULTIES.map((d) => d.id) as [string, ...string[]];
 
-export const EXCHANGE_FORMAT_SINGLE = "wc3gym-build";
-export const EXCHANGE_FORMAT_MULTI = "wc3gym-builds";
+export {
+  EXCHANGE_FORMAT_SINGLE,
+  EXCHANGE_FORMAT_MULTI,
+  IMPORT_HASH_KEY,
+  encodeForHash,
+  decodeFromHash,
+} from "./exchange-codec.mjs";
+import { EXCHANGE_FORMAT_SINGLE, EXCHANGE_FORMAT_MULTI } from "./exchange-codec.mjs";
 
 const stepSchema = z.object({
   time: z.string().optional(),
@@ -33,6 +39,10 @@ export const exchangeBuildSchema = z.object({
   author: z.string().default(""),
   authorDiscord: z.string().optional(),
   sourceUrl: z.string().optional(),
+  /** Slug of the build this payload updates — set by a build page's
+   *  "Suggest an update" link. A replay or overlay import omits it, being a
+   *  new build rather than an edit. */
+  supersedes: z.string().optional(),
   steps: z.array(stepSchema).min(1),
   description: z.string().optional(),
 });
@@ -65,24 +75,3 @@ export function parseExchange(json: string): ParseResult {
   };
 }
 
-/** Deep link: `/learn/builds/submit#build=<base64url of the export JSON>`.
- *  The fragment never reaches the server or its logs. */
-export const IMPORT_HASH_KEY = "build";
-
-export function encodeForHash(json: string): string {
-  const bytes = new TextEncoder().encode(json);
-  let bin = "";
-  for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
-}
-
-export function decodeFromHash(value: string): string | null {
-  try {
-    const b64 = value.replace(/-/g, "+").replace(/_/g, "/");
-    const bin = atob(b64 + "=".repeat((4 - (b64.length % 4)) % 4));
-    const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-    return new TextDecoder().decode(bytes);
-  } catch {
-    return null;
-  }
-}

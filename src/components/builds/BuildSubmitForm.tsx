@@ -149,8 +149,9 @@ export function BuildSubmitForm() {
       author: b.author,
       authorDiscord: b.authorDiscord ?? "",
       sourceUrl: b.sourceUrl ?? "",
-      // An imported build is a new one, not an update to an existing build.
-      supersedes: "",
+      // Set when the payload came from a build page's "Suggest an update"
+      // link; a replay or overlay import omits it, being a new build.
+      supersedes: b.supersedes ?? "",
     });
     setRace((b.race as BuildRace | undefined) ?? "");
     setVsRaces(b.vsRaces as BuildRace[]);
