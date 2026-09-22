@@ -162,6 +162,15 @@
     text-wrap: balance;
   }
 
+  /* Short copy in one place reads as one block: no lone word on the last line.
+     Headings balance above; leads and blurbs balance where the page asks. */
+  p, li, dd, figcaption {
+    text-wrap: pretty;
+  }
+  .balance {
+    text-wrap: balance;
+  }
+
   ::selection {
     background: var(--wg-gold);
     color: var(--wg-bg-deep);

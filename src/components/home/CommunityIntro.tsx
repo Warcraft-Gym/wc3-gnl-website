@@ -29,7 +29,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
       <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
         Join the community
       </h2>
-      <p className="mt-5 max-w-md text-lg text-muted">
+      <p className="balance mt-5 max-w-md text-lg text-muted">
         Nobody gets good at Warcraft III alone. The Gym is a community of
         players who help each other improve and have fun doing it, coaching,
         replay reviews, casual nights and casts, all run by volunteers. New

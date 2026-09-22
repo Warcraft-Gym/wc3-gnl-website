@@ -87,7 +87,7 @@ export default async function PostPage({ params }: Params) {
               "radial-gradient(34rem 20rem at 80% -20%, var(--wg-gold-glow), transparent 60%)",
           }}
         />
-        <Container className="max-w-3xl py-14 sm:py-20">
+        <Container className="max-w-4xl py-14 sm:py-20">
           <Link
             href="/blog"
             className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"

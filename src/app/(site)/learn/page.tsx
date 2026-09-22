@@ -70,7 +70,7 @@ export default async function LearnPage() {
                   className="object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,.85)]"
                 />
               </span>
-              <div>
+              <div className="min-w-0 flex-1">
               <span className="kicker mb-3">Start here</span>
               <h2 className="text-[length:var(--wg-text-title)]">
                 New &amp; returning players

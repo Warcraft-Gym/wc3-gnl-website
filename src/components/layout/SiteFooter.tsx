@@ -31,7 +31,7 @@ export function SiteFooter() {
       <Container className="relative z-10 grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <Wordmark />
-          <p className="mt-4 max-w-xs text-sm text-muted">
+          <p className="balance mt-4 max-w-sm text-sm text-muted">
             Free Warcraft III guides and the Gym Newbie League, a community
             tournament for players who want to improve.
           </p>

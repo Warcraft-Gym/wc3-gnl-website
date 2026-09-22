@@ -418,7 +418,7 @@ export function BuildSubmitForm() {
           ) : null}
 
           <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3 text-sm text-muted">
+            <div className="flex min-w-0 flex-1 items-start gap-3 text-sm text-muted">
               <ShieldCheck size={20} className="mt-0.5 shrink-0 text-gold" />
               <div>
                 <p className="font-bold text-fg">Reviewed before it goes live</p>
@@ -428,10 +428,10 @@ export function BuildSubmitForm() {
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-              <ButtonLink href="/learn/builds" variant="ghost" size="lg" className="sm:w-auto">
+              <ButtonLink href="/learn/builds" variant="ghost" size="md" className="sm:w-auto">
                 Cancel
               </ButtonLink>
-              <Button type="submit" size="lg" disabled={pending} className="sm:w-auto">
+              <Button type="submit" size="md" disabled={pending} className="sm:w-auto">
                 {pending ? "Sending…" : "Submit for review"} <ArrowRight size={16} />
               </Button>
             </div>

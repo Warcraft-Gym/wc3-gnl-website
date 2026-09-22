@@ -109,7 +109,7 @@ export default async function BuildPage({ params }: Params) {
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {build.patch}</span>
             ) : null}
           </div>
-          <h1 className="mt-4 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+          <h1 className="mt-4 max-w-4xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
             {build.title}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-muted [text-shadow:0_1px_12px_rgba(0,0,0,.8)]">{build.summary}</p>

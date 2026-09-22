@@ -94,7 +94,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
           </Link>
 
           {/* Identity on the left, the season's headline figures as a block on the right */}
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between xl:gap-12">
             <div className="flex min-w-0 flex-1 items-center gap-5">
               <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="lg" />
               <div className="min-w-0">
@@ -132,7 +132,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
               </div>
             </div>
 
-            <dl className="panel grid shrink-0 grid-cols-2 gap-px overflow-hidden bg-line/60 sm:grid-cols-4 lg:grid-cols-2">
+            <dl className="panel grid shrink-0 grid-cols-2 gap-px overflow-hidden bg-line/60 sm:grid-cols-4 xl:grid-cols-2">
               <Stat label="Standing">
                 {standing ? (
                   <>

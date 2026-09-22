@@ -62,7 +62,7 @@ export function PageHeader({
           {title}
         </h1>
         {lead ? (
-          <p className="mt-4 max-w-2xl text-lg text-muted">{lead}</p>
+          <p className="balance mt-4 max-w-3xl text-lg text-muted">{lead}</p>
         ) : null}
         {children ? (
           <div className="mt-6 flex flex-wrap justify-center gap-3">

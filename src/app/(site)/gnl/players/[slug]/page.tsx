@@ -238,7 +238,7 @@ export default async function PlayerPage({ params }: Params) {
           </Link>
 
           {/* Identity on the left, the headline numbers as a block on the right */}
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between lg:gap-12">
+          <div className="flex flex-col gap-8 xl:flex-row xl:items-center xl:justify-between xl:gap-12">
             <div className="flex min-w-0 items-center gap-5 sm:gap-6">
               {/* No main race draws no icon, so the page claims no race. */}
               {main ? (
