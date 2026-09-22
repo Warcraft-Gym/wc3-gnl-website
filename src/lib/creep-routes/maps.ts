@@ -19,9 +19,18 @@ const USE_FIXTURES = process.env.NODE_ENV !== "production";
 // `camps[].drops[]` (added to the `creepMap` schema) flow through
 // automatically once a published document carries them; no projection
 // change needed.
+/** The Sanity document calls the display name `title` (that is the field in
+ *  `creepMap.ts`, and what the Studio shows); the app's `CreepMap` type calls
+ *  it `name`, matching the generated catalogue JSON. The projection is where
+ *  the two meet — selecting bare `name` yields `null` for every published
+ *  map, which renders as a dropdown full of blank options and makes
+ *  `getCreepMap` fall through as if the map did not exist. `coalesce` keeps
+ *  any hand-authored `name` working too. */
+const MAP_NAME = `"name": coalesce(title, name)`;
+
 const MAP_PROJECTION = `{
   "slug": slug.current,
-  name, mapVersion, w3cMapId, bounds, terrainBounds, cameraBounds, image, camps, starts, mines, shops,
+  ${MAP_NAME}, mapVersion, w3cMapId, bounds, terrainBounds, cameraBounds, image, camps, starts, mines, shops,
   "minimapUrl": minimap.asset->url,
   sourceFile, generatedAt
 }`;
@@ -31,7 +40,7 @@ async function listFromSanity(): Promise<CreepMap[] | null> {
   if (!client) return null;
   try {
     return await client.fetch<CreepMap[]>(
-      `*[_type == "creepMap" && defined(slug.current)] | order(name asc) ${MAP_PROJECTION}`,
+      `*[_type == "creepMap" && defined(slug.current)] | order(coalesce(title, name) asc) ${MAP_PROJECTION}`,
       {},
       { next: { revalidate: 300 } },
     );
