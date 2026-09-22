@@ -114,6 +114,9 @@ export function IconPicker({
           "bg-surface/60",
         )}
       >
+        {kind === "hero" ? (
+          <span className="text-[0.6rem] font-bold uppercase tracking-wider text-faint">Hero</span>
+        ) : null}
         {current ? (
           <GameIcon iconKey={value} size={30} />
         ) : (

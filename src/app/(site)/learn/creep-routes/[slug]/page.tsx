@@ -9,11 +9,12 @@ import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_BUILDS_CHANNEL_URL } from "@/lib/links";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { CreepMapPlayground } from "./CreepMapPlayground";
-import { Matchup } from "@/components/builds/BuildBadges";
+import { Matchup, TagChip } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
+import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { BUILD_RACES } from "@/lib/builds/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
@@ -75,10 +76,14 @@ export default async function CreepRoutePage({ params }: Params) {
   const mapVersionMismatch =
     route.mapVersion && map.mapVersion && route.mapVersion !== map.mapVersion;
 
-  const howToSteps = route.stops.map((s) => ({
-    name: s.campId ? `Camp ${s.campId}` : (s.action ?? "Base action"),
-    instruction: s.note ?? (s.campId ? `Clear camp ${s.campId}` : (s.action ?? "Base action")),
-  }));
+  const howToSteps = route.stops.map((s) => {
+    const camp = s.campId ? map.camps.find((c) => c.id === s.campId) : undefined;
+    const name = camp ? campLabel(camp) : (s.action ?? "Base action");
+    return {
+      name,
+      instruction: s.note ?? (camp ? `Clear ${name}` : (s.action ?? "Base action")),
+    };
+  });
 
   return (
     <article>
@@ -155,6 +160,13 @@ export default async function CreepRoutePage({ params }: Params) {
               </a>
             ) : null}
           </p>
+          {route.tags?.length ? (
+            <div className="mt-4 flex flex-wrap gap-1.5">
+              {route.tags.map((t) => (
+                <TagChip key={t}>{t}</TagChip>
+              ))}
+            </div>
+          ) : null}
         </Container>
         <div className="rivets relative z-10" aria-hidden />
       </div>

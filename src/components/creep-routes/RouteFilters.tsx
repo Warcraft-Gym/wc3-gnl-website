@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { CREST_OPTIONS, RaceCrest, type CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { BuildRace, BuildVsRace } from "@/lib/builds/types";
 import { ROUTE_LEVELS, type RouteLevel } from "@/lib/creep-routes/types";
+import { DIFFICULTY_EXPLANATION } from "./RouteSetup";
 import { cn } from "@/lib/utils";
 
 type Side = "race" | "vs";
@@ -127,12 +128,13 @@ export function RouteFilters({
             ))}
           </select>
           <select
-            aria-label="Level"
+            aria-label="Difficulty"
+            title={DIFFICULTY_EXPLANATION}
             value={level ?? ""}
             onChange={(e) => set({ level: e.target.value || undefined })}
             className={cn(select, "flex-1 sm:flex-none")}
           >
-            <option value="">Any level</option>
+            <option value="">Any difficulty</option>
             {LEVEL_OPTIONS.map((l) => (
               <option key={l.id} value={l.id}>
                 {l.label}

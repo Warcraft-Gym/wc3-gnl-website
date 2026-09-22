@@ -1,11 +1,16 @@
+import { memo } from "react";
 import type { MapCamp } from "@/lib/creep-routes/types";
 import { BAND_TOKEN } from "./RouteBadges";
+import { useReducedMotion } from "@/lib/useReducedMotion";
+import { cn } from "@/lib/utils";
 
 /** Radius scales modestly with the camp's summed level, clamped so a level-1
  *  camp is still easy to hit and a level-20+ camp doesn't swallow the map.
  *  In SVG user units (viewBox space) — exported so `CampDetails` can offset
  *  its panel clear of the marker's actual rendered edge, not just its
- *  centre. */
+ *  centre. Fixed regardless of `active`: the "grow when active" effect is a
+ *  `transform: scale()` on a wrapper `<g>`, not a change to this radius —
+ *  see the wrapper below. */
 export function radiusFor(level: number) {
   return Math.min(11, Math.max(5, 4 + level * 0.3));
 }
@@ -13,12 +18,23 @@ export function radiusFor(level: number) {
 /**
  * One creep camp on the minimap: a filled circle in its band colour, with
  * the stop number badge (drawn by `RoutePath`) layered over it when the
- * camp is on the route. Renders as a real `<button>` (via `foreignObject`)
- * when `onCampSelect` is given — the editor (F005) click target — and as a
- * plain, non-interactive `<g>` otherwise; either way it always carries
- * `data-camp` so the contract and future features can count/target camps.
+ * camp is on the route. Interactive when `onCampSelect` is given, in one of
+ * two shapes: a real `<button>` via `foreignObject` (`asGroup` unset) — the
+ * editor's (F005) click target, one camp id, two `data-camp`-bearing
+ * elements — or the outer `<g>` itself made a focusable custom button
+ * (`role="button" tabIndex=0`, `asGroup` set) — the read-only route page's
+ * click target (F009), kept to *one* `data-camp` per camp so C-017's count
+ * stays exact even though only some camps there are ever clickable (the
+ * ones on the route being read, never every camp on the map). Plain,
+ * non-interactive `<g>` when `onCampSelect` is omitted entirely. Every
+ * shape carries `data-camp` so the contract, future features, and the
+ * parent's delegated hover handler can count/target camps. `React.memo`d:
+ * `CreepMap` hovers one camp at a time, and re-rendering every other marker
+ * on each pointer move was measured costly on a 20+ camp map (see the F009
+ * review, code-b.md item 3) — this only pays off if the parent passes
+ * stable callbacks (`useCallback`), which `CreepMap` does.
  */
-export function CampMarker({
+export const CampMarker = memo(function CampMarker({
   camp,
   imageWidth,
   imageHeight,
@@ -26,8 +42,7 @@ export function CampMarker({
   highlighted,
   pressed,
   onCampSelect,
-  onPointerEnter,
-  onPointerLeave,
+  asGroup,
 }: {
   camp: MapCamp;
   imageWidth: number;
@@ -35,27 +50,49 @@ export function CampMarker({
   active?: boolean;
   highlighted?: boolean;
   /** Whether the camp already has a stop on the route being edited (F005's
-   *  editor); exposed as `aria-pressed` on the real button below. */
+   *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
   onCampSelect?: (campId: string) => void;
-  onPointerEnter?: () => void;
-  onPointerLeave?: () => void;
+  /** See the component doc comment: renders the `<g>` itself as the click
+   *  target instead of adding a nested `<button>`. */
+  asGroup?: boolean;
 }) {
+  const reduced = useReducedMotion();
   const cx = camp.x * imageWidth;
   const cy = camp.y * imageHeight;
-  const r = radiusFor(camp.level) * (active ? 1.35 : 1);
+  const r = radiusFor(camp.level);
   const fill = BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)";
 
   const dot = (
-    <>
+    // The "grow when active" effect: a `transform: scale()` on this
+    // wrapper, not a CSS transition of the circles' own `r` attribute
+    // (the previous approach) — `r` is geometry, so transitioning it
+    // forces layout/paint on every active-stop change instead of a
+    // compositor-only step (DESIGN.md's motion rule; see the F009 review,
+    // code-b.md item 2). `transform-box: fill-box` has no Tailwind
+    // utility, so it's the one inline style left; the scale itself and its
+    // transition are Tailwind classes so `motion-reduce:transition-none`
+    // can actually override them (an inline `transition` can't be beaten
+    // by an external stylesheet rule without `!important` — a class-vs-class
+    // override, which this now is, wins on source order instead).
+    <g
+      style={{ transformBox: "fill-box" }}
+      className={cn(
+        "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
+        active ? "scale-[1.35]" : "scale-100",
+      )}
+    >
       {active ? (
         <circle cx={cx} cy={cy} r={r + 4} fill="none" stroke={fill} strokeOpacity="0.55" strokeWidth="2">
-          <animate
-            attributeName="r"
-            values={`${r + 3};${r + 7};${r + 3}`}
-            dur="1.4s"
-            repeatCount="indefinite"
-          />
+          {/* The pulsing ring is SMIL, which no CSS transition/class can
+           *  pause — it must be omitted outright under reduced motion
+           *  (DESIGN.md's motion rule; see the F009 review, code-b.md
+           *  item 2's second bullet). The ring itself still renders,
+           *  static, so "this stop is active" stays visible with no
+           *  motion. */}
+          {!reduced ? (
+            <animate attributeName="r" values={`${r + 3};${r + 7};${r + 3}`} dur="1.4s" repeatCount="indefinite" />
+          ) : null}
         </circle>
       ) : null}
       {/* Liquipedia's hard-band red is only ~3:1 against black on its own
@@ -70,18 +107,43 @@ export function CampMarker({
         fill={fill}
         stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
         strokeWidth={highlighted ? 2 : 1.5}
-        style={{ transition: "r var(--wg-dur-fast) var(--wg-ease)" }}
-        className="motion-reduce:transition-none"
       />
-    </>
+    </g>
   );
+
+  if (onCampSelect && asGroup) {
+    // The `<g>` itself is the button — `role="button"`, `tabIndex=0`,
+    // Enter/Space activates — instead of a nested `<foreignObject><button>`,
+    // so this camp carries exactly one `data-camp`. Used by the read-only
+    // route page, where only *some* camps (the route's own stops) are ever
+    // clickable; the editor keeps the classic button path below, unchanged.
+    return (
+      <g
+        data-camp={camp.id}
+        role="button"
+        tabIndex={0}
+        aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
+        aria-pressed={pressed ?? false}
+        onClick={() => onCampSelect(camp.id)}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            onCampSelect(camp.id);
+          }
+        }}
+        className="cursor-pointer [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
+      >
+        {dot}
+      </g>
+    );
+  }
 
   if (onCampSelect) {
     // A real interactive element for the editor to hook into, sized to the
-    // marker's bounding box.
+    // marker's (unscaled) bounding box.
     const size = (r + 4) * 2;
     return (
-      <g data-camp={camp.id} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
+      <g data-camp={camp.id}>
         {dot}
         <foreignObject x={cx - size / 2} y={cy - size / 2} width={size} height={size}>
           <button
@@ -98,9 +160,5 @@ export function CampMarker({
     );
   }
 
-  return (
-    <g data-camp={camp.id} onPointerEnter={onPointerEnter} onPointerLeave={onPointerLeave}>
-      {dot}
-    </g>
-  );
-}
+  return <g data-camp={camp.id}>{dot}</g>;
+});

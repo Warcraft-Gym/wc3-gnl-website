@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from "react";
 import type { MapCamp } from "@/lib/creep-routes/types";
+import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { BandDot } from "./RouteBadges";
 import { cn } from "@/lib/utils";
 
@@ -88,7 +89,7 @@ export function CampDetails({
       }}
     >
       <p className="flex items-center gap-1.5 font-display text-[0.7rem] font-bold uppercase tracking-[0.1em] text-fg">
-        <BandDot band={camp.band} /> {`Camp ${camp.id}`}
+        <BandDot band={camp.band} /> {campLabel(camp)}
       </p>
       <ul className="mt-1.5 space-y-0.5 text-muted">
         {camp.creeps.map((c, i) => (

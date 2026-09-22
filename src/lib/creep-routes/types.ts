@@ -102,6 +102,10 @@ export type CreepRoute = {
   patch?: string;
   /** The catalogue `mapVersion` this route was written against, if known. */
   mapVersion?: string;
+  /** Shown as chips on the list row and the detail page, exactly like
+   *  builds' own `tags` (F009). Persistence (a Sanity field, editor
+   *  submission) is F010 — today only the fixtures carry any. */
+  tags?: string[];
   featured: boolean;
   publishedAt: string;
   updatedAt: string;

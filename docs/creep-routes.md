@@ -194,18 +194,23 @@ data layer share:
   creeps' levels/base xp, and a difficulty label) — not a hero's; see "XP
   model" below for how a hero's own level/xp are derived per stop.
 - **`CreepRoute`** — `slug`, `title`, `race`, `vsRaces[]` (empty = any),
-  `level` (`"standard"` or `"beginner"`), `map: { slug, name }`, an optional
-  `start` (an index into `map.starts` — which spawn is *your* base; unset
-  means 0, fine for every two-start map, only Turtle Rock and Twisted
-  Meadows' four-start layouts ever need it set to something else), an
-  optional `hero` (icon key into `GAME_ICON_OPTIONS`), `summary`, `author`
-  and credit fields, an optional `build` link to a companion `buildOrder`,
-  `patch`, `mapVersion` (the catalogue version the route was written
-  against), `featured`, `publishedAt`, `updatedAt`, `stops[]`, and an
-  optional `description`. A route is always drawn from *your* base: `start`
-  says which of `map.starts` that is, the opponent's is just whichever
-  other one is left — the map never labels the two "P0"/"P1", see
-  `CreepMap`'s `StartMarker` in `DESIGN.md`.
+  `level` (`"standard"` or `"beginner"` — the UI word for this field is
+  "Difficulty" as of F009, see "Difficulty naming" below; the field itself
+  is unrenamed), `map: { slug, name }`, an optional `start` (an index into
+  `map.starts` — which spawn is *your* base; unset means 0, fine for every
+  two-start map, only Turtle Rock and Twisted Meadows' four-start layouts
+  ever need it set to something else), an optional `hero` (icon key into
+  `GAME_ICON_OPTIONS`), `summary`, `author` and credit fields, an optional
+  `build` link to a companion `buildOrder`, `patch`, `mapVersion` (the
+  catalogue version the route was written against), an optional `tags[]`
+  (shown as chips, exactly like builds — persistence, i.e. a Sanity field
+  and an editor field, is F010; F009 only added the type and display code,
+  the two fixture routes below that carry tags are its only source today),
+  `featured`, `publishedAt`, `updatedAt`, `stops[]`, and an optional
+  `description`. A route is always drawn from *your* base: `start` says
+  which of `map.starts` that is, the opponent's is just whichever other one
+  is left — the map never labels the two "P0"/"P1", see `CreepMap`'s
+  `StartMarker` in `DESIGN.md`.
 - **`RouteStop`** — `campId: string | null`, and optionally `action` (for a
   `campId: null` base action like `"TP home"`, buying from a shop, or
   taking an expansion), `units` (what the *player* brings to the stop —
@@ -220,7 +225,47 @@ data layer share:
 `fixtures.test.mjs`) ships `FIXTURE_MAPS` (one per generated catalogue) and
 five seed `FIXTURE_ROUTES` covering every race, at least two maps (three on
 Autumn Leaves), a beginner route, a route with `vsRaces` set, a stop with a
-`condition`, and a non-camp stop (`campId: null, action: "TP home"`).
+`condition`, a non-camp stop (`campId: null, action: "TP home"`), and (F009)
+two routes carrying `tags`.
+
+### Camp label rule (F009)
+
+`src/lib/creep-routes/camp-label.mjs` (tested directly,
+`camp-label.test.mjs`) turns a `MapCamp` into reader-facing text — a camp id
+like `"c09"` means nothing on its own:
+
+- **`campLabel(camp)`** — `"<highest-level creep's name>"`, plus `" +N"`
+  when the camp has more creeps than that one (`N` counts bodies past the
+  first, so three copies of the same creep still read `"+2"`). A level tie
+  keeps the *first* creep in the camp's own `creeps[]` order — the data's
+  own placement order, never re-sorted, never alphabetical. Worked example
+  (Autumn Leaves' `c09`: Giant Skeleton Warrior L3, Sludge Flinger L3,
+  Skeleton Archer L1): `"Giant Skeleton Warrior +2"`.
+- **`campComposition(camp)`** — every creep, `"<count>× <name>"`, joined by
+  `" · "`, in the data's own order: `"1× Giant Skeleton Warrior · 1× Sludge
+  Flinger · 1× Skeleton Archer"`.
+
+Every reader-facing surface calls one or both: the route page's step table
+(label + "Lv N" on one line, composition muted underneath), the map's hover
+panel title, the editor's stop rows, the map's `aria-live` readout, and the
+route page's `HowTo` JSON-LD step names. A camp id itself is never fully
+gone — it stays in `data-camp` attributes and in marker `aria-label`s (both
+tooling, read by tests and assistive tech, not by a reader scanning the
+page) — only visible copy is required to go through these two functions.
+
+### Difficulty naming (F009)
+
+The UI word for `CreepRoute.level` is **"Difficulty"** everywhere a reader
+sees it (the list filter, the route's badge, the editor's field) — the
+field itself keeps its name and its two values, `"standard"`/`"beginner"`,
+in the API, the Sanity schema and `RouteLevel`. Wherever the two-tier scale
+needs explaining (the editor's hint under the Difficulty buttons, and the
+list filter's `title` attribute), the copy is the same sentence: "Standard
+is the current meta route; Beginner is the safer, simpler one." This is a
+deliberately different scale from a build order's own `difficulty`
+(beginner/intermediate/advanced) — see `DESIGN.md`'s "Difficulty
+vocabulary" bullet for why `RouteFilters` stays a sibling of
+`MatchupPicker` rather than a shared component.
 
 ## XP model
 
@@ -385,11 +430,13 @@ every other category) and every published route slug.
 
 `/learn/creep-routes/<slug>` (`src/app/(site)/learn/creep-routes/[slug]/page.tsx`)
 is the detail page shipped in an earlier feature. It follows the build-order detail page's shape: a race showcase
-header with the matchup, the route's level badge ("Standard"/"Beginner"),
-map name and `mapVersion`, author/maintainer/updated/source, `HowTo` +
-`BreadcrumbList` JSON-LD (`src/lib/seo.ts`), a companion-build card when
-`route.build` is set, a Discord discussion link and up to three related
-routes (same map or same race).
+header with the matchup, the route's difficulty badge ("Standard"/"Beginner" —
+see "Difficulty naming" above), map name and `· map v<mapVersion>`,
+author/maintainer/updated/source, tags (`TagChip`, F009, shown when
+`route.tags` is non-empty), `HowTo` + `BreadcrumbList` JSON-LD
+(`src/lib/seo.ts` — step names use `campLabel`, not the raw camp id), a
+companion-build card when `route.build` is set, a Discord discussion link
+and up to three related routes (same map or same race).
 
 The map and the step table are the page's core: `CreepMapPlayground.tsx`
 (a client island next to the page) lifts one piece of state, the active

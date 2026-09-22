@@ -3,6 +3,7 @@
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { ButtonLink, Button } from "@/components/ui/Button";
 import { TagInput } from "@/components/builds/TagInput";
+import { SectionTitle } from "./SectionTitle";
 import { cn } from "@/lib/utils";
 
 const input =
@@ -78,6 +79,8 @@ export function RouteDetailsFields({
 }) {
   return (
     <section className="panel space-y-6 p-5 sm:p-7">
+      <SectionTitle n={3}>Notes &amp; credit</SectionTitle>
+
       <Field name="title" title="Title" error={errors.title} counter={`${text.title.length}/90`} hint='e.g. "Far Seer full clear into headhunters"'>
         <input {...bind("title")} required maxLength={90} className={input} />
       </Field>

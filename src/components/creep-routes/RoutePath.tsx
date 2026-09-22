@@ -1,4 +1,6 @@
+import { memo, useMemo } from "react";
 import type { CreepMap, RouteStop } from "@/lib/creep-routes/types";
+import { cn } from "@/lib/utils";
 
 /**
  * The route itself: a polyline through the camp stops in order (non-camp
@@ -6,8 +8,11 @@ import type { CreepMap, RouteStop } from "@/lib/creep-routes/types";
  * table) with a numbered badge at each camp stop. Numbers are the stop's
  * real 1-based position in `route.stops`, so they always match the step
  * table's row numbers even when a non-camp stop sits between two camps.
+ * `React.memo`d and its own `campById` lookup `useMemo`d — see the F009
+ * review, code-b.md items 3/5: this only re-renders on a real prop change
+ * now, not on every unrelated hover in the parent `CreepMap`.
  */
-export function RoutePath({
+export const RoutePath = memo(function RoutePath({
   map,
   stops,
   activeStop,
@@ -17,7 +22,7 @@ export function RoutePath({
   activeStop?: number | null;
 }) {
   const { width: iw, height: ih } = map.image;
-  const campById = new Map(map.camps.map((c) => [c.id, c]));
+  const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
   const points = stops
     .map((s, i) => ({ stop: s, index: i, camp: s.campId ? campById.get(s.campId) : undefined }))
@@ -44,25 +49,34 @@ export function RoutePath({
         const isActive = activeStop === p.index;
         return (
           <g key={p.index} data-stop-marker={p.index + 1}>
-            <circle
-              cx={cx}
-              cy={badgeY}
-              r={isActive ? 7.5 : 6}
-              fill="var(--wg-bg)"
-              stroke="var(--wg-gold)"
-              strokeWidth={isActive ? 2.2 : 1.4}
-              style={{
-                filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined,
-                transition: "r var(--wg-dur-fast) var(--wg-ease)",
-              }}
-              className="motion-reduce:transition-none"
-            />
-            <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
-              {p.index + 1}
-            </text>
+            {/* Same rule as `CampMarker`: grow via `transform: scale()` on
+             *  a wrapper, not a CSS transition of `r` (compositor-only
+             *  motion — DESIGN.md, F009 review code-b.md item 2). 7.5/6 =
+             *  1.25, so `scale-125` reproduces the old active radius
+             *  exactly. */}
+            <g
+              style={{ transformBox: "fill-box" }}
+              className={cn(
+                "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
+                isActive ? "scale-125" : "scale-100",
+              )}
+            >
+              <circle
+                cx={cx}
+                cy={badgeY}
+                r={6}
+                fill="var(--wg-bg)"
+                stroke="var(--wg-gold)"
+                strokeWidth={isActive ? 2.2 : 1.4}
+                style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
+              />
+              <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
+                {p.index + 1}
+              </text>
+            </g>
           </g>
         );
       })}
     </g>
   );
-}
+});

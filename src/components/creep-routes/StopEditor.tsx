@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Plus } from "lucide-react";
 import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
 import type { CreepMap } from "@/lib/creep-routes/types";
@@ -29,6 +29,29 @@ export function StopEditor({
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
   const derived = useMemo(() => deriveRoute(toDerivable(stops), map), [stops, map]);
 
+  // Focus after removing a stop: the next stop's Remove button, or the
+  // previous one if the removed stop was last, or "+ Base action" when the
+  // list becomes empty — never silently to `<body>` (F009, code-b.md
+  // item 4). `pendingFocusIndex` is the removed stop's own array index:
+  // after the filter, whatever was one past it (the "next" stop) has
+  // shifted down into that same index, so a single `min(idx, length - 1)`
+  // covers both "next" and "previous stop is now last" in one line.
+  const removeButtonRefs = useRef(new Map<number, HTMLButtonElement | null>());
+  const addBaseActionRef = useRef<HTMLButtonElement | null>(null);
+  const pendingFocusIndex = useRef<number | null>(null);
+
+  useEffect(() => {
+    const idx = pendingFocusIndex.current;
+    if (idx == null) return;
+    pendingFocusIndex.current = null;
+    if (!stops.length) {
+      addBaseActionRef.current?.focus();
+      return;
+    }
+    const target = stops[Math.min(idx, stops.length - 1)];
+    removeButtonRefs.current.get(target.id)?.focus();
+  }, [stops]);
+
   function update(id: number, patch: Partial<StopRowData>) {
     setStops((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   }
@@ -42,6 +65,7 @@ export function StopEditor({
     });
   }
   function remove(id: number) {
+    pendingFocusIndex.current = stops.findIndex((r) => r.id === id);
     setStops((rows) => rows.filter((r) => r.id !== id));
   }
   function addBaseAction() {
@@ -60,6 +84,7 @@ export function StopEditor({
         <div className="flex gap-2">
           <button
             type="button"
+            ref={addBaseActionRef}
             onClick={addBaseAction}
             className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
           >
@@ -84,6 +109,10 @@ export function StopEditor({
               onMoveDown={() => move(i, 1)}
               canMoveUp={i > 0}
               canMoveDown={i < stops.length - 1}
+              removeButtonRef={(el) => {
+                if (el) removeButtonRefs.current.set(s.id, el);
+                else removeButtonRefs.current.delete(s.id);
+              }}
             />
           ))}
         </ol>
@@ -95,7 +124,7 @@ export function StopEditor({
 
       <p className="tnum rounded border border-line/60 bg-surface/40 px-3 py-2 text-xs text-muted">
         {stops.length
-          ? `Lv ${derived.finalLevel} · ${derived.finalXp} xp after ${stops.length} stop${stops.length === 1 ? "" : "s"}`
+          ? `After ${stops.length} stop${stops.length === 1 ? "" : "s"}: hero level ${derived.finalLevel} · ${derived.finalXp} xp`
           : "Add at least two stops to see the level/xp readout."}
       </p>
     </div>

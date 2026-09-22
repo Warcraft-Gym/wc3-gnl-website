@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CreepMap as CreepMapType, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker, radiusFor } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
 import { CampDetails } from "./CampDetails";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
+import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { cn } from "@/lib/utils";
 
 export type CreepMapProps = {
@@ -15,26 +16,35 @@ export type CreepMapProps = {
    *  when it's a camp stop. Lifted by the page so the map and the step
    *  table's hover/focus/click stay in sync. */
   activeStop?: number | null;
-  /** Unused in this feature; the editor (F005) passes this to make camps
-   *  clickable — see `CampMarker`. */
+  /** Renders camps as real `<button>`s (via `foreignObject`) — the
+   *  editor's add/remove-a-stop click, and the read-only route page's
+   *  select-a-stop click (F009). */
   onCampSelect?: (campId: string) => void;
+  /** Restricts which camps become clickable buttons when `onCampSelect` is
+   *  given — the read-only route page only wants its own route's camps
+   *  clickable (clicking any other camp would be a dead, inert-looking
+   *  button); the editor wants every camp clickable (any camp can become a
+   *  stop) and leaves this unset. Unset/omitted means "every camp". */
+  interactiveCampIds?: Set<string>;
   highlightCamps?: Set<string>;
   className?: string;
 };
 
 /**
  * A start spot, drawn from *your* perspective: your own base is a red X
- * (`--wg-loss`, ~14px across at this 256-viewBox scale, 2px stroke), every
- * other start is a small muted blue X (`--wg-win` at 60% opacity, ~10px) —
- * wc3.no's convention, kept as a reference for harass/defend stops. No
+ * (`--wg-loss`, ~16px across at this 256-viewBox scale, 2px stroke), every
+ * other start is a small muted blue X (`--wg-win` at 60% opacity, ~11.5px)
+ * — wc3.no's convention, kept as a reference for harass/defend stops. No
  * "P0"/"P1" text: a route is always drawn from your own base, so there is
  * nothing left to disambiguate. Both marks get the same dark under-stroke
- * `RoutePath`'s line uses, so they read over any terrain colour.
+ * `RoutePath`'s line uses, so they read over any terrain colour. ~15%
+ * larger than the original 14px/10px (F009 review, ux.md item 9): still no
+ * text label, only size — a legend entry already names them.
  */
 function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih: number; isYou: boolean }) {
   const cx = start.x * iw;
   const cy = start.y * ih;
-  const s = isYou ? 7 : 5;
+  const s = (isYou ? 7 : 5) * 1.15;
   const d = `M${(cx - s).toFixed(1)},${(cy - s).toFixed(1)} L${(cx + s).toFixed(1)},${(cy + s).toFixed(1)} M${(cx - s).toFixed(1)},${(cy + s).toFixed(1)} L${(cx + s).toFixed(1)},${(cy - s).toFixed(1)}`;
   return (
     <g data-start={isYou ? "you" : "opponent"} opacity={isYou ? 1 : 0.6}>
@@ -111,8 +121,14 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
  * clears, and an `aria-live` region names the current camp for anyone who
  * isn't hovering it. The real `<table>` fallback for assistive tech is
  * `RouteStepTable`, rendered by the page below this component.
+ *
+ * Hover uses one delegated `pointerover`/`pointerout` pair on the `<svg>`
+ * (`event.target.closest('[data-camp]')`) instead of a handler per marker:
+ * a per-marker inline closure would recreate on every render and defeat
+ * `CampMarker`'s own `React.memo` the moment any one camp is hovered — see
+ * the F009 review, code-b.md item 3.
  */
-export function CreepMap({ map, route, activeStop = null, onCampSelect, highlightCamps, className }: CreepMapProps) {
+export function CreepMap({ map, route, activeStop = null, onCampSelect, interactiveCampIds, highlightCamps, className }: CreepMapProps) {
   const [width, setWidth] = useState(0);
   const [hoverCamp, setHoverCamp] = useState<string | null>(null);
   const [walkIndex, setWalkIndex] = useState<number | null>(null);
@@ -161,6 +177,43 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
     }
   }
 
+  // Delegated hover: reads the nearest `[data-camp]` ancestor-or-self of
+  // whatever sub-element the pointer actually landed on, so moving between
+  // two sub-elements of the *same* marker (e.g. the background circle and
+  // the foreignObject button) never registers as a leave-then-re-enter —
+  // `relatedTarget` is checked against the same closest-match before
+  // clearing.
+  const handlePointerOver = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    const el = (e.target as Element).closest?.("[data-camp]");
+    const campId = el?.getAttribute("data-camp");
+    if (campId) setHoverCamp((h) => (h === campId ? h : campId));
+  }, []);
+  const handlePointerOut = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+    const from = (e.target as Element).closest?.("[data-camp]");
+    const campId = from?.getAttribute("data-camp");
+    if (!campId) return;
+    const to = e.relatedTarget instanceof Element ? e.relatedTarget.closest("[data-camp]") : null;
+    if (to === from) return; // moved within the same marker, not a real leave
+    setHoverCamp((h) => (h === campId ? null : h));
+  }, []);
+
+  // A camp click always shows that camp's details panel (the same effect a
+  // keyboard-walk step or a hover gives) — set, never toggled off: a real
+  // mouse click always fires `pointerover` first (the delegated handler
+  // above already set `hoverCamp` to this same id before the click even
+  // lands), so a toggle here would immediately cancel what hover just
+  // showed. Leaving the marker (pointerout) or tabbing away still clears it
+  // normally. It also forwards to whatever the caller's own `onCampSelect`
+  // does with the click (the editor adds/removes a stop; the read-only
+  // route page toggles the matching table row — see `CreepMapPlayground`).
+  const handleCampClick = useCallback(
+    (campId: string) => {
+      setHoverCamp(campId);
+      onCampSelect?.(campId);
+    },
+    [onCampSelect],
+  );
+
   const youStartIndex = route?.start ?? 0;
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
@@ -189,6 +242,8 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
           tabIndex={0}
           onKeyDown={onKeyDown}
           onBlur={() => setWalkIndex(null)}
+          onPointerOver={handlePointerOver}
+          onPointerOut={handlePointerOut}
           className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
@@ -198,6 +253,7 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
           ))}
           {map.camps.map((camp) => {
             const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
+            const isInteractive = Boolean(onCampSelect) && (!interactiveCampIds || interactiveCampIds.has(camp.id));
             return (
               <CampMarker
                 key={camp.id}
@@ -207,9 +263,8 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
                 active={activeStop != null && stopIndex === activeStop}
                 highlighted={highlightCamps?.has(camp.id) ?? false}
                 pressed={stopIndex !== -1}
-                onCampSelect={onCampSelect}
-                onPointerEnter={() => setHoverCamp(camp.id)}
-                onPointerLeave={() => setHoverCamp((h) => (h === camp.id ? null : h))}
+                onCampSelect={isInteractive ? handleCampClick : undefined}
+                asGroup={Boolean(interactiveCampIds)}
               />
             );
           })}
@@ -240,7 +295,7 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, highligh
 
       <p aria-live="polite" className="sr-only">
         {detailCamp
-          ? `Camp ${detailCamp.id}: ${detailCamp.band} difficulty, level ${detailCamp.level}, ${detailCamp.xp} xp${
+          ? `${campLabel(detailCamp)}: ${detailCamp.band} difficulty, level ${detailCamp.level}, ${detailCamp.xp} xp${
               detailCamp.sleeps ? ", sleeps until attacked" : ""
             }`
           : "No camp selected"}

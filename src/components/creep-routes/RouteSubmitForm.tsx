@@ -6,6 +6,7 @@ import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-rou
 import { RouteSetup } from "./RouteSetup";
 import { RouteEditor } from "./RouteEditor";
 import { RouteDetailsFields } from "./RouteDetailsFields";
+import { SectionTitle } from "./SectionTitle";
 import type { StopRowData } from "./StopRow";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
@@ -231,42 +232,44 @@ export function RouteSubmitForm({
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
             <li className="flex gap-2"><span className="text-gold">·</span> Click camps on the map in the order you clear them, no need to type camp contents.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> A note or condition on a stop says <em>why</em>: when it works, what to watch for.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> Standard is the current meta route; Beginner is the safer, simpler pick — choose the one your route actually is.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> Condition is the short trigger shown before the note (e.g. &quot;if harassed&quot;); Note explains what to do and why.</li>
           </ul>
         </details>
 
-        <section aria-labelledby="route-setup-heading">
-          <h2 id="route-setup-heading" className="sr-only">Route setup</h2>
-          <RouteSetup
-            maps={maps}
-            mapSlug={mapSlug}
-            onMapChange={handleMapChange}
-            race={race}
-            onRaceChange={setRace}
-            vsRaces={vsRaces}
-            onVsRacesChange={setVsRaces}
-            level={level}
-            onLevelChange={setLevel}
-            hero={hero}
-            onHeroChange={setHero}
-            builds={builds}
-            buildSlug={buildSlug}
-            onBuildChange={setBuildSlug}
-            errors={errors}
-          />
-        </section>
+        <RouteSetup
+          maps={maps}
+          mapSlug={mapSlug}
+          onMapChange={handleMapChange}
+          race={race}
+          onRaceChange={setRace}
+          vsRaces={vsRaces}
+          onVsRacesChange={setVsRaces}
+          level={level}
+          onLevelChange={setLevel}
+          hero={hero}
+          onHeroChange={setHero}
+          builds={builds}
+          buildSlug={buildSlug}
+          onBuildChange={setBuildSlug}
+          errors={errors}
+        />
 
         <section className="panel p-5 sm:p-7">
-          {errors.stops ? <p className="mb-3 text-xs text-loss">{errors.stops}</p> : null}
-          <RouteEditor
-            map={map}
-            stops={stops}
-            setStops={setStops}
-            onCampSelect={onCampSelect}
-            start={start}
-            onStartChange={setStart}
-            iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
-            fieldError={(k) => errors[k]}
-          />
+          <SectionTitle n={2}>Stops — click camps on the map</SectionTitle>
+          {errors.stops ? <p className="mb-3 mt-3 text-xs text-loss">{errors.stops}</p> : null}
+          <div className="mt-4">
+            <RouteEditor
+              map={map}
+              stops={stops}
+              setStops={setStops}
+              onCampSelect={onCampSelect}
+              start={start}
+              onStartChange={setStart}
+              iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
+              fieldError={(k) => errors[k]}
+            />
+          </div>
         </section>
 
         <RouteDetailsFields

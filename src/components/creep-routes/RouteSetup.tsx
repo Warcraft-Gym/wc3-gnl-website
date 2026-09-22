@@ -5,16 +5,26 @@ import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
 import { ROUTE_LEVELS, type CreepMap, type RouteLevel } from "@/lib/creep-routes/types";
+import { SectionTitle } from "./SectionTitle";
 import { cn } from "@/lib/utils";
 
 const select =
   "h-10 rounded border border-line bg-surface/60 px-3 text-sm text-fg focus:border-gold/60 focus:outline-none";
 const label = "block font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted";
+const hint = "mt-1 text-xs text-faint";
+
+/** "Standard is the current meta route; Beginner is the safer, simpler
+ *  one." — the editor hint and the list filter's `title` share this exact
+ *  wording (F009, ux.md item 3: the two-tier "Standard/Beginner" vocabulary
+ *  needs explaining, it doesn't map onto builds' three-tier Difficulty). */
+export const DIFFICULTY_EXPLANATION = "Standard is the current meta route; Beginner is the safer, simpler one.";
 
 /** The setup row above the editor: which map, your race, opponent(s),
- *  level, optional hero and optional companion build. Every choice here
- *  feeds the editor below (the map shown, the icon picker's race tab) and
- *  the submission itself. */
+ *  difficulty, optional hero and optional companion build. Every choice
+ *  here feeds the editor below (the map shown, the icon picker's race tab)
+ *  and the submission itself. The internal field is still named `level`
+ *  (API/schema/type unchanged, F009) — only the UI word changed to
+ *  "Difficulty", matching builds' own vocabulary for the same concept. */
 export function RouteSetup({
   maps,
   mapSlug,
@@ -61,6 +71,8 @@ export function RouteSetup({
     // many rows) paints on top of the map/stop editor instead of under it.
     // Still well below the site header/sub-nav (`z-40`/`z-50`).
     <section className="panel z-10 space-y-6 p-5 sm:p-7">
+      <SectionTitle n={1}>Route setup</SectionTitle>
+
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className={label} htmlFor="route-map">Map</label>
@@ -80,8 +92,14 @@ export function RouteSetup({
           {errors.map ? <p className="mt-1 text-xs text-loss">{errors.map}</p> : null}
         </div>
         <div>
-          <label className={label} htmlFor="route-level">Level</label>
-          <div className="mt-1.5 flex gap-1">
+          {/* A `<label htmlFor>` needs a single form control with a
+           *  matching id; the three difficulty buttons below are a button
+           *  group, not one control, so this is `role="group"` named by a
+           *  plain `<p>` (`aria-labelledby`), the same pattern "Your
+           *  race"/"Against" already use — not a dangling `htmlFor`
+           *  pointing at nothing (F009, code-b.md item 1). */}
+          <p id="route-difficulty-label" className={label}>Difficulty</p>
+          <div role="group" aria-labelledby="route-difficulty-label" className="mt-1.5 flex gap-1">
             {ROUTE_LEVELS.map((l) => (
               <button
                 key={l.id}
@@ -97,6 +115,7 @@ export function RouteSetup({
               </button>
             ))}
           </div>
+          <p className={hint}>{DIFFICULTY_EXPLANATION}</p>
         </div>
       </div>
 
@@ -113,6 +132,7 @@ export function RouteSetup({
           <div className="mt-1.5">
             <RaceCrestMultiRow value={vsRaces} onChange={onVsRacesChange} size="sm" />
           </div>
+          <p className={hint}>Leave empty for any opponent.</p>
         </div>
       </div>
 
@@ -139,6 +159,7 @@ export function RouteSetup({
               </option>
             ))}
           </select>
+          <p className={hint}>The build order this route is played with.</p>
         </div>
       </div>
     </section>

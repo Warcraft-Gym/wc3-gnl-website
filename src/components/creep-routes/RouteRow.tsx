@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { VsRaces } from "@/components/builds/BuildBadges";
+import { TagChip, VsRaces } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { BUILD_RACES } from "@/lib/builds/types";
 import type { CreepRoute, RouteLevel } from "@/lib/creep-routes/types";
@@ -56,12 +56,15 @@ export function RouteRow({ route }: { route: CreepRoute }) {
             <span className="text-faint">·</span>
             <span>
               {route.map.name}
-              {route.mapVersion ? ` v${route.mapVersion}` : ""}
+              {route.mapVersion ? ` · map v${route.mapVersion}` : ""}
             </span>
             <span className="text-faint">·</span>
             <span>{route.stops.length} stops</span>
             <span className="text-faint">·</span>
             <span>by {route.author}</span>
+            {route.tags?.slice(0, 3).map((t) => (
+              <TagChip key={t}>{t}</TagChip>
+            ))}
           </div>
         </div>
 
