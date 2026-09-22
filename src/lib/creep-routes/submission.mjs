@@ -117,6 +117,17 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         .max(120)
         .optional()
         .refine((v) => !v || !buildSet.size || buildSet.has(v), "Unknown build"),
+      /** An author updating their own route resubmits it and names the one
+       *  it replaces — the site has no accounts, so there is nobody to
+       *  authenticate an in-place edit against. A coach approves the new
+       *  version and archives the old, which is also the moment the change
+       *  gets reviewed. Accepts a bare slug or the full page URL. */
+      supersedes: z
+        .string()
+        .trim()
+        .max(300)
+        .optional()
+        .transform((v) => (v ? slugFromInput(v) : undefined)),
       title: z.string().trim().min(6, "Give it a proper title").max(90, "Max 90 characters"),
       summary: z.string().trim().min(20, "A sentence or two, at least 20 characters").max(200, "Max 200 characters"),
       author: z.string().trim().min(2, "Who should we credit?").max(60, "Max 60 characters"),
@@ -237,7 +248,17 @@ function toPortableText(text) {
  * caller (`submit.ts`, server-only) — this function never talks to Sanity
  * itself.
  */
-export function toCreepRouteDraft(valid, mapDocId, buildDocId) {
+/** The slug out of whatever an author pastes: a bare slug, a path, or a full
+ *  URL with query or hash. Anything that is not slug-shaped is returned
+ *  trimmed so validation upstream can reject it by name rather than silently
+ *  matching nothing. */
+export function slugFromInput(value) {
+  const withoutQuery = String(value).split(/[?#]/)[0].replace(/\/+$/, "");
+  const last = withoutQuery.split("/").filter(Boolean).pop() ?? "";
+  return last.trim();
+}
+
+export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) {
   return {
     _id: `drafts.${crypto.randomUUID()}`,
     _type: "creepRoute",
@@ -255,6 +276,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId) {
     authorDiscord: valid.authorDiscord || undefined,
     sourceUrl: valid.sourceUrl || undefined,
     build: buildDocId ? { _type: "reference", _ref: buildDocId } : undefined,
+    supersedes: supersedesDocId ? { _type: "reference", _ref: supersedesDocId } : undefined,
     tags: valid.tags,
     featured: false,
     publishedAt: new Date().toISOString(),

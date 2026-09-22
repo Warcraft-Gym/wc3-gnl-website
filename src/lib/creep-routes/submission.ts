@@ -38,6 +38,10 @@ export type SubmissionInput = {
   author: string;
   authorDiscord?: string;
   sourceUrl?: string;
+  /** Slug of the route this submission replaces, when an author resubmits
+   *  an updated version (the site has no accounts, so editing in place has
+   *  nobody to authenticate against). */
+  supersedes?: string;
   patch?: string;
   tags: string[];
   description?: string;
@@ -64,7 +68,11 @@ export const toCreepRouteDraft = impl.toCreepRouteDraft as (
   valid: SubmissionInput,
   mapDocId: string,
   buildDocId?: string,
+  supersedesDocId?: string,
 ) => Record<string, unknown>;
+
+/** The slug out of a pasted slug, path or full URL — see the `.mjs`. */
+export const slugFromInput = impl.slugFromInput as (value: string) => string;
 
 export const MAX_STOPS_JSON_BYTES = impl.MAX_STOPS_JSON_BYTES as number;
 

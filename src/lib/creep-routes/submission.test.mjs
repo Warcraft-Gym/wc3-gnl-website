@@ -5,6 +5,7 @@ import {
   decideSubmission,
   flattenErrors,
   MAX_STOPS_JSON_BYTES,
+  slugFromInput,
   stopsJsonTooLarge,
   toCreepRouteDraft,
 } from "./submission.mjs";
@@ -239,4 +240,49 @@ test("decideSubmission: the honeypot check wins over the fill-time check", () =>
     { now, minFillSeconds: 8 },
   );
   assert.deepEqual(decision, { action: "fake-ok" });
+});
+
+/* ------------------------------------------------------------------ *
+ *  Superseding: how an author "edits" a submission without accounts
+ * ------------------------------------------------------------------ */
+
+test("slugFromInput accepts a bare slug, a path, or a full URL", () => {
+  const want = "human-archmage-autumn-leaves";
+  assert.equal(slugFromInput(want), want);
+  assert.equal(slugFromInput(`/learn/creep-routes/${want}`), want);
+  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}`), want);
+  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}/`), want);
+  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}?from=discord`), want);
+  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}#stops`), want);
+});
+
+test("slugFromInput returns something rejectable rather than guessing", () => {
+  // Not slug-shaped: better to hand the lookup a value it will fail to match
+  // (and log) than to silently pick some other route.
+  assert.equal(slugFromInput("   "), "");
+  assert.equal(slugFromInput("https://warcraft3.gym/"), "warcraft3.gym");
+});
+
+test("a submission naming no predecessor carries no supersedes reference", () => {
+  const result = schema().safeParse(payload());
+  assert.equal(result.success, true, JSON.stringify(result.error?.issues));
+  assert.equal(result.data.supersedes, undefined);
+  const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves");
+  assert.equal(draft.supersedes, undefined);
+});
+
+test("a resubmission carries the reference and still arrives pending", () => {
+  const result = schema().safeParse({
+    ...payload(),
+    supersedes: "https://warcraft3.gym/learn/creep-routes/old-route-1a2b",
+  });
+  assert.equal(result.success, true, JSON.stringify(result.error?.issues));
+  assert.equal(result.data.supersedes, "old-route-1a2b");
+
+  const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves", undefined, "creepRoute-old");
+  assert.deepEqual(draft.supersedes, { _type: "reference", _ref: "creepRoute-old" });
+  // The point of the whole design: an "edit" is reviewed, never published
+  // straight over an approved route.
+  assert.equal(draft.reviewStatus, "pending");
+  assert.match(String(draft._id), /^drafts\./);
 });

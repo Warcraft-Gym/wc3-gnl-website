@@ -96,6 +96,32 @@ export async function getFeaturedBuild(): Promise<BuildOrder | undefined> {
   return builds.find((b) => b.featured);
 }
 
+/** The slug of the approved build that replaced `slug`, if one did.
+ *
+ *  Archiving an old build would otherwise 404 a URL people have bookmarked
+ *  and shared. An author resubmitting an update names the build it replaces,
+ *  so the successor is found by walking that reference backwards. Returns
+ *  `undefined` in the ordinary case, and the caller 404s as before. */
+export async function getSupersedingBuildSlug(slug: string): Promise<string | undefined> {
+  if (!isSanityConfigured()) return undefined;
+  const client = sanityClient();
+  if (!client) return undefined;
+  try {
+    const found = await client.fetch<string | null>(
+      `*[_type == "buildOrder" && supersedes->slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"]
+         | order(_createdAt desc)[0].slug.current`,
+      { slug },
+      { next: { revalidate: 300 } },
+    );
+    return found ?? undefined;
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[builds] superseding-build lookup failed -", String(err));
+    }
+    return undefined;
+  }
+}
+
 export async function getBuildBySlug(slug: string): Promise<BuildOrder | undefined> {
   if (isSanityConfigured()) {
     const client = sanityClient();

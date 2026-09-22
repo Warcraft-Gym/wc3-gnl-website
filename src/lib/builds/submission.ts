@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { BUILD_DIFFICULTIES, BUILD_RACES } from "./types";
 import { getGameIcon } from "./icons";
+import { slugFromInput } from "@/lib/creep-routes/submission";
 
 /**
  * Validation for public build submissions. Shared shape between the client
@@ -57,6 +58,16 @@ export const submissionSchema = z.object({
     .max(300)
     .optional()
     .refine((v) => !v || /^https?:\/\//.test(v), "Must start with http(s)://"),
+  /** Slug of the build this submission replaces. The site has no accounts,
+   *  so an author updating a build resubmits it and names the old one; a
+   *  coach approves the replacement and archives what it replaced, which
+   *  also means the change is reviewed rather than going live unseen. */
+  supersedes: z
+    .string()
+    .trim()
+    .max(300)
+    .optional()
+    .transform((v) => (v ? slugFromInput(v) : undefined)),
   description: z.string().trim().max(6000, "Max 6000 characters").optional(),
   steps: z.array(stepSchema).min(3, "Add at least three steps").max(60, "Max 60 steps"),
   /** Honeypot, must stay empty. */

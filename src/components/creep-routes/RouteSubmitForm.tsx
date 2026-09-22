@@ -70,7 +70,7 @@ export function RouteSubmitForm({
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState({
-    title: "", summary: "", patch: "", author: "", authorDiscord: "", sourceUrl: "", description: "",
+    title: "", summary: "", patch: "", author: "", authorDiscord: "", sourceUrl: "", supersedes: "", description: "",
   });
   const bind = (k: keyof typeof text) => ({
     id: k,
@@ -126,7 +126,11 @@ export function RouteSubmitForm({
   const applyExchange = (r: ExchangeCreepRoute) => {
     setText({
       title: r.title, summary: r.summary, patch: r.patch ?? "", author: r.author,
-      authorDiscord: r.authorDiscord ?? "", sourceUrl: r.sourceUrl ?? "", description: r.description ?? "",
+      authorDiscord: r.authorDiscord ?? "", sourceUrl: r.sourceUrl ?? "",
+      // Not carried by the exchange payload: a deep-linked import is a new
+      // route, not an update to an existing one.
+      supersedes: "",
+      description: r.description ?? "",
     });
     if (maps.some((m) => m.slug === r.map)) setMapSlug(r.map);
     if (r.race) setRace(r.race as BuildRace);

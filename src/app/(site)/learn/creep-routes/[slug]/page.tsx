@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { ExternalLink } from "lucide-react";
@@ -15,7 +15,7 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
-import { getCreepRouteBySlug, getCreepRoutes } from "@/lib/creep-routes/routes";
+import { getCreepRouteBySlug, getCreepRoutes, getSupersedingRouteSlug } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { BUILD_RACES } from "@/lib/builds/types";
@@ -67,7 +67,14 @@ export default async function CreepRoutePage({ params }: Params) {
   if (!CREEP_ROUTES_LIVE) notFound();
   const { slug } = await params;
   const route = await getCreepRouteBySlug(slug);
-  if (!route) notFound();
+  if (!route) {
+    // An archived route whose author submitted a replacement: send readers
+    // to the current version rather than 404ing a link that is already out
+    // in Discord.
+    const successor = await getSupersedingRouteSlug(slug);
+    if (successor) redirect(`/learn/creep-routes/${successor}`);
+    notFound();
+  }
 
   const map = await getCreepMapBySlug(route.map.slug);
   if (!map) notFound();

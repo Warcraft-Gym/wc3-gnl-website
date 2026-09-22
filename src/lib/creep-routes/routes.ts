@@ -116,6 +116,36 @@ export async function getCreepRoutes(): Promise<CreepRoute[]> {
   return USE_FIXTURES ? [...FIXTURE_ROUTES].sort(byUpdatedDesc) : [];
 }
 
+/** The slug of the approved route that replaced `slug`, if one did.
+ *
+ *  Archiving an old route would otherwise turn its URL — which people have
+ *  bookmarked and linked in Discord — into a 404. When an author resubmits
+ *  an update they name the route it replaces, so the successor can be found
+ *  by walking that reference backwards and the reader is redirected to the
+ *  current version instead of hitting a dead end.
+ *
+ *  Returns `undefined` when nothing supersedes it, which is the ordinary
+ *  case; the caller then 404s as before. */
+export async function getSupersedingRouteSlug(slug: string): Promise<string | undefined> {
+  if (!isSanityConfigured()) return undefined;
+  const client = sanityClient();
+  if (!client) return undefined;
+  try {
+    const found = await client.fetch<string | null>(
+      `*[_type == "creepRoute" && supersedes->slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"]
+         | order(_createdAt desc)[0].slug.current`,
+      { slug },
+      { next: { revalidate: 300 } },
+    );
+    return found ?? undefined;
+  } catch (err) {
+    if (process.env.NODE_ENV !== "production") {
+      console.warn("[creep-routes] superseding-route lookup failed -", String(err));
+    }
+    return undefined;
+  }
+}
+
 export async function getCreepRouteBySlug(slug: string): Promise<CreepRoute | undefined> {
   if (isSanityConfigured()) {
     const client = sanityClient();

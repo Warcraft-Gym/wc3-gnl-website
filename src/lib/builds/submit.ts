@@ -44,6 +44,23 @@ export async function createBuildDraft(data: BuildSubmission): Promise<{ id: str
   if (!projectId || !token) throw new Error("Submissions are not configured");
 
   const client = createClient({ projectId, dataset, apiVersion, token, useCdn: false });
+
+  // The build this one replaces, when the author is resubmitting an update.
+  // Resolved by slug; a lookup failure loses the link, not the submission —
+  // a coach seeing an unlinked "replaces" claim beats a lost build.
+  let supersedesDocId: string | undefined;
+  if (data.supersedes) {
+    try {
+      supersedesDocId =
+        (await client.fetch<string | null>(`*[_type == "buildOrder" && slug.current == $slug][0]._id`, {
+          slug: data.supersedes,
+        })) ?? undefined;
+      if (!supersedesDocId) console.warn("[builds] supersedes slug matched no build:", data.supersedes);
+    } catch (err) {
+      console.error("[builds] supersedes lookup failed", err);
+    }
+  }
+
   const slug = `${slugify(data.title)}-${key().slice(0, 4)}`;
   const id = `drafts.${randomUUID()}`;
 
@@ -61,6 +78,7 @@ export async function createBuildDraft(data: BuildSubmission): Promise<{ id: str
     author: data.author,
     authorDiscord: data.authorDiscord || undefined,
     sourceUrl: data.sourceUrl || undefined,
+    supersedes: supersedesDocId ? { _type: "reference", _ref: supersedesDocId } : undefined,
     featured: false,
     reviewStatus: "pending",
     publishedAt: new Date().toISOString(),

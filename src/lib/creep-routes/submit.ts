@@ -53,9 +53,28 @@ export async function createCreepRouteDraft(valid: SubmissionInput): Promise<{ i
     }
   }
 
+  // The route this one replaces, when the author is resubmitting an update.
+  // Resolved by slug like the companion build, and for the same reason: a
+  // lookup failure loses the link, not the submission. A coach seeing an
+  // unlinked "replaces" claim is a far better outcome than a lost route.
+  let supersedesDocId: string | undefined;
+  if (valid.supersedes) {
+    try {
+      supersedesDocId =
+        (await client.fetch<string | null>(`*[_type == "creepRoute" && slug.current == $slug][0]._id`, {
+          slug: valid.supersedes,
+        })) ?? undefined;
+      if (!supersedesDocId) {
+        console.warn("[creep-routes] supersedes slug matched no route:", valid.supersedes);
+      }
+    } catch (err) {
+      console.error("[creep-routes] supersedes lookup failed", err);
+    }
+  }
+
   const slug = `${slugify(valid.title)}-${randomUUID().slice(0, 4)}`;
   const draft: Record<string, unknown> = {
-    ...toCreepRouteDraft(valid, mapDocId(valid.map), buildDocId),
+    ...toCreepRouteDraft(valid, mapDocId(valid.map), buildDocId, supersedesDocId),
     slug: { _type: "slug", current: slug },
   };
 

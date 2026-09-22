@@ -1208,6 +1208,42 @@ After rebuilding, for every route on a map whose `mapVersion` changed:
    fixture route is missing one or disagrees with its catalogue. Sanity
    routes should be checked the same way at review time.
 
+## Editing a submitted route
+
+The site has no accounts, so there is nobody to authenticate an in-place edit
+against. Authors update a route by **resubmitting it and naming the one it
+replaces** — the submit form's "Updating an existing route?" field takes the
+old route's link or slug. Build orders work the same way.
+
+What happens then:
+
+1. The new submission arrives `pending`, like any other, with a `supersedes`
+   reference to the old document resolved server-side from the slug.
+2. A coach reviews it. Approving the replacement is the moment to set the old
+   route's **Review** to **Archived** — a third `reviewStatus` alongside
+   Pending and Approved, which hides a document from the site without
+   deleting it. Every list and detail query already filters on
+   `reviewStatus == "approved"`, so archiving takes effect everywhere at once.
+3. The old URL does **not** 404. `getSupersedingRouteSlug` walks the
+   `supersedes` reference backwards and redirects to the current version, so
+   links already shared in Discord keep working.
+
+Two properties worth keeping if this is ever replaced with real accounts:
+
+- **An edit is always reviewed.** Nothing an author submits can change an
+  already-approved document. Without that, the review gate is bypassable:
+  submit something benign, get it approved, then edit it into anything.
+  (Note `reviewStatus` has `initialValue: "approved"` for coach-authored
+  documents — any new write path must set `pending` explicitly, as
+  `submission.mjs` does.)
+- **A failed lookup loses the link, not the submission.** If the pasted slug
+  matches nothing, the route is still created and the miss is logged; a coach
+  seeing an unlinked "replaces" claim is a better outcome than a lost route.
+
+**Archived also serves retraction** on its own: an author who wants a route
+taken down asks a coach, who archives it. Nothing is deleted, and Sanity keeps
+the document history either way.
+
 ## Backlog
 
 What this mission deliberately left undone, in the order a future

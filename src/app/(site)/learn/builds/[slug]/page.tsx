@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -13,7 +13,7 @@ import { DifficultyBadge, Matchup, TagChip } from "@/components/builds/BuildBadg
 import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
-import { getBuildBySlug, getBuilds } from "@/lib/builds/builds";
+import { getBuildBySlug, getSupersedingBuildSlug, getBuilds } from "@/lib/builds/builds";
 import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
@@ -64,7 +64,13 @@ function isPortableText(v: unknown[]): v is Record<string, unknown>[] {
 export default async function BuildPage({ params }: Params) {
   const { slug } = await params;
   const build = await getBuildBySlug(slug);
-  if (!build) notFound();
+  if (!build) {
+    // Archived and replaced: send readers to the current version rather than
+    // 404ing a link that is already out in Discord.
+    const successor = await getSupersedingBuildSlug(slug);
+    if (successor) redirect(`/learn/builds/${successor}`);
+    notFound();
+  }
 
   const related = (await getBuilds())
     .filter((b) => b.race === build.race && b.slug !== build.slug)

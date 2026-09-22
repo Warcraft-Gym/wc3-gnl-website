@@ -73,6 +73,7 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
     start: formData.get("start") ?? undefined,
     hero: formData.get("hero") ?? undefined,
     build: formData.get("build") ?? undefined,
+    supersedes: formData.get("supersedes") ?? undefined,
     title: formData.get("title"),
     summary: formData.get("summary"),
     author: formData.get("author"),

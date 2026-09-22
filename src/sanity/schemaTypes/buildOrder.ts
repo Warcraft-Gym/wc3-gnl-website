@@ -128,6 +128,17 @@ export const buildOrder = defineType({
       description: "The Learn guide this build was taken from; the two pages link to each other.",
     }),
     defineField({
+      name: "supersedes",
+      title: "Replaces",
+      type: "reference",
+      to: [{ type: "buildOrder" }],
+      group: "meta",
+      description:
+        "The build this one replaces. Set automatically when an author resubmits an updated version, and shown on the " +
+        "older build so readers are sent to the current one. Approving the replacement is the moment to set the older " +
+        "build's Review to Archived.",
+    }),
+    defineField({
       name: "reviewStatus",
       title: "Review",
       type: "string",
@@ -136,13 +147,16 @@ export const buildOrder = defineType({
         list: [
           { title: "Pending review", value: "pending" },
           { title: "Approved", value: "approved" },
+          { title: "Archived", value: "archived" },
         ],
         layout: "radio",
         direction: "horizontal",
       },
       initialValue: "approved",
       description:
-        "Public submissions arrive as Pending. Set to Approved once a coach has checked the build; publishing is blocked until then.",
+        "Public submissions arrive as Pending. Set to Approved once a coach has checked the build; publishing is blocked " +
+        "until then. Archived hides it from the site without deleting it — use that to retract a build, or when a newer " +
+        "one supersedes it.",
       validation: (rule) =>
         rule.required().custom((value) =>
           value === "pending"

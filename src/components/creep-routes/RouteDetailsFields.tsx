@@ -44,6 +44,7 @@ export type RouteDetailsText = {
   author: string;
   authorDiscord: string;
   sourceUrl: string;
+  supersedes: string;
   description: string;
 };
 
@@ -108,6 +109,24 @@ export function RouteDetailsFields({
       </div>
       <Field name="sourceUrl" title="Source link" error={errors.sourceUrl} hint="Optional replay, VOD or post.">
         <input {...bind("sourceUrl")} type="url" maxLength={300} placeholder="https://" className={input} />
+      </Field>
+      {/* The site has no accounts, so there is nobody to authenticate an
+          in-place edit against. Updating a route means submitting the new
+          version and naming the old one: a coach approves the replacement
+          and archives what it replaces, which also means the change gets
+          reviewed rather than going live unseen. */}
+      <Field
+        name="supersedes"
+        title="Updating an existing route?"
+        error={errors.supersedes}
+        hint="Optional. Paste the link (or slug) of the route this replaces — a coach will retire the old one."
+      >
+        <input
+          {...bind("supersedes")}
+          maxLength={300}
+          placeholder="https://warcraft3.gym/learn/creep-routes/…"
+          className={input}
+        />
       </Field>
 
       {errorMessage ? (
