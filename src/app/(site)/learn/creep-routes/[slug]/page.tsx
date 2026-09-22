@@ -15,7 +15,6 @@ import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
 import { BUILD_RACES } from "@/lib/builds/types";
-import { formatClock } from "@/lib/creep-routes/clock.mjs";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
 
@@ -77,10 +76,8 @@ export default async function CreepRoutePage({ params }: Params) {
     route.mapVersion && map.mapVersion && route.mapVersion !== map.mapVersion;
 
   const howToSteps = route.stops.map((s) => ({
-    instruction: s.campId
-      ? `Clear camp ${s.campId}${s.note ? ` — ${s.note}` : ""}`
-      : `${s.action ?? "Base action"}${s.note ? ` — ${s.note}` : ""}`,
-    time: formatClock(s.time),
+    name: s.campId ? `Camp ${s.campId}` : (s.action ?? "Base action"),
+    instruction: s.note ?? (s.campId ? `Clear camp ${s.campId}` : (s.action ?? "Base action")),
   }));
 
   return (

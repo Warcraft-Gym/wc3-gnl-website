@@ -64,10 +64,11 @@ test("at least one fixture route per race", () => {
   }
 });
 
-test("first stop of every route is at or before 20 real seconds", () => {
+test("no fixture stop carries a time field", () => {
   for (const route of FIXTURE_ROUTES) {
-    const first = Math.min(...route.stops.map((s) => s.time));
-    assert.ok(first <= 20, `${route.slug}'s first stop is at ${first}s, expected <= 20s`);
+    for (const stop of route.stops) {
+      assert.ok(!("time" in stop), `${route.slug} has a stop with a time field`);
+    }
   }
 });
 

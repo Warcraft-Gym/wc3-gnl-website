@@ -7,13 +7,11 @@ import { RouteSetup } from "./RouteSetup";
 import { RouteEditor } from "./RouteEditor";
 import { RouteDetailsFields } from "./RouteDetailsFields";
 import type { StopRowData } from "./StopRow";
-import { tryClockSeconds } from "./StopRow";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
 import type { CreepMap, RouteLevel } from "@/lib/creep-routes/types";
-import { formatClock } from "@/lib/creep-routes/clock.mjs";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
 
 const initial: SubmitState = { status: "idle" };
@@ -21,7 +19,7 @@ const initial: SubmitState = { status: "idle" };
 /**
  * `/learn/creep-routes/submit`: a two-panel click-to-author editor above a
  * details form. Mirrors `BuildSubmitForm`'s shape (honeypot, `startedAt`,
- * `useActionState`, field-level errors keyed like `stops.2.time`) with a
+ * `useActionState`, field-level errors keyed like `stops.2.action`) with a
  * map instead of a step list. `submissionsOpen` is read from the server
  * (`canAcceptSubmissions()`, evaluated in `page.tsx`) so the "closed"
  * notice is in the very first server-rendered HTML, not only after a
@@ -83,19 +81,13 @@ export function RouteSubmitForm({
   // camp clicks go through here. Prefilled/imported routes may still carry
   // a repeated campId (older data, the schema allows it); this only guards
   // the click path, so a duplicate from prefill removes just the one match.
-  const nextTimeGuess = () => {
-    if (!stops.length) return "0:15";
-    const last = stops[stops.length - 1];
-    const secs = tryClockSeconds(last.timeText);
-    return secs == null ? "" : formatClock(secs + 20);
-  };
   function onCampSelect(campId: string) {
     setStops((rows) => {
       const idx = rows.findIndex((r) => r.campId === campId);
       if (idx !== -1) return rows.filter((_, i) => i !== idx);
       return [
         ...rows,
-        { id: Date.now() + Math.random(), campId, action: "", timeText: nextTimeGuess(), units: [], note: "", condition: "" },
+        { id: Date.now() + Math.random(), campId, action: "", units: [], note: "", condition: "" },
       ];
     });
   }
@@ -119,7 +111,6 @@ export function RouteSubmitForm({
         id: Date.now() + Math.random(),
         campId: s.campId,
         action: s.action ?? "",
-        timeText: s.time,
         units: (s.units ?? []).map((u) => ({ id: Date.now() + Math.random(), icon: u.icon, count: String(u.count) })),
         note: s.note ?? "",
         condition: s.condition ?? "",
@@ -179,7 +170,6 @@ export function RouteSubmitForm({
     stops.map((s) => ({
       campId: s.campId,
       action: s.action || undefined,
-      time: s.timeText,
       units: s.units.filter((u) => u.icon).map((u) => ({ icon: u.icon, count: Number(u.count) || 1 })),
       note: s.note || undefined,
       condition: s.condition || undefined,
@@ -240,7 +230,6 @@ export function RouteSubmitForm({
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
             <li className="flex gap-2"><span className="text-gold">·</span> Click camps on the map in the order you clear them, no need to type camp contents.</li>
-            <li className="flex gap-2"><span className="text-gold">·</span> Times from the in-game clock — either form works, 1:30 or the day clock 16:30.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> A note or condition on a stop says <em>why</em>: when it works, what to watch for.</li>
           </ul>
         </details>

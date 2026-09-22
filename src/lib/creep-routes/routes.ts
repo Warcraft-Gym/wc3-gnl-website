@@ -2,27 +2,21 @@ import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import type { BuildRace, BuildVsRace } from "@/lib/builds/types";
 import { FIXTURE_ROUTES } from "./fixtures";
-import { parseClock } from "./clock.mjs";
-import type { CreepRoute, RouteLevel, RouteStop } from "./types";
+import type { CreepRoute, RouteLevel } from "./types";
 
 /**
  * Creep-route data access. Reads published `creepRoute` documents from
  * Sanity (drafts never reach the site — that is the review queue). The
  * bundled fixtures are used only in development when Sanity is unreachable
  * or has no routes; production always shows exactly what Sanity has.
- * Mirrors `src/lib/builds/builds.ts`.
- *
- * Sanity stores each stop's `time` as a "m:ss" string (validated like
- * builds' step time, so editors get the same familiar field); the domain
- * type (`RouteStop.time`) is real seconds, which is what `clock.mjs` and
- * `derive.mjs` want, so every document read here converts it.
+ * Mirrors `src/lib/builds/builds.ts`. A route has no time dimension, so a
+ * stop read from Sanity needs no conversion — it is already the domain
+ * shape.
  */
 
 const USE_FIXTURES = process.env.NODE_ENV !== "production";
 
-type RawStop = Omit<RouteStop, "time"> & { time: string };
-type RawRoute = Omit<CreepRoute, "stops" | "map"> & {
-  stops: RawStop[];
+type RawRoute = Omit<CreepRoute, "map"> & {
   map: { slug: string; name: string } | null;
 };
 
@@ -53,16 +47,12 @@ const DETAIL_PROJECTION = `{
   description
 }`;
 
-function normalizeStop(stop: RawStop): RouteStop {
-  return { ...stop, time: parseClock(stop.time) };
-}
-
 /** A route whose `map` reference doesn't resolve (deleted, or not yet
  *  published — e.g. Northern Isles today, which has no `creepMap` document)
  *  is dropped rather than shown broken; `null` signals that to the caller. */
 function normalizeRoute(doc: RawRoute): CreepRoute | null {
   if (!doc.map) return null;
-  return { ...doc, map: doc.map, stops: doc.stops.map(normalizeStop) };
+  return { ...doc, map: doc.map };
 }
 
 function byUpdatedDesc(a: CreepRoute, b: CreepRoute) {

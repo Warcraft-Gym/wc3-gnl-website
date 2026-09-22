@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { CreepMap } from "./CreepMap";
 import { StopEditor } from "./StopEditor";
-import { tryClockSeconds, type StopRowData } from "./StopRow";
+import type { StopRowData } from "./StopRow";
 import type { CreepMap as CreepMapType } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
@@ -38,11 +38,10 @@ export function RouteEditor({
   iconRace?: IconRace;
   fieldError?: (key: string) => string | undefined;
 }) {
-  // What the map needs to draw the live path: campId + a stand-in time.
-  // Order (not the time value) drives the polyline and the numbered
-  // badges, so an unparsed/blank time never breaks the preview.
+  // What the map needs to draw the live path: campId, in order — order
+  // alone drives the polyline and the numbered badges.
   const routeForMap = useMemo(
-    () => ({ stops: stops.map((s) => ({ campId: s.campId, time: tryClockSeconds(s.timeText) ?? 0 })), start }),
+    () => ({ stops: stops.map((s) => ({ campId: s.campId })), start }),
     [stops, start],
   );
 

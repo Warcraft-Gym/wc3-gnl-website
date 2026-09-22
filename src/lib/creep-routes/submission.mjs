@@ -1,20 +1,18 @@
 import { z } from "zod";
-import { parseAnyClock, formatClock } from "./clock.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
  * (no TypeScript syntax) so `node --test` runs `submission.test.mjs` with
- * no loader, same reason `clock.mjs`/`derive.mjs` stay plain JS. The known
- * ids a submission is checked against (map slugs + their camp ids, icon
- * keys, build slugs) are never imported here — importing a `.ts` module
- * from a `.mjs` one needs Node's type-stripping flag, which the plain
- * `node --test` invocation in package.json doesn't pass — so the schema is
- * a factory, `createSubmissionSchema(catalogue)`, and the caller (the
- * server action) passes in the live catalogue read from `maps.ts`/
- * `icons.ts`/`builds.ts`. `submission.test.mjs` passes a small fake one.
+ * no loader, same reason `derive.mjs` stays plain JS. The known ids a
+ * submission is checked against (map slugs + their camp ids, icon keys,
+ * build slugs) are never imported here — importing a `.ts` module from a
+ * `.mjs` one needs Node's type-stripping flag, which the plain `node
+ * --test` invocation in package.json doesn't pass — so the schema is a
+ * factory, `createSubmissionSchema(catalogue)`, and the caller (the server
+ * action) passes in the live catalogue read from `maps.ts`/`icons.ts`/
+ * `builds.ts`. `submission.test.mjs` passes a small fake one.
  *
- * Race and level ids are duplicated here in the same spirit as
- * `clock.mjs`'s local `parseClock`/`formatClock`: they must keep matching
+ * Race and level ids are duplicated here so they keep matching
  * `BUILD_RACES`' and `ROUTE_LEVELS`' own ids (src/lib/builds/types.ts,
  * src/lib/creep-routes/types.ts).
  */
@@ -22,7 +20,7 @@ import { parseAnyClock, formatClock } from "./clock.mjs";
 const RACE_IDS = ["human", "orc", "nightelf", "undead"];
 const ROUTE_LEVEL_IDS = ["standard", "beginner"];
 
-/** Field-level messages keyed by path ("title", "stops.2.time"). */
+/** Field-level messages keyed by path ("title", "stops.2.action"). */
 export function flattenErrors(err) {
   const out = {};
   for (const issue of err.issues) {
@@ -31,22 +29,6 @@ export function flattenErrors(err) {
   }
   return out;
 }
-
-/** Accepts either a real "m:ss" clock (e.g. "1:30") or a day clock
- *  ("16:30") and transforms straight to real seconds, so the rest of the
- *  app only ever deals with `RouteStop.time` as a number. */
-const clockField = z
-  .string()
-  .trim()
-  .max(8)
-  .transform((value, ctx) => {
-    try {
-      return parseAnyClock(value);
-    } catch {
-      ctx.addIssue({ code: "custom", message: "Use m:ss (e.g. 1:30) or a day clock (e.g. 16:30)" });
-      return z.NEVER;
-    }
-  });
 
 function unitSchema(iconSet) {
   return z.object({
@@ -67,7 +49,6 @@ function baseStopSchema(iconSet) {
        *  are never authored here, only looked up by id against the map. */
       campId: z.string().trim().min(1).nullable(),
       action: z.string().trim().max(60, "Max 60 characters").optional(),
-      time: clockField,
       units: z.array(unitSchema(iconSet)).max(6, "Up to 6").optional(),
       note: z.string().trim().max(160, "Max 160 characters").optional(),
       condition: z.string().trim().max(60, "Max 60 characters").optional(),
@@ -232,7 +213,6 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId) {
       _key: shortKey(),
       campId: s.campId || undefined,
       action: s.action || undefined,
-      time: formatClock(s.time),
       units: s.units && s.units.length
         ? s.units.map((u) => ({ _type: "unit", _key: shortKey(), icon: u.icon, count: u.count }))
         : undefined,

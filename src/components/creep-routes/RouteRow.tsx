@@ -4,7 +4,6 @@ import { VsRaces } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { BUILD_RACES } from "@/lib/builds/types";
 import type { CreepRoute, RouteLevel } from "@/lib/creep-routes/types";
-import { toDayClock } from "@/lib/creep-routes/clock.mjs";
 import { cn } from "@/lib/utils";
 
 const RACE_LABEL = Object.fromEntries(BUILD_RACES.map((r) => [r.id, r.label]));
@@ -25,7 +24,6 @@ const ACCENT: Record<RouteLevel, string> = {
  *  Carries `data-route="<slug>"` for tests and the User-Testing Validator;
  *  exactly one per rendered route. */
 export function RouteRow({ route }: { route: CreepRoute }) {
-  const firstStop = route.stops[0];
   return (
     <li>
       <Link
@@ -70,8 +68,7 @@ export function RouteRow({ route }: { route: CreepRoute }) {
         <div className="col-span-2 flex items-center justify-between gap-3 border-t border-line/50 pt-2 text-xs text-faint sm:col-span-1 sm:flex-col sm:items-end sm:justify-center sm:gap-1.5 sm:border-0 sm:pt-0">
           <LevelBadge level={route.level} />
           <span className="tnum whitespace-nowrap">
-            {formatDate(route.updatedAt)}
-            {firstStop ? ` · starts ${toDayClock(firstStop.time)}` : ""}
+            {formatDate(route.updatedAt)} · {route.stops.length} stop{route.stops.length === 1 ? "" : "s"}
           </span>
         </div>
       </Link>

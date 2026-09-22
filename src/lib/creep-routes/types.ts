@@ -64,10 +64,12 @@ export type CreepMap = {
  *  (TP home, buy from a shop, take the expansion) — `action` names it. A
  *  camp stop instead names the camp being cleared; `units` (if present)
  *  describes what the player brings, not the camp's contents (those live on
- *  the map's `camps[]`, looked up by `campId`). `time` is real seconds. */
+ *  the map's `camps[]`, looked up by `campId`). A route has no time
+ *  dimension: it is an ordered list of stops, nothing more — see
+ *  `docs/creep-routes.md`'s "XP model" for how stop *order* alone drives
+ *  the hero level/xp readout. */
 export type RouteStop = {
   campId: string | null;
-  time: number;
   action?: string;
   units?: { icon: string; count: number }[];
   note?: string;

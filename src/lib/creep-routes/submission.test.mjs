@@ -19,8 +19,8 @@ function payload(overrides = {}) {
     summary: "This is a summary that is at least twenty characters long.",
     author: "Tester",
     stops: [
-      { campId: "c01", time: "0:15" },
-      { campId: "c02", time: "1:30" },
+      { campId: "c01" },
+      { campId: "c02" },
     ],
     website: "",
     ...overrides,
@@ -32,7 +32,7 @@ function schema(opts = {}) {
 }
 
 test("rejects fewer than 2 stops", () => {
-  const result = schema().safeParse(payload({ stops: [{ campId: "c01", time: "0:15" }] }));
+  const result = schema().safeParse(payload({ stops: [{ campId: "c01" }] }));
   assert.equal(result.success, false);
   assert.ok(flattenErrors(result.error).stops);
 });
@@ -42,9 +42,17 @@ test("accepts exactly 2 stops", () => {
   assert.equal(result.success, true);
 });
 
+test("a stop has no time field: the schema never parses or emits one", () => {
+  const result = schema().safeParse(payload());
+  assert.equal(result.success, true);
+  for (const stop of result.data.stops) {
+    assert.ok(!("time" in stop), "a parsed stop must not carry a time field");
+  }
+});
+
 test("rejects a campId not on the chosen map", () => {
   const result = schema().safeParse(
-    payload({ stops: [{ campId: "c01", time: "0:15" }, { campId: "zz9", time: "1:30" }] }),
+    payload({ stops: [{ campId: "c01" }, { campId: "zz9" }] }),
   );
   assert.equal(result.success, false);
   const errors = flattenErrors(result.error);
@@ -54,31 +62,14 @@ test("rejects a campId not on the chosen map", () => {
 test("a campId valid on a different map is still rejected for the chosen map", () => {
   // c03 exists on autumn-leaves but not on echo-isles.
   const result = schema().safeParse(
-    payload({ map: "echo-isles", stops: [{ campId: "c01", time: "0:15" }, { campId: "c03", time: "1:30" }] }),
+    payload({ map: "echo-isles", stops: [{ campId: "c01" }, { campId: "c03" }] }),
   );
   assert.equal(result.success, false);
-});
-
-test('accepts "1:30" and "16:30", both normalised to real seconds (90)', () => {
-  const result = schema().safeParse(
-    payload({ stops: [{ campId: "c01", time: "1:30" }, { campId: "c02", time: "16:30" }] }),
-  );
-  assert.equal(result.success, true);
-  assert.equal(result.data.stops[0].time, 90);
-  assert.equal(result.data.stops[1].time, 90);
-});
-
-test("rejects an unparsable time", () => {
-  const result = schema().safeParse(
-    payload({ stops: [{ campId: "c01", time: "not a clock" }, { campId: "c02", time: "1:30" }] }),
-  );
-  assert.equal(result.success, false);
-  assert.ok(flattenErrors(result.error)["stops.0.time"]);
 });
 
 test("a base-action stop (campId null) requires an action", () => {
   const result = schema().safeParse(
-    payload({ stops: [{ campId: null, time: "0:05" }, { campId: "c01", time: "0:15" }] }),
+    payload({ stops: [{ campId: null }, { campId: "c01" }] }),
   );
   assert.equal(result.success, false);
   assert.ok(flattenErrors(result.error)["stops.0.action"]);
@@ -88,8 +79,8 @@ test("a base-action stop with an action is accepted and campId comes back null",
   const result = schema().safeParse(
     payload({
       stops: [
-        { campId: null, action: "TP home", time: "0:05" },
-        { campId: "c01", time: "0:15" },
+        { campId: null, action: "TP home" },
+        { campId: "c01" },
       ],
     }),
   );
@@ -102,8 +93,8 @@ test("rejects an unknown bring icon", () => {
   const result = schema().safeParse(
     payload({
       stops: [
-        { campId: "c01", time: "0:15", units: [{ icon: "not-a-real-icon", count: 1 }] },
-        { campId: "c02", time: "1:30" },
+        { campId: "c01", units: [{ icon: "not-a-real-icon", count: 1 }] },
+        { campId: "c02" },
       ],
     }),
   );
@@ -114,8 +105,8 @@ test("accepts a known bring icon and count", () => {
   const result = schema().safeParse(
     payload({
       stops: [
-        { campId: "c01", time: "0:15", units: [{ icon: "hu-archmage", count: 1 }] },
-        { campId: "c02", time: "1:30" },
+        { campId: "c01", units: [{ icon: "hu-archmage", count: 1 }] },
+        { campId: "c02" },
       ],
     }),
   );
@@ -131,7 +122,7 @@ test("rejects start >= the chosen map's starts.length", () => {
 
 test("accepts a valid start index on a >2-start map", () => {
   const result = schema().safeParse(
-    payload({ map: "twisted-meadows", start: 3, stops: [{ campId: "c01", time: "0:15" }, { campId: "c02", time: "1:30" }] }),
+    payload({ map: "twisted-meadows", start: 3, stops: [{ campId: "c01" }, { campId: "c02" }] }),
   );
   assert.equal(result.success, true);
   assert.equal(result.data.start, 3);
@@ -166,7 +157,7 @@ test("toCreepRouteDraft() produces a pending draft referencing the map", () => {
   assert.match(draft._id, /^drafts\./);
   assert.deepEqual(draft.map, { _type: "reference", _ref: "creepMap.autumn-leaves" });
   assert.equal(draft.stops.length, 2);
-  assert.equal(draft.stops[0].time, "0:15");
+  assert.ok(!("time" in draft.stops[0]), "a draft stop must not carry a time field");
   assert.equal(draft.build, undefined);
 });
 

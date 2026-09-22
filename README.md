@@ -38,7 +38,7 @@ for ESLint.
 | `/learn/guide/<slug>` | A guide, with its play-along build order when one was transcribed from it | Sanity `guide` + `buildOrder` |
 | `/learn/builds`, `/learn/builds/<slug>` | Build orders with filters, a step table and a play-along clock | Sanity `buildOrder` |
 | `/learn/builds/submit` | Public submission form, fillable from a replay, a W3Champions match or the overlay's export; submissions land in the Studio as pending drafts | server action, write token |
-| `/learn/creep-routes`, `/learn/creep-routes/<slug>` | Creep routes with filters, a clickable map and a play-along day clock | Sanity `creepRoute` + `creepMap`, fixture fallback |
+| `/learn/creep-routes`, `/learn/creep-routes/<slug>` | Creep routes with filters, a clickable map and an ordered stop table (no timings) | Sanity `creepRoute` + `creepMap`, fixture fallback |
 | `/learn/creep-routes/submit` | Public click-to-author route editor; submissions land in the Studio as pending drafts | server action, write token |
 | `/blog`, `/blog/<slug>` | News | Sanity `post` |
 | `/gnl/*` | Schedule, standings, teams, players, ladder, fantasy, rules, about | FastAPI |
@@ -74,8 +74,8 @@ Vercel (this app, Next.js)
 - **Build orders:** submission flow, review in the Studio, the icon set, the
   JSON API and the transcription scripts. See
   [`docs/build-orders.md`](docs/build-orders.md).
-- **Creep routes:** the map-catalogue script, the day clock and XP model,
-  the click-to-author submission flow, and the JSON API. See
+- **Creep routes:** the map-catalogue script, the XP model, the
+  click-to-author submission flow, and the JSON API. See
   [`docs/creep-routes.md`](docs/creep-routes.md).
 - **SEO:** `src/lib/site.ts` is the canonical origin; `robots.ts`,
   `sitemap.ts`, per-page canonicals, OpenGraph/Twitter images and JSON-LD
@@ -116,7 +116,7 @@ src/
 ├── lib/
 │   ├── api/               # FastAPI client, mappers, fixtures, gnl.ts (seam)
 │   ├── learn/ builds/ content/        # data access with fixture fallbacks
-│   ├── creep-routes/      # map catalogue types, day clock, XP/route derivation,
+│   ├── creep-routes/      # map catalogue types, XP/route derivation,
 │   │                       # fixtures, submission schema, JSON API serializers
 │   ├── site.ts · seo.ts · flags.ts · links.ts · tools.ts · overlay.ts
 │   └── discord.ts         # live member counts from the invite API

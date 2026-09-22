@@ -7,8 +7,9 @@ import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/ty
 
 /**
  * The map and the step table share one piece of state — the active stop —
- * lifted here so pressing play in the table lights the same marker on the
- * map. Map left, table right and sticky at `lg`; stacked below.
+ * lifted here so hovering, focusing or clicking a row in the table lights
+ * the same marker on the map. Map left, table right and sticky at `lg`;
+ * stacked below.
  */
 export function CreepMapPlayground({ map, route }: { map: CreepMapType; route: CreepRoute }) {
   const [activeStop, setActiveStop] = useState<number | null>(null);

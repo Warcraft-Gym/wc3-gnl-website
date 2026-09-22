@@ -14,12 +14,13 @@ const LEVELS = [
 ];
 
 /**
- * A creep route: metadata + an ordered list of timed stops, each either a
- * camp (by id, looked up against the linked `creepMap`) or a base action
- * (`campId` empty, `action` names it — TP home, buy from shop, expand).
- * Public submissions arrive as drafts (see the "Pending review" list in the
- * Studio) and go live when an editor publishes them — same review gate as
- * `buildOrder`.
+ * A creep route: metadata + an ordered list of stops (no time dimension —
+ * a route is the camps in the order you clear them, nothing more), each
+ * either a camp (by id, looked up against the linked `creepMap`) or a base
+ * action (`campId` empty, `action` names it — TP home, buy from shop,
+ * expand). Public submissions arrive as drafts (see the "Pending review"
+ * list in the Studio) and go live when an editor publishes them — same
+ * review gate as `buildOrder`.
  */
 export const creepRoute = defineType({
   name: "creepRoute",
@@ -205,16 +206,6 @@ export const creepRoute = defineType({
               description: "The camp's id on the linked map (e.g. c01). Leave empty for a base action.",
             }),
             defineField({
-              name: "time",
-              type: "string",
-              description: "Real game clock, mm:ss.",
-              validation: (rule) =>
-                rule
-                  .required()
-                  .regex(/^\d{1,2}:\d{2}$/, { name: "mm:ss", invert: false })
-                  .warning("Use mm:ss"),
-            }),
-            defineField({
               name: "action",
               type: "string",
               description: "Base action when there's no campId, e.g. \"TP home\".",
@@ -248,10 +239,10 @@ export const creepRoute = defineType({
             }),
           ],
           preview: {
-            select: { campId: "campId", time: "time", action: "action" },
-            prepare: ({ campId, time, action }) => ({
-              title: campId || action || "(stop)",
-              subtitle: time,
+            select: { campId: "campId", action: "action", note: "note" },
+            prepare: ({ campId, action, note }) => ({
+              title: campId ? `Camp ${campId}` : action || "(stop)",
+              subtitle: note,
             }),
           },
         }),

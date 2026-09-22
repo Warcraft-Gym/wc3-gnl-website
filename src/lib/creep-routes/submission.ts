@@ -16,8 +16,6 @@ export type FieldErrors = Record<string, string>;
 export type StopInput = {
   campId: string | null;
   action?: string;
-  /** Real seconds — the schema transforms "1:30"/"16:30" into this. */
-  time: number;
   units?: { icon: string; count: number }[];
   note?: string;
   condition?: string;

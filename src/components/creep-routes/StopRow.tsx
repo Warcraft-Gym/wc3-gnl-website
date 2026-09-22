@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
-import { formatClock, toDayClock, parseAnyClock } from "@/lib/creep-routes/clock.mjs";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { MapCamp } from "@/lib/creep-routes/types";
@@ -14,8 +13,6 @@ export type StopRowData = {
   /** null is a base action; `action` names it. */
   campId: string | null;
   action: string;
-  /** Raw text as typed, "1:30" or a day clock "16:30". */
-  timeText: string;
   units: UnitRow[];
   note: string;
   condition: string;
@@ -24,25 +21,14 @@ export type StopRowData = {
 const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
 
-/** Tries to read `text` as either clock form; null when neither parses. */
-export function tryClockSeconds(text: string): number | null {
-  const v = text.trim();
-  if (!v) return null;
-  try {
-    return parseAnyClock(v);
-  } catch {
-    return null;
-  }
-}
-
 function campSummary(camp: MapCamp): string {
   return camp.creeps.map((c) => `${c.count}× ${c.name}`).join(", ");
 }
 
 /**
- * One stop in the route being authored: its camp (or base action), time
- * (accepts either clock form, shows both once it parses), what to bring,
- * a note and an optional condition, plus reorder/remove. Mirrors
+ * One stop in the route being authored: its camp (or base action), what to
+ * bring, a note and an optional condition, plus reorder/remove. No time
+ * dimension — a route is an ordered list of stops, nothing more. Mirrors
  * `BuildSubmitForm`'s step row layout so the two editors feel like one
  * family.
  */
@@ -72,9 +58,6 @@ export function StopRow({
   canMoveUp: boolean;
   canMoveDown: boolean;
 }) {
-  const seconds = tryClockSeconds(stop.timeText);
-  const timeError = error?.("time");
-
   function addUnit() {
     if (stop.units.length >= 6) return;
     onChange({ units: [...stop.units, { id: Date.now() + Math.random(), icon: "", count: "1" }] });
@@ -88,7 +71,7 @@ export function StopRow({
 
   return (
     <li className="relative rounded border border-line/70 bg-bg/40 p-3">
-      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_8rem_auto]">
+      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2">
         <span className="tnum pt-2.5 text-center text-xs text-faint">{index + 1}</span>
 
         {/* Camp / base action */}
@@ -114,26 +97,8 @@ export function StopRow({
           )}
         </div>
 
-        {/* Time */}
-        <div>
-          <input
-            aria-label="Time"
-            placeholder="1:30 or 16:30"
-            value={stop.timeText}
-            onChange={(e) => onChange({ timeText: e.target.value })}
-            className={cn(input, "tnum px-2", timeError && "border-loss")}
-          />
-          {timeError ? (
-            <p className="mt-1 text-[0.65rem] text-loss">{timeError}</p>
-          ) : seconds != null ? (
-            <p className="tnum mt-1 text-[0.65rem] text-faint">
-              {formatClock(seconds)} real · {toDayClock(seconds)} day
-            </p>
-          ) : null}
-        </div>
-
         {/* Reorder / remove */}
-        <div className="col-span-3 flex justify-end gap-1 sm:col-span-1">
+        <div className="flex justify-end gap-1">
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
             <ArrowUp size={14} />
           </button>

@@ -1,5 +1,4 @@
 import { gameIconSrc } from "@/lib/builds/icons";
-import { toDayClock } from "./clock.mjs";
 import { deriveRoute } from "./derive.mjs";
 import type { CreepMap, CreepRoute, RouteStop } from "./types";
 
@@ -8,16 +7,15 @@ import type { CreepMap, CreepRoute, RouteStop } from "./types";
  * `src/app/api/creep-maps/**` (F006). Mirrors `src/lib/builds/serialize.ts`'s
  * shape — `minimapUrl`/each unit icon turned into an absolute URL so a
  * desktop overlay on a different origin can load the art directly — with
- * two creep-route-specific additions: every stop carries a `dayClock`
- * string (derived from `time`, not stored), and the detail DTO carries
- * `derived` (the running hero level/xp per stop, from `derive.mjs`'s
- * `deriveRoute`, so a consumer doesn't need to reimplement the XP model).
+ * one creep-route-specific addition: the detail DTO carries `derived` (the
+ * running hero level/xp per stop, from `derive.mjs`'s `deriveRoute`, so a
+ * consumer doesn't need to reimplement the XP model). A route has no time
+ * dimension, so a stop is just its ordered fields, nothing derived from a
+ * clock.
  */
 
 export type ApiRouteStop = {
   campId: string | null;
-  time: number;
-  dayClock: string;
   action?: string;
   units?: { icon: string; count: number; iconUrl: string }[];
   note?: string;
@@ -47,7 +45,7 @@ export type ApiRouteListItem = {
   updatedAt: string;
 };
 
-export type ApiRouteDerivedStop = { heroLevelAfter: number; xpAfter: number; isNight: boolean };
+export type ApiRouteDerivedStop = { heroLevelAfter: number; xpAfter: number };
 
 /** Detail DTO — adds `description`, the optional companion `build` link,
  *  and `derived` (requires the route's own `CreepMap` to compute — see
@@ -84,7 +82,6 @@ function toApiStop(stop: RouteStop, origin: string): ApiRouteStop {
   const { units, ...rest } = stop;
   return {
     ...rest,
-    dayClock: toDayClock(stop.time),
     ...(units?.length
       ? { units: units.map((u) => ({ ...u, iconUrl: `${origin}${gameIconSrc(u.icon)}` })) }
       : {}),
@@ -127,7 +124,7 @@ export function toApiRouteListItem(route: CreepRoute, origin: string): ApiRouteL
 export function toApiRoute(route: CreepRoute, map: CreepMap, origin: string): ApiRoute {
   const listItem = toApiRouteListItem(route, origin);
   const derived = deriveRoute(route, map) as {
-    stops: { heroLevelAfter: number; xpAfter: number; isNight: boolean }[];
+    stops: { heroLevelAfter: number; xpAfter: number }[];
     finalLevel: number;
     finalXp: number;
   };
@@ -139,7 +136,6 @@ export function toApiRoute(route: CreepRoute, map: CreepMap, origin: string): Ap
       stops: derived.stops.map((s) => ({
         heroLevelAfter: s.heroLevelAfter,
         xpAfter: s.xpAfter,
-        isNight: s.isNight,
       })),
       finalLevel: derived.finalLevel,
       finalXp: derived.finalXp,

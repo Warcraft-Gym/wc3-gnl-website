@@ -12,7 +12,7 @@ export type CreepMapProps = {
   route?: { stops: RouteStop[]; start?: number };
   /** 0-based index into `route.stops`; enlarges/glows that stop's marker
    *  when it's a camp stop. Lifted by the page so the map and the step
-   *  table's play-along clock stay in sync. */
+   *  table's hover/focus/click stay in sync. */
   activeStop?: number | null;
   /** Unused in this feature; the editor (F005) passes this to make camps
    *  clickable — see `CampMarker`. */

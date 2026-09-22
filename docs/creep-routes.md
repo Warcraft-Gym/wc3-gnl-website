@@ -95,8 +95,8 @@ data layer share:
   `starts[]`, `mines[]`, `shops[]`) plus `minimapUrl`: `/maps/<slug>.png`
   for fixtures, the Sanity image asset URL once a map is published. A
   `MapCamp`'s `level`/`xp`/`band` are the camp's own totals (sum of its
-  creeps' levels/base xp, and a difficulty label) — not a hero's; see "Day
-  clock" below for how a hero's own level/xp are derived per stop.
+  creeps' levels/base xp, and a difficulty label) — not a hero's; see "XP
+  model" below for how a hero's own level/xp are derived per stop.
 - **`CreepRoute`** — `slug`, `title`, `race`, `vsRaces[]` (empty = any),
   `level` (`"standard"` or `"beginner"`), `map: { slug, name }`, an optional
   `start` (an index into `map.starts` — which spawn is *your* base; unset
@@ -110,11 +110,14 @@ data layer share:
   says which of `map.starts` that is, the opponent's is just whichever
   other one is left — the map never labels the two "P0"/"P1", see
   `CreepMap`'s `StartMarker` in `DESIGN.md`.
-- **`RouteStop`** — `campId: string | null`, `time` (real seconds), and
-  optionally `action` (for a `campId: null` base action like `"TP home"`,
-  buying from a shop, or taking an expansion), `units` (what the *player*
-  brings to the stop — never the camp's contents, which are always looked
-  up from the map by `campId`), `note`, `condition`.
+- **`RouteStop`** — `campId: string | null`, and optionally `action` (for a
+  `campId: null` base action like `"TP home"`, buying from a shop, or
+  taking an expansion), `units` (what the *player* brings to the stop —
+  never the camp's contents, which are always looked up from the map by
+  `campId`), `note`, `condition`. No time dimension: a route is an ordered
+  list of stops, nothing more (F007 removed the per-stop clock and the
+  day/night cycle it drove — see the user decision at the top of that
+  feature's spec).
 
 `src/lib/creep-routes/fixtures.ts` (backed by the plain-JS
 `fixtures.mjs`, so `node --test` can check it directly — see
@@ -123,60 +126,61 @@ five seed `FIXTURE_ROUTES` covering every race, at least two maps (three on
 Autumn Leaves), a beginner route, a route with `vsRaces` set, a stop with a
 `condition`, and a non-camp stop (`campId: null, action: "TP home"`).
 
-## Day clock
-
-`src/lib/creep-routes/clock.mjs` is the pure day/night clock math (plain
-JS, no TypeScript syntax, so `node --test` runs `clock.test.mjs` with no
-loader; `.ts` modules import it directly, e.g. `import { toDayClock } from
-"./clock.mjs"`, the same way `src/lib/w3c.ts` imports
-`w3c-vs-race.mjs`):
-
-- The game clock starts at **12:00 (noon)** at real 0:00; **20 real seconds
-  = 1 game hour**, so a full day is 480 real seconds (8 minutes) and wraps.
-- `toDayClock(realSecondsOrClock)` → `"HH:MM"`. Accepts real seconds or a
-  `"m:ss"` string.
-- `fromDayClock("HH:MM")` → the real `"m:ss"` clock of that day clock's
-  first occurrence from game start.
-- `parseAnyClock(str)` accepts either a real `"m:ss"` clock (e.g. `"1:30"`)
-  or a day clock `"HH:MM"` (e.g. `"16:30"`) and returns real seconds.
-  Disambiguation: a value whose first field is **>= 12**, or which is
-  written with a **leading zero** (e.g. `"06:00"`), is read as a day clock;
-  anything else (`"1:30"`, `"9:45"`) is a real clock. In practice a route
-  stop's real time is never >= 12 minutes into the clock nor zero-padded,
-  so this never collides in authored data.
-- `isNight(realSeconds)` is true for game time **18:00-05:59** (real
-  seconds `[120, 360)` modulo the 480 s day/night cycle).
-- `parseClock`/`formatClock` are local copies of
-  `src/lib/builds/types.ts`'s `"m:ss"` <-> seconds helpers (same output),
-  kept here so `clock.mjs` stays plain JS with no cross-module TS
-  dependency.
-
-`src/lib/creep-routes/derive.mjs`'s `deriveRoute(route, map, { startLevel })`
-runs a hero through a route's stops in order, folding camp stops through
-`xp.mjs`'s `heroLevelAfter` math (skipping non-camp stops) and attaching
-`toDayClock`/`isNight` per stop. `routeBounds(route)` is a pure
-first/last-time and stop-count helper.
-
 ## XP model
 
-`src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
-are sourced from https://warcraft.wiki.gg/wiki/Hero_(Warcraft_III)#Experience
-— a hero killing a creep camp gains XP per creep in it, tapered by
-`creepXpFactor(heroLevel)` (the *camp's* factor, fixed to the hero's level
-at the moment the camp is engaged, per the wiki's rule) to how far past the
-creeps' own level the hero has already climbed.
+A creep route has no time dimension (F007, user decision — see that
+feature's spec: "the timings are not important and can be removed"): a
+route is an ordered list of camp stops and base actions, nothing more. What
+*is* derived, and stays load-bearing, is the hero's running level/xp —
+`src/lib/creep-routes/derive.mjs`'s `deriveRoute(route, map, { startLevel })`
+runs a hero through a route's stops **in order**, folding camp stops
+through `xp.mjs`'s per-kill math (skipping non-camp stops).
 
-The wiki's table gives that factor as a fraction (e.g. 0.5 at hero level
-4), so `creepXp(level) * factor` is not always a whole number — a level-4
-creep grants a level-4 hero `85 * 0.5 = 42.5` xp by the raw formula.
-Warcraft III itself only ever awards whole XP in-game, so **we floor each
-creep's XP grant** (`Math.floor(creepXp(level) * factor)`, not the running
-total) before adding it to the hero's total — `heroLevelAfter` (`xp.mjs`)
-and `deriveRoute` (`derive.mjs`) both do this at the point of the grant.
-This is our modelling choice, not something the wiki states explicitly;
-flooring per creep (rather than flooring the camp or route total) keeps
-the total deterministic regardless of how creeps are grouped or ordered
-within a camp.
+`src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
+are sourced from Blizzard's own `MiscGame.txt` (patch 1.27.1: `NeedHeroXP`,
+`GrantNormalXP`, `HeroFactorXP`), cross-checked against
+https://warcraft.wiki.gg/wiki/Hero_(Warcraft_III)#Experience — a hero
+killing a creep gains XP tapered by `creepXpFactor(heroLevel)`, how far past
+the creep's own level the hero has already climbed.
+
+**The reduction factor applies per kill, not once per camp.** An earlier
+version of this calculator (through F006) fixed the factor to the hero's
+level at the *start* of a camp and applied it to every creep in that camp —
+plausible, but wrong: Blizzard's `HeroFactorXP` is read fresh at the moment
+of each individual kill, so a hero that levels up mid-camp pays the new,
+lower factor for the rest of that camp's kills. `heroLevelAfter` (`xp.mjs`)
+and `deriveRoute` (`derive.mjs`) both re-read `creepXpFactor(level)` inside
+the innermost per-creep loop, not once before it. Worked example, camps
+`[3,3,2]` then `[4,4,3]` (creep levels) from hero level 1:
+
+```
+camp 1: 60·0.8=48, 60·0.8=48, 40·0.8=32           -> xp 128 (still L1)
+camp 2: 85·0.8=68 -> 196 (L1); 85·0.8=68 -> 264 (crosses to L2 mid-camp);
+        60·0.7=42 (now the L2 factor, not 0.8)    -> xp 306 (L2)
+```
+
+(A per-camp-fixed factor would have given camp 2's third kill `60·0.8=48`
+too, landing on 312 instead of 306 — the bug this fix closes.)
+
+The wiki's table gives the factor as a fraction (e.g. 0.5 at hero level 4),
+so `creepXp(level) * factor` is not always a whole number — a level-4 creep
+grants a level-4 hero `85 * 0.5 = 42.5` xp by the raw formula. Warcraft III
+itself only ever awards whole XP in-game, so **we floor each creep's XP
+grant** (`Math.floor(creepXp(level) * factor)`, not the running total)
+before adding it to the hero's total, at the point of that same grant. This
+is our modelling choice, not something the wiki states explicitly; flooring
+per creep (rather than flooring the camp or route total) keeps the total
+deterministic regardless of how creeps are grouped or ordered within a
+camp.
+
+**One hero, not the whole team.** Blizzard's `GlobalExperience=1` setting
+(the ladder default) splits a creep kill's XP evenly across *every* hero
+the killing player currently has alive, not just the one that lands the
+kill — a two-hero player earns half as much xp per hero as a one-hero
+player creeping the same camp. This calculator models a single hero (the
+same simplification coff-creeps' route calculator makes) and does not
+discount for a second/third hero; a heroes-count toggle that divides the
+per-kill grant accordingly is backlog, not shipped.
 
 ## Review flow
 
@@ -195,10 +199,9 @@ its `creepMap` (required) and, optionally, a companion `buildOrder`.
 (`coalesce(reviewStatus, "approved") == "approved"`, `map->{...}`
 dereferenced, 300 s ISR revalidate), the bundled fixtures in development
 when Sanity is unreachable or empty, and `[]` in production without Sanity.
-Each Sanity stop's `time` is stored as a `"m:ss"` string (validated with
-the same regex as build steps) and converted to real seconds
-(`clock.mjs`'s `parseClock`) when read, since the domain type
-(`RouteStop.time`) is numeric. A route whose `map` reference doesn't
+A Sanity stop's fields (`campId`, `action`, `units`, `note`, `condition`)
+are already the domain shape — no per-stop time to convert (F007). A route
+whose `map` reference doesn't
 resolve (deleted, or — like every catalogue today, none of the nine
 `creepMap` documents have been published to Sanity yet, see "Publishing a
 map" below — never published) is **dropped from the list** rather than
@@ -295,15 +298,15 @@ routes (same map or same race).
 The map and the step table are the page's core: `CreepMapPlayground.tsx`
 (a client island next to the page) lifts one piece of state, the active
 stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
-`RouteStepTable` (`RouteStepTable.tsx`) stay in sync when you press play.
-`CreepMap` always renders its `<svg>` — sized by CSS (`viewBox` + `w-full
-h-auto`), not gated behind a client-only `ResizeObserver` — so the map's
-camps, path and stop badges are present in the server-rendered HTML a curl
-or a crawler sees, not only after hydration; the `ResizeObserver` still
-runs, but only to place the hover/focus `CampDetails` panel in real pixels.
-See `DESIGN.md`'s "Creep routes" section for the camp band colours, the
-mark shapes and the day-clock convention this page and its components
-follow.
+`RouteStepTable` (`RouteStepTable.tsx`) stay in sync when you hover, focus
+or click a stop row (or a marker). `CreepMap` always renders its `<svg>` —
+sized by CSS (`viewBox` + `w-full h-auto`), not gated behind a client-only
+`ResizeObserver` — so the map's camps, path and stop badges are present in
+the server-rendered HTML a curl or a crawler sees, not only after
+hydration; the `ResizeObserver` still runs, but only to place the
+hover/focus `CampDetails` panel in real pixels. See `DESIGN.md`'s "Creep
+routes" section for the camp band colours and mark shapes this page and
+its components follow.
 
 `CreepMap`'s props (`map`, `route?`, `activeStop?`, `onCampSelect?`,
 `highlightCamps?`, `className?`) are deliberately reusable beyond this
@@ -328,8 +331,8 @@ sees; this section is the mechanics.
   file runs long: `RouteSetup` is the map/race/opponent(s)/level/hero/
   companion-build row, `RouteEditor` is a thin layout wrapper (map left,
   `StopEditor` right), `StopEditor` owns the stop list's mutations (add a
-  camp stop, add a base action, reorder, remove, sort by time) and the
-  live `deriveRoute` readout, `StopRow` is one stop.
+  camp stop, add a base action, reorder, remove) and the live `deriveRoute`
+  readout, `StopRow` is one stop.
 - **The "Your spawn" picker.** `RouteEditor` renders a small radio picker
   under the map, but only when `map.starts.length > 2` (Turtle Rock,
   Twisted Meadows) — every other map's two starts leave nothing to pick
@@ -359,9 +362,8 @@ sees; this section is the mechanics.
   `superRefine` rejects `start >= starts.length` for the chosen map, but
   only when the caller passed `startsCount` for it — a caller that omits it
   (e.g. a test that doesn't care) skips the bound check rather than failing
-  closed. A stop's `time` accepts either clock form and transforms straight
-  to real seconds (`parseAnyClock`, `clock.mjs`); a `campId: null` stop
-  requires `action`.
+  closed. A `campId: null` stop requires `action`; no stop carries a time
+  field (F007).
   `toCreepRouteDraft(valid, mapDocId, buildDocId?)` is pure and
   synchronous — no Sanity client — so it's directly testable; the caller
   resolves both ids.
@@ -386,7 +388,7 @@ sees; this section is the mechanics.
   honeypot (`website`, must stay empty), `startedAt` min-fill-time (8 s),
   a per-IP in-memory throttle (1/minute, per serverless instance),
   `canAcceptSubmissions()`, then `createCreepRouteDraft`. Field errors are
-  keyed the same way builds' are, `"stops.2.time"`, `"title"`, etc.
+  keyed the same way builds' are, `"stops.2.action"`, `"title"`, etc.
 - **`src/lib/creep-routes/exchange.ts`** is the `#route=` deep-link reader,
   `src/lib/builds/exchange.ts`'s `#build=` pattern with a creep-route
   shape (`EXCHANGE_FORMAT = "wc3gym-creep-route"`): a fragment identifier
@@ -414,7 +416,7 @@ builds every response DTO from the domain types (`types.ts`).
 | Endpoint | Returns | Notes |
 | --- | --- | --- |
 | `GET /api/creep-routes` | `{ routes: ApiRouteListItem[] }` | Approved routes. Optional `race`, `vs`, `map`, `level` query filters, same validation as `/learn/creep-routes`'s own URL params — an invalid value is silently ignored, not an error. |
-| `GET /api/creep-routes/<slug>` | `{ route: ApiRoute }` | Adds `description`, the optional companion `build` link, and `derived` (per-stop `heroLevelAfter`/`xpAfter`/`isNight` plus `finalLevel`/`finalXp`, from `derive.mjs`'s `deriveRoute` — a consumer doesn't need to reimplement the XP model). 404 if the slug doesn't exist. |
+| `GET /api/creep-routes/<slug>` | `{ route: ApiRoute }` | Adds `description`, the optional companion `build` link, and `derived` (per-stop `heroLevelAfter`/`xpAfter` plus `finalLevel`/`finalXp`, from `derive.mjs`'s `deriveRoute` — a consumer doesn't need to reimplement the XP model). 404 if the slug doesn't exist. |
 | `GET /api/creep-maps` | `{ maps: ApiMapListItem[] }` | One row per catalogue; `camps` is a **count**, not the array, to keep the payload small. |
 | `GET /api/creep-maps/<slug>` | `{ map: ApiMap }` | The full catalogue: `bounds` (playable rect), `terrainBounds`/`cameraBounds` (reference-only, see "The playable rectangle" above), `image`, `camps[]` (with `creeps[]`), `starts`, `mines`, `shops`, an absolute `minimapUrl`. 404 if the slug doesn't exist. |
 
@@ -424,10 +426,9 @@ set, not "everything the domain type has minus `description`": no
 since those are detail-only. `start` (an index into `map.starts` — which
 spawn is the route author's own base) is included but omitted from the
 JSON entirely when unset, the same as any other optional field with no
-value; JSON's own `undefined`-key-dropping does that for free. Every stop
-carries a `dayClock` string (computed from `time`, not stored) alongside
-the real-seconds `time`, so a consumer never has to import `clock.mjs`
-itself:
+value; JSON's own `undefined`-key-dropping does that for free. A stop has
+no time field (F007) — just `campId`, `action`, `units`, `note`,
+`condition`, in route order:
 
 ```json
 {
@@ -443,8 +444,8 @@ itself:
       "summary": "Shadow Hunter's Healing Wave keeps this cheap: four medium camps on Last Refuge before the push.",
       "author": "Gym coaches",
       "stops": [
-        { "campId": "c01", "time": 15, "dayClock": "12:45" },
-        { "campId": "c02", "time": 80, "dayClock": "16:00", "condition": "Skip if the Undead scouted this side" }
+        { "campId": "c01" },
+        { "campId": "c02", "condition": "Skip if the Undead scouted this side" }
       ],
       "featured": false,
       "publishedAt": "2026-09-14T10:00:00Z",
@@ -469,8 +470,8 @@ needs to compare against.
     "build": { "slug": "human-fast-expand-archmage-rifles", "title": "Archmage fast expand into Rifles" },
     "derived": {
       "stops": [
-        { "heroLevelAfter": 1, "xpAfter": 116, "isNight": false },
-        { "heroLevelAfter": 2, "xpAfter": 248, "isNight": false }
+        { "heroLevelAfter": 1, "xpAfter": 116 },
+        { "heroLevelAfter": 2, "xpAfter": 248 }
       ],
       "finalLevel": 3,
       "finalXp": 541
@@ -557,12 +558,11 @@ mission would likely want to pick it up:
   seam it would read from.
 - **Replay → route import.** `/api/replay-import` already turns a `.w3g`
   replay into a build-order draft; teaching it to also emit a creep-route
-  draft (camps cleared, in order, with real timestamps) would let a coach
-  generate a route from their own game instead of authoring one by hand.
-- **Merged build+route timeline.** A route's optional `build` link (and a
-  build's routes, via `getRoutesForBuild`) exist, but no page shows a
-  single interleaved timeline of build steps and camp clears — today
-  they're two separate step tables on two separate pages.
+  draft (camps cleared, in order) would let a coach generate a route from
+  their own game instead of authoring one by hand.
+- **Merged build+route view.** A route's optional `build` link (and a
+  build's routes, via `getRoutesForBuild`) exist, but no page shows the two
+  together — today they're two separate step tables on two separate pages.
 - **Current-revision map files.** The fixtures (and, once published, the
   Sanity documents) are built from the 2021–22 launcher bundle's map
   files, not necessarily this ladder season's exact revision — see "When

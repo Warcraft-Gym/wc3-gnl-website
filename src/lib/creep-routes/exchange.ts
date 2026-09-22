@@ -26,7 +26,6 @@ const unitSchema = z.object({
 const stopSchema = z.object({
   campId: z.string().nullable().default(null),
   action: z.string().optional(),
-  time: z.string(),
   units: z.array(unitSchema).optional(),
   note: z.string().optional(),
   condition: z.string().optional(),

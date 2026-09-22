@@ -46,9 +46,12 @@ function levelForXp(xp) {
 }
 
 /** Folds a hero through `camps` (each an array of creep levels, in camp
- * order) starting at `startLevel`, applying the *camp's* creep-xp factor —
- * fixed to the hero's level at the moment the camp is engaged — to every
- * creep in that camp, then re-levelling once the camp is cleared.
+ * order) starting at `startLevel`, applying `creepXpFactor` to every kill
+ * at the hero's *current* level — Blizzard's reduction factor applies per
+ * kill, not once per camp (`MiscGame.txt`'s `HeroFactorXP` is read at the
+ * moment of each kill; see docs/creep-routes.md's "XP model") — so the
+ * hero can level up mid-camp and the rest of that camp's kills already pay
+ * the new, lower factor.
  *
  * Returns `{ level, xp }` after each camp (`perCamp`) and overall.
  */
@@ -58,13 +61,13 @@ export function heroLevelAfter(camps, startLevel = 1) {
   const perCamp = [];
 
   for (const camp of camps) {
-    const factor = creepXpFactor(level);
     for (const creepLevel of camp) {
+      const factor = creepXpFactor(level);
       // Warcraft III awards whole XP: floor each creep's grant (not the
       // running total) — our modelling choice, see docs/creep-routes.md.
       xp += Math.floor(creepXp(creepLevel) * factor);
+      level = levelForXp(xp);
     }
-    level = levelForXp(xp);
     perCamp.push({ level, xp });
   }
 

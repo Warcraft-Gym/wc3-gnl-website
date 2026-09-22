@@ -1,4 +1,3 @@
-import { Moon } from "lucide-react";
 import type { RouteLevel } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 
@@ -42,19 +41,6 @@ export function LevelBadge({ level }: { level: RouteLevel }) {
       )}
     >
       {level}
-    </span>
-  );
-}
-
-/** Night marker: a moon glyph with a real label, never a `title`-only cue. */
-export function NightMark({ className }: { className?: string }) {
-  return (
-    <span
-      title="Night"
-      aria-label="Night"
-      className={cn("inline-flex items-center text-arcane", className)}
-    >
-      <Moon size={11} />
     </span>
   );
 }

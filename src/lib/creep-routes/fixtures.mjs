@@ -11,8 +11,9 @@
  * `northern-isles` was (F006 found it on disk but unwired).
  *
  * Routes: seed routes for local dev and as the fallback when Sanity has
- * none. Times are real seconds; camp ids are real camp ids taken from the
- * matching map's catalogue (never invented). Authors "Gym coaches".
+ * none. No time dimension — a route is an ordered list of stops, nothing
+ * more; camp ids are real camp ids taken from the matching map's catalogue
+ * (never invented). Authors "Gym coaches".
  */
 // Static JSON module imports (Node 22 + Turbopack both understand `with {
 // type: "json" }` natively) rather than a runtime `readFileSync` of a
@@ -90,10 +91,10 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-08-22T10:00:00Z",
     updatedAt: "2026-09-12T10:00:00Z",
     stops: [
-      { campId: "c09", time: 15, units: [{ icon: "hu-archmage", count: 1 }], note: "Scout in with the Archmage alone" },
-      { campId: "c19", time: 75, note: "Second camp, keep Water Elemental topped up" },
-      { campId: "c03", time: 140, note: "Bring 2 Footmen for this one" },
-      { campId: "c05", time: 205, note: "Last camp before the expansion goes down" },
+      { campId: "c09", units: [{ icon: "hu-archmage", count: 1 }], note: "Scout in with the Archmage alone" },
+      { campId: "c19", note: "Second camp, keep Water Elemental topped up" },
+      { campId: "c03", note: "Bring 2 Footmen for this one" },
+      { campId: "c05", note: "Last camp before the expansion goes down" },
     ],
   },
   {
@@ -113,10 +114,10 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-08-29T10:00:00Z",
     updatedAt: "2026-08-29T10:00:00Z",
     stops: [
-      { campId: "c10", time: 15, note: "Wolves tank, Far Seer stays back" },
-      { campId: "c20", time: 70, condition: "Only if both wolves are still alive" },
-      { campId: "c04", time: 135, units: [{ icon: "or-grunt", count: 2 }] },
-      { campId: "c06", time: 230, note: "Re-summon wolves before this one if they died" },
+      { campId: "c10", note: "Wolves tank, Far Seer stays back" },
+      { campId: "c20", condition: "Only if both wolves are still alive" },
+      { campId: "c04", units: [{ icon: "or-grunt", count: 2 }] },
+      { campId: "c06", note: "Re-summon wolves before this one if they died" },
     ],
   },
   {
@@ -135,10 +136,10 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-09-03T10:00:00Z",
     updatedAt: "2026-09-03T10:00:00Z",
     stops: [
-      { campId: "c08", time: 15, note: "Easy camp, safe to solo" },
-      { campId: null, time: 60, action: "TP home", note: "Buy the Ring of Protection off the Wisp's stock" },
-      { campId: "c12", time: 120, note: "Second easy camp" },
-      { campId: "c05", time: 185, note: "Step up once both easy camps are clear" },
+      { campId: "c08", note: "Easy camp, safe to solo" },
+      { campId: null, action: "TP home", note: "Buy the Ring of Protection off the Wisp's stock" },
+      { campId: "c12", note: "Second easy camp" },
+      { campId: "c05", note: "Step up once both easy camps are clear" },
     ],
   },
   {
@@ -158,10 +159,10 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-09-09T10:00:00Z",
     updatedAt: "2026-09-09T10:00:00Z",
     stops: [
-      { campId: "c13", time: 15, units: [{ icon: "ud-ghoul", count: 3 }] },
-      { campId: "c07", time: 80, note: "Death Coil the caster first" },
-      { campId: "c17", time: 150 },
-      { campId: "c11", time: 220, note: "Last one before Crypt Fiends come out" },
+      { campId: "c13", units: [{ icon: "ud-ghoul", count: 3 }] },
+      { campId: "c07", note: "Death Coil the caster first" },
+      { campId: "c17" },
+      { campId: "c11", note: "Last one before Crypt Fiends come out" },
     ],
   },
   {
@@ -180,10 +181,10 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-09-14T10:00:00Z",
     updatedAt: "2026-09-14T10:00:00Z",
     stops: [
-      { campId: "c01", time: 15 },
-      { campId: "c02", time: 80, condition: "Skip if the Undead scouted this side" },
-      { campId: "c05", time: 145 },
-      { campId: "c16", time: 210, note: "Home to Watch Tower after this one" },
+      { campId: "c01" },
+      { campId: "c02", condition: "Skip if the Undead scouted this side" },
+      { campId: "c05" },
+      { campId: "c16", note: "Home to Watch Tower after this one" },
     ],
   },
 ];

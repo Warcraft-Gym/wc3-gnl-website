@@ -18,12 +18,12 @@ import { BUILD_RACES, type BuildRace, type BuildVsRace } from "@/lib/builds/type
 export const metadata: Metadata = {
   title: "Warcraft III creep routes",
   description:
-    "Warcraft III creep routes for every race and map: which camps to clear, in what order, with a play-along day clock. Written by Gym coaches and the community.",
+    "Warcraft III creep routes for every race and map: which camps to clear, and in what order. Written by Gym coaches and the community.",
   // Filters live in the query string; the list is one page to search engines.
   alternates: { canonical: "/learn/creep-routes" },
   openGraph: {
     title: "Warcraft III creep routes · Warcraft 3 Gym",
-    description: "Creep routes for every race and map, with a play-along clock. Submit your own.",
+    description: "Creep routes for every race and map. Submit your own.",
     images: [{ url: "/graphics/creep-routes-1.webp", width: 1600, height: 900 }],
   },
 };
@@ -72,7 +72,7 @@ export default async function CreepRoutesPage({
         kicker="Learn"
         title="Warcraft III creep routes"
         art={category ? learnArt(category) : null}
-        lead="Which camps to clear, in what order, with a play-along day clock. Pick a race and a map, or search for a route."
+        lead="Which camps to clear, and in what order. Pick a race and a map, or search for a route."
       />
 
       <Container className="py-10">
