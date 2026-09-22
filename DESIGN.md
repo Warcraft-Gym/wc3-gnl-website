@@ -23,6 +23,8 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 | Ladder band: the race rows and the MMR chart | `src/components/league/MmrChart.tsx` |
 | Race MMR chips | `src/components/league/RaceMmrChips.tsx` |
 | Meter (one bar with a figure) | `src/components/ui/Meter.tsx` |
+| A fixture from one team's side | `src/components/league/TeamFixtureRow.tsx` |
+| Country flag | `src/components/ui/Flag.tsx`, SVGs in `public/flags` |
 
 `pnpm test` runs the three test files with the test runner of Node.
 
@@ -46,6 +48,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 - `win` and `loss` are the only result colours. A draw, an unplayed series and a neutral amount use a text token.
 - A result seen from one side, such as a player page or a team page, puts that side's score first and draws the score in `win` or `loss`. The order of the score is the second channel beside the colour. The `title` and the `aria-label` read "Won 2 : 1" or "Lost 1 : 2", from `resultLabel()`.
 - A result seen from no side, such as the schedule or a fixture card, draws the winner's score in `gold` and the other score in a quiet text token. It uses no `win` and no `loss`, because no reader is the subject.
+- The team page is a side. Its fixtures list the opponent, the team's own points first in `win` or `loss`, and the series won and lost inside the fixture as a record under a "Series" head. The same fixture on the schedule is neutral. The team page's headline tiles are Standing, Fixtures (W – D – L), Series (the record of every series of the season) and Avg MMR, the same figures as the team card, and the roster carries each player's series record and MMR under column heads.
 - A loss never wears a warning icon and never the words "You lost". An alert icon is for a fault or a call to action.
 - A rate is not a result. A win rate prints in a text token at every value. It does not turn `win` above 50% and `loss` under it.
 - A signed change keeps its sign: "+24", "−18". The sign is the second channel beside the colour.

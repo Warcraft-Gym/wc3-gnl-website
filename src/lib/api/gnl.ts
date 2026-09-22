@@ -226,7 +226,13 @@ export async function getTeamPage(
         .filter(({ raw, teams }) =>
           teams.some((t) => slugify(t.long_name || t.name) === slug && teamInSeason(t, raw.id)),
         )
-        .sort((a, b) => b.raw.id - a.raw.id);
+        // Newest season first, by start date then number: event ids are not
+        // in season order (older seasons were entered later).
+        .sort(
+          (a, b) =>
+            (Date.parse(b.raw.start_date ?? "") || 0) - (Date.parse(a.raw.start_date ?? "") || 0) ||
+            mapSeason(b.raw).number - mapSeason(a.raw).number,
+        );
       if (!played.length) return null;
       const seasons = played.map(({ raw }) => mapSeason(raw));
       const pick = seasonNumber != null ? seasons.findIndex((s) => s.number === seasonNumber) : 0;
