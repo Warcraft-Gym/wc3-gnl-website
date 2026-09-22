@@ -7,6 +7,14 @@ series, player statistics and fantasy. This Next.js app is the public content
 face. It keeps a small adaptation layer between the backend payloads and the UI
 domain types, so page components do not depend on database-shaped field names.
 
+This document covers that GNL/FastAPI data flow specifically. The site's
+other data sources — Sanity-backed guides, build orders, and creep
+routes/maps (each with a bundled-fixture fallback and a public JSON API) —
+are documented in [`docs/content.md`](content.md),
+[`docs/build-orders.md`](build-orders.md) and
+[`docs/creep-routes.md`](creep-routes.md); see also the README's own
+"Architecture" section for the one-page overview of every source.
+
 ## Data flow
 
 Next.js Server Components fetch league data server-side. If

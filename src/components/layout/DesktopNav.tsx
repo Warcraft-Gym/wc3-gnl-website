@@ -18,8 +18,11 @@ export function DesktopNav() {
           !item.external &&
           (pathname === item.href ||
             (pathname.startsWith(item.href + "/") &&
-              // Builds lives under /learn but has its own nav item
-              !(item.href === "/learn" && pathname.startsWith("/learn/builds"))) ||
+              // Builds and creep routes live under /learn but have their own nav items
+              !(
+                item.href === "/learn" &&
+                (pathname.startsWith("/learn/builds") || pathname.startsWith("/learn/creep-routes"))
+              )) ||
             (item.label === "League" && pathname.startsWith("/gnl")));
 
         // Plain sans links like the official nav; the active one carries a

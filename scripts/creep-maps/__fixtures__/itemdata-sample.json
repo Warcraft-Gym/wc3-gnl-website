@@ -1,0 +1,554 @@
+{
+  "rows": [
+    {
+      "itemID": "fgdg",
+      "class": "Charged",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "infs",
+      "class": "Charged",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "shar",
+      "class": "Charged",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "sand",
+      "class": "Charged",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "sres",
+      "class": "Charged",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "wild",
+      "class": "Charged",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "srrc",
+      "class": "Charged",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "odef",
+      "class": "Permanent",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rde3",
+      "class": "Permanent",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pmna",
+      "class": "Permanent",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rhth",
+      "class": "Permanent",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "ssil",
+      "class": "Permanent",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "spsh",
+      "class": "Permanent",
+      "Level": "6",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "ankh",
+      "class": "Charged",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pdiv",
+      "class": "Charged",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pres",
+      "class": "Charged",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "whwd",
+      "class": "Charged",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "hcun",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "hval",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "mcou",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "belv",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "bgst",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "ciri",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "ajen",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "clfm",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "ratc",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "ward",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "kpin",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "crys",
+      "class": "Permanent",
+      "Level": "5",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "totw",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "fgfh",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "fgrd",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "fgrg",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "fgsk",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "wcyc",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "hlst",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "mnst",
+      "class": "Charged",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "lhst",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "afac",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "lgdh",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "sbch",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "brac",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rwiz",
+      "class": "Permanent",
+      "Level": "4",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pghe",
+      "class": "Charged",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pgma",
+      "class": "Charged",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pnvu",
+      "class": "Charged",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "sror",
+      "class": "Charged",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "woms",
+      "class": "Charged",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rej3",
+      "class": "Charged",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "evtl",
+      "class": "Permanent",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "penr",
+      "class": "Permanent",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "prvt",
+      "class": "Permanent",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rat9",
+      "class": "Permanent",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rde2",
+      "class": "Permanent",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rlif",
+      "class": "Permanent",
+      "Level": "3",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "will",
+      "class": "Charged",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "wlsd",
+      "class": "Charged",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "wswd",
+      "class": "Charged",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "cnob",
+      "class": "Permanent",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "gcel",
+      "class": "Permanent",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rat6",
+      "class": "Permanent",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rde1",
+      "class": "Permanent",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "bspd",
+      "class": "Permanent",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tdx2",
+      "class": "PowerUp",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "texp",
+      "class": "PowerUp",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tin2",
+      "class": "PowerUp",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tpow",
+      "class": "PowerUp",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tst2",
+      "class": "PowerUp",
+      "Level": "2",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "clsd",
+      "class": "Permanent",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rag1",
+      "class": "Permanent",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rin1",
+      "class": "Permanent",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "rst1",
+      "class": "Permanent",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "manh",
+      "class": "PowerUp",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tdex",
+      "class": "PowerUp",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tint",
+      "class": "PowerUp",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "tstr",
+      "class": "PowerUp",
+      "Level": "1",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "pomn",
+      "class": "Charged",
+      "Level": "0",
+      "pickRandom": "1"
+    },
+    {
+      "itemID": "wshs",
+      "class": "Charged",
+      "Level": "0",
+      "pickRandom": "1"
+    }
+  ],
+  "icons": {
+    "fgdg": "BTNDoomGuard",
+    "infs": "BTNInfernalStone",
+    "shar": "BTNIceShard",
+    "sand": "BTNSnazzyScrollPurple",
+    "sres": "BTNScrollOfHealing",
+    "wild": "BTNAmuletOftheWild",
+    "srrc": "BTNSnazzyScroll",
+    "odef": "BTNOrbOfDarkness",
+    "rde3": "BTNRingGreen",
+    "pmna": "BTNPendantOfMana",
+    "rhth": "BTNPeriapt1",
+    "ssil": "BTNStaffOfSilence",
+    "spsh": "BTNSpellShieldAmulet",
+    "ankh": "BTNAnkh",
+    "pdiv": "BTNPotionOfDivinity",
+    "pres": "BTNPotionOfRestoration",
+    "whwd": "BTNHealingWard",
+    "hcun": "BTNHoodOfCunning",
+    "hval": "BTNHelmOfValor",
+    "mcou": "BTNMedalionOfCourage",
+    "belv": "BTNBoots",
+    "bgst": "BTNBelt",
+    "ciri": "BTNRobeOfTheMagi",
+    "ajen": "BTNJanggo",
+    "clfm": "BTNCloakOfFlames",
+    "ratc": "BTNClawsOfAttack",
+    "ward": "BTNDrum",
+    "kpin": "BTNPipeOfInsight",
+    "crys": "BTNCrystalBall",
+    "totw": "BTNStone",
+    "fgfh": "BTNFelHound",
+    "fgrd": "BTNRedDragon",
+    "fgrg": "BTNRockGolem",
+    "fgsk": "BTNBookOfTheDead",
+    "wcyc": "BTNWandOfCyclone",
+    "hlst": "BTNHealthStone",
+    "mnst": "BTNManaStone",
+    "lhst": "BTNLionHorn",
+    "afac": "BTNAlleriaFlute",
+    "lgdh": "BTNHornOfDoom",
+    "sbch": "BTNBoneChimes",
+    "brac": "BTNRunedBracers",
+    "rwiz": "BTNSobiMask",
+    "pghe": "BTNPotionGreen",
+    "pgma": "BTNPotionBlueBig",
+    "pnvu": "BTNGreaterInvulneralbility",
+    "sror": "BTNSnazzyScrollGreen",
+    "woms": "BTNWandOfManaSteal",
+    "rej3": "BTNRejuvPotion",
+    "evtl": "BTNTalisman",
+    "penr": "BTNPendantOfEnergy",
+    "prvt": "BTNPeriapt",
+    "rat9": "BTNClawsOfAttack",
+    "rde2": "BTNRingGreen",
+    "rlif": "BTNRingSkull",
+    "will": "BTNWand",
+    "wlsd": "BTNStarWand",
+    "wswd": "BTNSentryWard",
+    "cnob": "BTNCirclet",
+    "gcel": "BTNGlove",
+    "rat6": "BTNClawsOfAttack",
+    "rde1": "BTNRingGreen",
+    "bspd": "BTNBootsOfSpeed",
+    "tdx2": "BTNTome",
+    "texp": "BTNTomeBrown",
+    "tin2": "BTNTome",
+    "tpow": "BTNTomeRed",
+    "tst2": "BTNTome",
+    "clsd": "BTNCloak",
+    "rag1": "BTNSlippersOfAgility",
+    "rin1": "BTNMantleOfIntelligence",
+    "rst1": "BTNGauntletsOfOgrePower",
+    "manh": "BTNManual",
+    "tdex": "BTNTome",
+    "tint": "BTNTome",
+    "tstr": "BTNTome",
+    "pomn": "BTNPotionOfOmniscience",
+    "wshs": "BTNWandOfShadowSight",
+    "rnsp": "BTNGoldRing",
+    "ram4": "BTNRingJadeFalcon"
+  }
+}

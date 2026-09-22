@@ -2,9 +2,10 @@ import type { MetadataRoute } from "next";
 import { LEARN_CATEGORIES } from "@/lib/learn/data";
 import { getGuides } from "@/lib/learn/guides";
 import { getBuilds } from "@/lib/builds/builds";
+import { getCreepRoutes } from "@/lib/creep-routes/routes";
 import { getPosts } from "@/lib/content";
 import { getPlayers, getTeams, getWeeks } from "@/lib/api/gnl";
-import { GNL_LADDER_LIVE, OVERLAY_BETA_LIVE } from "@/lib/flags";
+import { CREEP_ROUTES_LIVE, GNL_LADDER_LIVE, OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { absoluteUrl } from "@/lib/site";
 
 export const revalidate = 3600;
@@ -32,9 +33,10 @@ async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const [guides, builds, { posts }, { teams }, { players }, { weeks }] = await Promise.all([
+  const [guides, builds, routes, { posts }, { teams }, { players }, { weeks }] = await Promise.all([
     safe(getGuides(), []),
     safe(getBuilds(), []),
+    safe(CREEP_ROUTES_LIVE ? getCreepRoutes() : Promise.resolve([]), []),
     safe(getPosts(), { posts: [], source: "fixture" as const }),
     safe(getTeams(), { teams: [], source: "fixture" as const }),
     safe(getPlayers(), { players: [], source: "fixture" as const }),
@@ -64,6 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...LEARN_CATEGORIES.map((c) => page(`/learn/${c.id}`, 0.8, "weekly")),
     ...guides.map((g) => page(`/learn/guide/${g.slug}`, 0.7, "monthly", g.publishedAt)),
     ...builds.map((b) => page(`/learn/builds/${b.slug}`, 0.7, "monthly", b.updatedAt)),
+    ...routes.map((r) => page(`/learn/creep-routes/${r.slug}`, 0.7, "monthly", r.updatedAt)),
     ...posts.map((p) => page(`/blog/${p.slug}`, 0.6, "monthly", p.publishedAt)),
     ...teams.map((t) => page(`/gnl/teams/${t.slug}`, 0.5, "weekly")),
     // One URL per player: the profile carries every season they played.

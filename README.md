@@ -38,11 +38,15 @@ for ESLint.
 | `/learn/guide/<slug>` | A guide, with its play-along build order when one was transcribed from it | Sanity `guide` + `buildOrder` |
 | `/learn/builds`, `/learn/builds/<slug>` | Build orders with filters, a step table and a play-along clock | Sanity `buildOrder` |
 | `/learn/builds/submit` | Public submission form, fillable from a replay, a W3Champions match or the overlay's export; submissions land in the Studio as pending drafts | server action, write token |
+| `/learn/creep-routes`, `/learn/creep-routes/<slug>` | Creep routes with filters, a clickable map and an ordered stop table (no timings) | Sanity `creepRoute` + `creepMap`, fixture fallback |
+| `/learn/creep-routes/submit` | Public click-to-author route editor; submissions land in the Studio as pending drafts | server action, write token |
 | `/blog`, `/blog/<slug>` | News | Sanity `post` |
 | `/gnl/*` | Schedule, standings, teams, players, ladder, fantasy, rules, about | FastAPI |
 | `/about` | About the Gym | code |
 | `/tools`, `/tools/overlay` | Community tools (editor-managed) and the Gym's overlay | Sanity `tool` + code |
 | `/api/builds`, `/api/builds/<slug>` | Public JSON API for the overlay and anyone else | Sanity |
+| `/api/creep-routes`, `/api/creep-routes/<slug>` | Public JSON API for creep routes (filterable by `race`/`vs`/`map`/`level`) | Sanity `creepRoute`, fixture fallback |
+| `/api/creep-maps`, `/api/creep-maps/<slug>` | Public JSON API for creep-map catalogues | Sanity `creepMap`, fixture fallback |
 | `/api/replay-import` | Turns a `.w3g` replay or a W3Champions match into build drafts for the submit form | overlay's parser, server-side |
 | `/studio` | Sanity Studio for editors | Sanity |
 
@@ -53,10 +57,11 @@ The Player Dashboard button links to the separate dashboard app
 
 ```text
 Vercel (this app, Next.js)
-├─ Learn, builds, news   ──  Sanity (Studio embedded at /studio)
-├─ GNL pages             ──  FastAPI backend (server-side, optional bearer)
-├─ /api/builds           ──  public JSON for the desktop overlay
-└─ Fixtures              ──  used whenever a source is unconfigured or fails
+├─ Learn, builds, creep routes, news   ──  Sanity (Studio embedded at /studio)
+├─ GNL pages                           ──  FastAPI backend (server-side, optional bearer)
+├─ /api/builds, /api/creep-routes,
+│  /api/creep-maps                     ──  public JSON for the desktop overlay and others
+└─ Fixtures                            ──  used whenever a source is unconfigured or fails
 ```
 
 - **League data seam:** every GNL read goes through `src/lib/api/gnl.ts`,
@@ -69,6 +74,9 @@ Vercel (this app, Next.js)
 - **Build orders:** submission flow, review in the Studio, the icon set, the
   JSON API and the transcription scripts. See
   [`docs/build-orders.md`](docs/build-orders.md).
+- **Creep routes:** the map-catalogue script, the XP model, the
+  click-to-author submission flow, and the JSON API. See
+  [`docs/creep-routes.md`](docs/creep-routes.md).
 - **SEO:** `src/lib/site.ts` is the canonical origin; `robots.ts`,
   `sitemap.ts`, per-page canonicals, OpenGraph/Twitter images and JSON-LD
   (`Organization`, `WebSite`, `Article`, `HowTo`, `BreadcrumbList`) live in
@@ -83,7 +91,7 @@ Vercel (this app, Next.js)
 | `GNL_API_BASE_URL` | FastAPI base URL. Empty means fixtures. |
 | `GNL_SERVICE_TOKEN` | Read-scoped JWT, server-side only. |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity read access. Defaults are baked in so the Studio always loads. |
-| `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts. |
+| `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts (build orders and creep routes both reuse this one token — no separate creep-routes credential). |
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
 | `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Otherwise the origin is the project's production host on Vercel (`VERCEL_PROJECT_PRODUCTION_URL`, the custom domain once one is attached), falling back to `https://warcraft3.gym`. Share cards and canonicals use it, so it must be a host that answers. |
 
@@ -105,7 +113,7 @@ other tracking.
 src/
 ├── app/
 │   ├── (site)/            # public routes: learn, blog, gnl, about, tools
-│   ├── api/               # builds JSON API, revalidate webhook
+│   ├── api/               # builds/creep-routes/creep-maps JSON APIs, revalidate webhook
 │   ├── studio/            # embedded Sanity Studio
 │   ├── layout.tsx         # fonts, metadata defaults, sitewide JSON-LD
 │   ├── robots.ts · sitemap.ts · manifest.ts · opengraph-image.jpg
@@ -114,18 +122,27 @@ src/
 │   ├── ui/                # Button, PageHeader, KeyArt, Container, badges
 │   ├── layout/            # header, nav, footer, wordmark
 │   ├── home/              # homepage sections
-│   ├── learn/ builds/ blog/ league/   # per-area components
+│   ├── learn/ builds/ blog/ league/ creep-routes/   # per-area components
 │   ├── sanity/            # Portable Text renderer
 │   └── seo/               # JsonLd
 ├── lib/
 │   ├── api/               # FastAPI client, mappers, fixtures, gnl.ts (seam)
 │   ├── learn/ builds/ content/        # data access with fixture fallbacks
+│   ├── creep-routes/      # map catalogue types, XP/route derivation,
+│   │                       # fixtures, submission schema, JSON API serializers
 │   ├── site.ts · seo.ts · flags.ts · links.ts · tools.ts · overlay.ts
 │   └── discord.ts         # live member counts from the invite API
 └── sanity/                # schema types, desk structure, env, image builder
-scripts/                   # WordPress migrations and build-order transcription
+scripts/
+├── creep-maps/            # .w3x/.w3m → map catalogue + minimap PNG (build.mjs),
+│                           # creep table (creep-table.mjs), Sanity publish (publish.mjs)
+└── ...                    # WordPress migrations and build-order transcription
 apps/overlay/              # the desktop overlay (separate workspace package)
-public/                    # key art, faction crests, classic WC3 icons, logos, country flags (flag-icons, MIT)
+public/
+├── maps/                  # generated creep-map minimap PNGs (see scripts/creep-maps/)
+├── map-icons/             # gold-mine + neutral-building icons, via Liquipedia (see docs/creep-routes.md)
+├── wc3-icons/             # creep/item button icons, via Liquipedia (creeps/, items/ — see docs/creep-routes.md)
+└── ...                    # key art, faction crests, classic WC3 icons, logos, country flags (flag-icons, MIT)
 ```
 
 ## Desktop overlay

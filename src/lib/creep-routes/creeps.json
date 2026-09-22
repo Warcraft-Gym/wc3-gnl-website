@@ -1,0 +1,674 @@
+{
+  "nanb": {
+    "name": "Barbed Arachnathid",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNArachnathid"
+  },
+  "nanc": {
+    "name": "Crystal Arachnathid",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNArachnathidGreen"
+  },
+  "nano": {
+    "name": "Overlord Arachnathid",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNArachnathidpurple"
+  },
+  "nanw": {
+    "name": "Warrior Arachnathid",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNArachnathidGreen"
+  },
+  "nass": {
+    "name": "Assassin",
+    "level": 4,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBanditSpearThrower"
+  },
+  "nban": {
+    "name": "Bandit",
+    "level": 1,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBandit"
+  },
+  "nbrg": {
+    "name": "Brigand",
+    "level": 2,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBanditSpearThrower"
+  },
+  "nele": {
+    "name": "Enraged Elemental",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSummonWaterElemental"
+  },
+  "nenf": {
+    "name": "Enforcer",
+    "level": 5,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBandit"
+  },
+  "nfpl": {
+    "name": "Polar Furbolg",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNPolarFurbolg"
+  },
+  "nfps": {
+    "name": "Polar Furbolg Shaman",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNPolarFurbolgShaman"
+  },
+  "nfpt": {
+    "name": "Polar Furbolg Tracker",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNPolarFurbolgTracker"
+  },
+  "nfrb": {
+    "name": "Furbolg Tracker",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFurbolgTracker"
+  },
+  "nfrl": {
+    "name": "Furbolg",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFurbolg"
+  },
+  "nfrp": {
+    "name": "Pandaren",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFurbolgPanda"
+  },
+  "nfrs": {
+    "name": "Furbolg Shaman",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFurbolgShaman"
+  },
+  "nfsh": {
+    "name": "Forest Troll High Priest",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNForestTrollShadowPriest"
+  },
+  "nfsp": {
+    "name": "Forest Troll Shadow Priest",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNForestTrollShadowPriest"
+  },
+  "nftb": {
+    "name": "Forest Troll Berserker",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNForestTroll"
+  },
+  "nftk": {
+    "name": "Forest Troll Warlord",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNForestTroll"
+  },
+  "nftr": {
+    "name": "Forest Troll",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNForestTroll"
+  },
+  "nftt": {
+    "name": "Forest Troll Trapper",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNForestTrollTrapper"
+  },
+  "nggm": {
+    "name": "Granite Golem",
+    "level": 9,
+    "sleeps": false,
+    "icon": "BTNRockGolem",
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/zhCN-1.32.8/mpq/Units/unitbalance.slk"
+  },
+  "nggr": {
+    "name": "Granite Golem",
+    "level": 9,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRockGolem"
+  },
+  "ngna": {
+    "name": "Gnoll Poacher",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGnollArcher"
+  },
+  "ngnb": {
+    "name": "Gnoll Brute",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGnoll"
+  },
+  "ngno": {
+    "name": "Gnoll",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGnoll"
+  },
+  "ngns": {
+    "name": "Gnoll Assassin",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGnollArcher"
+  },
+  "ngnv": {
+    "name": "Gnoll Overseer",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGnollKing"
+  },
+  "ngnw": {
+    "name": "Gnoll Warden",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGnollWarden"
+  },
+  "ngrk": {
+    "name": "Mud Golem",
+    "level": 2,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRockGolem"
+  },
+  "ngst": {
+    "name": "Rock Golem",
+    "level": 6,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRockGolem"
+  },
+  "nhyh": {
+    "name": "Hydra Hatchling",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNGreenHydra"
+  },
+  "nith": {
+    "name": "Ice Troll High Priest",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNIceTrollShaman"
+  },
+  "nitp": {
+    "name": "Ice Troll Priest",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNIceTrollShadowPriest"
+  },
+  "nitr": {
+    "name": "Ice Troll",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNIceTroll"
+  },
+  "nits": {
+    "name": "Ice Troll Berserker",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNIceTrollBeserker"
+  },
+  "nitt": {
+    "name": "Ice Troll Trapper",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNICeTroll"
+  },
+  "nitw": {
+    "name": "Ice Troll Warlord",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNICeTroll"
+  },
+  "nkob": {
+    "name": "Kobold",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNKobold"
+  },
+  "nkog": {
+    "name": "Kobold Geomancer",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNKoboldGeomancer"
+  },
+  "nkol": {
+    "name": "Kobold Taskmaster",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNKobold"
+  },
+  "nkot": {
+    "name": "Kobold Tunneler",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNKobold"
+  },
+  "nlsn": {
+    "name": "Makrura Snapper",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNLobstrokkRed"
+  },
+  "nltc": {
+    "name": "Makrura Tidecaller",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNLobstrokkGreen"
+  },
+  "nmam": {
+    "name": "Mammoth",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMammoth"
+  },
+  "nmbg": {
+    "name": "Mur'gul Blood-Gill",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurgulBloodGill"
+  },
+  "nmfs": {
+    "name": "Murloc Flesheater",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurlocFlesheater"
+  },
+  "nmgr": {
+    "name": "Magnataur Reaver",
+    "level": 8,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMagnataurBrown"
+  },
+  "nmrl": {
+    "name": "Murloc Tiderunner",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurloc"
+  },
+  "nmrm": {
+    "name": "Murloc Nightcrawler",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurlocNightCrawler"
+  },
+  "nmrr": {
+    "name": "Murloc Huntsman",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurloc"
+  },
+  "nmrv": {
+    "name": "Mur'gul Marauder",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurgulBloodGill"
+  },
+  "nmsn": {
+    "name": "Mur'gul Snarecaster",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurgulShadowCaster"
+  },
+  "nmtw": {
+    "name": "Mur'gul Tidewarrior",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNMurgulTideWarrior"
+  },
+  "nnwl": {
+    "name": "Nerubian Webspinner",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNNerubianQueen"
+  },
+  "nogl": {
+    "name": "Ogre Lord",
+    "level": 7,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOgreLord"
+  },
+  "nogm": {
+    "name": "Ogre Mauler",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOgre"
+  },
+  "nogr": {
+    "name": "Ogre Warrior",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOgre"
+  },
+  "nomg": {
+    "name": "Ogre Magi",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOgreMagi"
+  },
+  "nowe": {
+    "name": "Enraged Wildkin",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOwlBear"
+  },
+  "nplb": {
+    "name": "Polar Bear",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFrostBear"
+  },
+  "nplg": {
+    "name": "Giant Polar Bear",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFrostBear"
+  },
+  "nrdk": {
+    "name": "Red Dragon Whelp",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRedDragon"
+  },
+  "nrel": {
+    "name": "Reef Elemental",
+    "level": 2,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaElemental"
+  },
+  "nrog": {
+    "name": "Rogue",
+    "level": 3,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBandit"
+  },
+  "nsc3": {
+    "name": "Spider Crab Behemoth",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSpiderCrab"
+  },
+  "nscb": {
+    "name": "Spider Crab Shorecrawler",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSpiderCrab"
+  },
+  "nsgh": {
+    "name": "Sea Giant Hunter",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaGiantGreen"
+  },
+  "nsgn": {
+    "name": "Sea Giant",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaGiant"
+  },
+  "nska": {
+    "name": "Skeleton Archer",
+    "level": 1,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSkeletonArcher"
+  },
+  "nskg": {
+    "name": "Giant Skeleton Warrior",
+    "level": 3,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSkeletonWarrior"
+  },
+  "nsko": {
+    "name": "Skeletal Orc",
+    "level": 3,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSkeletalOrc"
+  },
+  "nslf": {
+    "name": "Sludge Flinger",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSludgeCreature"
+  },
+  "nspb": {
+    "name": "Black Spider",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSpiderBlack"
+  },
+  "nsqt": {
+    "name": "Sasquatch",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSasquatch"
+  },
+  "nsra": {
+    "name": "Stormreaver Apprentice",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOrcWarlock"
+  },
+  "nsrh": {
+    "name": "Stormreaver Hermit",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNOrcWarlock"
+  },
+  "ntka": {
+    "name": "Tuskarr Spearman",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTuskaarGold"
+  },
+  "ntkf": {
+    "name": "Tuskarr Fighter",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTuskaarBrown"
+  },
+  "ntks": {
+    "name": "Tuskarr Sorcerer",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTuskaarBrown"
+  },
+  "ntkt": {
+    "name": "Tuskarr Trapper",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTuskaarGold"
+  },
+  "ntkw": {
+    "name": "Tuskarr Warrior",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTuskaarBrown"
+  },
+  "ntrg": {
+    "name": "Gargantuan Sea Turtle",
+    "level": 7,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaTurtleGreen"
+  },
+  "ntrh": {
+    "name": "Sea Turtle Hatchling",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaTurtleGreen"
+  },
+  "ntrs": {
+    "name": "Sea Turtle",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaTurtleGreen"
+  },
+  "ntrt": {
+    "name": "Giant Sea Turtle",
+    "level": 4,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaTurtleGreen"
+  },
+  "nvdw": {
+    "name": "Voidwalker",
+    "level": 3,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNVoidWalker"
+  },
+  "nwiz": {
+    "name": "Apprentice Wizard",
+    "level": 1,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBanditMage"
+  },
+  "nwlt": {
+    "name": "Timber Wolf",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTimberWolf"
+  },
+  "nwns": {
+    "name": "Wendigo Shaman",
+    "level": 7,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNWendigo"
+  },
+  "nwwd": {
+    "name": "Dire Frost Wolf",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTimberWolf"
+  },
+  "nwwf": {
+    "name": "Frost Wolf",
+    "level": 2,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNTimberWolf"
+  },
+  "nwzd": {
+    "name": "Dark Wizard",
+    "level": 8,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBanditMage"
+  },
+  "nwzg": {
+    "name": "Renegade Wizard",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBanditMage"
+  },
+  "nwzr": {
+    "name": "Rogue Wizard",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNBanditMage"
+  }
+}

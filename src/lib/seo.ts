@@ -137,7 +137,11 @@ export function itemListJsonLd(items: { name: string; path: string }[]) {
   };
 }
 
-/** A build order is a HowTo: ordered steps with a position and text. */
+/** A build order (or a creep route) is a HowTo: ordered steps with a
+ *  position and text. `name` is computed from `time`/`supply` (a build's
+ *  own step markers) unless the caller supplies its own `name` directly
+ *  (a creep route has no time dimension — its steps name the camp/action
+ *  instead, see `RouteStop`). */
 export function howToJsonLd(b: {
   path: string;
   title: string;
@@ -145,7 +149,7 @@ export function howToJsonLd(b: {
   author: string;
   publishedAt: string;
   modifiedAt: string;
-  steps: { instruction: string; supply?: number; time?: string }[];
+  steps: { instruction: string; supply?: number; time?: string; name?: string }[];
 }) {
   return {
     "@context": "https://schema.org",
@@ -162,7 +166,9 @@ export function howToJsonLd(b: {
     step: b.steps.map((s, i) => ({
       "@type": "HowToStep",
       position: i + 1,
-      name: [s.time, s.supply != null ? `${s.supply} food` : null].filter(Boolean).join(", ") || `Step ${i + 1}`,
+      name:
+        s.name ??
+        ([s.time, s.supply != null ? `${s.supply} food` : null].filter(Boolean).join(", ") || `Step ${i + 1}`),
       text: s.instruction,
     })),
   };

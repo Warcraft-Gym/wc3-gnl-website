@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { GameIcon } from "./GameIcon";
-import { ALL_ICONS, getGameIcon, type IconRace } from "@/lib/builds/icons";
+import { ALL_ICONS, getGameIcon, type IconKind, type IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
 const TABS: { id: IconRace | "all"; label: string }[] = [
@@ -42,10 +42,15 @@ export function IconPicker({
   value,
   onChange,
   race,
+  kind,
 }: {
   value: string;
   onChange: (key: string) => void;
   race?: IconRace;
+  /** Restricts the grid (and search) to one icon kind, e.g. "hero" for the
+   *  creep-route editor's hero field. Unset shows every kind, builds' own
+   *  usage. */
+  kind?: IconKind;
 }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<IconRace | "all">(race ?? "all");
@@ -81,18 +86,22 @@ export function IconPicker({
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
+    // `kind` narrows the whole picker to one kind, e.g. "hero" for the
+    // creep-route editor's hero field. Heroes only exist in the curated
+    // set, so filtering the full library costs nothing and keeps one pool.
+    const pool = kind ? ALL_ICONS.filter((i) => i.kind === kind) : ALL_ICONS;
     // A search looks across every race, with the names that open with the
     // words typed first, so "storm" finds Storm Bolt before Stormhammers.
     if (needle) {
-      return ALL_ICONS.filter((i) => i.title.toLowerCase().includes(needle)).sort((a, b) => {
+      return pool.filter((i) => i.title.toLowerCase().includes(needle)).sort((a, b) => {
         const rank = (t: string) => (t.toLowerCase().startsWith(needle) ? 0 : 1);
         return rank(a.title) - rank(b.title) || a.title.length - b.title.length;
       });
     }
     // Browsing keeps the curated order, so the units and buildings a build
     // asks for most sit above the rest of the art.
-    return ALL_ICONS.filter((i) => tab === "all" || i.race === tab);
-  }, [tab, q]);
+    return pool.filter((i) => tab === "all" || i.race === tab);
+  }, [tab, q, kind]);
 
   const current = getGameIcon(value);
 
@@ -116,6 +125,9 @@ export function IconPicker({
           "bg-surface/60",
         )}
       >
+        {kind === "hero" ? (
+          <span className="text-[0.6rem] font-bold uppercase tracking-wider text-faint">Hero</span>
+        ) : null}
         {current ? (
           <GameIcon iconKey={value} size={30} />
         ) : (

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -18,7 +18,12 @@ import { ButtonLink } from "@/components/ui/Button";
 type Params = { params: Promise<{ category: string }> };
 
 export function generateStaticParams() {
-  return LEARN_CATEGORIES.map((c) => ({ category: c.id }));
+  // "creep-routes" now has its own top-level section
+  // (src/app/(site)/learn/creep-routes/page.tsx), which the App Router
+  // already routes to ahead of this dynamic segment for an exact
+  // /learn/creep-routes request; excluded here too so this page is never
+  // built for a path it only redirects away from.
+  return LEARN_CATEGORIES.filter((c) => c.id !== "creep-routes").map((c) => ({ category: c.id }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -36,6 +41,12 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 
 export default async function LearnCategoryPage({ params }: Params) {
   const { category } = await params;
+  // The old image-based creep-routes category page is retired: the section
+  // now lives at /learn/creep-routes (its own list with real filters). The
+  // App Router already resolves an exact /learn/creep-routes request to
+  // that static route ahead of this dynamic one; this redirect is belt and
+  // suspenders for anything that reaches this handler with that param.
+  if (category === "creep-routes") redirect("/learn/creep-routes");
   const cat = getCategory(category);
   if (!cat) notFound();
 

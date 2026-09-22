@@ -1,0 +1,107 @@
+{
+ "source": "Liquipedia <Map>/Preview via api.php action=parse (6 maps, 2026-09-22). Per pool: the icon list as rendered, segment cut at the next pool label or the next 'Creep Spot' block; the modal list across all occurrences (see confidence) \u2014 an earlier harvest was contaminated by the following camp's creep icons and by a fixed-length cap.",
+ "confidence": {
+  "Power Up|1": "47 of 50 occurrences",
+  "Permanent|2": "24 of 24 occurrences",
+  "Permanent|1": "20 of 20 occurrences",
+  "Charged|2": "5 of 5 occurrences",
+  "Charged|3": "15 of 15 occurrences",
+  "Power Up|2": "29 of 30 occurrences",
+  "Permanent|3": "17 of 20 occurrences",
+  "Charged|4": "2 of 3 occurrences",
+  "Permanent|4": "17 of 17 occurrences",
+  "Permanent|5": "9 of 10 occurrences",
+  "Permanent|6": "8 of 8 occurrences",
+  "Charged|5": "4 of 4 occurrences"
+ },
+ "pools": {
+  "Power Up|1": [
+   "BTNManual",
+   "BTNTome"
+  ],
+  "Permanent|2": [
+   "BTNClawsOfAttack",
+   "BTNGlove",
+   "BTNRingGreen"
+  ],
+  "Permanent|1": [
+   "BTNCloak",
+   "BTNGauntletsOfOgrePower",
+   "BTNMantleOfIntelligence",
+   "BTNRingGold",
+   "BTNSlippersOfAgility"
+  ],
+  "Charged|2": [
+   "BTNCrystalBall",
+   "BTNRejuvPotion",
+   "BTNSentryWard",
+   "BTNWand"
+  ],
+  "Charged|3": [
+   "BTNPotionGreen",
+   "BTNPotionBlueBig",
+   "BTNGreaterInvulneralbility",
+   "BTNSnazzyScrollGreen",
+   "BTNWandOfManaSteal"
+  ],
+  "Power Up|2": [
+   "BTNTome",
+   "BTNTomeRed"
+  ],
+  "Permanent|3": [
+   "BTNCirclet",
+   "BTNClawsOfAttack",
+   "BTNPendantOfEnergy",
+   "BTNPeriapt",
+   "BTNRingGreen",
+   "BTNRingSkull",
+   "BTNTalisman"
+  ],
+  "Charged|4": [
+   "BTNAnkh",
+   "BTNBookOfTheDead",
+   "BTNHealingWard",
+   "BTNHealthStone",
+   "BTNManaStone",
+   "BTNWandOfCyclone"
+  ],
+  "Permanent|4": [
+   "BTNAlleriaFlute",
+   "BTNBelt",
+   "BTNBoots",
+   "BTNRingOfTheArchmagi",
+   "BTNRobeOfTheMagi",
+   "BTNRunedBracers",
+   "BTNBoneChimes",
+   "BTNSobiMask",
+   "BTNLionHorn"
+  ],
+  "Permanent|5": [
+   "BTNJanggo",
+   "BTNClawsOfAttack",
+   "BTNCloakOfFlames",
+   "BTNHelmOfValor",
+   "BTNHoodOfCunning",
+   "BTNPipeOfInsight",
+   "BTNHornOfDoom",
+   "BTNMedalionOfCourage",
+   "BTNDrum"
+  ],
+  "Permanent|6": [
+   "BTNSpellShieldAmulet",
+   "BTNPeriapt1",
+   "BTNOrbOfDarkness",
+   "BTNPendantOfMana",
+   "BTNStaffOfSilence"
+  ],
+  "Charged|5": [
+   "BTNAzureDragon",
+   "BTNFurbolgTracker",
+   "BTNPotionOfDivinity",
+   "BTNPotionOfRestoration",
+   "BTNScrollOfHealing",
+   "BTNFelHound",
+   "BTNRockGolem"
+  ]
+ }
+}
