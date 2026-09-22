@@ -161,17 +161,17 @@ export default async function CreepRoutesPage({
             routes span several maps, without hiding a map filter's own
             single-map heading behind a redundant per-group one. */}
         {routes.length && activeMap ? (
-          <h2 className="mt-6 flex items-center gap-2.5 font-display text-sm font-bold uppercase tracking-[0.06em] text-fg">
+          <h2 className="mt-6 flex items-center gap-3 font-display text-[1.4rem] font-bold uppercase tracking-[0.04em] text-fg">
             {activeMap.minimapUrl ? (
               <Image
                 src={activeMap.minimapUrl}
                 alt=""
-                width={28}
-                height={28}
-                className="size-7 shrink-0 rounded object-cover ring-1 ring-line/60"
+                width={56}
+                height={56}
+                className="size-14 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40"
               />
             ) : null}
-            Routes on {activeMap.name} <span className="tnum font-normal normal-case text-faint">· {routes.length}</span>
+            Routes on {activeMap.name} <span className="tnum text-base font-normal normal-case text-faint">· {routes.length}</span>
           </h2>
         ) : null}
         {routes.length ? (
@@ -185,17 +185,17 @@ export default async function CreepRoutesPage({
             <div className="mt-6 space-y-8">
               {groupRoutesByMap(routes).map((group) => (
                 <section key={group.map.slug}>
-                  <h2 className="mb-3 flex items-center gap-2.5 font-display text-sm font-bold uppercase tracking-[0.06em] text-fg">
+                  <h2 className="mb-3 flex items-center gap-3 font-display text-[1.4rem] font-bold uppercase tracking-[0.04em] text-fg">
                     {group.map.minimapUrl ? (
                       <Image
                         src={group.map.minimapUrl}
                         alt=""
-                        width={28}
-                        height={28}
-                        className="size-7 shrink-0 rounded object-cover ring-1 ring-line/60"
+                        width={56}
+                        height={56}
+                        className="size-14 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40"
                       />
                     ) : null}
-                    {group.map.name} <span className="tnum font-normal normal-case text-faint">· {group.routes.length}</span>
+                    {group.map.name} <span className="tnum text-base font-normal normal-case text-faint">· {group.routes.length}</span>
                   </h2>
                   <ul className="grid gap-2.5">
                     {group.routes.map((r) => (

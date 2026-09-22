@@ -115,30 +115,26 @@ export default async function CreepRoutePage({ params }: Params) {
         />
         <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <RouteBackLink />
-          <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Matchup race={route.race} vsRaces={route.vsRaces} size={22} />
-            <LevelBadge level={route.level} />
-            {route.patch ? (
-              <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {route.patch}</span>
-            ) : null}
-          </div>
-          {/* The map, as prominent as the matchup line above (F009-followup-2,
-              user request: "the map name should be much more prominent since
-              it's an important value") — a kicker above the title, not a
-              muted meta line below it. Carries the old "written for v2.0"
-              line (now "map v2.0", matching the list row's own wording) and
-              the mapVersion-mismatch warning, both moved up from the meta
-              line that used to sit under the summary. */}
-          <div className="mt-4 flex items-center gap-2.5">
+          {/* The map is the primary fact on this page, ranked above the race
+              (F009-followup-3, user request: "the map icons are more
+              important than the race for creep routes") — a full block
+              above the matchup line, not a kicker sharing its rank. 96px,
+              the display font at ~1.6rem, a dark square behind
+              `object-contain` so a letterboxed minimap shows in full
+              (item 6). Carries "map v2.0" and the mapVersion-mismatch
+              warning, both still muted, secondary text under the name.
+              Stacks (thumbnail above name) below `sm` so the block never
+              gets cramped on a narrow screen. */}
+          <div className="mt-5 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
             <Image
               src={map.minimapUrl}
               alt=""
-              width={40}
-              height={40}
-              className="size-10 shrink-0 rounded object-cover ring-1 ring-line/60"
+              width={96}
+              height={96}
+              className="size-24 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40"
             />
-            <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-              <span className="font-display text-[1.05rem] font-bold uppercase tracking-[0.05em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.8)]">
+            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+              <span className="font-display text-[1.6rem] font-bold uppercase tracking-[0.04em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.8)]">
                 {route.map.name}
               </span>
               {map.mapVersion ? <span className="text-xs text-faint">map v{map.mapVersion}</span> : null}
@@ -148,6 +144,15 @@ export default async function CreepRoutePage({ params }: Params) {
                 </span>
               ) : null}
             </div>
+          </div>
+          {/* The race/vs matchup line, now secondary — below the map block
+              (F009-followup-3; it used to lead the header). */}
+          <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            <Matchup race={route.race} vsRaces={route.vsRaces} size={22} />
+            <LevelBadge level={route.level} />
+            {route.patch ? (
+              <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {route.patch}</span>
+            ) : null}
           </div>
           <h1 className="mt-3 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
             {route.title}

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { RaceCrestRow, RaceCrestMultiRow, type CrestOption } from "@/components/builds/RaceCrestPicker";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
@@ -59,6 +60,7 @@ export function RouteSetup({
   errors: Record<string, string>;
 }) {
   const iconRace = (race && race !== "any" ? race : undefined) as IconRace | undefined;
+  const selectedMap = maps.find((m) => m.slug === mapSlug);
 
   return (
     // `.panel`'s `backdrop-filter` makes this section its own stacking
@@ -76,19 +78,35 @@ export function RouteSetup({
       <div className="grid gap-6 sm:grid-cols-2">
         <div>
           <label className={label} htmlFor="route-map">Map</label>
-          <select
-            id="route-map"
-            aria-label="Map"
-            value={mapSlug}
-            onChange={(e) => onMapChange(e.target.value)}
-            className={cn(select, "mt-1.5 w-full")}
-          >
-            {maps.map((m) => (
-              <option key={m.slug} value={m.slug}>
-                {m.name}
-              </option>
-            ))}
-          </select>
+          {/* A 56px live thumbnail beside the select so choosing a map
+           *  feels primary, matching the map-first rank the rest of the
+           *  editor and the read-only route surfaces now give it
+           *  (F009-followup-3, item 4) — updates with `mapSlug` on every
+           *  change, no extra fetch (`maps` already carries `minimapUrl`). */}
+          <div className="mt-1.5 flex items-center gap-3">
+            {selectedMap ? (
+              <Image
+                src={selectedMap.minimapUrl}
+                alt=""
+                width={56}
+                height={56}
+                className="size-14 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40"
+              />
+            ) : null}
+            <select
+              id="route-map"
+              aria-label="Map"
+              value={mapSlug}
+              onChange={(e) => onMapChange(e.target.value)}
+              className={cn(select, "w-full")}
+            >
+              {maps.map((m) => (
+                <option key={m.slug} value={m.slug}>
+                  {m.name}
+                </option>
+              ))}
+            </select>
+          </div>
           {errors.map ? <p className="mt-1 text-xs text-loss">{errors.map}</p> : null}
         </div>
         <div>

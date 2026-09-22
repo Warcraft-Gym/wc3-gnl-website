@@ -265,19 +265,19 @@ export function RouteSubmitForm({
         />
 
         <section className="panel p-5 sm:p-7">
-          {/* The map is the second-level heading here too, updating live
-           *  with the map select in section 1 (F009-followup-2, item 4):
-           *  "2 · Stops on Autumn Leaves v2" instead of the old, map-less
-           *  "Stops — click camps on the map" — that instruction now lives
-           *  as a plain hint under the map itself (`RouteEditor`). */}
+          {/* The map is the primary fact here too, updating live with the
+           *  map select in section 1: "2 · Stops on Autumn Leaves v2".
+           *  Thumbnail grown from 22px to 40px (F009-followup-3, item 4) —
+           *  race crests elsewhere in the editor are unchanged, only the
+           *  map's own thumbnails grew. */}
           <SectionTitle n={2}>
-            <span className="inline-flex min-w-0 items-center gap-2">
+            <span className="inline-flex min-w-0 items-center gap-2.5">
               <Image
                 src={map.minimapUrl}
                 alt=""
-                width={22}
-                height={22}
-                className="size-[22px] shrink-0 rounded object-cover ring-1 ring-line/60"
+                width={40}
+                height={40}
+                className="size-10 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40"
               />
               <span className="truncate">Stops on {map.name}</span>
             </span>
