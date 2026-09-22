@@ -44,6 +44,15 @@ export type MapCamp = {
   drops: MapCampDrop[];
 };
 
+/** F012's camp card can be opened from either an HTML trigger (a table
+ *  row, a stop row's ⓘ button) or an SVG one (a map marker's `<g>`) —
+ *  both implement the DOM's `HTMLOrSVGElement` mixin (`.focus()`), which
+ *  is what the card's opener needs to return focus on close. Shared here
+ *  so every layer of the open-card callback chain (`CampMarker` ->
+ *  `CreepMap` -> the page -> `CampCard`, and `RouteStepTable`/`StopRow` ->
+ *  the page) agrees on one type instead of each narrowing differently. */
+export type CampCardTrigger = HTMLElement | SVGElement;
+
 export type MapStart = { player: number; x: number; y: number; worldX: number; worldY: number };
 export type MapMine = { x: number; y: number; worldX: number; worldY: number; gold: number };
 export type MapShop = { id: string; x: number; y: number };

@@ -47,3 +47,50 @@ export function conditionLabel(text) {
   if (!value) return value;
   return CONDITION_PREFIX_RE.test(value) ? value : `If ${value}`;
 }
+
+/** Band word for the camp card's title (F012), mirroring `BAND_LABEL` in
+ *  `RouteBadges.tsx` — duplicated here rather than imported, so this stays
+ *  a plain, bundler-free `.mjs` module `node --test` can load directly
+ *  with no loader; the same three words already exist twice for the same
+ *  reason (`BAND_MAX_LEVEL` in `scripts/creep-maps/camps.mjs` and
+ *  `BAND_LABEL` in `RouteBadges.tsx`). */
+const CARD_BAND_WORD = { easy: "Easy", medium: "Medium", hard: "Hard" };
+
+/** "Medium Creep Spot [16]" — the camp card's title (F012), mirroring
+ *  Liquipedia's own preview-box heading: the band word (capitalised) +
+ *  "Creep Spot" + the camp's summed level in brackets. An unknown/missing
+ *  band reads "Creep Spot [N]" alone rather than inventing a band word. */
+export function campSpotTitle(camp) {
+  const word = CARD_BAND_WORD[camp?.band];
+  const level = camp?.level ?? 0;
+  return `${word ? `${word} ` : ""}Creep Spot [${level}]`;
+}
+
+/** Reader-facing spacing for a random-pool drop's `class` (F011's
+ *  `classifyItemId` in `scripts/creep-maps/drops.mjs` keeps
+ *  `CLASS_BY_LETTER`'s names as-is, e.g. "PowerUp" with no space) —
+ *  matches Liquipedia's own "Power Up" wording. */
+const DROP_CLASS_DISPLAY = {
+  Permanent: "Permanent",
+  Charged: "Charged",
+  PowerUp: "Power Up",
+  Artifact: "Artifact",
+  Purchasable: "Purchasable",
+  Campaign: "Campaign",
+  Miscellaneous: "Miscellaneous",
+  Any: "Any",
+};
+
+/** "Level 3, Permanent" for a random-pool drop set (`kind: "class"`), or
+ *  the concrete item's own name for a single fixed drop (`kind: "item"`,
+ *  e.g. "Crown of Kings +5") — the camp card's Items section row label
+ *  (F012), mirroring Liquipedia's own wording. Falls back to "Item" for a
+ *  concrete drop whose `items[]` failed to resolve (an empty `items[]` is
+ *  a real, if rare, catalogue shape — see `MapCampDrop`'s doc comment). */
+export function dropSetLabel(drop) {
+  if (!drop) return "";
+  if (drop.kind === "class") {
+    return `Level ${drop.level}, ${DROP_CLASS_DISPLAY[drop.class] ?? drop.class}`;
+  }
+  return drop.items?.[0]?.name ?? "Item";
+}

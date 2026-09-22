@@ -1,5 +1,5 @@
 import { memo } from "react";
-import type { MapCamp } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
 import { BAND_TOKEN } from "./RouteBadges";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -43,6 +43,7 @@ export const CampMarker = memo(function CampMarker({
   pressed,
   onCampSelect,
   asGroup,
+  onCampCardOpen,
 }: {
   camp: MapCamp;
   imageWidth: number;
@@ -56,6 +57,16 @@ export const CampMarker = memo(function CampMarker({
   /** See the component doc comment: renders the `<g>` itself as the click
    *  target instead of adding a nested `<button>`. */
   asGroup?: boolean;
+  /** Opens the F012 camp card for this marker. Wired two different ways
+   *  depending on `asGroup`: on the read-only route page (`asGroup`), a
+   *  plain click already selects the row *and* opens the card — there's no
+   *  competing "click" meaning to protect. In the editor (not `asGroup`), a
+   *  left click still only adds/removes a stop (`onCampSelect`) — changing
+   *  that would silently break the click-to-author flow — so the card
+   *  opens on right-click (`onContextMenu`) instead; see `CreepMap`'s doc
+   *  comment and DESIGN.md §Creep routes for the "say which" note the F012
+   *  spec asked for. */
+  onCampCardOpen?: (campId: string, el: CampCardTrigger) => void;
 }) {
   const reduced = useReducedMotion();
   const cx = camp.x * imageWidth;
@@ -124,11 +135,15 @@ export const CampMarker = memo(function CampMarker({
         tabIndex={0}
         aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
         aria-pressed={pressed ?? false}
-        onClick={() => onCampSelect(camp.id)}
+        onClick={(e) => {
+          onCampSelect(camp.id);
+          onCampCardOpen?.(camp.id, e.currentTarget);
+        }}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
             e.preventDefault();
             onCampSelect(camp.id);
+            onCampCardOpen?.(camp.id, e.currentTarget);
           }
         }}
         className="cursor-pointer [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
@@ -140,7 +155,9 @@ export const CampMarker = memo(function CampMarker({
 
   if (onCampSelect) {
     // A real interactive element for the editor to hook into, sized to the
-    // marker's (unscaled) bounding box.
+    // marker's (unscaled) bounding box. Left click still only toggles the
+    // stop (unchanged) — a right click opens the camp card instead, so the
+    // click-to-author flow never gains a second meaning for its one click.
     const size = (r + 4) * 2;
     return (
       <g data-camp={camp.id}>
@@ -150,6 +167,11 @@ export const CampMarker = memo(function CampMarker({
             type="button"
             data-camp={camp.id}
             onClick={() => onCampSelect(camp.id)}
+            onContextMenu={(e) => {
+              if (!onCampCardOpen) return;
+              e.preventDefault();
+              onCampCardOpen(camp.id, e.currentTarget);
+            }}
             aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
             aria-pressed={pressed ?? false}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}

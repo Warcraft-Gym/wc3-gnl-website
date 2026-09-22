@@ -1,10 +1,10 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
-import type { MapCamp } from "@/lib/creep-routes/types";
-import { campLabel, campComposition } from "@/lib/creep-routes/camp-label.mjs";
+import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
+import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { BandDot } from "./RouteBadges";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +63,7 @@ export function StopRow({
   canMoveUp,
   canMoveDown,
   removeButtonRef,
+  onOpenCard,
 }: {
   index: number;
   stop: StopRowData;
@@ -79,6 +80,10 @@ export function StopRow({
   /** Lets `StopEditor` refocus this exact button after a *different* row
    *  is removed (F009, code-b.md item 4) — see its own doc comment. */
   removeButtonRef?: (el: HTMLButtonElement | null) => void;
+  /** Opens the F012 camp card for this stop's camp — the ⓘ button that
+   *  replaced the composition line (`campComposition`, F009). Only shown
+   *  when `camp` resolved. */
+  onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
 }) {
   function addUnit() {
     if (stop.units.length >= 6) return;
@@ -101,8 +106,18 @@ export function StopRow({
           {stop.campId ? (
             <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">
               {camp ? <BandDot band={camp.band} /> : null}
-              <span className="font-bold text-fg">{camp ? campLabel(camp) : stop.campId}</span>
-              {camp ? <span className="truncate text-xs text-faint">{campComposition(camp)}</span> : null}
+              <span className="truncate font-bold text-fg">{camp ? campLabel(camp) : stop.campId}</span>
+              {camp ? (
+                <button
+                  type="button"
+                  onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
+                  aria-label={`What's in ${campLabel(camp)}`}
+                  title="What's in this camp"
+                  className="ml-auto grid size-6 shrink-0 place-items-center rounded text-faint hover:text-gold"
+                >
+                  <Info size={14} />
+                </button>
+              ) : null}
             </div>
           ) : (
             <>

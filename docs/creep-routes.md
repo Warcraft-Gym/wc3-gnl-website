@@ -644,14 +644,33 @@ routes" section for the camp band colours and mark shapes this page and
 its components follow.
 
 `CreepMap`'s props (`map`, `route?`, `activeStop?`, `onCampSelect?`,
-`highlightCamps?`, `className?`) are deliberately reusable beyond this
-page: `onCampSelect` is unused here but renders camps as real `<button>`s
-(via `foreignObject`) instead of plain `<g>`s when given, wired up by the
-editor below (`RouteSubmitForm`); `highlightCamps` was left ready for a
-list/filter page to dim or ring a subset of camps, but F004's list
-(`/learn/creep-routes`) ended up not using it — no per-row map thumbnail,
-see `DESIGN.md`'s "List" section — so it remains unused until a future
-map-first view wants it.
+`highlightCamps?`, `onCampCardOpen?`, `className?`) are deliberately
+reusable beyond this page: `onCampSelect` is unused here but renders camps
+as real `<button>`s (via `foreignObject`) instead of plain `<g>`s when
+given, wired up by the editor below (`RouteSubmitForm`); `highlightCamps`
+was left ready for a list/filter page to dim or ring a subset of camps,
+but F004's list (`/learn/creep-routes`) ended up not using it — no per-row
+map thumbnail, see `DESIGN.md`'s "List" section — so it remains unused
+until a future map-first view wants it. `onCampCardOpen` (F012) is the
+route page's own wiring for the camp card below — `CreepMap` resolves the
+campId `CampMarker` reports into the full `MapCamp` before calling it
+(`campById`, already built for `onCampSelect`), so every caller gets a
+ready-to-render camp, not a second lookup.
+
+**The camp card (F012).** `CampCard` (`src/components/creep-routes/CampCard.tsx`)
+is a portal-rendered (`createPortal(…, document.body)`) dialog, so it's
+never clipped by an ancestor's `overflow-hidden`/`overflow-x-auto` (the
+map's own card, the step table's scroll wrapper) — every trigger just
+hands it a `MapCamp` and the DOM element that opened it
+(`CampCardTrigger = HTMLElement | SVGElement`, `src/lib/creep-routes/types.ts`,
+since a map marker's trigger is an SVG `<g>` and a table row's is an HTML
+`<tr>`). `CreepMapPlayground` (this page) and `RouteSubmitForm` (the
+editor, below) each own one small piece of state — `{ camp, trigger } |
+null` — so there's exactly one card open at a time regardless of which
+side opened it, and each remembers the trigger to refocus on close. See
+`DESIGN.md`'s "Creep routes → The camp card" for the full anatomy
+(Creeps table, Items section, the single-drop-pool caveat on the Item
+marker column) and the popover/bottom-sheet responsive split.
 
 ## Submission
 
@@ -689,6 +708,16 @@ sees; this section is the mechanics.
   removes the existing one if it is; a prefilled/imported route with a
   repeated `campId` (older data, the schema allows it) is still accepted
   as-is, only the click path enforces the rule.
+- **The camp card in the editor (F012).** Left-click on a map marker is
+  already spoken for (`onCampSelect`, above), so previewing a camp's
+  contents there is a **right-click** (`onContextMenu`, `e.preventDefault()`
+  so the browser's own context menu never appears) instead — see
+  `CampMarker`'s doc comment. Every stop row also carries an ⓘ button
+  (`StopRow`, replacing the old `campComposition` summary line) that opens
+  the same card without needing the map at all. Both call `onOpenCard`,
+  threaded `RouteSubmitForm` → `RouteEditor` → (`CreepMap`'s
+  `onCampCardOpen` / `StopEditor` → `StopRow`'s `onOpenCard`) — one state,
+  one card, regardless of which of the two triggers opened it.
 - **`src/lib/creep-routes/submission.mjs` + `submission.ts`.** Same split
   as `fixtures.mjs`/`fixtures.ts`: the `.mjs` file is the pure, plain-JS
   implementation `submission.test.mjs` checks directly with `node --test`

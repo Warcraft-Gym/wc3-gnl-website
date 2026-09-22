@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { CreepMap as CreepMapType, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker, radiusFor } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
 import { CampDetails } from "./CampDetails";
@@ -27,6 +27,14 @@ export type CreepMapProps = {
    *  stop) and leaves this unset. Unset/omitted means "every camp". */
   interactiveCampIds?: Set<string>;
   highlightCamps?: Set<string>;
+  /** Opens the F012 camp card for the given camp (already resolved from
+   *  `map.camps`, so the caller never has to look it up again) and the DOM
+   *  element that triggered it, for anchoring/focus-return. Only reaches a
+   *  given marker when that marker is itself interactive (`isInteractive`
+   *  below) — a marker that isn't clickable at all doesn't get a card
+   *  either. See `CampMarker`'s doc comment for how the route page (click)
+   *  and the editor (right-click) each wire this differently. */
+  onCampCardOpen?: (camp: MapCamp, el: CampCardTrigger) => void;
   className?: string;
 };
 
@@ -128,7 +136,7 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
  * `CampMarker`'s own `React.memo` the moment any one camp is hovered — see
  * the F009 review, code-b.md item 3.
  */
-export function CreepMap({ map, route, activeStop = null, onCampSelect, interactiveCampIds, highlightCamps, className }: CreepMapProps) {
+export function CreepMap({ map, route, activeStop = null, onCampSelect, interactiveCampIds, highlightCamps, onCampCardOpen, className }: CreepMapProps) {
   const [width, setWidth] = useState(0);
   const [hoverCamp, setHoverCamp] = useState<string | null>(null);
   const [walkIndex, setWalkIndex] = useState<number | null>(null);
@@ -214,6 +222,18 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
     [onCampSelect],
   );
 
+  // Resolves the campId `CampMarker` reports into the full `MapCamp`
+  // `CampCard` needs — every caller of this component already has
+  // `campById` computed for `onCampSelect` too, but doing it once here
+  // saves every single caller from repeating the same lookup.
+  const handleCampCardOpen = useCallback(
+    (campId: string, el: CampCardTrigger) => {
+      const camp = campById.get(campId);
+      if (camp) onCampCardOpen?.(camp, el);
+    },
+    [campById, onCampCardOpen],
+  );
+
   const youStartIndex = route?.start ?? 0;
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
@@ -264,6 +284,7 @@ export function CreepMap({ map, route, activeStop = null, onCampSelect, interact
                 highlighted={highlightCamps?.has(camp.id) ?? false}
                 pressed={stopIndex !== -1}
                 onCampSelect={isInteractive ? handleCampClick : undefined}
+                onCampCardOpen={isInteractive ? handleCampCardOpen : undefined}
                 asGroup={Boolean(interactiveCampIds)}
               />
             );

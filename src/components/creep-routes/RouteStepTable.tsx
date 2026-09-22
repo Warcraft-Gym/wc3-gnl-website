@@ -1,9 +1,10 @@
 "use client";
 
 import { useMemo, useRef, useState } from "react";
+import { ChevronRight } from "lucide-react";
 import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
-import { campLabel, campComposition, conditionLabel } from "@/lib/creep-routes/camp-label.mjs";
-import type { CreepMap, CreepRoute } from "@/lib/creep-routes/types";
+import { campLabel, conditionLabel } from "@/lib/creep-routes/camp-label.mjs";
+import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BandDot } from "./RouteBadges";
 import { cn } from "@/lib/utils";
@@ -34,12 +35,19 @@ import { cn } from "@/lib/utils";
  *
  * Every row carries `data-stop`, the map's numbered badges carry
  * `data-stop-marker` instead, so the two never double-count.
+ *
+ * F012: the same row click/Enter that toggles `active` above also opens
+ * the camp card (`onOpenCard`), purely additive — the selection toggle
+ * itself is unchanged ("existing selection stays" per the spec). The Camp
+ * cell lost its composition line ("1× X · 1× Y…") in the same feature —
+ * that's now in the card the row opens, not duplicated here.
  */
 export function RouteStepTable({
   route,
   map,
   active = null,
   onActiveChange,
+  onOpenCard,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -47,6 +55,13 @@ export function RouteStepTable({
    *  (`CreepMapPlayground`) so the map and the table always agree. */
   active?: number | null;
   onActiveChange?: (index: number | null) => void;
+  /** Opens the F012 camp card for a camp stop's camp — the existing
+   *  select/toggle above is untouched (`onActiveChange`, "existing
+   *  selection stays" per the spec); this is purely additive, called
+   *  alongside it on every row click/Enter so the same click both selects
+   *  the row (as before) and opens the card. Undefined for a base-action
+   *  row (no camp to show). */
+  onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
 }) {
   const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -106,7 +121,10 @@ export function RouteStepTable({
                   tabIndex={0}
                   onMouseEnter={() => setHoverIndex(i)}
                   onMouseLeave={() => setHoverIndex((h) => (h === i ? null : h))}
-                  onClick={() => onActiveChange?.(active === i ? null : i)}
+                  onClick={(e) => {
+                    onActiveChange?.(active === i ? null : i);
+                    if (d.camp) onOpenCard?.(d.camp, e.currentTarget);
+                  }}
                   onKeyDown={(e) => {
                     // A `<tr>` isn't a native button, so Enter/Space needs
                     // an explicit handler — same toggle as a click, so
@@ -115,6 +133,7 @@ export function RouteStepTable({
                     if (e.key === "Enter" || e.key === " ") {
                       e.preventDefault();
                       onActiveChange?.(active === i ? null : i);
+                      if (d.camp) onOpenCard?.(d.camp, e.currentTarget);
                     }
                   }}
                   aria-current={isActive ? "step" : undefined}
@@ -132,14 +151,19 @@ export function RouteStepTable({
                   </td>
                   <td data-label="Camp" className="px-2 py-2.5">
                     {d.camp ? (
-                      <div className="min-w-0">
-                        <span className="inline-flex flex-wrap items-center gap-1.5">
-                          <BandDot band={d.band} />
-                          <span className="font-medium text-fg">{campLabel(d.camp)}</span>
-                          <span className="tnum text-faint">Lv {d.camp.level}</span>
-                        </span>
-                        <p className="mt-0.5 line-clamp-2 text-xs text-faint">{campComposition(d.camp)}</p>
-                      </div>
+                      // F012: the composition line ("1× X · 1× Y…") is gone
+                      // — the same facts now live in the camp card this row
+                      // opens, one line here instead of two. The chevron is
+                      // a decorative "there's more" affordance only; the
+                      // whole row is the real click target (see `onClick`
+                      // above), matching the spec's "clicking the row (or
+                      // Enter) opens the CampCard" — not just the icon.
+                      <span className="inline-flex min-w-0 flex-wrap items-center gap-1.5">
+                        <BandDot band={d.band} />
+                        <span className="font-medium text-fg">{campLabel(d.camp)}</span>
+                        <span className="tnum text-faint">Lv {d.camp.level}</span>
+                        <ChevronRight aria-hidden size={12} className="shrink-0 text-faint" />
+                      </span>
                     ) : (
                       <span className="text-muted">{stop.action ?? "-"}</span>
                     )}

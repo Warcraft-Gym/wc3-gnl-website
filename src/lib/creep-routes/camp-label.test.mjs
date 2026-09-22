@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { campLabel, campComposition, conditionLabel } from "./camp-label.mjs";
+import { campLabel, campComposition, conditionLabel, campSpotTitle, dropSetLabel } from "./camp-label.mjs";
 import autumnLeaves from "./maps/autumn-leaves.json" with { type: "json" };
 
 // c09: Giant Skeleton Warrior (lvl 3), Sludge Flinger (lvl 3), Skeleton
@@ -84,4 +84,35 @@ test("conditionLabel: every recognised trigger word is left alone, case-insensit
 test("conditionLabel: empty/undefined condition is left as an empty string", () => {
   assert.equal(conditionLabel(""), "");
   assert.equal(conditionLabel(undefined), "");
+});
+
+test("campSpotTitle: band word (capitalised) + Creep Spot + summed level in brackets, Liquipedia's own wording", () => {
+  assert.equal(campSpotTitle({ band: "medium", level: 16 }), "Medium Creep Spot [16]");
+  assert.equal(campSpotTitle({ band: "easy", level: 9 }), "Easy Creep Spot [9]");
+  assert.equal(campSpotTitle({ band: "hard", level: 24 }), "Hard Creep Spot [24]");
+});
+
+test("campSpotTitle: an unknown/missing band never invents a band word", () => {
+  assert.equal(campSpotTitle({ band: undefined, level: 5 }), "Creep Spot [5]");
+  assert.equal(campSpotTitle({ level: 5 }), "Creep Spot [5]");
+});
+
+test("dropSetLabel: a random-pool drop set reads \"Level N, <Class>\", PowerUp spaced as Liquipedia writes it", () => {
+  assert.equal(dropSetLabel({ kind: "class", class: "Permanent", level: 3, chance: 100, items: [] }), "Level 3, Permanent");
+  assert.equal(dropSetLabel({ kind: "class", class: "PowerUp", level: 1, chance: 100, items: [] }), "Level 1, Power Up");
+});
+
+test("dropSetLabel: a concrete item drop reads the item's own name", () => {
+  assert.equal(
+    dropSetLabel({ kind: "item", id: "ckng", chance: 100, items: [{ id: "ckng", name: "Crown of Kings +5", icon: "BTNCrownOfKings" }] }),
+    "Crown of Kings +5",
+  );
+});
+
+test("dropSetLabel: a concrete item with no resolved items[] falls back to \"Item\", never throws", () => {
+  assert.equal(dropSetLabel({ kind: "item", id: "zzzz", chance: 100, items: [] }), "Item");
+});
+
+test("dropSetLabel: a missing drop is an empty string, not a throw", () => {
+  assert.equal(dropSetLabel(undefined), "");
 });

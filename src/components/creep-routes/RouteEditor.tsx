@@ -5,7 +5,7 @@ import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { StopEditor } from "./StopEditor";
 import type { StopRowData } from "./StopRow";
-import type { CreepMap as CreepMapType } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
@@ -26,6 +26,7 @@ export function RouteEditor({
   onStartChange,
   iconRace,
   fieldError,
+  onOpenCard,
 }: {
   map: CreepMapType;
   stops: StopRowData[];
@@ -38,6 +39,11 @@ export function RouteEditor({
   onStartChange: (start: number) => void;
   iconRace?: IconRace;
   fieldError?: (key: string) => string | undefined;
+  /** Opens the F012 camp card — forwarded to the map (right-click a
+   *  marker, `CampMarker`'s doc comment explains why not a left click
+   *  here) and to each stop row's ⓘ button (`StopRow`, a left click, no
+   *  competing meaning to protect there). */
+  onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
 }) {
   // What the map needs to draw the live path: campId, in order — order
   // alone drives the polyline and the numbered badges.
@@ -49,10 +55,11 @@ export function RouteEditor({
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
       <div className="lg:sticky lg:top-24">
-        <CreepMap map={map} route={routeForMap} onCampSelect={onCampSelect} />
+        <CreepMap map={map} route={routeForMap} onCampSelect={onCampSelect} onCampCardOpen={onOpenCard} />
         <MapLegend />
         <p className="mt-2 text-xs text-faint">
-          Click a camp to add it as the next stop; click it again to remove it.
+          Click a camp to add it as the next stop; click it again to remove it. Right-click a camp,
+          or the ⓘ on its stop row, to see what&apos;s inside.
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -78,7 +85,7 @@ export function RouteEditor({
           </div>
         ) : null}
       </div>
-      <StopEditor map={map} stops={stops} setStops={setStops} iconRace={iconRace} fieldError={fieldError} />
+      <StopEditor map={map} stops={stops} setStops={setStops} iconRace={iconRace} fieldError={fieldError} onOpenCard={onOpenCard} />
     </div>
   );
 }

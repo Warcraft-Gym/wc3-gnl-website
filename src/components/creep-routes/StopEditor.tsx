@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef } from "react";
 import { Plus } from "lucide-react";
 import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
-import type { CreepMap } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap, MapCamp } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { StopRow, type StopRowData } from "./StopRow";
 
@@ -19,12 +19,15 @@ export function StopEditor({
   setStops,
   iconRace,
   fieldError,
+  onOpenCard,
 }: {
   map: CreepMap;
   stops: StopRowData[];
   setStops: React.Dispatch<React.SetStateAction<StopRowData[]>>;
   iconRace?: IconRace;
   fieldError?: (key: string) => string | undefined;
+  /** Opens the F012 camp card from a stop row's ⓘ button — see `StopRow`. */
+  onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
 }) {
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
   const derived = useMemo(() => deriveRoute(toDerivable(stops), map), [stops, map]);
@@ -113,6 +116,7 @@ export function StopEditor({
                 if (el) removeButtonRefs.current.set(s.id, el);
                 else removeButtonRefs.current.delete(s.id);
               }}
+              onOpenCard={onOpenCard}
             />
           ))}
         </ol>
