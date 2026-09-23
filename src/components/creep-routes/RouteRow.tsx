@@ -7,6 +7,8 @@ import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { BUILD_RACES } from "@/lib/builds/types";
 import type { CreepRoute, RouteLevel } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
+import { GameIcon } from "@/components/builds/GameIcon";
+import { getGameIcon } from "@/lib/builds/icons";
 
 const RACE_LABEL = Object.fromEntries(BUILD_RACES.map((r) => [r.id, r.label]));
 
@@ -29,6 +31,10 @@ const ACCENT: Record<RouteLevel, string> = {
  *  family. Carries `data-route="<slug>"` for tests and the User-Testing
  *  Validator; exactly one per rendered route. */
 export function RouteRow({ route }: { route: CreepRoute }) {
+  // `undefined` when the route names no hero, or names an icon key the
+  // manifest does not know — the block is skipped rather than showing a chip
+  // with nothing in it.
+  const heroIcon = getGameIcon(route.hero);
   return (
     <li>
       <Link
@@ -48,7 +54,11 @@ export function RouteRow({ route }: { route: CreepRoute }) {
         {route.map.minimapUrl ? (
           <Image
             src={route.map.minimapUrl}
-            alt=""
+            // Named, not decorative: the map's name used to sit beside this
+            // as text, and with that line gone the thumbnail is the only
+            // thing carrying it. An empty alt here would drop the map from
+            // the row entirely for a screen reader.
+            alt={route.map.name}
             width={64}
             height={64}
             className="size-16 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40 transition-transform duration-[var(--wg-dur)] group-hover:scale-105"
@@ -61,13 +71,6 @@ export function RouteRow({ route }: { route: CreepRoute }) {
           <h3 className="text-[0.98rem] font-bold leading-snug tracking-[0.05em] text-fg transition-colors group-hover:text-gold max-sm:line-clamp-2 sm:truncate">
             {route.title}
           </h3>
-          {/* The map name, one line under the title, full text colour and
-           *  the display font — the thumbnail above already carries the
-           *  map's picture, so this line is text-only, no second small
-           *  icon (F009-followup-3). */}
-          <p className="mt-0.5 font-display text-[0.93rem] font-bold tracking-[0.03em] text-fg">
-            <span className="truncate">{route.map.name}</span>
-          </p>
           <p className="mt-0.5 text-sm text-muted max-sm:line-clamp-2 sm:line-clamp-1">{route.summary}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             {/* The race crest, demoted to a secondary mark next to the `vs`
@@ -84,6 +87,16 @@ export function RouteRow({ route }: { route: CreepRoute }) {
               <span className="text-faint">vs</span>
               <VsRaces vsRaces={route.vsRaces} size={16} />
             </span>
+            {/* The hero the route is built around, when it names one. Sits
+                with the matchup because that is the same kind of fact: what
+                you are playing, not what the route does. */}
+            {heroIcon ? (
+              <span className="inline-flex items-center gap-1.5" title={`Hero: ${heroIcon.title}`}>
+                <GameIcon iconKey={route.hero} size={24} className="rounded ring-1 ring-gold/30" />
+                <span className="sr-only">Hero: </span>
+                <span>{heroIcon.title}</span>
+              </span>
+            ) : null}
             {route.mapVersion ? (
               <>
                 <span className="text-faint">·</span>
