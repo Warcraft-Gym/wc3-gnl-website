@@ -273,42 +273,32 @@ export default async function CreepRoutePage({ params }: Params) {
           state so hovering/playing the table lights the same marker on
           the map. */}
       <Container className="py-10">
-        <CreepMapPlayground map={map} route={route} />
-      </Container>
-
-      {/* Discord panel, straight after the stops: the moment a reader has
-          just gone through the route is the moment they have a question
-          about it, and asking is the one thing this page cannot answer
-          itself. It was last on the page, below three sections a reader
-          with a question has no reason to scroll through.
-
-          Its own full-width `Container` so it stays a sibling band, but the
-          card keeps its `max-w-2xl` width and left-aligned position rather
-          than stretching edge to edge — it is a card, not a list section
-          with a heading like the ones below. */}
-      <Container className="pb-16">
-        {/* Mirrors `CreepMapPlayground`'s columns exactly — same template,
-            same gaps — with the left cell empty, so the card starts on the
-            same line as the step table above it instead of at the container
-            edge under the map. Below `lg` the playground is a single column
-            and so is this, so the card simply follows the stops. */}
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
-          <div className="hidden lg:block" aria-hidden />
-          <div className="panel flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
-            <div>
-              <p className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
-                Questions about this route?
-              </p>
-              <p className="mt-1 text-sm text-muted">
-                Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
-              </p>
+        {/* The Discord card rides in the stop table's own column. Asking a
+            question is what a reader wants *right after* reading the route,
+            and the map column is much taller than a short step table — put
+            below the grid, the card was pushed down by that whole height
+            difference. */}
+        <CreepMapPlayground
+          map={map}
+          route={route}
+          aside={
+            <div className="panel mt-6 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
+              <div>
+                <p className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+                  Questions about this route?
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
+                </p>
+              </div>
+              <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
+                <DiscordIcon size={17} /> Discuss on Discord
+              </ButtonLink>
             </div>
-            <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
-              <DiscordIcon size={17} /> Discuss on Discord
-            </ButtonLink>
-          </div>
-        </div>
+          }
+        />
       </Container>
+
 
       {/* "About this route" spans the full width, a sibling band of
           Companion build and "More creep routes" below rather than a narrow

@@ -37,7 +37,16 @@ import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/ty
  * every *other* camp's marker (`deemphasizeOffRoute`, see `CampMarker`'s
  * `secondary` prop).
  */
-export function CreepMapPlayground({ map, route }: { map: CreepMapType; route: CreepRoute }) {
+export function CreepMapPlayground({
+  map,
+  route,
+  aside,
+}: {
+  map: CreepMapType;
+  route: CreepRoute;
+  /** Rendered under the step table, inside the right-hand column. */
+  aside?: React.ReactNode;
+}) {
   const [activeStop, setActiveStop] = useState<number | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
@@ -82,6 +91,12 @@ export function CreepMapPlayground({ map, route }: { map: CreepMapType; route: C
           onOpenCard={pin}
           openCampId={openCampId}
         />
+        {/* Anything the page wants directly under the stops — the Discord
+            card. It belongs *in* this column rather than in a band below the
+            grid: the map column is far taller than a short step table, so a
+            three-stop route left a column of dead space that pushed whatever
+            followed the whole height of the map down the page. */}
+        {aside}
       </div>
       {card ? (
         <CampCard
