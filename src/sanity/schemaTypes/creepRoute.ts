@@ -292,7 +292,24 @@ export const creepRoute = defineType({
       description: "The why: when to use it, deviations, what to watch for.",
       of: [
         defineArrayMember({ type: "block" }),
-        defineArrayMember({ type: "image" }),
+        defineArrayMember({
+          type: "image",
+          // Without this an editor has no way to describe a body image, so
+          // every one of them renders `alt=""` — announced to a screen
+          // reader as decorative, which for a diagram in a guide means the
+          // content simply is not there. Optional on purpose: a genuinely
+          // decorative image should keep an empty alt rather than be given
+          // filler text.
+          fields: [
+            defineField({
+              name: "alt",
+              type: "string",
+              title: "Alt text",
+              description:
+                "What the image shows, for screen readers and when it fails to load. Leave blank only if it is decorative.",
+            }),
+          ],
+        }),
         defineArrayMember({
           type: "object",
           name: "youtube",
