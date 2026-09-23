@@ -45,7 +45,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="grid size-9 place-items-center rounded border border-line bg-surface/60 text-muted transition-colors hover:border-gold hover:text-gold"
               >
-                <Icon size={16} />
+                <Icon size={18} />
               </a>
             ))}
           </div>

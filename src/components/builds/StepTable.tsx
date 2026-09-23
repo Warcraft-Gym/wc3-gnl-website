@@ -75,7 +75,7 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
               aria-label={running ? "Pause" : "Play"}
               className="btn-gold grid size-9 place-items-center rounded"
             >
-              {running ? <Pause size={16} /> : <Play size={16} className="ml-0.5" />}
+              {running ? <Pause size={18} /> : <Play size={18} className="ml-0.5" />}
             </button>
             <button
               type="button"
@@ -83,7 +83,7 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
               aria-label="Reset"
               className="grid size-9 place-items-center rounded border border-line text-muted transition-colors hover:border-gold/60 hover:text-gold"
             >
-              <RotateCcw size={15} />
+              <RotateCcw size={17} />
             </button>
           </div>
         ) : null}

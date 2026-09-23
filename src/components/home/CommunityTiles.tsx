@@ -65,7 +65,7 @@ export function CommunityTiles() {
                 <h3 className="text-[1rem] font-bold tracking-[0.06em] text-fg transition-colors group-hover:text-gold">
                   {title}
                 </h3>
-                <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
+                <ArrowUpRight size={20} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
               </span>
               <p className="mt-2 text-sm text-muted">{body}</p>
               <span className="kicker mt-4 text-[0.62rem]">{cta}</span>

@@ -228,7 +228,7 @@ export function BuildSubmitForm() {
         <details className="group rounded border border-gold/30 bg-gold/5 text-sm text-muted">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3.5 [&::-webkit-details-marker]:hidden">
             <span className="kicker">What makes a good submission</span>
-            <ChevronDown size={16} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
+            <ChevronDown size={18} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
             <li className="flex gap-2"><span className="text-gold">·</span> One build order, not a whole game plan. 10 to 20 steps is typical.</li>
@@ -362,13 +362,13 @@ export function BuildSubmitForm() {
 
                   <div className="col-span-2 flex justify-end gap-1 sm:col-span-1">
                     <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
-                      <ArrowUp size={14} />
+                      <ArrowUp size={16} />
                     </button>
                     <button type="button" onClick={() => move(i, 1)} disabled={i === steps.length - 1} aria-label="Move down" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
-                      <ArrowDown size={14} />
+                      <ArrowDown size={16} />
                     </button>
                     <button type="button" onClick={() => remove(s.id)} disabled={steps.length === 1} aria-label="Remove step" className="grid size-10 place-items-center rounded border border-line text-muted hover:border-loss/60 hover:text-loss disabled:opacity-30">
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </li>
@@ -382,7 +382,7 @@ export function BuildSubmitForm() {
               onClick={add}
               className="inline-flex h-10 items-center gap-2 rounded border border-gold/50 px-4 font-display text-[0.72rem] font-bold uppercase tracking-[0.1em] text-gold hover:bg-gold/10"
             >
-              <Plus size={14} /> Add step
+              <Plus size={16} /> Add step
             </button>
             <span className="text-xs text-faint">Enter on the last instruction adds a step.</span>
           </div>
@@ -438,7 +438,7 @@ export function BuildSubmitForm() {
 
           <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-1 items-start gap-3 text-sm text-muted">
-              <ShieldCheck size={20} className="mt-0.5 shrink-0 text-gold" />
+              <ShieldCheck size={22} className="mt-0.5 shrink-0 text-gold" />
               <div>
                 <p className="font-bold text-fg">Reviewed before it goes live</p>
                 <p className="mt-0.5 text-xs">
@@ -451,7 +451,7 @@ export function BuildSubmitForm() {
                 Cancel
               </ButtonLink>
               <Button type="submit" size="md" disabled={pending} className="sm:w-auto">
-                {pending ? "Sending…" : "Submit for review"} <ArrowRight size={16} />
+                {pending ? "Sending…" : "Submit for review"} <ArrowRight size={18} />
               </Button>
             </div>
           </div>

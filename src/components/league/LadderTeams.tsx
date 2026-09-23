@@ -55,14 +55,14 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                 <p className="tnum font-display text-xl font-bold text-gold">{fmt.format(t.points)}</p>
                 <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">points</p>
               </div>
-              <ChevronDown size={16} className={cn("text-faint transition-transform", isOpen && "rotate-180")} />
+              <ChevronDown size={18} className={cn("text-faint transition-transform", isOpen && "rotate-180")} />
             </button>
             {isOpen ? (
               <ul className="divide-y divide-line/50 border-t border-line/60">
                 {t.players.map((p) => (
                   <li key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 px-4 py-2 text-sm sm:gap-6 sm:px-5">
                     <span className="flex min-w-0 items-center gap-2">
-                      <RaceIcon race={p.race} size={20} />
+                      <RaceIcon race={p.race} size={22} />
                       <Link href={`/gnl/players/${p.slug}`} className="truncate text-muted transition-colors hover:text-gold">
                         {p.name}
                       </Link>

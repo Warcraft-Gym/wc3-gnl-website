@@ -38,7 +38,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
 
       {community ? (
         <p className="mt-5 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded border border-line bg-surface/60 px-3 py-2 text-sm text-muted">
-          <DiscordIcon size={16} className="text-[#5865F2]" />
+          <DiscordIcon size={18} className="text-[#5865F2]" />
           <span>
             <strong className="tnum font-bold text-fg">{fmt.format(community.members)}</strong> members
           </span>
@@ -67,7 +67,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
 
       <div className="mt-8">
         <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-          <DiscordIcon size={20} /> Join the Discord
+          <DiscordIcon size={22} /> Join the Discord
         </ButtonLink>
       </div>
     </div>

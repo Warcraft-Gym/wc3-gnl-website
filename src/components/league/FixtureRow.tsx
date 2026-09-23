@@ -46,7 +46,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
       </div>
 
       <div className="flex items-center gap-2 truncate">
-        <RaceIcon race={raceOf(m.home.race)} size={22} />
+        <RaceIcon race={raceOf(m.home.race)} size={24} />
         <Link
           href={`/gnl/players/${slugify(m.home.playerName)}`}
           className={cn(
@@ -97,7 +97,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         >
           {m.away.playerName}
         </Link>
-        <RaceIcon race={raceOf(m.away.race)} size={22} />
+        <RaceIcon race={raceOf(m.away.race)} size={24} />
       </div>
 
       <div className="flex justify-end">
@@ -114,7 +114,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
                 : "border-line text-muted hover:border-arcane/60 hover:text-arcane",
             )}
           >
-            <Tv size={12} />
+            <Tv size={14} />
             <span className="max-sm:hidden">{vod ? "VOD" : "Cast"}</span>
           </a>
         ) : null}
@@ -224,7 +224,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
             className="flex w-full items-center gap-2 border-t border-line/60 px-4 py-2 font-mono text-[0.72rem] font-bold uppercase tracking-widest text-muted transition-colors hover:text-gold"
           >
             <ChevronRight
-              size={14}
+              size={16}
               className={cn(
                 "transition-transform duration-[var(--wg-dur)]",
                 open && "rotate-90",
@@ -240,7 +240,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
               ))}
               {fixture.matches.some((m) => m.hasReplays) ? (
                 <div className="flex items-center gap-1.5 border-t border-line/40 px-4 py-2.5 text-xs text-arcane">
-                  <PlayCircle size={13} /> Replays available for completed games
+                  <PlayCircle size={15} /> Replays available for completed games
                 </div>
               ) : null}
             </div>

@@ -92,7 +92,7 @@ export default async function AboutGymPage() {
             {PILLARS.map(({ Icon, title, body }) => (
               <Surface key={title} className="p-6">
                 <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
-                  <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
+                  <Icon size={22} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
                 </span>
                 <h3 className="mt-4 font-display text-lg font-bold uppercase text-fg">{title}</h3>
                 <p className="mt-2 text-sm text-muted">{body}</p>
@@ -116,7 +116,7 @@ export default async function AboutGymPage() {
               </h2>
               {community ? (
                 <p className="mt-3 inline-flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted">
-                  <DiscordIcon size={16} className="text-[#5865F2]" />
+                  <DiscordIcon size={18} className="text-[#5865F2]" />
                   <span>
                     <strong className="tnum font-bold text-fg">{fmt.format(community.members)}</strong> members
                   </span>
@@ -129,10 +129,10 @@ export default async function AboutGymPage() {
             </div>
             <div className="flex flex-wrap gap-3">
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-                <DiscordIcon size={20} /> Join the Discord
+                <DiscordIcon size={22} /> Join the Discord
               </ButtonLink>
               <ButtonLink href="/learn" size="lg">
-                Start learning <ArrowRight size={18} />
+                Start learning <ArrowRight size={20} />
               </ButtonLink>
             </div>
           </div>

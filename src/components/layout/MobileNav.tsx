@@ -25,7 +25,7 @@ export function MobileNav() {
         onClick={() => setOpen((v) => !v)}
         className="grid size-10 place-items-center rounded border border-line bg-surface/60 text-fg hover:border-gold/60"
       >
-        {open ? <X size={18} /> : <Menu size={18} />}
+        {open ? <X size={20} /> : <Menu size={20} />}
       </button>
 
       {open ? (
@@ -42,7 +42,7 @@ export function MobileNav() {
                   className="flex items-center gap-2 border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] text-fg"
                 >
                   {item.label === "Discord" ? (
-                    <DiscordIcon size={18} className="text-[#5865F2]" />
+                    <DiscordIcon size={20} className="text-[#5865F2]" />
                   ) : null}
                   {item.label}
                 </a>
@@ -102,7 +102,7 @@ export function MobileNav() {
             ))}
 
             <ButtonLink href={DISCORD_URL} variant="discord" size="lg" className="mt-5" target="_blank" rel="noreferrer" onClick={close}>
-              <DiscordIcon size={18} /> Join Discord
+              <DiscordIcon size={20} /> Join Discord
             </ButtonLink>
           </nav>
         </div>

@@ -286,7 +286,7 @@ export function CampCard({
           aria-label="Close camp details"
           className="grid size-7 shrink-0 place-items-center rounded text-muted hover:text-gold"
         >
-          <X size={16} />
+          <X size={18} />
         </button>
       </div>
 

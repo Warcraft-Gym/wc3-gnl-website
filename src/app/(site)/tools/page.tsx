@@ -66,7 +66,7 @@ function ToolCard({ tool, wide = false }: { tool: CardProps; wide?: boolean }) {
       <div className={cn("flex flex-1 flex-col", wide && "sm:justify-center")}>
       <div className="flex items-start justify-between gap-3">
         <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
-          <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
+          <Icon size={22} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
         </span>
         {by ? <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">by {by}</span> : null}
       </div>
@@ -82,11 +82,11 @@ function ToolCard({ tool, wide = false }: { tool: CardProps; wide?: boolean }) {
       <span className="mt-4 inline-flex items-center gap-1 text-xs uppercase tracking-wide text-gold">
         {external ? (
           <>
-            {host} <ExternalLink size={12} />
+            {host} <ExternalLink size={14} />
           </>
         ) : (
           <>
-            Learn more <ArrowRight size={12} />
+            Learn more <ArrowRight size={14} />
           </>
         )}
       </span>

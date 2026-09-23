@@ -34,7 +34,7 @@ export function TagInput({
             aria-label={`Remove ${t}`}
             className="text-faint hover:text-loss"
           >
-            <X size={11} />
+            <X size={13} />
           </button>
         </span>
       ))}

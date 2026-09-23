@@ -116,10 +116,10 @@ export default async function BuildPage({ params }: Params) {
             href="/learn/builds"
             className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> All builds
+            <ArrowLeft size={17} /> All builds
           </Link>
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Matchup race={build.race} vsRaces={build.vsRaces} size={22} />
+            <Matchup race={build.race} vsRaces={build.vsRaces} size={24} />
             <DifficultyBadge level={build.difficulty} />
             {build.patch ? (
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {build.patch}</span>
@@ -145,7 +145,7 @@ export default async function BuildPage({ params }: Params) {
                 rel="noreferrer"
                 className="inline-flex items-center gap-1 text-gold hover:underline"
               >
-                Source <ExternalLink size={11} />
+                Source <ExternalLink size={13} />
               </a>
             ) : null}
             {/* No accounts, so nobody can edit in place. This opens the submit
@@ -153,7 +153,7 @@ export default async function BuildPage({ params }: Params) {
                 being replaced. Anyone may suggest an update; a coach decides. */}
             {editHref ? (
               <a href={editHref} className="inline-flex items-center gap-1 text-gold hover:underline">
-                <PencilLine size={11} /> Suggest an update
+                <PencilLine size={13} /> Suggest an update
               </a>
             ) : null}
           </p>
@@ -177,7 +177,7 @@ export default async function BuildPage({ params }: Params) {
               href={`/learn/guide/${build.guide.slug}`}
               className="mb-5 flex items-center gap-3 rounded border border-gold/40 bg-gold/5 px-4 py-3 text-sm transition-colors hover:border-gold hover:bg-gold/10"
             >
-              <BookOpen size={18} className="shrink-0 text-gold" />
+              <BookOpen size={20} className="shrink-0 text-gold" />
               <span className="min-w-0">
                 <span className="block font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold">Full guide</span>
                 <span className="block truncate text-fg">{build.guide.title}</span>
@@ -228,7 +228,7 @@ export default async function BuildPage({ params }: Params) {
               target="_blank"
               rel="noreferrer"
             >
-              <DiscordIcon size={15} /> Discuss on Discord
+              <DiscordIcon size={17} /> Discuss on Discord
             </ButtonLink>
           </div>
         </section>

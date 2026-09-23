@@ -16,11 +16,11 @@ export function WeekSelector({ weeks, active }: { weeks: Week[]; active: number 
         aria-label={`${label}, week ${w.number}`}
         className="grid size-9 shrink-0 place-items-center rounded border border-line text-muted transition-colors hover:border-gold/60 hover:text-gold"
       >
-        <Icon size={16} />
+        <Icon size={18} />
       </Link>
     ) : (
       <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded border border-line/40 text-faint/40">
-        <Icon size={16} />
+        <Icon size={18} />
       </span>
     );
 

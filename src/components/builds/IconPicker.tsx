@@ -135,7 +135,7 @@ export function IconPicker({
             <span className="text-[0.55rem] font-bold uppercase tracking-wider">icon</span>
           </span>
         )}
-        <ChevronDown size={14} className="text-faint" />
+        <ChevronDown size={16} className="text-faint" />
       </button>
 
       {open ? (
@@ -145,7 +145,7 @@ export function IconPicker({
           className="absolute left-0 top-full z-40 mt-1 w-[19rem] rounded-lg border border-line bg-bg/95 p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] backdrop-blur-xl sm:w-[22rem]"
         >
           <div className="relative">
-            <Search size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint" />
+            <Search size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint" />
             <input
               ref={search}
               value={q}
@@ -205,7 +205,7 @@ export function IconPicker({
               onClick={() => pick("")}
               className="mt-2 inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-wide text-muted hover:text-loss"
             >
-              <X size={11} /> Remove icon
+              <X size={13} /> Remove icon
             </button>
           ) : null}
         </div>

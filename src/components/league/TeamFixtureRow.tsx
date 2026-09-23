@@ -67,7 +67,7 @@ export function TeamFixtureRow({ fixture, teamId }: { fixture: TeamFixture; team
         title="Every series of this week"
         className="hidden size-8 place-items-center rounded border border-line text-muted transition-colors hover:border-gold/60 hover:text-gold sm:grid"
       >
-        <ChevronRight size={15} />
+        <ChevronRight size={17} />
       </Link>
     </li>
   );

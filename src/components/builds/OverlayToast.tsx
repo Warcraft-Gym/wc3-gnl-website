@@ -55,7 +55,7 @@ export function OverlayToast() {
             onClick={dismiss}
             className="mt-2 inline-flex items-center gap-1 font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold hover:underline"
           >
-            Try the overlay <ArrowRight size={13} />
+            Try the overlay <ArrowRight size={15} />
           </Link>
         </div>
         <button
@@ -64,7 +64,7 @@ export function OverlayToast() {
           aria-label="Dismiss"
           className="absolute right-2 top-2 grid size-7 place-items-center rounded text-faint transition-colors hover:bg-surface-2 hover:text-fg"
         >
-          <X size={14} />
+          <X size={16} />
         </button>
       </div>
     </div>

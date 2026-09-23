@@ -39,8 +39,8 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
           </p>
           {entry.captain ? (
             <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-[0.68rem] uppercase tracking-wide text-faint">
-              <Star size={11} className="shrink-0 fill-gold text-gold" />
-              {entry.captain.race ? <RaceIcon race={entry.captain.race} size={13} /> : null}
+              <Star size={13} className="shrink-0 fill-gold text-gold" />
+              {entry.captain.race ? <RaceIcon race={entry.captain.race} size={15} /> : null}
               <span className="truncate normal-case text-muted">
                 {entry.captain.name}
               </span>
@@ -64,7 +64,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
           >
             <RaceIcon
               race={raceOf(entry.draftedRace)}
-              size={20}
+              size={22}
               className="[transform:skewX(calc(var(--wg-skew)*-1))]"
             />
           </span>
@@ -80,7 +80,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
         </div>
 
         <ChevronDown
-          size={16}
+          size={18}
           className="shrink-0 text-faint transition-transform group-open:rotate-180"
         />
       </summary>
@@ -132,13 +132,13 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
                       : "border-line bg-surface/40",
                   )}
                 >
-                  {p.race ? <RaceIcon race={p.race} size={18} /> : null}
+                  {p.race ? <RaceIcon race={p.race} size={20} /> : null}
                   <span className="truncate text-sm font-medium text-fg">
                     {p.name}
                   </span>
                   {p.isCaptain ? (
                     <Star
-                      size={12}
+                      size={14}
                       className="ml-auto shrink-0 fill-gold text-gold"
                     />
                   ) : null}

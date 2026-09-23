@@ -146,7 +146,7 @@ export function RouteDetailsFields({
 
       <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3 text-sm text-muted">
-          <ShieldCheck size={20} className="mt-0.5 shrink-0 text-gold" />
+          <ShieldCheck size={22} className="mt-0.5 shrink-0 text-gold" />
           <div>
             <p className="font-bold text-fg">Reviewed before it goes live</p>
             <p className="mt-0.5 text-xs">A coach checks every route, usually within a few days, then publishes it with your name on it.</p>
@@ -155,7 +155,7 @@ export function RouteDetailsFields({
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
           <ButtonLink href="/learn/creep-routes" variant="ghost" size="lg" className="sm:w-auto">Cancel</ButtonLink>
           <Button type="submit" size="lg" disabled={pending || !submissionsOpen} className="sm:w-auto">
-            {pending ? "Sending…" : "Submit for review"} <ArrowRight size={16} />
+            {pending ? "Sending…" : "Submit for review"} <ArrowRight size={18} />
           </Button>
         </div>
       </div>

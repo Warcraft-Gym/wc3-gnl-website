@@ -123,7 +123,7 @@ export default async function LadderPage({ searchParams }: Props) {
                       <span className="tnum font-display text-sm font-bold text-faint">{i + 1}</span>
                       <div className="min-w-0">
                         <p className="flex items-center gap-2">
-                          <RaceIcon race={p.race} size={20} />
+                          <RaceIcon race={p.race} size={22} />
                           <Link href={`/gnl/players/${p.slug}`} className="truncate font-display font-bold uppercase text-fg hover:text-gold">
                             {p.name}
                           </Link>
@@ -160,7 +160,7 @@ export default async function LadderPage({ searchParams }: Props) {
                     return (
                       <div key={r.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
                         <span className="grid size-9 place-items-center rounded border border-gold/30 bg-gold/10 text-gold">
-                          <Trophy size={16} />
+                          <Trophy size={18} />
                         </span>
                         <div className="min-w-0">
                           <p className="font-display text-sm font-bold uppercase text-fg">{r.name}</p>

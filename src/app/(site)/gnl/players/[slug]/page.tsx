@@ -73,9 +73,9 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
       </div>
       <div className="min-w-0">
         <p className="flex flex-wrap items-center gap-2 text-sm">
-          <RaceIcon race={s.race} size={22} />
+          <RaceIcon race={s.race} size={24} />
           <span className="text-faint">vs</span>
-          <RaceIcon race={s.opponent.race} size={22} />
+          <RaceIcon race={s.opponent.race} size={24} />
           <Link href={`/gnl/players/${s.opponent.slug}`} className="font-display font-bold uppercase text-fg hover:text-gold">
             {s.opponent.name}
           </Link>
@@ -93,7 +93,7 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
             title={s.cast.vodUrl ? `Watch the VOD on ${s.cast.name}` : `Cast by ${s.cast.name}`}
             className={cn("grid size-7 place-items-center rounded border transition-colors", s.cast.vodUrl ? "border-arcane/60 bg-arcane/10 text-arcane" : "border-line text-muted hover:text-arcane")}
           >
-            <Tv size={13} />
+            <Tv size={15} />
           </a>
         ) : null}
       </div>
@@ -135,7 +135,7 @@ function Compare({
   return (
     <Surface className="p-5">
       <h3 className="flex items-center gap-1.5 font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
-        {mark ? <W3cMark size={13} className="opacity-70" /> : null}
+        {mark ? <W3cMark size={15} className="opacity-70" /> : null}
         {title}
       </h3>
       <p className="mt-3">
@@ -149,7 +149,7 @@ function Compare({
             {rows.map(({ race, rec }) => (
               <li key={race} className="flex items-center justify-between gap-4 py-1.5 text-xs">
                 <span className="flex items-center gap-2 text-muted">
-                  <RaceIcon race={race} size={18} /> vs {RACES[race].label}
+                  <RaceIcon race={race} size={20} /> vs {RACES[race].label}
                 </span>
                 <span className="tnum whitespace-nowrap text-right text-muted">{record(rec!.wins, rec!.losses) ?? DASH}</span>
               </li>
@@ -252,7 +252,7 @@ export default async function PlayerPage({ params }: Params) {
             href={team ? `/gnl/teams/${team.slug}` : "/gnl/teams"}
             className="mb-5 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> {team ? team.name : "Teams"}
+            <ArrowLeft size={17} /> {team ? team.name : "Teams"}
           </Link>
 
           {/* Identity on the left, the headline numbers as a block on the right */}
@@ -300,12 +300,12 @@ export default async function PlayerPage({ params }: Params) {
                   ) : null}
                   {player.country ? (
                     <span className="inline-flex items-center gap-1.5">
-                      <Flag code={player.country} size={18} /> {player.country}
+                      <Flag code={player.country} size={20} /> {player.country}
                     </span>
                   ) : null}
                   {w3cUrl ? (
                     <a href={w3cUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-gold hover:underline">
-                      <W3cMark size={14} /> {player.battleTag}
+                      <W3cMark size={16} /> {player.battleTag}
                     </a>
                   ) : null}
                 </p>
@@ -314,7 +314,7 @@ export default async function PlayerPage({ params }: Params) {
                 {ladder.length ? (
                   <div className="mt-4">
                     <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">
-                      <W3cMark size={11} className="opacity-70" /> Ladder games, season {ladderSeason}
+                      <W3cMark size={13} className="opacity-70" /> Ladder games, season {ladderSeason}
                     </p>
                     <RaceMmrChips races={ladder} main={main} />
                   </div>
@@ -395,7 +395,7 @@ export default async function PlayerPage({ params }: Params) {
                       <div key={h.season.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 p-4">
                         <span className="flex items-center gap-1.5 whitespace-nowrap">
                           {/* The race of that season's signup, beside its season. */}
-                          {h.race ? <RaceIcon race={h.race} size={16} /> : null}
+                          {h.race ? <RaceIcon race={h.race} size={18} /> : null}
                           <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
                         </span>
                         <span className="min-w-0">
@@ -410,7 +410,7 @@ export default async function PlayerPage({ params }: Params) {
                             {h.record.matchupHistory.length ? (
                               <span className="ml-2 inline-flex items-center gap-0.5 align-middle" title="Opponent race of each series">
                                 {h.record.matchupHistory.map((r, i) => (
-                                  <RaceIcon key={`${r}-${i}`} race={r} size={14} />
+                                  <RaceIcon key={`${r}-${i}`} race={r} size={16} />
                                 ))}
                               </span>
                             ) : null}
@@ -494,7 +494,7 @@ export default async function PlayerPage({ params }: Params) {
             )}
             {ladderSeason ? (
               <p className="mt-3 flex items-center gap-1.5 text-xs text-faint">
-                <W3cMark size={12} className="opacity-70" /> Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
+                <W3cMark size={14} className="opacity-70" /> Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
               </p>
             ) : null}
           </section>
@@ -529,7 +529,7 @@ export default async function PlayerPage({ params }: Params) {
                 <div className="mb-4 flex items-baseline justify-between gap-3">
                   <h2 className="font-display text-xl font-bold uppercase">Recent ladder games</h2>
                   <a href={live.profileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted hover:text-gold">
-                    <W3cMark size={13} /> All games on W3Champions
+                    <W3cMark size={15} /> All games on W3Champions
                   </a>
                 </div>
                 <Surface className="divide-y divide-line/60">
@@ -540,16 +540,16 @@ export default async function PlayerPage({ params }: Params) {
                       </span>
                       <span className="min-w-0 flex-1">
                         <span className="flex items-center gap-1.5">
-                          <RaceIcon race={m.race} size={20} />
+                          <RaceIcon race={m.race} size={22} />
                           <span className="text-faint">vs</span>
-                          <RaceIcon race={m.opponent.race} size={20} />
+                          <RaceIcon race={m.opponent.race} size={22} />
                           <a
                             href={`https://w3champions.com/player/${encodeURIComponent(m.opponent.battleTag)}`}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex min-w-0 items-center gap-1 truncate text-fg hover:text-gold"
                           >
-                            {m.opponent.name} <W3cMark size={11} className="opacity-70" />
+                            {m.opponent.name} <W3cMark size={13} className="opacity-70" />
                           </a>
                           <span className="tnum text-xs text-faint">{m.opponent.mmr}</span>
                         </span>
@@ -561,7 +561,7 @@ export default async function PlayerPage({ params }: Params) {
                           className="block truncate text-xs text-faint transition-colors hover:text-gold"
                         >
                           {m.map} <span>·</span> {dur(m.durationSeconds)} <span>·</span> {fmtDate.format(new Date(m.startedAt))}
-                          <W3cMark size={10} className="ml-1 opacity-70" />
+                          <W3cMark size={12} className="ml-1 opacity-70" />
                         </a>
                       </span>
                       <span className={cn("tnum w-9 shrink-0 text-right font-mono text-xs", m.mmrGain >= 0 ? "text-win" : "text-loss")}>

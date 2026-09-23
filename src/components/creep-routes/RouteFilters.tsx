@@ -103,7 +103,7 @@ export function RouteFilters({
       {/* Filter bar */}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <label className="relative flex-1">
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+          <Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
           <input
             type="search"
             value={query}

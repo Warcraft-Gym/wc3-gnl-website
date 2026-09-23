@@ -82,7 +82,7 @@ export default async function LearnPage() {
               </div>
             </div>
             <ButtonLink href="/learn/new-players" size="lg" className="shrink-0">
-              Start learning <ArrowRight size={18} />
+              Start learning <ArrowRight size={20} />
             </ButtonLink>
           </div>
         </Surface>
@@ -143,7 +143,7 @@ export default async function LearnPage() {
             size="lg"
             className="shrink-0"
           >
-            <DiscordIcon size={20} /> Join the Discord
+            <DiscordIcon size={22} /> Join the Discord
           </ButtonLink>
         </Surface>
       </Container>

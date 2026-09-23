@@ -51,7 +51,7 @@ export function Hero() {
             Start Learning
           </ButtonLink>
           <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-            <DiscordIcon size={20} /> Join the Discord
+            <DiscordIcon size={22} /> Join the Discord
           </ButtonLink>
         </div>
 

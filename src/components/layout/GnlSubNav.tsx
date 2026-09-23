@@ -108,7 +108,7 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
         className="btn-gold inline-flex items-center gap-1.5 rounded px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em]"
       >
         <span>{current.shortName}</span>
-        <ChevronDown size={13} className={cn("transition-transform duration-[var(--wg-dur)]", open && "rotate-180")} />
+        <ChevronDown size={15} className={cn("transition-transform duration-[var(--wg-dur)]", open && "rotate-180")} />
       </button>
       {open ? (
         <div
@@ -133,7 +133,7 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
                   <span className="block font-display font-bold uppercase tracking-wide">{s.shortName}</span>
                   <span className="block text-xs text-faint">{s.number === latest.number ? "Latest season" : s.name}</span>
                 </span>
-                {active ? <Check size={14} /> : null}
+                {active ? <Check size={16} /> : null}
               </Link>
             );
           })}

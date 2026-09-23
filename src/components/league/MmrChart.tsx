@@ -205,13 +205,13 @@ export function MmrChart({ lines, main }: { lines: MmrLine[]; main: Race | null 
         <p aria-live="polite" className="flex min-h-[3.25rem] flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted sm:min-h-[1.75rem]">
           <span className="font-mono uppercase tracking-[0.14em] text-faint">{DATE_FMT.format(new Date(readAt))}</span>
           <span className="inline-flex items-center gap-1.5 font-bold text-gold">
-            <RaceIcon race={active.race} size={16} />
+            <RaceIcon race={active.race} size={18} />
             <span className="tnum">{activeMmr}</span>
             <span className="tnum font-normal text-muted">{signed(activeMmr - first.mmr)}</span>
           </span>
           {others.map((o) => (
             <span key={o.race} className="inline-flex items-center gap-1.5">
-              <RaceIcon race={o.race} size={14} className="opacity-70" />
+              <RaceIcon race={o.race} size={16} className="opacity-70" />
               <span className="tnum">{o.mmr}</span>
             </span>
           ))}

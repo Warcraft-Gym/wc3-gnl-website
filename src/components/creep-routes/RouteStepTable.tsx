@@ -170,7 +170,7 @@ export function RouteStepTable({
                         <BandDot band={d.band} />
                         <span className="font-medium text-fg">{campLabel(d.camp)}</span>
                         <span className="tnum text-faint">Lv {d.camp.level}</span>
-                        <ChevronRight aria-hidden size={12} className="shrink-0 text-faint" />
+                        <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
                       </span>
                     ) : (
                       <span className="text-muted">{stop.action ?? "-"}</span>
@@ -181,7 +181,7 @@ export function RouteStepTable({
                       <span className="flex flex-wrap items-center gap-1.5">
                         {stop.units.map((u, ui) => (
                           <span key={ui} className="inline-flex items-center gap-1">
-                            <GameIcon iconKey={u.icon} size={22} />
+                            <GameIcon iconKey={u.icon} size={24} />
                             {u.count > 1 ? <span className="tnum text-xs text-faint">×{u.count}</span> : null}
                           </span>
                         ))}

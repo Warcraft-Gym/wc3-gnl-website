@@ -98,7 +98,7 @@ export default async function FantasyPage({ searchParams }: Props) {
               <Surface key={title} className="p-6">
                 <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
                   <Icon
-                    size={20}
+                    size={22}
                     className="[transform:skewX(calc(var(--wg-skew)*-1))]"
                   />
                 </span>

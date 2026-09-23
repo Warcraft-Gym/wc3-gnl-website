@@ -172,7 +172,7 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-                <DiscordIcon size={20} /> Join the Discord
+                <DiscordIcon size={22} /> Join the Discord
               </ButtonLink>
               <ButtonLink href="/learn" size="lg">
                 Start learning

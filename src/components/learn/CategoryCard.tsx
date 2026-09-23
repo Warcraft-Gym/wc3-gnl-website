@@ -49,7 +49,7 @@ export function CategoryCard({
               {category.title}
             </h3>
             <ArrowUpRight
-              size={18}
+              size={20}
               className="shrink-0 text-faint transition-colors group-hover:text-gold"
             />
           </div>

@@ -190,7 +190,7 @@ export default async function CreepRoutePage({ params }: Params) {
           {/* The race/vs matchup line, now secondary — below the map block
               (F009-followup-3; it used to lead the header). */}
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Matchup race={route.race} vsRaces={route.vsRaces} size={22} />
+            <Matchup race={route.race} vsRaces={route.vsRaces} size={24} />
             {/* The hero the route is built around. Collected at submission
                 and carried by every projection, but until now never shown —
                 which made it look like the field did nothing. Named as well
@@ -198,7 +198,7 @@ export default async function CreepRoutePage({ params }: Params) {
                 already knows the icon. */}
             {heroIcon ? (
               <span className="flex items-center gap-2" title={`Hero: ${heroIcon.title}`}>
-                <GameIcon iconKey={route.hero} size={22} className="rounded ring-1 ring-gold/30" />
+                <GameIcon iconKey={route.hero} size={24} className="rounded ring-1 ring-gold/30" />
                 <span className="text-xs text-muted">{heroIcon.title}</span>
               </span>
             ) : null}
@@ -238,7 +238,7 @@ export default async function CreepRoutePage({ params }: Params) {
             <div className="mt-4 flex flex-wrap items-center gap-2">
               {editHref ? (
                 <ButtonLink href={editHref} variant="outline" size="sm" className="max-sm:w-auto">
-                  <PencilLine size={14} aria-hidden /> Suggest an update
+                  <PencilLine size={16} aria-hidden /> Suggest an update
                 </ButtonLink>
               ) : null}
               {route.sourceUrl ? (
@@ -250,7 +250,7 @@ export default async function CreepRoutePage({ params }: Params) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  Source <ExternalLink size={14} aria-hidden />
+                  Source <ExternalLink size={16} aria-hidden />
                 </ButtonLink>
               ) : null}
             </div>
@@ -377,7 +377,7 @@ export default async function CreepRoutePage({ params }: Params) {
             </p>
           </div>
           <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
-            <DiscordIcon size={15} /> Discuss on Discord
+            <DiscordIcon size={17} /> Discuss on Discord
           </ButtonLink>
         </div>
       </Container>

@@ -46,7 +46,7 @@ export function BuildRow({ build }: { build: BuildOrder }) {
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             <span className="inline-flex items-center gap-1">
               <span className="text-faint">vs</span>
-              <VsRaces vsRaces={build.vsRaces} size={14} />
+              <VsRaces vsRaces={build.vsRaces} size={16} />
             </span>
             <span className="text-faint">·</span>
             <span>by {build.author}</span>
@@ -103,12 +103,12 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
             <span className="inline-flex items-center gap-1.5">
               <span className="font-bold text-fg">{RACE_LABEL[build.race]}</span>
               <span className="text-faint">vs</span>
-              <VsRaces vsRaces={build.vsRaces} size={14} />
+              <VsRaces vsRaces={build.vsRaces} size={16} />
             </span>
             <DifficultyBadge level={build.difficulty} />
             <span>by {build.author}</span>
             <span className="ml-auto inline-flex items-center gap-1 font-display text-[0.68rem] font-bold uppercase tracking-[0.14em] text-gold">
-              Open build <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+              Open build <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>
         </div>

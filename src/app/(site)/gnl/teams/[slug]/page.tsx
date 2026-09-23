@@ -108,7 +108,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
             href={withSeason("/gnl/teams", season.number === seasons[0]?.number ? undefined : season.number)}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> All teams
+            <ArrowLeft size={17} /> All teams
           </Link>
 
           {/* Identity on the left, the season's headline figures as a block on the right */}
@@ -137,9 +137,9 @@ export default async function TeamPage({ params, searchParams }: Params) {
                   <ul className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm">
                     {team.captains.map((c) => (
                       <li key={c.id} className="inline-flex items-center gap-1.5 text-fg">
-                        <Crown size={13} className="shrink-0 text-gold" aria-label="Captain" />
+                        <Crown size={15} className="shrink-0 text-gold" aria-label="Captain" />
                         {c.race ? <RaceBadge race={c.race} showLabel={false} /> : null}
-                        <Flag code={c.country} size={14} className="shrink-0" />
+                        <Flag code={c.country} size={16} className="shrink-0" />
                         <Link href={`/gnl/players/${c.slug}`} className="transition-colors hover:text-gold">
                           {c.name}
                         </Link>
@@ -235,14 +235,14 @@ export default async function TeamPage({ params, searchParams }: Params) {
                   >
                     <span className="flex min-w-0 items-center gap-2">
                       {p.race ? <RaceBadge race={p.race} showLabel={false} /> : null}
-                      <Flag code={p.country} size={14} className="shrink-0" />
+                      <Flag code={p.country} size={16} className="shrink-0" />
                       <Link
                         href={`/gnl/players/${p.slug}`}
                         className={cn("truncate font-display font-bold uppercase transition-colors hover:text-gold", p.isCaptain ? "text-fg" : "text-fg/90")}
                       >
                         {p.name}
                       </Link>
-                      {p.isCaptain ? <Crown size={11} className="shrink-0 text-gold" aria-label="Captain" /> : null}
+                      {p.isCaptain ? <Crown size={13} className="shrink-0 text-gold" aria-label="Captain" /> : null}
                     </span>
                     {hasRecords ? (
                       <span className="tnum text-right font-mono text-xs text-muted">

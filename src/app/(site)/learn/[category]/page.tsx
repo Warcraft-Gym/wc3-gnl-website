@@ -77,7 +77,7 @@ export default async function LearnCategoryPage({ params }: Params) {
       >
         {race ? (
           <ButtonLink href={buildsHref} size="sm">
-            {cat.title} build orders <ArrowRight size={14} />
+            {cat.title} build orders <ArrowRight size={16} />
           </ButtonLink>
         ) : null}
       </PageHeader>
@@ -127,7 +127,7 @@ export default async function LearnCategoryPage({ params }: Params) {
                 </p>
               </div>
               <ButtonLink href={buildsHref} size="sm" className="shrink-0">
-                All {cat.title} builds <ArrowRight size={14} />
+                All {cat.title} builds <ArrowRight size={16} />
               </ButtonLink>
             </div>
             {builds.length ? (

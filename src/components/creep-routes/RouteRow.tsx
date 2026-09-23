@@ -82,7 +82,7 @@ export function RouteRow({ route }: { route: CreepRoute }) {
                 className="size-6 shrink-0 object-contain"
               />
               <span className="text-faint">vs</span>
-              <VsRaces vsRaces={route.vsRaces} size={14} />
+              <VsRaces vsRaces={route.vsRaces} size={16} />
             </span>
             {route.mapVersion ? (
               <>
@@ -101,13 +101,13 @@ export function RouteRow({ route }: { route: CreepRoute }) {
                 anyone not reading by sight. */}
             {route.videoUrl || isEmbeddable(route.sourceUrl) ? (
               <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
-                <PlayCircle size={12} aria-hidden />
+                <PlayCircle size={14} aria-hidden />
                 <span className="sr-only">Includes a video</span>
               </span>
             ) : null}
             {route.sourceUrl ? (
               <span className="inline-flex items-center gap-1 text-muted" title="Has a source link">
-                <LinkIcon size={12} aria-hidden />
+                <LinkIcon size={14} aria-hidden />
                 <span className="sr-only">Has a source link</span>
               </span>
             ) : null}

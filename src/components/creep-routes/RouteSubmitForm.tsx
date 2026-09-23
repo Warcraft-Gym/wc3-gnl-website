@@ -262,7 +262,7 @@ export function RouteSubmitForm({
         <details className="group rounded border border-gold/30 bg-gold/5 text-sm text-muted">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3.5 [&::-webkit-details-marker]:hidden">
             <span className="kicker">What makes a good route</span>
-            <ChevronDown size={16} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
+            <ChevronDown size={18} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
             <li className="flex gap-2"><span className="text-gold">·</span> Click camps on the map in the order you clear them, no need to type camp contents.</li>

@@ -43,7 +43,7 @@ export function DesktopNav() {
               className={cn(cls, "inline-flex items-center gap-1.5")}
             >
               {item.label === "Discord" ? (
-                <DiscordIcon size={16} className="text-[#5865F2]" />
+                <DiscordIcon size={18} className="text-[#5865F2]" />
               ) : null}
               {item.label}
             </a>

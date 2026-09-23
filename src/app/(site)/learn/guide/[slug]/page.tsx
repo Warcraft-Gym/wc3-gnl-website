@@ -115,7 +115,7 @@ export default async function GuidePage({ params }: Params) {
             href={category ? `/learn/${category.id}` : "/learn"}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> {category ? category.title : "Learn"}
+            <ArrowLeft size={17} /> {category ? category.title : "Learn"}
           </Link>
           <div className="mb-4 flex items-center gap-2 font-mono text-[0.66rem] font-bold uppercase tracking-[0.16em]">
             <span className={cn("border px-1.5 py-0.5", LEVEL_TONE[guide.level])}>
@@ -145,7 +145,7 @@ export default async function GuidePage({ params }: Params) {
       {builds.length ? (
         <Container className="max-w-3xl pt-10">
           <p className="kicker mb-3 flex items-center gap-2">
-            <ListOrdered size={14} /> Play-along build order
+            <ListOrdered size={16} /> Play-along build order
           </p>
           <ul className="grid gap-2.5">
             {builds.map((b) => (

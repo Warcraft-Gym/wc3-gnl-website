@@ -38,16 +38,16 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
               className="flex items-start justify-between gap-2 transition-colors group-hover:text-gold"
             >
               <span className="min-w-0">{team.name}</span>
-              <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
+              <ArrowUpRight size={20} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
             </Link>
           </h3>
           {team.captains.length ? (
             <ul className="mt-1.5 space-y-1">
               {team.captains.map((c) => (
                 <li key={c.id} className="flex items-center gap-1.5 text-xs text-muted">
-                  <Crown size={12} className="shrink-0 text-gold" />
+                  <Crown size={14} className="shrink-0 text-gold" />
                   {c.race ? <RaceBadge race={c.race} showLabel={false} /> : null}
-                  <Flag code={c.country} size={14} className="shrink-0" />
+                  <Flag code={c.country} size={16} className="shrink-0" />
                   <Link href={`/gnl/players/${c.slug}`} className="truncate text-fg transition-colors hover:text-gold">
                     {c.name}
                   </Link>
@@ -114,11 +114,11 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
           <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
             <span className="flex min-w-0 items-center gap-1.5 text-muted">
               {p.race ? <RaceBadge race={p.race} showLabel={false} /> : null}
-              <Flag code={p.country} size={14} className="shrink-0" />
+              <Flag code={p.country} size={16} className="shrink-0" />
               <Link href={`/gnl/players/${p.slug}`} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
                 {p.name}
               </Link>
-              {p.isCaptain ? <Crown size={11} className="shrink-0 text-gold" /> : null}
+              {p.isCaptain ? <Crown size={13} className="shrink-0 text-gold" /> : null}
             </span>
             <span className="tnum shrink-0 font-mono text-[0.68rem] text-faint" title="W3Champions MMR">
               {p.mmr ?? "-"}

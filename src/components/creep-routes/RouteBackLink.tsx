@@ -70,7 +70,7 @@ export function RouteBackLink() {
       href={href}
       className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
     >
-      <ArrowLeft size={15} /> All creep routes
+      <ArrowLeft size={17} /> All creep routes
     </Link>
   );
 }

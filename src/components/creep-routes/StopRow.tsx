@@ -138,7 +138,7 @@ export function StopRow({
                   title="What's in this camp"
                   className="ml-auto grid size-6 shrink-0 place-items-center rounded text-faint hover:text-gold"
                 >
-                  <Info size={14} />
+                  <Info size={16} />
                 </button>
               ) : null}
             </div>
@@ -160,10 +160,10 @@ export function StopRow({
         {/* Reorder / remove */}
         <div className="flex justify-end gap-1">
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
-            <ArrowUp size={14} />
+            <ArrowUp size={16} />
           </button>
           <button type="button" onClick={onMoveDown} disabled={!canMoveDown} aria-label="Move down" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
-            <ArrowDown size={14} />
+            <ArrowDown size={16} />
           </button>
           <button
             type="button"
@@ -172,7 +172,7 @@ export function StopRow({
             aria-label="Remove stop"
             className="grid size-10 place-items-center rounded border border-line text-muted hover:border-loss/60 hover:text-loss"
           >
-            <Trash2 size={14} />
+            <Trash2 size={16} />
           </button>
         </div>
       </div>
@@ -198,7 +198,7 @@ export function StopRow({
                     className="tnum h-7 w-9 rounded border border-line bg-surface/60 px-1 text-center text-xs text-fg focus:border-gold/60 focus:outline-none"
                   />
                   <button type="button" onClick={() => removeUnit(u.id)} aria-label="Remove" className="text-faint hover:text-loss">
-                    <X size={12} />
+                    <X size={14} />
                   </button>
                 </span>
               ))}
@@ -208,7 +208,7 @@ export function StopRow({
                   onClick={addUnit}
                   className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold uppercase tracking-wide text-muted hover:border-gold/50 hover:text-gold"
                 >
-                  <Plus size={12} /> Add
+                  <Plus size={14} /> Add
                 </button>
               ) : null}
             </div>
