@@ -25,6 +25,7 @@ import {
   type RawLadder,
   type RawSeason,
   type RawTeam,
+  type RawPlayer,
   type RawSeries,
   type RawFantasyTeam,
   type RawCareerStat,
@@ -202,12 +203,6 @@ export async function getTeams(seasonNumber?: number): Promise<{ teams: Team[]; 
   return { teams: data, source };
 }
 
-/** Whether a team took part in a season: it had a roster or captains. */
-function teamInSeason(t: RawTeam, seasonId: number): boolean {
-  const key = String(seasonId);
-  return Boolean(t.player_by_season?.[key]?.length || t.captains_by_season?.[key]?.length);
-}
-
 /** A team's page for one of its seasons: the roster, standing and fixtures
  *  of that season, plus every published season the team took part in
  *  (newest first) for the switcher. Without `seasonNumber` the newest
@@ -219,26 +214,31 @@ export async function getTeamPage(
   const { data } = await withFallback(
     async () => {
       const raws = await fetchCompletedSeasonsRaw();
-      const perSeason = await Promise.all(
-        raws.map(async (raw) => ({ raw, teams: await apiGet<RawTeam[]>(`/events/${raw.id}/teams`) })),
+      // One call lists every team of the league with the seasons it entered.
+      const leagueTeams = await apiGet<RawTeam[]>(`/leagues/${raws[0].league_id}/teams`);
+      const entered = new Set(
+        leagueTeams
+          .filter((t) => slugify(t.long_name || t.name) === slug)
+          .flatMap((t) => (t.seasons_info ?? []).map((info) => info.season_id)),
       );
-      const played = perSeason
-        .filter(({ raw, teams }) =>
-          teams.some((t) => slugify(t.long_name || t.name) === slug && teamInSeason(t, raw.id)),
-        )
+      const played = raws
+        .filter((raw) => entered.has(raw.id))
         // Newest season first, by start date then number: event ids are not
         // in season order (older seasons were entered later).
         .sort(
           (a, b) =>
-            (Date.parse(b.raw.start_date ?? "") || 0) - (Date.parse(a.raw.start_date ?? "") || 0) ||
-            mapSeason(b.raw).number - mapSeason(a.raw).number,
+            (Date.parse(b.start_date ?? "") || 0) - (Date.parse(a.start_date ?? "") || 0) ||
+            mapSeason(b).number - mapSeason(a).number,
         );
       if (!played.length) return null;
-      const seasons = played.map(({ raw }) => mapSeason(raw));
+      const seasons = played.map(mapSeason);
       const pick = seasonNumber != null ? seasons.findIndex((s) => s.number === seasonNumber) : 0;
       if (pick < 0) return null;
-      const { raw, teams } = played[pick];
-      const series = await apiGet<RawSeries[]>(`/events/${raw.id}/series`);
+      const raw = played[pick];
+      const [teams, series] = await Promise.all([
+        apiGet<RawTeam[]>(`/events/${raw.id}/teams`),
+        apiGet<RawSeries[]>(`/events/${raw.id}/series`),
+      ]);
       const fixtures = mapFixtures(series);
       const team = mapTeams(teams, raw.id).find((t) => t.slug === slug);
       if (!team) return null;
@@ -273,25 +273,44 @@ function fixtureTeamPage(slug: string, seasonNumber?: number): TeamPageData | nu
   };
 }
 
+/** The id of the first player in one season's rosters or captains that passes `test`. */
+function findPlayerId(teams: RawTeam[], seasonId: number, test: (p: RawPlayer) => boolean): number | undefined {
+  const key = String(seasonId);
+  return teams
+    .flatMap((t) => [...(t.player_by_season?.[key] ?? []), ...(t.captains_by_season?.[key] ?? [])])
+    .find(test)?.id;
+}
+
 /** A player's page: roster entry, W3C ladder rows, career stats and their
  *  record and series in every published GNL season. Undefined when the slug
  *  is unknown. */
 export async function getPlayerProfile(slug: string): Promise<PlayerProfile | undefined> {
   const { data } = await withFallback(
     async () => {
-      const seasons = await fetchCompletedSeasonsRaw();
-      const [bundles, career] = await Promise.all([
-        Promise.all(
-          seasons.map(async (season) => {
-            const [teams, series] = await Promise.all([
-              apiGet<RawTeam[]>(`/events/${season.id}/teams`),
-              apiGet<RawSeries[]>(`/events/${season.id}/series`),
-            ]);
-            return { season, teams, series };
-          }),
-        ),
+      // Newest first, as mapPlayerProfile reads them: the newest season that
+      // names the slug gives the player.
+      const seasons = (await fetchCompletedSeasonsRaw()).sort(
+        (a, b) => (Date.parse(b.start_date ?? "") || 0) - (Date.parse(a.start_date ?? "") || 0) || b.id - a.id,
+      );
+      const [teamsBySeason, career] = await Promise.all([
+        Promise.all(seasons.map((season) => apiGet<RawTeam[]>(`/events/${season.id}/teams`))),
         apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]),
       ]);
+      const userId = seasons
+        .map((season, i) => findPlayerId(teamsBySeason[i], season.id, (p) => slugify(p.name) === slug))
+        .find((id) => id != null);
+      if (userId == null) return null;
+      // Only a season whose rosters or captains hold the player needs its series.
+      const bundles = await Promise.all(
+        seasons.map(async (season, i) => {
+          const teams = teamsBySeason[i];
+          const series =
+            findPlayerId(teams, season.id, (p) => p.id === userId) != null
+              ? await apiGet<RawSeries[]>(`/events/${season.id}/series`)
+              : [];
+          return { season, teams, series };
+        }),
+      );
       return mapPlayerProfile(bundles, career, slug) ?? null;
     },
     () => null,
