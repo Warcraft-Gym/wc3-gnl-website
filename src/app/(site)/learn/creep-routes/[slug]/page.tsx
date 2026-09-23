@@ -274,16 +274,6 @@ export default async function CreepRoutePage({ params }: Params) {
         <CreepMapPlayground map={map} route={route} />
       </Container>
 
-      {/* The route played out. Its own band above the notes, and absent
-          entirely when there is no video — same rule as the description
-          block below, so nothing leaves a blank gap. */}
-      {videoUrl ? (
-        <Container className="max-w-3xl pb-4">
-          <h2 className="mb-3 text-[1.05rem] font-bold tracking-[0.06em]">Watch the route</h2>
-          <VideoEmbed url={videoUrl} title={`${route.title} — video`} />
-        </Container>
-      ) : null}
-
       {/* "About this route" spans the full width, a sibling band of
           Companion build and "More creep routes" below rather than a narrow
           column with an empty half beside it (it kept the two-column grid
@@ -309,6 +299,21 @@ export default async function CreepRoutePage({ params }: Params) {
                 ))}
               </div>
             )}
+          </section>
+        </Container>
+      ) : null}
+
+      {/* The route played out, below the notes and built exactly like them:
+          same Container, same section, same heading, so the two line up on
+          the left. It previously carried `max-w-3xl`, which — because
+          `Container` is `mx-auto` — centred the block and left its edge
+          indented against every other band on the page. Absent entirely when
+          there is no video, so nothing leaves a blank gap. */}
+      {videoUrl ? (
+        <Container className="pb-16">
+          <section className="min-w-0">
+            <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Watch the route</h2>
+            <VideoEmbed url={videoUrl} title={`${route.title} — video`} />
           </section>
         </Container>
       ) : null}
