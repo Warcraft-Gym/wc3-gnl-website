@@ -22,6 +22,7 @@ export function toExchangeBuild(build) {
     author: build.author ?? "",
     authorDiscord: build.authorDiscord || undefined,
     sourceUrl: build.sourceUrl || undefined,
+    videoUrl: build.videoUrl || undefined,
     supersedes: build.slug,
     steps: (build.steps ?? []).map((s) => ({
       time: s.time || undefined,

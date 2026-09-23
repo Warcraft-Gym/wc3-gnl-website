@@ -78,6 +78,7 @@ export async function createBuildDraft(data: BuildSubmission): Promise<{ id: str
     author: data.author,
     authorDiscord: data.authorDiscord || undefined,
     sourceUrl: data.sourceUrl || undefined,
+    videoUrl: data.videoUrl || undefined,
     supersedes: supersedesDocId ? { _type: "reference", _ref: supersedesDocId } : undefined,
     featured: false,
     reviewStatus: "pending",

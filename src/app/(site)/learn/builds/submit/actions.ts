@@ -46,6 +46,7 @@ export async function submitBuild(_prev: SubmitState, formData: FormData): Promi
     author: formData.get("author"),
     authorDiscord: formData.get("authorDiscord") ?? undefined,
     sourceUrl: formData.get("sourceUrl") ?? undefined,
+    videoUrl: formData.get("videoUrl") ?? undefined,
     supersedes: formData.get("supersedes") ?? undefined,
     description: formData.get("description") ?? undefined,
     steps,

@@ -2,6 +2,7 @@ import { z } from "zod";
 import { BUILD_DIFFICULTIES, BUILD_RACES } from "./types";
 import { getGameIcon } from "./icons";
 import { slugFromInput } from "@/lib/creep-routes/submission";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 
 /**
  * Validation for public build submissions. Shared shape between the client
@@ -58,6 +59,16 @@ export const submissionSchema = z.object({
     .max(300)
     .optional()
     .refine((v) => !v || /^https?:\/\//.test(v), "Must start with http(s)://"),
+  /** A YouTube or Vimeo link showing the build played. Validated as
+   *  embeddable at submit time so an author is told now, rather than finding
+   *  a bare link on the page later. Separate from `sourceUrl`, which credits
+   *  a replay or post and stays a link. */
+  videoUrl: z
+    .string()
+    .trim()
+    .max(300)
+    .optional()
+    .refine((v) => !v || isEmbeddable(v), "Paste a YouTube or Vimeo link"),
   /** Slug of the build this submission replaces. The site has no accounts,
    *  so an author updating a build resubmits it and names the old one; a
    *  coach approves the replacement and archives what it replaced, which

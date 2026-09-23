@@ -128,6 +128,15 @@ export const buildOrder = defineType({
       description: "The Learn guide this build was taken from; the two pages link to each other.",
     }),
     defineField({
+      name: "videoUrl",
+      title: "Video",
+      type: "url",
+      group: "meta",
+      description:
+        "A YouTube or Vimeo link showing the build played. Embedded on the page. " +
+        "Distinct from Source link, which credits where the build came from and stays a link.",
+    }),
+    defineField({
       name: "supersedes",
       title: "Replaces",
       type: "reference",

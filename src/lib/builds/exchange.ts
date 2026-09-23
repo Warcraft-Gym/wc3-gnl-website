@@ -44,6 +44,9 @@ export const exchangeBuildSchema = z.object({
   author: z.string().default(""),
   authorDiscord: z.string().optional(),
   sourceUrl: z.string().optional(),
+  /** Carried so a "Suggest an update" link does not drop the author's
+   *  video when the form is prefilled. */
+  videoUrl: z.string().optional(),
   /** Slug of the build this payload updates — set by a build page's
    *  "Suggest an update" link. A replay or overlay import omits it, being a
    *  new build rather than an edit. */

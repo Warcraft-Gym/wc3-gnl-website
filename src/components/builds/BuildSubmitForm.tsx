@@ -78,7 +78,7 @@ export function BuildSubmitForm() {
   const nextId = useRef(4);
   const [steps, setSteps] = useState<StepRow[]>(() => [newRow(1), newRow(2), newRow(3)]);
   const [text, setText] = useState({
-    title: "", patch: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "", supersedes: "",
+    title: "", patch: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "", videoUrl: "", supersedes: "",
   });
   const bind = (k: keyof typeof text) => ({
     id: k,
@@ -149,6 +149,7 @@ export function BuildSubmitForm() {
       author: b.author,
       authorDiscord: b.authorDiscord ?? "",
       sourceUrl: b.sourceUrl ?? "",
+      videoUrl: b.videoUrl ?? "",
       // Set when the payload came from a build page's "Suggest an update"
       // link; a replay or overlay import omits it, being a new build.
       supersedes: b.supersedes ?? "",
@@ -412,6 +413,14 @@ export function BuildSubmitForm() {
           </div>
           <Field name="sourceUrl" title="Source link" error={errors.sourceUrl} hint="Optional replay, VOD or post.">
             <input {...bind("sourceUrl")} type="url" maxLength={300} placeholder="https://" className={input} />
+          </Field>
+          <Field
+            name="videoUrl"
+            title="Video"
+            error={errors.videoUrl}
+            hint="Optional YouTube or Vimeo link showing the build played — embedded on the page."
+          >
+            <input {...bind("videoUrl")} type="url" maxLength={300} placeholder="https://youtu.be/..." className={input} />
           </Field>
           {/* No accounts, so there is nobody to authenticate an in-place
               edit against: updating a build means resubmitting it and naming

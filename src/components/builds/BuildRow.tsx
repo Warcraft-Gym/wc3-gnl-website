@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlayCircle, Link as LinkIcon } from "lucide-react";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 import { DifficultyBadge, TagChip, VsRaces } from "./BuildBadges";
 import { BUILD_RACES, type BuildDifficulty, type BuildOrder } from "@/lib/builds/types";
 import { cn } from "@/lib/utils";
@@ -50,6 +51,21 @@ export function BuildRow({ build }: { build: BuildOrder }) {
             </span>
             <span className="text-faint">·</span>
             <span>by {build.author}</span>
+            {/* Same signal as the creep route list: whether a build comes
+                with a video or a cited source is worth knowing before you
+                open it. */}
+            {build.videoUrl || isEmbeddable(build.sourceUrl) ? (
+              <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
+                <PlayCircle size={14} aria-hidden />
+                <span className="sr-only">Includes a video</span>
+              </span>
+            ) : null}
+            {build.sourceUrl ? (
+              <span className="inline-flex items-center gap-1 text-muted" title="Has a source link">
+                <LinkIcon size={14} aria-hidden />
+                <span className="sr-only">Has a source link</span>
+              </span>
+            ) : null}
             {build.tags.slice(0, 3).map((t) => (
               <TagChip key={t}>{t}</TagChip>
             ))}
@@ -107,6 +123,21 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
             </span>
             <DifficultyBadge level={build.difficulty} />
             <span>by {build.author}</span>
+            {/* Same signal as the creep route list: whether a build comes
+                with a video or a cited source is worth knowing before you
+                open it. */}
+            {build.videoUrl || isEmbeddable(build.sourceUrl) ? (
+              <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
+                <PlayCircle size={14} aria-hidden />
+                <span className="sr-only">Includes a video</span>
+              </span>
+            ) : null}
+            {build.sourceUrl ? (
+              <span className="inline-flex items-center gap-1 text-muted" title="Has a source link">
+                <LinkIcon size={14} aria-hidden />
+                <span className="sr-only">Has a source link</span>
+              </span>
+            ) : null}
             <span className="ml-auto inline-flex items-center gap-1 font-display text-[0.68rem] font-bold uppercase tracking-[0.14em] text-gold">
               Open build <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
             </span>

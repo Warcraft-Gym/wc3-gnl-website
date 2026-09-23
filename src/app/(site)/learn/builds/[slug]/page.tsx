@@ -15,6 +15,8 @@ import { OverlayBeta } from "@/components/builds/OverlayBeta";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { getBuildBySlug, getSupersedingBuildSlug, getBuilds } from "@/lib/builds/builds";
 import { buildEditHref } from "@/lib/builds/edit-link.mjs";
+import { VideoEmbed } from "@/components/ui/VideoEmbed";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
@@ -66,6 +68,7 @@ export default async function BuildPage({ params }: Params) {
   const { slug } = await params;
   const build = await getBuildBySlug(slug);
   const editHref = build ? buildEditHref(build) : undefined;
+  const videoUrl = build?.videoUrl ?? (isEmbeddable(build?.sourceUrl) ? build?.sourceUrl : undefined);
 
   if (!build) {
     // Archived and replaced: send readers to the current version rather than
@@ -198,7 +201,21 @@ export default async function BuildPage({ params }: Params) {
             )
           ) : (
             <p className="text-sm text-faint">No notes yet.</p>
-          )}        </section>
+          )}
+
+          {/* The build played out, under the notes in the same column so the
+              two share a left edge. Same rule as creep routes: an embeddable
+              Source counts as the video when no explicit one is set, so a
+              build whose author put a VOD in Source — the only field that
+              existed before this one — gains a player without being
+              resubmitted. */}
+          {videoUrl ? (
+            <div className="mt-8">
+              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Watch the build</h2>
+              <VideoEmbed url={videoUrl} title={`${build.title} — video`} />
+            </div>
+          ) : null}
+        </section>
 
         {/* Steps */}
         <section className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)] lg:self-start">
