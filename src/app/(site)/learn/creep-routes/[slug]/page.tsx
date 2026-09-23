@@ -15,6 +15,8 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
 import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
+import { GameIcon } from "@/components/builds/GameIcon";
+import { getGameIcon } from "@/lib/builds/icons";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes, getSupersedingRouteSlug } from "@/lib/creep-routes/routes";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
@@ -83,6 +85,9 @@ export default async function CreepRoutePage({ params }: Params) {
   // Built server-side so the link is in the HTML: no hydration wait, and it
   // still works with JavaScript disabled up to the point the form needs it.
   const editHref = routeEditHref(route);
+  // `undefined` for a route with no hero, or an icon key the manifest does
+  // not know — render nothing rather than an empty chip.
+  const heroIcon = getGameIcon(route.hero);
 
   const allRoutes = await getCreepRoutes();
   const related = allRoutes
@@ -176,6 +181,17 @@ export default async function CreepRoutePage({ params }: Params) {
               (F009-followup-3; it used to lead the header). */}
           <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             <Matchup race={route.race} vsRaces={route.vsRaces} size={22} />
+            {/* The hero the route is built around. Collected at submission
+                and carried by every projection, but until now never shown —
+                which made it look like the field did nothing. Named as well
+                as drawn: the portrait alone is only legible to someone who
+                already knows the icon. */}
+            {heroIcon ? (
+              <span className="flex items-center gap-2" title={`Hero: ${heroIcon.title}`}>
+                <GameIcon iconKey={route.hero} size={22} className="rounded ring-1 ring-gold/30" />
+                <span className="text-xs text-muted">{heroIcon.title}</span>
+              </span>
+            ) : null}
             <LevelBadge level={route.level} />
             {route.patch ? (
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {route.patch}</span>
