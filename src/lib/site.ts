@@ -9,11 +9,17 @@
  *   2. VERCEL_PROJECT_PRODUCTION_URL, the project's production host. It is
  *      the custom domain once one is attached, and the *.vercel.app host
  *      until then, so links keep their preview while the domain is set up.
- *   3. The domain the site is headed for, for a build outside Vercel.
+ *   3. warcraft-gym.com, the domain the site serves, for a build outside
+ *      Vercel.
  * Plain `next dev` uses localhost.
  */
 
-const PRODUCTION_URL = "https://warcraft3.gym";
+// The domain this site serves, and the one the WordPress site it replaced
+// was indexed under — so its ranking transfers rather than restarting. Only
+// a fallback: on Vercel `VERCEL_PROJECT_PRODUCTION_URL` is the attached
+// custom domain and wins, which is what keeps canonicals honest on preview
+// deployments.
+const PRODUCTION_URL = "https://warcraft-gym.com";
 
 /** Vercel sends a bare host, with no scheme. */
 const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
