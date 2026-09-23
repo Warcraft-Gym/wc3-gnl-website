@@ -141,25 +141,38 @@ export default async function BuildPage({ params }: Params) {
               <span>· Maintained by <span className="text-muted">{build.maintainer}</span></span>
             ) : null}
             <span>· Updated {formatDate(build.updatedAt)}</span>
-            {build.sourceUrl ? (
-              <a
-                href={build.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-gold hover:underline"
-              >
-                Source <ExternalLink size={13} />
-              </a>
-            ) : null}
-            {/* No accounts, so nobody can edit in place. This opens the submit
-                form prefilled with this build and already naming it as the one
-                being replaced. Anyone may suggest an update; a coach decides. */}
-            {editHref ? (
-              <a href={editHref} className="inline-flex items-center gap-1 text-gold hover:underline">
-                <PencilLine size={13} /> Suggest an update
-              </a>
-            ) : null}
           </p>
+
+          {/* Actions, not metadata — the same change the route page got.
+              These were 13px links inside the faint byline, reading as small
+              print rather than something clickable, and too small a target on
+              a phone. They are the only two things a reader can *do* here.
+
+              "Suggest an update": no accounts, so nobody can edit in place.
+              This opens the submit form prefilled with this build and already
+              naming it as the one being replaced. Anyone may suggest one; a
+              coach decides. */}
+          {build.sourceUrl || editHref ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {editHref ? (
+                <ButtonLink href={editHref} variant="outline" size="sm" className="max-sm:w-auto">
+                  <PencilLine size={16} aria-hidden /> Suggest an update
+                </ButtonLink>
+              ) : null}
+              {build.sourceUrl ? (
+                <ButtonLink
+                  href={build.sourceUrl}
+                  variant="ghost"
+                  size="sm"
+                  className="max-sm:w-auto"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Source <ExternalLink size={16} aria-hidden />
+                </ButtonLink>
+              ) : null}
+            </div>
+          ) : null}
           {build.tags.length ? (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {build.tags.map((t) => (
