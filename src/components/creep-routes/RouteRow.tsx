@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { PlayCircle, Link as LinkIcon } from "lucide-react";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 import Image from "next/image";
 import { TagChip, VsRaces } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
@@ -98,7 +99,7 @@ export function RouteRow({ route }: { route: CreepRoute }) {
                 proposition from a bare camp list. Icons rather than words:
                 the line is already dense, and each carries its own label for
                 anyone not reading by sight. */}
-            {route.videoUrl ? (
+            {route.videoUrl || isEmbeddable(route.sourceUrl) ? (
               <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
                 <PlayCircle size={12} aria-hidden />
                 <span className="sr-only">Includes a video</span>

@@ -17,6 +17,7 @@ import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
 import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 import { getGameIcon } from "@/lib/builds/icons";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes, getSupersedingRouteSlug } from "@/lib/creep-routes/routes";
@@ -89,6 +90,14 @@ export default async function CreepRoutePage({ params }: Params) {
   // `undefined` for a route with no hero, or an icon key the manifest does
   // not know — render nothing rather than an empty chip.
   const heroIcon = getGameIcon(route.hero);
+
+  // Until this page had a Video field, an author with a VOD had one place to
+  // put it: Source. Every route on the site that has a source link has a
+  // YouTube link there. So a source we *can* embed is treated as the video
+  // when no explicit one is set — the existing routes gain a player without
+  // anyone rewriting their submissions, and the Source button still points
+  // at the same URL for anyone who wants the original page.
+  const videoUrl = route.videoUrl ?? (isEmbeddable(route.sourceUrl) ? route.sourceUrl : undefined);
 
   const allRoutes = await getCreepRoutes();
   const related = allRoutes
@@ -211,27 +220,41 @@ export default async function CreepRoutePage({ params }: Params) {
               <span>· Maintained by <span className="text-muted">{route.maintainer}</span></span>
             ) : null}
             <span>· Updated {formatDate(route.updatedAt)}</span>
-            {route.sourceUrl ? (
-              <a
-                href={route.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-gold hover:underline"
-              >
-                Source <ExternalLink size={11} />
-              </a>
-            ) : null}
-            {/* No accounts, so an author cannot edit in place. This opens the
-                submit form prefilled with this route and already naming it as
-                the one being replaced, so "editing" is a review of a diff
-                rather than retyping the whole thing. Anyone may suggest an
-                update; a coach decides. */}
-            {editHref ? (
-              <a href={editHref} className="inline-flex items-center gap-1 text-gold hover:underline">
-                <PencilLine size={11} /> Suggest an update
-              </a>
-            ) : null}
           </p>
+
+          {/* Actions, not metadata. Both of these were 11px links inside the
+              faint byline, where they read as small print rather than
+              something you can click — and a 11px target is below the size
+              anyone should have to hit on a phone. They are the only two
+              things a reader can *do* on this page, so they get the site's
+              button treatment and a row of their own.
+
+              "Suggest an update": no accounts, so an author cannot edit in
+              place. This opens the submit form prefilled with this route and
+              already naming it as the one being replaced, so editing is a
+              review of a diff rather than retyping. Anyone may suggest one;
+              a coach decides. */}
+          {route.sourceUrl || editHref ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {editHref ? (
+                <ButtonLink href={editHref} variant="outline" size="sm" className="max-sm:w-auto">
+                  <PencilLine size={14} aria-hidden /> Suggest an update
+                </ButtonLink>
+              ) : null}
+              {route.sourceUrl ? (
+                <ButtonLink
+                  href={route.sourceUrl}
+                  variant="ghost"
+                  size="sm"
+                  className="max-sm:w-auto"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Source <ExternalLink size={14} aria-hidden />
+                </ButtonLink>
+              ) : null}
+            </div>
+          ) : null}
           {route.tags?.length ? (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {route.tags.map((t) => (
@@ -254,23 +277,26 @@ export default async function CreepRoutePage({ params }: Params) {
       {/* The route played out. Its own band above the notes, and absent
           entirely when there is no video — same rule as the description
           block below, so nothing leaves a blank gap. */}
-      {route.videoUrl ? (
+      {videoUrl ? (
         <Container className="max-w-3xl pb-4">
           <h2 className="mb-3 text-[1.05rem] font-bold tracking-[0.06em]">Watch the route</h2>
-          <VideoEmbed url={route.videoUrl} title={`${route.title} — video`} />
+          <VideoEmbed url={videoUrl} title={`${route.title} — video`} />
         </Container>
       ) : null}
 
-      {/* "About this route" keeps the narrow, two-column layout the whole
-          section used to share (F009-followup-5 moved Companion build and
-          the Discord panel out of it). No empty-state placeholder
+      {/* "About this route" spans the full width, a sibling band of
+          Companion build and "More creep routes" below rather than a narrow
+          column with an empty half beside it (it kept the two-column grid
+          after F009-followup-5 moved Companion build and the Discord panel
+          out of it, leaving a spacer that did nothing). No empty-state
+          placeholder
           (F009-followup-4): the block, heading included, is absent when
           the route has no description — and so is this wrapping band, so
           an empty description never leaves a blank gap above Companion
           build. */}
       {route.description && route.description.length ? (
-        <Container className="grid gap-10 pb-16 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
-          <section className="min-w-0 max-w-2xl">
+        <Container className="pb-16">
+          <section className="min-w-0">
             <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
             {isPortableText(route.description) ? (
               <div className="prose-invert max-w-none">
@@ -284,7 +310,6 @@ export default async function CreepRoutePage({ params }: Params) {
               </div>
             )}
           </section>
-          <div className="hidden lg:block" aria-hidden />
         </Container>
       ) : null}
 
