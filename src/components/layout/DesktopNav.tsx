@@ -17,12 +17,10 @@ export function DesktopNav() {
         const active =
           !item.external &&
           (pathname === item.href ||
-            (pathname.startsWith(item.href + "/") &&
-              // Builds and creep routes live under /learn but have their own nav items
-              !(
-                item.href === "/learn" &&
-                (pathname.startsWith("/learn/builds") || pathname.startsWith("/learn/creep-routes"))
-              )) ||
+            // Build orders and creep routes are Learn pages and light Learn
+            // up; they used to be excluded here because they had top-level
+            // items of their own.
+            pathname.startsWith(item.href + "/") ||
             (item.label === "League" && pathname.startsWith("/gnl")));
 
         // Plain sans links like the official nav; the active one carries a

@@ -53,12 +53,10 @@ export function MobileNav() {
                   onClick={close}
                   className={cn(
                     "border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] transition-colors",
-                    pathname === item.href ||
-                      (pathname.startsWith(item.href + "/") &&
-                        !(
-                          item.href === "/learn" &&
-                          (pathname.startsWith("/learn/builds") || pathname.startsWith("/learn/creep-routes"))
-                        ))
+                    // Build orders and creep routes are Learn pages and light
+                    // Learn up; they used to be excluded here because they had
+                    // top-level items of their own.
+                    pathname === item.href || pathname.startsWith(item.href + "/")
                       ? "text-gold"
                       : "text-fg hover:text-gold",
                   )}

@@ -5,9 +5,10 @@ export type NavItem = { href: string; label: string; external?: boolean };
 /** Primary site header nav. */
 export const PRIMARY_NAV: NavItem[] = [
   { href: "/blog", label: "News" },
+  // Build orders and creep routes are Learn sections, not siblings of it —
+  // they live in LEARN_NAV below. Keeping them here too made the top bar
+  // advertise three doors into the same room.
   { href: "/learn", label: "Learn" },
-  { href: "/learn/builds", label: "Builds" },
-  ...(CREEP_ROUTES_LIVE ? [{ href: "/learn/creep-routes", label: "Creep routes" }] : []),
   { href: "/gnl/schedule", label: "League" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
@@ -21,6 +22,7 @@ export const LEARN_NAV: NavItem[] = [
   { href: "/learn/orc", label: "Orc" },
   { href: "/learn/undead", label: "Undead" },
   { href: "/learn/builds", label: "Build orders" },
+  ...(CREEP_ROUTES_LIVE ? [{ href: "/learn/creep-routes", label: "Creep routes" }] : []),
   { href: "/learn/new-players", label: "New players" },
 ];
 
