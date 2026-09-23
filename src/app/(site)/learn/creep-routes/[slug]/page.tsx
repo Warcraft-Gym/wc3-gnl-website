@@ -18,6 +18,7 @@ import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
 import { isEmbeddable } from "@/lib/video-embed.mjs";
+import { relatedRoutes, allOnSameMap } from "@/lib/creep-routes/related.mjs";
 import { getGameIcon } from "@/lib/builds/icons";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes, getSupersedingRouteSlug } from "@/lib/creep-routes/routes";
@@ -100,9 +101,10 @@ export default async function CreepRoutePage({ params }: Params) {
   const videoUrl = route.videoUrl ?? (isEmbeddable(route.sourceUrl) ? route.sourceUrl : undefined);
 
   const allRoutes = await getCreepRoutes();
-  const related = allRoutes
-    .filter((r) => r.slug !== route.slug && (r.map.slug === route.map.slug || r.race === route.race))
-    .slice(0, 3);
+
+  // Same map first, same race elsewhere as filler — see `related.mjs`.
+  const related = relatedRoutes(route, allRoutes);
+  const relatedAllSameMap = allOnSameMap(route, related);
 
   const mapVersionMismatch =
     route.mapVersion && map.mapVersion && route.mapVersion !== map.mapVersion;
@@ -274,6 +276,32 @@ export default async function CreepRoutePage({ params }: Params) {
         <CreepMapPlayground map={map} route={route} />
       </Container>
 
+      {/* Discord panel, straight after the stops: the moment a reader has
+          just gone through the route is the moment they have a question
+          about it, and asking is the one thing this page cannot answer
+          itself. It was last on the page, below three sections a reader
+          with a question has no reason to scroll through.
+
+          Its own full-width `Container` so it stays a sibling band, but the
+          card keeps its `max-w-2xl` width and left-aligned position rather
+          than stretching edge to edge — it is a card, not a list section
+          with a heading like the ones below. */}
+      <Container className="pb-16">
+        <div className="panel flex max-w-2xl flex-col items-start gap-4 border-[#5865F2]/40 p-5">
+          <div>
+            <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+              Questions about this route?
+            </p>
+            <p className="mt-1 text-sm text-muted">
+              Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
+            </p>
+          </div>
+          <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
+            <DiscordIcon size={17} /> Discuss on Discord
+          </ButtonLink>
+        </div>
+      </Container>
+
       {/* "About this route" spans the full width, a sibling band of
           Companion build and "More creep routes" below rather than a narrow
           column with an empty half beside it (it kept the two-column grid
@@ -340,7 +368,9 @@ export default async function CreepRoutePage({ params }: Params) {
 
       {related.length ? (
         <Container className="pb-16">
-          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">More creep routes</h2>
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">
+            {relatedAllSameMap ? `More routes on ${route.map.name}` : "More creep routes"}
+          </h2>
           <ul className="grid gap-3">
             {related.map((r) => (
               <li key={r.slug}>
@@ -350,7 +380,13 @@ export default async function CreepRoutePage({ params }: Params) {
                 >
                   <span className="min-w-0">
                     <span className="block truncate font-bold text-fg group-hover:text-gold">{r.title}</span>
-                    <span className="block truncate text-sm text-muted">{r.map.name}</span>
+                    <span className="block truncate text-sm text-muted">
+                      {r.map.name}
+                      <span className="text-faint">
+                        {" · "}
+                        {BUILD_RACES.find((b) => b.id === r.race)?.label ?? r.race}
+                      </span>
+                    </span>
                   </span>
                   <LevelBadge level={r.level} />
                 </Link>
@@ -360,27 +396,6 @@ export default async function CreepRoutePage({ params }: Params) {
         </Container>
       ) : null}
 
-      {/* Discord panel: now last (F009-followup-5's ordering rule —
-          description → Companion build → More creep routes → Discord),
-          its own full-width `Container` so it stays a sibling band, but
-          the card itself keeps its original `max-w-2xl` width and
-          left-aligned position rather than stretching edge to edge — it
-          is a card, not a list section with a heading like the two above. */}
-      <Container className="pb-16">
-        <div className="panel flex max-w-2xl flex-col items-start gap-4 border-[#5865F2]/40 p-5">
-          <div>
-            <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
-              Questions about this route?
-            </p>
-            <p className="mt-1 text-sm text-muted">
-              Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
-            </p>
-          </div>
-          <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
-            <DiscordIcon size={17} /> Discuss on Discord
-          </ButtonLink>
-        </div>
-      </Container>
     </article>
   );
 }
