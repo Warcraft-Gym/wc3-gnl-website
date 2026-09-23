@@ -92,8 +92,13 @@ export function CampCard({
   onPointerEnter,
   onPointerLeave,
   titleId,
+  showCampId = false,
 }: {
   camp: MapCamp;
+  /** Shows the camp id (`c07`) in the header. On by default nowhere: it is
+   *  the authoring handle — what a stop stores and what the stop list shows —
+   *  so the editor asks for it and the reader-facing route page does not. */
+  showCampId?: boolean;
   /** Defaults to `camp.band`; accepted separately per the spec so a caller
    *  can override it (e.g. a synthetic camp without its own band). */
   band?: string;
@@ -264,6 +269,15 @@ export function CampCard({
       <div className="flex items-center justify-between gap-3 border-b border-gold/30 px-4 py-3">
         <h2 id={headingId} className="flex items-center gap-2 font-display text-[0.95rem] font-bold uppercase tracking-[0.05em] text-fg">
           <BandDot band={resolvedBand} />
+          {/* The camp id is the handle an author works with — it is what a
+              stop stores and what the stop list shows — so the editor puts it
+              on the card. A reader has no use for it, so the route page does
+              not pass `showCampId`. */}
+          {showCampId ? (
+            <span className="tnum rounded border border-line/70 bg-surface/60 px-1.5 py-0.5 font-mono text-[0.72rem] font-semibold normal-case tracking-normal text-muted">
+              {camp.id}
+            </span>
+          ) : null}
           {campSpotTitle({ ...camp, band: resolvedBand })}
         </h2>
         <button

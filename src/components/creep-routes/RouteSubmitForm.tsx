@@ -328,6 +328,7 @@ export function RouteSubmitForm({
 
         {card ? (
           <CampCard
+            showCampId
             camp={card.camp}
             anchorEl={card.trigger}
             pinned={card.pinned}
