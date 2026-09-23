@@ -287,18 +287,26 @@ export default async function CreepRoutePage({ params }: Params) {
           than stretching edge to edge — it is a card, not a list section
           with a heading like the ones below. */}
       <Container className="pb-16">
-        <div className="panel flex max-w-2xl flex-col items-start gap-4 border-[#5865F2]/40 p-5">
-          <div>
-            <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
-              Questions about this route?
-            </p>
-            <p className="mt-1 text-sm text-muted">
-              Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
-            </p>
+        {/* Mirrors `CreepMapPlayground`'s columns exactly — same template,
+            same gaps — with the left cell empty, so the card starts on the
+            same line as the step table above it instead of at the container
+            edge under the map. Below `lg` the playground is a single column
+            and so is this, so the card simply follows the stops. */}
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
+          <div className="hidden lg:block" aria-hidden />
+          <div className="panel flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
+            <div>
+              <p className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+                Questions about this route?
+              </p>
+              <p className="mt-1 text-sm text-muted">
+                Drop it in the build orders channel on the Gym Discord and a coach, or the author, will answer.
+              </p>
+            </div>
+            <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
+              <DiscordIcon size={17} /> Discuss on Discord
+            </ButtonLink>
           </div>
-          <ButtonLink href={DISCORD_BUILDS_CHANNEL_URL} variant="discord" size="sm" target="_blank" rel="noreferrer">
-            <DiscordIcon size={17} /> Discuss on Discord
-          </ButtonLink>
         </div>
       </Container>
 
