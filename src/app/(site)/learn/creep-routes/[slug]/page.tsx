@@ -16,6 +16,7 @@ import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
 import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
 import { GameIcon } from "@/components/builds/GameIcon";
+import { VideoEmbed } from "@/components/ui/VideoEmbed";
 import { getGameIcon } from "@/lib/builds/icons";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRouteBySlug, getCreepRoutes, getSupersedingRouteSlug } from "@/lib/creep-routes/routes";
@@ -249,6 +250,16 @@ export default async function CreepRoutePage({ params }: Params) {
       <Container className="py-10">
         <CreepMapPlayground map={map} route={route} />
       </Container>
+
+      {/* The route played out. Its own band above the notes, and absent
+          entirely when there is no video — same rule as the description
+          block below, so nothing leaves a blank gap. */}
+      {route.videoUrl ? (
+        <Container className="max-w-3xl pb-4">
+          <h2 className="mb-3 text-[1.05rem] font-bold tracking-[0.06em]">Watch the route</h2>
+          <VideoEmbed url={route.videoUrl} title={`${route.title} — video`} />
+        </Container>
+      ) : null}
 
       {/* "About this route" keeps the narrow, two-column layout the whole
           section used to share (F009-followup-5 moved Companion build and

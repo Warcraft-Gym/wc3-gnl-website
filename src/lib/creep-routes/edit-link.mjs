@@ -53,6 +53,7 @@ export function toExchangeRoute(route) {
     author: route.author ?? "",
     authorDiscord: route.authorDiscord || undefined,
     sourceUrl: route.sourceUrl || undefined,
+    videoUrl: route.videoUrl || undefined,
     supersedes: route.slug,
     stops: (route.stops ?? []).map((s) => ({
       campId: s.campId ?? null,

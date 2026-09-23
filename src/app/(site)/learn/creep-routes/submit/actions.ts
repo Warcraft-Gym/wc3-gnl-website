@@ -79,6 +79,7 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
     author: formData.get("author"),
     authorDiscord: formData.get("authorDiscord") ?? undefined,
     sourceUrl: formData.get("sourceUrl") ?? undefined,
+    videoUrl: formData.get("videoUrl") ?? undefined,
     patch: formData.get("patch") ?? undefined,
     tags: formData.get("tags") ?? undefined,
     description: formData.get("description") ?? undefined,

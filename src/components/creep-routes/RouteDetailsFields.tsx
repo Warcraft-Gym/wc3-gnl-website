@@ -44,6 +44,7 @@ export type RouteDetailsText = {
   author: string;
   authorDiscord: string;
   sourceUrl: string;
+  videoUrl: string;
   supersedes: string;
   description: string;
 };
@@ -109,6 +110,14 @@ export function RouteDetailsFields({
       </div>
       <Field name="sourceUrl" title="Source link" error={errors.sourceUrl} hint="Optional replay, VOD or post.">
         <input {...bind("sourceUrl")} type="url" maxLength={300} placeholder="https://" className={input} />
+      </Field>
+      <Field
+        name="videoUrl"
+        title="Video"
+        error={errors.videoUrl}
+        hint="Optional YouTube or Vimeo link showing the route played out — embedded on the page."
+      >
+        <input {...bind("videoUrl")} type="url" maxLength={300} placeholder="https://youtu.be/..." className={input} />
       </Field>
       {/* The site has no accounts, so there is nobody to authenticate an
           in-place edit against. Updating a route means submitting the new

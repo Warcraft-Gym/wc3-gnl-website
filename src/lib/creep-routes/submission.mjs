@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { isEmbeddable } from "../video-embed.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -117,6 +118,16 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         .max(120)
         .optional()
         .refine((v) => !v || !buildSet.size || buildSet.has(v), "Unknown build"),
+      /** A YouTube or Vimeo link showing the route played out. Validated as
+       *  embeddable at submit time so an author is told now, rather than
+       *  finding a bare link on the page later. Kept separate from
+       *  `sourceUrl`, which credits a replay or post and stays a link. */
+      videoUrl: z
+        .string()
+        .trim()
+        .max(300)
+        .optional()
+        .refine((v) => !v || isEmbeddable(v), "Paste a YouTube or Vimeo link"),
       /** An author updating their own route resubmits it and names the one
        *  it replaces — the site has no accounts, so there is nobody to
        *  authenticate an in-place edit against. A coach approves the new
@@ -275,6 +286,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
     author: valid.author,
     authorDiscord: valid.authorDiscord || undefined,
     sourceUrl: valid.sourceUrl || undefined,
+    videoUrl: valid.videoUrl || undefined,
     build: buildDocId ? { _type: "reference", _ref: buildDocId } : undefined,
     supersedes: supersedesDocId ? { _type: "reference", _ref: supersedesDocId } : undefined,
     tags: valid.tags,

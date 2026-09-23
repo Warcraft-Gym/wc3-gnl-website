@@ -3,18 +3,9 @@ import {
   type PortableTextComponents,
 } from "@portabletext/react";
 import { urlFor } from "@/sanity/image";
+// Shared with the creep route Video field so both understand the same URLs.
+import { embedUrl } from "@/lib/video-embed.mjs";
 
-/** Build an embeddable player URL for a YouTube/Vimeo link, else null. */
-function embedUrl(raw?: string): string | null {
-  if (!raw) return null;
-  const yt =
-    raw.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/) ||
-    [];
-  if (yt[1]) return `https://www.youtube-nocookie.com/embed/${yt[1]}`;
-  const vimeo = raw.match(/vimeo\.com\/(?:video\/)?(\d+)/);
-  if (vimeo?.[1]) return `https://player.vimeo.com/video/${vimeo[1]}`;
-  return null;
-}
 
 /**
  * Renderer for Sanity Portable Text bodies (guides, posts). Handles images,

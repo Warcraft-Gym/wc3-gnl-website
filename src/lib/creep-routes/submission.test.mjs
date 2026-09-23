@@ -286,3 +286,35 @@ test("a resubmission carries the reference and still arrives pending", () => {
   assert.equal(draft.reviewStatus, "pending");
   assert.match(String(draft._id), /^drafts\./);
 });
+
+/* ------------------------------------------------------------------ *
+ *  Video
+ * ------------------------------------------------------------------ */
+
+test("a YouTube or Vimeo link is accepted and carried into the draft", () => {
+  for (const url of [
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    "https://youtu.be/dQw4w9WgXcQ?t=42",
+    "https://vimeo.com/123456789",
+  ]) {
+    const result = schema().safeParse({ ...payload(), videoUrl: url });
+    assert.equal(result.success, true, `${url}: ${JSON.stringify(result.error?.issues)}`);
+    const draft = toCreepRouteDraft(result.data, "creepMap-autumn-leaves");
+    assert.equal(draft.videoUrl, url, "the original URL is stored; embedding happens at render");
+  }
+});
+
+test("a link we cannot embed is rejected at submit time, not silently dropped", () => {
+  // Better to tell the author now than to render a bare link they did not
+  // ask for on a page they cannot edit.
+  const result = schema().safeParse({ ...payload(), videoUrl: "https://twitch.tv/someone" });
+  assert.equal(result.success, false);
+  assert.equal(result.error.issues[0].path.join("."), "videoUrl");
+  assert.match(result.error.issues[0].message, /YouTube or Vimeo/);
+});
+
+test("no video is still a valid route", () => {
+  const result = schema().safeParse(payload());
+  assert.equal(result.success, true);
+  assert.equal(toCreepRouteDraft(result.data, "creepMap-autumn-leaves").videoUrl, undefined);
+});

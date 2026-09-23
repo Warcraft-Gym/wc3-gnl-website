@@ -161,6 +161,15 @@ export const creepRoute = defineType({
       description: "Optional link to the build order this route pairs with.",
     }),
     defineField({
+      name: "videoUrl",
+      title: "Video",
+      type: "url",
+      group: "meta",
+      description:
+        "A YouTube or Vimeo link showing the route being played. Embedded above the notes. " +
+        "Distinct from Source link, which credits where the route came from and stays a link.",
+    }),
+    defineField({
       name: "supersedes",
       title: "Replaces",
       type: "reference",

@@ -70,7 +70,7 @@ export function RouteSubmitForm({
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState({
-    title: "", summary: "", patch: "", author: "", authorDiscord: "", sourceUrl: "", supersedes: "", description: "",
+    title: "", summary: "", patch: "", author: "", authorDiscord: "", sourceUrl: "", videoUrl: "", supersedes: "", description: "",
   });
   const bind = (k: keyof typeof text) => ({
     id: k,
@@ -127,6 +127,7 @@ export function RouteSubmitForm({
     setText({
       title: r.title, summary: r.summary, patch: r.patch ?? "", author: r.author,
       authorDiscord: r.authorDiscord ?? "", sourceUrl: r.sourceUrl ?? "",
+      videoUrl: r.videoUrl ?? "",
       // Set when the payload came from a route page's "Suggest an update"
       // link; a plain import (replay, overlay) omits it, because that is a
       // new route rather than an edit.

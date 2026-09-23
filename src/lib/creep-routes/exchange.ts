@@ -58,6 +58,9 @@ export const creepRouteExchangeSchema = z.object({
   author: z.string().default(""),
   authorDiscord: z.string().optional(),
   sourceUrl: z.string().optional(),
+  /** Carried so a "Suggest an update" link does not silently drop the
+   *  author's video when the form is prefilled. */
+  videoUrl: z.string().optional(),
   /** Slug of the route this payload is an update to. Set by the "Suggest an
    *  update" link on a route page so the submit form arrives prefilled *and*
    *  already naming what it replaces. A plain import (replay, overlay) omits

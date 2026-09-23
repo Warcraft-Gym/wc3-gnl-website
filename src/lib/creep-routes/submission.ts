@@ -38,6 +38,8 @@ export type SubmissionInput = {
   author: string;
   authorDiscord?: string;
   sourceUrl?: string;
+  /** YouTube or Vimeo link, embedded on the route page. */
+  videoUrl?: string;
   /** Slug of the route this submission replaces, when an author resubmits
    *  an updated version (the site has no accounts, so editing in place has
    *  nobody to authenticate against). */

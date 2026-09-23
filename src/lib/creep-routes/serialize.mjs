@@ -59,6 +59,10 @@ export function toApiRoute(route, map, origin, iconSrc, deriveRouteFn) {
   return {
     ...listItem,
     description: route.description,
+    // Detail-only, like `sourceUrl`: the list page flags a video with an
+    // icon from its own data, so the list payload stays small.
+    videoUrl: route.videoUrl,
+    sourceUrl: route.sourceUrl,
     build: route.build,
     derived: {
       stops: derived.stops.map((s) => ({

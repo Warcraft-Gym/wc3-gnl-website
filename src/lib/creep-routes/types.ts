@@ -160,6 +160,9 @@ export type CreepRoute = {
   authorDiscord?: string;
   maintainer?: string;
   sourceUrl?: string;
+  /** YouTube or Vimeo link, embedded on the route page and flagged in the
+   *  list. See `src/lib/video-embed.mjs`. */
+  videoUrl?: string;
   /** Optional link to a companion build order. */
   build?: { slug: string; title: string } | null;
   patch?: string;

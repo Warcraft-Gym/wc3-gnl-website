@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { PlayCircle, Link as LinkIcon } from "lucide-react";
 import Image from "next/image";
 import { TagChip, VsRaces } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
@@ -92,6 +93,23 @@ export function RouteRow({ route }: { route: CreepRoute }) {
             <span>{route.stops.length} stops</span>
             <span className="text-faint">·</span>
             <span>by {route.author}</span>
+            {/* Whether a route comes with a video or a cited source is worth
+                knowing before you open it — a route with a VOD is a different
+                proposition from a bare camp list. Icons rather than words:
+                the line is already dense, and each carries its own label for
+                anyone not reading by sight. */}
+            {route.videoUrl ? (
+              <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
+                <PlayCircle size={12} aria-hidden />
+                <span className="sr-only">Includes a video</span>
+              </span>
+            ) : null}
+            {route.sourceUrl ? (
+              <span className="inline-flex items-center gap-1 text-muted" title="Has a source link">
+                <LinkIcon size={12} aria-hidden />
+                <span className="sr-only">Has a source link</span>
+              </span>
+            ) : null}
             {route.tags?.slice(0, 3).map((t) => (
               <TagChip key={t}>{t}</TagChip>
             ))}
