@@ -113,6 +113,8 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
       name: pn,
       slug: playerSlug(ti * 10 + pi + 1, pn),
       battleTag: `${pn}#${1000 + ti * 7 + pi}`,
+      // The second player of each team also played under an older tag.
+      tags: [`${pn}#${1000 + ti * 7 + pi}`, ...(pi === 1 ? [`Old${pn}#${2000 + ti}`] : [])],
       race,
       mmr,
       country,

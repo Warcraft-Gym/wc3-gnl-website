@@ -74,6 +74,14 @@ A player is not one race. The league data holds four different race facts, and e
 - With no main race the player page is neutral: the shared scene as masthead art, no large race icon, no bold chip. It never picks a scene at random, because a race scene states a race.
 - The player page shows one chip per ladder race: icon, MMR and the record. The record is printed, not hidden in a tooltip, so touch and keyboard readers get it too. The headline MMR tile is the first ladder row, the highest MMR, and names its race: "W3C MMR · Orc".
 - The MMR chart draws one line per ladder race on one MMR axis. See "The MMR chart".
+
+### Tags on the player page
+
+- A person holds one or more battle tags; the active one is `battleTag`. The header links the active tag to W3Champions, and an "Also played as" line links each other tag. A person with one tag gets no such line.
+- MMR never adds up across tags: the chips, the MMR tile and the MMR chart are the active tag's. Ladder game counts and records add up across every tag with a season read, and the ladder panel names the tags it counts. The per-race split shows only when every tag's season split is in.
+- "Recent ladder games" lists the last ten games over every tag, newest first, and names the tag on each row only when the person has more than one tag.
+- A season row names its tag, "as MangoIsNice#1230", in muted ink on the grey line under the team, only when the season's `played_as` is set and differs from the active tag (`playedAsNote()`).
+- A person with no tag shows no W3C link, no ladder tiles, no ladder panel and no ladder band, and one header line reads "No ladder account on record".
 - A race is an icon first. Every race mark carries the race icon with its name as `alt` and `title`. A race name in text wears a text token, never the race colour.
 - A race colour fills a mark with no text on it: a bar segment, a dot, a stripe. Race colours and result colours never encode data in the same mark set, because orc red sits close to `loss`.
 - The Random race uses the neutral `random` token.
@@ -191,6 +199,8 @@ F008 replaced the previous, self-derived palette (`#6BE0C8`/`#E0863A`/`#C23050`)
 - The page reads per-race rows once and passes them down. A component never fetches its own copy.
 - The W3Champions API serves the race rows and one MMR timeline per race. The timelines of all ladder races load in parallel on the server, with the 10 minute cache window of `src/lib/w3c.ts`. That is up to five small reads per player page per window, and none of them touch the league backend. The timelines of five races add about 5 KB to the page payload.
 - The per-race split of the ladder panel is the whole season, from one `player-stats/{tag}/race-on-map-versus-race?season={n}` read of about 49 KB, in the same window and behind the same never-throw wrapper. `vsRaceOfSeason()` keeps the one row the page needs: every race the player picked, over the map "Overall". The 100 match read stays for "Recent ladder games" and the heroes, and never feeds the split. When the season read fails the panel shows its headline record and no per-race rows, because a 100 game sample and a season are different figures.
+- Each other tag of a person adds two W3Champions reads per window: a 10 game 1v1 match search for "Recent ladder games" and its season split, whose sum is that tag's season record.
+- The player page reads the league backend 6 + k times: the league and event lists, the league's teams (long names and logos), `GET /users/{id}` (tags, roster seats and signups with `played_as`), `GET /users/{id}/history` (captain seats) and the career stats, plus one series read per season the person has a roster seat in, for casts and fixture team names. An old name link reads every season's teams once, then redirects.
 - League reads keep their 60 second window. A new data mark never adds a league read per row. Ask for one aggregated read instead.
 
 ## Shared with the app

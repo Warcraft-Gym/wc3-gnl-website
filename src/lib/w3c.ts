@@ -33,6 +33,8 @@ export type W3cLadderEntry = {
 
 export type W3cMatch = {
   id: string;
+  /** The tag of the person the game was read under. */
+  battleTag: string;
   startedAt: string;
   durationSeconds: number;
   map: string;
@@ -68,6 +70,9 @@ export type W3cProfile = {
   timelines: W3cTimeline[];
   profileUrl: string;
 };
+
+/** The W3Champions profile page of a tag. */
+export const w3cPlayerUrl = (battleTag: string) => `https://w3champions.com/player/${encodeURIComponent(battleTag)}`;
 
 async function w3c<T>(path: string): Promise<T | null> {
   try {
@@ -145,7 +150,7 @@ export async function getW3cProfile(battleTag: string): Promise<W3cProfile | nul
   );
 
   const isMe = (p: { battleTag: string }) => p.battleTag.toLowerCase() === battleTag.toLowerCase();
-  const sample = (search?.matches ?? []).filter((m) => m.teams.flatMap((t) => t.players).length === 2);
+  const sample = oneVsOne(search);
   const heroCount = new Map<string, number>();
   for (const m of sample) {
     const me = m.teams.flatMap((t) => t.players).find(isMe);
@@ -157,8 +162,30 @@ export async function getW3cProfile(battleTag: string): Promise<W3cProfile | nul
     .sort((a, b) => b.games - a.games)
     .slice(0, 6);
 
-  const matches: W3cMatch[] = sample
-    .slice(0, 10)
+  const matches = toMatches(sample, battleTag).slice(0, 10);
+
+  return {
+    season,
+    battleTag,
+    ladder,
+    matches,
+    sampleSize: sample.length,
+    vsRace,
+    heroes,
+    timelines,
+    profileUrl: w3cPlayerUrl(battleTag),
+  };
+}
+
+/** The 1v1 games of a match search, newest first. */
+function oneVsOne(search: { matches: RawMatch[] } | null): RawMatch[] {
+  return (search?.matches ?? []).filter((m) => m.teams.flatMap((t) => t.players).length === 2);
+}
+
+/** The games of a sample from the side of `battleTag`. */
+function toMatches(sample: RawMatch[], battleTag: string): W3cMatch[] {
+  const isMe = (p: { battleTag: string }) => p.battleTag.toLowerCase() === battleTag.toLowerCase();
+  return sample
     .map((m) => {
       const all = m.teams.flatMap((t) => t.players);
       const me = all.find(isMe);
@@ -166,6 +193,7 @@ export async function getW3cProfile(battleTag: string): Promise<W3cProfile | nul
       if (!me || !them) return null;
       return {
         id: m.id,
+        battleTag,
         startedAt: m.startTime,
         durationSeconds: m.durationInSeconds,
         map: m.mapName,
@@ -177,16 +205,25 @@ export async function getW3cProfile(battleTag: string): Promise<W3cProfile | nul
       };
     })
     .filter((m): m is W3cMatch => m !== null);
+}
 
-  return {
-    season,
-    battleTag,
-    ladder,
-    matches,
-    sampleSize: sample.length,
-    vsRace,
-    heroes,
-    timelines,
-    profileUrl: `https://w3champions.com/player/${tag}`,
-  };
+/** The season games of a person's other tag: the last 10 games and the whole
+ *  season against each opponent race, which also gives the season record. */
+export type W3cTagGames = {
+  battleTag: string;
+  season: number;
+  matches: W3cMatch[];
+  /** Null when the season read fails; the page then counts no total for the tag. */
+  vsRace: VsRaceRecord | null;
+};
+
+/** Two W3Champions reads per tag; the season list read is shared with getW3cProfile. */
+export async function getW3cTagGames(battleTag: string): Promise<W3cTagGames> {
+  const tag = encodeURIComponent(battleTag);
+  const season = await currentSeason();
+  const [search, seasonSplit] = await Promise.all([
+    w3c<{ matches: RawMatch[] }>(`/matches/search?playerId=${tag}&gateway=${GATEWAY}&season=${season}&gameMode=${GAME_MODE_1V1}&pageSize=10&offset=0`),
+    w3c<unknown>(`/player-stats/${tag}/race-on-map-versus-race?season=${season}`),
+  ]);
+  return { battleTag, season, matches: toMatches(oneVsOne(search), battleTag), vsRace: vsRaceOfSeason(seasonSplit) };
 }

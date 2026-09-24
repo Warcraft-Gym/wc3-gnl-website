@@ -67,6 +67,10 @@ export interface RawPlayer {
   race?: string;
   /** The race this player signed up with for the season of this row. */
   signup_race?: string | null;
+  /** The tag of that signup; null when it names none. */
+  played_as?: string | null;
+  /** Every tag the person holds, the active one first; empty where the read loads none. */
+  tags?: RawTag[];
   /** Manually entered MMR; rarely filled. Prefer w3c_stats. */
   mmr?: number | null;
   country?: string;
@@ -82,6 +86,24 @@ export interface RawPlayer {
     /** The opponent race of each completed series, one entry per series. */
     matchup_history?: string[];
   }>;
+}
+export interface RawTag {
+  id: number;
+  tag: string;
+  verified: boolean;
+  active: boolean;
+  source: string;
+  first_seen: string;
+  last_seen: string;
+}
+/** GET /users/{id}: the person, a seat per roster season in `gnl_stats`,
+ *  and every season signup with its race and tag. */
+export interface RawUser extends RawPlayer {
+  signup_seasons?: Array<RawSeason & { signup_race?: string | null; played_as?: string | null }>;
+}
+/** The part of GET /users/{id}/history this site reads. */
+export interface RawHistory {
+  captain_of?: Array<{ season_id: number; team_id: number; team_name?: string | null }>;
 }
 export interface RawCareerStat {
   id: number;
@@ -255,7 +277,8 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
     id: p.id,
     name: p.name,
     slug: playerSlug(p.id, p.name),
-    battleTag: p.battleTag,
+    battleTag: p.battleTag || undefined,
+    tags: (p.tags ?? []).map((t) => t.tag),
     race: signupRace(p.signup_race),
     mmr: currentMmr(p),
     country: p.country,
@@ -538,11 +561,17 @@ export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
     .sort((a, b) => b.mmr - a.mmr);
 }
 
-/** Everything the profile needs for one season, fetched by gnl.ts. */
-export interface RawSeasonBundle {
-  season: RawSeason;
-  teams: RawTeam[];
-  series: RawSeries[];
+/** The reads the profile is built from, fetched by gnl.ts. */
+export interface RawProfileReads {
+  /** Every published, finished GNL season. */
+  seasons: RawSeason[];
+  user: RawUser;
+  history: RawHistory;
+  /** Every team of the league, for the long name and the logo. */
+  leagueTeams: RawTeam[];
+  /** The series of each season the player has a roster seat in, by season id. */
+  series: Map<number, RawSeries[]>;
+  career: RawCareerStat[];
 }
 
 /** The player's series in one season, from their side, oldest week first. */
@@ -582,66 +611,46 @@ function mapPlayerSeries(series: RawSeries[], userId: number): PlayerSeries[] {
     .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
 }
 
-/** Finds the player in one season's teams by user id.
- *  Captains usually are not on the playing roster; they get an entry too. */
-function findPlayerSeason(
-  bundle: RawSeasonBundle,
-  userId: number,
-): { raw: RawPlayer; entry: PlayerSeasonEntry } | undefined {
-  const key = String(bundle.season.id);
-  const hit = (p: RawPlayer) => p.id === userId;
-  for (const t of bundle.teams) {
-    const roster = t.player_by_season?.[key] ?? [];
-    const captains = t.captains_by_season?.[key] ?? [];
-    const rosterHit = roster.find(hit);
-    const raw = rosterHit ?? captains.find(hit);
-    if (!raw) continue;
-    const long = t.long_name || t.name;
-    const stat = raw.gnl_stats?.find((r) => r.season_id === bundle.season.id);
-    const season = mapSeason(bundle.season);
-    return {
-      raw,
-      entry: {
-        season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
-        team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
-        race: signupRace(raw.signup_race),
-        isCaptain: captains.some((x) => x.id === raw.id),
-        captainOnly: !rosterHit,
-        record: {
-          seriesPlayed: stat?.games ?? 0,
-          seriesWon: stat?.wins ?? 0,
-          seriesLost: stat?.losses ?? 0,
-          matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
-        },
-        series: mapPlayerSeries(bundle.series, raw.id),
-      },
-    };
-  }
-  return undefined;
-}
-
-/** Builds a player's profile from every published season, newest first. The
- *  identity (race, team, W3C rows) comes from the most recent season they
- *  took part in; older seasons only contribute to the history. */
-export function mapPlayerProfile(
-  seasons: RawSeasonBundle[],
-  career: RawCareerStat[],
-  userId: number,
-): PlayerProfile | undefined {
-  const ordered = [...seasons].sort(
-    (a, b) => (ms(b.season.start_date) || 0) - (ms(a.season.start_date) || 0) || b.season.id - a.season.id,
+/** Builds a player's profile from their roster seats (`gnl_stats`) and
+ *  captain seats in the published seasons, newest first. The team and the race
+ *  of the header come from the most recent of those seasons. */
+export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefined {
+  const { user, history: hist, leagueTeams, series, career } = reads;
+  const teams = new Map(leagueTeams.map((t) => [t.id, t]));
+  const signups = new Map((user.signup_seasons ?? []).map((s) => [s.id, s]));
+  const captainOf = hist.captain_of ?? [];
+  const ordered = [...reads.seasons].sort(
+    (a, b) => (ms(b.start_date) || 0) - (ms(a.start_date) || 0) || b.id - a.id,
   );
-  let latest: { raw: RawPlayer; entry: PlayerSeasonEntry } | undefined;
   const history: PlayerSeasonEntry[] = [];
-  for (const bundle of ordered) {
-    const found = findPlayerSeason(bundle, userId);
-    if (!found) continue;
-    latest ??= found;
-    history.push(found.entry);
+  for (const raw of ordered) {
+    const stat = user.gnl_stats?.find((r) => r.season_id === raw.id && r.team_id != null);
+    const seat = stat ? undefined : captainOf.find((c) => c.season_id === raw.id);
+    const teamId = stat?.team_id ?? seat?.team_id;
+    if (teamId == null) continue;
+    const t: RawTeam = teams.get(teamId) ?? { id: teamId, name: seat?.team_name ?? "", league_id: raw.league_id };
+    const long = t.long_name || t.name;
+    const season = mapSeason(raw);
+    const signup = signups.get(raw.id);
+    history.push({
+      season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
+      team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
+      race: signupRace(signup?.signup_race),
+      playedAs: signup?.played_as ?? null,
+      isCaptain: captainOf.some((c) => c.season_id === raw.id && c.team_id === teamId),
+      captainOnly: !stat,
+      record: {
+        seriesPlayed: stat?.games ?? 0,
+        seriesWon: stat?.wins ?? 0,
+        seriesLost: stat?.losses ?? 0,
+        matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
+      },
+      series: stat ? mapPlayerSeries(series.get(raw.id) ?? [], user.id) : [],
+    });
   }
-  if (!latest) return undefined;
-  const { raw, entry } = latest;
-  const c = career.find((r) => r.user_id === raw.id);
+  const entry = history[0];
+  if (!entry) return undefined;
+  const c = career.find((r) => r.user_id === user.id);
   const allTime = history.reduce<GnlRecord>(
     (acc, h) => ({
       seriesPlayed: acc.seriesPlayed + h.record.seriesPlayed,
@@ -651,8 +660,10 @@ export function mapPlayerProfile(
     }),
     { seriesPlayed: 0, seriesWon: 0, seriesLost: 0, matchupHistory: [] },
   );
+  // The header race and MMR are those of the latest season's signup.
+  const me: RawPlayer = { ...user, signup_race: signups.get(entry.season.id)?.signup_race };
   return {
-    player: mapPlayer(raw, entry.team.id, entry.team.name, entry.isCaptain),
+    player: mapPlayer(me, entry.team.id, entry.team.name, entry.isCaptain),
     team: entry.team,
     isCaptain: entry.isCaptain,
     captainOnly: entry.captainOnly,
@@ -660,7 +671,7 @@ export function mapPlayerProfile(
     season: entry.record,
     history,
     allTime,
-    w3c: currentW3cRows(raw),
+    w3c: currentW3cRows(me),
     career: c
       ? {
           rating: c.rating ?? 0,

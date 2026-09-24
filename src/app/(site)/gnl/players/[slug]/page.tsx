@@ -11,7 +11,8 @@ import { TeamPlate } from "@/components/league/VsBadge";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
 import { findPlayerBySlug, getPlayerProfile } from "@/lib/api/gnl";
 import { parsePlayerParam, playerPath } from "@/lib/slug.mjs";
-import { getW3cProfile } from "@/lib/w3c";
+import { getW3cProfile, getW3cTagGames, w3cPlayerUrl } from "@/lib/w3c";
+import { playedAsNote } from "@/lib/tags.mjs";
 import { MmrChart, type MmrLine } from "@/components/league/MmrChart";
 import { RaceMmrChips } from "@/components/league/RaceMmrChips";
 import { GameIcon } from "@/components/builds/GameIcon";
@@ -182,10 +183,16 @@ export default async function PlayerPage({ params }: Params) {
   const { slug } = await params;
   const { profile, path } = await loadProfile(slug);
   const { player, team, isCaptain, captainOnly, latestSeason, history, allTime, w3c, career } = profile;
-  const live = player.battleTag ? await getW3cProfile(player.battleTag) : null;
-  const w3cUrl = live?.profileUrl ?? (player.battleTag
-    ? `https://w3champions.com/player/${encodeURIComponent(player.battleTag)}`
-    : undefined);
+  // Every tag of the person, the active one first. Each other tag costs two
+  // W3Champions reads: its last games and its season split.
+  const tags = player.tags?.length ? player.tags : player.battleTag ? [player.battleTag] : [];
+  const noAccount = !tags.length;
+  const otherTags = tags.filter((t) => t.toLowerCase() !== player.battleTag?.toLowerCase());
+  const [live, others] = await Promise.all([
+    player.battleTag ? getW3cProfile(player.battleTag) : null,
+    Promise.all(otherTags.map(getW3cTagGames)),
+  ]);
+  const w3cUrl = player.battleTag ? w3cPlayerUrl(player.battleTag) : undefined;
   // Every ladder race, best MMR first. The rows and the season name come from
   // the same source, so a count never carries another season's number.
   const liveLadder = live?.ladder.length ? live.ladder : undefined;
@@ -193,7 +200,7 @@ export default async function PlayerPage({ params }: Params) {
     ...(liveLadder ??
       w3c.map((r) => ({ race: r.race, mmr: r.mmr, league: "", division: 0, rank: 0, games: r.games, wins: r.wins, losses: r.losses }))),
   ].sort((a, b) => b.mmr - a.mmr);
-  const ladderSeason = liveLadder ? live?.season : w3c[0]?.season;
+  const ladderSeason = (liveLadder ? live?.season : w3c[0]?.season) ?? others[0]?.season;
   const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
   const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
   // One definition of the main race for the masthead art, the large icon, the
@@ -213,9 +220,30 @@ export default async function PlayerPage({ params }: Params) {
     losses: r.losses,
     points: live?.timelines.find((t) => t.race === r.race)?.points ?? [],
   }));
-  const ladderGames = ladder.reduce((n, r) => n + r.games, 0);
-  const ladderWins = ladder.reduce((n, r) => n + r.wins, 0);
-  const ladderLosses = ladder.reduce((n, r) => n + r.losses, 0);
+  // Ladder totals add up every tag with a season record; MMR stays the active tag's.
+  const counted = others.filter((o) => o.vsRace && o.season === ladderSeason);
+  const otherRecord = counted
+    .flatMap((o) => Object.values(o.vsRace!))
+    .reduce((n, r) => ({ wins: n.wins + r.wins, losses: n.losses + r.losses }), { wins: 0, losses: 0 });
+  const ladderWins = ladder.reduce((n, r) => n + r.wins, 0) + otherRecord.wins;
+  const ladderLosses = ladder.reduce((n, r) => n + r.losses, 0) + otherRecord.losses;
+  const ladderGames = ladder.reduce((n, r) => n + r.games, 0) + otherRecord.wins + otherRecord.losses;
+  // The per-race split adds up only when every tag's season split is in.
+  const ladderVsRace: VsRaceRecord = {};
+  if ((!ladder.length || Object.keys(live?.vsRace ?? {}).length) && counted.length === others.length) {
+    for (const split of [live?.vsRace ?? {}, ...counted.map((o) => o.vsRace!)]) {
+      for (const [race, rec] of Object.entries(split) as [keyof VsRaceRecord, { wins: number; losses: number }][]) {
+        const sum = (ladderVsRace[race] ??= { wins: 0, losses: 0 });
+        sum.wins += rec.wins;
+        sum.losses += rec.losses;
+      }
+    }
+  }
+  const ladderTags = [...(player.battleTag ? [player.battleTag] : []), ...counted.map((o) => o.battleTag)];
+  // The last ten games over every tag, newest first.
+  const recentGames = [...(live?.matches ?? []), ...others.flatMap((o) => o.matches)]
+    .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
+    .slice(0, 10);
   // GNL series per opponent race, from every completed series on record.
   const gnlVsRace: VsRaceRecord = {};
   for (const sr of history.flatMap((h) => h.series)) {
@@ -324,6 +352,17 @@ export default async function PlayerPage({ params }: Params) {
                     </a>
                   ) : null}
                 </p>
+                {otherTags.length ? (
+                  <p className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
+                    Also played as
+                    {otherTags.map((t) => (
+                      <a key={t} href={w3cPlayerUrl(t)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-gold hover:underline">
+                        <W3cMark size={16} /> {t}
+                      </a>
+                    ))}
+                  </p>
+                ) : null}
+                {noAccount ? <p className="mt-2 text-sm text-muted">No ladder account on record</p> : null}
                 {/* One chip per ladder race, so no surface reduces the player
                     to one MMR without naming its race. */}
                 {ladder.length ? (
@@ -337,18 +376,21 @@ export default async function PlayerPage({ params }: Params) {
               </div>
             </div>
 
-            <dl className={cn("panel grid shrink-0 gap-px overflow-hidden bg-line/60", hasGnlSeries ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2")}>
+            <dl className={cn("panel grid shrink-0 gap-px overflow-hidden bg-line/60", noAccount ? "grid-cols-2" : hasGnlSeries ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2")}>
               {hasGnlSeries ? (
                 <Stat label={`${gnlSeriesLabel} record`} value={record(allTime.seriesWon, allTime.seriesLost) ?? DASH} />
               ) : null}
-              <Stat
-                label={mainLadder ? `W3C MMR · ${RACES[mainLadder.race].label}` : "W3C MMR"}
-                value={mainLadder?.mmr ?? player.mmr ?? DASH}
-                tone="text-gold"
-              />
+              {/* A person with no tag gets no ladder tiles. */}
+              {!noAccount ? (
+                <Stat
+                  label={mainLadder ? `W3C MMR · ${RACES[mainLadder.race].label}` : "W3C MMR"}
+                  value={mainLadder?.mmr ?? player.mmr ?? DASH}
+                  tone="text-gold"
+                />
+              ) : null}
               {/* A ladder count names its W3Champions season, because the
                   league holds no earlier ladder season. */}
-              {mainLadder ? (
+              {!noAccount && (mainLadder || ladderGames) ? (
                 <Stat
                   label={ladderSeason ? `Ladder games · S${ladderSeason}` : "Ladder games"}
                   value={ladderSeason ? ladderGames : DASH}
@@ -371,7 +413,7 @@ export default async function PlayerPage({ params }: Params) {
         ) : null}
 
         {/* Gym Newbie League vs ladder, side by side */}
-        {hasGnlSeries || (!captainOnly && live) ? (
+        {!noAccount && (hasGnlSeries || (!captainOnly && live)) ? (
           <section>
             <h2 className="mb-4 font-display text-xl font-bold uppercase">Gym Newbie League vs ladder</h2>
             <p className="mb-4 max-w-2xl text-sm text-muted">
@@ -391,8 +433,9 @@ export default async function PlayerPage({ params }: Params) {
                 unit="Ladder games"
                 wins={ladderWins}
                 losses={ladderLosses}
-                vs={live?.vsRace ?? {}}
+                vs={ladderVsRace}
                 mark
+                note={ladderTags.length > 1 ? `Games of ${listSeasons([...ladderTags].reverse())}` : undefined}
               />
             </div>
           </section>
@@ -420,6 +463,10 @@ export default async function PlayerPage({ params }: Params) {
                             {h.isCaptain ? <CaptainBadge compact /> : null}
                           </Link>
                           <span className="mt-0.5 block text-xs text-faint">
+                            {/* The tag of that season, when it is not the current one. */}
+                            {playedAsNote(h.playedAs, player.battleTag) ? (
+                              <span className="text-muted">as {playedAsNote(h.playedAs, player.battleTag)}, </span>
+                            ) : null}
                             {h.captainOnly ? "Captain, not in the roster" : played ? `${h.record.seriesPlayed} series` : "No series played"}
                             {/* One icon per series, the race the opponent played. */}
                             {h.record.matchupHistory.length ? (
@@ -499,7 +546,7 @@ export default async function PlayerPage({ params }: Params) {
 
         {/* The ladder band runs the full width: the race rows on the left
             select the line of the chart on the right. */}
-        {ladder.length || player.battleTag ? (
+        {!noAccount && (ladder.length || player.battleTag) ? (
           <section className="mt-12">
             <h2 className="mb-4 font-display text-xl font-bold uppercase">W3Champions ladder</h2>
             {ladder.length ? (
@@ -539,17 +586,17 @@ export default async function PlayerPage({ params }: Params) {
           </div>
 
           <div>
-            {live?.matches.length ? (
+            {recentGames.length ? (
               <section>
                 <div className="mb-4 flex items-baseline justify-between gap-3">
                   <h2 className="font-display text-xl font-bold uppercase">Recent ladder games</h2>
-                  <a href={live.profileUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted hover:text-gold">
+                  <a href={w3cUrl ?? w3cPlayerUrl(tags[0])} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted hover:text-gold">
                     <W3cMark size={15} /> All games on W3Champions
                   </a>
                 </div>
                 <Surface className="divide-y divide-line/60">
-                  {live.matches.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
+                  {recentGames.map((m) => (
+                    <div key={`${m.battleTag}-${m.id}`} className="flex items-center gap-3 px-4 py-2.5 text-sm">
                       <span className={cn("w-9 shrink-0 font-display text-[0.65rem] font-extrabold", m.won ? "text-win" : "text-loss")}>
                         {m.won ? "WIN" : "LOSS"}
                       </span>
@@ -559,7 +606,7 @@ export default async function PlayerPage({ params }: Params) {
                           <span className="text-faint">vs</span>
                           <RaceIcon race={m.opponent.race} size={22} />
                           <a
-                            href={`https://w3champions.com/player/${encodeURIComponent(m.opponent.battleTag)}`}
+                            href={w3cPlayerUrl(m.opponent.battleTag)}
                             target="_blank"
                             rel="noreferrer"
                             className="inline-flex min-w-0 items-center gap-1 truncate text-fg hover:text-gold"
@@ -568,6 +615,8 @@ export default async function PlayerPage({ params }: Params) {
                           </a>
                           <span className="tnum text-xs text-faint">{m.opponent.mmr}</span>
                         </span>
+                        {/* The tag a game was played under, when the person has more than one. */}
+                        {tags.length > 1 ? <span className="block truncate text-xs text-muted">{m.battleTag}</span> : null}
                         <a
                           href={`https://w3champions.com/match/${m.id}`}
                           target="_blank"
