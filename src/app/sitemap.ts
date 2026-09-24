@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { playerPath } from "@/lib/slug.mjs";
 import { LEARN_CATEGORIES } from "@/lib/learn/data";
 import { getGuides } from "@/lib/learn/guides";
 import { getBuilds } from "@/lib/builds/builds";
@@ -70,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...posts.map((p) => page(`/blog/${p.slug}`, 0.6, "monthly", p.publishedAt)),
     ...teams.map((t) => page(`/gnl/teams/${t.slug}`, 0.5, "weekly")),
     // One URL per player: the profile carries every season they played.
-    ...[...new Map(players.map((p) => [p.slug, p])).values()].map((p) => page(`/gnl/players/${p.slug}`, 0.5, "weekly")),
+    ...[...new Map(players.map((p) => [p.slug, p])).values()].map((p) => page(playerPath(p.id, p.name), 0.5, "weekly")),
     ...weeks.map((w) => page(`/gnl/schedule/${w.number}`, 0.5, "daily")),
   ];
 }

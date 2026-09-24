@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Tv } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -9,7 +9,8 @@ import { RaceBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { CaptainBadge } from "@/components/league/CaptainBadge";
-import { getPlayerProfile } from "@/lib/api/gnl";
+import { findPlayerBySlug, getPlayerProfile } from "@/lib/api/gnl";
+import { parsePlayerParam, playerPath } from "@/lib/slug.mjs";
 import { getW3cProfile } from "@/lib/w3c";
 import { MmrChart, type MmrLine } from "@/components/league/MmrChart";
 import { RaceMmrChips } from "@/components/league/RaceMmrChips";
@@ -29,16 +30,31 @@ type Params = { params: Promise<{ slug: string }> };
 
 const DASH = "—";
 
+/** The profile behind the param. An old name link or a stale name part
+ *  redirects to `/{id}-{current name}`; an unknown player is a 404. */
+async function loadProfile(param: string) {
+  const { id, slug } = parsePlayerParam(param);
+  if (id == null) {
+    const hit = await findPlayerBySlug(slug);
+    if (!hit) notFound();
+    permanentRedirect(playerPath(hit.id, hit.name));
+  }
+  const profile = await getPlayerProfile(id);
+  if (!profile) notFound();
+  const path = playerPath(id, profile.player.name);
+  if (path !== `/gnl/players/${param}`) permanentRedirect(path);
+  return { profile, path };
+}
+
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
-  const profile = await getPlayerProfile(slug);
-  if (!profile) return { title: "Player" };
+  const { profile, path } = await loadProfile(slug);
   const { player, team } = profile;
   const about = [player.race ? RACES[player.race].label : null, team?.name].filter(Boolean).join(", ");
   return {
     title: `${player.name}, GNL player`,
     description: `${player.name}${about ? ` (${about})` : ""} in the Gym Newbie League: record and series in every season, W3Champions MMR and career stats.`,
-    alternates: { canonical: `/gnl/players/${slug}` },
+    alternates: { canonical: path },
   };
 }
 
@@ -76,7 +92,7 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
           <RaceIcon race={s.race} size={24} />
           <span className="text-faint">vs</span>
           <RaceIcon race={s.opponent.race} size={24} />
-          <Link href={`/gnl/players/${s.opponent.slug}`} className="font-display font-bold uppercase text-fg hover:text-gold">
+          <Link href={playerPath(s.opponent.id, s.opponent.name)} className="font-display font-bold uppercase text-fg hover:text-gold">
             {s.opponent.name}
           </Link>
         </p>
@@ -164,8 +180,7 @@ function Compare({
 
 export default async function PlayerPage({ params }: Params) {
   const { slug } = await params;
-  const profile = await getPlayerProfile(slug);
-  if (!profile) notFound();
+  const { profile, path } = await loadProfile(slug);
   const { player, team, isCaptain, captainOnly, latestSeason, history, allTime, w3c, career } = profile;
   const live = player.battleTag ? await getW3cProfile(player.battleTag) : null;
   const w3cUrl = live?.profileUrl ?? (player.battleTag
@@ -219,7 +234,7 @@ export default async function PlayerPage({ params }: Params) {
     <>
       <JsonLd
         data={profilePageJsonLd({
-          path: `/gnl/players/${slug}`,
+          path,
           name: player.name,
           description: `${player.name} plays in the Gym Newbie League${team ? ` for ${team.name}` : ""}.`,
           team: team?.name,
@@ -230,7 +245,7 @@ export default async function PlayerPage({ params }: Params) {
         data={breadcrumbJsonLd([
           { name: "Gym Newbie League", path: "/gnl/schedule" },
           { name: "Teams", path: "/gnl/teams" },
-          { name: player.name, path: `/gnl/players/${slug}` },
+          { name: player.name, path },
         ])}
       />
       {/* Masthead: the main race showcase runs under the nav bar. A Random

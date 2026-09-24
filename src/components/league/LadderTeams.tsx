@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { playerPath } from "@/lib/slug.mjs";
 import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronDown } from "lucide-react";
 import type { LadderTeam } from "@/lib/api/types";
@@ -63,7 +64,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                   <li key={p.id} className="grid grid-cols-[minmax(0,1fr)_auto_auto_auto] items-center gap-3 px-4 py-2 text-sm sm:gap-6 sm:px-5">
                     <span className="flex min-w-0 items-center gap-2">
                       <RaceIcon race={p.race} size={22} />
-                      <Link href={`/gnl/players/${p.slug}`} className="truncate text-muted transition-colors hover:text-gold">
+                      <Link href={playerPath(p.id, p.name)} className="truncate text-muted transition-colors hover:text-gold">
                         {p.name}
                       </Link>
                       {p.achievements.length ? (
