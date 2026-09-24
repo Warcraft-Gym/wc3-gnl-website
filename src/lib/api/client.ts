@@ -3,18 +3,17 @@ import "server-only";
 /**
  * Server-only HTTP client for the Warcraft-Gym FastAPI backend.
  *
- * The public site fetches league data through Next.js Server Components, so the
- * service credential never reaches the browser. When the API is not configured
+ * The public site fetches league data through Next.js Server Components. Every
+ * read is an open route sent with no Authorization header, so the backend's edge
+ * cache can answer it without a database read. When the API is not configured
  * (local dev, previews without secrets) or a request fails, callers fall back to
  * bundled fixtures, the site always renders.
  *
  * Env:
  *   GNL_API_BASE_URL   backend API base URL
- *   GNL_SERVICE_TOKEN  optional bearer for protected reads
  */
 
 const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");
-const SERVICE_TOKEN = process.env.GNL_SERVICE_TOKEN;
 
 /** Default cache window for public league data (seconds). */
 const DEFAULT_REVALIDATE = 60;
@@ -56,7 +55,6 @@ export async function apiGet<T = unknown>(
   }
 
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (SERVICE_TOKEN) headers.Authorization = `Bearer ${SERVICE_TOKEN}`;
 
   // Retry transient failures (network errors, 5xx), the backend is serverless
   // and can cold-start, especially under a burst of build/render fetches.
@@ -81,6 +79,22 @@ export async function apiGet<T = unknown>(
     }
   }
   throw lastError;
+}
+
+/** The backend's largest page for a list route. */
+const PAGE_SIZE = 500;
+
+/** Every row of a paged list route, one page of PAGE_SIZE at a time. */
+export async function apiGetAll<T>(path: string, options: GetOptions = {}): Promise<T[]> {
+  const rows: T[] = [];
+  for (let offset = 0; ; offset += PAGE_SIZE) {
+    const page = await apiGet<T[]>(path, {
+      ...options,
+      query: { ...options.query, limit: PAGE_SIZE, offset },
+    });
+    rows.push(...page);
+    if (page.length < PAGE_SIZE) return rows;
+  }
 }
 
 /**

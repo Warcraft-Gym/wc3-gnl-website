@@ -17,9 +17,9 @@ are documented in [`docs/content.md`](content.md),
 
 ## Data flow
 
-Next.js Server Components fetch league data server-side. If
-`GNL_SERVICE_TOKEN` is configured, the client attaches it as a bearer header in
-the server runtime only.
+Next.js Server Components fetch league data server-side. Every read is an open
+backend route, sent with no Authorization header, so the backend's edge cache
+can answer it without a database read.
 
 ```text
 Server Component  →  src/lib/api/gnl.ts  →  src/lib/api/client.ts  →  FastAPI

@@ -89,7 +89,6 @@ Vercel (this app, Next.js)
 | Variable | Purpose |
 | --- | --- |
 | `GNL_API_BASE_URL` | FastAPI base URL. Empty means fixtures. |
-| `GNL_SERVICE_TOKEN` | Read-scoped JWT, server-side only. |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity read access. Defaults are baked in so the Studio always loads. |
 | `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts (build orders and creep routes both reuse this one token — no separate creep-routes credential). |
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
