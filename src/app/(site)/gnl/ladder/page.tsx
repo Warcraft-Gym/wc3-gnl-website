@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { playerPath } from "@/lib/slug.mjs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Trophy } from "lucide-react";
@@ -124,7 +125,7 @@ export default async function LadderPage({ searchParams }: Props) {
                       <div className="min-w-0">
                         <p className="flex items-center gap-2">
                           <RaceIcon race={p.race} size={20} />
-                          <Link href={`/gnl/players/${p.slug}`} className="truncate font-display font-bold uppercase text-fg hover:text-gold">
+                          <Link href={playerPath(p.id, p.name)} className="truncate font-display font-bold uppercase text-fg hover:text-gold">
                             {p.name}
                           </Link>
                         </p>

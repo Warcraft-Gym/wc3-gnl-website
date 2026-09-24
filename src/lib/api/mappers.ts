@@ -22,6 +22,7 @@ import type {
   LadderTeam,
 } from "./types";
 import { slugify, raceOf, isLive, type Race } from "@/lib/utils";
+import { playerSlug } from "@/lib/slug.mjs";
 
 /**
  * Maps the GNL FastAPI backend responses to the frontend domain types.
@@ -253,7 +254,7 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
   return {
     id: p.id,
     name: p.name,
-    slug: slugify(p.name),
+    slug: playerSlug(p.id, p.name),
     battleTag: p.battleTag,
     race: signupRace(p.signup_race),
     mmr: currentMmr(p),
@@ -286,7 +287,7 @@ export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
       captains: captains.map((c) => ({
         id: c.id,
         name: c.name,
-        slug: slugify(c.name),
+        slug: playerSlug(c.id, c.name),
         race: signupRace(c.signup_race ?? roster.find((p) => p.id === c.id)?.signup_race),
         country: c.country,
       })),
@@ -566,7 +567,7 @@ function mapPlayerSeries(series: RawSeries[], userId: number): PlayerSeries[] {
         opponent: {
           id: them?.id ?? 0,
           name: them?.name ?? "TBD",
-          slug: slugify(them?.name ?? ""),
+          slug: playerSlug(them?.id, them?.name ?? ""),
           race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.signup_race),
         },
         fixture: {
@@ -581,14 +582,14 @@ function mapPlayerSeries(series: RawSeries[], userId: number): PlayerSeries[] {
     .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
 }
 
-/** Finds the player in one season's teams, by slug or (once known) by user id.
+/** Finds the player in one season's teams by user id.
  *  Captains usually are not on the playing roster; they get an entry too. */
 function findPlayerSeason(
   bundle: RawSeasonBundle,
-  match: { slug: string; userId?: number },
+  userId: number,
 ): { raw: RawPlayer; entry: PlayerSeasonEntry } | undefined {
   const key = String(bundle.season.id);
-  const hit = (p: RawPlayer) => (match.userId != null ? p.id === match.userId : slugify(p.name) === match.slug);
+  const hit = (p: RawPlayer) => p.id === userId;
   for (const t of bundle.teams) {
     const roster = t.player_by_season?.[key] ?? [];
     const captains = t.captains_by_season?.[key] ?? [];
@@ -625,7 +626,7 @@ function findPlayerSeason(
 export function mapPlayerProfile(
   seasons: RawSeasonBundle[],
   career: RawCareerStat[],
-  slug: string,
+  userId: number,
 ): PlayerProfile | undefined {
   const ordered = [...seasons].sort(
     (a, b) => (ms(b.season.start_date) || 0) - (ms(a.season.start_date) || 0) || b.season.id - a.season.id,
@@ -633,7 +634,7 @@ export function mapPlayerProfile(
   let latest: { raw: RawPlayer; entry: PlayerSeasonEntry } | undefined;
   const history: PlayerSeasonEntry[] = [];
   for (const bundle of ordered) {
-    const found = findPlayerSeason(bundle, { slug, userId: latest?.raw.id });
+    const found = findPlayerSeason(bundle, userId);
     if (!found) continue;
     latest ??= found;
     history.push(found.entry);
@@ -743,7 +744,7 @@ export function mapLadder(raw: RawLadder, teams: RawTeam[]): Ladder {
             .map<LadderPlayer>((p) => ({
               id: p.id,
               name: p.name ?? "",
-              slug: slugify(p.name ?? ""),
+              slug: playerSlug(p.id, p.name ?? ""),
               race: raceOf(p.race),
               points: p.points,
               ladderPoints: p.ladder_points,

@@ -1,5 +1,6 @@
 import { ImageResponse } from "next/og";
 import { getPlayerProfile } from "@/lib/api/gnl";
+import { parsePlayerParam } from "@/lib/slug.mjs";
 import { record } from "@/lib/figures.mjs";
 import { OgCard, OG_CONTENT_TYPE, OG_RACE_COLOUR, OG_SIZE, ogFonts } from "@/lib/og";
 import { RACES } from "@/lib/utils";
@@ -10,7 +11,8 @@ export const contentType = OG_CONTENT_TYPE;
 
 export default async function Image({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const profile = await getPlayerProfile(slug);
+  const { id } = parsePlayerParam(slug);
+  const profile = id != null ? await getPlayerProfile(id) : undefined;
   const player = profile?.player;
   const seasons = profile?.history.filter((h) => h.record.seriesPlayed > 0 || h.series.length) ?? [];
   const series = profile ? record(profile.allTime.seriesWon, profile.allTime.seriesLost) : null;

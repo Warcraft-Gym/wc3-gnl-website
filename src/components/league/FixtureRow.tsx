@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { playerPath } from "@/lib/slug.mjs";
 import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronRight, PlayCircle, Tv } from "lucide-react";
 import type { TeamFixture, PlayerMatch } from "@/lib/api/types";
 import { LiveBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "./VsBadge";
-import { cn, raceOf, formatMatchTime, slugify } from "@/lib/utils";
+import { cn, raceOf, formatMatchTime } from "@/lib/utils";
 import { missingTimeLines } from "@/lib/match-time.mjs";
 
 function gameTime(iso?: string, played = false) {
@@ -48,7 +49,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
       <div className="flex items-center gap-2 truncate">
         <RaceIcon race={raceOf(m.home.race)} size={22} />
         <Link
-          href={`/gnl/players/${slugify(m.home.playerName)}`}
+          href={playerPath(m.home.playerId, m.home.playerName)}
           className={cn(
             "truncate font-semibold transition-colors hover:text-gold",
             homeWon || !played ? "text-fg" : "text-muted",
@@ -89,7 +90,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
 
       <div className="flex items-center justify-end gap-2 truncate text-right">
         <Link
-          href={`/gnl/players/${slugify(m.away.playerName)}`}
+          href={playerPath(m.away.playerId, m.away.playerName)}
           className={cn(
             "truncate font-semibold transition-colors hover:text-gold",
             awayWon || !played ? "text-fg" : "text-muted",
