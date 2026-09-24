@@ -16,7 +16,7 @@ import "server-only";
 const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");
 const SERVICE_TOKEN = process.env.GNL_SERVICE_TOKEN;
 
-/** Default cache window for public league data (seconds). */
+/** Default cache window for public league data (seconds); each expiry is one backend call and database read, see docs/ARCHITECTURE.md. */
 const DEFAULT_REVALIDATE = 60;
 
 export function isApiConfigured(): boolean {
@@ -56,7 +56,7 @@ export async function apiGet<T = unknown>(
   }
 
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (SERVICE_TOKEN) headers.Authorization = `Bearer ${SERVICE_TOKEN}`;
+  if (SERVICE_TOKEN) headers.Authorization = `Bearer ${SERVICE_TOKEN}`; // the backend's edge cache never serves a request with a bearer
 
   // Retry transient failures (network errors, 5xx), the backend is serverless
   // and can cold-start, especially under a burst of build/render fetches.

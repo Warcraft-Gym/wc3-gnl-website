@@ -142,7 +142,7 @@ export async function getFixtures(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const series = await apiGet<RawSeries[]>(`/events/${s.id}/series`);
+      const series = await apiGet<RawSeries[]>(`/events/${s.id}/series`); // the whole season's series, for one week
       return mapFixtures(series);
     },
     () => FIXTURE_FIXTURES,
@@ -182,7 +182,7 @@ export async function getStandings(seasonNumber?: number): Promise<{
       const s = await fetchSeasonRaw(seasonNumber);
       const [teams, series] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${s.id}/teams`),
-        apiGet<RawSeries[]>(`/events/${s.id}/series`),
+        apiGet<RawSeries[]>(`/events/${s.id}/series`), // the whole season's series
       ]);
       return mapStandings(teams, mapFixtures(series), s.id);
     },
@@ -239,7 +239,7 @@ export async function getTeamPage(
       const raw = played[pick];
       const [teams, series] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${raw.id}/teams`),
-        apiGet<RawSeries[]>(`/events/${raw.id}/series`),
+        apiGet<RawSeries[]>(`/events/${raw.id}/series`), // the whole season's series, for one team
       ]);
       const fixtures = mapFixtures(series);
       const team = mapTeams(teams, raw.id).find((t) => t.slug === slug);
@@ -325,7 +325,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
           if (err instanceof ApiError && err.status === 404) return {} as RawHistory;
           throw err;
         }),
-        apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]),
+        apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]), // the first 500 rows, for one player's row
       ]);
       if (!user) return null;
       // Only a season the player has a roster seat in needs its series: the
@@ -334,6 +334,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
       const played = seasons.filter((s) => seated.has(s.id));
       const series = new Map(
         await Promise.all(
+          // one whole-season read per season played; the player is in a handful of each
           played.map(async (s) => [s.id, await apiGet<RawSeries[]>(`/events/${s.id}/series`)] as const),
         ),
       );

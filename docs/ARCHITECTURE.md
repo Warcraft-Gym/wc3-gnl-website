@@ -75,6 +75,47 @@ Team images use the `icon_url` carried by the backend response. That URL points
 straight at the backend's public blob store. When an older payload has no URL,
 the mapper falls back to the league-scoped image redirect.
 
+## Backend read cost
+
+Every `apiGet` that misses the Next.js data cache is one backend call, and the
+backend reads the database for it. The cost is the rows one call reads times
+the number of misses. Page views do not add to it while the cache holds.
+
+- **The data cache.** `next.revalidate` holds each URL's answer for that many
+  seconds, shared by every instance. It applies on `force-dynamic` pages too,
+  because the fetch sets `revalidate` itself. The default is
+  `DEFAULT_REVALIDATE` in `client.ts`, 60 seconds. After expiry the next view
+  gets the stale copy and one call refreshes it in the background.
+- **The backend's edge cache.** The backend marks some open reads as cacheable
+  at the Vercel edge. The edge never serves a request that carries an
+  Authorization header, so with `GNL_SERVICE_TOKEN` set, a miss here also
+  misses the edge.
+- **Separate requests.** The Open Graph image routes fetch again for the same
+  page. They share only the data cache, not the page render's fetches.
+
+Rows per call, measured on the seeded database:
+
+| Read | Rows per call | Called |
+| --- | --- | --- |
+| `GET /events/{event_id}/series` | the whole season, 117 to 533 series | once per season shown; the player page once per season the player played |
+| `GET /stats/career` | up to 500, the first page | once per player page, for one row |
+| `GET /events/{event_id}/teams` | every roster of the season | once per season shown |
+| `GET /leagues`, `GET /events` | a few | once per render |
+
+Rules for a new or changed read:
+
+- Set `revalidate` by how often the data changes. A finished season changes
+  only when an admin corrects it, so it can be held for hours.
+- Read the narrowest route the page needs. `GET /stats/career/{user_id}`
+  answers one player. When no narrow route exists, ask the backend for one
+  instead of filtering a season-wide list here.
+- A list route answers at most 500 rows by default. Read `X-Total-Count` and
+  page with `offset` when a list can be longer.
+- Local development points `GNL_API_BASE_URL` at a local backend. A hard reload
+  in `next dev` skips the data cache and calls the backend again.
+- A result reported on the backend shows here after at most `revalidate`
+  seconds, plus the backend's edge cache time for that route.
+
 The UI consumes only the types in `src/lib/api/types.ts`. Backend-specific
 names such as `season_id`, `playday` and `player_by_season` stop in the mapper.
 
