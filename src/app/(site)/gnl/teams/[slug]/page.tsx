@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { playerPath } from "@/lib/slug.mjs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Crown } from "lucide-react";
@@ -140,7 +141,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                         <Crown size={15} className="shrink-0 text-gold" aria-label="Captain" />
                         {c.race ? <RaceBadge race={c.race} showLabel={false} /> : null}
                         <Flag code={c.country} size={16} className="shrink-0" />
-                        <Link href={`/gnl/players/${c.slug}`} className="transition-colors hover:text-gold">
+                        <Link href={playerPath(c.id, c.name)} className="transition-colors hover:text-gold">
                           {c.name}
                         </Link>
                       </li>
@@ -237,7 +238,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                       {p.race ? <RaceBadge race={p.race} showLabel={false} /> : null}
                       <Flag code={p.country} size={16} className="shrink-0" />
                       <Link
-                        href={`/gnl/players/${p.slug}`}
+                        href={playerPath(p.id, p.name)}
                         className={cn("truncate font-display font-bold uppercase transition-colors hover:text-gold", p.isCaptain ? "text-fg" : "text-fg/90")}
                       >
                         {p.name}

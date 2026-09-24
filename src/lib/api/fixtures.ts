@@ -12,6 +12,7 @@ import type {
 } from "./types";
 import type { Race } from "@/lib/utils";
 import { slugify } from "@/lib/utils";
+import { playerSlug } from "@/lib/slug.mjs";
 
 /**
  * Fixture data, a believable snapshot of a GNL season, shaped to match the
@@ -110,7 +111,7 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
     const players: Player[] = roster.map(([pn, race, mmr, country], pi) => ({
       id: ti * 10 + pi + 1,
       name: pn,
-      slug: slugify(pn),
+      slug: playerSlug(ti * 10 + pi + 1, pn),
       battleTag: `${pn}#${1000 + ti * 7 + pi}`,
       race,
       mmr,

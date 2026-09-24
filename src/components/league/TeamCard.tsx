@@ -1,4 +1,5 @@
 import { SeasonLink as Link } from "./SeasonLink";
+import { playerPath } from "@/lib/slug.mjs";
 import { ArrowUpRight, Crown } from "lucide-react";
 import type { StandingRow, Team } from "@/lib/api/types";
 import { Surface } from "@/components/ui/Surface";
@@ -48,7 +49,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
                   <Crown size={14} className="shrink-0 text-gold" />
                   {c.race ? <RaceBadge race={c.race} showLabel={false} /> : null}
                   <Flag code={c.country} size={16} className="shrink-0" />
-                  <Link href={`/gnl/players/${c.slug}`} className="truncate text-fg transition-colors hover:text-gold">
+                  <Link href={playerPath(c.id, c.name)} className="truncate text-fg transition-colors hover:text-gold">
                     {c.name}
                   </Link>
                 </li>
@@ -115,7 +116,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
             <span className="flex min-w-0 items-center gap-1.5 text-muted">
               {p.race ? <RaceBadge race={p.race} showLabel={false} /> : null}
               <Flag code={p.country} size={16} className="shrink-0" />
-              <Link href={`/gnl/players/${p.slug}`} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
+              <Link href={playerPath(p.id, p.name)} className={cn("truncate transition-colors hover:text-gold", p.isCaptain && "text-fg")}>
                 {p.name}
               </Link>
               {p.isCaptain ? <Crown size={13} className="shrink-0 text-gold" /> : null}
