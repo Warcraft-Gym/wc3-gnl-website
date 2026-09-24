@@ -1,6 +1,6 @@
 import "server-only";
 
-import { ApiError, apiGet, withFallback } from "./client";
+import { ApiError, apiGet, apiGetAll, withFallback } from "./client";
 import { slugify } from "@/lib/utils";
 import { slugMatch } from "@/lib/tags.mjs";
 import {
@@ -142,7 +142,7 @@ export async function getFixtures(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const series = await apiGet<RawSeries[]>(`/events/${s.id}/series`);
+      const series = await apiGetAll<RawSeries>(`/events/${s.id}/series`);
       return mapFixtures(series);
     },
     () => FIXTURE_FIXTURES,
@@ -182,7 +182,7 @@ export async function getStandings(seasonNumber?: number): Promise<{
       const s = await fetchSeasonRaw(seasonNumber);
       const [teams, series] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${s.id}/teams`),
-        apiGet<RawSeries[]>(`/events/${s.id}/series`),
+        apiGetAll<RawSeries>(`/events/${s.id}/series`),
       ]);
       return mapStandings(teams, mapFixtures(series), s.id);
     },
@@ -239,7 +239,7 @@ export async function getTeamPage(
       const raw = played[pick];
       const [teams, series] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${raw.id}/teams`),
-        apiGet<RawSeries[]>(`/events/${raw.id}/series`),
+        apiGetAll<RawSeries>(`/events/${raw.id}/series`),
       ]);
       const fixtures = mapFixtures(series);
       const team = mapTeams(teams, raw.id).find((t) => t.slug === slug);
@@ -325,7 +325,8 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
           if (err instanceof ApiError && err.status === 404) return {} as RawHistory;
           throw err;
         }),
-        apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]),
+        // the list, not /stats/career/{id}: only the list holds players with no stored row
+        apiGetAll<RawCareerStat>("/stats/career").catch(() => [] as RawCareerStat[]),
       ]);
       if (!user) return null;
       // Only a season the player has a roster seat in needs its series: the
@@ -334,7 +335,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
       const played = seasons.filter((s) => seated.has(s.id));
       const series = new Map(
         await Promise.all(
-          played.map(async (s) => [s.id, await apiGet<RawSeries[]>(`/events/${s.id}/series`)] as const),
+          played.map(async (s) => [s.id, await apiGetAll<RawSeries>(`/events/${s.id}/series`)] as const),
         ),
       );
       return mapPlayerProfile({ seasons, user, history, leagueTeams, series, career }) ?? null;

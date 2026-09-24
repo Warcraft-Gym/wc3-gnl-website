@@ -17,9 +17,9 @@ are documented in [`docs/content.md`](content.md),
 
 ## Data flow
 
-Next.js Server Components fetch league data server-side. If
-`GNL_SERVICE_TOKEN` is configured, the client attaches it as a bearer header in
-the server runtime only.
+Next.js Server Components fetch league data server-side. Every read is an open
+backend route, sent with no Authorization header, so the backend's edge cache
+can answer it without a database read.
 
 ```text
 Server Component  →  src/lib/api/gnl.ts  →  src/lib/api/client.ts  →  FastAPI
@@ -74,6 +74,12 @@ The selected event scopes every public table:
 Team images use the `icon_url` carried by the backend response. That URL points
 straight at the backend's public blob store. When an older payload has no URL,
 the mapper falls back to the league-scoped image redirect.
+
+## Reading the backend
+
+Backend reads go to open routes with no token. `apiGet` keeps each answer for
+60 seconds, and the backend's edge cache holds its own copy. The backend's
+consumer rules are in its repository, in `docs/okf/api/consumers.md`.
 
 The UI consumes only the types in `src/lib/api/types.ts`. Backend-specific
 names such as `season_id`, `playday` and `player_by_season` stop in the mapper.
