@@ -15,6 +15,9 @@ import "server-only";
 
 const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");
 
+/** Default cache window for public league data (seconds); see "Reading the backend cheaply" in docs/ARCHITECTURE.md. */
+const DEFAULT_REVALIDATE = 60;
+
 export function isApiConfigured(): boolean {
   return Boolean(BASE_URL);
 }
@@ -31,13 +34,14 @@ export class ApiError extends Error {
 }
 
 type GetOptions = {
+  revalidate?: number;
   /** Extra query params. */
   query?: Record<string, string | number | undefined>;
 };
 
 export async function apiGet<T = unknown>(
   path: string,
-  { query }: GetOptions = {},
+  { revalidate = DEFAULT_REVALIDATE, query }: GetOptions = {},
 ): Promise<T> {
   if (!BASE_URL) {
     throw new ApiError("GNL_API_BASE_URL not configured", undefined, path);
@@ -58,8 +62,7 @@ export async function apiGet<T = unknown>(
   let lastError: ApiError = new ApiError(`Request failed for ${path}`, undefined, path);
   for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
     try {
-      // no cache here: the backend's edge cache holds the answer and clears it when the data changes
-      const res = await fetch(url, { headers, cache: "no-store" });
+      const res = await fetch(url, { headers, next: { revalidate } });
       if (res.ok) return (await res.json()) as T;
       lastError = new ApiError(`API ${res.status} for ${path}`, res.status, path);
       if (res.status < 500) throw lastError; // client errors won't fix on retry
