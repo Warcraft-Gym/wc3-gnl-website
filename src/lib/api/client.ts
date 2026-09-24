@@ -15,7 +15,7 @@ import "server-only";
 
 const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");
 
-/** Default cache window for public league data (seconds). */
+/** Default cache window for public league data (seconds); see "Reading the backend cheaply" in docs/ARCHITECTURE.md. */
 const DEFAULT_REVALIDATE = 60;
 
 export function isApiConfigured(): boolean {

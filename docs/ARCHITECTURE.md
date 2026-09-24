@@ -75,6 +75,26 @@ Team images use the `icon_url` carried by the backend response. That URL points
 straight at the backend's public blob store. When an older payload has no URL,
 the mapper falls back to the league-scoped image redirect.
 
+## Reading the backend cheaply
+
+The backend's database runs on Supabase's free plan, which allows 5 GB of
+egress a month. Every backend call that reaches the database counts toward it.
+A call answered from a cache does not. So read the backend like this:
+
+- **Send no Authorization header.** Every route the site reads is open. The
+  backend lets Vercel's edge cache these reads, and the edge never answers a
+  request that carries a token.
+- **Let the caches work.** `apiGet` keeps each answer for `revalidate` seconds,
+  60 by default. The backend keeps a finished season at the edge for an hour.
+- **Read only what the page needs.** A season's series list is several hundred
+  rows. Read it once per season a page shows, never once per player or team.
+- **Page long lists with `apiGetAll`.** A list route returns at most 500 rows.
+- **Develop against a local backend,** not production. A hard reload in
+  `next dev` skips the cache and calls the backend again.
+
+A result reported on the backend shows here within about two minutes during a
+season, and within an hour for a finished season.
+
 The UI consumes only the types in `src/lib/api/types.ts`. Backend-specific
 names such as `season_id`, `playday` and `player_by_season` stop in the mapper.
 
