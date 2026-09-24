@@ -409,7 +409,7 @@ export async function getLadder(seasonNumber?: number): Promise<{ ladder: Ladder
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
       const [ladder, teams] = await Promise.all([
-        apiGet<RawLadder>(`/events/${s.id}/ladder`, { revalidate: 900 }),
+        apiGet<RawLadder>(`/events/${s.id}/ladder`),
         apiGet<RawTeam[]>(`/events/${s.id}/teams`),
       ]);
       return mapLadder(ladder, teams);
