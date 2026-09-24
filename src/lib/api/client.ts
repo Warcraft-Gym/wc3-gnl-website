@@ -83,18 +83,22 @@ export async function apiGet<T = unknown>(
 
 /** The backend's largest page for a list route. */
 const PAGE_SIZE = 500;
+/** A stop for a backend that ignores offset: 10,000 rows is far past any list the site reads. */
+const MAX_PAGES = 20;
 
 /** Every row of a paged list route, one page of PAGE_SIZE at a time. */
 export async function apiGetAll<T>(path: string, options: GetOptions = {}): Promise<T[]> {
   const rows: T[] = [];
-  for (let offset = 0; ; offset += PAGE_SIZE) {
-    const page = await apiGet<T[]>(path, {
+  for (let page = 0; page < MAX_PAGES; page++) {
+    const offset = page * PAGE_SIZE;
+    const batch = await apiGet<T[]>(path, {
       ...options,
       query: { ...options.query, limit: PAGE_SIZE, offset },
     });
-    rows.push(...page);
-    if (page.length < PAGE_SIZE) return rows;
+    rows.push(...batch);
+    if (batch.length < PAGE_SIZE) return rows;
   }
+  throw new ApiError(`More than ${MAX_PAGES} pages for ${path}`, undefined, path);
 }
 
 /**

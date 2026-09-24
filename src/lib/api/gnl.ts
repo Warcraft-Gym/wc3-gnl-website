@@ -325,10 +325,8 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
           if (err instanceof ApiError && err.status === 404) return {} as RawHistory;
           throw err;
         }),
-        apiGet<RawCareerStat>(`/stats/career/${userId}`).then(
-          (row) => [row],
-          () => [] as RawCareerStat[],
-        ),
+        // the list, not /stats/career/{id}: only the list holds players with no stored row
+        apiGetAll<RawCareerStat>("/stats/career").catch(() => [] as RawCareerStat[]),
       ]);
       if (!user) return null;
       // Only a season the player has a roster seat in needs its series: the
