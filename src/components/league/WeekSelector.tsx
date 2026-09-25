@@ -14,12 +14,12 @@ export function WeekSelector({ weeks, active }: { weeks: Week[]; active: number 
       <Link
         href={`/gnl/schedule/${w.number}`}
         aria-label={`${label}, week ${w.number}`}
-        className="grid size-9 shrink-0 place-items-center rounded border border-line text-muted transition-colors hover:border-gold/60 hover:text-gold"
+        className="grid size-9 shrink-0 place-items-center rounded border border-line bg-surface/60 text-muted transition-colors hover:border-gold/60 hover:text-gold"
       >
         <Icon size={18} />
       </Link>
     ) : (
-      <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded border border-line/40 text-faint/40">
+      <span aria-hidden className="grid size-9 shrink-0 place-items-center rounded border border-line/40 bg-surface/30 text-faint/40">
         <Icon size={18} />
       </span>
     );
@@ -39,7 +39,7 @@ export function WeekSelector({ weeks, active }: { weeks: Week[]; active: number 
                 "flex shrink-0 flex-col items-center border px-3 py-1.5 transition-colors sm:flex-1",
                 isActive
                   ? "border-gold bg-gold/10 text-gold"
-                  : "border-line text-muted hover:border-gold/60 hover:text-gold",
+                  : "border-line bg-surface/60 text-muted hover:border-gold/60 hover:text-gold",
               )}
             >
               <span className="flex items-center gap-1.5 font-display text-sm font-extrabold">

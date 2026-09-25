@@ -36,7 +36,7 @@ export function StandingsTable({
   compact?: boolean;
 }) {
   return (
-    <div className="overflow-x-auto rounded-lg border border-line">
+    <div className="panel overflow-x-auto">
       <table
         className={cn(
           "w-full border-collapse text-sm max-sm:[&_td]:px-2 max-sm:[&_th]:px-2",

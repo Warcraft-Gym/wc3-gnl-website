@@ -163,7 +163,7 @@ export function FantasyStandings({ entries }: { entries: FantasyEntry[] }) {
     );
   }
   return (
-    <div className="border border-line">
+    <div className="panel overflow-hidden">
       {entries.map((entry) => (
         <FantasyRow key={entry.id} entry={entry} />
       ))}
