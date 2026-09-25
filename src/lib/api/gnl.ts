@@ -315,17 +315,19 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
       const [{ seasons, leagueTeams }, user, history, career] = await Promise.all([
         fetchCompletedSeasonsRaw().then(async (seasons) => ({
           seasons,
-          leagueTeams: await apiGet<RawTeam[]>(`/leagues/${seasons[0].league_id}/teams`),
+          leagueTeams: await apiGet<RawTeam[]>(`/leagues/${seasons[0].league_id}/teams`, { revalidate: 3600 }),
         })),
-        apiGet<RawUser>(`/users/${userId}`).catch((err) => {
+        apiGet<RawUser>(`/users/${userId}`, { revalidate: 3600 }).catch((err) => {
           if (err instanceof ApiError && err.status === 404) return null;
           throw err;
         }),
-        apiGet<RawHistory>(`/users/${userId}/history`).catch((err) => {
+        apiGet<RawHistory>(`/users/${userId}/history`, { revalidate: 3600 }).catch((err) => {
           if (err instanceof ApiError && err.status === 404) return {} as RawHistory;
           throw err;
         }),
-        apiGet<RawCareerStat[]>("/stats/career").catch(() => [] as RawCareerStat[]),
+        apiGet<RawCareerStat>(`/stats/career/${userId}`, { revalidate: 3600 })
+          .then((row) => [row])
+          .catch(() => [] as RawCareerStat[]),
       ]);
       if (!user) return null;
       // Only a season the player has a roster seat in needs its series: the
@@ -334,7 +336,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
       const played = seasons.filter((s) => seated.has(s.id));
       const series = new Map(
         await Promise.all(
-          played.map(async (s) => [s.id, await apiGet<RawSeries[]>(`/events/${s.id}/series`)] as const),
+          played.map(async (s) => [s.id, await apiGet<RawSeries[]>(`/events/${s.id}/series`, { revalidate: 3600 })] as const),
         ),
       );
       return mapPlayerProfile({ seasons, user, history, leagueTeams, series, career }) ?? null;
