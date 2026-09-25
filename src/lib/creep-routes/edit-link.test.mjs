@@ -212,3 +212,19 @@ test("a build step's supply survives the same treatment", async () => {
   assert.equal("supply" in payload.steps[0] && payload.steps[0].supply === null, false);
   assert.equal(payload.steps[1].supply, 0);
 });
+
+test("a legacy free-text patch survives 'Suggest an update' as a real option", async () => {
+  // The patch field used to be a free text box; one published build carries
+  // "> 2.0.0". The exchange payload stays lenient so it is not lost in
+  // transit, and the form normalises it to a value the select can show and
+  // the submission schema accepts.
+  const { toExchangeBuild } = await import("../builds/edit-link.mjs");
+  const { normalizePatch, isKnownPatch } = await import("../patches.mjs");
+
+  const payload = toExchangeBuild({ slug: "b", title: "T", race: "human", patch: "> 2.0.0", steps: [{ instruction: "Farm" }] });
+  assert.equal(payload.patch, "> 2.0.0", "the exchange carries what is published, verbatim");
+
+  const prefilled = normalizePatch(payload.patch) ?? "";
+  assert.equal(prefilled, "2.0");
+  assert.equal(isKnownPatch(prefilled), true, "so resubmitting it does not fail validation");
+});

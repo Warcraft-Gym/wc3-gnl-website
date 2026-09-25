@@ -318,3 +318,23 @@ test("no video is still a valid route", () => {
   assert.equal(result.success, true);
   assert.equal(toCreepRouteDraft(result.data, "creepMap-autumn-leaves").videoUrl, undefined);
 });
+
+test("patch must be one from the list, or blank", () => {
+  assert.equal(schema().safeParse(payload({ patch: "3.0" })).success, true);
+  assert.equal(schema().safeParse(payload({ patch: "" })).success, true, "the field is optional");
+  assert.equal(schema().safeParse(payload()).success, true, "absent is fine too");
+
+  const bad = schema().safeParse(payload({ patch: "2.0.9" }));
+  assert.equal(bad.success, false, "a version we do not list must not get through");
+  assert.ok(flattenErrors(bad.error).patch);
+
+  assert.equal(schema().safeParse(payload({ patch: "whatever" })).success, false);
+  assert.equal(schema().safeParse(payload({ patch: "> 2.0.0" })).success, false, "the old free-text shape is what this replaces");
+});
+
+test("a blank patch is dropped from the draft rather than stored as an empty string", () => {
+  const parsed = schema().safeParse(payload({ patch: "" }));
+  assert.equal(parsed.success, true);
+  const draft = toCreepRouteDraft(parsed.data, "creepMap-autumn-leaves");
+  assert.equal(draft.patch, undefined);
+});

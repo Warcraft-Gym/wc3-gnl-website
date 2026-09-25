@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
+import { PATCH_OPTIONS } from "../../lib/patches.mjs";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -74,7 +75,8 @@ export const buildOrder = defineType({
       name: "patch",
       type: "string",
       group: "meta",
-      description: "Game patch this was written for, e.g. 2.0.3",
+      description: "Balance patch this was written for. Leave blank if it is not patch-specific.",
+      options: { list: PATCH_OPTIONS },
       validation: (rule) => rule.max(16),
     }),
     defineField({

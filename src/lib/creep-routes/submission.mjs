@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { isEmbeddable } from "../video-embed.mjs";
+import { isKnownPatch } from "../patches.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -149,7 +150,12 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         .max(300)
         .optional()
         .refine((v) => !v || /^https?:\/\//.test(v), "Must start with http(s)://"),
-      patch: z.string().trim().max(16, "Max 16 characters").optional(),
+      patch: z
+        .string()
+        .trim()
+        .optional()
+        .transform((v) => v || undefined)
+        .refine((v) => isKnownPatch(v), "Pick a patch from the list"),
       tags: z
         .string()
         .trim()

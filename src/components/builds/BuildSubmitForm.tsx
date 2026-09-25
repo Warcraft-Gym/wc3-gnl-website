@@ -13,6 +13,7 @@ import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace } from "@/lib/
 import type { StepInput } from "@/lib/builds/submission";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeBuild } from "@/lib/builds/exchange";
 import { cn } from "@/lib/utils";
+import { PATCHES, normalizePatch, patchLabel } from "@/lib/patches.mjs";
 
 type StepRow = { id: number; time: string; supply: string; instruction: string; icon: string };
 
@@ -84,7 +85,7 @@ export function BuildSubmitForm() {
     id: k,
     name: k,
     value: text[k],
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setText((t) => ({ ...t, [k]: e.target.value })),
   });
 
@@ -143,7 +144,7 @@ export function BuildSubmitForm() {
   const applyImport = (b: ExchangeBuild) => {
     setText({
       title: b.title,
-      patch: b.patch ?? "",
+      patch: normalizePatch(b.patch) ?? "",
       summary: b.summary,
       description: b.description ?? "",
       author: b.author,
@@ -278,8 +279,15 @@ export function BuildSubmitForm() {
                 ))}
               </div>
             </Field>
-            <Field name="patch" title="Patch" error={errors.patch} hint="e.g. 2.0.3">
-              <input {...bind("patch")} maxLength={16} placeholder="Optional" className={input} />
+            <Field name="patch" title="Patch" error={errors.patch} hint="Which balance patch this is written for.">
+              <select {...bind("patch")} className={cn(input, "appearance-none")}>
+                <option value="">Not patch-specific</option>
+                {PATCHES.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {patchLabel(p)}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field title="Tags" error={errors.tags} hint="Enter or comma to add. Up to 8.">
               <TagInput value={tags} onChange={setTags} placeholder="fast expand, tavern…" />

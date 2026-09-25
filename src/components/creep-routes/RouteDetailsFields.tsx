@@ -5,6 +5,7 @@ import { ButtonLink, Button } from "@/components/ui/Button";
 import { TagInput } from "@/components/builds/TagInput";
 import { SectionTitle } from "./SectionTitle";
 import { cn } from "@/lib/utils";
+import { PATCHES, patchLabel } from "@/lib/patches.mjs";
 
 const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
@@ -70,7 +71,7 @@ export function RouteDetailsFields({
     id: string;
     name: string;
     value: string;
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   };
   tags: string[];
   onTagsChange: (tags: string[]) => void;
@@ -90,8 +91,15 @@ export function RouteDetailsFields({
         <textarea {...bind("summary")} required rows={2} maxLength={200} className={cn(input, "h-auto py-2")} />
       </Field>
       <div className="grid gap-6 sm:grid-cols-2">
-        <Field name="patch" title="Patch" error={errors.patch} hint="e.g. 2.0.3">
-          <input {...bind("patch")} maxLength={16} placeholder="Optional" className={input} />
+        <Field name="patch" title="Patch" error={errors.patch} hint="Which balance patch this is written for.">
+          <select {...bind("patch")} className={cn(input, "appearance-none")}>
+            <option value="">Not patch-specific</option>
+            {PATCHES.map((p) => (
+              <option key={p.value} value={p.value}>
+                {patchLabel(p)}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field title="Tags" error={errors.tags} hint="Enter or comma to add. Up to 8.">
           <TagInput value={tags} onChange={onTagsChange} placeholder="fast expand, night attack…" />

@@ -17,6 +17,7 @@ import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
 import type { CreepMap, RouteLevel } from "@/lib/creep-routes/types";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
+import { normalizePatch } from "@/lib/patches.mjs";
 
 const initial: SubmitState = { status: "idle" };
 
@@ -76,7 +77,7 @@ export function RouteSubmitForm({
     id: k,
     name: k,
     value: text[k],
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setText((t) => ({ ...t, [k]: e.target.value })),
   });
 
@@ -125,7 +126,7 @@ export function RouteSubmitForm({
   // #route= deep link from a future overlay/replay importer.
   const applyExchange = (r: ExchangeCreepRoute) => {
     setText({
-      title: r.title, summary: r.summary, patch: r.patch ?? "", author: r.author,
+      title: r.title, summary: r.summary, patch: normalizePatch(r.patch) ?? "", author: r.author,
       authorDiscord: r.authorDiscord ?? "", sourceUrl: r.sourceUrl ?? "",
       videoUrl: r.videoUrl ?? "",
       // Set when the payload came from a route page's "Suggest an update"

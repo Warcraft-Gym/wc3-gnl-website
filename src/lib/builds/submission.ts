@@ -3,6 +3,7 @@ import { BUILD_DIFFICULTIES, BUILD_RACES } from "./types";
 import { getGameIcon } from "./icons";
 import { slugFromInput } from "@/lib/creep-routes/submission";
 import { isEmbeddable } from "@/lib/video-embed.mjs";
+import { isKnownPatch } from "@/lib/patches.mjs";
 
 /**
  * Validation for public build submissions. Shared shape between the client
@@ -37,7 +38,12 @@ export const submissionSchema = z.object({
   race: z.enum(raceIds, { error: "Pick your race" }),
   vsRaces: z.array(z.enum(raceIds)).max(4).transform((v) => [...new Set(v)]),
   difficulty: z.enum(difficultyIds, { error: "Pick a difficulty" }),
-  patch: z.string().trim().max(16, "Max 16 characters").optional(),
+  patch: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => v || undefined)
+    .refine((v) => isKnownPatch(v), "Pick a patch from the list"),
   tags: z
     .string()
     .trim()
