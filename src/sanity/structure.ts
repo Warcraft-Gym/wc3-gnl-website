@@ -76,4 +76,10 @@ export const structure: StructureResolver = (S) =>
       S.documentTypeListItem("guide").title("Learn guides"),
       S.divider(),
       S.documentTypeListItem("tool").title("Tools"),
+      S.divider(),
+      // A singleton: one rulebook, opened directly rather than through a
+      // list of one. The fixed id is what `getGnlRules` reads.
+      S.listItem()
+        .title("League rules")
+        .child(S.document().schemaType("gnlRules").documentId("gnlRules").title("League rules")),
     ]);

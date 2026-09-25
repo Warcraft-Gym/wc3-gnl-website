@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
+import { PortableBody } from "@/components/sanity/PortableBody";
+import { FALLBACK_RULES, getGnlRules } from "@/lib/gnl/rules";
 
 export const metadata: Metadata = {
   title: "GNL rules and format",
@@ -9,34 +11,17 @@ export const metadata: Metadata = {
   alternates: { canonical: "/gnl/rules" },
 };
 
-const SECTIONS = [
-  {
-    title: "Season format",
-    points: [
-      "Teams are drafted at the start of each season from the signed-up player pool.",
-      "The regular season runs in weekly team fixtures; each fixture is a set of head-to-head best-of-three games.",
-      "Scoring: 4 points for a 2–0, 3 for a 2–1, and 1 even for a 1–2 loss. The table is ordered by points, then map differential.",
-    ],
-  },
-  {
-    title: "Scheduling",
-    points: [
-      "Players set their availability and agree a time through the dashboard.",
-      "Unscheduled games default to the standard Gym Newbie League slot for that week.",
-      "Both players confirm the result; admins only step in for disputes.",
-    ],
-  },
-  {
-    title: "Playoffs",
-    points: [
-      "The top four teams advance to a single-elimination bracket.",
-      "Higher seeds are placed on the home side of the bracket.",
-      "The Grand Final is a best-of-five between the two surviving teams.",
-    ],
-  },
-];
 
-export default function RulesPage() {
+/** Same wording as the date on a creep route: a plain, unambiguous day. */
+function formatDate(iso: string) {
+  return new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" });
+}
+
+export default async function RulesPage() {
+  // Edited in the Studio; the built-in copy is the fallback, so an empty CMS
+  // still renders a rulebook rather than an empty page.
+  const rules = await getGnlRules();
+
   return (
     <>
       <PageHeader
@@ -45,7 +30,18 @@ export default function RulesPage() {
         lead="The short version of how a GNL season runs, start to finish."
       />
       <Container className="max-w-3xl space-y-4 py-10">
-        {SECTIONS.map((s) => (
+        {rules ? (
+          <Surface className="p-6 sm:p-8">
+            {rules.intro ? <p className="mb-6 text-muted">{rules.intro}</p> : null}
+            <div className="prose-invert max-w-none">
+              <PortableBody value={rules.body as never} />
+            </div>
+            {rules.updatedAt ? (
+              <p className="mt-6 text-xs text-faint">Rules last changed {formatDate(rules.updatedAt)}</p>
+            ) : null}
+          </Surface>
+        ) : (
+          FALLBACK_RULES.map((s) => (
           <Surface key={s.title} className="p-6 sm:p-8">
             <h2 className="font-display text-xl font-bold uppercase">{s.title}</h2>
             <ul className="mt-4 space-y-3">
@@ -57,7 +53,8 @@ export default function RulesPage() {
               ))}
             </ul>
           </Surface>
-        ))}
+          ))
+        )}
       </Container>
     </>
   );
