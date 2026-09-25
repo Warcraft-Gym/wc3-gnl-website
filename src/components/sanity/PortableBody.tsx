@@ -5,6 +5,7 @@ import {
 import { urlFor } from "@/sanity/image";
 // Shared with the creep route Video field so both understand the same URLs.
 import { embedUrl } from "@/lib/video-embed.mjs";
+import { ICON_MAX_WIDTH, imageDimensions, renderWidth } from "@/lib/sanity-image-size.mjs";
 
 
 /**
@@ -48,16 +49,35 @@ const components: PortableTextComponents = {
     },
     image: ({ value }) => {
       if (!value?.asset) return null;
-      const src = urlFor(value).width(1400).fit("max").auto("format").url();
       const alt = value.alt || "";
+
+      // Draw an image at its own size, never larger. Every picture used to be
+      // `w-full` and requested at 1400px, which is right for a screenshot and
+      // wrong for a 64-pixel item icon — the guide on item drops has 64 of
+      // them, each upscaled to the width of the column. Sanity puts the real
+      // dimensions in the asset id, so the renderer can tell the two apart.
+      const dimensions = imageDimensions(value);
+      const width = renderWidth(dimensions, 1400);
+      const isIcon = dimensions !== null && dimensions.width <= ICON_MAX_WIDTH;
+      const src = urlFor(value).width(width).fit("max").auto("format").url();
+
       return (
-        <figure className="my-7">
+        <figure className={isIcon ? "my-4" : "my-7"}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={src}
             alt={alt}
             loading="lazy"
-            className="h-auto w-full border border-line bg-surface"
+            width={dimensions?.width}
+            height={dimensions?.height}
+            // `max-w-full` keeps a wide image inside the column on a phone;
+            // the width attribute stops a small one from stretching to fill
+            // it. An icon keeps its border tight rather than framing a blur.
+            className={
+              isIcon
+                ? "h-auto max-w-full rounded border border-line bg-surface"
+                : "h-auto w-full border border-line bg-surface"
+            }
           />
           {value.caption ? (
             <figcaption className="mt-2 text-center text-sm text-faint">
