@@ -67,10 +67,13 @@ export default async function LearnCategoryPage({ params }: Params) {
           { name: cat.title, path: `/learn/${cat.id}` },
         ])}
       />
+      {/* Races carry their own identity — the crest and the name are the
+          header, so no lead line. Topics still need one to say what they
+          cover. The blurb stays in this page's metadata either way. */}
       <PageHeader
         kicker="Learn"
         title={cat.title}
-        lead={cat.blurb}
+        lead={race ? undefined : cat.blurb}
         art={learnArt(cat)}
         background={learnHeaderArt(cat)}
         backgroundPosition="center 30%"

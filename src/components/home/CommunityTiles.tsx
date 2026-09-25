@@ -3,6 +3,8 @@ import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { DISCORD_URL, YOUTUBE_URL } from "@/lib/links";
 
+/** `active: false` hides a tile without deleting it — the copy and the
+ *  painted emblem are kept so bringing it back is a one-word change. */
 const TILES = [
   {
     art: "/graphics/coaching-replay-2.webp",
@@ -11,6 +13,7 @@ const TILES = [
     href: DISCORD_URL,
     cta: "Open the Discord",
     external: true,
+    active: true,
   },
   {
     art: "/graphics/king-of-the-hill-2.webp",
@@ -19,6 +22,7 @@ const TILES = [
     href: "/blog",
     cta: "See past events",
     external: false,
+    active: true,
   },
   {
     art: "/graphics/replay-of-month-2.webp",
@@ -27,6 +31,8 @@ const TILES = [
     href: "/blog",
     cta: "Watch the picks",
     external: false,
+    // Paused 2026-09-25: the community is not running this at the moment.
+    active: false,
   },
   {
     art: "/graphics/casts-youtube-2.webp",
@@ -35,6 +41,7 @@ const TILES = [
     href: YOUTUBE_URL,
     cta: "Go to the channel",
     external: true,
+    active: true,
   },
 ];
 
@@ -43,7 +50,7 @@ const TILES = [
 export function CommunityTiles() {
   return (
     <ul className="grid content-start gap-x-4 gap-y-12 pt-9 sm:grid-cols-2 lg:self-center">
-      {TILES.map(({ art, title, body, href, cta, external }) => {
+      {TILES.filter((t) => t.active).map(({ art, title, body, href, cta, external }) => {
         const inner = (
           <>
             {/* Emblem sits over the top-left edge, outside the panel */}

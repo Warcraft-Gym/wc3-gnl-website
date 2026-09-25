@@ -113,7 +113,7 @@ export default async function HomePage() {
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-[length:var(--wg-text-display)]">Latest news</h2>
             <p className="mt-4 text-lg text-muted">
-              Event announcements, replay of the month, season recaps and
+              Event announcements, season recaps and
               community stories from the Gym.
             </p>
           </div>

@@ -8,17 +8,22 @@ import { cn } from "@/lib/utils";
 
 /** Category card with the same crest / emblem as the homepage. `href` and
  *  `art` override the category's own, for the build orders card. `stacked`
- *  puts the emblem above the text, for narrow four-up rows. */
+ *  puts the emblem above the text, for narrow four-up rows. `prominent` is
+ *  the four races: the crest and the name say it, so the name is set larger
+ *  and the one-line blurb is dropped — matching the homepage row. Topics keep
+ *  theirs, because "Game mechanics" does not explain itself the way "Orc" does. */
 export function CategoryCard({
   category,
   href,
   art: artOverride,
   stacked = false,
+  prominent = false,
 }: {
   category: LearnCategory;
   href?: string;
   art?: string;
   stacked?: boolean;
+  prominent?: boolean;
 }) {
   const art = artOverride ?? learnArt(category);
 
@@ -45,7 +50,12 @@ export function CategoryCard({
         </span>
         <div className={cn("min-w-0 flex-1", stacked && "w-full")}>
           <div className={cn("flex items-center gap-2", stacked ? "justify-center" : "justify-between")}>
-            <h3 className="font-display text-lg font-bold uppercase text-fg transition-colors group-hover:text-gold">
+            <h3
+              className={cn(
+                "font-display font-bold uppercase text-fg transition-colors group-hover:text-gold",
+                prominent ? "text-xl tracking-[0.04em]" : "text-lg",
+              )}
+            >
               {category.title}
             </h3>
             <ArrowUpRight
@@ -53,7 +63,7 @@ export function CategoryCard({
               className="shrink-0 text-faint transition-colors group-hover:text-gold"
             />
           </div>
-          <p className="mt-1 text-sm text-muted">{category.blurb}</p>
+          {prominent ? null : <p className="mt-1 text-sm text-muted">{category.blurb}</p>}
         </div>
       </Link>
     </Surface>

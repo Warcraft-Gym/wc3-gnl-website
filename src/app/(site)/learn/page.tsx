@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -93,7 +92,7 @@ export default async function LearnPage() {
           <p className="kicker mt-8 mb-4">By race</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {races.map((c) => (
-              <CategoryCard key={c.id} category={c} stacked />
+              <CategoryCard key={c.id} category={c} stacked prominent />
             ))}
           </div>
           <p className="kicker mt-10 mb-4">By topic</p>
@@ -107,18 +106,12 @@ export default async function LearnPage() {
 
         {/* Latest guides */}
         <section className="mt-16">
-          <SectionHead
-            kicker="Fresh"
-            title="Latest guides"
-            action={
-              <Link
-                href="/learn/new-players"
-                className="hidden text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold sm:inline"
-              >
-                Browse all
-              </Link>
-            }
-          />
+          {/* No "Browse all" action: this page is the guides index — the Learn
+              sub-nav's "Guides" points here — so the link had nowhere of its
+              own to go, and was wired to /learn/new-players, which is a
+              different thing entirely. The category cards above are the way
+              through to everything. */}
+          <SectionHead kicker="Fresh" title="Latest in-depth strategy guides" />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {latest.map((g) => (
               <GuideCard key={g.slug} guide={g} />

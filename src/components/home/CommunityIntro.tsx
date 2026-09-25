@@ -14,7 +14,7 @@ const STEPS = [
   },
   {
     title: "Show up for the fun",
-    body: "Coaching sessions, King of the Hill nights, replay of the month, casts, and the GNL when a season opens.",
+    body: "Coaching sessions, King of the Hill nights, casts, and the GNL when a season opens.",
   },
 ];
 

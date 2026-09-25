@@ -3,9 +3,14 @@ import Image from "next/image";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
-/** Emblem + title + blurb, linking to a Learn hub. */
-function LearnEmblem({ category }: { category: LearnCategory }) {
+/** Emblem + title, linking to a Learn hub.
+ *
+ * `prominent` is the four races: the crest and the name carry it, so the name
+ * is set larger and the one-line blurb is dropped. The topic emblems below
+ * keep theirs — "Game mechanics" does not explain itself the way "Orc" does. */
+function LearnEmblem({ category, prominent = false }: { category: LearnCategory; prominent?: boolean }) {
   const art = learnArt(category);
   return (
     <Link
@@ -28,10 +33,19 @@ function LearnEmblem({ category }: { category: LearnCategory }) {
           />
         ) : null}
       </span>
-      <span className="mt-3 font-display text-[0.7rem] font-bold uppercase leading-tight tracking-[0.12em] sm:mt-4 sm:text-[0.8rem] sm:tracking-[0.14em] text-fg transition-colors group-hover:text-gold">
+      <span
+        className={cn(
+          "mt-3 font-display font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold sm:mt-4",
+          prominent
+            ? "text-[0.9rem] tracking-[0.14em] sm:text-[1.15rem] sm:tracking-[0.16em]"
+            : "text-[0.7rem] tracking-[0.12em] sm:text-[0.8rem] sm:tracking-[0.14em]",
+        )}
+      >
         {category.title}
       </span>
-      <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">{category.blurb}</span>
+      {prominent ? null : (
+        <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">{category.blurb}</span>
+      )}
     </Link>
   );
 }
@@ -66,7 +80,7 @@ export function LearnRaces() {
         <ul className="grid grid-cols-4 gap-x-2 gap-y-6 sm:gap-x-6 sm:gap-y-8">
           {races.map((c) => (
             <li key={c.id}>
-              <LearnEmblem category={c} />
+              <LearnEmblem category={c} prominent />
             </li>
           ))}
         </ul>
