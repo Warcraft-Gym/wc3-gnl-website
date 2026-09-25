@@ -82,4 +82,8 @@ export const structure: StructureResolver = (S) =>
       S.listItem()
         .title("League rules")
         .child(S.document().schemaType("gnlRules").documentId("gnlRules").title("League rules")),
+      // The other singleton: one King of the Hill page, at a fixed id.
+      S.listItem()
+        .title("King of the Hill")
+        .child(S.document().schemaType("kothPage").documentId("kothPage").title("King of the Hill")),
     ]);

@@ -5,5 +5,6 @@ import { tool } from "./tool";
 import { creepMap } from "./creepMap";
 import { creepRoute } from "./creepRoute";
 import { gnlRules } from "./gnlRules";
+import { kothPage } from "./kothPage";
 
-export const schemaTypes = [post, guide, buildOrder, tool, creepMap, creepRoute, gnlRules];
+export const schemaTypes = [post, guide, buildOrder, tool, creepMap, creepRoute, gnlRules, kothPage];

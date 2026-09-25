@@ -47,7 +47,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const statics: Entry[] = [
     page("/", 1, "daily"),
     page("/learn", 0.9, "weekly"),
+    page("/learn/guides", 0.7, "weekly"),
     page("/learn/builds", 0.9, "daily"),
+    page("/king-of-the-hill", 0.6, "weekly"),
     page("/blog", 0.8, "daily"),
     page("/about", 0.6, "monthly"),
     page("/tools", 0.6, "monthly"),

@@ -54,9 +54,10 @@ test("every destination is a route this site actually serves", () => {
   const known = [
     /^\/$/,
     /^\/(about|blog|privacy|tools)$/,
+    /^\/king-of-the-hill$/,
     /^\/blog\/[a-z0-9-]+$/,
     /^\/learn$/,
-    /^\/learn\/(human|orc|undead|night-elf|mechanics|new-players|builds|creep-routes)$/,
+    /^\/learn\/(human|orc|undead|night-elf|mechanics|new-players|builds|creep-routes|guides)$/,
     /^\/learn\/(guide|builds|creep-routes)\/[a-z0-9-]+$/,
     // No bare `/gnl`: the new site has no league index, so a redirect there
     // would land on a 404 and lose the page instead of moving it. The old
