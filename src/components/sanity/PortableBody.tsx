@@ -5,7 +5,9 @@ import {
 import { urlFor } from "@/sanity/image";
 // Shared with the creep route Video field so both understand the same URLs.
 import { embedUrl } from "@/lib/video-embed.mjs";
-import { ICON_MAX_WIDTH, imageDimensions, renderWidth } from "@/lib/sanity-image-size.mjs";
+import { displayWidth, imageDimensions, isIconSized } from "@/lib/sanity-image-size.mjs";
+import { groupIconLabelPairs } from "@/lib/icon-grid.mjs";
+import { ZoomableImage } from "@/components/ui/ZoomableImage";
 
 
 /**
@@ -47,6 +49,31 @@ const components: PortableTextComponents = {
         </figure>
       );
     },
+    iconGrid: ({ value }) => {
+      const items = (value as { items?: { _key: string; image: { alt?: string }; label: string }[] })?.items ?? [];
+      if (!items.length) return null;
+      return (
+        <ul className="my-5 grid list-none grid-cols-2 gap-x-4 gap-y-3 p-0 sm:grid-cols-3 lg:grid-cols-4">
+          {items.map((item) => {
+            const d = imageDimensions(item.image);
+            return (
+              <li key={item._key} className="flex items-center gap-2.5">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={urlFor(item.image).width(d?.width ?? 64).fit("max").auto("format").url()}
+                  alt={item.image.alt || ""}
+                  loading="lazy"
+                  width={d?.width}
+                  height={d?.height}
+                  className="size-10 shrink-0 rounded border border-line bg-surface object-contain"
+                />
+                <span className="min-w-0 text-[0.95rem] leading-snug text-fg">{item.label}</span>
+              </li>
+            );
+          })}
+        </ul>
+      );
+    },
     image: ({ value }) => {
       if (!value?.asset) return null;
       const alt = value.alt || "";
@@ -57,19 +84,26 @@ const components: PortableTextComponents = {
       // them, each upscaled to the width of the column. Sanity puts the real
       // dimensions in the asset id, so the renderer can tell the two apart.
       const dimensions = imageDimensions(value);
-      const width = renderWidth(dimensions, 1400);
-      const isIcon = dimensions !== null && dimensions.width <= ICON_MAX_WIDTH;
+      // The author's "Display size" choice wins; without one, the image's own
+      // size decides. See `sanity-image-size.mjs`.
+      const width = displayWidth(value, 1400);
+      const isIcon = isIconSized(value, 1400);
       const src = urlFor(value).width(width).fit("max").auto("format").url();
 
+      // Zoomable only when there is more to see than the page already shows:
+      // an icon drawn at its own 64px has no hidden detail, and opening it
+      // full-screen would just show a blur.
+      const zoomSrc = isIcon ? undefined : urlFor(value).width(2000).fit("max").auto("format").url();
+
       return (
-        <figure className={isIcon ? "my-4" : "my-7"}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <>
+          <ZoomableImage
             src={src}
+            zoomSrc={zoomSrc}
             alt={alt}
-            loading="lazy"
-            width={dimensions?.width}
-            height={dimensions?.height}
+            width={width}
+            height={dimensions ? Math.round((dimensions.height / dimensions.width) * width) : undefined}
+            figureClassName={isIcon ? "my-4" : "my-7"}
             // `max-w-full` keeps a wide image inside the column on a phone;
             // the width attribute stops a small one from stretching to fill
             // it. An icon keeps its border tight rather than framing a blur.
@@ -80,11 +114,9 @@ const components: PortableTextComponents = {
             }
           />
           {value.caption ? (
-            <figcaption className="mt-2 text-center text-sm text-faint">
-              {value.caption}
-            </figcaption>
+            <p className="-mt-4 mb-7 text-center text-sm text-faint">{value.caption}</p>
           ) : null}
-        </figure>
+        </>
       );
     },
   },
@@ -155,9 +187,13 @@ const components: PortableTextComponents = {
 };
 
 export function PortableBody({ value }: { value: unknown[] }) {
+  // Migrated catalogue articles arrive as an alternating run of icon and
+  // name; grouped here so the renderer can lay them out as a table rather
+  // than sixty rows of one picture and three words. See `icon-grid.mjs`.
+  const blocks = groupIconLabelPairs(value as never[]);
   return (
     <div className="space-y-5 text-[1.075rem] leading-8 text-muted [&_strong]:text-fg">
-      <PortableText value={value as never} components={components} />
+      <PortableText value={blocks as never} components={components} />
     </div>
   );
 }

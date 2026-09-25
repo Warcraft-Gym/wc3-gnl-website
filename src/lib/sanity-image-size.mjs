@@ -37,3 +37,39 @@ export function renderWidth(dimensions, columnWidth = 1400) {
   if (!dimensions) return columnWidth;
   return Math.min(dimensions.width, columnWidth);
 }
+
+/** Widths behind the Studio's "Display size" dropdown. `auto` is absent on
+ *  purpose: it means "use the image's own size", which is what
+ *  `renderWidth` already does. */
+export const DISPLAY_WIDTHS = {
+  icon: 64,
+  small: 200,
+  medium: 420,
+};
+
+/** How wide to draw an image, honouring the author's choice when they made
+ *  one and falling back to the image's own size when they did not.
+ *
+ *  An explicit choice wins even if it means upscaling: an author asking for a
+ *  64px icon at "Medium" has decided that, and second-guessing them would
+ *  make the control a lie. `full` and `auto` still cap at the column, because
+ *  nothing gains from overflowing it.
+ */
+export function displayWidth(value, columnWidth = 1400) {
+  const dimensions = imageDimensions(value);
+  const choice = value?.display;
+
+  if (choice && choice !== "auto" && choice !== "full") {
+    const width = DISPLAY_WIDTHS[choice];
+    if (width) return width;
+  }
+  if (choice === "full") return columnWidth;
+  return renderWidth(dimensions, columnWidth);
+}
+
+/** Whether an image should be laid out as an icon — tight margins, no
+ *  zoom — from the author's choice first, then its own size. */
+export function isIconSized(value, columnWidth = 1400) {
+  if (value?.display === "full") return false;
+  return displayWidth(value, columnWidth) <= ICON_MAX_WIDTH;
+}

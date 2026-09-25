@@ -24,6 +24,15 @@ function sourceFiles(dir, out = []) {
   return out;
 }
 
+/** Comments out, so a doc comment that *mentions* an image element is not
+ *  mistaken for one. Replaced with spaces rather than removed, to keep line
+ *  numbers honest in the failure message. */
+function stripComments(src) {
+  return src
+    .replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, " "))
+    .replace(/(^|[^:])\/\/[^\n]*/g, (m, lead) => lead + " ".repeat(m.length - lead.length));
+}
+
 /** The text of every `<img`/`<Image` element, brace- and string-aware so a
  *  `>` inside a prop expression does not end it early. */
 function imageElements(src) {
@@ -54,7 +63,7 @@ test("every rendered image sets an alt attribute", () => {
   const offenders = [];
   let total = 0;
   for (const file of sourceFiles(join(ROOT, "src"))) {
-    const src = readFileSync(file, "utf8");
+    const src = stripComments(readFileSync(file, "utf8"));
     for (const el of imageElements(src)) {
       total++;
       if (!/\balt\s*=/.test(el.text)) {

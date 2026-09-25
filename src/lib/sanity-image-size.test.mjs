@@ -42,3 +42,42 @@ test("the icon threshold separates an item icon from a screenshot", () => {
   assert.ok(256 <= ICON_MAX_WIDTH, "a 256px minimap is still icon-sized here");
   assert.ok(1200 > ICON_MAX_WIDTH, "a screenshot is not");
 });
+
+/* ------------------------------------------------------------------ *
+ *  The author's own choice, from the Studio's "Display size" dropdown
+ * ------------------------------------------------------------------ */
+import { displayWidth, isIconSized, DISPLAY_WIDTHS } from "./sanity-image-size.mjs";
+
+const img = (id, display) => ({ asset: { _ref: id }, ...(display ? { display } : {}) });
+
+test("with no choice, an image is drawn at its own size", () => {
+  assert.equal(displayWidth(img("image-a-64x64-png")), 64);
+  assert.equal(displayWidth(img("image-a-800x600-png")), 800);
+  assert.equal(displayWidth(img("image-a-64x64-png", "auto")), 64);
+});
+
+test("an explicit size wins, including when it means scaling an icon up", () => {
+  // The author asked for it. A control that quietly refuses is worse than no
+  // control.
+  assert.equal(displayWidth(img("image-a-64x64-png", "medium")), DISPLAY_WIDTHS.medium);
+  assert.equal(displayWidth(img("image-a-2000x1000-png", "small")), DISPLAY_WIDTHS.small);
+  assert.equal(displayWidth(img("image-a-64x64-png", "icon")), 64);
+});
+
+test("full means the column, never wider", () => {
+  assert.equal(displayWidth(img("image-a-64x64-png", "full"), 900), 900);
+  assert.equal(displayWidth(img("image-a-4000x3000-png", "full"), 900), 900);
+});
+
+test("an unknown value falls back to automatic rather than breaking", () => {
+  assert.equal(displayWidth(img("image-a-800x600-png", "enormous")), 800);
+});
+
+test("icon layout follows the choice, not just the file", () => {
+  assert.equal(isIconSized(img("image-a-64x64-png")), true);
+  assert.equal(isIconSized(img("image-a-1200x800-png")), false);
+  // A big screenshot the author wants small is laid out as an icon…
+  assert.equal(isIconSized(img("image-a-1200x800-png", "small")), true);
+  // …and a tiny icon set to full width is not.
+  assert.equal(isIconSized(img("image-a-64x64-png", "full")), false);
+});

@@ -257,6 +257,24 @@ export const buildOrder = defineType({
               description:
                 "What the image shows, for screen readers and when it fails to load. Leave blank only if it is decorative.",
             }),
+            defineField({
+              name: "display",
+              type: "string",
+              title: "Display size",
+              description:
+                "How wide to draw it. Automatic uses the image's own size, never upscaling — right for most pictures. Override when a screenshot should sit small, or an icon should be shown large.",
+              options: {
+                list: [
+                  { title: "Automatic (the image's own size)", value: "auto" },
+                  { title: "Icon — 64px", value: "icon" },
+                  { title: "Small — 200px", value: "small" },
+                  { title: "Medium — 420px", value: "medium" },
+                  { title: "Full width of the column", value: "full" },
+                ],
+                layout: "dropdown",
+              },
+              initialValue: "auto",
+            }),
           ],
         }),
         defineArrayMember({
