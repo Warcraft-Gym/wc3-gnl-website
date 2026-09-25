@@ -51,9 +51,9 @@ export function Matchup({
 }
 
 const DIFF_TONE: Record<BuildDifficulty, string> = {
-  beginner: "border-win/50 text-win",
-  intermediate: "border-arcane/50 text-arcane",
-  advanced: "border-gold/50 text-gold",
+  beginner: "border-difficulty-beginner/50 text-difficulty-beginner",
+  intermediate: "border-difficulty-intermediate/50 text-difficulty-intermediate",
+  advanced: "border-difficulty-advanced/50 text-difficulty-advanced",
 };
 
 export function DifficultyBadge({ level }: { level: BuildDifficulty }) {

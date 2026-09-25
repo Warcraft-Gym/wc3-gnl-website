@@ -13,10 +13,11 @@ export function LearnSubNav({ activeHref }: { activeHref?: string }) {
   const pathname = usePathname();
   return (
     <div className="sticky top-[var(--wg-header-h)] z-40 h-[var(--wg-subnav-h)] px-3 pt-1.5 sm:px-4">
+      {/* No "Learn" chip: it was styled as a gold button but was a plain
+          `span` with no link, and the bar's own first item ("Guides") already
+          goes to /learn. A reader reported it as "not really a button, idk if
+          we even need that there" — both halves correct. */}
       <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
-        <span className="btn-gold hidden shrink-0 rounded px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em] sm:inline-block">
-          <span>Learn</span>
-        </span>
         <nav
           aria-label="Learn section"
           className="flex h-full flex-1 items-center gap-1 overflow-x-auto max-sm:[mask-image:linear-gradient(90deg,black_calc(100%-2.5rem),transparent)] max-sm:[scrollbar-width:none]"

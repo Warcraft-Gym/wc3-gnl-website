@@ -53,6 +53,19 @@
    * alone is below the 3:1 "graphical object" minimum, so every camp
    * circle also gets a light outline ring (see `CampMarker`) to guarantee
    * >=3:1 against any terrain. See DESIGN.md "Creep routes". */
+  /* Build difficulty is an ordered scale, so it reads as one: green, amber,
+     red. It borrowed --wg-win (blue) for beginner and --wg-arcane (also
+     blue) for intermediate, which made the first two steps near-identical —
+     reported by a reader before it was noticed here.
+
+     The advanced step does NOT reuse --wg-camp-hard: that red is tuned for a
+     filled dot on the minimap and measures 2.83:1 against the badge surface,
+     below the 4.5:1 a small label needs. --wg-loss is the palette's
+     already-tested red at 6.12:1. */
+  --wg-difficulty-beginner: #68c040;
+  --wg-difficulty-intermediate: #d0a838;
+  --wg-difficulty-advanced: #DE6E52;
+
   --wg-camp-easy: #68c040;
   --wg-camp-medium: #d0a838;
   --wg-camp-hard: #b01818;
@@ -119,6 +132,10 @@
   --color-nightelf: var(--wg-nightelf);
   --color-undead: var(--wg-undead);
   --color-random: var(--wg-random);
+
+  --color-difficulty-beginner: var(--wg-difficulty-beginner);
+  --color-difficulty-intermediate: var(--wg-difficulty-intermediate);
+  --color-difficulty-advanced: var(--wg-difficulty-advanced);
 
   --color-camp-easy: var(--wg-camp-easy);
   --color-camp-medium: var(--wg-camp-medium);
