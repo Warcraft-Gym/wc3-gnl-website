@@ -83,7 +83,7 @@ export function BuildRow({ build }: { build: BuildOrder }) {
   );
 }
 
-/** Build of the week, one wide card with the race's showcase art behind it. */
+/** The featured build, one wide card with the race's showcase art behind it. */
 export function FeaturedBuild({ build }: { build: BuildOrder }) {
   return (
     <Link
@@ -110,7 +110,7 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
           className="size-20 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,.9)] sm:size-28"
         />
         <div className="min-w-0">
-          <p className="kicker">Build of the week</p>
+          <p className="kicker">Featured build</p>
           <h2 className="mt-2 text-[clamp(1.3rem,1rem+1.4vw,1.9rem)] font-bold leading-tight tracking-[0.05em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.9)]">
             {build.title}
           </h2>

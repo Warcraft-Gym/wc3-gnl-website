@@ -177,11 +177,12 @@ export const buildOrder = defineType({
     }),
     defineField({
       name: "featured",
-      title: "Build of the week",
+      title: "Show on homepage",
       type: "boolean",
       group: "meta",
       initialValue: false,
-      description: "Shown at the top of the build list. Only one should be on at a time.",
+      description:
+        "Shown as the featured build on the home page. Only one should be on at a time; with none on, the newest build is shown.",
     }),
     defineField({
       name: "publishedAt",

@@ -75,7 +75,7 @@ Editors can also create builds directly in the Studio; same document type.
 | `patch`, `tags`, `summary` | list metadata; summary is shown in the list |
 | `author`, `authorDiscord`, `maintainer`, `sourceUrl` | credit |
 | `reviewStatus` | `pending` (public submission, hidden from the site) or `approved`. The site only shows approved builds. |
-| `featured` | **Build of the week**, shown in the homepage's build orders section. Turn it on for one build at a time; with none on, the homepage shows the newest build. |
+| `featured` | **Show on homepage** — the featured build in the homepage's build orders section. Turn it on for one build at a time; with none on, the homepage shows the newest build. |
 | `guide` | Optional reference to the Learn guide the build came from; the build page shows a Full guide card and the guide page lists the build |
 | `steps[]` | `{ time "mm:ss", supply, instruction, icon }`, `time` is optional and drives the play-along clock; the Time column is hidden when no step has one |
 | `description` | Portable Text (same editor as guides) |
