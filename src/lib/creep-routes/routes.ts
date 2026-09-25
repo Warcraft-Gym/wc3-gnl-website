@@ -173,11 +173,6 @@ export async function getCreepRouteBySlug(slug: string): Promise<CreepRoute | un
   return USE_FIXTURES ? FIXTURE_ROUTES.find((r) => r.slug === slug) : undefined;
 }
 
-export async function getFeaturedCreepRoute(): Promise<CreepRoute | undefined> {
-  const routes = await getCreepRoutes();
-  return routes.find((r) => r.featured);
-}
-
 /** Approved routes that link to a given build order (usually one or two).
  *  Falls back to fixtures the same way `getCreepRoutes` does — a *live*
  *  but *empty* Sanity result (e.g. this dev environment: real Sanity

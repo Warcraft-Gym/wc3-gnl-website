@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { filterCreepRoutes } from "./filter.mjs";
+import { featuredFirst, filterCreepRoutes } from "./filter.mjs";
 
 function route(overrides = {}) {
   return {
@@ -74,4 +74,29 @@ test("q matches title, summary, author or map name, case-insensitively", () => {
 test("filters combine (race + map + level)", () => {
   const result = filterCreepRoutes(routes, { race: "orc", map: "echo-isles", level: "beginner" });
   assert.deepEqual(result.map((r) => r.slug), ["or-vs-hu"]);
+});
+
+test("featuredFirst floats the flagged route to the front", () => {
+  const routes = [{ slug: "a" }, { slug: "b", featured: true }, { slug: "c" }];
+  assert.deepEqual(featuredFirst(routes).map((r) => r.slug), ["b", "a", "c"], "the rest keep their order");
+});
+
+test("featuredFirst leaves a list alone when nothing is flagged", () => {
+  const routes = [{ slug: "a" }, { slug: "b" }];
+  assert.equal(featuredFirst(routes), routes, "same array back, no needless copy");
+});
+
+test("featuredFirst leaves a list alone when the flagged route is already first", () => {
+  const routes = [{ slug: "a", featured: true }, { slug: "b" }];
+  assert.equal(featuredFirst(routes), routes);
+});
+
+test("featuredFirst does nothing when the reader has filtered or sorted", () => {
+  const routes = [{ slug: "a" }, { slug: "b", featured: true }];
+  assert.deepEqual(featuredFirst(routes, { apply: false }).map((r) => r.slug), ["a", "b"]);
+});
+
+test("featuredFirst promotes only the first flag if several are set", () => {
+  const routes = [{ slug: "a" }, { slug: "b", featured: true }, { slug: "c", featured: true }];
+  assert.deepEqual(featuredFirst(routes).map((r) => r.slug), ["b", "a", "c"]);
 });

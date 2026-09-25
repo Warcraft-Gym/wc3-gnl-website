@@ -25,3 +25,23 @@ export function filterCreepRoutes(routes, f) {
     return true;
   });
 }
+
+/** Floats the featured route to the front.
+ *
+ * The `featured` flag existed on `creepRoute` from the start and nothing read
+ * it — `getFeaturedCreepRoute` was never called and the home page has no route
+ * section — so a coach could tick "Route of the week" and watch nothing happen.
+ * Its own Studio description promised "shown at the top of the route list",
+ * which is what this makes true.
+ *
+ * Only on the default view: once a reader has filtered or chosen a sort, that
+ * is a direct instruction and a pinned route jumping the queue would be a bug,
+ * not a feature. If several routes are flagged (the description asks for one)
+ * the first in the given order wins, and the rest keep their places.
+ */
+export function featuredFirst(routes, { apply = true } = {}) {
+  if (!apply || !Array.isArray(routes)) return routes;
+  const i = routes.findIndex((r) => r?.featured);
+  if (i <= 0) return routes;
+  return [routes[i], ...routes.slice(0, i), ...routes.slice(i + 1)];
+}

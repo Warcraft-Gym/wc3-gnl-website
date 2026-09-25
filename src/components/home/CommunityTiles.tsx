@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { DISCORD_URL, YOUTUBE_URL } from "@/lib/links";
+import { cn } from "@/lib/utils";
 
 /** `active: false` hides a tile without deleting it — the copy and the
  *  painted emblem are kept so bringing it back is a one-word change. */
@@ -45,12 +46,16 @@ const TILES = [
   },
 ];
 
-/** Four panels describing what the community does beyond the guides, each
- *  with its painted emblem. */
+/** Panels describing what the community does beyond the guides, each with its
+ *  painted emblem. Two per row; with an odd number the last one spans the row
+ *  rather than leaving a hole beside it. */
 export function CommunityTiles() {
+  const tiles = TILES.filter((t) => t.active);
+  const lastSpansRow = tiles.length % 2 === 1;
+
   return (
     <ul className="grid content-start gap-x-4 gap-y-12 pt-9 sm:grid-cols-2 lg:self-center">
-      {TILES.filter((t) => t.active).map(({ art, title, body, href, cta, external }) => {
+      {tiles.map(({ art, title, body, href, cta, external }, i) => {
         const inner = (
           <>
             {/* Emblem sits over the top-left edge, outside the panel */}
@@ -81,7 +86,7 @@ export function CommunityTiles() {
         );
         const cls = "panel group relative flex h-full items-start gap-4 px-5 pb-5 pt-14 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50";
         return (
-          <li key={title}>
+          <li key={title} className={cn(lastSpansRow && i === tiles.length - 1 && "sm:col-span-2")}>
             {external ? (
               <a href={href} target="_blank" rel="noreferrer" className={cls}>{inner}</a>
             ) : (

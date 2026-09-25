@@ -19,3 +19,8 @@ export const filterCreepRoutes = impl.filterCreepRoutes as (
   routes: CreepRoute[],
   f: CreepRouteFilter,
 ) => CreepRoute[];
+
+export const featuredFirst = impl.featuredFirst as (
+  routes: CreepRoute[],
+  opts?: { apply?: boolean },
+) => CreepRoute[];

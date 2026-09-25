@@ -10,7 +10,8 @@ import { RouteFilters } from "@/components/creep-routes/RouteFilters";
 import { RouteRow } from "@/components/creep-routes/RouteRow";
 import { RouteListUrlRecorder } from "@/components/creep-routes/RouteListUrlRecorder";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
-import { filterCreepRoutes, getCreepRoutes } from "@/lib/creep-routes/routes";
+import { getCreepRoutes } from "@/lib/creep-routes/routes";
+import { featuredFirst, filterCreepRoutes } from "@/lib/creep-routes/filter";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
 import { getCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
@@ -83,6 +84,9 @@ export default async function CreepRoutesPage({
   );
 
   const isFiltered = Boolean(race || vsRace || map || level || q);
+  // A coach's pick leads the default view only; a filter or an explicit sort
+  // is an instruction, and pinning a route over it would read as a bug.
+  routes = featuredFirst(routes, { apply: !isFiltered && sort === "updated" });
   const category = getCategory("creep-routes");
 
   // The empty state's "Be the first to add one" carries the active filters

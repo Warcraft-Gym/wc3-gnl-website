@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -106,12 +107,18 @@ export default async function LearnPage() {
 
         {/* Latest guides */}
         <section className="mt-16">
-          {/* No "Browse all" action: this page is the guides index — the Learn
-              sub-nav's "Guides" points here — so the link had nowhere of its
-              own to go, and was wired to /learn/new-players, which is a
-              different thing entirely. The category cards above are the way
-              through to everything. */}
-          <SectionHead kicker="Fresh" title="Latest in-depth strategy guides" />
+          <SectionHead
+            kicker="Fresh"
+            title="Latest in-depth strategy guides"
+            action={
+              <Link
+                href="/learn/guides"
+                className="hidden text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold sm:inline"
+              >
+                Browse all
+              </Link>
+            }
+          />
           <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {latest.map((g) => (
               <GuideCard key={g.slug} guide={g} />

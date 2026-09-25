@@ -210,11 +210,12 @@ export const creepRoute = defineType({
     }),
     defineField({
       name: "featured",
-      title: "Route of the week",
+      title: "Show first in the list",
       type: "boolean",
       group: "meta",
       initialValue: false,
-      description: "Shown at the top of the route list. Only one should be on at a time.",
+      description:
+        "Pins this route to the top of /learn/creep-routes when no filter or sort is applied. Only one should be on at a time.",
     }),
     defineField({
       name: "publishedAt",
