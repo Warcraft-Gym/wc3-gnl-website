@@ -1,5 +1,5 @@
 import Script from "next/script";
-import { GA_COOKIES_ALLOWED, GA_MEASUREMENT_ID } from "@/lib/analytics";
+import { GA_COOKIES_ALLOWED, GA_ENABLED, GA_MEASUREMENT_ID } from "@/lib/analytics";
 
 /**
  * Google Analytics 4, loaded only when a measurement id is configured.
@@ -14,7 +14,7 @@ import { GA_COOKIES_ALLOWED, GA_MEASUREMENT_ID } from "@/lib/analytics";
  * already granted. See `GA_COOKIES_ALLOWED` for why the default is denied.
  */
 export function GoogleAnalytics() {
-  if (!GA_MEASUREMENT_ID) return null;
+  if (!GA_ENABLED) return null;
 
   const storage = GA_COOKIES_ALLOWED ? "granted" : "denied";
 

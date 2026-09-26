@@ -28,16 +28,26 @@ const privacy = readFileSync(join(ROOT, "src/app/(site)/privacy/page.tsx"), "utf
  *  not a hardcoded id. Strip them before looking for one. */
 const stripComments = (src) => src.replace(/\/\*[\s\S]*?\*\//g, " ").replace(/\/\/.*$/gm, " ");
 
-test("nothing renders without a measurement id", () => {
-  assert.match(component, /if \(!GA_MEASUREMENT_ID\) return null;/);
+test("nothing renders unless analytics are enabled", () => {
+  assert.match(component, /if \(!GA_ENABLED\) return null;/);
 });
 
-test("the id comes from the environment, never a literal in the source", () => {
-  assert.match(config, /process\.env\.NEXT_PUBLIC_GA_ID/);
-  assert.ok(
-    !/G-[A-Z0-9]{8,}/.test(stripComments(component) + stripComments(config)),
-    "a real measurement id is hardcoded in the source",
-  );
+test("only the production deployment reports", () => {
+  // A Vercel preview is also a production *build*, so NODE_ENV alone would
+  // put every branch push in the same property as real traffic.
+  assert.match(config, /process\.env\.NODE_ENV === "production"/);
+  assert.match(config, /NEXT_PUBLIC_VERCEL_ENV !== "preview"/);
+  assert.match(config, /NEXT_PUBLIC_VERCEL_ENV !== "development"/);
+});
+
+test("the id is overridable, and is the only literal allowed", () => {
+  // The measurement id is public — it is in the page source of every page —
+  // so it is a default here rather than a dashboard step, like the Sanity
+  // project id. What must not happen is a second one appearing somewhere
+  // else, or the override being dropped.
+  assert.match(config, /process\.env\.NEXT_PUBLIC_GA_ID \?\? DEFAULT_GA_ID/);
+  const ids = new Set((stripComments(config) + stripComments(component)).match(/G-[A-Z0-9]{8,}/g) ?? []);
+  assert.equal(ids.size, 1, `expected exactly one measurement id in the source, found ${[...ids].join(", ") || "none"}`);
 });
 
 test("consent defaults are declared before config", () => {
