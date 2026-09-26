@@ -282,7 +282,7 @@ export const creepRoute = defineType({
             defineField({
               name: "condition",
               type: "string",
-              description: "Conditional guidance for this stop, e.g. \"only if wolves are alive\".",
+              description: "Conditional guidance for this stop, shown exactly as written, e.g. \"Only if both wolves are alive\".",
               validation: (rule) => rule.max(STOP_CONDITION_MAX),
             }),
           ],

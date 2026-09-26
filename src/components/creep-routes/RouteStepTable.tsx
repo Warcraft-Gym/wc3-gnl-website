@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
-import { campLabel, conditionLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BandDot } from "./RouteBadges";
@@ -197,7 +197,10 @@ export function RouteStepTable({
                           title="Condition"
                           className="inline-flex w-fit max-w-full items-center whitespace-normal rounded border border-arcane/40 bg-arcane/10 px-1.5 py-0.5 text-[0.65rem] leading-snug text-arcane"
                         >
-                          {conditionLabel(stop.condition)}
+                          {/* Exactly as the author wrote it: the site used to prepend
+                              "If " unless the text already opened with a trigger word,
+                              which guessed at wording that belongs to the author. */}
+                          {stop.condition}
                         </span>
                       ) : null}
                       {stop.note ? <span>{stop.note}</span> : null}
