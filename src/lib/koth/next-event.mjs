@@ -7,9 +7,12 @@
  * fortnight in spring and autumn. One instant plus `Intl` cannot drift.
  */
 
+/** The zones the event is announced in. The first is the anchor: its day is
+ *  the day the page names, because that is the clock the organiser runs on. */
 const ZONES = [
-  { label: "US Eastern", tz: "America/New_York" },
+  { label: "UK", tz: "Europe/London" },
   { label: "Central Europe", tz: "Europe/Berlin" },
+  { label: "US Eastern", tz: "America/New_York" },
 ];
 
 /** True when the stored instant is in the past — an event that has happened
@@ -20,7 +23,7 @@ export function isPast(iso, now = new Date()) {
 }
 
 /** `{ day, times: [{ label, time }] }`, or null when the date is unusable.
- *  The day is rendered in US Eastern, the zone the event is anchored to. */
+ *  The day is rendered in the first zone, the one the event is anchored to. */
 export function formatNextEvent(iso) {
   const t = Date.parse(iso);
   if (Number.isNaN(t)) return null;

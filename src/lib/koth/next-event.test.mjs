@@ -30,11 +30,28 @@ test("the spring gap: America has sprung forward and Europe has not, so it is 2 
   assert.equal(timeIn(iso, "Central Europe"), "7:00 pm", "five hours apart here, not six");
 });
 
-test("a date crossing midnight in Europe still names the American day", () => {
-  // 11 PM Eastern on the 3rd is 5 AM on the 4th in Berlin.
+test("the day comes from the anchor zone, not from UTC or from America", () => {
+  // 04:00 UTC on the 4th: still the 3rd in New York (11 PM), already the 4th
+  // in London and Berlin. The anchor is the UK, so the page says the 4th.
   const out = formatNextEvent("2026-01-04T04:00:00.000Z");
-  assert.equal(out.day, "Saturday, 3 January 2026");
-  assert.equal(out.times.find((t) => t.label === "Central Europe").time, "5:00 am");
+  assert.equal(out.day, "Sunday, 4 January 2026");
+  assert.equal(timeIn("2026-01-04T04:00:00.000Z", "US Eastern"), "11:00 pm");
+  assert.equal(timeIn("2026-01-04T04:00:00.000Z", "Central Europe"), "5:00 am");
+});
+
+test("the evening the user actually asked for: 19:00 UK", () => {
+  // 26 September 2026 is British Summer Time, so 19:00 UK is 18:00 UTC.
+  const iso = "2026-09-26T18:00:00.000Z";
+  assert.equal(formatNextEvent(iso).day, "Saturday, 26 September 2026");
+  assert.equal(timeIn(iso, "UK"), "7:00 pm");
+  assert.equal(timeIn(iso, "Central Europe"), "8:00 pm");
+  assert.equal(timeIn(iso, "US Eastern"), "2:00 pm");
+});
+
+test("in winter the UK is on GMT and the same instant reads an hour earlier", () => {
+  const iso = "2026-01-03T18:00:00.000Z";
+  assert.equal(timeIn(iso, "UK"), "6:00 pm", "GMT, not BST");
+  assert.equal(timeIn(iso, "Central Europe"), "7:00 pm");
 });
 
 test("an unusable date is null rather than 'Invalid Date'", () => {
