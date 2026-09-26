@@ -45,19 +45,26 @@ export interface RawSeason {
   series_per_round?: number;
   series_per_week?: number;
   start_date?: string;
-  end_date?: string;
+  end_date?: string | null;
+  /** Set when an admin closed the event. */
+  closed_at?: string | null;
   /** e.g. "GNL", combined with the season number for the short name. */
   league_short_name?: string;
   /** Common event phase, e.g. "signups_open" | "running" | "finished". */
   phase?: string;
 }
-export interface RawW3cStat {
+/** One race of the backend ladder summary. */
+export interface RawRaceMmr {
+  race?: string | null;
+  /** The W3C season the MMR comes from. */
   wc3_season: number;
-  race?: string;
   mmr?: number | null;
+  /** Summed over the window seasons; `wins` and `losses` are those of the MMR's season. */
   games?: number | null;
   wins?: number | null;
   losses?: number | null;
+  /** True for a race last played before the window; profile reads only. */
+  stale?: boolean;
 }
 export interface RawPlayer {
   id: number;
@@ -71,11 +78,13 @@ export interface RawPlayer {
   played_as?: string | null;
   /** Every tag the person holds, the active one first; empty where the read loads none. */
   tags?: RawTag[];
-  /** Manually entered MMR; rarely filled. Prefer w3c_stats. */
-  mmr?: number | null;
   country?: string;
-  /** Synced from W3Champions, one row per race per ladder season. */
-  w3c_stats?: RawW3cStat[];
+  /** The ladder summary, one entry per race: window races best MMR first, then stale races. */
+  race_mmrs?: RawRaceMmr[];
+  /** The window race with the top MMR and 10 or more games, else null. */
+  main_race?: string | null;
+  /** The MMR the player entered a finished event with; roster reads only. */
+  mmr_entered?: number | null;
   /** `games`, `wins` and `losses` count best-of-three series, not games. */
   gnl_stats?: Array<{
     season_id?: number;
@@ -222,7 +231,7 @@ export function mapSeason(s: RawSeason): Season {
     currentWeek,
     totalWeeks: total,
     startDate: s.start_date,
-    endDate: s.end_date,
+    endDate: s.end_date ?? undefined,
   };
 }
 
@@ -245,7 +254,13 @@ export function deriveWeeks(s: Season): Week[] {
 
 // --- players / teams ---
 
-/** Race codes W3Champions uses in w3c_stats rows. */
+/** The backend rule for a season that is over: closed, or its end date before today (UTC); the phase decides only when both fields are absent. */
+function isFinished(s: RawSeason): boolean {
+  if (s.closed_at === undefined && s.end_date === undefined) return s.phase === "finished";
+  return s.closed_at != null || (s.end_date != null && s.end_date.slice(0, 10) < new Date().toISOString().slice(0, 10));
+}
+
+/** Race codes W3Champions uses in ladder rows. */
 const W3C_RACE: Record<string, Race> = { HU: "human", OC: "orc", OR: "orc", NE: "nightelf", UD: "undead", RnD: "random", RANDOM: "random" };
 
 /** The race of a signup row. An empty or unknown value is no race at all. */
@@ -255,23 +270,29 @@ function signupRace(value?: string | null): Race | null {
   return /^(rnd|random)$/i.test((value ?? "").trim()) ? race : null;
 }
 
+/** The site race of a ladder race code; no race reads as random. */
+const w3cRace = (race?: string | null): Race => (race ? (W3C_RACE[race] ?? raceOf(race)) : "random");
+
 /**
- * The player's current W3Champions MMR: the newest ladder season they have
- * games in, and within it the row of their signup race, else their most played
- * race. Falls back to the manually entered `mmr` when nothing is synced.
+ * The player's MMR from the backend summary. On an event roster: the MMR entered
+ * with on a finished event, else the live figure of the signup race. Elsewhere
+ * the live figure of the main race. Undefined when there is none.
  */
-export function currentMmr(p: RawPlayer): number | undefined {
-  const rows = (p.w3c_stats ?? []).filter((r) => r.mmr != null && (r.games ?? 0) > 0);
-  if (!rows.length) return p.mmr ?? undefined;
-  const latest = Math.max(...rows.map((r) => r.wc3_season));
-  const season = rows.filter((r) => r.wc3_season === latest);
-  const race = signupRace(p.signup_race);
-  const own = race ? season.find((r) => (r.race ? W3C_RACE[r.race] ?? raceOf(r.race) : undefined) === race) : undefined;
-  const pick = own ?? [...season].sort((a, b) => (b.games ?? 0) - (a.games ?? 0))[0];
-  return pick?.mmr ?? p.mmr ?? undefined;
+export function currentMmr(p: RawPlayer, event?: "running" | "finished"): number | undefined {
+  if (event === "finished") return p.mmr_entered ?? undefined;
+  const race = event ? signupRace(p.signup_race) : p.main_race ? w3cRace(p.main_race) : null;
+  if (!race) return undefined;
+  return p.race_mmrs?.find((r) => !r.stale && r.mmr != null && w3cRace(r.race) === race)?.mmr ?? undefined;
 }
 
-function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain = false, seasonId?: number): Player {
+function mapPlayer(
+  p: RawPlayer,
+  teamId?: number,
+  teamName?: string,
+  isCaptain = false,
+  seasonId?: number,
+  event?: "running" | "finished",
+): Player {
   const stat = seasonId != null ? p.gnl_stats?.find((r) => r.season_id === seasonId) : undefined;
   return {
     id: p.id,
@@ -280,7 +301,7 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
     battleTag: p.battleTag || undefined,
     tags: (p.tags ?? []).map((t) => t.tag),
     race: signupRace(p.signup_race),
-    mmr: currentMmr(p),
+    mmr: currentMmr(p, event),
     country: p.country,
     teamId,
     teamName,
@@ -289,7 +310,9 @@ function mapPlayer(p: RawPlayer, teamId?: number, teamName?: string, isCaptain =
   };
 }
 
-export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
+export function mapTeams(raw: RawTeam[], season: RawSeason): Team[] {
+  const seasonId = season.id;
+  const event = isFinished(season) ? "finished" : "running";
   return raw.map((t) => {
     const long = t.long_name || t.name;
     const key = String(seasonId);
@@ -298,7 +321,7 @@ export function mapTeams(raw: RawTeam[], seasonId: number): Team[] {
     const captainIds = new Set(captains.map((c) => c.id));
     // Captains who also play come first, then the roster as the backend gives it.
     const players = roster
-      .map((p) => mapPlayer(p, t.id, long, captainIds.has(p.id), seasonId))
+      .map((p) => mapPlayer(p, t.id, long, captainIds.has(p.id), seasonId, event))
       .sort((a, b) => Number(b.isCaptain) - Number(a.isCaptain));
     return {
       id: t.id,
@@ -543,22 +566,19 @@ export function mapFantasy(
 
 // --- player profile ---
 
-/** W3C rows for the newest ladder season the player has games in, best MMR first. */
+/** The rated races of the backend summary, in its order: window races best MMR first, then stale races. */
 export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
-  const rows = (p.w3c_stats ?? []).filter((r) => r.mmr != null && (r.games ?? 0) > 0);
-  if (!rows.length) return [];
-  const latest = Math.max(...rows.map((r) => r.wc3_season));
-  return rows
-    .filter((r) => r.wc3_season === latest)
+  return (p.race_mmrs ?? [])
+    .filter((r) => r.mmr != null && (r.games ?? 0) > 0)
     .map((r) => ({
       season: r.wc3_season,
-      race: r.race ? (W3C_RACE[r.race] ?? raceOf(r.race)) : "random",
+      race: w3cRace(r.race),
       mmr: r.mmr ?? 0,
       games: r.games ?? 0,
       wins: r.wins ?? 0,
       losses: r.losses ?? 0,
-    }))
-    .sort((a, b) => b.mmr - a.mmr);
+      stale: r.stale ?? false,
+    }));
 }
 
 /** The reads the profile is built from, fetched by gnl.ts. */
@@ -660,7 +680,7 @@ export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefi
     }),
     { seriesPlayed: 0, seriesWon: 0, seriesLost: 0, matchupHistory: [] },
   );
-  // The header race and MMR are those of the latest season's signup.
+  // The header race is that of the latest season's signup; the MMR is that of the main race.
   const me: RawPlayer = { ...user, signup_race: signups.get(entry.season.id)?.signup_race };
   return {
     player: mapPlayer(me, entry.team.id, entry.team.name, entry.isCaptain),
@@ -672,6 +692,7 @@ export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefi
     history,
     allTime,
     w3c: currentW3cRows(me),
+    mainRace: me.main_race ? w3cRace(me.main_race) : null,
     career: c
       ? {
           rating: c.rating ?? 0,

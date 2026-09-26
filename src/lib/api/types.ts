@@ -31,8 +31,8 @@ export type Player = {
   /** The race this player signed up with for the season of this read, and null
    *  when the season row names none. It is not the ladder race. */
   race: Race | null;
-  /** Current W3Champions MMR of the signup race above, so the number and the
-   *  race badge of a roster row name the same race. */
+  /** On a roster, the MMR of the signup race above: entered with on a finished
+   *  season, live on a running one. Elsewhere the live MMR of the main race. */
   mmr?: number;
   country?: string;
   teamId?: number;
@@ -167,14 +167,17 @@ export type FantasyEntry = {
 };
 
 
-/** W3Champions ladder record for one race in one ladder season. */
+/** One race of the backend ladder summary. */
 export type W3cRaceStat = {
+  /** The W3C season the MMR comes from. */
   season: number;
   race: Race;
   mmr: number;
   games: number;
   wins: number;
   losses: number;
+  /** Last played before the live window; shown with its season tag. */
+  stale: boolean;
 };
 
 /** One of the player's series in the selected GNL season, from their side. */
@@ -228,8 +231,10 @@ export type PlayerProfile = {
   history: PlayerSeasonEntry[];
   /** The records above summed over every season in `history`. */
   allTime: GnlRecord;
-  /** Current-season W3C rows, one per race, best first. */
+  /** The ladder summary, one row per race: live races best first, then stale races. */
   w3c: W3cRaceStat[];
+  /** The live race with the top MMR and 10 or more games, from the backend. */
+  mainRace: Race | null;
   /** All-time Gym Newbie League career, when the player has one. Series and
    *  games are two different counts here. */
   career?: {

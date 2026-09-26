@@ -16,7 +16,9 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const player = profile?.player;
   const seasons = profile?.history.filter((h) => h.record.seriesPlayed > 0 || h.series.length) ?? [];
   const series = profile ? record(profile.allTime.seriesWon, profile.allTime.seriesLost) : null;
-  const mmr = profile?.w3c[0];
+  // The main race, else the live race with the top MMR, as the page headline.
+  const live = profile?.w3c.filter((r) => !r.stale) ?? [];
+  const mmr = live.find((r) => r.race === profile?.mainRace) ?? live[0];
 
   return new ImageResponse(
     (
