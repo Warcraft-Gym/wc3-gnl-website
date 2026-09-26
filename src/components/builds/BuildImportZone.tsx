@@ -251,7 +251,7 @@ export function BuildImportZone({
             done ? "border-win/40 bg-win/10 text-win" : "border-arcane/40 bg-arcane/10 text-arcane",
           )}
         >
-          {done ? <CheckCircle2 size={22} /> : busy ? <Loader2 size={22} className="animate-spin" /> : <Swords size={22} />}
+          {done ? <CheckCircle2 size={24} /> : busy ? <Loader2 size={24} className="animate-spin" /> : <Swords size={24} />}
         </span>
 
         <div className="min-w-0 flex-1">
@@ -304,13 +304,13 @@ export function BuildImportZone({
                 />
                 <div className="flex shrink-0 flex-wrap gap-2">
                   <Button type="button" variant="outline" size="sm" disabled={busy} onClick={() => importText(text)}>
-                    {busy ? <Loader2 size={14} className="animate-spin" /> : <W3cMark size={14} />} Import
+                    {busy ? <Loader2 size={16} className="animate-spin" /> : <W3cMark size={16} />} Import
                   </Button>
                   <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={() => fileInput.current?.click()}>
-                    <FileUp size={14} /> Choose file
+                    <FileUp size={16} /> Choose file
                   </Button>
                   <Button type="button" variant="ghost" size="sm" disabled={busy} onClick={onPasteButton} title="Paste from the clipboard">
-                    <ClipboardPaste size={14} />
+                    <ClipboardPaste size={16} />
                     <span className="sr-only">Paste</span>
                   </Button>
                 </div>
@@ -331,7 +331,7 @@ export function BuildImportZone({
 
         {done || phase.kind === "pick" ? (
           <Button type="button" variant="ghost" size="sm" onClick={reset} className="shrink-0">
-            <RotateCcw size={14} /> {done ? "Import another" : "Cancel"}
+            <RotateCcw size={16} /> {done ? "Import another" : "Cancel"}
           </Button>
         ) : null}
       </div>
@@ -365,7 +365,7 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
           <>
             {" "}
             <a href={replay.source.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-gold hover:underline">
-              on W3Champions <W3cMark size={11} />
+              on W3Champions <W3cMark size={13} />
             </a>
           </>
         ) : null}

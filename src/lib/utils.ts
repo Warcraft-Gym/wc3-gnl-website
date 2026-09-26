@@ -28,14 +28,7 @@ export function raceOf(input?: string | null): Race {
   return "random";
 }
 
-export function slugify(input: string): string {
-  return input
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/-+/g, "-");
-}
+export { slugify } from "./slug.mjs";
 
 const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
   weekday: "short",

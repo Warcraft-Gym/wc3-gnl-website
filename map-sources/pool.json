@@ -1,0 +1,114 @@
+{
+  "mode": 1,
+  "fetchedAt": "2026-09-22T16:30:32.729Z",
+  "maps": [
+    {
+      "id": 44,
+      "name": "Autumn Leaves v2",
+      "file": "44_w3c_260919_1153_AutumnLeaves_v2.0.w3x",
+      "version": "2.0",
+      "sourceFile": "1v1_AutumnLeaves_v2.0@44.w3x",
+      "bytes": 241422,
+      "downloaded": true
+    },
+    {
+      "id": 3,
+      "name": "Last Refuge",
+      "file": "3_w3c_260919_1153_LastRefuge_v1.5.w3x",
+      "version": "1.5",
+      "sourceFile": "1v1_LastRefuge_v1.5@3.w3x",
+      "bytes": 112053,
+      "downloaded": true
+    },
+    {
+      "id": 4,
+      "name": "Northern Isles",
+      "file": "4_w3c_260919_1153_NorthernIsles_v1.3.w3x",
+      "version": "1.3",
+      "sourceFile": "1v1_NorthernIsles_v1.3@4.w3x",
+      "bytes": 154755,
+      "downloaded": true
+    },
+    {
+      "id": 61,
+      "name": "Shallow Grave",
+      "file": "61_w3c_260919_1153_ShallowGrave_v1.5.w3x",
+      "version": "1.5",
+      "sourceFile": "1v1_ShallowGrave_v1.5@61.w3x",
+      "bytes": 225174,
+      "downloaded": true
+    },
+    {
+      "id": 54,
+      "name": "Tidehunters",
+      "file": "54_w3c_260919_1153_Tidehunters_v1.2.w3x",
+      "version": "1.2",
+      "sourceFile": "1v1_Tidehunters_v1.2@54.w3x",
+      "bytes": 184967,
+      "downloaded": true
+    },
+    {
+      "id": 12,
+      "name": "Turtle Rock v2",
+      "file": "12_w3c_260919_1153_TurtleRock_v2.0.w3x",
+      "version": "2.0",
+      "sourceFile": "1v1_2v2_TurtleRock_v2.0@12.w3x",
+      "bytes": 140200,
+      "downloaded": true
+    },
+    {
+      "id": 6,
+      "name": "Twisted Meadows",
+      "file": "6_w3c_260919_1153_TwistedMeadows_v1.9.w3x",
+      "version": "1.9",
+      "sourceFile": "1v1_2v2_TwistedMeadows_v1.9@6.w3x",
+      "bytes": 211187,
+      "downloaded": true
+    },
+    {
+      "id": 1051,
+      "name": "Echo Isles v2",
+      "file": "1051_w3c_260919_1153_EchoIsles_v2.2.w3x",
+      "version": "2.2",
+      "sourceFile": "1v1_EchoIsles_v2.2@1051.w3x",
+      "bytes": 153742,
+      "downloaded": true
+    },
+    {
+      "id": 1075,
+      "name": "Springtime",
+      "file": "1075_w3c_260919_1153_Springtime_v1.4.w3x",
+      "version": "1.4",
+      "sourceFile": "1v1_Springtime_v1.4@1075.w3x",
+      "bytes": 230178,
+      "downloaded": true
+    },
+    {
+      "id": 5185,
+      "name": "Hammerfall",
+      "file": "5185_w3c_260919_1153_Hammerfall.w3x",
+      "version": null,
+      "sourceFile": "1v1_Hammerfall@5185.w3x",
+      "bytes": 112188,
+      "downloaded": true
+    },
+    {
+      "id": 5607,
+      "name": "Scrimmage",
+      "file": "5607_w3c_260919_1153_Scrimmage_v1.1.w3x",
+      "version": "1.1",
+      "sourceFile": "1v1_Scrimmage_v1.1@5607.w3x",
+      "bytes": 126956,
+      "downloaded": true
+    },
+    {
+      "id": 5693,
+      "name": "Fading Autumn",
+      "file": "5693_w3c_260919_1153_FadingAutumn_v1.3.w3m",
+      "version": "1.3",
+      "sourceFile": "1v1_FadingAutumn_v1.3@5693.w3m",
+      "bytes": 193459,
+      "downloaded": true
+    }
+  ]
+}

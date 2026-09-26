@@ -1,11 +1,9 @@
-import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
 import { Rivets } from "@/components/ui/Rivets";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { Hero } from "@/components/home/Hero";
 import { LearnRaces } from "@/components/home/LearnRaces";
-import { GuideFeatureCard } from "@/components/home/GuideFeatureCard";
 import { CommunityTiles } from "@/components/home/CommunityTiles";
 import { CommunityIntro } from "@/components/home/CommunityIntro";
 import { NewsFeatureCard } from "@/components/home/NewsFeatureCard";
@@ -14,7 +12,6 @@ import { BuildRow, FeaturedBuild } from "@/components/builds/BuildRow";
 import { getBuilds } from "@/lib/builds/builds";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 import { getActiveSeason, getTeams } from "@/lib/api/gnl";
-import { getGuides } from "@/lib/learn/guides";
 import { getLatestPosts } from "@/lib/content";
 import { getDiscordCommunity } from "@/lib/discord";
 import { DISCORD_URL } from "@/lib/links";
@@ -25,14 +22,13 @@ export const dynamic = "force-dynamic";
 /* Homepage: the Gym is first a place to learn Warcraft III and hang out with
  * other players; the league is one of the things it runs. Stack of full-bleed
  * painted sections split by riveted strips:
- * hero → learn by race → latest guides → build orders → community & fun →
+ * hero → learn by race → build orders → community & fun →
  * news → the GNL (one compact section) → CTA. */
 export default async function HomePage() {
-  const [season, teamData, guides, posts, community, builds] =
+  const [season, teamData, posts, community, builds] =
     await Promise.all([
       getActiveSeason(),
       getTeams(),
-      getGuides(),
       getLatestPosts(3),
       getDiscordCommunity(),
       getBuilds(),
@@ -40,10 +36,6 @@ export default async function HomePage() {
 
   const featuredBuild = builds.find((b) => b.featured) ?? builds[0];
   const recentBuilds = builds.filter((b) => b.slug !== featuredBuild?.slug).slice(0, 3);
-
-  const latestGuides = [...guides]
-    .sort((a, b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt))
-    .slice(0, 3);
 
   return (
     <>
@@ -66,38 +58,9 @@ export default async function HomePage() {
 
       <Rivets />
 
-      {/* Latest guides, centred heading + three feature cards */}
-      <section className="keyart keyart-dark">
-        <Container className="relative z-10 py-[var(--wg-space-section)]">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="kicker justify-center">Fresh from the coaches</p>
-            <h2 className="mt-3 text-[length:var(--wg-text-display)]">
-              Latest guides
-            </h2>
-            <p className="mt-4 text-lg text-muted">
-              Build orders, matchup plans and mechanics explained by people who
-              play them every week, from your first game to your first
-              tournament.
-            </p>
-          </div>
-          <div className="mt-12 grid gap-10 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
-            {latestGuides.map((g, i) => (
-              <GuideFeatureCard key={g.slug} guide={g} index={i} />
-            ))}
-          </div>
-          <div className="mt-12 flex justify-center">
-            <ButtonLink href="/learn" variant="outline">
-              All guides <ArrowRight size={16} />
-            </ButtonLink>
-          </div>
-        </Container>
-      </section>
-
-      <Rivets />
-
       {/* Build orders: the featured build plus the newest few */}
       {featuredBuild ? (
-        <section className="keyart keyart-blue">
+        <section className="keyart keyart-dark">
           <Container className="relative z-10 py-[var(--wg-space-section)]">
             <div className="mx-auto max-w-2xl text-center">
               <p className="kicker justify-center">Play along</p>
@@ -118,12 +81,12 @@ export default async function HomePage() {
               </ul>
             ) : null}
             <div className="mt-12 flex flex-wrap justify-center gap-3">
-              <ButtonLink href="/learn/builds" variant="outline">
-                All build orders <ArrowRight size={16} />
+              <ButtonLink href="/learn/builds" size="lg">
+                All build orders
               </ButtonLink>
               {OVERLAY_BETA_LIVE ? (
-                <ButtonLink href="/tools/overlay" variant="ghost">
-                  Try the in-game overlay
+                <ButtonLink href="/tools/overlay" size="lg">
+                  Get the overlay
                 </ButtonLink>
               ) : null}
             </div>
@@ -150,7 +113,7 @@ export default async function HomePage() {
           <div className="mx-auto max-w-2xl text-center">
             <h2 className="text-[length:var(--wg-text-display)]">Latest news</h2>
             <p className="mt-4 text-lg text-muted">
-              Event announcements, replay of the month, season recaps and
+              Event announcements, season recaps and
               community stories from the Gym.
             </p>
           </div>
@@ -160,8 +123,8 @@ export default async function HomePage() {
             ))}
           </div>
           <div className="mt-12 flex justify-center">
-            <ButtonLink href="/blog" variant="outline">
-              All news <ArrowRight size={16} />
+            <ButtonLink href="/blog" size="lg">
+              All news
             </ButtonLink>
           </div>
         </Container>
@@ -209,10 +172,10 @@ export default async function HomePage() {
             </p>
             <div className="mt-8 flex flex-wrap justify-center gap-3">
               <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-                <DiscordIcon size={20} /> Join the Discord
+                <DiscordIcon size={22} /> Join the Discord
               </ButtonLink>
-              <ButtonLink href="/learn" variant="outline" size="lg">
-                Start learning <ArrowRight size={18} />
+              <ButtonLink href="/learn" size="lg">
+                Start learning
               </ButtonLink>
             </div>
           </div>

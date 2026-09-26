@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL } from "@/lib/links";
@@ -15,7 +14,7 @@ const STEPS = [
   },
   {
     title: "Show up for the fun",
-    body: "Coaching sessions, King of the Hill nights, replay of the month, casts, and the GNL when a season opens.",
+    body: "Coaching sessions, King of the Hill nights, casts, and the GNL when a season opens.",
   },
 ];
 
@@ -30,7 +29,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
       <h2 className="mt-3 text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
         Join the community
       </h2>
-      <p className="mt-5 max-w-md text-lg text-muted">
+      <p className="balance mt-5 max-w-md text-lg text-muted">
         Nobody gets good at Warcraft III alone. The Gym is a community of
         players who help each other improve and have fun doing it, coaching,
         replay reviews, casual nights and casts, all run by volunteers. New
@@ -39,7 +38,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
 
       {community ? (
         <p className="mt-5 inline-flex flex-wrap items-center gap-x-3 gap-y-1 rounded border border-line bg-surface/60 px-3 py-2 text-sm text-muted">
-          <DiscordIcon size={16} className="text-[#5865F2]" />
+          <DiscordIcon size={18} className="text-[#5865F2]" />
           <span>
             <strong className="tnum font-bold text-fg">{fmt.format(community.members)}</strong> members
           </span>
@@ -68,7 +67,7 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
 
       <div className="mt-8">
         <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-          <DiscordIcon size={20} /> Join the Discord <ArrowRight size={16} />
+          <DiscordIcon size={22} /> Join the Discord
         </ButtonLink>
       </div>
     </div>

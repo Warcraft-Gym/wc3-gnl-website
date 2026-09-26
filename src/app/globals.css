@@ -44,6 +44,32 @@
   --wg-undead: #9B6FE4; /* tested on black with the dataviz validator */
   --wg-random: oklch(72% 0.02 265);
 
+  /* --- Creep camp difficulty band (minimap marks only) ---
+   * Liquipedia's own marker colours (dominant opaque pixel of their
+   * marker PNGs), not our own dataviz palette — matched deliberately so a
+   * route reader who already knows Liquipedia's map previews recognises
+   * the bands at a glance. Measured contrast against black (WCAG relative
+   * luminance): easy 9.2:1, medium 9.34:1, hard 2.99:1 — the hard red
+   * alone is below the 3:1 "graphical object" minimum, so every camp
+   * circle also gets a light outline ring (see `CampMarker`) to guarantee
+   * >=3:1 against any terrain. See DESIGN.md "Creep routes". */
+  /* Build difficulty is an ordered scale, so it reads as one: green, amber,
+     red. It borrowed --wg-win (blue) for beginner and --wg-arcane (also
+     blue) for intermediate, which made the first two steps near-identical —
+     reported by a reader before it was noticed here.
+
+     The advanced step does NOT reuse --wg-camp-hard: that red is tuned for a
+     filled dot on the minimap and measures 2.83:1 against the badge surface,
+     below the 4.5:1 a small label needs. --wg-loss is the palette's
+     already-tested red at 6.12:1. */
+  --wg-difficulty-beginner: #68c040;
+  --wg-difficulty-intermediate: #d0a838;
+  --wg-difficulty-advanced: #DE6E52;
+
+  --wg-camp-easy: #68c040;
+  --wg-camp-medium: #d0a838;
+  --wg-camp-hard: #b01818;
+
   /* --- Type --- */
   --wg-font-display: var(--font-display), "Cinzel", "Friz Quadrata", Georgia, serif;
   --wg-font-sans: var(--font-sans), "Lato", ui-sans-serif, system-ui, sans-serif;
@@ -107,6 +133,14 @@
   --color-undead: var(--wg-undead);
   --color-random: var(--wg-random);
 
+  --color-difficulty-beginner: var(--wg-difficulty-beginner);
+  --color-difficulty-intermediate: var(--wg-difficulty-intermediate);
+  --color-difficulty-advanced: var(--wg-difficulty-advanced);
+
+  --color-camp-easy: var(--wg-camp-easy);
+  --color-camp-medium: var(--wg-camp-medium);
+  --color-camp-hard: var(--wg-camp-hard);
+
   --font-display: var(--wg-font-display);
   --font-sans: var(--wg-font-sans);
   --font-mono: var(--wg-font-mono);
@@ -159,6 +193,15 @@
     letter-spacing: 0.05em;
     line-height: 1.1;
     text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  /* Short copy in one place reads as one block: no lone word on the last line.
+     Headings balance above; leads and blurbs balance where the page asks. */
+  p, li, dd, figcaption {
+    text-wrap: pretty;
+  }
+  .balance {
     text-wrap: balance;
   }
 
@@ -301,46 +344,16 @@
       radial-gradient(48rem 30rem at 92% 8%, oklch(30% 0.06 70 / 0.8), transparent 60%),
       linear-gradient(180deg, oklch(12% 0.015 60), oklch(7% 0.012 50) 60%, oklch(5% 0.01 40));
   }
-  /* Ember sparks drifting upward (above any KeyArt image, below content) */
-  .keyart::after {
-    content: "";
-    position: absolute;
-    inset: -20% 0 0 0;
-    z-index: 1;
-    pointer-events: none;
-    opacity: 0.7;
-    background-image:
-      radial-gradient(1.5px 1.5px at 12% 80%, oklch(85% 0.17 60), transparent),
-      radial-gradient(2px 2px at 30% 60%, oklch(80% 0.18 50), transparent),
-      radial-gradient(1px 1px at 48% 90%, oklch(90% 0.15 70), transparent),
-      radial-gradient(1.5px 1.5px at 66% 70%, oklch(82% 0.17 55), transparent),
-      radial-gradient(2px 2px at 82% 85%, oklch(78% 0.18 45), transparent),
-      radial-gradient(1px 1px at 92% 55%, oklch(88% 0.15 65), transparent);
-    background-size: 100% 100%;
-    animation: wg-embers 14s linear infinite;
-  }
-
   .keyart-blue::before {
     background-image:
       radial-gradient(60rem 34rem at 78% 70%, oklch(40% 0.14 255 / 0.55), transparent 62%),
       radial-gradient(44rem 28rem at 10% 0%, oklch(24% 0.06 250 / 0.7), transparent 60%),
       linear-gradient(180deg, oklch(9% 0.02 250), oklch(6% 0.02 250) 60%, oklch(4% 0.015 250));
   }
-  .keyart-blue::after {
-    background-image:
-      radial-gradient(1.5px 1.5px at 18% 78%, oklch(90% 0.08 230), transparent),
-      radial-gradient(1px 1px at 40% 60%, oklch(92% 0.06 220), transparent),
-      radial-gradient(2px 2px at 62% 88%, oklch(85% 0.1 240), transparent),
-      radial-gradient(1px 1px at 84% 66%, oklch(90% 0.08 230), transparent);
-  }
-
   .keyart-dark::before {
     background-image:
       radial-gradient(60rem 30rem at 50% 0%, oklch(18% 0.02 60 / 0.8), transparent 60%),
       linear-gradient(180deg, oklch(5% 0.006 60), oklch(3% 0.006 60));
-  }
-  .keyart-dark::after {
-    display: none;
   }
 
   /* Subtle film grain */
@@ -381,10 +394,6 @@
     animation: wg-pulse 1.3s var(--wg-ease) infinite;
   }
 
-  @keyframes wg-embers {
-    from { transform: translateY(0); }
-    to { transform: translateY(-18%); }
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -393,5 +402,83 @@
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ *  Route step table — stacked cards below 768px (F009-followup-1).
+ *  Keeps the real <table>/<th> markup (screen readers on wider
+ *  viewports still get a real table); below the breakpoint every <tr>
+ *  becomes a CSS grid so a route's stops read as cards instead of a
+ *  cramped, horizontally-scrolling table. Layout per card: line 1/2 =
+ *  number + camp (label, level, composition) + hero-after on the
+ *  right; line 3 = Bring; line 4 = Notes, both full width. See
+ *  DESIGN.md "Creep routes" > "Table anatomy".
+ * ------------------------------------------------------------------ */
+@media (max-width: 767px) {
+  .route-step-table,
+  .route-step-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .route-step-table caption {
+    display: block;
+  }
+  .route-step-table thead {
+    display: none;
+  }
+  .route-step-table tr {
+    display: grid;
+    grid-template-columns: 1.75rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      "num camp hero"
+      "num camp hero"
+      "bring bring bring"
+      "notes notes notes";
+    column-gap: 0.5rem;
+    row-gap: 0.4rem;
+    padding: 0.85rem 1rem !important;
+  }
+  .route-step-table td {
+    display: block;
+    padding: 0 !important;
+  }
+  .route-step-table td:nth-child(1) {
+    grid-area: num;
+    align-self: start;
+    text-align: left !important;
+  }
+  .route-step-table td:nth-child(2) {
+    grid-area: camp;
+    min-width: 0;
+  }
+  .route-step-table td:nth-child(3) {
+    grid-area: bring;
+  }
+  .route-step-table td:nth-child(4) {
+    grid-area: notes;
+  }
+  .route-step-table td:nth-child(5) {
+    grid-area: hero;
+    align-self: start;
+    text-align: right;
+  }
+  /* A mini uppercase label stands in for the hidden column header — only
+     where the cell's own content doesn't already say what it is. */
+  .route-step-table td[data-label]::before {
+    content: attr(data-label);
+    display: block;
+    font-family: var(--wg-font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--wg-text-faint);
+    margin-bottom: 0.2rem;
+  }
+  .route-step-table td:nth-child(1)::before,
+  .route-step-table td:nth-child(2)::before,
+  .route-step-table td:nth-child(5)::before {
+    content: none;
   }
 }

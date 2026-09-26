@@ -13,6 +13,7 @@ import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace } from "@/lib/
 import type { StepInput } from "@/lib/builds/submission";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeBuild } from "@/lib/builds/exchange";
 import { cn } from "@/lib/utils";
+import { PATCHES, normalizePatch, patchLabel } from "@/lib/patches.mjs";
 
 type StepRow = { id: number; time: string; supply: string; instruction: string; icon: string };
 
@@ -78,13 +79,13 @@ export function BuildSubmitForm() {
   const nextId = useRef(4);
   const [steps, setSteps] = useState<StepRow[]>(() => [newRow(1), newRow(2), newRow(3)]);
   const [text, setText] = useState({
-    title: "", patch: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "",
+    title: "", patch: "", summary: "", description: "", author: "", authorDiscord: "", sourceUrl: "", videoUrl: "", supersedes: "",
   });
   const bind = (k: keyof typeof text) => ({
     id: k,
     name: k,
     value: text[k],
-    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
       setText((t) => ({ ...t, [k]: e.target.value })),
   });
 
@@ -143,12 +144,16 @@ export function BuildSubmitForm() {
   const applyImport = (b: ExchangeBuild) => {
     setText({
       title: b.title,
-      patch: b.patch ?? "",
+      patch: normalizePatch(b.patch) ?? "",
       summary: b.summary,
       description: b.description ?? "",
       author: b.author,
       authorDiscord: b.authorDiscord ?? "",
       sourceUrl: b.sourceUrl ?? "",
+      videoUrl: b.videoUrl ?? "",
+      // Set when the payload came from a build page's "Suggest an update"
+      // link; a replay or overlay import omits it, being a new build.
+      supersedes: b.supersedes ?? "",
     });
     setRace((b.race as BuildRace | undefined) ?? "");
     setVsRaces(b.vsRaces as BuildRace[]);
@@ -225,7 +230,7 @@ export function BuildSubmitForm() {
         <details className="group rounded border border-gold/30 bg-gold/5 text-sm text-muted">
           <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-5 py-3.5 [&::-webkit-details-marker]:hidden">
             <span className="kicker">What makes a good submission</span>
-            <ChevronDown size={16} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
+            <ChevronDown size={18} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
             <li className="flex gap-2"><span className="text-gold">·</span> One build order, not a whole game plan. 10 to 20 steps is typical.</li>
@@ -274,8 +279,15 @@ export function BuildSubmitForm() {
                 ))}
               </div>
             </Field>
-            <Field name="patch" title="Patch" error={errors.patch} hint="e.g. 2.0.3">
-              <input {...bind("patch")} maxLength={16} placeholder="Optional" className={input} />
+            <Field name="patch" title="Patch" error={errors.patch} hint="Which balance patch this is written for.">
+              <select {...bind("patch")} className={cn(input, "appearance-none")}>
+                <option value="">Not patch-specific</option>
+                {PATCHES.map((p) => (
+                  <option key={p.value} value={p.value}>
+                    {patchLabel(p)}
+                  </option>
+                ))}
+              </select>
             </Field>
             <Field title="Tags" error={errors.tags} hint="Enter or comma to add. Up to 8.">
               <TagInput value={tags} onChange={setTags} placeholder="fast expand, tavern…" />
@@ -359,13 +371,13 @@ export function BuildSubmitForm() {
 
                   <div className="col-span-2 flex justify-end gap-1 sm:col-span-1">
                     <button type="button" onClick={() => move(i, -1)} disabled={i === 0} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
-                      <ArrowUp size={14} />
+                      <ArrowUp size={16} />
                     </button>
                     <button type="button" onClick={() => move(i, 1)} disabled={i === steps.length - 1} aria-label="Move down" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
-                      <ArrowDown size={14} />
+                      <ArrowDown size={16} />
                     </button>
                     <button type="button" onClick={() => remove(s.id)} disabled={steps.length === 1} aria-label="Remove step" className="grid size-10 place-items-center rounded border border-line text-muted hover:border-loss/60 hover:text-loss disabled:opacity-30">
-                      <Trash2 size={14} />
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </li>
@@ -379,7 +391,7 @@ export function BuildSubmitForm() {
               onClick={add}
               className="inline-flex h-10 items-center gap-2 rounded border border-gold/50 px-4 font-display text-[0.72rem] font-bold uppercase tracking-[0.1em] text-gold hover:bg-gold/10"
             >
-              <Plus size={14} /> Add step
+              <Plus size={16} /> Add step
             </button>
             <span className="text-xs text-faint">Enter on the last instruction adds a step.</span>
           </div>
@@ -410,6 +422,30 @@ export function BuildSubmitForm() {
           <Field name="sourceUrl" title="Source link" error={errors.sourceUrl} hint="Optional replay, VOD or post.">
             <input {...bind("sourceUrl")} type="url" maxLength={300} placeholder="https://" className={input} />
           </Field>
+          <Field
+            name="videoUrl"
+            title="Video"
+            error={errors.videoUrl}
+            hint="Optional YouTube or Vimeo link showing the build played — embedded on the page."
+          >
+            <input {...bind("videoUrl")} type="url" maxLength={300} placeholder="https://youtu.be/..." className={input} />
+          </Field>
+          {/* No accounts, so there is nobody to authenticate an in-place
+              edit against: updating a build means resubmitting it and naming
+              the old one, which a coach then archives. */}
+          <Field
+            name="supersedes"
+            title="Updating an existing build?"
+            error={errors.supersedes}
+            hint="Optional. Paste the link (or slug) of the build this replaces — a coach will retire the old one."
+          >
+            <input
+              {...bind("supersedes")}
+              maxLength={300}
+              placeholder="https://warcraft3.gym/learn/builds/…"
+              className={input}
+            />
+          </Field>
 
           {state.status === "error" ? (
             <p role="alert" className="rounded border border-loss/50 bg-loss/10 px-4 py-3 text-sm text-fg">
@@ -418,8 +454,8 @@ export function BuildSubmitForm() {
           ) : null}
 
           <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <div className="flex items-start gap-3 text-sm text-muted">
-              <ShieldCheck size={20} className="mt-0.5 shrink-0 text-gold" />
+            <div className="flex min-w-0 flex-1 items-start gap-3 text-sm text-muted">
+              <ShieldCheck size={22} className="mt-0.5 shrink-0 text-gold" />
               <div>
                 <p className="font-bold text-fg">Reviewed before it goes live</p>
                 <p className="mt-0.5 text-xs">
@@ -428,11 +464,11 @@ export function BuildSubmitForm() {
               </div>
             </div>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-end">
-              <ButtonLink href="/learn/builds" variant="ghost" size="lg" className="sm:w-auto">
+              <ButtonLink href="/learn/builds" variant="ghost" size="md" className="sm:w-auto">
                 Cancel
               </ButtonLink>
-              <Button type="submit" size="lg" disabled={pending} className="sm:w-auto">
-                {pending ? "Sending…" : "Submit for review"} <ArrowRight size={16} />
+              <Button type="submit" size="md" disabled={pending} className="sm:w-auto">
+                {pending ? "Sending…" : "Submit for review"} <ArrowRight size={18} />
               </Button>
             </div>
           </div>

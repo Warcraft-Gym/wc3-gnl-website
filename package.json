@@ -7,15 +7,19 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test": "node --test src/lib/*.test.mjs",
+    "test": "node --test src/lib/*.test.mjs src/lib/*/*.test.mjs",
     "overlay:dev": "pnpm --filter wc3gym-overlay tauri dev",
     "overlay:build": "pnpm --filter wc3gym-overlay tauri build",
-    "overlay:check": "pnpm --filter wc3gym-overlay check:config"
+    "overlay:check": "pnpm --filter wc3gym-overlay check:config",
+    "maps:add": "node scripts/creep-maps/add-map.mjs",
+    "maps:rebuild": "node scripts/creep-maps/add-map.mjs"
   },
   "dependencies": {
     "@portabletext/react": "^8.0.1",
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "^6.10.1",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
     "clsx": "^2.1.1",
     "lucide-react": "^1.34.0",
     "next": "16.3.2",
@@ -39,8 +43,10 @@
     "eslint": "^9",
     "eslint-config-next": "16.3.2",
     "jsdom": "^30.0.1",
+    "mopaq": "^1.5.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "typescript": "^5",
+    "war3-model": "^4.0.1"
   },
   "packageManager": "pnpm@10.22.0"
 }

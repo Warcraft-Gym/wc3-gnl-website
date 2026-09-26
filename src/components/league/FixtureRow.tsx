@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
+import { playerPath } from "@/lib/slug.mjs";
 import { SeasonLink as Link } from "./SeasonLink";
 import { ChevronRight, PlayCircle, Tv } from "lucide-react";
 import type { TeamFixture, PlayerMatch } from "@/lib/api/types";
 import { LiveBadge } from "@/components/ui/Badge";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "./VsBadge";
-import { cn, raceOf, formatMatchTime, slugify } from "@/lib/utils";
+import { cn, raceOf, formatMatchTime } from "@/lib/utils";
 import { missingTimeLines } from "@/lib/match-time.mjs";
 
 function gameTime(iso?: string, played = false) {
@@ -46,9 +47,9 @@ function DetailRow({ m }: { m: PlayerMatch }) {
       </div>
 
       <div className="flex items-center gap-2 truncate">
-        <RaceIcon race={raceOf(m.home.race)} size={22} />
+        <RaceIcon race={raceOf(m.home.race)} size={24} />
         <Link
-          href={`/gnl/players/${slugify(m.home.playerName)}`}
+          href={playerPath(m.home.playerId, m.home.playerName)}
           className={cn(
             "truncate font-semibold transition-colors hover:text-gold",
             homeWon || !played ? "text-fg" : "text-muted",
@@ -68,7 +69,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
               <span className={homeWon ? "text-gold" : "text-faint"}>
                 {m.home.score}
               </span>
-              <span className="mx-1 text-faint">-</span>
+              <span className="mx-1 text-faint">:</span>
               <span className={awayWon ? "text-gold" : "text-faint"}>
                 {m.away.score}
               </span>
@@ -89,7 +90,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
 
       <div className="flex items-center justify-end gap-2 truncate text-right">
         <Link
-          href={`/gnl/players/${slugify(m.away.playerName)}`}
+          href={playerPath(m.away.playerId, m.away.playerName)}
           className={cn(
             "truncate font-semibold transition-colors hover:text-gold",
             awayWon || !played ? "text-fg" : "text-muted",
@@ -97,7 +98,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         >
           {m.away.playerName}
         </Link>
-        <RaceIcon race={raceOf(m.away.race)} size={22} />
+        <RaceIcon race={raceOf(m.away.race)} size={24} />
       </div>
 
       <div className="flex justify-end">
@@ -114,7 +115,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
                 : "border-line text-muted hover:border-arcane/60 hover:text-arcane",
             )}
           >
-            <Tv size={12} />
+            <Tv size={14} />
             <span className="max-sm:hidden">{vod ? "VOD" : "Cast"}</span>
           </a>
         ) : null}
@@ -174,7 +175,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
               <span className={homeWon ? "text-gold" : "text-fg"}>
                 {fixture.home.score}
               </span>
-              <span className="mx-1.5 text-faint">-</span>
+              <span className="mx-1.5 text-faint">:</span>
               <span className={awayWon ? "text-gold" : "text-fg"}>
                 {fixture.away.score}
               </span>
@@ -224,7 +225,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
             className="flex w-full items-center gap-2 border-t border-line/60 px-4 py-2 font-mono text-[0.72rem] font-bold uppercase tracking-widest text-muted transition-colors hover:text-gold"
           >
             <ChevronRight
-              size={14}
+              size={16}
               className={cn(
                 "transition-transform duration-[var(--wg-dur)]",
                 open && "rotate-90",
@@ -240,7 +241,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
               ))}
               {fixture.matches.some((m) => m.hasReplays) ? (
                 <div className="flex items-center gap-1.5 border-t border-line/40 px-4 py-2.5 text-xs text-arcane">
-                  <PlayCircle size={13} /> Replays available for completed games
+                  <PlayCircle size={15} /> Replays available for completed games
                 </div>
               ) : null}
             </div>

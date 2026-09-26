@@ -28,6 +28,9 @@ export type BuildOrder = {
   authorDiscord?: string;
   maintainer?: string;
   sourceUrl?: string;
+  /** YouTube or Vimeo link, embedded on the build page and flagged in the
+   *  list. See `src/lib/video-embed.mjs`. */
+  videoUrl?: string;
   /** Slug and title of the Learn guide this build came from, if any. */
   guide?: { slug: string; title: string } | null;
   featured: boolean;

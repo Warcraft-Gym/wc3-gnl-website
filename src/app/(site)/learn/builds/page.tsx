@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ArrowRight, PlusCircle } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -54,16 +53,20 @@ export default async function BuildsPage({
     ? (sp.difficulty as BuildDifficulty)
     : undefined;
   const q = sp.q?.slice(0, 80);
-  const sort = sp.sort === "title" ? "title" : "updated";
+  // Newest first is the default, so a build added today opens the list.
+  const sort = sp.sort === "title" ? "title" : sp.sort === "updated" ? "updated" : "new";
 
   const all = await getBuilds();
   let builds = filterBuilds(all, { race, vsRace, q });
   if (difficulty) builds = builds.filter((b) => b.difficulty === difficulty);
-  builds = [...builds].sort((a, b) =>
-    sort === "updated"
-      ? new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-      : a.title.localeCompare(b.title),
-  );
+  const time = (v: string) => new Date(v).getTime();
+  builds = [...builds].sort((a, b) => {
+    if (sort === "title") return a.title.localeCompare(b.title);
+    if (sort === "updated") return time(b.updatedAt) - time(a.updatedAt);
+    // Added to the site, not last edited, so fixing a typo does not reorder
+    // the list. Builds published the same day fall back to the edit time.
+    return time(b.publishedAt) - time(a.publishedAt) || time(b.updatedAt) - time(a.updatedAt);
+  });
 
   const isFiltered = Boolean(race || vsRace || q || difficulty);
 
@@ -74,11 +77,7 @@ export default async function BuildsPage({
         title="Build orders"
         art="/graphics/build-orders-2.webp"
         lead="Step-by-step build orders for every race and matchup, with timings, supply counts and a play-along clock."
-      >
-        <ButtonLink href="/learn/builds/submit" size="sm">
-          <PlusCircle size={15} /> Submit a build
-        </ButtonLink>
-      </PageHeader>
+      />
 
       <Container className="py-10">
         {/* Submit CTA */}
@@ -97,7 +96,7 @@ export default async function BuildsPage({
               </p>
             </div>
             <ButtonLink href="/learn/builds/submit" size="lg" className="shrink-0">
-              Submit a build <ArrowRight size={16} />
+              Submit a build
             </ButtonLink>
           </div>
         </div>

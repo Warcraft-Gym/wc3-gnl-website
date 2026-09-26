@@ -25,6 +25,9 @@ export type Player = {
   name: string;
   slug: string;
   battleTag?: string;
+  /** Every tag the person holds, the active one first; empty for a person
+   *  with no tag and where the read loads none. */
+  tags?: string[];
   /** The race this player signed up with for the season of this read, and null
    *  when the season row names none. It is not the ladder race. */
   race: Race | null;
@@ -200,6 +203,8 @@ export type PlayerSeasonEntry = {
   team: Pick<Team, "id" | "name" | "slug" | "tag" | "logoUrl">;
   /** The race the player signed up with for this season. */
   race: Race | null;
+  /** The tag the player signed this season up with; null when none is known. */
+  playedAs: string | null;
   isCaptain: boolean;
   /** True when the person captained the team without being on its roster. */
   captainOnly: boolean;

@@ -17,9 +17,10 @@ export function DesktopNav() {
         const active =
           !item.external &&
           (pathname === item.href ||
-            (pathname.startsWith(item.href + "/") &&
-              // Builds lives under /learn but has its own nav item
-              !(item.href === "/learn" && pathname.startsWith("/learn/builds"))) ||
+            // Build orders and creep routes are Learn pages and light Learn
+            // up; they used to be excluded here because they had top-level
+            // items of their own.
+            pathname.startsWith(item.href + "/") ||
             (item.label === "League" && pathname.startsWith("/gnl")));
 
         // Plain sans links like the official nav; the active one carries a
@@ -40,7 +41,7 @@ export function DesktopNav() {
               className={cn(cls, "inline-flex items-center gap-1.5")}
             >
               {item.label === "Discord" ? (
-                <DiscordIcon size={16} className="text-[#5865F2]" />
+                <DiscordIcon size={18} className="text-[#5865F2]" />
               ) : null}
               {item.label}
             </a>

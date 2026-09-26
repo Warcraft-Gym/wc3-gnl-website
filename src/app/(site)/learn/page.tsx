@@ -70,7 +70,7 @@ export default async function LearnPage() {
                   className="object-contain drop-shadow-[0_12px_20px_rgba(0,0,0,.85)]"
                 />
               </span>
-              <div>
+              <div className="min-w-0 flex-1">
               <span className="kicker mb-3">Start here</span>
               <h2 className="text-[length:var(--wg-text-title)]">
                 New &amp; returning players
@@ -82,7 +82,7 @@ export default async function LearnPage() {
               </div>
             </div>
             <ButtonLink href="/learn/new-players" size="lg" className="shrink-0">
-              Start learning <ArrowRight size={18} />
+              Start learning <ArrowRight size={20} />
             </ButtonLink>
           </div>
         </Surface>
@@ -93,7 +93,7 @@ export default async function LearnPage() {
           <p className="kicker mt-8 mb-4">By race</p>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {races.map((c) => (
-              <CategoryCard key={c.id} category={c} stacked />
+              <CategoryCard key={c.id} category={c} stacked prominent />
             ))}
           </div>
           <p className="kicker mt-10 mb-4">By topic</p>
@@ -109,10 +109,10 @@ export default async function LearnPage() {
         <section className="mt-16">
           <SectionHead
             kicker="Fresh"
-            title="Latest guides"
+            title="Latest in-depth strategy guides"
             action={
               <Link
-                href="/learn/new-players"
+                href="/learn/guides"
                 className="hidden text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold sm:inline"
               >
                 Browse all
@@ -143,7 +143,7 @@ export default async function LearnPage() {
             size="lg"
             className="shrink-0"
           >
-            <DiscordIcon size={20} /> Join the Discord
+            <DiscordIcon size={22} /> Join the Discord
           </ButtonLink>
         </Surface>
       </Container>

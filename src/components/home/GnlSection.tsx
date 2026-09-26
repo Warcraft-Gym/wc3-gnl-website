@@ -2,8 +2,6 @@ import { Swords, GraduationCap, Users2, Trophy } from "lucide-react";
 import type { Season, Team } from "@/lib/api/types";
 import { TeamMedallions } from "@/components/home/TeamMedallions";
 import { ButtonLink } from "@/components/ui/Button";
-import { DISCORD_URL } from "@/lib/links";
-import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
 const PILLARS = [
   {
@@ -54,7 +52,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
         {PILLARS.map(({ Icon, title, body }) => (
           <div key={title} className="panel p-5">
             <span className="skew grid size-10 place-items-center bg-gold/10 text-gold">
-              <Icon size={18} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
+              <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
             </span>
             <h3 className="mt-4 font-display text-[0.95rem] font-bold uppercase text-fg">{title}</h3>
             <p className="mt-2 text-sm text-muted">{body}</p>
@@ -67,13 +65,10 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
       </div>
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
-        <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-          <DiscordIcon size={20} /> {season.isActive ? "Join the next season" : "Sign up on Discord"}
+        <ButtonLink href="/gnl/about" size="lg">
+          About the league
         </ButtonLink>
-        <ButtonLink href="/gnl/about" variant="outline" size="lg">
-          How the league works
-        </ButtonLink>
-        <ButtonLink href="/gnl/schedule" variant="ghost" size="lg">
+        <ButtonLink href="/gnl/schedule" size="lg">
           Follow {season.shortName}
         </ButtonLink>
       </div>

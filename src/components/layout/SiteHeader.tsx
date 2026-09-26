@@ -28,7 +28,7 @@ export function SiteHeader() {
             aria-label="Join the Discord"
             className="max-md:size-10 max-md:px-0 max-sm:w-10"
           >
-            <DiscordIcon size={16} />
+            <DiscordIcon size={18} />
             <span className="max-md:sr-only">Join Discord</span>
           </ButtonLink>
           <MobileNav />

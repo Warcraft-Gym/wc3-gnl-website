@@ -53,7 +53,7 @@ export default function AboutPage() {
                 <Surface key={b.title} className="p-6">
                   <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
                     <Icon
-                      size={20}
+                      size={22}
                       className="[transform:skewX(calc(var(--wg-skew)*-1))]"
                     />
                   </span>
@@ -96,9 +96,9 @@ export default function AboutPage() {
         {/* CTA */}
         <div className="mt-14 flex flex-wrap gap-3">
           <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-            <DiscordIcon size={20} /> Join the Gym Discord
+            <DiscordIcon size={22} /> Join the Discord
           </ButtonLink>
-          <ButtonLink href="/gnl/rules" variant="outline" size="lg">
+          <ButtonLink href="/gnl/rules" size="lg">
             Read the full rules
           </ButtonLink>
         </div>

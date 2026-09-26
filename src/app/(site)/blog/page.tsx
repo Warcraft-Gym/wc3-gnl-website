@@ -6,7 +6,7 @@ import { getPosts } from "@/lib/content";
 
 export const metadata: Metadata = {
   title: "News",
-  description: "News, season recaps, replay of the month and announcements from the Warcraft 3 Gym community.",
+  description: "News, season recaps and announcements from the Warcraft 3 Gym community.",
   alternates: { canonical: "/blog" },
 };
 

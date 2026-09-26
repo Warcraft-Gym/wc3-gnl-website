@@ -2,7 +2,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import { DISCORD_URL, YOUTUBE_URL } from "@/lib/links";
+import { cn } from "@/lib/utils";
 
+/** `active: false` hides a tile without deleting it — the copy and the
+ *  painted emblem are kept so bringing it back is a one-word change. */
 const TILES = [
   {
     art: "/graphics/coaching-replay-2.webp",
@@ -11,14 +14,16 @@ const TILES = [
     href: DISCORD_URL,
     cta: "Open the Discord",
     external: true,
+    active: true,
   },
   {
     art: "/graphics/king-of-the-hill-2.webp",
     title: "King of the Hill nights",
     body: "Casual community events where one player holds the hill and everyone lines up to knock them off. Low stakes, high fun, open to all.",
-    href: "/blog",
-    cta: "See past events",
+    href: "/king-of-the-hill",
+    cta: "How it works",
     external: false,
+    active: true,
   },
   {
     art: "/graphics/replay-of-month-2.webp",
@@ -27,6 +32,8 @@ const TILES = [
     href: "/blog",
     cta: "Watch the picks",
     external: false,
+    // Paused 2026-09-25: the community is not running this at the moment.
+    active: false,
   },
   {
     art: "/graphics/casts-youtube-2.webp",
@@ -35,15 +42,20 @@ const TILES = [
     href: YOUTUBE_URL,
     cta: "Go to the channel",
     external: true,
+    active: true,
   },
 ];
 
-/** Four panels describing what the community does beyond the guides, each
- *  with its painted emblem. */
+/** Panels describing what the community does beyond the guides, each with its
+ *  painted emblem. Two per row; with an odd number the last one spans the row
+ *  rather than leaving a hole beside it. */
 export function CommunityTiles() {
+  const tiles = TILES.filter((t) => t.active);
+  const lastSpansRow = tiles.length % 2 === 1;
+
   return (
     <ul className="grid content-start gap-x-4 gap-y-12 pt-9 sm:grid-cols-2 lg:self-center">
-      {TILES.map(({ art, title, body, href, cta, external }) => {
+      {tiles.map(({ art, title, body, href, cta, external }, i) => {
         const inner = (
           <>
             {/* Emblem sits over the top-left edge, outside the panel */}
@@ -65,7 +77,7 @@ export function CommunityTiles() {
                 <h3 className="text-[1rem] font-bold tracking-[0.06em] text-fg transition-colors group-hover:text-gold">
                   {title}
                 </h3>
-                <ArrowUpRight size={18} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
+                <ArrowUpRight size={20} className="shrink-0 text-faint transition-colors group-hover:text-gold" />
               </span>
               <p className="mt-2 text-sm text-muted">{body}</p>
               <span className="kicker mt-4 text-[0.62rem]">{cta}</span>
@@ -74,7 +86,7 @@ export function CommunityTiles() {
         );
         const cls = "panel group relative flex h-full items-start gap-4 px-5 pb-5 pt-14 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50";
         return (
-          <li key={title}>
+          <li key={title} className={cn(lastSpansRow && i === tiles.length - 1 && "sm:col-span-2")}>
             {external ? (
               <a href={href} target="_blank" rel="noreferrer" className={cls}>{inner}</a>
             ) : (

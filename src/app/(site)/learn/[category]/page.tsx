@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -18,7 +18,12 @@ import { ButtonLink } from "@/components/ui/Button";
 type Params = { params: Promise<{ category: string }> };
 
 export function generateStaticParams() {
-  return LEARN_CATEGORIES.map((c) => ({ category: c.id }));
+  // "creep-routes" now has its own top-level section
+  // (src/app/(site)/learn/creep-routes/page.tsx), which the App Router
+  // already routes to ahead of this dynamic segment for an exact
+  // /learn/creep-routes request; excluded here too so this page is never
+  // built for a path it only redirects away from.
+  return LEARN_CATEGORIES.filter((c) => c.id !== "creep-routes").map((c) => ({ category: c.id }));
 }
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
@@ -30,12 +35,26 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title,
     description: `${cat.blurb} Free Warcraft III ${cat.title} guides from the Gym coaches.`,
     alternates: { canonical: `/learn/${cat.id}` },
-    openGraph: { title: `${title} · Warcraft 3 Gym`, description: cat.blurb, url: `/learn/${cat.id}` },
+    openGraph: {
+      title: `${title} · Warcraft 3 Gym`,
+      description: cat.blurb,
+      url: `/learn/${cat.id}`,
+      // Declaring `openGraph` at all replaces the root object, and this
+      // segment has no `opengraph-image` route of its own — so without this
+      // line these pages ship no share image whatsoever.
+      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
+    },
   };
 }
 
 export default async function LearnCategoryPage({ params }: Params) {
   const { category } = await params;
+  // The old image-based creep-routes category page is retired: the section
+  // now lives at /learn/creep-routes (its own list with real filters). The
+  // App Router already resolves an exact /learn/creep-routes request to
+  // that static route ahead of this dynamic one; this redirect is belt and
+  // suspenders for anything that reaches this handler with that param.
+  if (category === "creep-routes") redirect("/learn/creep-routes");
   const cat = getCategory(category);
   if (!cat) notFound();
 
@@ -56,17 +75,20 @@ export default async function LearnCategoryPage({ params }: Params) {
           { name: cat.title, path: `/learn/${cat.id}` },
         ])}
       />
+      {/* Races carry their own identity — the crest and the name are the
+          header, so no lead line. Topics still need one to say what they
+          cover. The blurb stays in this page's metadata either way. */}
       <PageHeader
         kicker="Learn"
         title={cat.title}
-        lead={cat.blurb}
+        lead={race ? undefined : cat.blurb}
         art={learnArt(cat)}
         background={learnHeaderArt(cat)}
         backgroundPosition="center 30%"
       >
         {race ? (
           <ButtonLink href={buildsHref} size="sm">
-            {cat.title} build orders <ArrowRight size={14} />
+            {cat.title} build orders <ArrowRight size={16} />
           </ButtonLink>
         ) : null}
       </PageHeader>
@@ -115,8 +137,8 @@ export default async function LearnCategoryPage({ params }: Params) {
                   Timed step-by-step builds with a play-along clock. Pick one and follow it in your next game.
                 </p>
               </div>
-              <ButtonLink href={buildsHref} variant="outline" size="sm" className="shrink-0">
-                All {cat.title} builds <ArrowRight size={14} />
+              <ButtonLink href={buildsHref} size="sm" className="shrink-0">
+                All {cat.title} builds <ArrowRight size={16} />
               </ButtonLink>
             </div>
             {builds.length ? (

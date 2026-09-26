@@ -45,7 +45,7 @@ export function Pagination({
         aria-disabled={currentPage <= 1}
         className={cn(arrow, currentPage <= 1 ? disabled : enabled)}
       >
-        <ChevronLeft size={16} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
+        <ChevronLeft size={18} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
       </Link>
 
       {pageWindow(currentPage, totalPages).map((p, i) =>
@@ -76,7 +76,7 @@ export function Pagination({
         aria-disabled={currentPage >= totalPages}
         className={cn(arrow, currentPage >= totalPages ? disabled : enabled)}
       >
-        <ChevronRight size={16} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
+        <ChevronRight size={18} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
       </Link>
     </nav>
   );

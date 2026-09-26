@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/meta-description.mjs";
+import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
@@ -28,20 +30,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Post not found" };
+  const description = metaDescription(post.excerpt);
   return {
     title: post.title,
-    description: post.excerpt,
+    description: description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description: description,
       type: "article",
       url: `/blog/${post.slug}`,
       publishedTime: post.publishedAt,
       authors: [post.author],
       images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
     },
-    twitter: { card: "summary_large_image", title: post.title, description: post.excerpt },
+    twitter: { card: "summary_large_image", title: post.title, description: description },
   };
 }
 
@@ -65,7 +68,7 @@ export default async function PostPage({ params }: Params) {
         data={articleJsonLd({
           path: `/blog/${post.slug}`,
           title: post.title,
-          description: post.excerpt,
+          description: metaDescription(post.excerpt) ?? post.excerpt,
           publishedAt: post.publishedAt,
           author: post.author,
           image: post.coverImageUrl,
@@ -90,16 +93,16 @@ export default async function PostPage({ params }: Params) {
         <Container className="max-w-3xl py-14 sm:py-20">
           <Link
             href="/blog"
-            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> Back to blog
+            <ArrowLeft size={17} /> All news
           </Link>
           <div className="mb-4 flex items-center gap-2 font-mono text-[0.68rem] uppercase tracking-[0.16em]">
             <span className="text-gold">{CATEGORY_LABEL[post.category]}</span>
             <span className="text-faint">·</span>
             <span className="text-faint">{date}</span>
           </div>
-          <h1 className="text-[length:var(--wg-text-display)] font-extrabold">
+          <h1 className={cn("font-extrabold", post.title.length > 26 ? "text-[length:clamp(1.9rem,1rem+2.4vw,2.9rem)]" : "text-[length:var(--wg-text-display)]")}>
             {post.title}
           </h1>
           <p className="mt-5 text-lg text-muted">{post.excerpt}</p>

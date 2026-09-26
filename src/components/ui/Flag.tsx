@@ -1,31 +1,30 @@
-/** Subdivision flags that have their own emoji (the black-flag tag sequence). */
-const SUBDIVISION_FLAGS = new Set(["GB-SCT", "GB-ENG", "GB-WLS"]);
-const BLACK_FLAG = 0x1f3f4;
-const TAG_BASE = 0xe0000;
-const TAG_CANCEL = 0xe007f;
+/* eslint-disable @next/next/no-img-element -- tiny static SVGs, no optimisation needed */
 
-/** A country flag from its ISO 3166 alpha-2 code, as the regional-indicator
- *  emoji pair (renders as a flag on every current OS). Scotland, England and
- *  Wales get their own flags from their GB subdivision codes; any other
- *  subdivision falls back to the country. Unknown codes render as the code. */
-export function Flag({ code, className }: { code?: string; className?: string }) {
+/** Country codes that have a flag file in public/flags (flag-icons, MIT).
+ *  ISO 3166-1 alpha-2 plus the GB nations. */
+const SUBDIVISIONS = new Set(["GB-SCT", "GB-ENG", "GB-WLS", "GB-NIR"]);
+
+/** A country flag from its ISO 3166 alpha-2 code, as a small SVG image.
+ *  Images rather than emoji because Windows has no flag emoji at all.
+ *  Scotland, England, Wales and Northern Ireland get their own flags from
+ *  their GB subdivision codes; any other subdivision falls back to the
+ *  country. Unknown codes render as the code itself. */
+export function Flag({ code, className, size = 16 }: { code?: string; className?: string; size?: number }) {
   if (!code) return null;
   const full = code.trim().toUpperCase();
-  if (SUBDIVISION_FLAGS.has(full)) {
-    const tags = [...full.replace("-", "").toLowerCase()].map((c) => TAG_BASE + c.charCodeAt(0));
-    const flag = String.fromCodePoint(BLACK_FLAG, ...tags, TAG_CANCEL);
-    return (
-      <span className={className} title={full} aria-label={full}>
-        {flag}
-      </span>
-    );
-  }
-  const cc = full.slice(0, 2);
-  if (!/^[A-Z]{2}$/.test(cc)) return <span className={className}>{cc}</span>;
-  const flag = String.fromCodePoint(...[...cc].map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+  const key = SUBDIVISIONS.has(full) ? full : full.slice(0, 2);
+  if (!/^[A-Z]{2}(-[A-Z]{3})?$/.test(key)) return <span className={className}>{full}</span>;
   return (
-    <span className={className} title={cc} aria-label={cc}>
-      {flag}
-    </span>
+    <img
+      src={`/flags/${key.toLowerCase()}.svg`}
+      alt={key}
+      title={key}
+      width={size}
+      height={Math.round((size * 3) / 4)}
+      loading="lazy"
+      decoding="async"
+      className={className}
+      style={{ display: "inline-block", verticalAlign: "-0.125em", borderRadius: 2, boxShadow: "0 0 0 1px rgba(0,0,0,.35)" }}
+    />
   );
 }

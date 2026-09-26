@@ -56,12 +56,14 @@ export function PostCard({
           ) : (
             <div
               aria-hidden
-              className="absolute inset-0"
+              className="absolute inset-0 grid place-items-center"
               style={{
                 backgroundImage:
-                  "radial-gradient(20rem 12rem at 30% 20%, var(--wg-gold-glow), transparent 60%), linear-gradient(160deg, var(--wg-surface-3), var(--wg-surface))",
+                  "radial-gradient(24rem 14rem at 50% 60%, var(--wg-gold-glow), transparent 65%), linear-gradient(160deg, var(--wg-surface-3), var(--wg-bg-deep))",
               }}
-            />
+            >
+              <Image src="/logo/w3gym-gold.webp" alt="" width={160} height={75} className="h-auto w-28 opacity-70 drop-shadow-[0_4px_12px_rgba(0,0,0,.8)] sm:w-32" />
+            </div>
           )}
         </div>
 

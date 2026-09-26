@@ -25,7 +25,7 @@ export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; ma
               r.race === main ? "border-gold/50 bg-gold/5" : "border-line",
             )}
           >
-            <RaceIcon race={r.race} size={20} />
+            <RaceIcon race={r.race} size={22} />
             <span className={cn("tnum text-sm", r.race === main ? "font-bold text-gold" : "text-fg")}>{r.mmr}</span>
             <span className="tnum text-xs text-faint">{rec ?? "—"}</span>
           </li>

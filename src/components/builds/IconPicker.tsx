@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, Search, X } from "lucide-react";
 import { GameIcon } from "./GameIcon";
-import { GAME_ICONS, getGameIcon, type IconRace } from "@/lib/builds/icons";
+import { ALL_ICONS, getGameIcon, type IconKind, type IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
 const TABS: { id: IconRace | "all"; label: string }[] = [
@@ -42,10 +42,15 @@ export function IconPicker({
   value,
   onChange,
   race,
+  kind,
 }: {
   value: string;
   onChange: (key: string) => void;
   race?: IconRace;
+  /** Restricts the grid (and search) to one icon kind, e.g. "hero" for the
+   *  creep-route editor's hero field. Unset shows every kind, builds' own
+   *  usage. */
+  kind?: IconKind;
 }) {
   const [open, setOpen] = useState(false);
   const [tab, setTab] = useState<IconRace | "all">(race ?? "all");
@@ -81,10 +86,22 @@ export function IconPicker({
 
   const shown = useMemo(() => {
     const needle = q.trim().toLowerCase();
-    // A search looks across every race; the tab only filters when browsing.
-    if (needle) return GAME_ICONS.filter((i) => i.title.toLowerCase().includes(needle));
-    return GAME_ICONS.filter((i) => tab === "all" || i.race === tab);
-  }, [tab, q]);
+    // `kind` narrows the whole picker to one kind, e.g. "hero" for the
+    // creep-route editor's hero field. Heroes only exist in the curated
+    // set, so filtering the full library costs nothing and keeps one pool.
+    const pool = kind ? ALL_ICONS.filter((i) => i.kind === kind) : ALL_ICONS;
+    // A search looks across every race, with the names that open with the
+    // words typed first, so "storm" finds Storm Bolt before Stormhammers.
+    if (needle) {
+      return pool.filter((i) => i.title.toLowerCase().includes(needle)).sort((a, b) => {
+        const rank = (t: string) => (t.toLowerCase().startsWith(needle) ? 0 : 1);
+        return rank(a.title) - rank(b.title) || a.title.length - b.title.length;
+      });
+    }
+    // Browsing keeps the curated order, so the units and buildings a build
+    // asks for most sit above the rest of the art.
+    return pool.filter((i) => tab === "all" || i.race === tab);
+  }, [tab, q, kind]);
 
   const current = getGameIcon(value);
 
@@ -108,6 +125,9 @@ export function IconPicker({
           "bg-surface/60",
         )}
       >
+        {kind === "hero" ? (
+          <span className="text-[0.6rem] font-bold uppercase tracking-wider text-faint">Hero</span>
+        ) : null}
         {current ? (
           <GameIcon iconKey={value} size={30} />
         ) : (
@@ -115,7 +135,7 @@ export function IconPicker({
             <span className="text-[0.55rem] font-bold uppercase tracking-wider">icon</span>
           </span>
         )}
-        <ChevronDown size={14} className="text-faint" />
+        <ChevronDown size={16} className="text-faint" />
       </button>
 
       {open ? (
@@ -125,7 +145,7 @@ export function IconPicker({
           className="absolute left-0 top-full z-40 mt-1 w-[19rem] rounded-lg border border-line bg-bg/95 p-2 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] backdrop-blur-xl sm:w-[22rem]"
         >
           <div className="relative">
-            <Search size={13} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint" />
+            <Search size={15} className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-faint" />
             <input
               ref={search}
               value={q}
@@ -185,7 +205,7 @@ export function IconPicker({
               onClick={() => pick("")}
               className="mt-2 inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-wide text-muted hover:text-loss"
             >
-              <X size={11} /> Remove icon
+              <X size={13} /> Remove icon
             </button>
           ) : null}
         </div>

@@ -1,0 +1,410 @@
+{
+  "afac": {
+    "name": "Alleria's Flute of Accuracy",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNAlleriaFlute"
+  },
+  "ajen": {
+    "name": "Ancient Janggo of Endurance",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNJanggo"
+  },
+  "ankh": {
+    "name": "Ankh of Reincarnation",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNAnkh"
+  },
+  "belv": {
+    "name": "Boots of Quel'Thalas +6",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNBoots"
+  },
+  "bgst": {
+    "name": "Belt of Giant Strength +6",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNBelt"
+  },
+  "brac": {
+    "name": "Runed Bracers",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNRunedBracers"
+  },
+  "ciri": {
+    "name": "Robe of the Magi +6",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNRobeOfTheMagi"
+  },
+  "clfm": {
+    "name": "Cloak of Flames",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNCloakOfFlames"
+  },
+  "clsd": {
+    "name": "Cloak of Shadows",
+    "class": "Permanent",
+    "level": 1,
+    "icon": "BTNCloak"
+  },
+  "cnob": {
+    "name": "Circlet of Nobility",
+    "class": "Permanent",
+    "level": 2,
+    "icon": "BTNCirclet"
+  },
+  "crys": {
+    "name": "Crystal Ball",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNCrystalBall"
+  },
+  "evtl": {
+    "name": "Talisman of Evasion",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNTalisman"
+  },
+  "fgbd": {
+    "name": "Blue Drake Egg",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNAzureDragon"
+  },
+  "fgfh": {
+    "name": "Spiked Collar",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNFelHound"
+  },
+  "fgrg": {
+    "name": "Stone Token",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNRockGolem"
+  },
+  "fgsk": {
+    "name": "Book of the Dead",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNBookOfTheDead"
+  },
+  "gcel": {
+    "name": "Gloves of Haste",
+    "class": "Permanent",
+    "level": 2,
+    "icon": "BTNGlove"
+  },
+  "hcun": {
+    "name": "Hood of Cunning",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNHoodOfCunning"
+  },
+  "hlst": {
+    "name": "Health Stone",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNHealthStone"
+  },
+  "hval": {
+    "name": "Helm of Valor",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNHelmOfValor"
+  },
+  "iotw": {
+    "name": "Idol of the Wild",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNFurbolgTracker"
+  },
+  "kpin": {
+    "name": "Khadgar's Pipe of Insight",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNPipeOfInsight"
+  },
+  "lgdh": {
+    "name": "Legion Doom-Horn",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNHornOfDoom"
+  },
+  "lhst": {
+    "name": "The Lion Horn of Stormwind",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNLionHorn"
+  },
+  "manh": {
+    "name": "Manual of Health",
+    "class": "PowerUp",
+    "level": 1,
+    "icon": "BTNManual"
+  },
+  "mcou": {
+    "name": "Medallion of Courage",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNMedalionOfCourage"
+  },
+  "mnst": {
+    "name": "Mana Stone",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNManaStone"
+  },
+  "odef": {
+    "name": "Orb of Darkness",
+    "class": "Permanent",
+    "level": 6,
+    "icon": "BTNOrbOfDarkness"
+  },
+  "pdiv": {
+    "name": "Potion of Divinity",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNPotionOfDivinity"
+  },
+  "penr": {
+    "name": "Pendant of Energy",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNPendantOfEnergy"
+  },
+  "pghe": {
+    "name": "Potion of Greater Healing",
+    "class": "Charged",
+    "level": 3,
+    "icon": "BTNPotionGreen"
+  },
+  "pgma": {
+    "name": "Potion of Greater Mana",
+    "class": "Charged",
+    "level": 3,
+    "icon": "BTNPotionBlueBig"
+  },
+  "pmna": {
+    "name": "Pendant of Mana",
+    "class": "Permanent",
+    "level": 6,
+    "icon": "BTNPendantOfMana"
+  },
+  "pnvu": {
+    "name": "Potion of Invulnerability",
+    "class": "Charged",
+    "level": 3,
+    "icon": "BTNGreaterInvulneralbility"
+  },
+  "pres": {
+    "name": "Potion of Restoration",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNPotionOfRestoration"
+  },
+  "prvt": {
+    "name": "Periapt of Vitality",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNPeriapt"
+  },
+  "rag1": {
+    "name": "Slippers of Agility +3",
+    "class": "Permanent",
+    "level": 1,
+    "icon": "BTNSlippersOfAgility"
+  },
+  "ram4": {
+    "name": "Ring of the Archmagi",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNRingOfTheArchmagi"
+  },
+  "rat6": {
+    "name": "Claws of Attack +6",
+    "class": "Permanent",
+    "level": 2,
+    "icon": "BTNClawsOfAttack"
+  },
+  "rat9": {
+    "name": "Claws of Attack +9",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNClawsOfAttack"
+  },
+  "ratc": {
+    "name": "Claws of Attack +12",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNClawsOfAttack"
+  },
+  "rde1": {
+    "name": "Ring of Protection +2",
+    "class": "Permanent",
+    "level": 2,
+    "icon": "BTNRingGreen"
+  },
+  "rde2": {
+    "name": "Ring of Protection +3",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNRingGreen"
+  },
+  "rej3": {
+    "name": "Replenishment Potion",
+    "class": "Charged",
+    "level": 2,
+    "icon": "BTNRejuvPotion"
+  },
+  "rhth": {
+    "name": "Khadgar's Gem of Health",
+    "class": "Permanent",
+    "level": 6,
+    "icon": "BTNPeriapt1"
+  },
+  "rin1": {
+    "name": "Mantle of Intelligence +3",
+    "class": "Permanent",
+    "level": 1,
+    "icon": "BTNMantleOfIntelligence"
+  },
+  "rlif": {
+    "name": "Ring of Regeneration",
+    "class": "Permanent",
+    "level": 3,
+    "icon": "BTNRingSkull"
+  },
+  "rnsp": {
+    "name": "Ring of Superiority",
+    "class": "Permanent",
+    "level": 1,
+    "icon": "BTNRingGold"
+  },
+  "rst1": {
+    "name": "Gauntlets of Ogre Strength +3",
+    "class": "Permanent",
+    "level": 1,
+    "icon": "BTNGauntletsOfOgrePower"
+  },
+  "rwiz": {
+    "name": "Sobi Mask",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNSobiMask"
+  },
+  "sbch": {
+    "name": "Scourge Bone Chimes",
+    "class": "Permanent",
+    "level": 4,
+    "icon": "BTNBoneChimes"
+  },
+  "spsh": {
+    "name": "Amulet of Spell Shield",
+    "class": "Permanent",
+    "level": 6,
+    "icon": "BTNSpellShieldAmulet"
+  },
+  "sres": {
+    "name": "Scroll of Restoration",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNScrollOfHealing"
+  },
+  "sror": {
+    "name": "Scroll of the Beast",
+    "class": "Charged",
+    "level": 3,
+    "icon": "BTNSnazzyScrollGreen"
+  },
+  "ssil": {
+    "name": "Staff of Silence",
+    "class": "Permanent",
+    "level": 6,
+    "icon": "BTNStaffOfSilence"
+  },
+  "tdex": {
+    "name": "Tome of Agility",
+    "class": "PowerUp",
+    "level": 1,
+    "icon": "BTNTome"
+  },
+  "tdx2": {
+    "name": "Tome of Agility +2",
+    "class": "PowerUp",
+    "level": 2,
+    "icon": "BTNTome"
+  },
+  "tin2": {
+    "name": "Tome of Intelligence +2",
+    "class": "PowerUp",
+    "level": 2,
+    "icon": "BTNTome"
+  },
+  "tint": {
+    "name": "Tome of Intelligence",
+    "class": "PowerUp",
+    "level": 1,
+    "icon": "BTNTome"
+  },
+  "tpow": {
+    "name": "Tome of Knowledge",
+    "class": "PowerUp",
+    "level": 2,
+    "icon": "BTNTomeRed"
+  },
+  "tst2": {
+    "name": "Tome of Strength +2",
+    "class": "PowerUp",
+    "level": 2,
+    "icon": "BTNTome"
+  },
+  "tstr": {
+    "name": "Tome of Strength",
+    "class": "PowerUp",
+    "level": 1,
+    "icon": "BTNTome"
+  },
+  "ward": {
+    "name": "Warsong Battle Drums",
+    "class": "Permanent",
+    "level": 5,
+    "icon": "BTNDrum"
+  },
+  "wcyc": {
+    "name": "Wand of the Wind",
+    "class": "Charged",
+    "level": 4,
+    "icon": "BTNWandOfCyclone"
+  },
+  "whwd": {
+    "name": "Healing Wards",
+    "class": "Charged",
+    "level": 5,
+    "icon": "BTNHealingWard"
+  },
+  "will": {
+    "name": "Wand of Illusion",
+    "class": "Charged",
+    "level": 2,
+    "icon": "BTNWand"
+  },
+  "woms": {
+    "name": "Wand of Mana Stealing",
+    "class": "Charged",
+    "level": 3,
+    "icon": "BTNWandOfManaSteal"
+  },
+  "wswd": {
+    "name": "Sentry Wards",
+    "class": "Charged",
+    "level": 2,
+    "icon": "BTNSentryWard"
+  }
+}

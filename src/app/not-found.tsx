@@ -15,7 +15,7 @@ export default function NotFound() {
         <ButtonLink href="/" size="lg">
           Back to base
         </ButtonLink>
-        <ButtonLink href="/gnl/standings" variant="outline" size="lg">
+        <ButtonLink href="/gnl/standings" size="lg">
           View standings
         </ButtonLink>
       </div>

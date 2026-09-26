@@ -38,7 +38,7 @@ export function OverlayBeta({
         </span>
         <span className="mt-0.5 block text-sm text-muted">{text}</span>
       </span>
-      <ArrowRight size={18} className="shrink-0 text-muted transition-colors group-hover:text-gold" />
+      <ArrowRight size={20} className="shrink-0 text-muted transition-colors group-hover:text-gold" />
     </Link>
   );
 }

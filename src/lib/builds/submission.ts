@@ -1,6 +1,9 @@
 import { z } from "zod";
 import { BUILD_DIFFICULTIES, BUILD_RACES } from "./types";
 import { getGameIcon } from "./icons";
+import { slugFromInput } from "@/lib/creep-routes/submission";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
+import { isKnownPatch } from "@/lib/patches.mjs";
 
 /**
  * Validation for public build submissions. Shared shape between the client
@@ -35,7 +38,12 @@ export const submissionSchema = z.object({
   race: z.enum(raceIds, { error: "Pick your race" }),
   vsRaces: z.array(z.enum(raceIds)).max(4).transform((v) => [...new Set(v)]),
   difficulty: z.enum(difficultyIds, { error: "Pick a difficulty" }),
-  patch: z.string().trim().max(16, "Max 16 characters").optional(),
+  patch: z
+    .string()
+    .trim()
+    .optional()
+    .transform((v) => v || undefined)
+    .refine((v) => isKnownPatch(v), "Pick a patch from the list"),
   tags: z
     .string()
     .trim()
@@ -57,6 +65,26 @@ export const submissionSchema = z.object({
     .max(300)
     .optional()
     .refine((v) => !v || /^https?:\/\//.test(v), "Must start with http(s)://"),
+  /** A YouTube or Vimeo link showing the build played. Validated as
+   *  embeddable at submit time so an author is told now, rather than finding
+   *  a bare link on the page later. Separate from `sourceUrl`, which credits
+   *  a replay or post and stays a link. */
+  videoUrl: z
+    .string()
+    .trim()
+    .max(300)
+    .optional()
+    .refine((v) => !v || isEmbeddable(v), "Paste a YouTube or Vimeo link"),
+  /** Slug of the build this submission replaces. The site has no accounts,
+   *  so an author updating a build resubmits it and names the old one; a
+   *  coach approves the replacement and archives what it replaced, which
+   *  also means the change is reviewed rather than going live unseen. */
+  supersedes: z
+    .string()
+    .trim()
+    .max(300)
+    .optional()
+    .transform((v) => (v ? slugFromInput(v) : undefined)),
   description: z.string().trim().max(6000, "Max 6000 characters").optional(),
   steps: z.array(stepSchema).min(3, "Add at least three steps").max(60, "Max 60 steps"),
   /** Honeypot, must stay empty. */

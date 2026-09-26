@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlayCircle, Link as LinkIcon } from "lucide-react";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 import { DifficultyBadge, TagChip, VsRaces } from "./BuildBadges";
 import { BUILD_RACES, type BuildDifficulty, type BuildOrder } from "@/lib/builds/types";
 import { cn } from "@/lib/utils";
@@ -46,10 +47,25 @@ export function BuildRow({ build }: { build: BuildOrder }) {
           <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
             <span className="inline-flex items-center gap-1">
               <span className="text-faint">vs</span>
-              <VsRaces vsRaces={build.vsRaces} size={14} />
+              <VsRaces vsRaces={build.vsRaces} size={16} />
             </span>
             <span className="text-faint">·</span>
             <span>by {build.author}</span>
+            {/* Same signal as the creep route list: whether a build comes
+                with a video or a cited source is worth knowing before you
+                open it. */}
+            {build.videoUrl || isEmbeddable(build.sourceUrl) ? (
+              <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
+                <PlayCircle size={14} aria-hidden />
+                <span className="sr-only">Includes a video</span>
+              </span>
+            ) : null}
+            {build.sourceUrl ? (
+              <span className="inline-flex items-center gap-1 text-muted" title="Has a source link">
+                <LinkIcon size={14} aria-hidden />
+                <span className="sr-only">Has a source link</span>
+              </span>
+            ) : null}
             {build.tags.slice(0, 3).map((t) => (
               <TagChip key={t}>{t}</TagChip>
             ))}
@@ -67,7 +83,7 @@ export function BuildRow({ build }: { build: BuildOrder }) {
   );
 }
 
-/** Build of the week, one wide card with the race's showcase art behind it. */
+/** The featured build, one wide card with the race's showcase art behind it. */
 export function FeaturedBuild({ build }: { build: BuildOrder }) {
   return (
     <Link
@@ -94,7 +110,7 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
           className="size-20 object-contain drop-shadow-[0_10px_20px_rgba(0,0,0,.9)] sm:size-28"
         />
         <div className="min-w-0">
-          <p className="kicker">Build of the week</p>
+          <p className="kicker">Featured build</p>
           <h2 className="mt-2 text-[clamp(1.3rem,1rem+1.4vw,1.9rem)] font-bold leading-tight tracking-[0.05em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.9)]">
             {build.title}
           </h2>
@@ -103,12 +119,27 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
             <span className="inline-flex items-center gap-1.5">
               <span className="font-bold text-fg">{RACE_LABEL[build.race]}</span>
               <span className="text-faint">vs</span>
-              <VsRaces vsRaces={build.vsRaces} size={14} />
+              <VsRaces vsRaces={build.vsRaces} size={16} />
             </span>
             <DifficultyBadge level={build.difficulty} />
             <span>by {build.author}</span>
+            {/* Same signal as the creep route list: whether a build comes
+                with a video or a cited source is worth knowing before you
+                open it. */}
+            {build.videoUrl || isEmbeddable(build.sourceUrl) ? (
+              <span className="inline-flex items-center gap-1 text-gold" title="Includes a video">
+                <PlayCircle size={14} aria-hidden />
+                <span className="sr-only">Includes a video</span>
+              </span>
+            ) : null}
+            {build.sourceUrl ? (
+              <span className="inline-flex items-center gap-1 text-muted" title="Has a source link">
+                <LinkIcon size={14} aria-hidden />
+                <span className="sr-only">Has a source link</span>
+              </span>
+            ) : null}
             <span className="ml-auto inline-flex items-center gap-1 font-display text-[0.68rem] font-bold uppercase tracking-[0.14em] text-gold">
-              Open build <ArrowRight size={13} className="transition-transform group-hover:translate-x-0.5" />
+              Open build <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>
         </div>

@@ -3,9 +3,11 @@ export const W3C_HEROES: Record<string, { icon: string; label: string }> = {
   archmage: { icon: "hu-archmage", label: "Archmage" },
   paladin: { icon: "hu-paladin", label: "Paladin" },
   mountainking: { icon: "hu-mountain-king", label: "Mountain King" },
+  // W3Champions calls the Blood Mage "sorceror" (the hero's internal name);
+  // it is never the Sorceress unit, which is not a hero.
+  sorceror: { icon: "hu-blood-mage", label: "Blood Mage" },
   bloodmage: { icon: "hu-blood-mage", label: "Blood Mage" },
   forsakenpaladin: { icon: "hu-forsaken-paladin", label: "Forsaken Paladin" },
-  sorceror: { icon: "hu-sorceress", label: "Sorceress" },
   blademaster: { icon: "or-blademaster", label: "Blademaster" },
   farseer: { icon: "or-far-seer", label: "Far Seer" },
   taurenchieftain: { icon: "or-tauren-chieftain", label: "Tauren Chieftain" },

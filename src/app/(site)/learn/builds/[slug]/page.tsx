@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { metaDescription } from "@/lib/meta-description.mjs";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, BookOpen, ExternalLink } from "lucide-react";
+import { ArrowLeft, BookOpen, ExternalLink, PencilLine } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";
 import { ButtonLink } from "@/components/ui/Button";
@@ -13,10 +14,16 @@ import { DifficultyBadge, Matchup, TagChip } from "@/components/builds/BuildBadg
 import { BuildRow } from "@/components/builds/BuildRow";
 import { OverlayBeta } from "@/components/builds/OverlayBeta";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
-import { getBuildBySlug, getBuilds } from "@/lib/builds/builds";
+import { getBuildBySlug, getSupersedingBuildSlug, getBuilds } from "@/lib/builds/builds";
+import { buildEditHref } from "@/lib/builds/edit-link.mjs";
+import { VideoEmbed } from "@/components/ui/VideoEmbed";
+import { isEmbeddable } from "@/lib/video-embed.mjs";
 import { BUILD_RACES, vsLabel } from "@/lib/builds/types";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
+import { CREEP_ROUTES_LIVE } from "@/lib/flags";
+import { getRoutesForBuild } from "@/lib/creep-routes/routes";
+import { RouteRow } from "@/components/creep-routes/RouteRow";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -32,21 +39,22 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const race = BUILD_RACES.find((r) => r.id === build.race)?.label;
   const vs = build.vsRaces.length ? ` vs ${vsLabel(build.vsRaces)}` : "";
   const title = `${build.title}: ${race}${vs} build order`;
+  const description = metaDescription(build.summary);
   return {
     title,
-    description: build.summary,
+    description,
     alternates: { canonical: `/learn/builds/${build.slug}` },
     openGraph: {
       title,
-      description: build.summary,
+      description,
       type: "article",
       url: `/learn/builds/${build.slug}`,
       publishedTime: build.publishedAt,
       modifiedTime: build.updatedAt,
       authors: [build.author],
-      images: [{ url: `/factions/headers/${build.race}.webp`, width: 1600, height: 700 }],
+      // The share image is the generated card in opengraph-image.tsx.
     },
-    twitter: { card: "summary_large_image", title, description: build.summary },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -61,11 +69,24 @@ function isPortableText(v: unknown[]): v is Record<string, unknown>[] {
 export default async function BuildPage({ params }: Params) {
   const { slug } = await params;
   const build = await getBuildBySlug(slug);
-  if (!build) notFound();
+  const editHref = build ? buildEditHref(build) : undefined;
+  const videoUrl = build?.videoUrl ?? (isEmbeddable(build?.sourceUrl) ? build?.sourceUrl : undefined);
+
+  if (!build) {
+    // Archived and replaced: send readers to the current version rather than
+    // 404ing a link that is already out in Discord.
+    const successor = await getSupersedingBuildSlug(slug);
+    if (successor) redirect(`/learn/builds/${successor}`);
+    notFound();
+  }
 
   const related = (await getBuilds())
     .filter((b) => b.race === build.race && b.slug !== build.slug)
     .slice(0, 3);
+  // gaps.md #1: `getRoutesForBuild` already existed in the data layer but
+  // no page rendered its result — this build page had no link back to the
+  // creep routes that reference it.
+  const routes = CREEP_ROUTES_LIVE ? await getRoutesForBuild(build.slug) : [];
 
   return (
     <article>
@@ -100,16 +121,16 @@ export default async function BuildPage({ params }: Params) {
             href="/learn/builds"
             className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> All builds
+            <ArrowLeft size={17} /> All builds
           </Link>
           <div className="mt-5 flex flex-wrap items-center gap-x-4 gap-y-2">
-            <Matchup race={build.race} vsRaces={build.vsRaces} size={22} />
+            <Matchup race={build.race} vsRaces={build.vsRaces} size={24} />
             <DifficultyBadge level={build.difficulty} />
             {build.patch ? (
               <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {build.patch}</span>
             ) : null}
           </div>
-          <h1 className="mt-4 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
+          <h1 className="mt-4 max-w-4xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
             {build.title}
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-muted [text-shadow:0_1px_12px_rgba(0,0,0,.8)]">{build.summary}</p>
@@ -122,17 +143,38 @@ export default async function BuildPage({ params }: Params) {
               <span>· Maintained by <span className="text-muted">{build.maintainer}</span></span>
             ) : null}
             <span>· Updated {formatDate(build.updatedAt)}</span>
-            {build.sourceUrl ? (
-              <a
-                href={build.sourceUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-1 text-gold hover:underline"
-              >
-                Source <ExternalLink size={11} />
-              </a>
-            ) : null}
           </p>
+
+          {/* Actions, not metadata — the same change the route page got.
+              These were 13px links inside the faint byline, reading as small
+              print rather than something clickable, and too small a target on
+              a phone. They are the only two things a reader can *do* here.
+
+              "Suggest an update": no accounts, so nobody can edit in place.
+              This opens the submit form prefilled with this build and already
+              naming it as the one being replaced. Anyone may suggest one; a
+              coach decides. */}
+          {build.sourceUrl || editHref ? (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {editHref ? (
+                <ButtonLink href={editHref} variant="outline" size="sm" className="max-sm:w-auto">
+                  <PencilLine size={16} aria-hidden /> Suggest an update
+                </ButtonLink>
+              ) : null}
+              {build.sourceUrl ? (
+                <ButtonLink
+                  href={build.sourceUrl}
+                  variant="ghost"
+                  size="sm"
+                  className="max-sm:w-auto"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  Source <ExternalLink size={16} aria-hidden />
+                </ButtonLink>
+              ) : null}
+            </div>
+          ) : null}
           {build.tags.length ? (
             <div className="mt-4 flex flex-wrap gap-1.5">
               {build.tags.map((t) => (
@@ -153,7 +195,7 @@ export default async function BuildPage({ params }: Params) {
               href={`/learn/guide/${build.guide.slug}`}
               className="mb-5 flex items-center gap-3 rounded border border-gold/40 bg-gold/5 px-4 py-3 text-sm transition-colors hover:border-gold hover:bg-gold/10"
             >
-              <BookOpen size={18} className="shrink-0 text-gold" />
+              <BookOpen size={20} className="shrink-0 text-gold" />
               <span className="min-w-0">
                 <span className="block font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold">Full guide</span>
                 <span className="block truncate text-fg">{build.guide.title}</span>
@@ -174,7 +216,21 @@ export default async function BuildPage({ params }: Params) {
             )
           ) : (
             <p className="text-sm text-faint">No notes yet.</p>
-          )}        </section>
+          )}
+
+          {/* The build played out, under the notes in the same column so the
+              two share a left edge. Same rule as creep routes: an embeddable
+              Source counts as the video when no explicit one is set, so a
+              build whose author put a VOD in Source — the only field that
+              existed before this one — gains a player without being
+              resubmitted. */}
+          {videoUrl ? (
+            <div className="mt-8">
+              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Watch the build</h2>
+              <VideoEmbed url={videoUrl} title={`${build.title} — video`} />
+            </div>
+          ) : null}
+        </section>
 
         {/* Steps */}
         <section className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)] lg:self-start">
@@ -204,11 +260,22 @@ export default async function BuildPage({ params }: Params) {
               target="_blank"
               rel="noreferrer"
             >
-              <DiscordIcon size={15} /> Discuss on Discord
+              <DiscordIcon size={17} /> Discuss on Discord
             </ButtonLink>
           </div>
         </section>
       </Container>
+
+      {routes.length ? (
+        <Container className="pb-16">
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Creep routes for this build</h2>
+          <ul className="grid gap-3">
+            {routes.map((r) => (
+              <RouteRow key={r.slug} route={r} />
+            ))}
+          </ul>
+        </Container>
+      ) : null}
 
       {related.length ? (
         <Container className="pb-16">

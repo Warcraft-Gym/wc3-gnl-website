@@ -31,7 +31,7 @@ export function MatchupPicker({
   vsRace?: BuildVsRace;
   q?: string;
   difficulty?: BuildDifficulty;
-  sort: "title" | "updated";
+  sort: "title" | "updated" | "new";
   count: number;
 }) {
   const router = useRouter();
@@ -96,7 +96,7 @@ export function MatchupPicker({
       {/* Filter bar */}
       <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
         <label className="relative flex-1">
-          <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+          <Search size={17} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
           <input
             type="search"
             value={query}
@@ -120,9 +120,11 @@ export function MatchupPicker({
           <select
             aria-label="Sort"
             value={sort}
-            onChange={(e) => set({ sort: e.target.value === "title" ? undefined : e.target.value })}
+            // Newest is the default, so it carries no parameter.
+            onChange={(e) => set({ sort: e.target.value === "new" ? undefined : e.target.value })}
             className={cn(select, "flex-1 sm:flex-none")}
           >
+            <option value="new">Newest</option>
             <option value="updated">Recently updated</option>
             <option value="title">A–Z</option>
           </select>

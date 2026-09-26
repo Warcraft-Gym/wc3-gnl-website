@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Code2, Play } from "lucide-react";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
-import { DASHBOARD_URL, DISCORD_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";
+import { DISCORD_URL, GITHUB_ISSUES_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";
 import { Container } from "@/components/ui/Container";
 import { Wordmark } from "./Wordmark";
 import { KeyArt } from "@/components/ui/KeyArt";
@@ -31,7 +31,7 @@ export function SiteFooter() {
       <Container className="relative z-10 grid gap-10 py-14 md:grid-cols-[1.4fr_1fr_1fr]">
         <div>
           <Wordmark />
-          <p className="mt-4 max-w-xs text-sm text-muted">
+          <p className="balance mt-4 max-w-sm text-sm text-muted">
             Free Warcraft III guides and the Gym Newbie League, a community
             tournament for players who want to improve.
           </p>
@@ -45,7 +45,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="grid size-9 place-items-center rounded border border-line bg-surface/60 text-muted transition-colors hover:border-gold hover:text-gold"
               >
-                <Icon size={16} />
+                <Icon size={18} />
               </a>
             ))}
           </div>
@@ -70,11 +70,6 @@ export function SiteFooter() {
         <nav aria-label="Footer, community">
           <p className="kicker mb-4">Community</p>
           <ul className="space-y-2.5 text-sm">
-            <li>
-              <a href={DASHBOARD_URL} target="_blank" rel="noreferrer" className="text-muted hover:text-gold">
-                Player Dashboard
-              </a>
-            </li>
             <li>
               <Link href="/about" className="text-muted hover:text-gold">
                 About the Gym
@@ -115,7 +110,28 @@ export function SiteFooter() {
       </Container>
 
       <Container className="relative z-10 flex flex-col gap-2 border-t border-line/50 py-6 text-xs text-faint sm:flex-row sm:items-center sm:justify-between">
-        <p>© {new Date().getFullYear()} Warcraft 3 Gym. Community project.</p>
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
+          <p>© {new Date().getFullYear()} Warcraft 3 Gym. Community project.</p>
+          <nav aria-label="Footer, site">
+            <ul className="flex gap-4">
+              <li>
+                <Link href="/privacy" className="transition-colors hover:text-gold">
+                  Privacy
+                </Link>
+              </li>
+              <li>
+                <a
+                  href={GITHUB_ISSUES_URL}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="transition-colors hover:text-gold"
+                >
+                  Report a problem
+                </a>
+              </li>
+            </ul>
+          </nav>
+        </div>
         <p>
           Not affiliated with or endorsed by Blizzard Entertainment. Warcraft is a
           trademark of Blizzard Entertainment, Inc.

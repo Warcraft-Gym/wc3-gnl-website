@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { Container } from "@/components/ui/Container";
 import { ButtonLink } from "@/components/ui/Button";
@@ -49,10 +48,10 @@ export function Hero() {
 
         <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
           <ButtonLink href="/learn" size="lg">
-            Start Learning <ArrowRight size={18} />
+            Start Learning
           </ButtonLink>
           <ButtonLink href={DISCORD_URL} variant="discord" size="lg">
-            <DiscordIcon size={20} /> Join the Discord
+            <DiscordIcon size={22} /> Join the Discord
           </ButtonLink>
         </div>
 

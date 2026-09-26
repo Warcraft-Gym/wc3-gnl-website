@@ -10,6 +10,7 @@ import { OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
 
 export const metadata: Metadata = {
+  alternates: { canonical: "/tools/overlay" },
   title: "Build order overlay",
   description:
     "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",
@@ -66,7 +67,7 @@ function More({ title, children }: { title: string; children: React.ReactNode })
     <details className="group border-t border-line/60">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 [&::-webkit-details-marker]:hidden">
         <span className="font-display text-[0.95rem] font-bold uppercase tracking-[0.06em] text-fg transition-colors group-hover:text-gold">{title}</span>
-        <ChevronDown size={18} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
+        <ChevronDown size={20} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
       </summary>
       <div className="max-w-3xl pb-8 text-sm leading-6 text-muted">{children}</div>
     </details>
@@ -86,22 +87,22 @@ export default async function OverlayPage() {
       >
         {release?.windowsInstaller ? (
           <ButtonLink href={release.windowsInstaller} size="md">
-            <Download size={16} /> Windows installer
+            <Download size={18} /> Windows installer
           </ButtonLink>
         ) : null}
         {release?.windowsPortable ? (
-          <ButtonLink href={release.windowsPortable} variant="outline" size="md">
-            <Download size={16} /> Windows portable
+          <ButtonLink href={release.windowsPortable} size="md">
+            <Download size={18} /> Windows portable
           </ButtonLink>
         ) : null}
         {release?.macDmg ? (
-          <ButtonLink href={release.macDmg} variant="outline" size="md">
-            <Apple size={16} /> macOS
+          <ButtonLink href={release.macDmg} size="md">
+            <Apple size={18} /> macOS
           </ButtonLink>
         ) : null}
         {!release ? (
           <ButtonLink href={OVERLAY_RELEASES_URL} size="md" target="_blank" rel="noreferrer">
-            <Download size={16} /> Download from GitHub
+            <Download size={18} /> Download from GitHub
           </ButtonLink>
         ) : null}
       </PageHeader>
@@ -142,7 +143,7 @@ export default async function OverlayPage() {
         <ul className="mt-14 grid gap-4 sm:grid-cols-3">
           {POINTS.map(({ Icon, title, body }) => (
             <li key={title} className="panel p-5">
-              <Icon size={18} className="text-arcane" />
+              <Icon size={20} className="text-arcane" />
               <p className="mt-2 font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">{title}</p>
               <p className="mt-1 text-sm text-muted">{body}</p>
             </li>

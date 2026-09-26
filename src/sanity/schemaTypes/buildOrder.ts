@@ -1,5 +1,6 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
+import { PATCH_OPTIONS } from "../../lib/patches.mjs";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -74,7 +75,8 @@ export const buildOrder = defineType({
       name: "patch",
       type: "string",
       group: "meta",
-      description: "Game patch this was written for, e.g. 2.0.3",
+      description: "Balance patch this was written for. Leave blank if it is not patch-specific.",
+      options: { list: PATCH_OPTIONS },
       validation: (rule) => rule.max(16),
     }),
     defineField({
@@ -128,6 +130,26 @@ export const buildOrder = defineType({
       description: "The Learn guide this build was taken from; the two pages link to each other.",
     }),
     defineField({
+      name: "videoUrl",
+      title: "Video",
+      type: "url",
+      group: "meta",
+      description:
+        "A YouTube or Vimeo link showing the build played. Embedded on the page. " +
+        "Distinct from Source link, which credits where the build came from and stays a link.",
+    }),
+    defineField({
+      name: "supersedes",
+      title: "Replaces",
+      type: "reference",
+      to: [{ type: "buildOrder" }],
+      group: "meta",
+      description:
+        "The build this one replaces. Set automatically when an author resubmits an updated version, and shown on the " +
+        "older build so readers are sent to the current one. Approving the replacement is the moment to set the older " +
+        "build's Review to Archived.",
+    }),
+    defineField({
       name: "reviewStatus",
       title: "Review",
       type: "string",
@@ -136,13 +158,16 @@ export const buildOrder = defineType({
         list: [
           { title: "Pending review", value: "pending" },
           { title: "Approved", value: "approved" },
+          { title: "Archived", value: "archived" },
         ],
         layout: "radio",
         direction: "horizontal",
       },
       initialValue: "approved",
       description:
-        "Public submissions arrive as Pending. Set to Approved once a coach has checked the build; publishing is blocked until then.",
+        "Public submissions arrive as Pending. Set to Approved once a coach has checked the build; publishing is blocked " +
+        "until then. Archived hides it from the site without deleting it — use that to retract a build, or when a newer " +
+        "one supersedes it.",
       validation: (rule) =>
         rule.required().custom((value) =>
           value === "pending"
@@ -152,11 +177,12 @@ export const buildOrder = defineType({
     }),
     defineField({
       name: "featured",
-      title: "Build of the week",
+      title: "Show on homepage",
       type: "boolean",
       group: "meta",
       initialValue: false,
-      description: "Shown at the top of the build list. Only one should be on at a time.",
+      description:
+        "Shown as the featured build on the home page. Only one should be on at a time; with none on, the newest build is shown.",
     }),
     defineField({
       name: "publishedAt",
@@ -218,7 +244,42 @@ export const buildOrder = defineType({
       description: "The why: when to use it, transitions, what to watch for.",
       of: [
         defineArrayMember({ type: "block" }),
-        defineArrayMember({ type: "image" }),
+        defineArrayMember({
+          type: "image",
+          // Without this an editor has no way to describe a body image, so
+          // every one of them renders `alt=""` — announced to a screen
+          // reader as decorative, which for a diagram in a guide means the
+          // content simply is not there. Optional on purpose: a genuinely
+          // decorative image should keep an empty alt rather than be given
+          // filler text.
+          fields: [
+            defineField({
+              name: "alt",
+              type: "string",
+              title: "Alt text",
+              description:
+                "What the image shows, for screen readers and when it fails to load. Leave blank only if it is decorative.",
+            }),
+            defineField({
+              name: "display",
+              type: "string",
+              title: "Display size",
+              description:
+                "How wide to draw it. Automatic uses the image's own size, never upscaling — right for most pictures. Override when a screenshot should sit small, or an icon should be shown large.",
+              options: {
+                list: [
+                  { title: "Automatic (the image's own size)", value: "auto" },
+                  { title: "Icon — 64px", value: "icon" },
+                  { title: "Small — 200px", value: "small" },
+                  { title: "Medium — 420px", value: "medium" },
+                  { title: "Full width of the column", value: "full" },
+                ],
+                layout: "dropdown",
+              },
+              initialValue: "auto",
+            }),
+          ],
+        }),
         defineArrayMember({
           type: "object",
           name: "youtube",

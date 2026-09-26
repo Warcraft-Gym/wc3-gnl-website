@@ -70,7 +70,42 @@ export const post = defineType({
       type: "array",
       of: [
         defineArrayMember({ type: "block" }),
-        defineArrayMember({ type: "image" }),
+        defineArrayMember({
+          type: "image",
+          // Without this an editor has no way to describe a body image, so
+          // every one of them renders `alt=""` — announced to a screen
+          // reader as decorative, which for a diagram in a guide means the
+          // content simply is not there. Optional on purpose: a genuinely
+          // decorative image should keep an empty alt rather than be given
+          // filler text.
+          fields: [
+            defineField({
+              name: "alt",
+              type: "string",
+              title: "Alt text",
+              description:
+                "What the image shows, for screen readers and when it fails to load. Leave blank only if it is decorative.",
+            }),
+            defineField({
+              name: "display",
+              type: "string",
+              title: "Display size",
+              description:
+                "How wide to draw it. Automatic uses the image's own size, never upscaling — right for most pictures. Override when a screenshot should sit small, or an icon should be shown large.",
+              options: {
+                list: [
+                  { title: "Automatic (the image's own size)", value: "auto" },
+                  { title: "Icon — 64px", value: "icon" },
+                  { title: "Small — 200px", value: "small" },
+                  { title: "Medium — 420px", value: "medium" },
+                  { title: "Full width of the column", value: "full" },
+                ],
+                layout: "dropdown",
+              },
+              initialValue: "auto",
+            }),
+          ],
+        }),
         defineArrayMember({
           type: "object",
           name: "youtube",

@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/meta-description.mjs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ListOrdered } from "lucide-react";
 import { Container } from "@/components/ui/Container";
+import { KeyArt } from "@/components/ui/KeyArt";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { urlFor } from "@/sanity/image";
 import { GuideCard } from "@/components/learn/GuideCard";
@@ -13,6 +15,14 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
+
+/** The faction art for the four race categories; topics get the shared scene. */
+const RACE_ART: Partial<Record<string, string>> = {
+  human: "/factions/headers/human.webp",
+  "night-elf": "/factions/headers/nightelf.webp",
+  orc: "/factions/headers/orc.webp",
+  undead: "/factions/headers/undead.webp",
+};
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -35,20 +45,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const image = guide.coverImage
     ? urlFor(guide.coverImage).width(1200).height(630).fit("crop").auto("format").url()
     : undefined;
+  const description = metaDescription(guide.excerpt);
   return {
     title: category ? `${guide.title} (${category.title} guide)` : guide.title,
-    description: guide.excerpt,
+    description: description,
     alternates: { canonical: `/learn/guide/${guide.slug}` },
     openGraph: {
       type: "article",
       title: guide.title,
-      description: guide.excerpt,
+      description: description,
       url: `/learn/guide/${guide.slug}`,
       publishedTime: guide.publishedAt,
       section: category?.title,
       ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
     },
-    twitter: { card: "summary_large_image", title: guide.title, description: guide.excerpt },
+    twitter: { card: "summary_large_image", title: guide.title, description: description },
   };
 }
 
@@ -80,7 +91,7 @@ export default async function GuidePage({ params }: Params) {
         data={articleJsonLd({
           path: `/learn/guide/${guide.slug}`,
           title: guide.title,
-          description: guide.excerpt,
+          description: metaDescription(guide.excerpt) ?? guide.excerpt,
           publishedAt: guide.publishedAt,
           image: coverUrl,
           section: category?.title,
@@ -93,21 +104,20 @@ export default async function GuidePage({ params }: Params) {
           { name: guide.title, path: `/learn/guide/${guide.slug}` },
         ])}
       />
-      <div className="relative overflow-hidden border-b border-line/70">
+      {/* Masthead: a race guide runs its race art under the nav bar, like a
+          build page; a topic guide keeps the shared scene */}
+      <div className="keyart -mt-[var(--wg-chrome-h,var(--wg-header-h))]">
+        <KeyArt src={RACE_ART[guide.category] ?? "/keyart/feature-undead-city.webp"} position="center 30%" overlay="soft" priority />
         <div
           aria-hidden
-          className="pointer-events-none absolute inset-0 -z-10 opacity-50"
-          style={{
-            backgroundImage:
-              "radial-gradient(34rem 20rem at 82% -20%, var(--wg-gold-glow), transparent 60%)",
-          }}
+          className="pointer-events-none absolute inset-0 z-[1] bg-[linear-gradient(90deg,rgba(0,0,0,.85)_0%,rgba(0,0,0,.6)_50%,rgba(0,0,0,.2)_100%)]"
         />
-        <Container className="max-w-3xl py-14 sm:py-20">
+        <Container className="relative z-10 max-w-3xl pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
             href={category ? `/learn/${category.id}` : "/learn"}
             className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
-            <ArrowLeft size={15} /> {category ? category.title : "Learn"}
+            <ArrowLeft size={17} /> {category ? category.title : "Learn"}
           </Link>
           <div className="mb-4 flex items-center gap-2 font-mono text-[0.66rem] font-bold uppercase tracking-[0.16em]">
             <span className={cn("border px-1.5 py-0.5", LEVEL_TONE[guide.level])}>
@@ -115,7 +125,7 @@ export default async function GuidePage({ params }: Params) {
             </span>
             <span className="text-faint">{date}</span>
           </div>
-          <h1 className="text-[length:var(--wg-text-display)] font-extrabold">
+          <h1 className={cn("font-extrabold", guide.title.length > 26 ? "text-[length:clamp(1.9rem,1rem+2.4vw,2.9rem)]" : "text-[length:var(--wg-text-display)]")}>
             {guide.title}
           </h1>
           <p className="mt-5 text-lg text-muted">{guide.excerpt}</p>
@@ -137,7 +147,7 @@ export default async function GuidePage({ params }: Params) {
       {builds.length ? (
         <Container className="max-w-3xl pt-10">
           <p className="kicker mb-3 flex items-center gap-2">
-            <ListOrdered size={14} /> Play-along build order
+            <ListOrdered size={16} /> Play-along build order
           </p>
           <ul className="grid gap-2.5">
             {builds.map((b) => (

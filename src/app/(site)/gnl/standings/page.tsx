@@ -30,7 +30,7 @@ export default async function StandingsPage({ searchParams }: Props) {
   return (
     <>
       <PageHeader
-        kicker={`${season.shortName} · Ladder`}
+        kicker={`${season.shortName} · Table`}
         title="Standings"
         lead="Every solo series earns points for the team: 4 for a 2-0, 3 for a 2-1, and 1 even for a 1-2. The table is the sum of those points."
       />
