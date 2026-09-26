@@ -9,7 +9,10 @@ export const PRIMARY_NAV: NavItem[] = [
   // they live in LEARN_NAV below. Keeping them here too made the top bar
   // advertise three doors into the same room.
   { href: "/learn", label: "Learn" },
-  { href: "/gnl/schedule", label: "League" },
+  // The league's front door is what it is about, not this week's fixtures:
+  // someone clicking "League" for the first time needs to know what the GNL
+  // is before a schedule means anything. There is no bare /gnl index.
+  { href: "/gnl/about", label: "League" },
   { href: "/tools", label: "Tools" },
   { href: "/about", label: "About" },
 ];
@@ -28,6 +31,7 @@ export const LEARN_NAV: NavItem[] = [
 
 /** Secondary GNL section nav (rendered inside /gnl). */
 export const GNL_NAV: NavItem[] = [
+  { href: "/gnl/about", label: "About" },
   { href: "/gnl/schedule", label: "Schedule" },
   { href: "/gnl/standings", label: "Standings" },
   { href: "/gnl/teams", label: "Teams" },
@@ -35,5 +39,4 @@ export const GNL_NAV: NavItem[] = [
   ...(GNL_LADDER_LIVE ? [{ href: "/gnl/ladder", label: "Ladder" }] : []),
   { href: "/gnl/fantasy", label: "Fantasy" },
   { href: "/gnl/rules", label: "Rules" },
-  { href: "/gnl/about", label: "About" },
 ];

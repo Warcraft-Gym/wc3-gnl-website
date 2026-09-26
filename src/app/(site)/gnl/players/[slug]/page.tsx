@@ -266,7 +266,7 @@ export default async function PlayerPage({ params }: Params) {
       />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Gym Newbie League", path: "/gnl/schedule" },
+          { name: "Gym Newbie League", path: "/gnl/about" },
           { name: "Teams", path: "/gnl/teams" },
           { name: player.name, path },
         ])}

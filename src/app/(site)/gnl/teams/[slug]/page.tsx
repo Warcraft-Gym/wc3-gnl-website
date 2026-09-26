@@ -92,7 +92,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
       />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Gym Newbie League", path: "/gnl/schedule" },
+          { name: "Gym Newbie League", path: "/gnl/about" },
           { name: "Teams", path: "/gnl/teams" },
           { name: team.name, path: `/gnl/teams/${team.slug}` },
         ])}
