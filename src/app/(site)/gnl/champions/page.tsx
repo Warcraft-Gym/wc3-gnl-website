@@ -9,13 +9,34 @@ import { TeamPlate } from "@/components/league/VsBadge";
 import { PODIUM_PLACES, getChampions, type SeasonPodium } from "@/lib/gnl/champions";
 import type { StandingRow } from "@/lib/api/types";
 import { record } from "@/lib/figures.mjs";
+import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 
-export const metadata: Metadata = {
-  title: "GNL champions",
-  description:
-    "Every Gym Newbie League podium: the teams that finished first, second and third each season, with their captains, records and the write-up from the day.",
-  alternates: { canonical: "/gnl/champions" },
-};
+type Props = { searchParams: Promise<SeasonSearchParams> };
+
+const ALL_DESCRIPTION =
+  "Every Gym Newbie League podium: the teams that finished first, second and third each season, with their captains, records and the write-up from the day.";
+
+export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
+  // The season pill in the GNL sub-nav links here with `?season=N`, so the
+  // filtered view is a real page a reader can land on or share, and it says
+  // which season it is rather than inheriting the index's title.
+  const requested = parseSeasonParam((await searchParams).season);
+  const { champions } = await getChampions();
+  const one = requested ? champions.find((c) => c.season.number === requested) : undefined;
+
+  if (!one) {
+    return {
+      title: "GNL champions",
+      description: ALL_DESCRIPTION,
+      alternates: { canonical: "/gnl/champions" },
+    };
+  }
+  return {
+    title: `${one.season.shortName} champions`,
+    description: `${one.champion.team.name} won ${one.season.shortName} of the Gym Newbie League. The final podium, with records and the write-up from the day.`,
+    alternates: { canonical: `/gnl/champions?season=${one.season.number}` },
+  };
+}
 
 /** One step of a podium: the painted cup, the team crest, the record.
  *
@@ -123,19 +144,37 @@ function Podium({ entry, featured }: { entry: SeasonPodium; featured: boolean })
   );
 }
 
-export default async function ChampionsPage() {
+export default async function ChampionsPage({ searchParams }: Props) {
   const { champions, source } = await getChampions();
+
+  // An unknown or malformed season shows everything rather than an empty
+  // page — the same rule the other league pages follow for a bad param.
+  const requested = parseSeasonParam((await searchParams).season);
+  const one = requested ? champions.find((c) => c.season.number === requested) : undefined;
+  const shown = one ? [one] : champions;
 
   return (
     <>
       <PageHeader
         kicker="Gym Newbie League"
-        title="Champions"
-        lead="Every GNL podium, newest first. Nine seasons, nine trophies."
+        title={one ? `${one.season.shortName} champions` : "Champions"}
+        lead={
+          one
+            ? `${one.champion.team.name} took the title. The final podium for ${one.season.shortName}.`
+            : `Every GNL podium, newest first. ${champions.length} seasons, ${champions.length} trophies.`
+        }
       />
 
       <Container className="max-w-4xl py-10">
         <DataSourceNote source={source} />
+
+        {one ? (
+          <p className="mb-6">
+            <Link href="/gnl/champions" className="text-sm text-muted transition-colors hover:text-gold">
+              ← Every season
+            </Link>
+          </p>
+        ) : null}
 
         {champions.length === 0 ? (
           <p className="border border-dashed border-line px-5 py-10 text-center text-sm text-faint">
@@ -143,7 +182,7 @@ export default async function ChampionsPage() {
           </p>
         ) : (
           <div className="space-y-4">
-            {champions.map((entry, i) => (
+            {shown.map((entry, i) => (
               <Podium key={entry.season.number} entry={entry} featured={i === 0} />
             ))}
           </div>

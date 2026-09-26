@@ -74,6 +74,11 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
   // so switching lands on the section's index.
   const section = GNL_NAV.find((item) => pathname === item.href || pathname.startsWith(item.href + "/"))?.href ?? "/gnl/schedule";
   const latest = seasons[0];
+  // Everywhere else "no param" means the newest season, so the newest links
+  // carry none. The champions page is the exception: there, no param means
+  // *every* season, so dropping it would turn "show me GNL 18" into "show me
+  // all nine". Keep it there, and picking a season always filters.
+  const paramlessLatest = section !== "/gnl/champions";
 
   useEffect(() => {
     if (!open) return;
@@ -122,7 +127,7 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
               <Link
                 key={s.number}
                 role="menuitem"
-                href={withSeason(section, s.number === latest.number ? undefined : s.number)}
+                href={withSeason(section, s.number === latest.number && paramlessLatest ? undefined : s.number)}
                 onClick={() => setOpen(false)}
                 className={cn(
                   "flex items-center justify-between gap-3 rounded px-3 py-2 text-sm transition-colors",
