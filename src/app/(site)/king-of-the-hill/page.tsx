@@ -8,7 +8,8 @@ import { PortableBody } from "@/components/sanity/PortableBody";
 import { FALLBACK, getKothPage } from "@/lib/koth/page";
 import { getKothResults } from "@/lib/koth/results";
 import { groupByYear, shortDate } from "@/lib/koth/group-by-year";
-import { formatNextEvent, isPast } from "@/lib/koth/next-event.mjs";
+import { formatNextEvent, isPast } from "@/lib/koth/next-event";
+import { LocalEventTime } from "@/components/koth/LocalEventTime";
 
 export const metadata: Metadata = {
   title: "King of the Hill",
@@ -70,6 +71,10 @@ export default async function KingOfTheHillPage() {
                   </span>
                 ))}
               </p>
+              {/* Only the browser knows where the reader is. Renders nothing
+                  on the server, and nothing at all for a reader already in one
+                  of the three zones above. */}
+              <LocalEventTime iso={page!.nextEventAt!} />
             </>
           ) : (
             <p className="mt-4 text-muted">

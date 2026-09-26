@@ -49,3 +49,32 @@ export function formatNextEvent(iso) {
 
   return { day, times };
 }
+
+/** The zones already printed on the page. A visitor sitting in one of them
+ *  does not need to be told the same time twice. */
+export const LISTED_ZONES = ZONES.map((z) => z.tz);
+
+/** The event as one zone sees it: `{ day, time, zone }`, or null when the
+ *  date or the zone is unusable.
+ *
+ * `timeZone` comes from the browser, so it is untrusted input: an unknown or
+ * malformed IANA name makes `Intl` throw, and this runs during render.
+ */
+export function formatInZone(iso, timeZone) {
+  const t = Date.parse(iso);
+  if (Number.isNaN(t) || typeof timeZone !== "string" || !timeZone) return null;
+  const d = new Date(t);
+  try {
+    const day = new Intl.DateTimeFormat("en-GB", {
+      weekday: "long", day: "numeric", month: "long", timeZone,
+    }).format(d);
+    const time = new Intl.DateTimeFormat("en-GB", {
+      hour: "numeric", minute: "2-digit", hour12: true, timeZone,
+    }).format(d);
+    const parts = new Intl.DateTimeFormat("en-GB", { timeZoneName: "short", timeZone }).formatToParts(d);
+    const zone = parts.find((p) => p.type === "timeZoneName")?.value ?? "";
+    return { day, time, zone };
+  } catch {
+    return null;
+  }
+}

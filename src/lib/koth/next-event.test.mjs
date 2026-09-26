@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { formatNextEvent, isPast } from "./next-event.mjs";
+import { LISTED_ZONES, formatInZone, formatNextEvent, isPast } from "./next-event.mjs";
 
 const timeIn = (iso, label) => formatNextEvent(iso).times.find((t) => t.label === label).time;
 
@@ -64,4 +64,33 @@ test("isPast keeps a stale event from being advertised as next", () => {
   assert.equal(isPast("2020-01-01T00:00:00Z", new Date("2026-09-25T00:00:00Z")), true);
   assert.equal(isPast("2030-01-01T00:00:00Z", new Date("2026-09-25T00:00:00Z")), false);
   assert.equal(isPast("nonsense"), false, "an unparseable date is not 'past' — the page decides separately");
+});
+
+test("formatInZone renders the event as one zone sees it", () => {
+  const out = formatInZone("2026-09-26T18:00:00.000Z", "Asia/Tokyo");
+  // 18:00 UTC on Saturday is 03:00 Sunday in Tokyo — the day rolls over.
+  assert.equal(out.day, "Sunday 27 September", "en-GB omits the comma when there is no year");
+  assert.equal(out.time, "3:00 am");
+  assert.match(out.zone, /GMT\+9|JST/);
+});
+
+test("formatInZone agrees with the fixed list for a listed zone", () => {
+  const iso = "2026-09-26T18:00:00.000Z";
+  assert.equal(formatInZone(iso, "Europe/London").time, "7:00 pm");
+  assert.equal(formatInZone(iso, "America/New_York").time, "2:00 pm");
+});
+
+test("formatInZone survives a browser handing over a junk time zone", () => {
+  // Intl throws on an unknown IANA name, and this runs during render.
+  for (const tz of ["Not/AZone", "", null, undefined, "UTC+3"]) {
+    assert.equal(formatInZone("2026-09-26T18:00:00.000Z", tz), null, String(tz));
+  }
+});
+
+test("formatInZone rejects a bad date as well as a bad zone", () => {
+  assert.equal(formatInZone("nonsense", "Europe/London"), null);
+});
+
+test("LISTED_ZONES is the zones the page already prints", () => {
+  assert.deepEqual(LISTED_ZONES, ["Europe/London", "Europe/Berlin", "America/New_York"]);
 });
