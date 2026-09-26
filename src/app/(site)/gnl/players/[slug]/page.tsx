@@ -222,7 +222,7 @@ export default async function PlayerPage({ params }: Params) {
     .reduce((n, r) => ({ wins: n.wins + r.wins, losses: n.losses + r.losses }), { wins: 0, losses: 0 });
   const ladderWins = ladder.reduce((n, r) => n + r.wins, 0) + otherRecord.wins;
   const ladderLosses = ladder.reduce((n, r) => n + r.losses, 0) + otherRecord.losses;
-  const ladderGames = ladderWins + ladderLosses;
+  const ladderGames = ladderWins + ladderLosses; // the summary `games` spans two W3C seasons; wins and losses are one
   // The per-race split adds up only when every tag's season split is in.
   const ladderVsRace: VsRaceRecord = {};
   if ((!ladder.length || Object.keys(live?.vsRace ?? {}).length) && counted.length === others.length) {
@@ -363,7 +363,7 @@ export default async function PlayerPage({ params }: Params) {
                 {ladder.length || olderChips.length ? (
                   <div className="mt-4">
                     <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">
-                      <W3cMark size={13} className="opacity-70" /> Ladder games, season {ladderSeason}
+                      <W3cMark size={13} className="opacity-70" /> Ladder games{ladderSeason ? `, season ${ladderSeason}` : ""}
                     </p>
                     <RaceMmrChips races={[...ladder, ...olderChips]} main={main} />
                   </div>

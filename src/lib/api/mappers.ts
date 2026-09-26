@@ -45,7 +45,9 @@ export interface RawSeason {
   series_per_round?: number;
   series_per_week?: number;
   start_date?: string;
-  end_date?: string;
+  end_date?: string | null;
+  /** Set when an admin closed the event. */
+  closed_at?: string | null;
   /** e.g. "GNL", combined with the season number for the short name. */
   league_short_name?: string;
   /** Common event phase, e.g. "signups_open" | "running" | "finished". */
@@ -225,11 +227,11 @@ export function mapSeason(s: RawSeason): Season {
     shortName: shortSeasonName(s),
     number: seasonNumber(s),
     slug: slugify(s.name),
-    isActive: !isFinished(s),
+    isActive: s.phase ? !["complete", "finished"].includes(s.phase) : true,
     currentWeek,
     totalWeeks: total,
     startDate: s.start_date,
-    endDate: s.end_date,
+    endDate: s.end_date ?? undefined,
   };
 }
 
@@ -252,9 +254,10 @@ export function deriveWeeks(s: Season): Week[] {
 
 // --- players / teams ---
 
-/** A season that is over; a season with no phase is running. */
+/** The backend rule for a season that is over: closed, or its end date before today (UTC); the phase decides only when both fields are absent. */
 function isFinished(s: RawSeason): boolean {
-  return ["complete", "finished"].includes(s.phase ?? "");
+  if (s.closed_at === undefined && s.end_date === undefined) return s.phase === "finished";
+  return s.closed_at != null || (s.end_date != null && s.end_date.slice(0, 10) < new Date().toISOString().slice(0, 10));
 }
 
 /** Race codes W3Champions uses in ladder rows. */

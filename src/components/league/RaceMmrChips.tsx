@@ -10,7 +10,7 @@ import { RACES, cn, type Race } from "@/lib/utils";
  * too. A chip with a `tag` names the season of an MMR older than the others.
  * The caller renders nothing when the player has no ladder rows.
  */
-type LadderRace = Pick<W3cRaceStat, "race" | "mmr" | "games" | "wins" | "losses"> & { tag?: string };
+type LadderRace = Pick<W3cRaceStat, "race" | "mmr" | "wins" | "losses"> & { tag?: string };
 
 export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; main: Race | null }) {
   return (
@@ -20,7 +20,7 @@ export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; ma
         return (
           <li
             key={r.race}
-            title={`${RACES[r.race].label} · ${r.mmr} MMR · ${rec ?? "no games"} · ${r.games} games`}
+            title={`${RACES[r.race].label} · ${r.mmr} MMR · ${rec ?? "no games"}`}
             className={cn(
               "flex items-center gap-2 rounded border px-2.5 py-1.5",
               r.race === main ? "border-gold/50 bg-gold/5" : "border-line",
