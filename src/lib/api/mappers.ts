@@ -85,16 +85,20 @@ export interface RawPlayer {
   main_race?: string | null;
   /** The MMR the player entered a finished event with; roster reads only. */
   mmr_entered?: number | null;
-  /** `games`, `wins` and `losses` count best-of-three series, not games. */
-  gnl_stats?: Array<{
-    season_id?: number;
-    team_id?: number;
-    games?: number;
-    wins?: number;
-    losses?: number;
-    /** The opponent race of each completed series, one entry per series. */
-    matchup_history?: string[];
-  }>;
+  /** The record of this player in the event of an embedded read; null when they have none. */
+  record?: RawRecord | null;
+  /** One entry per roster season on the single player read. */
+  gnl_stats?: RawRecord[];
+}
+/** `games`, `wins` and `losses` count best-of-three series, not games. */
+export interface RawRecord {
+  season_id?: number;
+  team_id?: number;
+  games?: number;
+  wins?: number;
+  losses?: number;
+  /** The opponent race of each completed series, one entry per series. */
+  matchup_history?: string[];
 }
 export interface RawTag {
   id: number;
@@ -293,7 +297,7 @@ function mapPlayer(
   seasonId?: number,
   event?: "running" | "finished",
 ): Player {
-  const stat = seasonId != null ? p.gnl_stats?.find((r) => r.season_id === seasonId) : undefined;
+  const stat = seasonId != null && p.record?.season_id === seasonId ? p.record : undefined;
   return {
     id: p.id,
     name: p.name,
