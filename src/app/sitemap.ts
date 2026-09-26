@@ -60,6 +60,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/gnl/schedule", 0.8, "daily"),
     page("/gnl/standings", 0.8, "daily"),
     page("/gnl/teams", 0.7, "weekly"),
+    page("/gnl/champions", 0.6, "monthly"),
     ...(GNL_LADDER_LIVE ? [page("/gnl/ladder", 0.6, "daily")] : []),
     page("/gnl/fantasy", 0.5, "weekly"),
   ];
