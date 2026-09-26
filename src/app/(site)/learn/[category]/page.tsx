@@ -35,7 +35,15 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title,
     description: `${cat.blurb} Free Warcraft III ${cat.title} guides from the Gym coaches.`,
     alternates: { canonical: `/learn/${cat.id}` },
-    openGraph: { title: `${title} · Warcraft 3 Gym`, description: cat.blurb, url: `/learn/${cat.id}` },
+    openGraph: {
+      title: `${title} · Warcraft 3 Gym`,
+      description: cat.blurb,
+      url: `/learn/${cat.id}`,
+      // Declaring `openGraph` at all replaces the root object, and this
+      // segment has no `opengraph-image` route of its own — so without this
+      // line these pages ship no share image whatsoever.
+      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
+    },
   };
 }
 

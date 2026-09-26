@@ -28,6 +28,7 @@ import { BUILD_RACES } from "@/lib/builds/types";
 import { getBuildBySlug } from "@/lib/builds/builds";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
+import { metaDescription } from "@/lib/meta-description.mjs";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -43,21 +44,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   if (!route) return { title: "Creep route not found" };
   const race = BUILD_RACES.find((r) => r.id === route.race)?.label;
   const title = `${route.title}: ${race} creep route on ${route.map.name}`;
+  const description = metaDescription(route.summary);
   return {
     title,
-    description: route.summary,
+    description,
     alternates: { canonical: `/learn/creep-routes/${route.slug}` },
     openGraph: {
       title,
-      description: route.summary,
+      description,
       type: "article",
       url: `/learn/creep-routes/${route.slug}`,
       publishedTime: route.publishedAt,
       modifiedTime: route.updatedAt,
       authors: [route.author],
-      images: [{ url: `/factions/headers/${route.race}.webp`, width: 1600, height: 700 }],
     },
-    twitter: { card: "summary_large_image", title, description: route.summary },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

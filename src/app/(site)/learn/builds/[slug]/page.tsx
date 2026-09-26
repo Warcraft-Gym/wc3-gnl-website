@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/meta-description.mjs";
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, BookOpen, ExternalLink, PencilLine } from "lucide-react";
@@ -38,13 +39,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const race = BUILD_RACES.find((r) => r.id === build.race)?.label;
   const vs = build.vsRaces.length ? ` vs ${vsLabel(build.vsRaces)}` : "";
   const title = `${build.title}: ${race}${vs} build order`;
+  const description = metaDescription(build.summary);
   return {
     title,
-    description: build.summary,
+    description,
     alternates: { canonical: `/learn/builds/${build.slug}` },
     openGraph: {
       title,
-      description: build.summary,
+      description,
       type: "article",
       url: `/learn/builds/${build.slug}`,
       publishedTime: build.publishedAt,
@@ -52,7 +54,7 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
       authors: [build.author],
       // The share image is the generated card in opengraph-image.tsx.
     },
-    twitter: { card: "summary_large_image", title, description: build.summary },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 

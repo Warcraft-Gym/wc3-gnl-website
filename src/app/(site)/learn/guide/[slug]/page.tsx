@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/meta-description.mjs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, ListOrdered } from "lucide-react";
@@ -44,20 +45,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const image = guide.coverImage
     ? urlFor(guide.coverImage).width(1200).height(630).fit("crop").auto("format").url()
     : undefined;
+  const description = metaDescription(guide.excerpt);
   return {
     title: category ? `${guide.title} (${category.title} guide)` : guide.title,
-    description: guide.excerpt,
+    description: description,
     alternates: { canonical: `/learn/guide/${guide.slug}` },
     openGraph: {
       type: "article",
       title: guide.title,
-      description: guide.excerpt,
+      description: description,
       url: `/learn/guide/${guide.slug}`,
       publishedTime: guide.publishedAt,
       section: category?.title,
       ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
     },
-    twitter: { card: "summary_large_image", title: guide.title, description: guide.excerpt },
+    twitter: { card: "summary_large_image", title: guide.title, description: description },
   };
 }
 
@@ -89,7 +91,7 @@ export default async function GuidePage({ params }: Params) {
         data={articleJsonLd({
           path: `/learn/guide/${guide.slug}`,
           title: guide.title,
-          description: guide.excerpt,
+          description: metaDescription(guide.excerpt) ?? guide.excerpt,
           publishedAt: guide.publishedAt,
           image: coverUrl,
           section: category?.title,

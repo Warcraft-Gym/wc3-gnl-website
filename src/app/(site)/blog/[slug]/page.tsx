@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { metaDescription } from "@/lib/meta-description.mjs";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
@@ -29,20 +30,21 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Post not found" };
+  const description = metaDescription(post.excerpt);
   return {
     title: post.title,
-    description: post.excerpt,
+    description: description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description: description,
       type: "article",
       url: `/blog/${post.slug}`,
       publishedTime: post.publishedAt,
       authors: [post.author],
       images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
     },
-    twitter: { card: "summary_large_image", title: post.title, description: post.excerpt },
+    twitter: { card: "summary_large_image", title: post.title, description: description },
   };
 }
 
@@ -66,7 +68,7 @@ export default async function PostPage({ params }: Params) {
         data={articleJsonLd({
           path: `/blog/${post.slug}`,
           title: post.title,
-          description: post.excerpt,
+          description: metaDescription(post.excerpt) ?? post.excerpt,
           publishedAt: post.publishedAt,
           author: post.author,
           image: post.coverImageUrl,
