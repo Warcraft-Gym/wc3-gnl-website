@@ -80,8 +80,16 @@ export default async function BuildsPage({
       />
 
       <Container className="py-10">
-        {/* Submit CTA */}
-        <div className="panel relative overflow-hidden border-gold/40 p-6 sm:p-8">
+        {/* `#builds` is where a race page's "Undead build orders" button lands.
+            It sits on the submit panel rather than the filters below it, so
+            the jump keeps "Submit a build" on screen: someone arriving with a
+            race preselected is the most likely person to have one to add.
+            `scroll-mt` clears the header and the Learn sub-nav, which are
+            sticky and would otherwise cover it. */}
+        <div
+          id="builds"
+          className="panel relative overflow-hidden border-gold/40 p-6 scroll-mt-[calc(var(--wg-chrome-h,var(--wg-header-h))+1rem)] sm:p-8"
+        >
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-70"

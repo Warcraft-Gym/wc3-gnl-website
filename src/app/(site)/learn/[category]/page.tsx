@@ -65,7 +65,9 @@ export default async function LearnCategoryPage({ params }: Params) {
   // Race pages also surface that race's build orders, pre-filtered.
   const race = cat.kind === "race" && cat.race && cat.race !== "random" ? cat.race : undefined;
   const builds = race ? filterBuilds(await getBuilds(), { race }).slice(0, 4) : [];
-  const buildsHref = race ? `/learn/builds?race=${race}` : "/learn/builds";
+  // With a race preselected, jump to the filtered list rather than the top
+  // of a page whose first screen is about submitting a build.
+  const buildsHref = race ? `/learn/builds?race=${race}#builds` : "/learn/builds";
 
   return (
     <>
