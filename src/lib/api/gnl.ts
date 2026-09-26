@@ -197,7 +197,7 @@ export async function getTeams(seasonNumber?: number): Promise<{ teams: Team[]; 
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
       const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
-      return mapTeams(teams, s.id);
+      return mapTeams(teams, s);
     },
     () => FIXTURE_TEAMS,
     "getTeams",
@@ -242,7 +242,7 @@ export async function getTeamPage(
         apiGetAll<RawSeries>(`/events/${raw.id}/series`),
       ]);
       const fixtures = mapFixtures(series);
-      const team = mapTeams(teams, raw.id).find((t) => t.slug === slug);
+      const team = mapTeams(teams, raw).find((t) => t.slug === slug);
       if (!team) return null;
       return {
         team,
@@ -354,7 +354,7 @@ export async function getPlayers(seasonNumber?: number): Promise<{
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
       const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
-      return flattenPlayers(mapTeams(teams, s.id));
+      return flattenPlayers(mapTeams(teams, s));
     },
     () => FIXTURE_PLAYERS,
     "getPlayers",

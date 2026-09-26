@@ -21,7 +21,6 @@ import { W3cMark } from "@/components/ui/W3cMark";
 import { W3C_HEROES } from "@/lib/w3c-heroes";
 import type { VsRaceRecord } from "@/lib/w3c";
 import { record, resultLabel, signed } from "@/lib/figures.mjs";
-import { mainRace } from "@/lib/races.mjs";
 import { cn, RACES } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo";
@@ -182,7 +181,7 @@ function Compare({
 export default async function PlayerPage({ params }: Params) {
   const { slug } = await params;
   const { profile, path } = await loadProfile(slug);
-  const { player, team, isCaptain, captainOnly, latestSeason, history, allTime, w3c, career } = profile;
+  const { player, team, isCaptain, captainOnly, latestSeason, history, allTime, w3c, mainRace: main, career } = profile;
   // Every tag of the person, the active one first. Each other tag costs two
   // W3Champions reads: its last games and its season split.
   const tags = player.tags?.length ? player.tags : player.battleTag ? [player.battleTag] : [];
@@ -193,31 +192,27 @@ export default async function PlayerPage({ params }: Params) {
     Promise.all(otherTags.map(getW3cTagGames)),
   ]);
   const w3cUrl = player.battleTag ? w3cPlayerUrl(player.battleTag) : undefined;
-  // Every ladder race, best MMR first. The rows and the season name come from
-  // the same source, so a count never carries another season's number.
+  // Every ladder race of one season, best MMR first. The rows and the season
+  // name come from the same source, so a count never carries another season's number.
   const liveLadder = live?.ladder.length ? live.ladder : undefined;
-  const ladder = [
-    ...(liveLadder ??
-      w3c.map((r) => ({ race: r.race, mmr: r.mmr, league: "", division: 0, rank: 0, games: r.games, wins: r.wins, losses: r.losses }))),
-  ].sort((a, b) => b.mmr - a.mmr);
-  const ladderSeason = (liveLadder ? live?.season : w3c[0]?.season) ?? others[0]?.season;
+  const synced = w3c.filter((r) => !r.stale);
+  const syncedSeason = synced.length ? Math.max(...synced.map((r) => r.season)) : undefined;
+  const ladderSeason = (liveLadder ? live?.season : syncedSeason) ?? others[0]?.season;
+  const ladder = [...(liveLadder ?? synced.filter((r) => r.season === ladderSeason))].sort((a, b) => b.mmr - a.mmr);
+  // A race with no row in that season keeps a chip tagged with the season of its MMR.
+  const olderChips = w3c
+    .filter((r) => !ladder.some((l) => l.race === r.race))
+    .map((r) => ({ ...r, tag: `S${r.season}` }));
   const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
   const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-  // One definition of the main race for the masthead art, the large icon, the
-  // bold chip and the first line of the chart. The headline MMR tile falls to
-  // the first ladder row, which is the highest MMR.
-  const main = mainRace(ladder);
+  // The backend main race picks the masthead art, the large icon, the bold chip
+  // and the first line of the chart. The headline MMR tile falls to the first
+  // ladder row, which is the highest MMR.
   const mainLadder = ladder.find((r) => r.race === main) ?? ladder[0];
   // One entry per ladder race; a race with no timeline keeps its row and
   // draws no line.
   const mmrLines: MmrLine[] = ladder.map((r) => ({
-    race: r.race,
-    mmr: r.mmr,
-    league: r.league,
-    division: r.division,
-    rank: r.rank,
-    wins: r.wins,
-    losses: r.losses,
+    ...r,
     points: live?.timelines.find((t) => t.race === r.race)?.points ?? [],
   }));
   // Ladder totals add up every tag with a season record; MMR stays the active tag's.
@@ -227,7 +222,7 @@ export default async function PlayerPage({ params }: Params) {
     .reduce((n, r) => ({ wins: n.wins + r.wins, losses: n.losses + r.losses }), { wins: 0, losses: 0 });
   const ladderWins = ladder.reduce((n, r) => n + r.wins, 0) + otherRecord.wins;
   const ladderLosses = ladder.reduce((n, r) => n + r.losses, 0) + otherRecord.losses;
-  const ladderGames = ladder.reduce((n, r) => n + r.games, 0) + otherRecord.wins + otherRecord.losses;
+  const ladderGames = ladderWins + ladderLosses;
   // The per-race split adds up only when every tag's season split is in.
   const ladderVsRace: VsRaceRecord = {};
   if ((!ladder.length || Object.keys(live?.vsRace ?? {}).length) && counted.length === others.length) {
@@ -365,12 +360,12 @@ export default async function PlayerPage({ params }: Params) {
                 {noAccount ? <p className="mt-2 text-sm text-muted">No ladder account on record</p> : null}
                 {/* One chip per ladder race, so no surface reduces the player
                     to one MMR without naming its race. */}
-                {ladder.length ? (
+                {ladder.length || olderChips.length ? (
                   <div className="mt-4">
                     <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">
                       <W3cMark size={13} className="opacity-70" /> Ladder games, season {ladderSeason}
                     </p>
-                    <RaceMmrChips races={ladder} main={main} />
+                    <RaceMmrChips races={[...ladder, ...olderChips]} main={main} />
                   </div>
                 ) : null}
               </div>

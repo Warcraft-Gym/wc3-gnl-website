@@ -17,7 +17,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 |---|---|
 | Colour tokens | `src/app/globals.css` |
 | `record()`, `rate()`, `signed()`, `resultLabel()` | `src/lib/figures.mjs`, tested by `src/lib/figures.test.mjs` |
-| `mainRace()` | `src/lib/races.mjs`, tested by `src/lib/races.test.mjs` |
+| The MMR summary read: `currentMmr()`, `currentW3cRows()` | `src/lib/api/mappers.ts` |
 | `vsRaceOfSeason()`, the ladder season split | `src/lib/w3c-vs-race.mjs`, tested by `src/lib/w3c-vs-race.test.mjs` |
 | Race names and icon paths | `RACES` in `src/lib/utils.ts` |
 | Ladder band: the race rows and the MMR chart | `src/components/league/MmrChart.tsx` |
@@ -61,15 +61,15 @@ A player is not one race. The league data holds four different race facts, and e
 
 | Race fact | Source | Where it shows |
 |---|---|---|
-| Ladder races | `w3c_stats`: one row per race per W3Champions season, with MMR, games, wins and losses | `PlayerProfile.w3c` and the live ladder rows of the player page: the race MMR chips and the ladder band, whose race rows select the line of the MMR chart |
+| Ladder races | `race_mmrs`: the backend summary, one entry per race over the current and previous W3Champions seasons, with its season, MMR, games, wins and losses; a race last played before them is flagged stale | `PlayerProfile.w3c` and the live ladder rows of the player page: the race MMR chips and the ladder band, whose race rows select the line of the MMR chart |
 | Signup race | `signup_race`: the race of one player in one season. A player may sign up with another race next season. | `Player.race` and `Player.mmr`: the race badge and the MMR of a roster row, always beside their season |
 | Played race | The race a player picked in one series | The series row, beside that series only |
 | Profile race | `race`: one value per player, a legacy field of the backend | Nowhere. This site does not read it. |
 
 - No surface treats a race as a fixed property of a player. A race always belongs to a ladder season, a league season or a series.
 - A season row with no signup race carries no race: it shows no badge and no icon, and it stands outside the race make-up bar of its team and the count beside it.
-- The player page holds every ladder race with games in the newest W3Champions season that has rows, sorted by MMR from high to low. A roster row holds one race and one MMR, both of the signup race of its season. No surface prints an MMR without the race it belongs to, with one exception: an MMR typed in by hand for a player with no ladder rows.
-- The main race is a display choice, not a data fact. `mainRace()` picks the race with the highest MMR among ladder races with ten or more games, and answers nothing when no race reaches ten games.
+- The player page holds every ladder race with games in the newest W3Champions season that has rows, sorted by MMR from high to low. Any other race of the summary follows as a chip tagged with the season of its MMR, for example "S23". A roster row holds one race and one MMR, both of the signup race of its season: the MMR the player entered a finished season with, a dash when there is none, and the live MMR on a running season. No surface prints an MMR without the race it belongs to.
+- The main race is a display choice, not a data fact. The backend `main_race` is the race with the highest MMR among window races with ten or more games, and is null when no race reaches ten games.
 - The main race selects the masthead art and the large icon of the player page, the bold race chip and the first selected line of the MMR chart. It never hides another race.
 - With no main race the player page is neutral: the shared scene as masthead art, no large race icon, no bold chip. It never picks a scene at random, because a race scene states a race.
 - The player page shows one chip per ladder race: icon, MMR and the record. The record is printed, not hidden in a tooltip, so touch and keyboard readers get it too. The headline MMR tile is the first ladder row, the highest MMR, and names its race: "W3C MMR · Orc".

@@ -10,9 +10,9 @@ import { RACES, cn, type Race } from "@/lib/utils";
 export type MmrLine = {
   race: Race;
   mmr: number;
-  league: string;
-  division: number;
-  rank: number;
+  league?: string;
+  division?: number;
+  rank?: number;
   wins: number;
   losses: number;
   points: W3cTimelinePoint[];

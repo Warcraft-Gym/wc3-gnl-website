@@ -7,9 +7,10 @@ import { RACES, cn, type Race } from "@/lib/utils";
  * One chip per ladder race: the race icon, its MMR and its record. The main
  * race is bold, and with no main race no chip is bold. The record is printed,
  * not hidden in a tooltip, so a reader on a touch screen or a keyboard gets it
- * too. The caller renders nothing when the player has no ladder rows.
+ * too. A chip with a `tag` names the season of an MMR older than the others.
+ * The caller renders nothing when the player has no ladder rows.
  */
-type LadderRace = Pick<W3cRaceStat, "race" | "mmr" | "games" | "wins" | "losses">;
+type LadderRace = Pick<W3cRaceStat, "race" | "mmr" | "games" | "wins" | "losses"> & { tag?: string };
 
 export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; main: Race | null }) {
   return (
@@ -28,6 +29,7 @@ export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; ma
             <RaceIcon race={r.race} size={22} />
             <span className={cn("tnum text-sm", r.race === main ? "font-bold text-gold" : "text-fg")}>{r.mmr}</span>
             <span className="tnum text-xs text-faint">{rec ?? "—"}</span>
+            {r.tag ? <span className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{r.tag}</span> : null}
           </li>
         );
       })}
