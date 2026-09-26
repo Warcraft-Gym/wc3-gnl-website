@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
-import { Crown, ExternalLink } from "lucide-react";
+import { ChevronDown, Crown, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { ButtonLink } from "@/components/ui/Button";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { FALLBACK, getKothPage } from "@/lib/koth/page";
+import { getKothResults } from "@/lib/koth/results";
+import { groupByYear, shortDate } from "@/lib/koth/group-by-year";
 import { formatNextEvent, isPast } from "@/lib/koth/next-event.mjs";
 
 export const metadata: Metadata = {
@@ -31,7 +33,9 @@ function Bullets({ items }: { items: readonly string[] }) {
 }
 
 export default async function KingOfTheHillPage() {
-  const page = await getKothPage();
+  const [page, results] = await Promise.all([getKothPage(), getKothResults()]);
+  const years = groupByYear(results);
+  const crownings = years.reduce((n, y) => n + y.crownings, 0);
 
   const intro = page?.intro || FALLBACK.intro;
   const streamUrl = page?.streamUrl || FALLBACK.streamUrl;
@@ -130,6 +134,57 @@ export default async function KingOfTheHillPage() {
             </p>
           ) : null}
         </Surface>
+
+        {/* Past winners. Five years is too long for one list, so each year is
+            a <details> — the newest open, the rest a click away. No JavaScript:
+            the browser does the disclosure. */}
+        {years.length ? (
+          <Surface className="p-6 sm:p-8">
+            <h2 className="font-display text-xl font-bold uppercase">Past winners</h2>
+            <p className="mt-2 text-sm text-muted">
+              {crownings} crowns across {results.length} events, from{" "}
+              {shortDate(results[results.length - 1].date)} {years[years.length - 1].year} to{" "}
+              {shortDate(results[0].date)} {years[0].year}.
+            </p>
+
+            <div className="mt-6 space-y-2">
+              {years.map((y, i) => (
+                <details key={y.year} open={i === 0} className="group border border-line bg-surface/40">
+                  <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-2/50 [&::-webkit-details-marker]:hidden">
+                    <span className="font-display text-base font-bold uppercase tracking-[0.06em] text-fg">{y.year}</span>
+                    <span className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint">
+                      {y.results.length} {y.results.length === 1 ? "event" : "events"} · {y.crownings} crowned
+                      <ChevronDown size={14} className="ml-2 inline align-[-2px] transition-transform group-open:rotate-180" />
+                    </span>
+                  </summary>
+                  <ul className="border-t border-line/60">
+                    {y.results.map((r) => (
+                      <li
+                        key={r.date}
+                        className="flex flex-col gap-1.5 border-b border-line/40 px-4 py-2.5 last:border-0 sm:flex-row sm:items-baseline sm:gap-4"
+                      >
+                        <span className="w-16 shrink-0 font-mono text-xs text-faint">{shortDate(r.date)}</span>
+                        {r.winners.length ? (
+                          <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
+                            {r.winners.map((w) => (
+                              <span key={`${w.bracket}-${w.player}`} className="text-sm">
+                                <Crown size={12} className="mr-1.5 inline align-[-1px] text-gold/70" aria-hidden />
+                                <span className="text-fg">{w.player}</span>{" "}
+                                <span className="text-faint">{w.bracket}</span>
+                              </span>
+                            ))}
+                          </span>
+                        ) : (
+                          <span className="text-sm text-faint">Winners were not recorded.</span>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </details>
+              ))}
+            </div>
+          </Surface>
+        ) : null}
       </Container>
     </>
   );

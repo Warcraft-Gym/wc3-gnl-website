@@ -44,6 +44,7 @@ const PATHS: Record<string, (slug?: string) => string[]> = {
   // KotH page left the page it renders stale until the ISR window rolled.
   gnlRules: () => ["/gnl/rules"],
   kothPage: () => ["/king-of-the-hill", "/"],
+  kothResult: () => ["/king-of-the-hill"],
   guide: (slug) => ["/learn", ...(slug ? [`/learn/guide/${slug}`] : []), "/"],
   creepRoute: (slug) => [
     "/learn/creep-routes",

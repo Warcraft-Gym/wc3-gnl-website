@@ -86,4 +86,12 @@ export const structure: StructureResolver = (S) =>
       S.listItem()
         .title("King of the Hill")
         .child(S.document().schemaType("kothPage").documentId("kothPage").title("King of the Hill")),
+      // The results are a collection, newest first: one small document a week.
+      S.listItem()
+        .title("KotH results")
+        .child(
+          S.documentTypeList("kothResult")
+            .title("KotH results")
+            .defaultOrdering([{ field: "date", direction: "desc" }]),
+        ),
     ]);
