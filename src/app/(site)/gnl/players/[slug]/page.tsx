@@ -13,14 +13,11 @@ import { findPlayerBySlug, getPlayerProfile } from "@/lib/api/gnl";
 import { parsePlayerParam, playerPath } from "@/lib/slug.mjs";
 import { getW3cProfile, getW3cTagGames, w3cPlayerUrl } from "@/lib/w3c";
 import { playedAsNote } from "@/lib/tags.mjs";
-import { MmrChart, type MmrLine } from "@/components/league/MmrChart";
 import { RaceMmrChips } from "@/components/league/RaceMmrChips";
-import { GameIcon } from "@/components/builds/GameIcon";
 import { Flag } from "@/components/ui/Flag";
 import { W3cMark } from "@/components/ui/W3cMark";
-import { W3C_HEROES } from "@/lib/w3c-heroes";
 import type { VsRaceRecord } from "@/lib/w3c";
-import { record, resultLabel, signed } from "@/lib/figures.mjs";
+import { record, resultLabel } from "@/lib/figures.mjs";
 import { cn, RACES } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo";
@@ -182,8 +179,8 @@ export default async function PlayerPage({ params }: Params) {
   const { slug } = await params;
   const { profile, path } = await loadProfile(slug);
   const { player, team, isCaptain, captainOnly, latestSeason, history, allTime, w3c, mainRace: main, career } = profile;
-  // Every tag of the person, the active one first. Each other tag costs two
-  // W3Champions reads: its last games and its season split.
+  // Every tag of the person, the active one first. Each other tag costs one
+  // W3Champions read: its season split.
   const tags = player.tags?.length ? player.tags : player.battleTag ? [player.battleTag] : [];
   const noAccount = !tags.length;
   const otherTags = tags.filter((t) => t.toLowerCase() !== player.battleTag?.toLowerCase());
@@ -203,18 +200,10 @@ export default async function PlayerPage({ params }: Params) {
   const olderChips = w3c
     .filter((r) => !ladder.some((l) => l.race === r.race))
     .map((r) => ({ ...r, tag: `S${r.season}` }));
-  const fmtDate = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" });
-  const dur = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
-  // The backend main race picks the masthead art, the large icon, the bold chip
-  // and the first line of the chart. The headline MMR tile falls to the first
-  // ladder row, which is the highest MMR.
+  // The backend main race picks the masthead art, the large icon and the bold
+  // chip. The headline MMR tile falls to the first ladder row, which is the
+  // highest MMR.
   const mainLadder = ladder.find((r) => r.race === main) ?? ladder[0];
-  // One entry per ladder race; a race with no timeline keeps its row and
-  // draws no line.
-  const mmrLines: MmrLine[] = ladder.map((r) => ({
-    ...r,
-    points: live?.timelines.find((t) => t.race === r.race)?.points ?? [],
-  }));
   // Ladder totals add up every tag with a season record; MMR stays the active tag's.
   const counted = others.filter((o) => o.vsRace && o.season === ladderSeason);
   const otherRecord = counted
@@ -235,10 +224,6 @@ export default async function PlayerPage({ params }: Params) {
     }
   }
   const ladderTags = [...(player.battleTag ? [player.battleTag] : []), ...counted.map((o) => o.battleTag)];
-  // The last ten games over every tag, newest first.
-  const recentGames = [...(live?.matches ?? []), ...others.flatMap((o) => o.matches)]
-    .sort((a, b) => Date.parse(b.startedAt) - Date.parse(a.startedAt))
-    .slice(0, 10);
   // GNL series per opponent race, from every completed series on record.
   const gnlVsRace: VsRaceRecord = {};
   for (const sr of history.flatMap((h) => h.series)) {
@@ -534,101 +519,6 @@ export default async function PlayerPage({ params }: Params) {
                       </div>
                     ))}
                 </div>
-              </section>
-            ) : null}
-          </div>
-        </div>
-
-        {/* The ladder band runs the full width: the race rows on the left
-            select the line of the chart on the right. */}
-        {!noAccount && (ladder.length || player.battleTag) ? (
-          <section className="mt-12">
-            <h2 className="mb-4 font-display text-xl font-bold uppercase">W3Champions ladder</h2>
-            {ladder.length ? (
-              <MmrChart lines={mmrLines} main={main} />
-            ) : (
-              <p className="text-sm text-faint">No ladder games this season.</p>
-            )}
-            {ladderSeason ? (
-              <p className="mt-3 flex items-center gap-1.5 text-xs text-faint">
-                <W3cMark size={14} className="opacity-70" /> Ladder season {ladderSeason}, {live ? "live from W3Champions" : "synced from W3Champions"}.
-              </p>
-            ) : null}
-          </section>
-        ) : null}
-
-        <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_1.4fr]">
-          <div>
-            {live?.heroes.length ? (
-              <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">Heroes</h2>
-                <div className="flex flex-wrap gap-2">
-                  {live.heroes.map((h) => {
-                    const meta = W3C_HEROES[h.id];
-                    return (
-                      <div key={h.id} className="panel flex items-center gap-2.5 py-2 pl-2 pr-3" title={`${meta?.label ?? h.id}, in ${h.games} of the last ${live.sampleSize} games`}>
-                        {meta ? <GameIcon iconKey={meta.icon} size={32} /> : null}
-                        <span>
-                          <span className="block text-sm text-fg">{meta?.label ?? h.id}</span>
-                          <span className="tnum block text-xs text-faint">{h.games} games</span>
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
-              </section>
-            ) : null}
-          </div>
-
-          <div>
-            {recentGames.length ? (
-              <section>
-                <div className="mb-4 flex items-baseline justify-between gap-3">
-                  <h2 className="font-display text-xl font-bold uppercase">Recent ladder games</h2>
-                  <a href={w3cUrl ?? w3cPlayerUrl(tags[0])} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1.5 text-xs uppercase tracking-wide text-muted hover:text-gold">
-                    <W3cMark size={15} /> All games on W3Champions
-                  </a>
-                </div>
-                <Surface className="divide-y divide-line/60">
-                  {recentGames.map((m) => (
-                    <div key={`${m.battleTag}-${m.id}`} className="flex items-center gap-3 px-4 py-2.5 text-sm">
-                      <span className={cn("w-9 shrink-0 font-display text-[0.65rem] font-extrabold", m.won ? "text-win" : "text-loss")}>
-                        {m.won ? "WIN" : "LOSS"}
-                      </span>
-                      <span className="min-w-0 flex-1">
-                        <span className="flex items-center gap-1.5">
-                          <RaceIcon race={m.race} size={22} />
-                          <span className="text-faint">vs</span>
-                          <RaceIcon race={m.opponent.race} size={22} />
-                          <a
-                            href={w3cPlayerUrl(m.opponent.battleTag)}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="inline-flex min-w-0 items-center gap-1 truncate text-fg hover:text-gold"
-                          >
-                            {m.opponent.name} <W3cMark size={13} className="opacity-70" />
-                          </a>
-                          <span className="tnum text-xs text-faint">{m.opponent.mmr}</span>
-                        </span>
-                        {/* The tag a game was played under, when the person has more than one. */}
-                        {tags.length > 1 ? <span className="block truncate text-xs text-muted">{m.battleTag}</span> : null}
-                        <a
-                          href={`https://w3champions.com/match/${m.id}`}
-                          target="_blank"
-                          rel="noreferrer"
-                          title="Open this game on W3Champions"
-                          className="block truncate text-xs text-faint transition-colors hover:text-gold"
-                        >
-                          {m.map} <span>·</span> {dur(m.durationSeconds)} <span>·</span> {fmtDate.format(new Date(m.startedAt))}
-                          <W3cMark size={12} className="ml-1 opacity-70" />
-                        </a>
-                      </span>
-                      <span className={cn("tnum w-9 shrink-0 text-right font-mono text-xs", m.mmrGain >= 0 ? "text-win" : "text-loss")}>
-                        {signed(m.mmrGain)}
-                      </span>
-                    </div>
-                  ))}
-                </Surface>
               </section>
             ) : null}
           </div>
