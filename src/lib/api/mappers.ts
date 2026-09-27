@@ -126,7 +126,7 @@ export interface RawUserSeason {
   captain_only: boolean;
   signup_race: string | null;
   played_as: string | null;
-  record: { games: number; wins: number; losses: number; matchup_history: string[] };
+  record: { games: number; wins: number; losses: number; matchup_history: (string | null)[] };
 }
 /** One row of GET /users/{id}/series, from the player's side. `race` and
  *  `opponent_race` are the series races (W3C codes); team names are long names. */
@@ -707,7 +707,7 @@ export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefi
         seriesPlayed: seat.record.games,
         seriesWon: seat.record.wins,
         seriesLost: seat.record.losses,
-        matchupHistory: seat.record.matchup_history.map((r) => W3C_RACE[r] ?? raceOf(r)),
+        matchupHistory: seat.record.matchup_history.map((r) => W3C_RACE[r ?? ""] ?? raceOf(r)),
       },
       series: seat.captain_only ? [] : mapPlayerSeries(series, raw.id, seat.signup_race),
     });
