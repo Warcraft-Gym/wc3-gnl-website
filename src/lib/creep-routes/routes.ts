@@ -3,7 +3,7 @@ import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { FIXTURE_ROUTES } from "./fixtures";
 import type { CreepRoute } from "./types";
 import { filterCreepRoutes, type CreepRouteFilter } from "./filter";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityCache } from "@/lib/content/cache";
 
 export { filterCreepRoutes, type CreepRouteFilter };
 
@@ -97,7 +97,7 @@ async function listFromSanity(): Promise<CreepRoute[] | null> {
     const docs = await client.fetch<RawRoute[]>(
       `*[_type == "creepRoute" && defined(slug.current) && coalesce(reviewStatus, "approved") == "approved"] | order(_updatedAt desc) ${LIST_PROJECTION}`,
       {},
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("creepRoute", "creepMap", "buildOrder"),
     );
     return dropUnresolvedMaps(docs);
   } catch (err) {
@@ -136,7 +136,7 @@ export async function getSupersedingRouteSlug(slug: string): Promise<string | un
       `*[_type == "creepRoute" && supersedes->slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"]
          | order(_createdAt desc)[0].slug.current`,
       { slug },
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("creepRoute", "creepMap", "buildOrder"),
     );
     return found ?? undefined;
   } catch (err) {
@@ -155,7 +155,7 @@ export async function getCreepRouteBySlug(slug: string): Promise<CreepRoute | un
         const doc = await client.fetch<RawRoute | null>(
           `*[_type == "creepRoute" && slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"][0]${DETAIL_PROJECTION}`,
           { slug },
-          { next: { revalidate: 300, tags: [SANITY_TAG] } },
+          sanityCache("creepRoute", "creepMap", "buildOrder"),
         );
         if (doc && doc.title) {
           const route = normalizeRoute(doc);
@@ -193,7 +193,7 @@ export async function getRoutesForBuild(buildSlug: string): Promise<CreepRoute[]
         const docs = await client.fetch<RawRoute[]>(
           `*[_type == "creepRoute" && build->slug.current == $buildSlug && coalesce(reviewStatus, "approved") == "approved"] | order(_updatedAt desc) ${LIST_PROJECTION}`,
           { buildSlug },
-          { next: { revalidate: 300, tags: [SANITY_TAG] } },
+          sanityCache("creepRoute", "creepMap", "buildOrder"),
         );
         const live = dropUnresolvedMaps(docs);
         if (live.length || !USE_FIXTURES) return live;

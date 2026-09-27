@@ -1,6 +1,6 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityCache } from "@/lib/content/cache";
 
 /**
  * The King of the Hill page.
@@ -69,7 +69,7 @@ export async function getKothPage(): Promise<KothPage | null> {
     return await client.fetch<KothPage | null>(
       `*[_id == "kothPage"][0]${PROJECTION}`,
       {},
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("kothPage"),
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {

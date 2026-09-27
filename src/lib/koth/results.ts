@@ -1,6 +1,6 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityCache } from "@/lib/content/cache";
 
 /**
  * The King of the Hill roll of honour.
@@ -23,7 +23,7 @@ export async function getKothResults(): Promise<KothResult[]> {
     return await client.fetch<KothResult[]>(
       `*[_type == "kothResult" && defined(date)] | order(date desc) ${PROJECTION}`,
       {},
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("kothResult"),
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {

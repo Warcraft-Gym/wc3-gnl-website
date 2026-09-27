@@ -2,7 +2,7 @@ import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { FIXTURE_BUILDS } from "./fixtures";
 import type { BuildOrder, BuildRace, BuildVsRace } from "./types";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityCache } from "@/lib/content/cache";
 
 /**
  * Build-order data access. Reads published `buildOrder` documents from Sanity
@@ -52,7 +52,7 @@ async function listFromSanity(): Promise<BuildOrder[] | null> {
     return await client.fetch<BuildOrder[]>(
       `*[_type == "buildOrder" && defined(slug.current) && coalesce(reviewStatus, "approved") == "approved"] | order(_updatedAt desc) ${LIST_PROJECTION}`,
       {},
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("buildOrder", "guide"),
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
@@ -112,7 +112,7 @@ export async function getSupersedingBuildSlug(slug: string): Promise<string | un
       `*[_type == "buildOrder" && supersedes->slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"]
          | order(_createdAt desc)[0].slug.current`,
       { slug },
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("buildOrder", "guide"),
     );
     return found ?? undefined;
   } catch (err) {
@@ -131,7 +131,7 @@ export async function getBuildBySlug(slug: string): Promise<BuildOrder | undefin
         const doc = await client.fetch<BuildOrder | null>(
           `*[_type == "buildOrder" && slug.current == $slug && coalesce(reviewStatus, "approved") == "approved"][0]${DETAIL_PROJECTION}`,
           { slug },
-          { next: { revalidate: 300, tags: [SANITY_TAG] } },
+          sanityCache("buildOrder", "guide"),
         );
         if (doc && doc.title) return doc;
       } catch (err) {
@@ -153,7 +153,7 @@ export async function getBuildsForGuide(guideSlug: string): Promise<BuildOrder[]
     return await client.fetch<BuildOrder[]>(
       `*[_type == "buildOrder" && guide->slug.current == $guideSlug && coalesce(reviewStatus, "approved") == "approved"] | order(_updatedAt desc) ${LIST_PROJECTION}`,
       { guideSlug },
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("buildOrder", "guide"),
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {

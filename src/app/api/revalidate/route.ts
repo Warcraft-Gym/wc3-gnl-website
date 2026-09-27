@@ -1,5 +1,5 @@
 import { revalidatePath, revalidateTag } from "next/cache";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityTag, type SanityType } from "@/lib/content/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
@@ -79,13 +79,19 @@ export async function POST(req: NextRequest) {
   const paths = PATHS[type]?.(slug);
   if (!paths) return NextResponse.json({ ok: true, skipped: type });
 
-  // The tag first, and unconditionally: `revalidatePath` only throws away
-  // the rendered page, so without this Next re-renders and is handed the same
-  // cached Sanity response it had before. The page is rebuilt, faithfully,
-  // from stale content. Purging the data is what actually makes an edit show.
+  // The tag first: `revalidatePath` only throws away the rendered page, so
+  // without this Next re-renders and is handed the same cached Sanity
+  // response it had before, rebuilding the page faithfully from stale
+  // content. Purging the data is what makes an edit actually show.
+  //
+  // Only this document's type, not all of Sanity. Every query carries a tag
+  // for each type it reads, dereferences included, so a creep route whose
+  // page shows its map's name is still purged when that map changes, without
+  // rewriting the cache for every guide and post on the site.
+  //
   // "max" expires the tag whatever cache life the entry was written with;
   // Next 16 deprecated the single-argument form.
-  revalidateTag(SANITY_TAG, "max");
+  revalidateTag(sanityTag(type as SanityType), "max");
   for (const p of paths) revalidatePath(p);
   return NextResponse.json({ ok: true, type, revalidated: paths });
 }

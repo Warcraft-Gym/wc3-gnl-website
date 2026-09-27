@@ -1,7 +1,7 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { COMMUNITY_TOOL_GROUPS, type ToolGroup } from "@/lib/tools";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityCache } from "@/lib/content/cache";
 
 /**
  * Community tools for /tools, read from Sanity `tool` documents and grouped
@@ -43,7 +43,7 @@ async function fromSanity(): Promise<CommunityTool[] | null> {
     return await client.fetch<CommunityTool[]>(
       `*[_type == "tool" && live != false && defined(url)] | order(group asc, order asc, title asc) ${PROJECTION}`,
       {},
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("tool"),
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
