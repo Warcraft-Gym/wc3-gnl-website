@@ -35,10 +35,10 @@ function LearnEmblem({ category, prominent = false }: { category: LearnCategory;
       </span>
       <span
         className={cn(
-          "mt-3 font-heading font-bold leading-tight text-fg transition-colors group-hover:text-gold sm:mt-4",
+          "mt-3 font-display font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold sm:mt-4",
           prominent
-            ? "text-[0.9rem] sm:text-[1.15rem]"
-            : "text-[0.7rem] sm:text-[0.8rem]",
+            ? "text-[0.9rem] tracking-[0.14em] sm:text-[1.15rem] sm:tracking-[0.16em]"
+            : "text-[0.7rem] tracking-[0.12em] sm:text-[0.8rem] sm:tracking-[0.14em]",
         )}
       >
         {category.title}
@@ -106,7 +106,7 @@ export function LearnRaces() {
                   className="object-contain drop-shadow-[0_14px_24px_rgba(0,0,0,.85)]"
                 />
               </span>
-              <span className="mt-3 font-heading text-[0.7rem] font-bold leading-tight text-fg transition-colors group-hover:text-gold sm:mt-4 sm:text-[0.8rem]">
+              <span className="mt-3 font-display text-[0.7rem] font-bold uppercase leading-tight tracking-[0.12em] text-fg transition-colors group-hover:text-gold sm:mt-4 sm:text-[0.8rem] sm:tracking-[0.14em]">
                 Build orders
               </span>
               <span className="mt-1 max-w-[11rem] text-xs text-muted max-sm:hidden">Timed build orders with a play-along clock.</span>

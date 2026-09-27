@@ -119,7 +119,7 @@ export default async function BuildPage({ params }: Params) {
         <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
             href="/learn/builds"
-            className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
+            className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
           >
             <ArrowLeft size={17} /> All builds
           </Link>
@@ -127,7 +127,7 @@ export default async function BuildPage({ params }: Params) {
             <Matchup race={build.race} vsRaces={build.vsRaces} size={24} />
             <DifficultyBadge level={build.difficulty} />
             {build.patch ? (
-              <span className="text-[0.66rem] text-muted">Patch {build.patch}</span>
+              <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {build.patch}</span>
             ) : null}
           </div>
           <h1 className="mt-4 max-w-4xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
@@ -189,7 +189,7 @@ export default async function BuildPage({ params }: Params) {
       <Container className="grid gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:gap-12">
         {/* Description */}
         <section className="min-w-0">
-          <h2 className="mb-4 text-[1.05rem] font-bold">About this build</h2>
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this build</h2>
           {build.guide ? (
             <Link
               href={`/learn/guide/${build.guide.slug}`}
@@ -197,7 +197,7 @@ export default async function BuildPage({ params }: Params) {
             >
               <BookOpen size={20} className="shrink-0 text-gold" />
               <span className="min-w-0">
-                <span className="block text-[0.7rem] font-bold text-gold">Full guide</span>
+                <span className="block font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold">Full guide</span>
                 <span className="block truncate text-fg">{build.guide.title}</span>
               </span>
             </Link>
@@ -226,7 +226,7 @@ export default async function BuildPage({ params }: Params) {
               resubmitted. */}
           {videoUrl ? (
             <div className="mt-8">
-              <h2 className="mb-4 text-[1.05rem] font-bold">Watch the build</h2>
+              <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Watch the build</h2>
               <VideoEmbed url={videoUrl} title={`${build.title} — video`} />
             </div>
           ) : null}
@@ -246,7 +246,7 @@ export default async function BuildPage({ params }: Params) {
           {/* Questions go to the build orders channel */}
           <div className="panel mt-4 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
             <div>
-              <p className="whitespace-nowrap font-heading text-[0.85rem] font-bold text-fg">
+              <p className="whitespace-nowrap font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
                 Questions about this build?
               </p>
               <p className="mt-1 text-sm text-muted">
@@ -268,7 +268,7 @@ export default async function BuildPage({ params }: Params) {
 
       {routes.length ? (
         <Container className="pb-16">
-          <h2 className="mb-4 text-[1.05rem] font-bold">Creep routes for this build</h2>
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Creep routes for this build</h2>
           <ul className="grid gap-3">
             {routes.map((r) => (
               <RouteRow key={r.slug} route={r} />
@@ -279,7 +279,7 @@ export default async function BuildPage({ params }: Params) {
 
       {related.length ? (
         <Container className="pb-16">
-          <h2 className="mb-4 text-[1.05rem] font-bold">
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">
             More {BUILD_RACES.find((r) => r.id === build.race)?.label} builds
           </h2>
           <ul className="grid gap-3">

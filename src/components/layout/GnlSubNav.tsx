@@ -37,7 +37,7 @@ function Bar({ seasons, seasonNumber }: { seasons: SubNavSeason[]; seasonNumber:
   const param = current && latest && current.number !== latest.number ? current.number : undefined;
   return (
     <div className="sticky top-[var(--wg-header-h)] z-40 h-[var(--wg-subnav-h)] px-3 pt-1.5 sm:px-4">
-      <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line-soft bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
+      <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
         {current ? <SeasonMenu seasons={seasons} current={current} pathname={pathname} /> : null}
         <nav
           aria-label="GNL section"
@@ -91,7 +91,7 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
 
   if (seasons.length < 2) {
     return (
-      <span className="btn-gold hidden shrink-0 rounded px-3 py-1 text-xs font-bold sm:inline-block">
+      <span className="btn-gold hidden shrink-0 rounded px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em] sm:inline-block">
         <span>{current.shortName}</span>
       </span>
     );
@@ -105,7 +105,7 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
         aria-haspopup="menu"
         aria-expanded={open}
         aria-label={`Season: ${current.name}. Change season`}
-        className="btn-gold inline-flex items-center gap-1.5 rounded px-3 py-1 text-xs font-bold"
+        className="btn-gold inline-flex items-center gap-1.5 rounded px-3 py-1 font-display text-xs font-bold uppercase tracking-[0.12em]"
       >
         <span>{current.shortName}</span>
         <ChevronDown size={15} className={cn("transition-transform duration-[var(--wg-dur)]", open && "rotate-180")} />
@@ -130,7 +130,7 @@ function SeasonMenu({ seasons, current, pathname }: { seasons: SubNavSeason[]; c
                 )}
               >
                 <span>
-                  <span className="block font-heading font-bold">{s.shortName}</span>
+                  <span className="block font-display font-bold uppercase tracking-wide">{s.shortName}</span>
                   <span className="block text-xs text-faint">{s.number === latest.number ? "Latest season" : s.name}</span>
                 </span>
                 {active ? <Check size={16} /> : null}

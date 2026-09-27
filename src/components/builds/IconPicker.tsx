@@ -126,13 +126,13 @@ export function IconPicker({
         )}
       >
         {kind === "hero" ? (
-          <span className="text-[0.6rem] font-bold text-faint">Hero</span>
+          <span className="text-[0.6rem] font-bold uppercase tracking-wider text-faint">Hero</span>
         ) : null}
         {current ? (
           <GameIcon iconKey={value} size={30} />
         ) : (
           <span className="grid size-[30px] place-items-center rounded border border-dashed border-line text-faint">
-            <span className="text-[0.55rem] font-bold">icon</span>
+            <span className="text-[0.55rem] font-bold uppercase tracking-wider">icon</span>
           </span>
         )}
         <ChevronDown size={16} className="text-faint" />
@@ -162,7 +162,7 @@ export function IconPicker({
                 type="button"
                 onClick={() => setTab(t.id)}
                 className={cn(
-                  "h-7 flex-1 rounded text-[0.6rem] font-bold transition-colors",
+                  "h-7 flex-1 rounded font-display text-[0.6rem] font-bold uppercase tracking-[0.1em] transition-colors",
                   tab === t.id ? "bg-gold/15 text-gold" : "text-muted hover:text-fg",
                 )}
               >
@@ -173,7 +173,7 @@ export function IconPicker({
 
           {recent.length && !q ? (
             <div className="mt-2">
-              <p className="mb-1 px-0.5 text-[0.6rem] font-bold text-faint">Recent</p>
+              <p className="mb-1 px-0.5 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Recent</p>
               <div className="flex flex-wrap gap-1">
                 {recent.map((k) => (
                   <button key={k} type="button" onClick={() => pick(k)} title={getGameIcon(k)?.title} className="rounded ring-gold hover:ring-2">
@@ -203,7 +203,7 @@ export function IconPicker({
             <button
               type="button"
               onClick={() => pick("")}
-              className="mt-2 inline-flex items-center gap-1 text-[0.65rem] text-muted hover:text-loss"
+              className="mt-2 inline-flex items-center gap-1 text-[0.65rem] uppercase tracking-wide text-muted hover:text-loss"
             >
               <X size={13} /> Remove icon
             </button>

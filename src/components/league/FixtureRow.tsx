@@ -41,7 +41,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
 
   return (
     <div className="grid grid-cols-[5.5rem_1fr_auto_1fr_2.5rem] items-center gap-2 border-t border-line/40 px-4 py-2.5 text-sm sm:grid-cols-[7rem_1fr_auto_1fr_4.5rem]">
-      <div className="tnum text-[0.7rem] leading-tight text-muted">
+      <div className="font-mono text-[0.7rem] leading-tight text-faint">
         <div>{day}</div>
         <div>{time}</div>
       </div>
@@ -63,7 +63,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         {m.status === "live" ? (
           <span className="live-dot size-1.5 rounded-full bg-live" aria-hidden />
         ) : null}
-        <span className="tnum whitespace-nowrap text-base font-bold">
+        <span className="tnum whitespace-nowrap font-display text-base font-extrabold">
           {played ? (
             <>
               <span className={homeWon ? "text-gold" : "text-faint"}>
@@ -80,7 +80,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
         </span>
         {played && (m.home.points != null || m.away.points != null) ? (
           <span
-            className="tnum text-[0.6rem] text-muted"
+            className="tnum font-mono text-[0.6rem] uppercase tracking-wide text-faint"
             title="Gym Newbie League points earned"
           >
             {m.home.points ?? 0} · {m.away.points ?? 0} pts
@@ -109,7 +109,7 @@ function DetailRow({ m }: { m: PlayerMatch }) {
             rel="noreferrer"
             title={vod ? `Watch the VOD on ${cast.name}` : `Cast by ${cast.name}`}
             className={cn(
-              "inline-flex h-7 items-center gap-1 rounded border px-2 text-[0.6rem] transition-colors",
+              "inline-flex h-7 items-center gap-1 rounded border px-2 font-mono text-[0.6rem] uppercase tracking-wide transition-colors",
               vod
                 ? "border-arcane/60 bg-arcane/10 text-arcane hover:bg-arcane/20"
                 : "border-line text-muted hover:border-arcane/60 hover:text-arcane",
@@ -154,7 +154,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
           </span>
           <span
             className={cn(
-              "font-heading text-base font-bold leading-tight transition-colors group-hover:text-gold max-sm:line-clamp-2 max-sm:text-xs sm:truncate sm:text-lg",
+              "font-display text-base font-bold uppercase leading-tight transition-colors group-hover:text-gold max-sm:line-clamp-2 max-sm:text-xs sm:truncate sm:text-lg",
               homeWon || !done ? "text-fg" : "text-muted",
             )}
           >
@@ -166,12 +166,12 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
           {fixture.status === "live" ? (
             <LiveBadge />
           ) : (
-            <span className="text-[0.62rem] text-muted">
+            <span className="font-mono text-[0.62rem] uppercase tracking-widest text-faint">
               {done ? "Final" : formatMatchTime(fixture.scheduledAt)}
             </span>
           )}
           {showScore ? (
-            <span className="tnum text-2xl font-bold sm:text-3xl">
+            <span className="tnum font-display text-2xl font-extrabold sm:text-3xl">
               <span className={homeWon ? "text-gold" : "text-fg"}>
                 {fixture.home.score}
               </span>
@@ -181,12 +181,12 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
               </span>
             </span>
           ) : (
-            <span className="skew mt-1 grid h-7 w-11 place-items-center bg-gold/10 font-heading text-xs font-bold text-gold">
+            <span className="skew mt-1 grid h-7 w-11 place-items-center bg-gold/10 font-display text-xs font-extrabold tracking-widest text-gold">
               <span>VS</span>
             </span>
           )}
           {showScore && homeSeries + awaySeries > 0 ? (
-            <span className="tnum text-[0.62rem] text-muted" title="Series won">
+            <span className="tnum font-mono text-[0.62rem] uppercase tracking-widest text-faint" title="Series won">
               {homeSeries} : {awaySeries} series
             </span>
           ) : null}
@@ -198,7 +198,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
         >
           <span
             className={cn(
-              "font-heading text-base font-bold leading-tight transition-colors group-hover:text-gold max-sm:line-clamp-2 max-sm:text-xs sm:truncate sm:text-lg",
+              "font-display text-base font-bold uppercase leading-tight transition-colors group-hover:text-gold max-sm:line-clamp-2 max-sm:text-xs sm:truncate sm:text-lg",
               awayWon || !done ? "text-fg" : "text-muted",
             )}
           >
@@ -222,7 +222,7 @@ export function FixtureRow({ fixture, defaultOpen = false }: { fixture: TeamFixt
             type="button"
             onClick={() => setOpen((v) => !v)}
             aria-expanded={open}
-            className="flex w-full items-center gap-2 border-t border-line/60 px-4 py-2 text-[0.72rem] font-bold text-muted transition-colors hover:text-gold"
+            className="flex w-full items-center gap-2 border-t border-line/60 px-4 py-2 font-mono text-[0.72rem] font-bold uppercase tracking-widest text-muted transition-colors hover:text-gold"
           >
             <ChevronRight
               size={16}

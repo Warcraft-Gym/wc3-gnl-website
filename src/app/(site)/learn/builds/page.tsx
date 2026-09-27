@@ -98,7 +98,7 @@ export default async function BuildsPage({
           <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="kicker">Community builds</p>
-              <h2 className="mt-2 text-[1.15rem] font-bold">Got a build worth sharing?</h2>
+              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a build worth sharing?</h2>
               <p className="mt-1 max-w-xl text-sm text-muted">
                 Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
               </p>
@@ -134,10 +134,10 @@ export default async function BuildsPage({
           <div className="mt-6 rounded border border-dashed border-line px-5 py-12 text-center">
             <p className="text-sm text-muted">No builds match that matchup yet.</p>
             <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Link href="/learn/builds" className="text-xs text-muted hover:text-gold">
+              <Link href="/learn/builds" className="text-xs uppercase tracking-wide text-muted hover:text-gold">
                 Clear filters
               </Link>
-              <Link href="/learn/builds/submit" className="text-xs text-gold hover:underline">
+              <Link href="/learn/builds/submit" className="text-xs uppercase tracking-wide text-gold hover:underline">
                 Be the first to add one
               </Link>
             </div>
@@ -145,7 +145,7 @@ export default async function BuildsPage({
         )}
         {isFiltered && builds.length ? (
           <p className="mt-3 text-right text-xs text-faint">
-            <Link href="/learn/builds" className="hover:text-gold">
+            <Link href="/learn/builds" className="uppercase tracking-wide hover:text-gold">
               Clear filters
             </Link>
           </p>

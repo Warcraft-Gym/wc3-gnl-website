@@ -217,7 +217,7 @@ export function RouteSubmitForm({
     return (
       <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
         <CheckCircle2 size={40} className="mx-auto text-win" />
-        <h2 className="mt-4 text-[1.4rem] font-bold">Thanks, it&apos;s in the queue</h2>
+        <h2 className="mt-4 text-[1.4rem] font-bold tracking-[0.05em]">Thanks, it&apos;s in the queue</h2>
         <p className="mx-auto mt-3 max-w-md text-muted">
           A coach will look it over and publish it, usually within a few days. It will appear in the route list with your name on it.
         </p>

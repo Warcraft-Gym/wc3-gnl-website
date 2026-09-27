@@ -75,7 +75,7 @@ export function ConsentBanner({ enabled }: { enabled: boolean }) {
     >
       <div className="panel mx-auto flex max-w-[64rem] flex-col gap-4 p-5 sm:flex-row sm:items-center sm:gap-6 sm:p-6">
         <div className="min-w-0 flex-1">
-          <h2 id="consent-heading" className="font-heading text-sm font-bold text-fg">
+          <h2 id="consent-heading" className="font-display text-sm font-bold uppercase tracking-[0.12em] text-fg">
             Analytics
           </h2>
           <p className="mt-1.5 text-sm text-muted">

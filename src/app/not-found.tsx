@@ -5,7 +5,7 @@ export default function NotFound() {
   return (
     <Container className="flex min-h-[60vh] flex-col items-center justify-center py-20 text-center">
       <p className="kicker mb-4">Error 404</p>
-      <h1 className="text-[length:var(--wg-text-hero)] font-bold leading-none text-gold">
+      <h1 className="text-[length:var(--wg-text-hero)] font-extrabold leading-none text-gold">
         404
       </h1>
       <p className="mt-4 max-w-md text-lg text-muted">

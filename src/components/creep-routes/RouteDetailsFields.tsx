@@ -9,7 +9,7 @@ import { PATCHES, patchLabel } from "@/lib/patches.mjs";
 
 const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
-const label = "block text-[0.68rem] font-bold text-muted";
+const label = "block font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted";
 
 function Field({
   name,

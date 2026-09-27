@@ -85,7 +85,7 @@ export function StopEditor({
   return (
     <div className="flex min-w-0 flex-col gap-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-sm font-bold text-muted">
+        <h3 className="text-sm font-bold uppercase tracking-[0.1em] text-muted">
           Stops <span className="tnum text-faint">· {stops.length}</span>
         </h3>
         <div className="flex gap-2">
@@ -93,7 +93,7 @@ export function StopEditor({
             type="button"
             ref={addBaseActionRef}
             onClick={addBaseAction}
-            className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold text-gold hover:bg-gold/10"
+            className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
           >
             <Plus size={14} /> Base action
           </button>

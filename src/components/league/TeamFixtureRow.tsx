@@ -27,7 +27,7 @@ export function TeamFixtureRow({ fixture, teamId }: { fixture: TeamFixture; team
 
   return (
     <li className="grid grid-cols-[3.25rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:grid-cols-[3.25rem_minmax(0,1fr)_7rem_auto_2rem] sm:gap-4">
-      <div className="text-[0.62rem] leading-tight text-muted">
+      <div className="font-mono text-[0.62rem] uppercase leading-tight tracking-[0.14em] text-faint">
         Week {fixture.week}
         <span className="mt-0.5 block">{home ? "Home" : "Away"}</span>
       </div>
@@ -35,7 +35,7 @@ export function TeamFixtureRow({ fixture, teamId }: { fixture: TeamFixture; team
       <Link href={`/gnl/teams/${them.slug}`} className="flex min-w-0 items-center gap-2.5">
         <TeamPlate tag={them.tag} logoUrl={them.logoUrl} name={them.name} size="sm" />
         <span className="min-w-0">
-          <span className="block truncate font-heading text-sm font-bold text-fg transition-colors hover:text-gold">
+          <span className="wg-name block truncate font-display text-sm font-bold uppercase text-fg transition-colors hover:text-gold">
             {them.name}
           </span>
           <span className="block text-xs text-faint">
@@ -45,11 +45,11 @@ export function TeamFixtureRow({ fixture, teamId }: { fixture: TeamFixture; team
       </Link>
 
       {/* Series won and lost inside the fixture; its unit sits in the list head. */}
-      <span className="tnum hidden text-right text-xs text-muted sm:block">{seriesRecord ?? "—"}</span>
+      <span className="tnum hidden text-right font-mono text-xs text-muted sm:block">{seriesRecord ?? "—"}</span>
 
       {played ? (
         <span
-          className={cn("tnum text-right text-lg font-bold", won ? "text-win" : lost ? "text-loss" : "text-fg")}
+          className={cn("tnum text-right font-display text-lg font-extrabold", won ? "text-win" : lost ? "text-loss" : "text-fg")}
           title={done ? resultLabel(us.score, them.score) : undefined}
           aria-label={done ? resultLabel(us.score, them.score) : `${us.score} : ${them.score}, in play`}
         >
@@ -58,7 +58,7 @@ export function TeamFixtureRow({ fixture, teamId }: { fixture: TeamFixture; team
           {them.score}
         </span>
       ) : (
-        <span className="text-right font-heading text-sm font-bold text-faint">vs</span>
+        <span className="text-right font-display text-sm font-bold uppercase text-faint">vs</span>
       )}
 
       <Link

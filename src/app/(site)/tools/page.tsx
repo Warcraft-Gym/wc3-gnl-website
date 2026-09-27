@@ -68,18 +68,18 @@ function ToolCard({ tool, wide = false }: { tool: CardProps; wide?: boolean }) {
         <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
           <Icon size={22} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
         </span>
-        {by ? <span className="text-[0.62rem] text-muted">by {by}</span> : null}
+        {by ? <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">by {by}</span> : null}
       </div>
-      <h2 className="mt-4 flex flex-wrap items-center gap-2 font-heading text-lg font-bold text-fg">
+      <h2 className="mt-4 flex flex-wrap items-center gap-2 font-display text-lg font-bold uppercase text-fg">
         {title}
         {badge ? (
-          <span className="rounded border border-arcane/50 px-1.5 py-0.5 text-[0.6rem] text-arcane">
+          <span className="rounded border border-arcane/50 px-1.5 py-0.5 font-mono text-[0.6rem] tracking-[0.16em] text-arcane">
             {badge}
           </span>
         ) : null}
       </h2>
       <p className="mt-2 flex-1 text-sm text-muted">{body}</p>
-      <span className="mt-4 inline-flex items-center gap-1 text-xs text-gold">
+      <span className="mt-4 inline-flex items-center gap-1 text-xs uppercase tracking-wide text-gold">
         {external ? (
           <>
             {host} <ExternalLink size={14} />

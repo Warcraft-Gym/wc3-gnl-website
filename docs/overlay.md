@@ -319,7 +319,7 @@ pnpm --filter wc3gym-overlay dev
 pnpm --filter wc3gym-overlay check:config
 ```
 
-The overlay bundles its own faces (Cinzel, Lato and JetBrains Mono) and key-art in `apps/overlay` via `@fontsource` and local `public/` copies, so it renders identically offline; the site itself sets titles in Cinzel, headings in Cardo and figures in Lato (see `DESIGN.md`).
+Site fonts (Cinzel/Lato/JetBrains Mono) and key-art are bundled in `apps/overlay` via `@fontsource` and local `public/` copies, so the app renders identically offline.
 
 ## Release
 

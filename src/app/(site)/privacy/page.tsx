@@ -69,7 +69,7 @@ export default function PrivacyPage() {
       <Container className="max-w-3xl space-y-4 py-10">
         {SECTIONS.map((s) => (
           <Surface key={s.title} className="p-6 sm:p-8">
-            <h2 className="font-heading text-xl font-bold">{s.title}</h2>
+            <h2 className="font-display text-xl font-bold uppercase">{s.title}</h2>
             <ul className="mt-4 space-y-3">
               {s.points.map((p) => (
                 <li key={p} className="flex gap-3 text-muted">

@@ -113,7 +113,7 @@ export default async function LearnPage() {
             action={
               <Link
                 href="/learn/guides"
-                className="hidden text-sm text-muted transition-colors hover:text-gold sm:inline"
+                className="hidden text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold sm:inline"
               >
                 Browse all
               </Link>
@@ -129,7 +129,7 @@ export default async function LearnPage() {
         {/* Coaching CTA */}
         <Surface className="mt-16 flex flex-col gap-5 p-8 sm:flex-row sm:items-center sm:justify-between">
           <div className="max-w-2xl">
-            <h2 className="font-heading text-xl font-bold">
+            <h2 className="font-display text-xl font-bold uppercase">
               Want feedback on your play?
             </h2>
             <p className="mt-2 text-muted">

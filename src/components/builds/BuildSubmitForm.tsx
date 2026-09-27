@@ -19,7 +19,7 @@ type StepRow = { id: number; time: string; supply: string; instruction: string; 
 
 const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
-const label = "block text-[0.68rem] font-bold text-muted";
+const label = "block font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted";
 
 const newRow = (id: number): StepRow => ({ id, time: "", supply: "", instruction: "", icon: "" });
 
@@ -58,8 +58,8 @@ function Field({
 
 function SectionTitle({ n, children }: { n: number; children: React.ReactNode }) {
   return (
-    <h2 className="flex items-center gap-3 text-[1.05rem] font-bold">
-      <span className="btn-gold grid size-7 shrink-0 place-items-center rounded text-xs font-bold">{n}</span>
+    <h2 className="flex items-center gap-3 text-[1.05rem] font-bold tracking-[0.06em]">
+      <span className="btn-gold grid size-7 shrink-0 place-items-center rounded font-display text-xs font-bold">{n}</span>
       {children}
     </h2>
   );
@@ -193,7 +193,7 @@ export function BuildSubmitForm() {
     return (
       <div className="panel mx-auto max-w-2xl p-8 text-center sm:p-12">
         <CheckCircle2 size={40} className="mx-auto text-win" />
-        <h2 className="mt-4 text-[1.4rem] font-bold">Thanks, it&apos;s in the queue</h2>
+        <h2 className="mt-4 text-[1.4rem] font-bold tracking-[0.05em]">Thanks, it&apos;s in the queue</h2>
         <p className="mx-auto mt-3 max-w-md text-muted">
           A coach will look it over and publish it, usually within a few days. It will appear in the
           build list with your name on it{text.authorDiscord ? ", we'll ping you on Discord if anything needs a tweak" : ""}.
@@ -270,7 +270,7 @@ export function BuildSubmitForm() {
                     onClick={() => setDifficulty(d.id)}
                     aria-pressed={difficulty === d.id}
                     className={cn(
-                      "h-10 rounded border px-3 text-[0.68rem] font-bold transition-colors",
+                      "h-10 rounded border px-3 font-display text-[0.68rem] font-bold uppercase tracking-[0.1em] transition-colors",
                       difficulty === d.id ? "border-gold bg-gold/10 text-fg" : "border-line bg-surface/60 text-muted hover:text-fg",
                     )}
                   >
@@ -312,7 +312,7 @@ export function BuildSubmitForm() {
             {errors.steps ? <p className="text-xs text-loss">{errors.steps}</p> : null}
           </div>
 
-          <div className="mt-4 hidden grid-cols-[2rem_4.5rem_4rem_3.25rem_minmax(0,1fr)_7.25rem] gap-x-2 px-3 text-[0.6rem] font-bold text-faint sm:grid">
+          <div className="mt-4 hidden grid-cols-[2rem_4.5rem_4rem_3.25rem_minmax(0,1fr)_7.25rem] gap-x-2 px-3 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint sm:grid">
             <span>#</span><span>Time</span><span>Food</span><span>Icon</span><span>Instruction</span><span />
           </div>
 
@@ -389,7 +389,7 @@ export function BuildSubmitForm() {
             <button
               type="button"
               onClick={add}
-              className="inline-flex h-10 items-center gap-2 rounded border border-gold/50 px-4 text-[0.72rem] font-bold text-gold hover:bg-gold/10"
+              className="inline-flex h-10 items-center gap-2 rounded border border-gold/50 px-4 font-display text-[0.72rem] font-bold uppercase tracking-[0.1em] text-gold hover:bg-gold/10"
             >
               <Plus size={16} /> Add step
             </button>

@@ -123,22 +123,22 @@ const components: PortableTextComponents = {
   block: {
     normal: ({ children }) => <p>{children}</p>,
     h1: ({ children }) => (
-      <h2 className="mt-10 mb-3 font-heading text-2xl font-bold text-fg">
+      <h2 className="mt-10 mb-3 font-display text-2xl font-bold uppercase text-fg">
         {children}
       </h2>
     ),
     h2: ({ children }) => (
-      <h2 className="mt-10 mb-3 font-heading text-2xl font-bold text-fg">
+      <h2 className="mt-10 mb-3 font-display text-2xl font-bold uppercase text-fg">
         {children}
       </h2>
     ),
     h3: ({ children }) => (
-      <h3 className="mt-8 mb-2 font-heading text-xl font-bold text-fg">
+      <h3 className="mt-8 mb-2 font-display text-xl font-bold uppercase text-fg">
         {children}
       </h3>
     ),
     h4: ({ children }) => (
-      <h4 className="mt-6 mb-2 font-heading text-lg font-bold text-fg">
+      <h4 className="mt-6 mb-2 font-display text-lg font-bold uppercase text-fg">
         {children}
       </h4>
     ),

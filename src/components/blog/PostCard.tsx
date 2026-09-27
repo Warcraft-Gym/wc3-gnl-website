@@ -68,14 +68,14 @@ export function PostCard({
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          <div className="mb-3 flex items-center gap-2 text-[0.66rem]">
+          <div className="mb-3 flex items-center gap-2 font-mono text-[0.66rem] uppercase tracking-[0.16em]">
             <span className="text-gold">{CATEGORY_LABEL[post.category]}</span>
             <span className="text-faint">·</span>
             <span className="text-faint">{formatDate(post.publishedAt)}</span>
           </div>
           <h3
             className={cn(
-              "font-heading font-bold leading-tight text-fg transition-colors group-hover:text-gold",
+              "font-display font-bold leading-tight text-fg transition-colors group-hover:text-gold",
               featured ? "text-2xl" : "text-lg",
             )}
           >

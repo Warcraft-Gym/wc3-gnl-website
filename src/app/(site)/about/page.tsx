@@ -94,7 +94,7 @@ export default async function AboutGymPage() {
                 <span className="skew grid size-11 place-items-center bg-gold/10 text-gold">
                   <Icon size={22} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
                 </span>
-                <h3 className="mt-4 font-heading text-lg font-bold text-fg">{title}</h3>
+                <h3 className="mt-4 font-display text-lg font-bold uppercase text-fg">{title}</h3>
                 <p className="mt-2 text-sm text-muted">{body}</p>
               </Surface>
             ))}
@@ -111,7 +111,7 @@ export default async function AboutGymPage() {
           <div className="relative flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="kicker">Be part of the Gym community</p>
-              <h2 className="mt-2 text-[1.15rem] font-bold">
+              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">
                 Come hang out, practice and get better at the game.
               </h2>
               {community ? (

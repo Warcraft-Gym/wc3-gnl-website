@@ -10,7 +10,7 @@ export function VsBadge({ className }: { className?: string }) {
       )}
       aria-hidden
     >
-      <span className="font-heading text-sm font-bold">
+      <span className="font-display text-sm font-extrabold tracking-widest">
         VS
       </span>
     </span>
@@ -57,7 +57,7 @@ export function TeamPlate({
   return (
     <span
       className={cn(
-        "skew grid shrink-0 place-items-center border border-line-strong bg-gradient-to-br from-surface-3 to-surface font-heading font-bold text-gold",
+        "skew grid shrink-0 place-items-center border border-line-strong bg-gradient-to-br from-surface-3 to-surface font-display font-extrabold text-gold",
         sizes[size],
       )}
     >
