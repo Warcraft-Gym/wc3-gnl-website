@@ -19,6 +19,7 @@ import {
   mapTeams,
   flattenPlayers,
   mapFixtures,
+  matchesToFixtures,
   mapStandings,
   mapFantasy,
   mapPlayerProfile,
@@ -27,6 +28,7 @@ import {
   type RawSeason,
   type RawTeam,
   type RawSeries,
+  type RawMatch,
   type RawFantasyTeam,
   type RawCareerStat,
   type RawHistory,
@@ -180,11 +182,11 @@ export async function getStandings(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const [teams, series] = await Promise.all([
+      const [teams, matches] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${s.id}/teams`),
-        apiGetAll<RawSeries>(`/events/${s.id}/series`),
+        apiGet<RawMatch[]>(`/events/${s.id}/matches`),
       ]);
-      return mapStandings(teams, mapFixtures(series), s.id);
+      return mapStandings(teams, matchesToFixtures(matches), s.id);
     },
     () => FIXTURE_STANDINGS,
     "getStandings",
@@ -237,19 +239,21 @@ export async function getTeamPage(
       const pick = seasonNumber != null ? seasons.findIndex((s) => s.number === seasonNumber) : 0;
       if (pick < 0) return null;
       const raw = played[pick];
-      const [teams, series] = await Promise.all([
+      const [teams, matches] = await Promise.all([
         apiGet<RawTeam[]>(`/events/${raw.id}/teams`),
-        apiGetAll<RawSeries>(`/events/${raw.id}/series`),
+        apiGet<RawMatch[]>(`/events/${raw.id}/matches`),
       ]);
-      const fixtures = mapFixtures(series);
       const team = mapTeams(teams, raw).find((t) => t.slug === slug);
       if (!team) return null;
+      const teamSeries = await apiGetAll<RawSeries>(`/events/${raw.id}/series`, {
+        query: { team_id: team.id },
+      });
       return {
         team,
         season: seasons[pick],
         seasons,
-        standing: mapStandings(teams, fixtures, raw.id).find((r) => r.team.id === team.id),
-        fixtures: fixtures
+        standing: mapStandings(teams, matchesToFixtures(matches), raw.id).find((r) => r.team.id === team.id),
+        fixtures: mapFixtures(teamSeries)
           .filter((f) => f.home.id === team.id || f.away.id === team.id)
           .sort((a, b) => a.week - b.week),
       };
