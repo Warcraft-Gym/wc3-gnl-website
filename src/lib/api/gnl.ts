@@ -31,7 +31,8 @@ import {
   type RawMatch,
   type RawFantasyTeam,
   type RawCareerStat,
-  type RawHistory,
+  type RawUserSeason,
+  type RawUserSeries,
   type RawUser,
 } from "./mappers";
 import type {
@@ -309,46 +310,41 @@ export async function findPlayerBySlug(slug: string): Promise<{ id: number; name
   return data ?? undefined;
 }
 
-/** A player's page, by user id: the person with their tags, roster seats and
- *  signups, their captain seats, career stats, and their series in every
- *  published GNL season they have a roster seat in. Undefined when no
- *  published season holds the id. */
+/** A player's page, by user id: the person with their tags, their roster and
+ *  captain seats, career stats, and their series in every published GNL
+ *  season they have a roster seat in. Undefined when no published season
+ *  holds the id. Every read here is cached an hour. */
 export async function getPlayerProfile(userId: number): Promise<PlayerProfile | undefined> {
   const { data } = await withFallback(
     async () => {
-      const [{ seasons, leagueTeams }, user, history, career] = await Promise.all([
-        fetchCompletedSeasonsRaw().then(async (seasons) => ({
-          seasons,
-          leagueTeams: await apiGet<RawTeam[]>(`/leagues/${seasons[0].league_id}/teams`),
-        })),
-        apiGet<RawUser>(`/users/${userId}`).catch((err) => {
-          if (err instanceof ApiError && err.status === 404) return null;
-          throw err;
-        }),
-        apiGet<RawHistory>(`/users/${userId}/history`).catch((err) => {
-          if (err instanceof ApiError && err.status === 404) return {} as RawHistory;
-          throw err;
-        }),
-        // the list, not /stats/career/{id}: only the list holds players with no stored row
-        apiGetAll<RawCareerStat>("/stats/career").catch(() => [] as RawCareerStat[]),
+      const hour = { revalidate: 3600 };
+      const [seasons, user, seats, career] = await Promise.all([
+        fetchCompletedSeasonsRaw(),
+        apiGet<RawUser>(`/users/${userId}`, hour).catch(notFound(null)),
+        apiGet<RawUserSeason[]>(`/users/${userId}/seasons`, hour),
+        apiGet<RawCareerStat>(`/stats/career/${userId}`, hour).catch(notFound(null)),
       ]);
       if (!user) return null;
-      // Only a season the player has a roster seat in needs its series: the
-      // history read has no casts, no fixture team names and no unplayed series.
-      const seated = new Set((user.gnl_stats ?? []).map((r) => r.season_id));
-      const played = seasons.filter((s) => seated.has(s.id));
-      const series = new Map(
-        await Promise.all(
-          played.map(async (s) => [s.id, await apiGetAll<RawSeries>(`/events/${s.id}/series`, { query: { player_id: user.id } })] as const),
-        ),
-      );
-      return mapPlayerProfile({ seasons, user, history, leagueTeams, series, career }) ?? null;
+      const published = new Set(seasons.map((s) => s.id));
+      const eventIds = seats.filter((r) => r.team && !r.captain_only && published.has(r.season_id)).map((r) => r.season_id);
+      const series = eventIds.length
+        ? await apiGetAll<RawUserSeries>(`/users/${userId}/series`, { ...hour, query: { event_id: eventIds } })
+        : [];
+      return mapPlayerProfile({ seasons, user, seats, series, career }) ?? null;
     },
     () => null,
     "getPlayerProfile",
   );
   return data ?? undefined;
 }
+
+/** A catch handler that answers `value` for a 404 and rethrows anything else. */
+const notFound =
+  <T>(value: T) =>
+  (err: unknown): T => {
+    if (err instanceof ApiError && err.status === 404) return value;
+    throw err;
+  };
 
 export async function getPlayers(seasonNumber?: number): Promise<{
   players: Player[];

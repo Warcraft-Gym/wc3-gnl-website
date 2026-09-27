@@ -116,9 +116,37 @@ export interface RawTag {
 export interface RawUser extends RawPlayer {
   signup_seasons?: Array<RawSeason & { signup_race?: string | null; played_as?: string | null }>;
 }
-/** The part of GET /users/{id}/history this site reads. */
-export interface RawHistory {
-  captain_of?: Array<{ season_id: number; team_id: number; team_name?: string | null }>;
+/** One row of GET /users/{id}/seasons: a season the person has a roster or
+ *  captain seat in, newest first. */
+export interface RawUserSeason {
+  season_id: number;
+  team: RawTeamLite | null;
+  is_captain: boolean;
+  /** True when the person captained the team without a roster seat. */
+  captain_only: boolean;
+  signup_race: string | null;
+  played_as: string | null;
+  record: { games: number; wins: number; losses: number; matchup_history: string[] };
+}
+/** One row of GET /users/{id}/series, from the player's side. `race` and
+ *  `opponent_race` are the series races (W3C codes); team names are long names. */
+export interface RawUserSeries {
+  id: number;
+  season_id: number;
+  week: number | null;
+  date_time: string | null;
+  race: string | null;
+  score: number | null;
+  opponent_score: number | null;
+  opponent_id: number | null;
+  opponent_name: string | null;
+  opponent_race: string | null;
+  team1_name: string | null;
+  team2_name: string | null;
+  cast_id: number | null;
+  cast_name: string | null;
+  cast_channel_url: string | null;
+  cast_vod_url: string | null;
 }
 export interface RawCareerStat {
   id: number;
@@ -135,8 +163,8 @@ interface RawTeamLite {
   id: number;
   league_id?: number;
   name: string;
-  long_name?: string;
-  icon_url?: string;
+  long_name?: string | null;
+  icon_url?: string | null;
 }
 interface RawSeasonInfo {
   season_id: number;
@@ -358,10 +386,10 @@ function fixtureTeam(t: RawTeamLite, score: number): FixtureTeam {
   return { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t), score };
 }
 
-function playerMatchStatus(s: RawSeries): MatchStatus {
-  if (isLive(s.date_time)) return "live";
-  if (played(s.player1_score, s.player2_score)) return "completed";
-  const t = ms(s.date_time);
+function playerMatchStatus(dateTime: string | undefined, a: number, b: number): MatchStatus {
+  if (isLive(dateTime)) return "live";
+  if (played(a, b)) return "completed";
+  const t = ms(dateTime);
   return !Number.isNaN(t) && t > Date.now() ? "scheduled" : "completed";
 }
 
@@ -369,7 +397,7 @@ function toPlayerMatch(s: RawSeries): PlayerMatch {
   return {
     id: s.id,
     scheduledAt: s.date_time,
-    status: playerMatchStatus(s),
+    status: playerMatchStatus(s.date_time, s.player1_score, s.player2_score),
     home: {
       playerId: s.player1?.id,
       playerName: s.player1?.name ?? "TBD",
@@ -608,91 +636,84 @@ export interface RawProfileReads {
   /** Every published, finished GNL season. */
   seasons: RawSeason[];
   user: RawUser;
-  history: RawHistory;
-  /** Every team of the league, for the long name and the logo. */
-  leagueTeams: RawTeam[];
-  /** The series of each season the player has a roster seat in, by season id. */
-  series: Map<number, RawSeries[]>;
-  career: RawCareerStat[];
+  /** The person's roster and captain seats, one row per season. */
+  seats: RawUserSeason[];
+  /** The player's series in the published seasons they have a roster seat in. */
+  series: RawUserSeries[];
+  career: RawCareerStat | null;
 }
 
-/** The player's series in one season, from their side, oldest week first. */
-function mapPlayerSeries(series: RawSeries[], userId: number): PlayerSeries[] {
+/** The player's series in one season, oldest week first. `signupRace` stands
+ *  in for a series with no race. */
+function mapPlayerSeries(series: RawUserSeries[], seasonId: number, signupRace: string | null): PlayerSeries[] {
   return series
-    .filter((s) => s.player1?.id === userId || s.player2?.id === userId)
+    .filter((s) => s.season_id === seasonId)
     .map<PlayerSeries>((s) => {
-      const home = s.player1?.id === userId;
-      const me = home ? s.player1 : s.player2;
-      const them = home ? s.player2 : s.player1;
-      const myRace = home ? s.player1_race : s.player2_race;
-      const theirRace = home ? s.player2_race : s.player1_race;
-      const c = s.casts?.find((x) => x.vod_url) ?? s.casts?.[0];
+      const score = s.score ?? 0;
+      const opponentScore = s.opponent_score ?? 0;
       return {
         id: s.id,
-        week: s.match?.playday ?? 0,
-        scheduledAt: s.date_time,
-        status: playerMatchStatus(s),
-        race: myRace ? (W3C_RACE[myRace] ?? raceOf(myRace)) : raceOf(me?.signup_race),
-        score: home ? s.player1_score : s.player2_score,
-        opponentScore: home ? s.player2_score : s.player1_score,
+        week: s.week ?? 0,
+        scheduledAt: s.date_time ?? undefined,
+        status: playerMatchStatus(s.date_time ?? undefined, score, opponentScore),
+        race: s.race ? (W3C_RACE[s.race] ?? raceOf(s.race)) : raceOf(signupRace),
+        score,
+        opponentScore,
         opponent: {
-          id: them?.id ?? 0,
-          name: them?.name ?? "TBD",
-          slug: playerSlug(them?.id, them?.name ?? ""),
-          race: theirRace ? (W3C_RACE[theirRace] ?? raceOf(theirRace)) : raceOf(them?.signup_race),
+          id: s.opponent_id ?? 0,
+          name: s.opponent_name ?? "TBD",
+          slug: playerSlug(s.opponent_id ?? undefined, s.opponent_name ?? ""),
+          race: s.opponent_race ? (W3C_RACE[s.opponent_race] ?? raceOf(s.opponent_race)) : raceOf(null),
         },
-        fixture: {
-          homeTeam: s.match?.team1?.long_name || s.match?.team1?.name || "",
-          awayTeam: s.match?.team2?.long_name || s.match?.team2?.name || "",
-        },
-        cast: c
-          ? { id: c.id, name: c.name ?? "Cast", channelUrl: c.channel_url ?? undefined, vodUrl: c.vod_url ?? undefined }
-          : undefined,
+        fixture: { homeTeam: s.team1_name ?? "", awayTeam: s.team2_name ?? "" },
+        cast:
+          s.cast_id != null
+            ? {
+                id: s.cast_id,
+                name: s.cast_name ?? "Cast",
+                channelUrl: s.cast_channel_url ?? undefined,
+                vodUrl: s.cast_vod_url ?? undefined,
+              }
+            : undefined,
       };
     })
     .sort((a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
 }
 
-/** Builds a player's profile from their roster seats (`gnl_stats`) and
- *  captain seats in the published seasons, newest first. The team and the race
- *  of the header come from the most recent of those seasons. */
+/** Builds a player's profile from their roster and captain seats in the
+ *  published seasons, newest first. The team and the race of the header come
+ *  from the most recent of those seasons. */
 export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefined {
-  const { user, history: hist, leagueTeams, series, career } = reads;
-  const teams = new Map(leagueTeams.map((t) => [t.id, t]));
-  const signups = new Map((user.signup_seasons ?? []).map((s) => [s.id, s]));
-  const captainOf = hist.captain_of ?? [];
+  const { user, series, career: c } = reads;
+  const seats = new Map(reads.seats.map((r) => [r.season_id, r]));
   const ordered = [...reads.seasons].sort(
     (a, b) => (ms(b.start_date) || 0) - (ms(a.start_date) || 0) || b.id - a.id,
   );
   const history: PlayerSeasonEntry[] = [];
   for (const raw of ordered) {
-    const stat = user.gnl_stats?.find((r) => r.season_id === raw.id && r.team_id != null);
-    const seat = stat ? undefined : captainOf.find((c) => c.season_id === raw.id);
-    const teamId = stat?.team_id ?? seat?.team_id;
-    if (teamId == null) continue;
-    const t: RawTeam = teams.get(teamId) ?? { id: teamId, name: seat?.team_name ?? "", league_id: raw.league_id };
+    const seat = seats.get(raw.id);
+    const t = seat?.team;
+    if (!seat || !t) continue;
     const long = t.long_name || t.name;
     const season = mapSeason(raw);
-    const signup = signups.get(raw.id);
     history.push({
       season: { id: season.id, name: season.name, shortName: season.shortName, number: season.number },
       team: { id: t.id, name: long, slug: slugify(long), tag: t.name, logoUrl: logoUrl(t) },
-      race: signupRace(signup?.signup_race),
-      playedAs: signup?.played_as ?? null,
-      isCaptain: captainOf.some((c) => c.season_id === raw.id && c.team_id === teamId),
-      captainOnly: !stat,
+      race: signupRace(seat.signup_race),
+      playedAs: seat.played_as ?? null,
+      isCaptain: seat.is_captain,
+      captainOnly: seat.captain_only,
       record: {
-        seriesPlayed: stat?.games ?? 0,
-        seriesWon: stat?.wins ?? 0,
-        seriesLost: stat?.losses ?? 0,
-        matchupHistory: (stat?.matchup_history ?? []).map((r) => W3C_RACE[r] ?? raceOf(r)),
+        seriesPlayed: seat.record.games,
+        seriesWon: seat.record.wins,
+        seriesLost: seat.record.losses,
+        matchupHistory: seat.record.matchup_history.map((r) => W3C_RACE[r] ?? raceOf(r)),
       },
-      series: stat ? mapPlayerSeries(series.get(raw.id) ?? [], user.id) : [],
+      series: seat.captain_only ? [] : mapPlayerSeries(series, raw.id, seat.signup_race),
     });
   }
   const entry = history[0];
   if (!entry) return undefined;
-  const c = career.find((r) => r.user_id === user.id);
   const allTime = history.reduce<GnlRecord>(
     (acc, h) => ({
       seriesPlayed: acc.seriesPlayed + h.record.seriesPlayed,
@@ -703,7 +724,7 @@ export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefi
     { seriesPlayed: 0, seriesWon: 0, seriesLost: 0, matchupHistory: [] },
   );
   // The header race is that of the latest season's signup; the MMR is that of the main race.
-  const me: RawPlayer = { ...user, signup_race: signups.get(entry.season.id)?.signup_race };
+  const me: RawPlayer = { ...user, signup_race: seats.get(entry.season.id)?.signup_race };
   return {
     player: mapPlayer(me, entry.team.id, entry.team.name, entry.isCaptain),
     team: entry.team,
