@@ -52,6 +52,8 @@ export interface RawSeason {
   league_short_name?: string;
   /** Common event phase, e.g. "signups_open" | "running" | "finished". */
   phase?: string;
+  /** The season's map pool; `image` is the picture url the backend serves. */
+  maps?: { name: string; image?: string | null }[];
 }
 /** One race of the backend ladder summary. */
 export interface RawRaceMmr {
@@ -765,21 +767,24 @@ export interface RawLadder {
   teams?: RawLadderTeam[];
 }
 
-const toAch = (a: RawLadderAchievement): LadderAchievement => ({
+// A per-map badge (`map_win:<map>`) carries its map's picture from the season's pool
+const toAch = (pictures: Map<string, string>) => (a: RawLadderAchievement): LadderAchievement => ({
   id: a.id,
+  picture: a.id.startsWith("map_win:") ? pictures.get(a.id.slice("map_win:".length)) : undefined,
   name: a.name,
   description: a.description,
   points: a.points,
   achievedAt: a.achieved_at ?? undefined,
 });
 
-export function mapLadder(raw: RawLadder, teams: RawTeam[]): Ladder {
+export function mapLadder(raw: RawLadder, teams: RawTeam[], maps: RawSeason["maps"] = []): Ladder {
   const logos = new Map(teams.map((t) => [t.id, logoUrl(t)]));
+  const ach = toAch(new Map(maps.flatMap((m) => (m.image ? [[m.name, m.image] as const] : []))));
   return {
     totalGames: raw.total_games ?? 0,
     syncedAt: raw.season?.synced_at ?? undefined,
     perDay: (raw.per_day ?? []).map((d) => ({ date: d.d, games: d.g })),
-    rules: (raw.achievement_rules ?? []).map(toAch),
+    rules: (raw.achievement_rules ?? []).map(ach),
     teams: (raw.teams ?? [])
       .map<LadderTeam>((t) => {
         const long = t.long_name || t.name || "";
@@ -812,7 +817,7 @@ export function mapLadder(raw: RawLadder, teams: RawTeam[]): Ladder {
               vsRace: Object.fromEntries(
                 Object.entries(p.vs_race ?? {}).map(([k, [w, l]]) => [W3C_RACE[k] ?? raceOf(k), { wins: w, losses: l }]),
               ),
-              achievements: (p.achievements ?? []).map(toAch),
+              achievements: (p.achievements ?? []).map(ach),
             }))
             .sort((a, b) => b.points - a.points),
         };

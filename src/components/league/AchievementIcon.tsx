@@ -15,9 +15,11 @@ const GLYPHS = new Set(
    win_streak_2 winner_winner winter`.split(/\s+/),
 );
 
-/** One badge glyph from game-icons.net, tinted by the surrounding text color; a trophy for an unknown rule */
-export function AchievementIcon({ id, size = 20 }: { id: string; size?: number }) {
-  // ponytail: a `map_win:<map>` badge shows the map_win glyph, not the map picture the app shows
+/** One badge glyph from game-icons.net, tinted by the surrounding text color; a map badge draws its map's picture */
+export function AchievementIcon({ id, picture, size = 20 }: { id: string; picture?: string; size?: number }) {
+  if (picture)
+    // eslint-disable-next-line @next/next/no-img-element -- the backend's picture url, any host
+    return <img src={picture} alt="" className="shrink-0 rounded-[3px] object-cover" style={{ width: size, height: size }} />;
   const rule = id.split(":")[0];
   const glyph = GLYPHS.has(id) ? id : GLYPHS.has(rule) ? rule : null;
   if (!glyph) return <Trophy size={size} />;

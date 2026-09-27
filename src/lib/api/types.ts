@@ -253,6 +253,8 @@ export type PlayerProfile = {
  *  season earn ladder points and achievements for the player's team. */
 export type LadderAchievement = {
   id: string;
+  /** The map's picture url, on a per-map (`map_win:<map>`) badge. */
+  picture?: string;
   name: string;
   description: string;
   points: number;

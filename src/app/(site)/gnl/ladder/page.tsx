@@ -161,7 +161,7 @@ export default async function LadderPage({ searchParams }: Props) {
                     return (
                       <div key={r.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
                         <span className="grid size-9 place-items-center rounded border border-gold/30 bg-gold/10 text-gold">
-                          <AchievementIcon id={r.id} size={18} />
+                          <AchievementIcon id={r.id} picture={r.picture} size={18} />
                         </span>
                         <div className="min-w-0">
                           <p className="font-heading text-sm font-bold text-fg">{r.name}</p>
