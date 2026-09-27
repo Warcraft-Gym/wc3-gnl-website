@@ -16,9 +16,9 @@ function FormPips({ form }: { form: StandingRow["form"] }) {
           title={r === "W" ? "Win" : r === "D" ? "Draw" : "Loss"}
           className={cn(
             "grid size-5 place-items-center rounded-sm tnum text-[0.6rem] font-bold",
-            r === "W" && "bg-win/20 text-win",
-            r === "D" && "bg-surface-2 text-muted",
-            r === "L" && "bg-loss/15 text-loss",
+            r === "W" && "bg-win text-bg-deep",
+            r === "D" && "bg-draw text-fg",
+            r === "L" && "bg-loss text-bg-deep",
           )}
         >
           {r}
