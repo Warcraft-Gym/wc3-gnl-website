@@ -74,7 +74,7 @@ export function CommunityTiles() {
             </span>
             <span className="min-w-0 flex-1">
               <span className="flex items-center justify-between gap-2">
-                <h3 className="text-[1rem] font-bold text-fg transition-colors group-hover:text-gold">
+                <h3 className="text-[1rem] font-bold tracking-[0.06em] text-fg transition-colors group-hover:text-gold">
                   {title}
                 </h3>
                 <ArrowUpRight size={20} className="shrink-0 text-faint transition-colors group-hover:text-gold" />

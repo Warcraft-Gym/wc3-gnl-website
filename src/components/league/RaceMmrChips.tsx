@@ -29,7 +29,7 @@ export function RaceMmrChips({ races, main }: { races: readonly LadderRace[]; ma
             <RaceIcon race={r.race} size={22} />
             <span className={cn("tnum text-sm", r.race === main ? "font-bold text-gold" : "text-fg")}>{r.mmr}</span>
             <span className="tnum text-xs text-faint">{rec ?? "—"}</span>
-            {r.tag ? <span className="text-[0.58rem] text-muted">{r.tag}</span> : null}
+            {r.tag ? <span className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{r.tag}</span> : null}
           </li>
         );
       })}

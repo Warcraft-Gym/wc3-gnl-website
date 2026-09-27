@@ -30,7 +30,7 @@ export function Surface({
   );
 }
 
-/** Small kicker/eyebrow label with an accent tick. */
+/** Small uppercase kicker/eyebrow label with an accent tick. */
 export function Kicker({
   children,
   className,

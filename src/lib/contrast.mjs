@@ -42,3 +42,53 @@ export function contrastRatio(a, b) {
 export function compositeOver(fg, bg, alpha) {
   return fg.map((f, i) => Math.round(f * alpha + bg[i] * (1 - alpha)));
 }
+
+/* --- oklch ---------------------------------------------------------------
+ *
+ * The palette is written in oklch as well as hex, so a test that only spoke
+ * hex could not measure half of it. Conversion is Björn Ottosson's oklab
+ * matrices: oklch to oklab, oklab to linear sRGB, then encoded to the 0-255
+ * sRGB that `relativeLuminance` expects. Going back through the encode keeps
+ * one luminance path rather than two that could disagree.
+ */
+
+const encode = (x) => {
+  const c = x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055;
+  return Math.round(Math.min(1, Math.max(0, c)) * 255);
+};
+
+/** `oklch(L C H)` or `oklch(L C H / a)` to `[r, g, b]`. Alpha is ignored:
+ *  use `alphaOf` and `compositeOver` to flatten it deliberately. */
+export function parseOklch(value) {
+  const m = String(value)
+    .trim()
+    .match(/^oklch\(\s*([\d.]+)(%?)\s+([\d.]+)\s+([\d.]+)(?:\s*\/\s*([\d.]+))?\s*\)$/i);
+  if (!m) throw new Error(`not an oklch colour: ${value}`);
+  const L = m[2] ? Number(m[1]) / 100 : Number(m[1]);
+  const C = Number(m[3]);
+  const h = (Number(m[4]) * Math.PI) / 180;
+  const a = C * Math.cos(h);
+  const b = C * Math.sin(h);
+
+  const l = (L + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+  const mm = (L - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+  const s = (L - 0.0894841775 * a - 1.291485548 * b) ** 3;
+
+  return [
+    4.0767416621 * l - 3.3077115913 * mm + 0.2309699292 * s,
+    -1.2684380046 * l + 2.6097574011 * mm - 0.3413193965 * s,
+    -0.0041960863 * l - 0.7034186147 * mm + 1.707614701 * s,
+  ].map(encode);
+}
+
+/** Any colour the stylesheet actually uses. Throws on anything it cannot
+ *  measure, so an unreadable token fails the test rather than skipping it. */
+export function parseColor(value) {
+  return String(value).trim().toLowerCase().startsWith("oklch(") ? parseOklch(value) : parseHex(value);
+}
+
+/** The alpha of a colour, 1 when it is opaque. */
+export function alphaOf(value) {
+  const m = String(value).match(/\/\s*([\d.]+)\s*\)$/);
+  return m ? Number(m[1]) : 1;
+}

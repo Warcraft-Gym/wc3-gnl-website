@@ -45,7 +45,7 @@ export function GuideFeatureCard({
           />
         </div>
 
-        <h3 className="mt-5 text-[1.05rem] font-bold leading-snug text-fg transition-colors group-hover:text-gold">
+        <h3 className="mt-5 text-[1.05rem] font-bold leading-snug tracking-[0.06em] text-fg transition-colors group-hover:text-gold">
           {guide.title}
         </h3>
         <p className="mt-2.5 line-clamp-3 max-w-sm text-sm text-muted">
@@ -54,7 +54,7 @@ export function GuideFeatureCard({
         <p className="kicker mt-4 text-[0.62rem]">
           {category?.title ?? "Guide"}
           <span className="text-faint">·</span>
-          <span className="font-sans font-bold text-faint">
+          <span className="font-sans font-bold tracking-[0.1em] text-faint">
             {LEVEL_LABEL[guide.level]} · {guide.minutes} min
           </span>
         </p>

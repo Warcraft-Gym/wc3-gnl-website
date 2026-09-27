@@ -51,7 +51,7 @@ export default async function ScheduleWeekPage({ params, searchParams }: Params)
     <>
       <PageHeader kicker={`${season.shortName} · Schedule`} title={`Week ${week.number}`}>
         <div className="flex flex-wrap items-center gap-4">
-          <span className="text-sm text-muted">
+          <span className="font-mono text-sm uppercase tracking-widest text-muted">
             {week.label}
           </span>
           {week.isCurrent ? <Badge tone="gold">Current week</Badge> : null}
@@ -77,7 +77,7 @@ export default async function ScheduleWeekPage({ params, searchParams }: Params)
           </>
         ) : (
           <div className="border border-dashed border-line px-5 py-10 text-center">
-            <p className="font-heading text-sm font-bold text-fg">
+            <p className="font-display text-sm font-bold uppercase tracking-[0.08em] text-fg">
               Week {week.number}, {week.label}
             </p>
             <p className="mt-2 text-sm text-faint">

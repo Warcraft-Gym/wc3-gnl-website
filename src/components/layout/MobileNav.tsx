@@ -39,7 +39,7 @@ export function MobileNav() {
                   target="_blank"
                   rel="noreferrer"
                   onClick={close}
-                  className="flex items-center gap-2 border-b border-line/60 py-3.5 font-heading text-base font-bold text-fg"
+                  className="flex items-center gap-2 border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] text-fg"
                 >
                   {item.label === "Discord" ? (
                     <DiscordIcon size={20} className="text-[#5865F2]" />
@@ -52,7 +52,7 @@ export function MobileNav() {
                   href={item.href}
                   onClick={close}
                   className={cn(
-                    "border-b border-line/60 py-3.5 font-heading text-base font-bold transition-colors",
+                    "border-b border-line/60 py-3.5 font-display text-base font-bold uppercase tracking-[0.08em] transition-colors",
                     // Build orders and creep routes are Learn pages and light
                     // Learn up; they used to be excluded here because they had
                     // top-level items of their own.

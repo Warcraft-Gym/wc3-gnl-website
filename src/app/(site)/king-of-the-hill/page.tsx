@@ -66,7 +66,7 @@ export default async function KingOfTheHillPage() {
       <Container className="max-w-3xl space-y-4 py-10">
         {/* When and where */}
         <Surface className="p-6 sm:p-8">
-          <h2 className="font-heading text-xl font-bold">Next King of the Hill</h2>
+          <h2 className="font-display text-xl font-bold uppercase">Next King of the Hill</h2>
           {next ? (
             <>
               <p className="mt-4 text-lg text-fg">{next.day}</p>
@@ -100,8 +100,8 @@ export default async function KingOfTheHillPage() {
         {reigning ? (
           <Surface className="p-6 sm:p-8">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-              <h2 className="font-heading text-xl font-bold">Current kings</h2>
-              <p className="text-[0.66rem] text-muted">
+              <h2 className="font-display text-xl font-bold uppercase">Current kings</h2>
+              <p className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint">
                 Crowned {shortDate(reigning.date)} {reigning.date.slice(0, 4)}
               </p>
             </div>
@@ -130,7 +130,7 @@ export default async function KingOfTheHillPage() {
                     />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate font-heading text-base font-bold text-fg">{k.player}</span>
+                    <span className="block truncate font-display text-base font-bold uppercase text-fg">{k.player}</span>
                     <span className="block text-xs text-faint">{k.bracket}</span>
                   </span>
                 </li>
@@ -141,7 +141,7 @@ export default async function KingOfTheHillPage() {
 
         {/* Who can join */}
         <Surface className="p-6 sm:p-8">
-          <h2 className="font-heading text-xl font-bold">Who can join, and how</h2>
+          <h2 className="font-display text-xl font-bold uppercase">Who can join, and how</h2>
           {page?.joining?.length ? (
             <div className="prose-invert mt-4 max-w-none">
               <PortableBody value={page.joining as never} />
@@ -153,7 +153,7 @@ export default async function KingOfTheHillPage() {
 
         {/* Rules */}
         <Surface className="p-6 sm:p-8">
-          <h2 className="font-heading text-xl font-bold">Rules</h2>
+          <h2 className="font-display text-xl font-bold uppercase">Rules</h2>
           {page?.rules?.length ? (
             <div className="prose-invert mt-4 max-w-none">
               <PortableBody value={page.rules as never} />
@@ -174,7 +174,7 @@ export default async function KingOfTheHillPage() {
             the browser does the disclosure. */}
         {years.length ? (
           <Surface className="p-6 sm:p-8">
-            <h2 className="font-heading text-xl font-bold">Past winners</h2>
+            <h2 className="font-display text-xl font-bold uppercase">Past winners</h2>
             <p className="mt-2 text-sm text-muted">
               {crownings} crowns across {results.length} events, from{" "}
               {shortDate(results[results.length - 1].date)} {years[years.length - 1].year} to{" "}
@@ -185,8 +185,8 @@ export default async function KingOfTheHillPage() {
               {years.map((y, i) => (
                 <details key={y.year} open={i === 0} className="group border border-line bg-surface/40">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-2/50 [&::-webkit-details-marker]:hidden">
-                    <span className="font-heading text-base font-bold text-fg">{y.year}</span>
-                    <span className="text-[0.66rem] text-muted">
+                    <span className="font-display text-base font-bold uppercase tracking-[0.06em] text-fg">{y.year}</span>
+                    <span className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint">
                       {y.results.length} {y.results.length === 1 ? "event" : "events"} · {y.crownings} crowned
                       <ChevronDown size={14} className="ml-2 inline align-[-2px] transition-transform group-open:rotate-180" />
                     </span>
@@ -197,7 +197,7 @@ export default async function KingOfTheHillPage() {
                         key={r.date}
                         className="flex flex-col gap-1.5 border-b border-line/40 px-4 py-2.5 last:border-0 sm:flex-row sm:items-baseline sm:gap-4"
                       >
-                        <span className="tnum w-16 shrink-0 text-xs text-muted">{shortDate(r.date)}</span>
+                        <span className="w-16 shrink-0 font-mono text-xs text-faint">{shortDate(r.date)}</span>
                         {r.winners.length ? (
                           <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
                             {r.winners.map((w) => (

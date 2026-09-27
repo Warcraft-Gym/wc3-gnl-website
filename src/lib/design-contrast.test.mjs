@@ -17,7 +17,7 @@ import assert from "node:assert/strict";
 import { globSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NON_TEXT_MINIMUM, contrastRatio, parseHex } from "./contrast.mjs";
+import { NON_TEXT_MINIMUM, contrastRatio, parseColor, parseHex } from "./contrast.mjs";
 
 const CSS = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../app/globals.css"), "utf8");
 
@@ -34,7 +34,7 @@ test("the panel border clears 3:1 on both backgrounds it sits on", () => {
   // colour rather than lowering the threshold.
   const line = parseHex(token("wg-line"));
   for (const bg of ["wg-bg", "wg-surface"]) {
-    const ratio = contrastRatio(line, parseHex(token(bg)));
+    const ratio = contrastRatio(line, parseColor(token(bg)));
     assert.ok(
       ratio >= NON_TEXT_MINIMUM,
       `--wg-line on --${bg} is ${ratio.toFixed(2)}:1, needs ${NON_TEXT_MINIMUM}:1 (WCAG 1.4.11)`,
@@ -51,9 +51,10 @@ test("the border is opaque, so the measured ratio is the one you see", () => {
 });
 
 test("the backgrounds it is measured against are still the ones in use", () => {
-  // Guards the test itself: if these stop being hex, the assertions above
-  // would throw rather than silently measure the wrong thing.
-  for (const bg of ["wg-bg", "wg-surface"]) assert.doesNotThrow(() => parseHex(token(bg)), bg);
+  // Guards the test itself: if these stop being a colour this file can
+  // read, the assertions above would throw rather than silently measure the
+  // wrong thing. hex and oklch are both real values in this stylesheet.
+  for (const bg of ["wg-bg", "wg-surface"]) assert.doesNotThrow(() => parseColor(token(bg)), bg);
 });
 
 test("the faint border stays on the floating chrome and nowhere else", () => {

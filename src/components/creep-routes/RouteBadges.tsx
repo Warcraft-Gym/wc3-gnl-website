@@ -37,7 +37,7 @@ export function LevelBadge({ level }: { level: RouteLevel }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded border px-2 py-0.5 text-[0.62rem] font-bold",
+        "inline-flex items-center rounded border px-2 py-0.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em]",
         LEVEL_TONE[level],
       )}
     >

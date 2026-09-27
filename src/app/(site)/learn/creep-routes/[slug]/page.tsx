@@ -179,7 +179,7 @@ export default async function CreepRoutePage({ params }: Params) {
               className="size-24 shrink-0 rounded bg-black/40 object-contain ring-1 ring-gold/40"
             />
             <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <span className="font-heading text-[1.6rem] font-bold text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.8)]">
+              <span className="font-display text-[1.6rem] font-bold uppercase tracking-[0.04em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.8)]">
                 {route.map.name}
               </span>
               {map.mapVersion ? <span className="text-xs text-faint">map v{map.mapVersion}</span> : null}
@@ -207,7 +207,7 @@ export default async function CreepRoutePage({ params }: Params) {
             ) : null}
             <LevelBadge level={route.level} />
             {route.patch ? (
-              <span className="text-[0.66rem] text-muted">Patch {route.patch}</span>
+              <span className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">Patch {route.patch}</span>
             ) : null}
           </div>
           <h1 className="mt-3 max-w-3xl text-[length:var(--wg-text-display)] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]">
@@ -285,7 +285,7 @@ export default async function CreepRoutePage({ params }: Params) {
           aside={
             <div className="panel mt-6 flex flex-col items-start gap-4 border-[#5865F2]/40 p-5">
               <div>
-                <p className="font-heading text-[0.85rem] font-bold text-fg">
+                <p className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
                   Questions about this route?
                 </p>
                 <p className="mt-1 text-sm text-muted">
@@ -314,7 +314,7 @@ export default async function CreepRoutePage({ params }: Params) {
       {route.description && route.description.length ? (
         <Container className="pb-16">
           <section className="min-w-0">
-            <h2 className="mb-4 text-[1.05rem] font-bold">About this route</h2>
+            <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
             {isPortableText(route.description) ? (
               <div className="prose-invert max-w-none">
                 <PortableBody value={route.description} />
@@ -339,7 +339,7 @@ export default async function CreepRoutePage({ params }: Params) {
       {videoUrl ? (
         <Container className="pb-16">
           <section className="min-w-0">
-            <h2 className="mb-4 text-[1.05rem] font-bold">Watch the route</h2>
+            <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Watch the route</h2>
             <VideoEmbed url={videoUrl} title={`${route.title} — video`} />
           </section>
         </Container>
@@ -358,7 +358,7 @@ export default async function CreepRoutePage({ params }: Params) {
           build link, or when the linked build didn't resolve. */}
       {companionBuild ? (
         <Container className="pb-16">
-          <h2 className="mb-4 text-[1.05rem] font-bold">Companion build</h2>
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">Companion build</h2>
           <ul className="grid gap-3">
             <BuildRow build={companionBuild} />
           </ul>
@@ -367,7 +367,7 @@ export default async function CreepRoutePage({ params }: Params) {
 
       {related.length ? (
         <Container className="pb-16">
-          <h2 className="mb-4 text-[1.05rem] font-bold">
+          <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">
             {relatedAllSameMap ? `More routes on ${route.map.name}` : "More creep routes"}
           </h2>
           <ul className="grid gap-3">

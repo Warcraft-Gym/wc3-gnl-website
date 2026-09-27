@@ -185,7 +185,7 @@ export function StopRow({
         <div className="mt-2.5 space-y-2.5">
           {/* Bring */}
           <div>
-            <p className="mb-1 text-[0.6rem] font-bold text-faint">Bring</p>
+            <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
             <div className="flex flex-wrap items-center gap-1.5">
               {stop.units.map((u) => (
                 <span key={u.id} className="flex items-center gap-1 rounded border border-line/70 bg-surface/40 py-1 pl-1 pr-1.5">
@@ -206,7 +206,7 @@ export function StopRow({
                 <button
                   type="button"
                   onClick={addUnit}
-                  className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold text-muted hover:border-gold/50 hover:text-gold"
+                  className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold uppercase tracking-wide text-muted hover:border-gold/50 hover:text-gold"
                 >
                   <Plus size={14} /> Add
                 </button>

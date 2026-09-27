@@ -42,7 +42,7 @@ export function GuideCard({ guide }: { guide: Guide }) {
           )}
           <span
             className={cn(
-              "absolute left-3 top-3 border bg-bg-deep/80 px-1.5 py-0.5 text-[0.62rem] font-bold backdrop-blur-sm",
+              "absolute left-3 top-3 border bg-bg-deep/80 px-1.5 py-0.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em] backdrop-blur-sm",
               LEVEL_TONE[guide.level],
             )}
           >
@@ -52,11 +52,11 @@ export function GuideCard({ guide }: { guide: Guide }) {
 
         <div className="flex flex-1 flex-col p-5">
           {category ? (
-            <p className="mb-2 text-[0.64rem] font-bold text-muted">
+            <p className="mb-2 font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-faint">
               {category.title}
             </p>
           ) : null}
-          <h3 className="font-heading text-lg font-bold leading-tight text-fg transition-colors group-hover:text-gold">
+          <h3 className="font-display text-lg font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold">
             {guide.title}
           </h3>
           <p className="mt-2 line-clamp-3 text-sm text-muted">{guide.excerpt}</p>

@@ -16,7 +16,7 @@ const PILLARS = [
   },
   {
     Icon: GraduationCap,
-    title: "Captains and Coaches",
+    title: "Captains and coaches",
     body: "Replay reviews, strategy talk and a private team channel. You are never grinding alone.",
   },
   {
@@ -54,7 +54,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
             <span className="skew grid size-10 place-items-center bg-gold/10 text-gold">
               <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
             </span>
-            <h3 className="mt-4 font-heading text-[0.95rem] font-bold text-fg">{title}</h3>
+            <h3 className="mt-4 font-display text-[0.95rem] font-bold uppercase text-fg">{title}</h3>
             <p className="mt-2 text-sm text-muted">{body}</p>
           </div>
         ))}
@@ -66,7 +66,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         <ButtonLink href="/gnl/about" size="lg">
-          About the Gym Newbie League
+          About the league
         </ButtonLink>
         <ButtonLink href="/gnl/schedule" size="lg">
           Follow {season.shortName}

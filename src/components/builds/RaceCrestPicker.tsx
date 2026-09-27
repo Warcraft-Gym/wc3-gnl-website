@@ -54,7 +54,7 @@ export function RaceCrest({
       </span>
       <span
         className={cn(
-          "text-[0.6rem] font-bold leading-none transition-colors",
+          "font-display text-[0.6rem] font-bold uppercase leading-none tracking-[0.12em] transition-colors",
           active ? "text-gold" : "text-muted group-hover:text-fg",
         )}
       >

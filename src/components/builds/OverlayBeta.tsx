@@ -29,10 +29,10 @@ export function OverlayBeta({
       />
       <span className="min-w-0 flex-1">
         <span className="flex flex-wrap items-center gap-2">
-          <span className="font-heading text-[0.85rem] font-bold text-fg">
+          <span className="font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
             Take a build into the game
           </span>
-          <span className="rounded border border-arcane/50 px-1.5 py-0.5 text-[0.6rem] text-arcane">
+          <span className="rounded border border-arcane/50 px-1.5 py-0.5 font-mono text-[0.6rem] tracking-[0.16em] text-arcane">
             Beta
           </span>
         </span>

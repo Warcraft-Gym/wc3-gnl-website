@@ -61,12 +61,12 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
   return (
     <div className="panel overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
-        <h2 className="text-[1.05rem] font-bold">
+        <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
           Build order <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">· {steps.length} steps</span>
         </h2>
         {hasClock ? (
           <div className="flex items-center gap-2">
-            <span className="tnum min-w-[3.5rem] text-right text-lg font-bold text-gold">
+            <span className="tnum min-w-[3.5rem] text-right font-display text-lg font-bold text-gold">
               {formatClock(elapsed)}
             </span>
             <button
@@ -92,7 +92,7 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
       <div className="overflow-x-auto">
         <table className="w-full border-collapse text-sm">
           <thead>
-            <tr className="text-left text-[0.62rem] text-muted">
+            <tr className="text-left font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
               <th className="w-10 px-3 py-2.5 text-center font-medium sm:px-4">#</th>
               {hasClock ? <th className="w-16 px-2 py-2.5 font-medium">Time</th> : null}
               <th className="w-14 px-2 py-2.5 text-center font-medium">Food</th>

@@ -10,4 +10,4 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 # Data display
 
-Read [`DESIGN.md`](DESIGN.md) before you change a figure, a result, a race mark, a bar, a stat tile or a chart. Load the `dataviz` skill and the `frontend-design` skill first. Test a new mark colour with the validator of the `dataviz` skill on the `#080503` ground, and never judge a colour pair by eye. A pull request that changes how data is shown updates `DESIGN.md` in the same pull request.
+Read [`DESIGN.md`](DESIGN.md) before you change a figure, a result, a race mark, a bar, a stat tile or a chart. Load the `dataviz` skill and the `frontend-design` skill first. Test a new mark colour with the validator of the `dataviz` skill on the black ground, and never judge a colour pair by eye. A pull request that changes how data is shown updates `DESIGN.md` in the same pull request.

@@ -68,7 +68,7 @@ export function RouteBackLink() {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
+      className="inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
     >
       <ArrowLeft size={17} /> All creep routes
     </Link>
