@@ -85,7 +85,7 @@ export default async function KingOfTheHillPage() {
             </>
           ) : (
             <p className="mt-4 text-muted">
-              The next one is not scheduled yet. Ask in the Discord, or watch the stream — it usually runs weekly.
+              The next one is not scheduled yet. Ask in the Discord, or watch the stream. It usually runs weekly.
             </p>
           )}
           <div className="mt-6 flex justify-center">
