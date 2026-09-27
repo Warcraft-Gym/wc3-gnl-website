@@ -147,7 +147,7 @@ export interface RawTeam extends RawTeamLite {
   captains_by_season?: Record<string, RawPlayer[]>;
   seasons_info?: RawSeasonInfo[];
 }
-interface RawMatch {
+export interface RawMatch {
   id: number;
   season_id: number;
   playday: number;
@@ -434,6 +434,22 @@ export function mapFixtures(raw: RawSeries[]): TeamFixture[] {
   return fixtures.sort(
     (a, b) => a.week - b.week || (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0),
   );
+}
+
+/** One fixture per match, without its series: enough for standings. */
+export function matchesToFixtures(raw: RawMatch[]): TeamFixture[] {
+  return raw
+    .filter((m) => m.team1 && m.team2)
+    .map((m) => ({
+      id: m.id,
+      week: m.playday,
+      seasonId: m.season_id,
+      // No series here, so no live status: a match with a score is completed.
+      status: played(m.team1_score, m.team2_score) ? "completed" : "scheduled",
+      home: fixtureTeam(m.team1, m.team1_score),
+      away: fixtureTeam(m.team2, m.team2_score),
+      matches: [],
+    }));
 }
 
 // --- standings (team points from seasons_info, W/L/diff from fixtures) ---
