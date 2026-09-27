@@ -1,5 +1,6 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
+import { SANITY_TAG } from "@/lib/content/cache";
 
 /**
  * The King of the Hill page.
@@ -37,8 +38,8 @@ export const FALLBACK = {
     "King of the Hill is a casual weekly competition hosted by WC3 Gym. Players play best-of-one matches where the winner stays on and is crowned King. Anyone can step up and challenge the current king to take the throne.",
   streamUrl: "https://twitch.tv/Barrentv",
   joining: [
-    "Anyone can join so long as you are below 1750 MMR — the line is wiggly, and players over 1750 can play if their opponent does not mind.",
-    "There are three brackets: 1600 to 1750, 1450 to 1600, and 1450 and below.",
+    "Anyone can join, whatever your MMR. You play in the bracket your rating falls into.",
+    "There are three brackets: 1600+, 1450 to 1600, and 1450 and below.",
     "To join, show up at or after the start time on the stream and tell the streamer you want to take part. It runs for a few hours and you can jump in at the start, the end, or the middle.",
   ],
   rules: [
@@ -68,7 +69,7 @@ export async function getKothPage(): Promise<KothPage | null> {
     return await client.fetch<KothPage | null>(
       `*[_id == "kothPage"][0]${PROJECTION}`,
       {},
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 300, tags: [SANITY_TAG] } },
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {

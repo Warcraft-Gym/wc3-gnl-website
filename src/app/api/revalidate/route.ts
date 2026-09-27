@@ -1,4 +1,5 @@
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
+import { SANITY_TAG } from "@/lib/content/cache";
 import { NextResponse, type NextRequest } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
@@ -78,6 +79,13 @@ export async function POST(req: NextRequest) {
   const paths = PATHS[type]?.(slug);
   if (!paths) return NextResponse.json({ ok: true, skipped: type });
 
+  // The tag first, and unconditionally: `revalidatePath` only throws away
+  // the rendered page, so without this Next re-renders and is handed the same
+  // cached Sanity response it had before. The page is rebuilt, faithfully,
+  // from stale content. Purging the data is what actually makes an edit show.
+  // "max" expires the tag whatever cache life the entry was written with;
+  // Next 16 deprecated the single-argument form.
+  revalidateTag(SANITY_TAG, "max");
   for (const p of paths) revalidatePath(p);
   return NextResponse.json({ ok: true, type, revalidated: paths });
 }

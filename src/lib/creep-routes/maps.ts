@@ -2,6 +2,7 @@ import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { FIXTURE_MAPS } from "./fixtures";
 import type { CreepMap } from "./types";
+import { SANITY_TAG } from "@/lib/content/cache";
 
 /**
  * Creep-map data access. Reads published `creepMap` documents from Sanity
@@ -42,7 +43,7 @@ async function listFromSanity(): Promise<CreepMap[] | null> {
     return await client.fetch<CreepMap[]>(
       `*[_type == "creepMap" && defined(slug.current)] | order(coalesce(title, name) asc) ${MAP_PROJECTION}`,
       {},
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 300, tags: [SANITY_TAG] } },
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
@@ -69,7 +70,7 @@ export async function getCreepMapBySlug(slug: string): Promise<CreepMap | undefi
         const doc = await client.fetch<CreepMap | null>(
           `*[_type == "creepMap" && slug.current == $slug][0]${MAP_PROJECTION}`,
           { slug },
-          { next: { revalidate: 300 } },
+          { next: { revalidate: 300, tags: [SANITY_TAG] } },
         );
         if (doc && doc.name) return doc;
       } catch (err) {

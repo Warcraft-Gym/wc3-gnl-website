@@ -2,6 +2,7 @@ import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { GUIDES as FIXTURE_GUIDES } from "./data";
 import type { Guide, LearnCategoryId } from "./data";
+import { SANITY_TAG } from "@/lib/content/cache";
 
 /**
  * Guide data access. Reads `guide` documents from Sanity and falls back to the
@@ -44,7 +45,7 @@ async function listFromSanity(): Promise<Guide[] | null> {
     return await client.fetch<Guide[]>(
       `*[_type == "guide" && defined(slug.current)] | order(publishedAt desc) ${LIST_PROJECTION}`,
       {},
-      { next: { revalidate: 300 } },
+      { next: { revalidate: 300, tags: [SANITY_TAG] } },
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {
@@ -82,7 +83,7 @@ export async function getGuideBySlug(slug: string): Promise<Guide | undefined> {
         const doc = await client.fetch<Guide | null>(
           `*[_type == "guide" && slug.current == $slug][0]${DETAIL_PROJECTION}`,
           { slug },
-          { next: { revalidate: 300 } },
+          { next: { revalidate: 300, tags: [SANITY_TAG] } },
         );
         if (doc && doc.title) return doc;
       } catch (err) {
