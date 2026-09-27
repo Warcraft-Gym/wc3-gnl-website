@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { ChevronDown, Crown, ExternalLink } from "lucide-react";
+import { TwitchIcon } from "@/components/ui/TwitchIcon";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
@@ -8,6 +10,8 @@ import { PortableBody } from "@/components/sanity/PortableBody";
 import { FALLBACK, getKothPage } from "@/lib/koth/page";
 import { getKothResults } from "@/lib/koth/results";
 import { groupByYear, shortDate } from "@/lib/koth/group-by-year";
+import { currentKings } from "@/lib/koth/current-kings";
+import { bracketArt } from "@/lib/koth/bracket-art";
 import { formatNextEvent, isPast } from "@/lib/koth/next-event";
 import { LocalEventTime } from "@/components/koth/LocalEventTime";
 
@@ -41,7 +45,9 @@ export default async function KingOfTheHillPage() {
   const intro = page?.intro || FALLBACK.intro;
   const streamUrl = page?.streamUrl || FALLBACK.streamUrl;
   const streamName = streamUrl.replace(/^https?:\/\/(www\.)?/, "").replace(/\/$/, "");
-  const kings = page?.kings ?? [];
+  // Read from the results rather than a field someone has to remember to
+  // update: the old page's hand-kept kings contradicted its own results.
+  const reigning = currentKings(results);
 
   // Only a date that is set *and* still ahead of us is a "next event". A past
   // one is worse than none: the old page spent a year advertising a KotH that
@@ -54,6 +60,7 @@ export default async function KingOfTheHillPage() {
         kicker="Community"
         title={page?.title || FALLBACK.title}
         lead={intro}
+        art="/graphics/koth-crown-peak-1.png"
       />
 
       <Container className="max-w-3xl space-y-4 py-10">
@@ -81,27 +88,49 @@ export default async function KingOfTheHillPage() {
               The next one is not scheduled yet. Ask in the Discord, or watch the stream — it usually runs weekly.
             </p>
           )}
-          <div className="mt-6">
-            <ButtonLink href={streamUrl} size="sm" target="_blank" rel="noreferrer">
-              Watch on {streamName} <ExternalLink size={15} />
+          <div className="mt-6 flex justify-center">
+            <ButtonLink href={streamUrl} variant="twitch" size="md" target="_blank" rel="noreferrer">
+              <TwitchIcon /> Watch on {streamName} <ExternalLink size={15} />
             </ButtonLink>
           </div>
         </Surface>
 
         {/* Current kings — hidden entirely when nobody is set, rather than
             showing a crown with a blank under it or last season's holder. */}
-        {kings.length ? (
+        {reigning ? (
           <Surface className="p-6 sm:p-8">
-            <h2 className="font-display text-xl font-bold uppercase">Current kings</h2>
-            <ul className="mt-5 grid gap-3 sm:grid-cols-2">
-              {kings.map((k) => (
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <h2 className="font-display text-xl font-bold uppercase">Current kings</h2>
+              <p className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint">
+                Crowned {shortDate(reigning.date)} {reigning.date.slice(0, 4)}
+              </p>
+            </div>
+            <ul className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {reigning.kings.map((k) => (
                 <li
-                  key={k._key ?? `${k.bracket}-${k.player}`}
-                  className="flex items-center gap-3 rounded border border-line bg-surface/50 px-4 py-3"
+                  key={`${k.bracket}-${k.player}`}
+                  className="flex flex-col items-center gap-2 rounded border border-line bg-surface/50 px-4 py-5 text-center"
                 >
-                  <Crown size={18} className="shrink-0 text-gold" aria-hidden />
+                  {/* The crown is the point of the page, so it is the painted
+                      emblem rather than a line icon — same treatment the
+                      champions podium gives its cups. Which of the three a
+                      bracket gets is read from its label, so it does not move
+                      when the Studio list is reordered or renamed. */}
+                  <span className="relative block size-20 shrink-0 sm:size-24">
+                    <span
+                      aria-hidden
+                      className="absolute inset-[8%] rounded-full bg-[radial-gradient(circle,var(--wg-gold-glow),transparent_70%)] opacity-60 blur-xl"
+                    />
+                    <Image
+                      src={bracketArt(k.bracket)}
+                      alt=""
+                      fill
+                      sizes="96px"
+                      className="object-contain drop-shadow-[0_12px_22px_rgba(0,0,0,.8)]"
+                    />
+                  </span>
                   <span className="min-w-0">
-                    <span className="block truncate font-display font-bold uppercase text-fg">{k.player}</span>
+                    <span className="block truncate font-display text-base font-bold uppercase text-fg">{k.player}</span>
                     <span className="block text-xs text-faint">{k.bracket}</span>
                   </span>
                 </li>
