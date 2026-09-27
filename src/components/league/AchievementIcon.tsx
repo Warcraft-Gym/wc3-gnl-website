@@ -15,15 +15,24 @@ const GLYPHS = new Set(
    win_streak_2 winner_winner winter`.split(/\s+/),
 );
 
-/** One badge glyph from game-icons.net, tinted by the surrounding text color; a map badge draws its map's picture */
+/** One badge glyph from game-icons.net, tinted by the surrounding text color; a map badge draws its map's picture.
+ *  Decorative: the rule's name sits next to it. */
 export function AchievementIcon({ id, picture, size = 20 }: { id: string; picture?: string; size?: number }) {
-  if (picture)
-    // eslint-disable-next-line @next/next/no-img-element -- the backend's picture url, any host
-    return <img src={picture} alt="" className="shrink-0 rounded-[3px] object-cover" style={{ width: size, height: size }} />;
   const rule = id.split(":")[0];
   const glyph = GLYPHS.has(id) ? id : GLYPHS.has(rule) ? rule : null;
-  if (!glyph) return <Trophy size={size} />;
   // The glyph is a single currentColor path, so a mask paints it in the surrounding text color
   const mask = `url(/achievementIcons/${glyph}.svg) center / contain no-repeat`;
-  return <span role="img" aria-label={id} className="inline-flex shrink-0 bg-current" style={{ width: size, height: size, mask, WebkitMask: mask }} />;
+  const icon = glyph ? (
+    <span aria-hidden className="inline-flex shrink-0 bg-current" style={{ width: size, height: size, mask, WebkitMask: mask }} />
+  ) : (
+    <Trophy size={size} aria-hidden />
+  );
+  if (!picture) return icon;
+  // The picture is a background over the glyph: a dead url draws nothing and the glyph shows
+  return (
+    <span aria-hidden className="relative inline-flex shrink-0" style={{ width: size, height: size }}>
+      {icon}
+      <span className="absolute inset-0 rounded-[3px] bg-cover bg-center" style={{ backgroundImage: `url(${JSON.stringify(picture)})` }} />
+    </span>
+  );
 }
