@@ -23,13 +23,13 @@ export function TeamMedallions({ teams }: { teams: Team[] }) {
                     className="size-full object-contain p-2"
                   />
                 ) : (
-                  <span className="font-display text-base font-bold text-gold">
+                  <span className="font-heading text-base font-bold text-gold">
                     {t.tag}
                   </span>
                 )}
               </span>
             </span>
-            <span className="mt-3 line-clamp-2 font-display text-[0.72rem] sm:text-[0.68rem] font-bold uppercase leading-tight tracking-[0.1em] text-muted transition-colors group-hover:text-fg">
+            <span className="mt-3 line-clamp-2 font-heading text-[0.72rem] sm:text-[0.68rem] font-bold leading-tight text-muted transition-colors group-hover:text-fg">
               {t.name}
             </span>
           </Link>

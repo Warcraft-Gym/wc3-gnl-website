@@ -42,13 +42,13 @@ export function WeekSelector({ weeks, active }: { weeks: Week[]; active: number 
                   : "border-line bg-surface/60 text-muted hover:border-gold/60 hover:text-gold",
               )}
             >
-              <span className="flex items-center gap-1.5 font-display text-sm font-extrabold">
+              <span className="flex items-center gap-1.5 font-heading text-sm font-bold">
                 <span className="tnum">Week {w.number}</span>
                 {w.isCurrent ? (
-                  <span className="rounded bg-gold px-1 font-mono text-[0.5rem] uppercase tracking-widest text-bg-deep">now</span>
+                  <span className="rounded bg-gold px-1 text-[0.5rem] text-bg-deep">now</span>
                 ) : null}
               </span>
-              <span className="mt-0.5 whitespace-nowrap font-mono text-[0.62rem] uppercase tracking-[0.12em] text-faint">
+              <span className="mt-0.5 whitespace-nowrap text-[0.62rem] text-muted">
                 {w.label}
               </span>
             </Link>

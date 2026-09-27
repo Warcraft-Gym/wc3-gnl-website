@@ -87,7 +87,7 @@ export function RouteFilters({
             ))}
           </div>
         </div>
-        <span className="font-display text-2xl font-extrabold uppercase tracking-[0.2em] text-foil lg:mt-9">
+        <span className="font-heading text-2xl font-bold text-foil lg:mt-9">
           vs
         </span>
         <div className="flex flex-col items-center gap-2">

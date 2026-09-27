@@ -18,7 +18,7 @@ function RankChip({ rank }: { rank: number }) {
   return (
     <span
       className={cn(
-        "tnum skew inline-grid h-8 w-10 shrink-0 place-items-center font-display text-sm font-extrabold",
+        "tnum skew inline-grid h-8 w-10 shrink-0 place-items-center text-sm font-bold",
         top ? "bg-gold text-bg-deep" : "border border-line text-faint",
       )}
     >
@@ -34,11 +34,11 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
         <RankChip rank={entry.rank} />
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-sm font-bold uppercase tracking-wide text-fg sm:text-base">
+          <p className="truncate font-heading text-sm font-bold text-fg sm:text-base">
             {entry.name}
           </p>
           {entry.captain ? (
-            <p className="mt-0.5 flex items-center gap-1.5 truncate font-mono text-[0.68rem] uppercase tracking-wide text-faint">
+            <p className="mt-0.5 flex items-center gap-1.5 truncate text-[0.68rem] text-muted">
               <Star size={13} className="shrink-0 fill-gold text-gold" />
               {entry.captain.race ? <RaceIcon race={entry.captain.race} size={15} /> : null}
               <span className="truncate normal-case text-muted">
@@ -71,10 +71,10 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
         </div>
 
         <div className="shrink-0 text-right">
-          <span className="tnum font-display text-xl font-extrabold text-gold sm:text-2xl">
+          <span className="tnum text-xl font-bold text-gold sm:text-2xl">
             {entry.total}
           </span>
-          <span className="ml-1 font-mono text-[0.6rem] uppercase tracking-widest text-faint">
+          <span className="ml-1 text-[0.6rem] text-muted">
             pts
           </span>
         </div>
@@ -88,7 +88,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
       <div className="grid gap-6 border-t border-line/60 bg-bg-deep/30 px-4 py-5 lg:grid-cols-[1fr_1.2fr]">
         {/* point breakdown */}
         <div>
-          <h4 className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-faint">
+          <h4 className="text-[0.62rem] font-bold text-muted">
             Points breakdown
           </h4>
           <ul className="mt-3 space-y-2">
@@ -96,7 +96,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
               const value = entry.breakdown[key];
               return (
                 <li key={key} className="flex items-center gap-3">
-                  <span className="w-16 shrink-0 font-mono text-[0.62rem] uppercase tracking-wide text-muted">
+                  <span className="w-16 shrink-0 text-[0.62rem] text-muted">
                     {label}
                   </span>
                   <Meter
@@ -106,7 +106,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
                     label={`${label}: ${value} of ${entry.total} points`}
                     className="h-2 flex-1"
                   />
-                  <span className="tnum w-8 shrink-0 text-right font-display text-sm font-bold text-fg">
+                  <span className="tnum w-8 shrink-0 text-right text-sm font-bold text-fg">
                     {value}
                   </span>
                 </li>
@@ -117,7 +117,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
 
         {/* drafted roster */}
         <div>
-          <h4 className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-faint">
+          <h4 className="text-[0.62rem] font-bold text-muted">
             Drafted squad
           </h4>
           {entry.roster.length > 0 ? (

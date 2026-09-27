@@ -40,7 +40,7 @@ export function BuildRow({ build }: { build: BuildOrder }) {
         />
 
         <div className="min-w-0">
-          <h3 className="text-[0.98rem] font-bold leading-snug tracking-[0.05em] text-fg transition-colors group-hover:text-gold max-sm:line-clamp-2 sm:truncate">
+          <h3 className="text-[0.98rem] font-bold leading-snug text-fg transition-colors group-hover:text-gold max-sm:line-clamp-2 sm:truncate">
             {build.title}
           </h3>
           <p className="mt-0.5 text-sm text-muted max-sm:line-clamp-2 sm:line-clamp-1">{build.summary}</p>
@@ -111,7 +111,7 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
         />
         <div className="min-w-0">
           <p className="kicker">Featured build</p>
-          <h2 className="mt-2 text-[clamp(1.3rem,1rem+1.4vw,1.9rem)] font-bold leading-tight tracking-[0.05em] text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.9)]">
+          <h2 className="mt-2 text-[clamp(1.3rem,1rem+1.4vw,1.9rem)] font-bold leading-tight text-fg [text-shadow:0_2px_16px_rgba(0,0,0,.9)]">
             {build.title}
           </h2>
           <p className="mt-2 max-w-2xl text-sm text-muted sm:text-[0.95rem]">{build.summary}</p>
@@ -138,7 +138,7 @@ export function FeaturedBuild({ build }: { build: BuildOrder }) {
                 <span className="sr-only">Has a source link</span>
               </span>
             ) : null}
-            <span className="ml-auto inline-flex items-center gap-1 font-display text-[0.68rem] font-bold uppercase tracking-[0.14em] text-gold">
+            <span className="ml-auto inline-flex items-center gap-1 text-[0.68rem] font-bold text-gold">
               Open build <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
             </span>
           </div>

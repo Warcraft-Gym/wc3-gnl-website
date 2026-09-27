@@ -50,7 +50,7 @@ export function Pagination({
 
       {pageWindow(currentPage, totalPages).map((p, i) =>
         p === "…" ? (
-          <span key={`gap-${i}`} className="px-1 font-mono text-sm text-faint">
+          <span key={`gap-${i}`} className="px-1 text-sm text-faint">
             …
           </span>
         ) : (
@@ -59,7 +59,7 @@ export function Pagination({
             href={href(p)}
             aria-current={p === currentPage ? "page" : undefined}
             className={cn(
-              "skew grid h-9 min-w-9 place-items-center border px-2 font-display text-sm font-extrabold transition-colors",
+              "skew grid h-9 min-w-9 place-items-center border px-2 text-sm font-bold transition-colors",
               p === currentPage
                 ? "border-gold bg-gold text-bg-deep"
                 : "border-line text-muted hover:border-gold/60 hover:text-gold",

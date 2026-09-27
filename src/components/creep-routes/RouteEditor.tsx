@@ -82,7 +82,7 @@ export function RouteEditor({
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
-            <p className="font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted">Your spawn</p>
+            <p className="text-[0.68rem] font-bold text-muted">Your spawn</p>
             <div role="radiogroup" aria-label="Your spawn" className="mt-1.5 flex flex-wrap gap-1">
               {map.starts.map((_, i) => (
                 <button
@@ -93,7 +93,7 @@ export function RouteEditor({
                   data-start-option={i}
                   onClick={() => onStartChange(i)}
                   className={cn(
-                    "h-8 min-w-8 rounded border px-2 font-display text-[0.68rem] font-bold uppercase tracking-[0.1em] transition-colors",
+                    "h-8 min-w-8 rounded border px-2 text-[0.68rem] font-bold transition-colors",
                     start === i ? "border-loss bg-loss/10 text-fg" : "border-line bg-surface/60 text-muted hover:text-fg",
                   )}
                 >

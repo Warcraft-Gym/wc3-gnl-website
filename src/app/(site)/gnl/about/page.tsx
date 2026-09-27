@@ -57,7 +57,7 @@ export default function AboutPage() {
                       className="[transform:skewX(calc(var(--wg-skew)*-1))]"
                     />
                   </span>
-                  <h3 className="mt-4 font-display text-lg font-bold uppercase text-fg">
+                  <h3 className="mt-4 font-heading text-lg font-bold text-fg">
                     {b.title}
                   </h3>
                   <p className="mt-2 text-sm text-muted">{b.body}</p>
@@ -73,10 +73,10 @@ export default function AboutPage() {
           <ol className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {about.steps.map((s, i) => (
               <Surface key={s.title} as="li" className="p-6">
-                <span className="tnum font-display text-3xl font-extrabold text-gold/40">
+                <span className="tnum text-3xl font-bold text-gold/40">
                   {String(i + 1).padStart(2, "0")}
                 </span>
-                <h3 className="mt-2 font-display text-lg font-bold uppercase text-fg">
+                <h3 className="mt-2 font-heading text-lg font-bold text-fg">
                   {s.title}
                 </h3>
                 <p className="mt-2 text-sm text-muted">{s.body}</p>

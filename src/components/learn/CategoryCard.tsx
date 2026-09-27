@@ -52,8 +52,8 @@ export function CategoryCard({
           <div className={cn("flex items-center gap-2", stacked ? "justify-center" : "justify-between")}>
             <h3
               className={cn(
-                "font-display font-bold uppercase text-fg transition-colors group-hover:text-gold",
-                prominent ? "text-xl tracking-[0.04em]" : "text-lg",
+                "font-heading font-bold text-fg transition-colors group-hover:text-gold",
+                prominent ? "text-xl" : "text-lg",
               )}
             >
               {category.title}

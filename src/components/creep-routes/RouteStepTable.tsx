@@ -78,7 +78,7 @@ export function RouteStepTable({
   return (
     <div className="panel overflow-hidden">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
-        <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
+        <h2 className="text-[1.05rem] font-bold">
           Route{" "}
           <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
             · {route.stops.length} stops
@@ -105,7 +105,7 @@ export function RouteStepTable({
             <col style={{ width: "7rem" }} />
           </colgroup>
           <thead>
-            <tr className="text-left font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
+            <tr className="text-left text-[0.62rem] text-muted">
               <th className="px-3 py-2.5 text-center font-medium sm:px-4">#</th>
               <th className="px-2 py-2.5 font-medium">Camp</th>
               <th className="px-2 py-2.5 font-medium">Bring</th>

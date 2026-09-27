@@ -122,7 +122,7 @@ export default async function CreepRoutesPage({
           <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="kicker">Community routes</p>
-              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a route worth sharing?</h2>
+              <h2 className="mt-2 text-[1.15rem] font-bold">Got a route worth sharing?</h2>
               <p className="mt-1 max-w-xl text-sm text-muted">
                 Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
               </p>
@@ -165,7 +165,7 @@ export default async function CreepRoutesPage({
             routes span several maps, without hiding a map filter's own
             single-map heading behind a redundant per-group one. */}
         {routes.length && activeMap ? (
-          <h2 className="mt-6 flex items-center gap-3 font-display text-[1.4rem] font-bold uppercase tracking-[0.04em] text-fg">
+          <h2 className="mt-6 flex items-center gap-3 font-heading text-[1.4rem] font-bold text-fg">
             {activeMap.minimapUrl ? (
               <Image
                 src={activeMap.minimapUrl}
@@ -189,7 +189,7 @@ export default async function CreepRoutesPage({
             <div className="mt-6 space-y-8">
               {groupRoutesByMap(routes).map((group) => (
                 <section key={group.map.slug}>
-                  <h2 className="mb-3 flex items-center gap-3 font-display text-[1.4rem] font-bold uppercase tracking-[0.04em] text-fg">
+                  <h2 className="mb-3 flex items-center gap-3 font-heading text-[1.4rem] font-bold text-fg">
                     {group.map.minimapUrl ? (
                       <Image
                         src={group.map.minimapUrl}
@@ -214,10 +214,10 @@ export default async function CreepRoutesPage({
           <div className="mt-6 rounded border border-dashed border-line px-5 py-12 text-center">
             <p className="text-sm text-muted">No creep routes match those filters yet.</p>
             <div className="mt-4 flex flex-wrap justify-center gap-3">
-              <Link href="/learn/creep-routes" className="text-xs uppercase tracking-wide text-muted hover:text-gold">
+              <Link href="/learn/creep-routes" className="text-xs text-muted hover:text-gold">
                 Clear filters
               </Link>
-              <Link href={submitHref} className="text-xs uppercase tracking-wide text-gold hover:underline">
+              <Link href={submitHref} className="text-xs text-gold hover:underline">
                 Be the first to add one
               </Link>
             </div>
@@ -225,7 +225,7 @@ export default async function CreepRoutesPage({
         )}
         {isFiltered && routes.length ? (
           <p className="mt-3 text-right text-xs text-faint">
-            <Link href="/learn/creep-routes" className="uppercase tracking-wide hover:text-gold">
+            <Link href="/learn/creep-routes" className="hover:text-gold">
               Clear filters
             </Link>
           </p>

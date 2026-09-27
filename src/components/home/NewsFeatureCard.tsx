@@ -48,7 +48,7 @@ export function NewsFeatureCard({
           />
         </div>
 
-        <h3 className="mt-5 text-[1.05rem] font-bold leading-snug tracking-[0.06em] text-fg transition-colors group-hover:text-gold">
+        <h3 className="mt-5 text-[1.05rem] font-bold leading-snug text-fg transition-colors group-hover:text-gold">
           {post.title}
         </h3>
         <p className="mt-2.5 line-clamp-3 max-w-sm text-sm text-muted">
@@ -57,7 +57,7 @@ export function NewsFeatureCard({
         <p className="kicker mt-4 text-[0.62rem]">
           {CATEGORY_LABEL[post.category]}
           <span className="text-faint">·</span>
-          <span className="font-sans font-bold tracking-[0.1em] text-faint">
+          <span className="font-sans font-bold text-faint">
             {formatDate(post.publishedAt)}
           </span>
         </p>

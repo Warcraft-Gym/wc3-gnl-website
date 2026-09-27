@@ -3,8 +3,9 @@
 /* ------------------------------------------------------------------ *
  *  WC3 GYM, "Reforged" design system
  *  Modelled on warcraft3.blizzard.com: warm near-black base, full-bleed
- *  painted atmosphere, opaque warm panels, a burnished gold
- *  accent, and a Quadrata-style serif for display type. Tokens in OKLCH.
+ *  painted atmosphere, opaque warm panels, a burnished gold accent,
+ *  Cinzel for page titles, Cardo for headings and names, Lato for body
+ *  copy and figures.
  *
  *  NOTE: the primary accent token is named `--wg-gold` / `--color-gold`.
  *  It now really is gold again. Treat "gold" as "primary accent".
@@ -75,9 +76,10 @@
   --wg-camp-hard: #b01818;
 
   /* --- Type --- */
-  --wg-font-display: var(--font-display), "Cinzel", "Friz Quadrata", Georgia, serif;
+  --wg-font-title: var(--font-title), "Cinzel", "Friz Quadrata", Georgia, serif;
+  --wg-font-heading: var(--font-heading), "Cardo", Georgia, serif;
   --wg-font-sans: var(--font-sans), "Lato", ui-sans-serif, system-ui, sans-serif;
-  --wg-font-mono: var(--font-mono), ui-monospace, "SFMono-Regular", monospace;
+  --wg-font-mono: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace; /* code and file names only */
 
   --wg-text-hero: clamp(1.6rem, 0.8rem + 2.6vw, 2.6rem);
   --wg-text-display: clamp(2rem, 1rem + 3.4vw, 3.6rem);
@@ -147,7 +149,8 @@
   --color-camp-medium: var(--wg-camp-medium);
   --color-camp-hard: var(--wg-camp-hard);
 
-  --font-display: var(--wg-font-display);
+  --font-title: var(--wg-font-title);
+  --font-heading: var(--wg-font-heading);
   --font-sans: var(--wg-font-sans);
   --font-mono: var(--wg-font-mono);
 
@@ -183,8 +186,6 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* Quadrata-style display type: uppercase, wide tracking, regular weight
-     carries the look, bold is reserved for hero headlines. */
   @media (hover: none) {
     body {
       background-attachment: scroll;
@@ -193,12 +194,21 @@
     }
   }
 
-  h1, h2, h3, h4 {
-    font-family: var(--wg-font-display);
+  /* Page titles: Cinzel 700, uppercase, tracked (the Warcraft register).
+     Every other heading: Cardo 700 in mixed case, because case is part of
+     a name and a heading. */
+  h1 {
+    font-family: var(--wg-font-title);
     font-weight: 700;
     letter-spacing: 0.05em;
     line-height: 1.1;
     text-transform: uppercase;
+    text-wrap: balance;
+  }
+  h2, h3, h4 {
+    font-family: var(--wg-font-heading);
+    font-weight: 700;
+    line-height: 1.15;
     text-wrap: balance;
   }
 
@@ -251,23 +261,21 @@
     );
   }
 
-  /* Kicker / eyebrow label, small gold serif, like "*MUST OWN REFORGED…" */
+  /* Kicker / eyebrow line, small gold sans in sentence case */
   .kicker {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    font-family: var(--wg-font-display);
-    font-size: 0.72rem;
+    font-family: var(--wg-font-sans);
+    font-size: 0.8125rem;
     font-weight: 700;
-    letter-spacing: 0.22em;
-    text-transform: uppercase;
-    color: var(--wg-gold);
+    color: var(--wg-gold-ink);
   }
 
+  /* Every figure: Lato with lining, tabular digits so columns align */
   .tnum {
-    font-family: var(--wg-font-mono);
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: "tnum";
+    font-family: var(--wg-font-sans);
+    font-variant-numeric: lining-nums tabular-nums;
   }
 
   /* Formerly a skewed parallelogram; now a softly rounded plate.
@@ -468,17 +476,14 @@
     align-self: start;
     text-align: right;
   }
-  /* A mini uppercase label stands in for the hidden column header — only
+  /* A mini label stands in for the hidden column header — only
      where the cell's own content doesn't already say what it is. */
   .route-step-table td[data-label]::before {
     content: attr(data-label);
     display: block;
-    font-family: var(--wg-font-mono);
     font-size: 0.6rem;
     font-weight: 700;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--wg-text-faint);
+    color: var(--wg-text-muted);
     margin-bottom: 0.2rem;
   }
   .route-step-table td:nth-child(1)::before,

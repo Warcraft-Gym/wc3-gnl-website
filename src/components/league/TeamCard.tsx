@@ -33,7 +33,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
           <TeamPlate tag={team.tag!} logoUrl={team.logoUrl} name={team.name} size="lg" />
         </Link>
         <div className="min-w-0 flex-1">
-          <h3 className="font-display text-lg font-bold uppercase leading-tight text-fg">
+          <h3 className="font-heading text-lg font-bold leading-tight text-fg">
             <Link
               href={`/gnl/teams/${team.slug}`}
               className="flex items-start justify-between gap-2 transition-colors group-hover:text-gold"
@@ -62,8 +62,8 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
       {/* Standing + numbers */}
       <dl className="mt-4 grid grid-cols-3 gap-2 border-t border-line/60 pt-4">
         <div>
-          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Standing</dt>
-          <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">
+          <dt className="text-[0.58rem] text-muted">Standing</dt>
+          <dd className="tnum mt-0.5 text-base font-bold text-fg">
             {standing ? (
               <>
                 <span className={standing.rank === 1 ? "text-gold" : ""}>#{standing.rank}</span>
@@ -76,14 +76,14 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
         </div>
         <div>
           {/* Won, drawn and lost weekly fixtures, not the series inside them. */}
-          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Fixtures</dt>
-          <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">
+          <dt className="text-[0.58rem] text-muted">Fixtures</dt>
+          <dd className="tnum mt-0.5 text-base font-bold text-fg">
             {(standing ? record(standing.wins, standing.losses, standing.draws) : null) ?? "—"}
           </dd>
         </div>
         <div>
-          <dt className="font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">Avg MMR</dt>
-          <dd className="tnum mt-0.5 font-display text-base font-bold text-fg">{avgMmr ?? "-"}</dd>
+          <dt className="text-[0.58rem] text-muted">Avg MMR</dt>
+          <dd className="tnum mt-0.5 text-base font-bold text-fg">{avgMmr ?? "-"}</dd>
         </div>
       </dl>
 
@@ -99,7 +99,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
               <span key={x.race} className={cn("h-full rounded-sm", RACES[x.race].dot)} style={{ width: `${(x.n / raced) * 100}%` }} />
             ))}
           </div>
-          <p className="mt-1.5 flex flex-wrap gap-x-3 font-mono text-[0.6rem] uppercase tracking-wide text-faint">
+          <p className="mt-1.5 flex flex-wrap gap-x-3 text-[0.6rem] text-muted">
             {races.map((x) => (
               <span key={x.race}>
                 {x.n} {RACES[x.race].label}
@@ -121,7 +121,7 @@ export function TeamCard({ team, standing }: { team: Team; standing?: StandingRo
               </Link>
               {p.isCaptain ? <Crown size={13} className="shrink-0 text-gold" /> : null}
             </span>
-            <span className="tnum shrink-0 font-mono text-[0.68rem] text-faint" title="W3Champions MMR">
+            <span className="tnum shrink-0 text-[0.68rem] text-muted" title="W3Champions MMR">
               {p.mmr ?? "-"}
             </span>
           </li>

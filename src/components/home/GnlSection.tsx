@@ -54,7 +54,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
             <span className="skew grid size-10 place-items-center bg-gold/10 text-gold">
               <Icon size={20} className="[transform:skewX(calc(var(--wg-skew)*-1))]" />
             </span>
-            <h3 className="mt-4 font-display text-[0.95rem] font-bold uppercase text-fg">{title}</h3>
+            <h3 className="mt-4 font-heading text-[0.95rem] font-bold text-fg">{title}</h3>
             <p className="mt-2 text-sm text-muted">{body}</p>
           </div>
         ))}

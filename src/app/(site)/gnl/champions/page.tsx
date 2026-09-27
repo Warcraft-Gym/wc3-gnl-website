@@ -83,7 +83,7 @@ function Step({
         />
       </span>
 
-      <p className="mt-2 font-mono text-[0.58rem] uppercase tracking-[0.18em] text-faint">{place.label}</p>
+      <p className="mt-2 text-[0.58rem] text-muted">{place.label}</p>
 
       <div className="mt-3">
         <TeamPlate
@@ -98,8 +98,8 @@ function Step({
         href={`/gnl/teams/${row.team.slug}`}
         className={
           isChampion
-            ? "mt-3 font-display text-base font-bold uppercase leading-tight tracking-[0.04em] text-fg transition-colors hover:text-gold sm:text-lg"
-            : "mt-2 font-display text-sm font-bold uppercase leading-tight text-muted transition-colors hover:text-gold"
+            ? "mt-3 font-heading text-base font-bold leading-tight text-fg transition-colors hover:text-gold sm:text-lg"
+            : "mt-2 font-heading text-sm font-bold leading-tight text-muted transition-colors hover:text-gold"
         }
       >
         {row.team.name}
@@ -109,7 +109,7 @@ function Step({
         <p className="mt-1 text-xs text-faint">Captains {row.captains.join(" & ")}</p>
       ) : null}
 
-      <p className="mt-1 font-mono text-[0.6rem] uppercase tracking-[0.12em] text-faint">
+      <p className="mt-1 text-[0.6rem] text-muted">
         {record(row.wins, row.losses, row.draws)} · {row.points} pts
       </p>
     </div>
@@ -129,7 +129,7 @@ function Podium({ entry, featured }: { entry: SeasonPodium; featured: boolean })
         {entry.recap ? (
           <Link
             href={`/blog/${entry.recap.slug}`}
-            className="text-xs uppercase tracking-wide text-muted transition-colors hover:text-gold"
+            className="text-xs text-muted transition-colors hover:text-gold"
           >
             Write-up →
           </Link>
@@ -198,10 +198,10 @@ export default async function ChampionsPage({ searchParams }: Props) {
                       <span className="relative block size-8 shrink-0">
                         <Image src={PODIUM_PLACES[0].art} alt="" fill sizes="32px" className="object-contain" />
                       </span>
-                      <span className="w-14 shrink-0 font-display text-xs font-bold uppercase tracking-[0.1em] text-gold">
+                      <span className="w-14 shrink-0 font-heading text-xs font-bold text-gold">
                         {c.season.shortName}
                       </span>
-                      <span className="min-w-0 flex-1 truncate font-display text-sm font-bold uppercase text-fg">
+                      <span className="min-w-0 flex-1 truncate font-heading text-sm font-bold text-fg">
                         {c.champion.team.name}
                       </span>
                     </Link>

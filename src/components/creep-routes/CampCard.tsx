@@ -267,14 +267,14 @@ export function CampCard({
       }
     >
       <div className="flex items-center justify-between gap-3 border-b border-gold/30 px-4 py-3">
-        <h2 id={headingId} className="flex items-center gap-2 font-display text-[0.95rem] font-bold uppercase tracking-[0.05em] text-fg">
+        <h2 id={headingId} className="flex items-center gap-2 font-heading text-[0.95rem] font-bold text-fg">
           <BandDot band={resolvedBand} />
           {/* The camp id is the handle an author works with — it is what a
               stop stores and what the stop list shows — so the editor puts it
               on the card. A reader has no use for it, so the route page does
               not pass `showCampId`. */}
           {showCampId ? (
-            <span className="tnum rounded border border-line/70 bg-surface/60 px-1.5 py-0.5 font-mono text-[0.72rem] font-semibold normal-case tracking-normal text-muted">
+            <span className="tnum rounded border border-line/70 bg-surface/60 px-1.5 py-0.5 text-[0.72rem] font-semibold text-muted">
               {camp.id}
             </span>
           ) : null}
@@ -292,11 +292,11 @@ export function CampCard({
 
       <div className="max-h-[70vh] overflow-y-auto md:max-h-[28rem]">
         <table className="w-full border-collapse text-xs">
-          <caption className="border-b border-line/60 bg-surface-2/70 px-4 py-1.5 text-left font-display text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
+          <caption className="border-b border-line/60 bg-surface-2/70 px-4 py-1.5 text-left text-[0.65rem] font-bold text-muted">
             Creeps
           </caption>
           <thead>
-            <tr className="text-left font-mono text-[0.6rem] uppercase tracking-[0.12em] text-faint">
+            <tr className="text-left text-[0.6rem] text-muted">
               <th className="px-3 py-1.5 font-medium">Unit</th>
               <th className="px-2 py-1.5 text-right font-medium">Count</th>
               <th className="px-2 py-1.5 text-right font-medium">Level</th>
@@ -335,7 +335,7 @@ export function CampCard({
 
         {camp.drops?.length ? (
           <table className="w-full border-collapse text-xs">
-            <caption className="border-t border-b border-line/60 bg-surface-2/70 px-4 py-1.5 text-left font-display text-[0.65rem] font-bold uppercase tracking-[0.14em] text-muted">
+            <caption className="border-t border-b border-line/60 bg-surface-2/70 px-4 py-1.5 text-left text-[0.65rem] font-bold text-muted">
               Items
             </caption>
             <tbody>

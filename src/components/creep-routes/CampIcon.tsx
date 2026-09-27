@@ -54,7 +54,7 @@ export function CampIcon({
         title={title}
         style={{ width: size, height: size }}
         className={cn(
-          "grid shrink-0 place-items-center rounded border border-line-strong bg-surface-2 font-display text-[0.55rem] font-bold text-gold",
+          "grid shrink-0 place-items-center rounded border border-line-strong bg-surface-2 text-[0.55rem] font-bold text-gold",
           className,
         )}
       >

@@ -115,17 +115,17 @@ export default async function GuidePage({ params }: Params) {
         <Container className="relative z-10 max-w-3xl pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-16 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3.5rem)]">
           <Link
             href={category ? `/learn/${category.id}` : "/learn"}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
           >
             <ArrowLeft size={17} /> {category ? category.title : "Learn"}
           </Link>
-          <div className="mb-4 flex items-center gap-2 font-mono text-[0.66rem] font-bold uppercase tracking-[0.16em]">
+          <div className="mb-4 flex items-center gap-2 text-[0.66rem] font-bold">
             <span className={cn("border px-1.5 py-0.5", LEVEL_TONE[guide.level])}>
               {guide.level}
             </span>
             <span className="text-faint">{date}</span>
           </div>
-          <h1 className={cn("font-extrabold", guide.title.length > 26 ? "text-[length:clamp(1.9rem,1rem+2.4vw,2.9rem)]" : "text-[length:var(--wg-text-display)]")}>
+          <h1 className={cn("font-bold", guide.title.length > 26 ? "text-[length:clamp(1.9rem,1rem+2.4vw,2.9rem)]" : "text-[length:var(--wg-text-display)]")}>
             {guide.title}
           </h1>
           <p className="mt-5 text-lg text-muted">{guide.excerpt}</p>

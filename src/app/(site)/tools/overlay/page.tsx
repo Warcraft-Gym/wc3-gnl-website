@@ -66,7 +66,7 @@ function More({ title, children }: { title: string; children: React.ReactNode })
   return (
     <details className="group border-t border-line/60">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 py-4 [&::-webkit-details-marker]:hidden">
-        <span className="font-display text-[0.95rem] font-bold uppercase tracking-[0.06em] text-fg transition-colors group-hover:text-gold">{title}</span>
+        <span className="font-heading text-[0.95rem] font-bold text-fg transition-colors group-hover:text-gold">{title}</span>
         <ChevronDown size={20} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
       </summary>
       <div className="max-w-3xl pb-8 text-sm leading-6 text-muted">{children}</div>
@@ -109,7 +109,7 @@ export default async function OverlayPage() {
 
       <Container className="py-10">
         {release ? (
-          <p className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">
+          <p className="text-[0.66rem] text-muted">
             Latest release v{release.version}
           </p>
         ) : null}
@@ -144,7 +144,7 @@ export default async function OverlayPage() {
           {POINTS.map(({ Icon, title, body }) => (
             <li key={title} className="panel p-5">
               <Icon size={20} className="text-arcane" />
-              <p className="mt-2 font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">{title}</p>
+              <p className="mt-2 font-heading text-[0.8rem] font-bold text-fg">{title}</p>
               <p className="mt-1 text-sm text-muted">{body}</p>
             </li>
           ))}
@@ -156,7 +156,7 @@ export default async function OverlayPage() {
             <ol className="space-y-4">
               {STEPS.map((s, i) => (
                 <li key={s} className="flex gap-4">
-                  <span className="btn-gold grid size-8 shrink-0 place-items-center rounded font-display text-sm font-bold">
+                  <span className="btn-gold grid size-8 shrink-0 place-items-center rounded text-sm font-bold">
                     {i + 1}
                   </span>
                   <p className="text-sm leading-6 text-muted">{s}</p>
@@ -182,7 +182,7 @@ export default async function OverlayPage() {
           <More title="Shortcuts">
             <table className="w-full border-collapse text-sm">
               <thead>
-                <tr className="text-left font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
+                <tr className="text-left text-[0.62rem] text-muted">
                   <th className="py-2 font-medium">Action</th>
                   <th className="py-2 font-medium">Windows</th>
                   <th className="py-2 font-medium">macOS</th>
@@ -221,7 +221,7 @@ export default async function OverlayPage() {
             <p className="mt-3">
               Windows keeps replays in Documents\Warcraft III\BattleNet\&lt;account&gt;\Replays; on macOS they are in ~/Library/Application Support/Blizzard/Warcraft III, with the last game at Replay/LastReplay.w3g.
             </p>
-            <p className="mt-4 font-display text-[0.72rem] font-bold uppercase tracking-[0.12em] text-fg">What an import cannot know</p>
+            <p className="mt-4 text-[0.72rem] font-bold text-fg">What an import cannot know</p>
             <ul className="mt-2 space-y-1.5">
               {REPLAY_NOTES.map((n) => (
                 <li key={n} className="flex gap-2">

@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, Lato, JetBrains_Mono } from "next/font/google";
+import { Cardo, Cinzel, Lato } from "next/font/google";
 import "./globals.css";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -10,13 +10,21 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
 
-// Cinzel is the closest open face to Friz Quadrata (the Warcraft display
-// type); Lato is what the official site uses for body copy.
-const display = Cinzel({
-  variable: "--font-display",
+// Cinzel is the closest open face to Friz Quadrata (the Warcraft title
+// type) and sets page titles only; Cardo sets headings and names; Lato sets
+// body copy and every figure.
+const title = Cinzel({
+  variable: "--font-title",
   subsets: ["latin"],
   display: "swap",
-  weight: ["400", "600", "700", "800"],
+  weight: ["700"],
+});
+
+const heading = Cardo({
+  variable: "--font-heading",
+  subsets: ["latin"],
+  display: "swap",
+  weight: ["400", "700"],
 });
 
 const sans = Lato({
@@ -24,13 +32,6 @@ const sans = Lato({
   subsets: ["latin"],
   display: "swap",
   weight: ["400", "700"],
-});
-
-const mono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-  display: "swap",
-  weight: ["400", "500", "700"],
 });
 
 export const metadata: Metadata = {
@@ -88,14 +89,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="en"
-      className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
+      className={`${title.variable} ${heading.variable} ${sans.variable} h-full antialiased`}
     >
       <body className="min-h-full">
         {/* Keyboard users jump past the header straight to <main id="main">,
             rendered by the (site) layout. Hidden until it takes focus. */}
         <a
           href="#main"
-          className="sr-only z-50 rounded bg-surface px-4 py-2 font-display text-sm font-bold uppercase tracking-wider text-gold focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
+          className="sr-only z-50 rounded bg-surface px-4 py-2 text-sm font-bold text-gold-ink focus:not-sr-only focus:fixed focus:left-4 focus:top-4"
         >
           Skip to content
         </a>

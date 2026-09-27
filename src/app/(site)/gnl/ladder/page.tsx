@@ -68,18 +68,18 @@ export default async function LadderPage({ searchParams }: Props) {
             {/* Season totals */}
             <section className="grid gap-4 sm:grid-cols-3">
               <div className="panel p-4">
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">Ladder games this season</p>
-                <p className="tnum mt-1 font-display text-2xl font-bold text-gold">{fmt.format(ladder.totalGames)}</p>
+                <p className="text-[0.62rem] text-muted">Ladder games this season</p>
+                <p className="tnum mt-1 text-2xl font-bold text-gold">{fmt.format(ladder.totalGames)}</p>
               </div>
               <div className="panel p-4">
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">Players on the ladder</p>
-                <p className="tnum mt-1 font-display text-2xl font-bold text-fg">
+                <p className="text-[0.62rem] text-muted">Players on the ladder</p>
+                <p className="tnum mt-1 text-2xl font-bold text-fg">
                   {fmt.format(ladder.teams.reduce((n, t) => n + t.players.filter((p) => p.games > 0).length, 0))}
                 </p>
               </div>
               <div className="panel p-4">
-                <p className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">Achievements to earn</p>
-                <p className="tnum mt-1 font-display text-2xl font-bold text-fg">{ladder.rules.length}</p>
+                <p className="text-[0.62rem] text-muted">Achievements to earn</p>
+                <p className="tnum mt-1 text-2xl font-bold text-fg">{ladder.rules.length}</p>
               </div>
             </section>
 
@@ -101,7 +101,7 @@ export default async function LadderPage({ searchParams }: Props) {
                     />
                   ))}
                 </div>
-                <p className="mt-2 flex justify-between font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+                <p className="mt-2 flex justify-between text-[0.6rem] text-muted">
                   <span>{ladder.perDay[0].date}</span>
                   <span>{ladder.perDay[ladder.perDay.length - 1].date}</span>
                 </p>
@@ -110,22 +110,22 @@ export default async function LadderPage({ searchParams }: Props) {
 
             {/* Team ladder */}
             <section className="mt-12">
-              <h2 className="mb-5 font-display text-xl font-bold uppercase">Team ladder</h2>
+              <h2 className="mb-5 font-heading text-xl font-bold">Team ladder</h2>
               <LadderTeams teams={ladder.teams} />
             </section>
 
             <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_1fr]">
               {/* Top players */}
               <section>
-                <h2 className="mb-5 font-display text-xl font-bold uppercase">Top grinders</h2>
+                <h2 className="mb-5 font-heading text-xl font-bold">Top grinders</h2>
                 <Surface className="divide-y divide-line/60">
                   {topPlayers.map((p, i) => (
                     <div key={p.id} className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
-                      <span className="tnum font-display text-sm font-bold text-faint">{i + 1}</span>
+                      <span className="tnum text-sm font-bold text-faint">{i + 1}</span>
                       <div className="min-w-0">
                         <p className="flex items-center gap-2">
                           <RaceIcon race={p.race} size={22} />
-                          <Link href={playerPath(p.id, p.name)} className="truncate font-display font-bold uppercase text-fg hover:text-gold">
+                          <Link href={playerPath(p.id, p.name)} className="truncate font-heading font-bold text-fg hover:text-gold">
                             {p.name}
                           </Link>
                         </p>
@@ -135,8 +135,8 @@ export default async function LadderPage({ searchParams }: Props) {
                         </p>
                       </div>
                       <div className="text-right">
-                        <p className="tnum font-display text-lg font-bold text-gold">{fmt.format(p.points)}</p>
-                        <p className="tnum font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+                        <p className="tnum text-lg font-bold text-gold">{fmt.format(p.points)}</p>
+                        <p className="tnum text-[0.6rem] text-muted">
                           MMR {p.mmr.current}
                           <span className={p.mmr.current - p.mmr.start >= 0 ? "text-win" : "text-loss"}>
                             {" "}
@@ -151,7 +151,7 @@ export default async function LadderPage({ searchParams }: Props) {
 
               {/* Achievements */}
               <section>
-                <h2 className="mb-5 font-display text-xl font-bold uppercase">Achievements</h2>
+                <h2 className="mb-5 font-heading text-xl font-bold">Achievements</h2>
                 <Surface className="divide-y divide-line/60">
                   {ladder.rules.map((r) => {
                     const earned = ladder.teams.reduce(
@@ -164,12 +164,12 @@ export default async function LadderPage({ searchParams }: Props) {
                           <Trophy size={18} />
                         </span>
                         <div className="min-w-0">
-                          <p className="font-display text-sm font-bold uppercase text-fg">{r.name}</p>
+                          <p className="font-heading text-sm font-bold text-fg">{r.name}</p>
                           <p className="text-xs text-muted">{r.description}</p>
                         </div>
                         <div className="text-right">
-                          <p className="tnum font-display text-base font-bold text-gold">{r.points}</p>
-                          <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">
+                          <p className="tnum text-base font-bold text-gold">{r.points}</p>
+                          <p className="text-[0.6rem] text-muted">
                             {earned ? `${earned} earned` : "unclaimed"}
                           </p>
                         </div>
@@ -181,7 +181,7 @@ export default async function LadderPage({ searchParams }: Props) {
             </div>
 
             {ladder.syncedAt ? (
-              <p className="mt-8 font-mono text-xs uppercase tracking-wide text-faint">
+              <p className="mt-8 text-xs text-muted">
                 Synced from W3Champions {new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short" }).format(new Date(ladder.syncedAt))}
               </p>
             ) : null}

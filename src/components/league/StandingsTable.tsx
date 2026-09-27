@@ -15,7 +15,7 @@ function FormPips({ form }: { form: StandingRow["form"] }) {
           key={i}
           title={r === "W" ? "Win" : r === "D" ? "Draw" : "Loss"}
           className={cn(
-            "grid size-5 place-items-center rounded-sm font-mono text-[0.6rem] font-bold",
+            "grid size-5 place-items-center rounded-sm tnum text-[0.6rem] font-bold",
             r === "W" && "bg-win/20 text-win",
             r === "D" && "bg-surface-2 text-muted",
             r === "L" && "bg-loss/15 text-loss",
@@ -44,7 +44,7 @@ export function StandingsTable({
         )}
       >
         <thead>
-          <tr className="border-b border-line bg-surface/60 text-left font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">
+          <tr className="border-b border-line bg-surface/60 text-left text-[0.66rem] text-muted">
             <th className="w-10 px-4 py-3 text-center font-medium">#</th>
             <th className="px-2 py-3 font-medium">Team</th>
             <th className="px-3 py-3 text-center font-medium max-sm:hidden">P</th>
@@ -91,7 +91,7 @@ export function StandingsTable({
                     {/* A table cell grows to its content, so the name gets a cap on
                         phones and the captains line waits for a wider screen. */}
                     <span className="min-w-0 max-sm:max-w-[8.5rem]">
-                      <span className="block truncate font-display font-bold uppercase text-fg transition-colors group-hover:text-gold">
+                      <span className="block truncate font-heading font-bold text-fg transition-colors group-hover:text-gold">
                         {row.team.name}
                       </span>
                       {row.captains.length && !compact ? (
@@ -119,7 +119,7 @@ export function StandingsTable({
                 >
                   {signed(row.mapDiff)}
                 </td>
-                <td className={cn("tnum px-4 py-3 text-right font-display text-base font-bold", leader ? "text-gold" : "text-fg")}>
+                <td className={cn("tnum px-4 py-3 text-right text-base font-bold", leader ? "text-gold" : "text-fg")}>
                   {row.points}
                 </td>
               </tr>
