@@ -22,7 +22,7 @@ export function SeasonSwitcher({
             href={href(s.number)}
             aria-current={isActive ? "page" : undefined}
             className={cn(
-              "border px-3 py-1.5 font-display text-sm font-bold uppercase tracking-wide transition-colors",
+              "border px-3 py-1.5 text-sm font-bold transition-colors",
               isActive
                 ? "border-gold/70 bg-gold/10 text-gold"
                 : "border-line text-muted hover:border-gold/50 hover:text-gold",

@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
 
 const select =
   "h-10 rounded border border-line bg-surface/60 px-3 text-sm text-fg focus:border-gold/60 focus:outline-none";
-const label = "block font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted";
+const label = "block text-[0.68rem] font-bold text-muted";
 const hint = "mt-1 text-xs text-faint";
 
 /** "Standard is the current meta route; Beginner is the safer, simpler
@@ -142,7 +142,7 @@ export function RouteSetup({
                 onClick={() => onLevelChange(l.id)}
                 aria-pressed={level === l.id}
                 className={cn(
-                  "h-10 flex-1 rounded border font-display text-[0.68rem] font-bold uppercase tracking-[0.1em] transition-colors",
+                  "h-10 flex-1 rounded border text-[0.68rem] font-bold transition-colors",
                   level === l.id ? "border-gold bg-gold/10 text-fg" : "border-line bg-surface/60 text-muted hover:text-fg",
                 )}
               >

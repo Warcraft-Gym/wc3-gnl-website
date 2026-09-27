@@ -68,7 +68,7 @@ export function RouteRow({ route }: { route: CreepRoute }) {
         )}
 
         <div className="min-w-0">
-          <h3 className="text-[0.98rem] font-bold leading-snug tracking-[0.05em] text-fg transition-colors group-hover:text-gold max-sm:line-clamp-2 sm:truncate">
+          <h3 className="text-[0.98rem] font-bold leading-snug text-fg transition-colors group-hover:text-gold max-sm:line-clamp-2 sm:truncate">
             {route.title}
           </h3>
           <p className="mt-0.5 text-sm text-muted max-sm:line-clamp-2 sm:line-clamp-1">{route.summary}</p>

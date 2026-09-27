@@ -19,7 +19,7 @@ export function Badge({
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 border px-2.5 py-0.5 font-mono text-[0.66rem] font-bold uppercase tracking-[0.16em]",
+        "inline-flex items-center gap-1.5 border px-2.5 py-0.5 text-[0.66rem] font-bold",
         tones[tone],
         className,
       )}
@@ -45,7 +45,7 @@ export function RaceBadge({
     <span
       className={cn(
         // The icon carries the race; the name stays in a text token.
-        "inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted",
+        "inline-flex items-center gap-1.5 text-xs font-semibold text-muted",
         className,
       )}
     >
@@ -57,7 +57,7 @@ export function RaceBadge({
 
 export function LiveBadge() {
   return (
-    <span className="inline-flex items-center gap-1.5 border border-live/60 bg-live/10 px-2.5 py-0.5 font-mono text-[0.66rem] font-bold uppercase tracking-[0.18em] text-live">
+    <span className="inline-flex items-center gap-1.5 border border-live/60 bg-live/10 px-2.5 py-0.5 text-[0.66rem] font-bold text-live">
       <span className="live-dot size-1.5 rounded-full bg-live" aria-hidden />
       Live
     </span>

@@ -40,7 +40,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
               </span>
               <TeamPlate tag={t.tag ?? ""} logoUrl={t.logoUrl} name={t.name} size="md" />
               <div className="min-w-0">
-                <p className="truncate font-display font-bold uppercase text-fg">{t.name}</p>
+                <p className="truncate font-heading font-bold text-fg">{t.name}</p>
                 <Meter
                   value={t.points}
                   max={max}
@@ -53,8 +53,8 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                 </p>
               </div>
               <div className="text-right">
-                <p className="tnum font-display text-xl font-bold text-gold">{fmt.format(t.points)}</p>
-                <p className="font-mono text-[0.6rem] uppercase tracking-[0.14em] text-faint">points</p>
+                <p className="tnum text-xl font-bold text-gold">{fmt.format(t.points)}</p>
+                <p className="text-[0.6rem] text-muted">points</p>
               </div>
               <ChevronDown size={18} className={cn("text-faint transition-transform", isOpen && "rotate-180")} />
             </button>
@@ -68,7 +68,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                         {p.name}
                       </Link>
                       {p.achievements.length ? (
-                        <span className="rounded border border-gold/30 px-1 font-mono text-[0.58rem] tracking-wide text-gold" title={p.achievements.map((a) => a.name).join(", ")}>
+                        <span className="rounded border border-gold/30 px-1 text-[0.58rem] text-gold" title={p.achievements.map((a) => a.name).join(", ")}>
                           {p.achievements.length} ach
                         </span>
                       ) : null}
@@ -81,7 +81,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
                         {signed(p.mmr.current - p.mmr.start)}
                       </span>
                     </span>
-                    <span className="tnum w-14 text-right font-display font-bold text-fg">{fmt.format(p.points)}</span>
+                    <span className="tnum w-14 text-right font-bold text-fg">{fmt.format(p.points)}</span>
                   </li>
                 ))}
               </ul>

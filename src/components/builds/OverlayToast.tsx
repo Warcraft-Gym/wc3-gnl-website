@@ -40,10 +40,10 @@ export function OverlayToast() {
         />
         <div className="min-w-0 flex-1">
           <p className="flex flex-wrap items-center gap-2">
-            <span className="font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">
+            <span className="font-heading text-[0.8rem] font-bold text-fg">
               Take a build into the game
             </span>
-            <span className="rounded border border-arcane/50 px-1.5 py-0.5 font-mono text-[0.58rem] tracking-[0.16em] text-arcane">
+            <span className="rounded border border-arcane/50 px-1.5 py-0.5 text-[0.58rem] text-arcane">
               Beta
             </span>
           </p>
@@ -53,7 +53,7 @@ export function OverlayToast() {
           <Link
             href="/tools/overlay"
             onClick={dismiss}
-            className="mt-2 inline-flex items-center gap-1 font-display text-[0.7rem] font-bold uppercase tracking-[0.14em] text-gold hover:underline"
+            className="mt-2 inline-flex items-center gap-1 text-[0.7rem] font-bold text-gold hover:underline"
           >
             Try the overlay <ArrowRight size={15} />
           </Link>

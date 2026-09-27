@@ -100,7 +100,7 @@ export default async function LearnCategoryPage({ params }: Params) {
           <article>
             <p className="kicker">{featured.title}</p>
             <p className="mt-2 text-lg text-muted">{featured.excerpt}</p>
-            <p className="mt-3 font-mono text-[0.66rem] font-bold uppercase tracking-[0.16em] text-faint">
+            <p className="mt-3 text-[0.66rem] font-bold text-muted">
               {featured.minutes} min read
             </p>
             <div className="mt-8">

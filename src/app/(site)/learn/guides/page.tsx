@@ -54,7 +54,7 @@ export default async function AllGuidesPage() {
         {sections.map(({ category, guides: list }, i) => (
           <section key={category.id} className={i === 0 ? "" : "mt-14"}>
             <div className="flex items-baseline justify-between gap-4 border-b border-line/60 pb-3">
-              <h2 className="font-display text-xl font-bold uppercase tracking-[0.04em] text-fg">
+              <h2 className="font-heading text-xl font-bold text-fg">
                 {category.title}
                 <span className="ml-3 align-middle font-sans text-sm font-normal normal-case tracking-normal text-faint">
                   {list.length} {list.length === 1 ? "guide" : "guides"}
@@ -62,7 +62,7 @@ export default async function AllGuidesPage() {
               </h2>
               <Link
                 href={`/learn/${category.id}`}
-                className="group shrink-0 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
+                className="group shrink-0 text-sm text-muted transition-colors hover:text-gold"
               >
                 Open{" "}
                 <ArrowRight size={14} className="inline align-[-2px] transition-transform group-hover:translate-x-0.5" />

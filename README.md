@@ -7,7 +7,7 @@ on **Vercel**.
 
 - **Framework:** Next.js 16 (App Router, React 19, TypeScript, Turbopack)
 - **Styling:** Tailwind CSS v4 with a Blizzard-style design system in
-  `src/app/globals.css` (Cinzel display type, gold accents, painted key art,
+  `src/app/globals.css` (Cinzel titles, Cardo headings, Lato figures, gold accents, painted key art,
   riveted section dividers)
 - **Content:** [Sanity](https://www.sanity.io/) for guides, build orders and
   news, with the Studio embedded at `/studio`

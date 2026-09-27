@@ -1,6 +1,6 @@
 # Data Display Rules
 
-This file states how the site shows league data: figures, results, races, bars and charts. The look of the site (black ground, gold accent, Cinzel display type) lives in `src/app/globals.css` and is not changed here. If this file and the code disagree, the code wins and this file is fixed.
+This file states how the site shows league data: figures, results, races, bars and charts. The look of the site (warm near-black ground, gold accent, the three type faces) lives in `src/app/globals.css`; the tokens and type rules below describe it. If this file and the code disagree, the code wins and this file is fixed.
 
 The rules come from the WC3 Gym app, which shows the same league data to the same players: [`DESIGN.md` in wc3-gym-frontend](https://github.com/Warcraft-Gym/wc3-gym-frontend/blob/main/DESIGN.md). A reader who moves between the two sites must find one way to read a record, a result and a race. The two sites keep their own look. The section "Shared with the app" lists what is the same and what differs.
 
@@ -9,7 +9,7 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 - An agent loads the `dataviz` skill and the `frontend-design` skill before it writes a chart, a bar, a stat tile or a table of figures.
 - Choose the form from the question the reader has. Choose the colour last.
 - Look in "Where the pieces live" first. Reuse a piece before you draw a new one.
-- Test every new mark colour with the validator of the `dataviz` skill, on the black ground: `node validate_palette.js "<hex,hex>" --mode dark --surface "#000000" --pairs all`. Do not judge a colour pair by eye.
+- Test every new mark colour with the validator of the `dataviz` skill, on the ground: `node validate_palette.js "<hex,hex>" --mode dark --surface "#080503" --pairs all`. Do not judge a colour pair by eye.
 
 ## Where the pieces live
 
@@ -40,20 +40,23 @@ The rules come from the WC3 Gym app, which shows the same league data to the sam
 - A figure names its scope: this season, all GNL seasons, or a W3Champions ladder season. A ladder figure stands beside the W3Champions mark.
 - A ladder count always names its W3Champions season, as "Ladder games · S25". The league stores ladder games from season 23 only, so the site prints no all-time ladder total. With no season the tile shows an em dash.
 - Name the Gym Newbie League in full, or as GNL where the label style is short. Never call it "the league": a league is the general term, and GNL and KOTH are both leagues. The navigation item "League" is the route to the GNL pages and keeps its name.
+- A title is cased by what it says. A title or group label that names a thing is Title Case: "GNL 18 Series", "Ladder Season 25", "Top Grinders". A title that reads as a sentence or an action is sentence case: "Series by opponent race", "Add your VOD". Page titles stay in Cinzel capitals; column heads and small labels stay sentence case.
+- A title, section heading or group label names the Gym Newbie League in full where it fits: "Gym Newbie League Seasons", "Gym Newbie League vs Ladder". "GNL" stays in chips, tight cells, the season pill "GNL 18" and body text where the full name would wrap.
 - A score is not a record. A series score keeps its colon, "2 : 1", and so does a fixture's points pair, "23 : 21", on the schedule, the fixture card and the team page alike. Neither carries a percent.
-- Every figure that sits in a column uses tabular numerals (`.tnum`). Numbers align right in a table.
+- Every figure is Lato with lining, tabular numerals (`.tnum`: `font-variant-numeric: lining-nums tabular-nums`). Numbers align right in a table.
 - A table on a phone keeps the figures that decide its order and drops the rest instead of scrolling sideways: the standings keep W, L and Pts, and P, D, Form and Diff wait for a wider screen.
 
 ## Results
 
-- `win` and `loss` are the only result colours. A draw, an unplayed series and a neutral amount use a text token.
+- `win`, `loss` and `draw` are the result colours. `draw` is a grey darker than `random`, so a draw never reads as a race. A neutral amount uses a text token.
+- A series not played yet is never a grey fill. In a strip of squares it is a hollow square: a 1 px `--wg-line` outline with no fill. As a score it prints an em dash.
 - A result seen from one side, such as a player page or a team page, puts that side's score first and draws the score in `win` or `loss`. The order of the score is the second channel beside the colour. The `title` and the `aria-label` read "Won 2 : 1" or "Lost 1 : 2", from `resultLabel()`.
 - A result seen from no side, such as the schedule or a fixture card, draws the winner's score in `gold` and the other score in a quiet text token. It uses no `win` and no `loss`, because no reader is the subject.
 - The team page is a side. Its fixtures list the opponent, the team's own points first in `win` or `loss`, and the series won and lost inside the fixture as a record under a "Series" head. The same fixture on the schedule is neutral. The team page's headline tiles are Standing, Fixtures (W – D – L), Series (the record of every series of the season) and Avg MMR, the same figures as the team card, and the roster carries each player's series record and MMR under column heads.
 - A loss never wears a warning icon and never the words "You lost". An alert icon is for a fault or a call to action.
 - A rate is not a result. A win rate prints in a text token at every value. It does not turn `win` above 50% and `loss` under it.
 - A signed change keeps its sign: "+24", "−18". The sign is the second channel beside the colour.
-- Form pips keep the letter W, D or L inside the pip.
+- Form pips keep the letter W, D or L inside the pip. W fills with `win` and L with `loss`, with `--wg-bg-deep` ink; D fills with `draw`, with the body ink.
 
 ## Races
 
@@ -88,23 +91,41 @@ A player is not one race. The league data holds four different race facts, and e
 
 ## Colour tokens for data
 
-The maintainers decided on 20 September 2026 that this site takes the data colours of the WC3 Gym app: for data, the app's palette is the reference, and this site uses its dark values, which pass on the black ground. Values are tested on the black ground with the validator. A pair passes from ΔE 8 for a colour-blind reader and from ΔE 15 for full colour vision.
+The site is dark only. The ground is `#080503`, a warm near-black, and panels are an opaque `#0C0805`. Every value below is tested on that ground with the validator of the `dataviz` skill. A pair passes from ΔE 8 for a colour-blind reader and from ΔE 15 for full colour vision.
 
 | Token | Value | Job | Tested |
 |---|---|---|---|
-| `--wg-win` | `#4F95D8` | A won series, game or bar | With `loss`: ΔE 19.3 colour blind, 25.8 full vision |
-| `--wg-loss` | `#DE6E52` | A lost series, game or bar | |
-| `--wg-human` | `#02809C` | Race mark | The four race colours as a set: ΔE 9.2 colour blind, 19.9 full vision |
-| `--wg-orc` | `#BA4C4B` | Race mark | |
-| `--wg-nightelf` | `#44AB46` | Race mark | |
-| `--wg-undead` | `#9B6FE4` | Race mark | |
-| `--wg-random` | unchanged | Race mark, neutral | Not a hue, so it is not in the set |
-| `--wg-gold` | unchanged | The brand accent, the winner in a neutral result, the selected line of a chart | With `win` and `loss`: ΔE 14.2 colour blind |
+| `--wg-bg`, `--wg-bg-deep` | `#080503` | The page ground | |
+| `--wg-surface` | `#0C0805` | Panels, opaque, with no backdrop blur | |
+| `--wg-line` | `#605D59` | The hairline between rows and around panels | 3:1 on the ground and the panel |
+| `--wg-win` | `#4996F5` | A won series, game or bar | With `loss`: ΔE 25.8 colour blind, 32.2 full vision |
+| `--wg-loss` | `#E24947` | A lost series, game or bar | |
+| `--wg-draw` | `#5E5B56` | A drawn fixture | Differs from `random` by lightness and by its D letter |
+| `--wg-human` | `#005BB5` | Race mark | The four race colours as a set: ΔE 11.8 colour blind, 20.3 full vision |
+| `--wg-orc` | `#B71824` | Race mark | |
+| `--wg-nightelf` | `#2DA73D` | Race mark | |
+| `--wg-undead` | `#9D6FE3` | Race mark | |
+| `--wg-random` | `#8A857C` | Race mark, neutral | Not a hue, so it is not in the set |
+| `--wg-gold` | `oklch(80% 0.14 85)`, about `#E7B643` | Gold as a fill: badges, chips, meter fills, the leader's band, with dark ink on it | |
+| `--wg-gold-ink` | the gold | Gold as text: kickers, points figures, gold links | |
 | `--wg-live` | unchanged | A live series. It always ships with its dot and the word "Live". | A status colour, never a chart series |
 
-- Win is blue, not green. A reader with red-green colour blindness cannot rely on green against red, and blue against a warm red holds for every reader. The app made the same choice, and both sites mean the same thing by blue.
+- Win is blue, not green. A reader with red-green colour blindness cannot rely on green against red, and blue against a true red holds for every reader. The app made the same choice, and both sites mean the same thing by blue.
+- Human and orc sit near 3:1 on the ground: they are marks and icons, never text.
 - Text never wears a data colour, with two exceptions where the text is the mark: a result score or a signed change, and a count under a W or L column title.
 - Gold is the brand. Gold never means "won" on a page that has a subject.
+
+## Type
+
+| Face | Role |
+|---|---|
+| Cinzel 700 | Page titles only: the `h1` of `PageHeader`, of an article page and the home hero lockup. Uppercase, tracked. |
+| Cardo 400, 700 | Every other heading (`h2` to `h4`, card and section titles, the `font-heading` utility), and every player and team name. Mixed case, no tracking. A name is never set in capitals, because case is part of a name; the player and team page mastheads set the name in Cardo 700. |
+| Lato 400, 700 | Body copy, labels, controls and every figure. |
+| System monospace | Code and file names only (`font-mono`). |
+
+- A label (a column head, a tile label, a unit word such as "Ladder games · S25") is Lato in sentence case, in the muted ink, never in tracked capitals.
+- The kicker line above a title is Lato 700 in `--wg-gold-ink`, in sentence case.
 
 ## Charts, bars and tiles
 
@@ -155,7 +176,7 @@ A creep route page (`/learn/creep-routes/<slug>`) shows the minimap as SVG (`Cre
   - **Camp cell (F012, user report: "the camp has too much information, it should be simpler").** One line: the band dot, `campLabel(camp)`, "Lv N", and a small chevron — the composition line (`campComposition`, "1× X · 1× Y…") is gone from this cell entirely (grepping the rendered route page for `1× ` outside the card now returns zero matches). The same facts, plus the per-creep XP and the possible item drops the composition line never showed, now live one click away: the whole row (not just the chevron, which is decorative) opens the camp card described above — see `RouteStepTable`'s own doc comment.
   - **Column budget (≥ 768 px, `table-layout: fixed` via a `<colgroup>`, so the browser can never collapse Notes toward zero as content grows).** `#` 2.5rem (fixed) · Camp 17% · Bring 12% · Notes unconstrained (takes the remainder, ≥ 30% in practice) · Hero after 7rem (fixed, `whitespace-nowrap`, `tnum`) — unchanged by F012 (the camp cell got shorter, not the column, per the spec: "Column budget stays"). The condition chip is `inline-flex` with normal word-wrapping (`whitespace-normal`, `max-w-full`), never one word per line.
   - **Condition prefix rule (F009-followup-1).** The chip renders the author's condition text exactly as written; a leading "If " is added only when the text doesn't already open with a recognised trigger word — `if`/`when`/`unless`/`skip`/`only`/`after`/`before`, case-insensitive — so an author who already wrote "Skip if the Undead scouted this side" never sees a doubled "if Skip if…". The rule lives in one pure helper, `conditionLabel(text)` (`src/lib/creep-routes/camp-label.mjs`, tested); `RouteStepTable`'s Notes cell is its only call site today (the editor's `StopRow` shows the Condition field as a plain input with a hint, not a live chip preview, so there is nothing else to apply it to yet).
-  - **Below 768 px** the same `<table>`/`<th>` markup switches to a stacked-card layout in CSS only (`.route-step-table`, `src/app/globals.css`) — `<tr>` becomes a CSS grid (number + camp + hero-after on one card line, Bring and Notes each their own full-width line below), `data-label` attributes back a small uppercase mini-header on cells whose content isn't self-explanatory once the `<thead>` is hidden. No DOM/element-type change, so the table stays a real table for anyone reading it above the breakpoint.
+  - **Below 768 px** the same `<table>`/`<th>` markup switches to a stacked-card layout in CSS only (`.route-step-table`, `src/app/globals.css`) — `<tr>` becomes a CSS grid (number + camp + hero-after on one card line, Bring and Notes each their own full-width line below), `data-label` attributes back a small sentence-case mini-header on cells whose content isn't self-explanatory once the `<thead>` is hidden. No DOM/element-type change, so the table stays a real table for anyone reading it above the breakpoint.
 - **The computed hero level.** `deriveRoute` (`src/lib/creep-routes/derive.mjs`) runs a hero through the route's camp stops in order and reports the level/xp after each stop ("Lv 2 · 306 xp" in the table, "After 3 stops: hero level 3 · 578 xp" in the editor's live readout), re-reading the creep-xp reduction factor at the hero's current level on every single kill (not once per camp — see `docs/creep-routes.md`'s "XP model"); this is derived, never authored, so it can never drift from the camp data.
 - **Keyboard, mouse and assistive tech.** The map SVG is one keyboard stop (`role="img"`, `aria-label` naming the map and its camp/stop counts); arrow keys walk the route's camp stops, or every camp — with no route, or on the read-only route page (`walkAllCamps`, F012-followup-3, below) — Escape clears, and an `aria-live` region names the current camp (by its label, not its id) for anyone not hovering it. On the read-only route page (F009) every camp marker is a real click/tap/keyboard target — the outer `<g>` itself, `role="button" tabIndex=0`, not a nested `<button>`, so `data-camp` stays exactly one per camp — clicking one selects/deselects the matching table row (when it's one of the route's own stops; a no-op, not a crash, for any other camp — `findIndex` returns -1) and vice versa, the same effect a keyboard-walk step gives. The step table is a real `<table>` and is the map's fallback for assistive tech — it needs no separate accessible view. Hover is one delegated `pointerover`/`pointerout` pair on the `<svg>` (`closest('[data-camp]')`), not a handler per marker — `CampMarker` and `RoutePath` are both `React.memo`d, so hovering one camp on a 20+ camp map no longer re-renders every other marker (F009, following the F009 code review's item 3).
 - **Every camp opens its card on the route page, not only the route's own (F012-followup-3, user request: "that functionality should be also available on the view page … not just the submit").** The route page used to restrict `CreepMap`'s `interactiveCampIds` to the route's own stops — every other camp on the map was a dead, inert mark, exactly the F009-era restriction the map's "Keyboard, mouse and assistive tech" bullet above still described. `CreepMapPlayground` now leaves `interactiveCampIds` unset (every camp interactive, same as the editor always has), and passes three new `CreepMap` props to keep everything else about the page working: `groupMarkers` (keeps the route page's single-`data-camp`-per-camp `<g role="button">` shape — split out from `interactiveCampIds`, since that prop no longer restricts anything here but the shape still needs to differ from the editor's two-`data-camp` `foreignObject`/`<button>` shape), `walkAllCamps` (the arrow-key walk now reaches every camp, not only the route's stops) and `deemphasizeOffRoute` (see below). A route's own stops keep their emphasis unchanged — the numbered badge and the path (`RoutePath`), `aria-pressed`/", on the route" in the marker's own `aria-label` — none of that was ever gated on `interactiveCampIds` to begin with. The one new, purely visual cue: every *other* camp's marker gets a fainter outer halo ring (`rgba(255,255,255,.22)` vs the usual `.55`, `CampMarker`'s `secondary` prop) — subtle on purpose, the band-colour fill itself is untouched, so every camp reads exactly as clearly, just less emphasised than a route stop. Clicking an off-route camp opens its card (same as any other camp) but selects no table row — `CreepMapPlayground`'s `onMarkerSelect` already no-ops via `findIndex === -1` rather than crashing or mis-selecting.
@@ -208,11 +229,14 @@ F008 replaced the previous, self-derived palette (`#6BE0C8`/`#E0863A`/`#C23050`)
 | Rule | The app | This site |
 |---|---|---|
 | Record format, series and game words, scope | `figures.mjs` | The same rule, in `src/lib/figures.mjs` |
-| Win is blue, loss is warm red | `win`, `loss` | The same values as the app's dark theme |
+| Win is blue, loss is red | `win`, `loss` | Win `#4996F5`, loss `#E24947` |
 | A player has many races; a race is an icon first | Race MMR chips | The same, plus a main race for the masthead art |
 | Own score first, no alert icon for a loss | Yes | Yes |
 | One y-axis, drawn scale, 2 px lines, legend rule | Yes | Yes |
-| Look | Stone and bronze, light and dark, Alegreya | Black and gold, dark only, Cinzel |
+| Look | Gold on the same warm near-black in dark, gold on cream in light; Cinzel titles, Cardo headings and names, Lato text and figures | Warm near-black and gold, dark only; the same three faces |
+| Gold | The highlight: chips, badges, buttons. A banner is a dark warm bar with cream text and a gold title | The same: gold marks and titles, never a gold field |
+| Gold button | The `.btn-gold` recipe of this site: three-stop gradient, inset highlight and shadow, dark ink; a softer shadow on the light ground | `.btn-gold` in `globals.css` |
+| Titles | A title that names a thing is Title Case; one that reads as a sentence is sentence case; "Gym Newbie League" in full where it fits | The same rule |
 | Neutral result | Not used | Gold for the winner on the schedule |
 | Chart maths | d3 scale and shape modules | Plain functions today. Add `d3-scale` and `d3-shape` when a second chart needs them. |
 
@@ -224,5 +248,4 @@ F008 replaced the previous, self-derived palette (`#6BE0C8`/`#E0863A`/`#C23050`)
 
 - The ladder page shows one race per player, the `race` of each row of the ladder read. The backend fills that field from its legacy profile race, so this page is not decoupled yet. The fix is in the backend: the ladder read sends the signup race of the season.
 - The games-per-day bars of the ladder page draw no y-axis and have no keyboard route.
-- `--wg-line` at 18% is under the 3:1 floor for a line that separates figures.
 - The smallest figure labels run under 10 px.

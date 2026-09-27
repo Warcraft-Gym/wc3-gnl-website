@@ -15,13 +15,13 @@ export function FixtureCard({ fixture }: { fixture: TeamFixture }) {
   return (
     <Surface interactive className="p-4">
       <div className="mb-3 flex items-center justify-between">
-        <span className="font-mono text-[0.66rem] font-bold uppercase tracking-[0.18em] text-faint">
+        <span className="text-[0.66rem] font-bold text-muted">
           Week {fixture.week}
         </span>
         {fixture.status === "live" ? (
           <LiveBadge />
         ) : (
-          <span className="font-mono text-[0.7rem] uppercase text-muted">
+          <span className="text-[0.7rem] text-muted">
             {done ? "Final" : formatMatchTime(fixture.scheduledAt)}
           </span>
         )}
@@ -42,7 +42,7 @@ export function FixtureCard({ fixture }: { fixture: TeamFixture }) {
           </span>
           <span
             className={cn(
-              "font-display text-sm font-bold uppercase leading-tight max-sm:line-clamp-2 max-sm:text-xs sm:truncate",
+              "font-heading text-sm font-bold leading-tight max-sm:line-clamp-2 max-sm:text-xs sm:truncate",
               homeWon || !done ? "text-fg" : "text-muted",
             )}
           >
@@ -51,7 +51,7 @@ export function FixtureCard({ fixture }: { fixture: TeamFixture }) {
         </Link>
 
         {showScore ? (
-          <span className="tnum shrink-0 font-display text-xl font-extrabold text-fg">
+          <span className="tnum shrink-0 text-xl font-bold text-fg">
             <span className={homeWon ? "text-gold" : undefined}>
               {fixture.home.score}
             </span>
@@ -70,7 +70,7 @@ export function FixtureCard({ fixture }: { fixture: TeamFixture }) {
         >
           <span
             className={cn(
-              "font-display text-sm font-bold uppercase leading-tight max-sm:line-clamp-2 max-sm:text-xs sm:truncate",
+              "font-heading text-sm font-bold leading-tight max-sm:line-clamp-2 max-sm:text-xs sm:truncate",
               awayWon || !done ? "text-fg" : "text-muted",
             )}
           >

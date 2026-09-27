@@ -59,8 +59,8 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
 function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: string }) {
   return (
     <div className="bg-bg/85 px-4 py-3 sm:px-5 sm:py-4">
-      <dt className="whitespace-nowrap font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{label}</dt>
-      <dd className={cn("tnum mt-1 font-display text-2xl font-bold leading-none", tone ?? "text-fg")}>{value}</dd>
+      <dt className="whitespace-nowrap text-[0.58rem] text-muted">{label}</dt>
+      <dd className={cn("tnum mt-1 text-2xl font-bold leading-none", tone ?? "text-fg")}>{value}</dd>
     </div>
   );
 }
@@ -80,7 +80,7 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
   const lost = s.status === "completed" && s.score < s.opponentScore;
   return (
     <div className="grid grid-cols-[3.5rem_minmax(0,1fr)_auto_auto] items-center gap-3 p-4">
-      <div className="font-mono text-[0.62rem] uppercase tracking-[0.14em] text-faint">
+      <div className="text-[0.62rem] text-muted">
         Week {s.week}
         <span className="mt-0.5 block">{STATUS_LABEL[s.status]}</span>
       </div>
@@ -89,7 +89,7 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
           <RaceIcon race={s.race} size={24} />
           <span className="text-faint">vs</span>
           <RaceIcon race={s.opponent.race} size={24} />
-          <Link href={playerPath(s.opponent.id, s.opponent.name)} className="font-display font-bold uppercase text-fg hover:text-gold">
+          <Link href={playerPath(s.opponent.id, s.opponent.name)} className="font-heading font-bold text-fg hover:text-gold">
             {s.opponent.name}
           </Link>
         </p>
@@ -114,7 +114,7 @@ function SeriesRow({ s }: { s: PlayerSeries }) {
         role="img"
         title={s.status === "scheduled" ? undefined : resultLabel(s.score, s.opponentScore)}
         aria-label={s.status === "scheduled" ? "Not played yet" : resultLabel(s.score, s.opponentScore)}
-        className={cn("tnum font-display text-lg font-bold", won ? "text-win" : lost ? "text-loss" : "text-faint")}
+        className={cn("tnum text-lg font-bold", won ? "text-win" : lost ? "text-loss" : "text-faint")}
       >
         {s.status === "scheduled" ? DASH : `${s.score} : ${s.opponentScore}`}
       </div>
@@ -147,17 +147,17 @@ function Compare({
   const rows = RACE_ORDER.map((r) => ({ race: r, rec: vs[r] })).filter((x) => x.rec && x.rec.wins + x.rec.losses > 0);
   return (
     <Surface className="p-5">
-      <h3 className="flex items-center gap-1.5 font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+      <h3 className="flex items-center gap-1.5 font-heading text-[0.85rem] font-bold text-fg">
         {mark ? <W3cMark size={15} className="opacity-70" /> : null}
         {title}
       </h3>
       <p className="mt-3">
-        <span className="block font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{unit}</span>
-        <span className="tnum mt-1 block font-display text-3xl font-bold leading-none text-fg">{record(wins, losses) ?? DASH}</span>
+        <span className="block text-[0.58rem] text-muted">{unit}</span>
+        <span className="tnum mt-1 block text-3xl font-bold leading-none text-fg">{record(wins, losses) ?? DASH}</span>
       </p>
       {rows.length ? (
         <>
-          <p className="mt-5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{unit} by opponent race</p>
+          <p className="mt-5 text-[0.58rem] text-muted">{unit} by opponent race</p>
           <ul className="mt-1 divide-y divide-line/50">
             {rows.map(({ race, rec }) => (
               <li key={race} className="flex items-center justify-between gap-4 py-1.5 text-xs">
@@ -237,6 +237,8 @@ export default async function PlayerPage({ params }: Params) {
   const hasGnlSeries = allTime.seriesPlayed > 0;
   // "GNL 17 series" when there is one season on record, else the total.
   const gnlSeriesLabel = seasonsPlayed.length > 1 ? "GNL series" : `${seasonsPlayed[0]?.season.shortName ?? latestSeason.shortName} series`;
+  // The same scope as a card title, which names a thing: "GNL 18 Series".
+  const gnlSeriesTitle = seasonsPlayed.length > 1 ? "Gym Newbie League Series" : `${seasonsPlayed[0]?.season.shortName ?? latestSeason.shortName} Series`;
 
   return (
     <>
@@ -273,7 +275,7 @@ export default async function PlayerPage({ params }: Params) {
         <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-14 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3rem)]">
           <Link
             href={team ? `/gnl/teams/${team.slug}` : "/gnl/teams"}
-            className="mb-5 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
+            className="mb-5 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
           >
             <ArrowLeft size={17} /> {team ? team.name : "Teams"}
           </Link>
@@ -295,7 +297,7 @@ export default async function PlayerPage({ params }: Params) {
                 </p>
                 <h1
                   className={cn(
-                    "mt-1 flex flex-wrap items-center gap-3 font-extrabold leading-none [overflow-wrap:anywhere] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]",
+                    "mt-1 flex flex-wrap items-center gap-3 font-heading font-bold normal-case leading-none tracking-normal [overflow-wrap:anywhere] [text-shadow:0_2px_24px_rgba(0,0,0,.8)]",
                     // Longer names step down in size so they stay on one or two lines
                     // next to the stats block instead of stacking word by word
                     player.name.length >= 15
@@ -311,7 +313,7 @@ export default async function PlayerPage({ params }: Params) {
                 <p className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-sm text-muted">
                   {/* The signup race is a season fact, so it names its season. */}
                   {player.race ? (
-                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-muted">
+                    <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted">
                       {latestSeason.shortName} ·<RaceBadge race={player.race} />
                     </span>
                   ) : null}
@@ -347,7 +349,7 @@ export default async function PlayerPage({ params }: Params) {
                     to one MMR without naming its race. */}
                 {ladder.length || olderChips.length ? (
                   <div className="mt-4">
-                    <p className="mb-1.5 flex items-center gap-1.5 font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">
+                    <p className="mb-1.5 flex items-center gap-1.5 text-[0.58rem] text-muted">
                       <W3cMark size={13} className="opacity-70" /> Ladder games{ladderSeason ? `, season ${ladderSeason}` : ""}
                     </p>
                     <RaceMmrChips races={[...ladder, ...olderChips]} main={main} />
@@ -395,13 +397,13 @@ export default async function PlayerPage({ params }: Params) {
         {/* Gym Newbie League vs ladder, side by side */}
         {!noAccount && (hasGnlSeries || (!captainOnly && live)) ? (
           <section>
-            <h2 className="mb-4 font-display text-xl font-bold uppercase">Gym Newbie League vs ladder</h2>
+            <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League vs Ladder</h2>
             <p className="mb-4 max-w-2xl text-sm text-muted">
               Every GNL series on record against the current W3Champions ladder season, and how they go against each race.
             </p>
             <div className="grid gap-4 lg:grid-cols-2">
               <Compare
-                title={gnlSeriesLabel}
+                title={gnlSeriesTitle}
                 unit="Series"
                 wins={allTime.seriesWon}
                 losses={allTime.seriesLost}
@@ -409,7 +411,7 @@ export default async function PlayerPage({ params }: Params) {
                 note={seasonsPlayed.length > 1 ? `Best-of-three series across ${seasonsLabel}` : "Best-of-three series in the Gym Newbie League"}
               />
               <Compare
-                title={`Ladder season ${ladderSeason ?? ""}`}
+                title={`Ladder Season ${ladderSeason ?? ""}`}
                 unit="Ladder games"
                 wins={ladderWins}
                 losses={ladderLosses}
@@ -425,7 +427,7 @@ export default async function PlayerPage({ params }: Params) {
           <div className="space-y-10">
             {history.length ? (
               <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">GNL seasons</h2>
+                <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League Seasons</h2>
                 <Surface className="divide-y divide-line/60">
                   {history.map((h) => {
                     const played = h.record.seriesPlayed > 0;
@@ -434,12 +436,12 @@ export default async function PlayerPage({ params }: Params) {
                         <span className="flex items-center gap-1.5 whitespace-nowrap">
                           {/* The race of that season's signup, beside its season. */}
                           {h.race ? <RaceIcon race={h.race} size={18} /> : null}
-                          <span className="font-display text-sm font-extrabold uppercase text-gold">{h.season.shortName}</span>
+                          <span className="font-heading text-sm font-bold text-gold">{h.season.shortName}</span>
                         </span>
                         <span className="min-w-0">
                           <Link href={`/gnl/teams/${h.team.slug}?season=${h.season.number}`} className="flex items-center gap-2 text-sm text-fg hover:text-gold">
                             <TeamPlate tag={h.team.tag!} logoUrl={h.team.logoUrl} name={h.team.name} size="sm" />
-                            <span className="truncate font-display font-bold uppercase">{h.team.name}</span>
+                            <span className="truncate font-heading font-bold">{h.team.name}</span>
                             {h.isCaptain ? <CaptainBadge compact /> : null}
                           </Link>
                           <span className="mt-0.5 block text-xs text-faint">
@@ -459,8 +461,8 @@ export default async function PlayerPage({ params }: Params) {
                           </span>
                         </span>
                         <span className="text-right">
-                          <span className="block font-mono text-[0.55rem] uppercase tracking-[0.14em] text-faint">Series</span>
-                          <span className={cn("tnum block font-display text-lg font-bold leading-tight", played ? "text-fg" : "text-faint")}>
+                          <span className="block text-[0.55rem] text-muted">Series</span>
+                          <span className={cn("tnum block text-lg font-bold leading-tight", played ? "text-fg" : "text-faint")}>
                             {(played ? record(h.record.seriesWon, h.record.seriesLost) : null) ?? DASH}
                           </span>
                         </span>
@@ -478,7 +480,7 @@ export default async function PlayerPage({ params }: Params) {
 
             {career && (career.seasonsPlayed > 0 || career.rating > 0) ? (
               <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">GNL career</h2>
+                <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League Career</h2>
                 <Surface className="grid grid-cols-2 divide-x divide-y divide-line/60">
                   {[
                     ["Seasons", career.seasonsPlayed],
@@ -487,8 +489,8 @@ export default async function PlayerPage({ params }: Params) {
                     ["Game record", record(career.gamesWon, career.gamesLost) ?? DASH],
                   ].map(([k, v]) => (
                     <div key={String(k)} className="p-4">
-                      <p className="font-mono text-[0.6rem] uppercase tracking-[0.16em] text-faint">{k}</p>
-                      <p className="tnum mt-1 font-display text-lg font-bold text-fg">{v}</p>
+                      <p className="text-[0.6rem] text-muted">{k}</p>
+                      <p className="tnum mt-1 text-lg font-bold text-fg">{v}</p>
                     </div>
                   ))}
                 </Surface>
@@ -500,14 +502,14 @@ export default async function PlayerPage({ params }: Params) {
           <div>
             {history.some((h) => h.series.length) ? (
               <section>
-                <h2 className="mb-4 font-display text-xl font-bold uppercase">Series</h2>
+                <h2 className="mb-4 font-heading text-xl font-bold">Series</h2>
                 <div className="space-y-4">
                   {history
                     .filter((h) => h.series.length)
                     .map((h) => (
                       <div key={h.season.id}>
-                        <p className="mb-2 flex items-baseline gap-2 font-mono text-[0.65rem] uppercase tracking-[0.16em] text-faint">
-                          <span className="font-display text-sm font-extrabold text-gold">{h.season.shortName}</span>
+                        <p className="mb-2 flex items-baseline gap-2 text-[0.65rem] text-muted">
+                          <span className="font-heading text-sm font-bold text-gold">{h.season.shortName}</span>
                           <Link href={`/gnl/teams/${h.team.slug}?season=${h.season.number}`} className="transition-colors hover:text-gold">{h.team.name}</Link>
                           <span className="tnum ml-auto">Series {record(h.record.seriesWon, h.record.seriesLost) ?? DASH}</span>
                         </p>

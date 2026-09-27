@@ -257,7 +257,7 @@ export function BuildImportZone({
         <div className="min-w-0 flex-1">
           {done ? (
             <>
-              <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">Build imported</p>
+              <p className="font-heading text-[0.8rem] font-bold text-fg">Build imported</p>
               <p role="status" className="mt-0.5 text-sm text-muted">
                 {message?.text}
               </p>
@@ -277,7 +277,7 @@ export function BuildImportZone({
             </>
           ) : (
             <>
-              <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">
+              <p className="font-heading text-[0.8rem] font-bold text-fg">
                 Start from a replay or the overlay app
               </p>
               <p className="mt-0.5 text-sm text-muted">
@@ -345,7 +345,7 @@ export function BuildImportZone({
       {dragging ? (
         <span
           aria-hidden
-          className="pointer-events-none absolute inset-0 grid place-items-center rounded bg-bg/80 font-display text-sm font-bold uppercase tracking-[0.12em] text-arcane"
+          className="pointer-events-none absolute inset-0 grid place-items-center rounded bg-bg/80 font-heading text-sm font-bold text-arcane"
         >
           Drop to import
         </span>
@@ -358,7 +358,7 @@ export function BuildImportZone({
 function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: ReplayImportPlayer) => void }) {
   return (
     <div>
-      <p className="font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">Whose build is it?</p>
+      <p className="font-heading text-[0.8rem] font-bold text-fg">Whose build is it?</p>
       <p className="mt-0.5 text-sm text-muted">
         {replay.map}, a {replay.duration} game
         {replay.source?.url ? (
@@ -381,7 +381,7 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
           >
             <RaceIcon race={p.race} size={32} />
             <span className="min-w-0 flex-1">
-              <span className="block truncate font-display text-sm font-bold uppercase text-fg">{p.name.replace(/#\d+$/, "")}</span>
+              <span className="block truncate font-heading text-sm font-bold text-fg">{p.name.replace(/#\d+$/, "")}</span>
               <span className="tnum block text-xs text-faint">
                 {p.dropped > 0 ? `${p.build.steps.length} steps · ${p.dropped} dropped` : `${p.build.steps.length} steps`}
                 {p.won === true ? <span className="ml-2 text-win">Won</span> : p.won === false ? <span className="ml-2 text-loss">Lost</span> : null}

@@ -71,10 +71,10 @@ export default async function FantasyPage({ searchParams }: Props) {
             { label: "Season", value: season.shortName },
           ].map((s) => (
             <div key={s.label} className="bg-surface px-5 py-4">
-              <p className="font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-faint">
+              <p className="text-[0.62rem] font-bold text-muted">
                 {s.label}
               </p>
-              <p className="mt-1 font-display text-2xl font-extrabold text-fg">
+              <p className="mt-1 font-heading text-2xl font-bold text-fg">
                 {s.value}
               </p>
             </div>
@@ -83,7 +83,7 @@ export default async function FantasyPage({ searchParams }: Props) {
 
         <SectionHead
           kicker="The table"
-          title="Fantasy standings"
+          title="Fantasy Standings"
           lead="Tap any manager to see their points breakdown and drafted squad."
         />
         <div className="mt-6">
@@ -102,7 +102,7 @@ export default async function FantasyPage({ searchParams }: Props) {
                     className="[transform:skewX(calc(var(--wg-skew)*-1))]"
                   />
                 </span>
-                <h3 className="mt-4 font-display text-lg font-bold uppercase text-fg">
+                <h3 className="mt-4 font-heading text-lg font-bold text-fg">
                   {title}
                 </h3>
                 <p className="mt-2 text-sm text-muted">{body}</p>

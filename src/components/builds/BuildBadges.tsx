@@ -44,7 +44,7 @@ export function Matchup({
     <span className={cn("inline-flex flex-wrap items-center gap-1.5 text-sm", className)}>
       <RaceIcon race={race} size={size} />
       <span className="font-bold text-fg">{RACE_LABEL[race]}</span>
-      <span className="mx-0.5 font-display text-[0.6rem] font-bold uppercase tracking-widest text-gold">vs</span>
+      <span className="mx-0.5 font-heading text-[0.6rem] font-bold text-gold">vs</span>
       <VsRaces vsRaces={vsRaces} size={size} />
     </span>
   );
@@ -60,7 +60,7 @@ export function DifficultyBadge({ level }: { level: BuildDifficulty }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded border px-2 py-0.5 font-mono text-[0.62rem] font-bold uppercase tracking-[0.16em]",
+        "inline-flex items-center rounded border px-2 py-0.5 text-[0.62rem] font-bold",
         DIFF_TONE[level],
       )}
     >

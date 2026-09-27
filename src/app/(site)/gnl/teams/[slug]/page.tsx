@@ -47,8 +47,8 @@ export async function generateMetadata({ params, searchParams }: Params): Promis
 function Stat({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div className="bg-bg/85 px-4 py-3 sm:px-5 sm:py-4">
-      <dt className="whitespace-nowrap font-mono text-[0.58rem] uppercase tracking-[0.16em] text-faint">{label}</dt>
-      <dd className="tnum mt-1 font-display text-xl font-bold leading-none text-fg">{children}</dd>
+      <dt className="whitespace-nowrap text-[0.58rem] text-muted">{label}</dt>
+      <dd className="tnum mt-1 text-xl font-bold leading-none text-fg">{children}</dd>
     </div>
   );
 }
@@ -107,7 +107,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
         <Container className="relative z-10 pb-12 pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+2.5rem)] sm:pb-14 sm:pt-[calc(var(--wg-chrome-h,var(--wg-header-h))+3rem)]">
           <Link
             href={withSeason("/gnl/teams", season.number === seasons[0]?.number ? undefined : season.number)}
-            className="mb-6 inline-flex items-center gap-1.5 text-sm uppercase tracking-wide text-muted transition-colors hover:text-gold"
+            className="mb-6 inline-flex items-center gap-1.5 text-sm text-muted transition-colors hover:text-gold"
           >
             <ArrowLeft size={17} /> All teams
           </Link>
@@ -123,7 +123,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                 </p>
                 <h1
                   className={cn(
-                    "mt-1 font-extrabold leading-none",
+                    "mt-1 font-heading font-bold normal-case leading-none tracking-normal",
                     // Long names step down so they keep their place beside the stats block
                     team.name.length >= 20
                       ? "text-[length:clamp(1.4rem,0.6rem+1.9vw,2.1rem)]"
@@ -188,8 +188,8 @@ export default async function TeamPage({ params, searchParams }: Params) {
         <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr]">
           <section>
             <div className="mb-4 flex items-baseline justify-between gap-3">
-              <h2 className="font-display text-xl font-bold uppercase">Roster</h2>
-              <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
+              <h2 className="font-heading text-xl font-bold">Roster</h2>
+              <span className="text-[0.62rem] text-muted">
                 {team.players.length} players
               </span>
             </div>
@@ -202,7 +202,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                     <span key={x.race} className={cn("h-full rounded-sm", RACES[x.race].dot)} style={{ width: `${(x.n / raced) * 100}%` }} />
                   ))}
                 </div>
-                <p className="mt-1.5 flex flex-wrap gap-x-3 font-mono text-[0.6rem] uppercase tracking-wide text-faint">
+                <p className="mt-1.5 flex flex-wrap gap-x-3 text-[0.6rem] text-muted">
                   {races.map((x) => (
                     <span key={x.race}>
                       {x.n} {RACES[x.race].label}
@@ -215,7 +215,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
             <Surface>
               <div
                 className={cn(
-                  "grid gap-3 border-b border-line/60 px-4 py-2 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-faint",
+                  "grid gap-3 border-b border-line/60 px-4 py-2 text-[0.6rem] text-muted",
                   hasRecords ? "grid-cols-[minmax(0,1fr)_5.5rem_3.5rem]" : "grid-cols-[minmax(0,1fr)_3.5rem]",
                 )}
               >
@@ -239,18 +239,18 @@ export default async function TeamPage({ params, searchParams }: Params) {
                       <Flag code={p.country} size={16} className="shrink-0" />
                       <Link
                         href={playerPath(p.id, p.name)}
-                        className={cn("truncate font-display font-bold uppercase transition-colors hover:text-gold", p.isCaptain ? "text-fg" : "text-fg/90")}
+                        className={cn("truncate font-heading font-bold transition-colors hover:text-gold", p.isCaptain ? "text-fg" : "text-fg/90")}
                       >
                         {p.name}
                       </Link>
                       {p.isCaptain ? <Crown size={13} className="shrink-0 text-gold" aria-label="Captain" /> : null}
                     </span>
                     {hasRecords ? (
-                      <span className="tnum text-right font-mono text-xs text-muted">
+                      <span className="tnum text-right text-xs text-muted">
                         {p.record ? (record(p.record.wins, p.record.losses) ?? "—") : "—"}
                       </span>
                     ) : null}
-                    <span className="tnum text-right font-mono text-xs text-fg">{p.mmr ?? "—"}</span>
+                    <span className="tnum text-right text-xs text-fg">{p.mmr ?? "—"}</span>
                   </li>
                 ))}
               </ul>
@@ -262,14 +262,14 @@ export default async function TeamPage({ params, searchParams }: Params) {
 
           <section>
             <div className="mb-4 flex items-baseline justify-between gap-3">
-              <h2 className="font-display text-xl font-bold uppercase">Fixtures</h2>
-              <span className="font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
+              <h2 className="font-heading text-xl font-bold">Fixtures</h2>
+              <span className="text-[0.62rem] text-muted">
                 {season.shortName} · {team.name} first
               </span>
             </div>
             {teamFixtures.length ? (
               <Surface>
-                <div className="grid grid-cols-[3.25rem_minmax(0,1fr)_auto] gap-3 border-b border-line/60 px-4 py-2 font-mono text-[0.6rem] uppercase tracking-[0.16em] text-faint sm:grid-cols-[3.25rem_minmax(0,1fr)_7rem_auto_2rem] sm:gap-4">
+                <div className="grid grid-cols-[3.25rem_minmax(0,1fr)_auto] gap-3 border-b border-line/60 px-4 py-2 text-[0.6rem] text-muted sm:grid-cols-[3.25rem_minmax(0,1fr)_7rem_auto_2rem] sm:gap-4">
                   <span>Week</span>
                   <span>Opponent</span>
                   <span className="hidden text-right sm:block">Series</span>
@@ -288,7 +288,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
               </p>
             )}
             <p className="mt-2 text-xs text-faint">
-              Points are the league points each side took from the week&apos;s series. Open a week for every series and cast.
+              Points are the Gym Newbie League points each side took from the week&apos;s series. Open a week for every series and cast.
             </p>
           </section>
         </div>

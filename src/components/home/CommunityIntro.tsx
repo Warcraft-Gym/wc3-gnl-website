@@ -52,11 +52,11 @@ export function CommunityIntro({ community }: { community: DiscordCommunity | nu
       <ol className="mt-7 space-y-4">
         {STEPS.map((s, i) => (
           <li key={s.title} className="flex gap-4">
-            <span className="btn-gold grid size-8 shrink-0 place-items-center rounded font-display text-sm font-bold">
+            <span className="btn-gold grid size-8 shrink-0 place-items-center rounded text-sm font-bold">
               {i + 1}
             </span>
             <span>
-              <span className="block font-display text-[0.85rem] font-bold uppercase tracking-[0.08em] text-fg">
+              <span className="block font-heading text-[0.85rem] font-bold text-fg">
                 {s.title}
               </span>
               <span className="mt-1 block text-sm text-muted">{s.body}</span>
