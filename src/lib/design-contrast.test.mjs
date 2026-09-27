@@ -14,7 +14,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { globSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { NON_TEXT_MINIMUM, contrastRatio, parseHex } from "./contrast.mjs";
@@ -54,4 +54,26 @@ test("the backgrounds it is measured against are still the ones in use", () => {
   // Guards the test itself: if these stop being hex, the assertions above
   // would throw rather than silently measure the wrong thing.
   for (const bg of ["wg-bg", "wg-surface"]) assert.doesNotThrow(() => parseHex(token(bg)), bg);
+});
+
+test("the faint border stays on the floating chrome and nowhere else", () => {
+  // `--wg-line-soft` is the very value this file was written to get rid of:
+  // 1.3:1 on the panel. It is allowed back only for the header and sub-nav
+  // pills, whose edge is decorative because the blur and shadow already
+  // separate them from the page. Anywhere a reader needs to see a boundary
+  // (tables, cards, inputs, controls) it is the old bug again, so the
+  // allowlist is the enforcement and this test is the reason it holds.
+  const root = join(dirname(fileURLToPath(import.meta.url)), "..");
+  const allowed = new Set(
+    ["SiteHeader", "LearnSubNav", "GnlSubNav", "MobileNav"].map((n) => `components/layout/${n}.tsx`),
+  );
+  const offenders = globSync("**/*.{ts,tsx,mjs,css}", { cwd: root })
+    .filter((f) => !f.endsWith(".test.mjs") && f !== "app/globals.css")
+    .filter((f) => /border-line-soft|--wg-line-soft/.test(readFileSync(join(root, f), "utf8")))
+    .filter((f) => !allowed.has(f));
+  assert.deepEqual(
+    offenders,
+    [],
+    `border-line-soft is a 1.3:1 hairline; these are not floating chrome: ${offenders.join(", ")}`,
+  );
 });
