@@ -92,10 +92,12 @@ async function fetchSeasonRaw(seasonNumber?: number): Promise<RawSeason> {
 
 /** Every published, finished GNL event. */
 async function fetchCompletedSeasonsRaw(): Promise<RawSeason[]> {
-  const leagues = await apiGet<RawLeague[]>("/leagues");
+  // The backend edge caches both reads an hour, so a shorter timer only rewrites the cache
+  const leagues = await apiGet<RawLeague[]>("/leagues", { revalidate: 3600 });
   const league = leagues.find((row) => row.kind === "gnl");
   if (!league) throw new Error("The GNL league is not configured.");
   const events = await apiGet<RawSeason[]>("/events", {
+    revalidate: 3600,
     query: { league_id: league.id, published: "true" },
   });
   const completed = events.filter((event) => event.phase === "finished");
