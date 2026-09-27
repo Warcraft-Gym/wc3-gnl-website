@@ -1,0 +1,61 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# A newer push to the same branch makes the previous run pointless.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: test, lint, types, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # The same four commands the project is checked with by hand, in the
+      # same order: the cheap ones first, so a broken test does not wait on a
+      # build to tell you.
+      - name: Tests
+        run: pnpm test
+
+      - name: Lint
+        run: pnpm lint
+
+      # `next typegen` writes .next/types, where Next puts the generated
+      # route and layout types (`LayoutProps<"/">` in app/layout.tsx). Without
+      # it tsc fails on a clean checkout, and passes locally only because an
+      # earlier build happened to leave those files behind. Cheaper than a
+      # full build, which is the only other way to produce them.
+      - name: Generate route types
+        run: pnpm exec next typegen
+
+      - name: Types
+        run: pnpm exec tsc --noEmit
+
+      # No secrets. The build reads Sanity through its public dataset and
+      # falls back to fixtures when the GNL API is unreachable, so it has to
+      # pass without credentials. If it ever stops doing so, that is a bug
+      # worth catching here rather than a reason to add a token.
+      - name: Build
+        run: pnpm build
+        env:
+          NEXT_TELEMETRY_DISABLED: "1"
