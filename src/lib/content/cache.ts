@@ -1,25 +1,42 @@
 /**
- * The cache tag every Sanity read carries.
+ * Cache tags for Sanity reads, one per document type.
  *
- * `revalidatePath` throws away a rendered page; it does not touch the data
- * cache behind it. So a webhook that only called `revalidatePath` would make
- * Next re-render the page and feed it the same `revalidate: 300` fetch
- * response it had before: the page is faithfully rebuilt from stale content,
- * and the edit does not appear until the window expires on its own.
+ * Two things had to be true at once. `revalidatePath` alone does not work:
+ * it throws away the rendered page but leaves the data cache behind it, so
+ * Next re-renders and is handed the same response it already had, and the
+ * page is faithfully rebuilt from stale content. And a single tag for all of
+ * Sanity does work, but it purges everything on any edit, so changing one
+ * build order rewrites the cache entry for every page on the site.
  *
- * That is not hypothetical. An edit to the King of the Hill page showed
- * `x-vercel-cache: HIT, age: 24` in production, proving the page had just
- * been regenerated, while still rendering the previous copy.
- *
- * Tagging every Sanity fetch with this and calling `revalidateTag` in the
- * webhook purges the data as well as the page.
- *
- * One tag rather than one per document type: content edits are rare, the
- * queries are small, and a single tag cannot drift out of step with the
- * types a query actually reads. The `revalidate` window stays as a backstop
- * for the case where the webhook never arrives.
+ * So the tag names the document type, and a query carries a tag for every
+ * type it reads, **including the ones it dereferences**. A creep route page
+ * shows its map's name and its companion build's title, so editing a
+ * `creepMap` has to purge creep routes as well as maps. Getting that wrong
+ * is how stale content comes back, so the couplings are written out rather
+ * than inferred.
  */
-export const SANITY_TAG = "sanity";
 
-/** Fetch options for a Sanity read: tagged, with a 5 minute backstop. */
-export const sanityCache = { next: { revalidate: 300, tags: [SANITY_TAG] } } as const;
+/** Document types that exist. Kept beside the tags so an unlisted type is
+ *  obvious rather than silently untagged. */
+export type SanityType =
+  | "post" | "guide" | "buildOrder" | "tool"
+  | "creepMap" | "creepRoute" | "gnlRules" | "kothPage" | "kothResult";
+
+export const sanityTag = (type: SanityType) => `sanity:${type}`;
+
+/**
+ * How long a Sanity read survives without a webhook.
+ *
+ * This is a backstop, not the mechanism: edits arrive through
+ * `revalidateTag` within seconds. It used to be 5 minutes, which meant every
+ * cached page rewrote itself twelve times an hour whether or not anything
+ * had changed. An hour is long enough to cut that by an order of magnitude
+ * and short enough that a missed webhook is a nuisance rather than a wrong
+ * page for a day.
+ */
+export const SANITY_REVALIDATE = 3600;
+
+/** Fetch options for a Sanity read. Pass every type the query touches. */
+export function sanityCache(...types: SanityType[]) {
+  return { next: { revalidate: SANITY_REVALIDATE, tags: types.map(sanityTag) } } as const;
+}

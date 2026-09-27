@@ -1,6 +1,6 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
-import { SANITY_TAG } from "@/lib/content/cache";
+import { sanityCache } from "@/lib/content/cache";
 
 /**
  * The league rulebook.
@@ -63,7 +63,7 @@ export async function getGnlRules(): Promise<GnlRules | null> {
     const doc = await client.fetch<GnlRules | null>(
       `*[_id == "gnlRules"][0]${PROJECTION}`,
       {},
-      { next: { revalidate: 300, tags: [SANITY_TAG] } },
+      sanityCache("gnlRules"),
     );
     // An empty body is the same as no document: render the fallback rather
     // than a heading with nothing under it.
