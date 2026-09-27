@@ -18,7 +18,7 @@
   --wg-surface: #0C0805;
   --wg-surface-2: oklch(12% 0.005 60);
   --wg-surface-3: oklch(17% 0.006 60);
-  --wg-line: #605D59; /* 3:1 on the ground and the panel */
+  --wg-line: #665C4E; /* 3:1 on the ground and the panel, warm rather than grey */
   --wg-line-strong: oklch(80% 0.06 80 / 0.4);
 
   /* --- Text (cool light grey body copy, like the official site) --- */
