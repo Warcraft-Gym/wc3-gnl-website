@@ -124,7 +124,7 @@ function Podium({ entry, featured }: { entry: SeasonPodium; featured: boolean })
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <p className="kicker">
           {entry.season.shortName}
-          {featured ? " · Final podium" : ""}
+          {featured ? " · Final Podium" : ""}
         </p>
         {entry.recap ? (
           <Link
@@ -179,7 +179,7 @@ export default async function ChampionsPage({ searchParams }: Props) {
             rather than something you have to know the URL for. */}
         {champions.length > 1 ? (
           <section className="mt-10">
-            <h2 className="kicker">Every champion</h2>
+            <h2 className="kicker">Every Champion</h2>
             <ul className="mt-4 grid gap-2 sm:grid-cols-2">
               {champions.map((c) => {
                 const active = c.season.number === shown?.season.number;

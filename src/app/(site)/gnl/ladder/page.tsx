@@ -86,7 +86,7 @@ export default async function LadderPage({ searchParams }: Props) {
             {/* Games per day */}
             {ladder.perDay.length ? (
               <section className="mt-10">
-                <p className="kicker mb-3">Games per day</p>
+                <p className="kicker mb-3">Games per Day</p>
                 <div
                   role="img"
                   aria-label={`Ladder games per day over ${ladder.perDay.length} days: ${fmt.format(ladder.totalGames)} games in all, busiest on ${busiestDay?.date} with ${busiest} games.`}
@@ -110,14 +110,14 @@ export default async function LadderPage({ searchParams }: Props) {
 
             {/* Team ladder */}
             <section className="mt-12">
-              <h2 className="mb-5 font-heading text-xl font-bold">Team ladder</h2>
+              <h2 className="mb-5 font-heading text-xl font-bold">Team Ladder</h2>
               <LadderTeams teams={ladder.teams} />
             </section>
 
             <div className="mt-12 grid gap-12 lg:grid-cols-[1fr_1fr]">
               {/* Top players */}
               <section>
-                <h2 className="mb-5 font-heading text-xl font-bold">Top grinders</h2>
+                <h2 className="mb-5 font-heading text-xl font-bold">Top Grinders</h2>
                 <Surface className="divide-y divide-line/60">
                   {topPlayers.map((p, i) => (
                     <div key={p.id} className="grid grid-cols-[2rem_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">

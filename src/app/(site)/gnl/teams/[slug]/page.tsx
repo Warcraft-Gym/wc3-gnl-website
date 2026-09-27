@@ -288,7 +288,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
               </p>
             )}
             <p className="mt-2 text-xs text-faint">
-              Points are the league points each side took from the week&apos;s series. Open a week for every series and cast.
+              Points are the Gym Newbie League points each side took from the week&apos;s series. Open a week for every series and cast.
             </p>
           </section>
         </div>

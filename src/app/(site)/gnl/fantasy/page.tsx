@@ -83,7 +83,7 @@ export default async function FantasyPage({ searchParams }: Props) {
 
         <SectionHead
           kicker="The table"
-          title="Fantasy standings"
+          title="Fantasy Standings"
           lead="Tap any manager to see their points breakdown and drafted squad."
         />
         <div className="mt-6">

@@ -89,7 +89,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
         {/* point breakdown */}
         <div>
           <h4 className="text-[0.62rem] font-bold text-muted">
-            Points breakdown
+            Points Breakdown
           </h4>
           <ul className="mt-3 space-y-2">
             {BREAKDOWN.map(({ key, label }) => {
@@ -118,7 +118,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
         {/* drafted roster */}
         <div>
           <h4 className="text-[0.62rem] font-bold text-muted">
-            Drafted squad
+            Drafted Squad
           </h4>
           {entry.roster.length > 0 ? (
             <ul className="mt-3 grid gap-2 sm:grid-cols-2">

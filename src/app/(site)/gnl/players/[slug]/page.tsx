@@ -237,6 +237,8 @@ export default async function PlayerPage({ params }: Params) {
   const hasGnlSeries = allTime.seriesPlayed > 0;
   // "GNL 17 series" when there is one season on record, else the total.
   const gnlSeriesLabel = seasonsPlayed.length > 1 ? "GNL series" : `${seasonsPlayed[0]?.season.shortName ?? latestSeason.shortName} series`;
+  // The same scope as a card title, which names a thing: "GNL 18 Series".
+  const gnlSeriesTitle = seasonsPlayed.length > 1 ? "Gym Newbie League Series" : `${seasonsPlayed[0]?.season.shortName ?? latestSeason.shortName} Series`;
 
   return (
     <>
@@ -395,13 +397,13 @@ export default async function PlayerPage({ params }: Params) {
         {/* Gym Newbie League vs ladder, side by side */}
         {!noAccount && (hasGnlSeries || (!captainOnly && live)) ? (
           <section>
-            <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League vs ladder</h2>
+            <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League vs Ladder</h2>
             <p className="mb-4 max-w-2xl text-sm text-muted">
               Every GNL series on record against the current W3Champions ladder season, and how they go against each race.
             </p>
             <div className="grid gap-4 lg:grid-cols-2">
               <Compare
-                title={gnlSeriesLabel}
+                title={gnlSeriesTitle}
                 unit="Series"
                 wins={allTime.seriesWon}
                 losses={allTime.seriesLost}
@@ -409,7 +411,7 @@ export default async function PlayerPage({ params }: Params) {
                 note={seasonsPlayed.length > 1 ? `Best-of-three series across ${seasonsLabel}` : "Best-of-three series in the Gym Newbie League"}
               />
               <Compare
-                title={`Ladder season ${ladderSeason ?? ""}`}
+                title={`Ladder Season ${ladderSeason ?? ""}`}
                 unit="Ladder games"
                 wins={ladderWins}
                 losses={ladderLosses}
@@ -425,7 +427,7 @@ export default async function PlayerPage({ params }: Params) {
           <div className="space-y-10">
             {history.length ? (
               <section>
-                <h2 className="mb-4 font-heading text-xl font-bold">GNL seasons</h2>
+                <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League Seasons</h2>
                 <Surface className="divide-y divide-line/60">
                   {history.map((h) => {
                     const played = h.record.seriesPlayed > 0;
@@ -478,7 +480,7 @@ export default async function PlayerPage({ params }: Params) {
 
             {career && (career.seasonsPlayed > 0 || career.rating > 0) ? (
               <section>
-                <h2 className="mb-4 font-heading text-xl font-bold">GNL career</h2>
+                <h2 className="mb-4 font-heading text-xl font-bold">Gym Newbie League Career</h2>
                 <Surface className="grid grid-cols-2 divide-x divide-y divide-line/60">
                   {[
                     ["Seasons", career.seasonsPlayed],

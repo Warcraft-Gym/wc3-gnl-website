@@ -16,7 +16,7 @@ const PILLARS = [
   },
   {
     Icon: GraduationCap,
-    title: "Captains and coaches",
+    title: "Captains and Coaches",
     body: "Replay reviews, strategy talk and a private team channel. You are never grinding alone.",
   },
   {
@@ -66,7 +66,7 @@ export function GnlSection({ season, teams }: { season: Season; teams: Team[] })
 
       <div className="mt-10 flex flex-wrap justify-center gap-3">
         <ButtonLink href="/gnl/about" size="lg">
-          About the league
+          About the Gym Newbie League
         </ButtonLink>
         <ButtonLink href="/gnl/schedule" size="lg">
           Follow {season.shortName}
