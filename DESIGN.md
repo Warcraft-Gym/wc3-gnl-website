@@ -233,7 +233,10 @@ F008 replaced the previous, self-derived palette (`#6BE0C8`/`#E0863A`/`#C23050`)
 | A player has many races; a race is an icon first | Race MMR chips | The same, plus a main race for the masthead art |
 | Own score first, no alert icon for a loss | Yes | Yes |
 | One y-axis, drawn scale, 2 px lines, legend rule | Yes | Yes |
-| Look | Stone and bronze, light and dark, Alegreya | Warm near-black and gold, dark only; Cinzel titles, Cardo headings, Lato figures |
+| Look | Gold on the same warm near-black in dark, gold on cream in light; Cinzel titles, Cardo headings and names, Lato text and figures | Warm near-black and gold, dark only; the same three faces |
+| Gold | The highlight: chips, badges, buttons. A banner is a dark warm bar with cream text and a gold title | The same: gold marks and titles, never a gold field |
+| Gold button | The `.btn-gold` recipe of this site: three-stop gradient, inset highlight and shadow, dark ink; a softer shadow on the light ground | `.btn-gold` in `globals.css` |
+| Titles | A title that names a thing is Title Case; one that reads as a sentence is sentence case; "Gym Newbie League" in full where it fits | The same rule |
 | Neutral result | Not used | Gold for the winner on the schedule |
 | Chart maths | d3 scale and shape modules | Plain functions today. Add `d3-scale` and `d3-shape` when a second chart needs them. |
 
