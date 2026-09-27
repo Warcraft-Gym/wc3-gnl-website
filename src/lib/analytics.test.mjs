@@ -26,6 +26,7 @@ const config = readFileSync(join(ROOT, "src/lib/analytics.ts"), "utf8");
 const privacy = readFileSync(join(ROOT, "src/app/(site)/privacy/page.tsx"), "utf8");
 const consent = readFileSync(join(ROOT, "src/lib/consent.mjs"), "utf8");
 const banner = readFileSync(join(ROOT, "src/components/analytics/ConsentBanner.tsx"), "utf8");
+const geo = readFileSync(join(ROOT, "src/app/api/geo/route.ts"), "utf8");
 
 /** Comments explain the format with a placeholder ("G-XXXXXXXXXX"), which is
  *  not a hardcoded id. Strip them before looking for one. */
@@ -89,7 +90,26 @@ test("declining is offered as plainly as accepting", () => {
 });
 
 test("the banner is absent where analytics are off", () => {
-  assert.match(banner, /if \(!enabled \|\| !hydrated\) return null;/);
+  assert.match(banner, /if \(!enabled \|\| !ask\) return null;/);
+});
+
+test("not asking outside the EEA still grants, rather than leaving analytics off", () => {
+  // The trap in geo-gating: skip the banner and forget the grant, and you
+  // get no banner and no data, which is worse than either alone.
+  assert.match(banner, /consentRequired === false\) apply\(GRANTED\)/);
+});
+
+test("a failed or ambiguous geo lookup asks", () => {
+  assert.match(banner, /\.catch\(\(\) => live && setAsk\(true\)\)/);
+  assert.match(banner, /else setAsk\(true\)/);
+});
+
+test("the geo lookup is never cached", () => {
+  // A cached "no consent needed" served to an EU reader is the one mistake
+  // this must not make.
+  assert.match(banner, /cache: "no-store"/);
+  assert.match(geo, /"cache-control": "no-store"/);
+  assert.match(geo, /force-dynamic/);
 });
 
 test("the privacy page mentions Google Analytics, so it cannot be added quietly", () => {
