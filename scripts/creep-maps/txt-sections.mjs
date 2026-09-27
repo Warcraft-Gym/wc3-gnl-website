@@ -31,7 +31,23 @@ export function parseIniField(text, field) {
  *  `"BTNHelmutPurple"` — the basename without its extension, which is both
  *  the icon file's key on disk (`public/wc3-icons/**\/<key>.png`) and the
  *  suffix Liquipedia's own file naming uses (`File:Wc3<key>.png`). */
+/** Art paths whose casing in Blizzard's own data does not match the icon
+ *  file everyone else uses. `BTNICeTroll` (capital C, lower e) is what
+ *  `neutralunitfunc.txt` gives for the Ice Troll Trapper and Warlord; the
+ *  icon is `BTNIceTroll`, the same file the plain Ice Troll points at.
+ *  Worth correcting rather than fetching twice: a case-only difference
+ *  resolves fine on a case-insensitive filesystem like macOS and 404s on
+ *  Linux, so it survives local testing and breaks in production. */
+const ICON_KEY_FIXES = {
+  BTNICeTroll: "BTNIceTroll",
+  // Blizzard writes "Flesheater", the icon everyone else has is
+  // "FleshEater". Recorded as unavailable for months because the fetch asks
+  // Liquipedia for the key verbatim and got a miss.
+  BTNMurlocFlesheater: "BTNMurlocFleshEater",
+};
+
 export function iconKeyFromArt(artValue) {
   const base = artValue.split(/[\\/]/).pop() ?? artValue;
-  return base.replace(/\.[a-zA-Z0-9]+$/, "");
+  const key = base.replace(/\.[a-zA-Z0-9]+$/, "");
+  return ICON_KEY_FIXES[key] ?? key;
 }

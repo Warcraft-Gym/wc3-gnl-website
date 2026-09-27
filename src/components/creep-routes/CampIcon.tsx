@@ -12,10 +12,14 @@ const ICON_DIR: Record<"creep" | "item", string> = { creep: "creeps", item: "ite
  * the *build-order* icon manifest under a different path and naming
  * scheme. Falls back to a lettered chip on a 404 — the same pattern
  * `GameIcon` uses (a plain `onError`, plus a mount-time check for the case
- * where the 404 fires before hydration attaches the handler) — covering
- * the two creep icons `scripts/creep-maps/icons-missing.json` names as
- * absent from Liquipedia (`BTNICeTroll`, `BTNMurlocFlesheater`) and any
- * item icon that turns out missing too.
+ * where the 404 fires before hydration attaches the handler).
+ *
+ * Nothing relies on that fallback today: `icons-missing.json` is empty and
+ * every creep and item icon resolves. The two that used to fail were both
+ * casing, not absence — Blizzard's art paths say `BTNICeTroll` and
+ * `BTNMurlocFlesheater`, the files are `BTNIceTroll` and
+ * `BTNMurlocFleshEater` — which a case-insensitive filesystem hides. The
+ * fallback stays as a net for the next one.
  */
 export function CampIcon({
   iconKey,
