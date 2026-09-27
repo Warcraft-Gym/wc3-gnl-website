@@ -174,7 +174,7 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
  * The creep map: the minimap image with camps (coloured by difficulty
  * band), every start spot (your own base a red X, every other a small
  * muted blue X — see `StartMarker`), the gold mines and — when a route is
- * given — the numbered route path. One SVG keyboard stop like `MmrChart`: arrow
+ * given — the numbered route path. One SVG keyboard stop: arrow
  * keys walk the route's camp stops (or every camp, with no route, or every
  * camp when `walkAllCamps` — F012-followup-3, the route page), Escape
  * clears, and an `aria-live` region names the current camp for anyone who
