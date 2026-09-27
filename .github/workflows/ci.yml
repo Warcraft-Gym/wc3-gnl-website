@@ -40,6 +40,14 @@ jobs:
       - name: Lint
         run: pnpm lint
 
+      # `next typegen` writes .next/types, where Next puts the generated
+      # route and layout types (`LayoutProps<"/">` in app/layout.tsx). Without
+      # it tsc fails on a clean checkout, and passes locally only because an
+      # earlier build happened to leave those files behind. Cheaper than a
+      # full build, which is the only other way to produce them.
+      - name: Generate route types
+        run: pnpm exec next typegen
+
       - name: Types
         run: pnpm exec tsc --noEmit
 
