@@ -18,11 +18,14 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { consentDefaultScript } from "./consent.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "../..");
 const component = readFileSync(join(ROOT, "src/components/analytics/GoogleAnalytics.tsx"), "utf8");
 const config = readFileSync(join(ROOT, "src/lib/analytics.ts"), "utf8");
 const privacy = readFileSync(join(ROOT, "src/app/(site)/privacy/page.tsx"), "utf8");
+const consent = readFileSync(join(ROOT, "src/lib/consent.mjs"), "utf8");
+const banner = readFileSync(join(ROOT, "src/components/analytics/ConsentBanner.tsx"), "utf8");
 
 /** Comments explain the format with a placeholder ("G-XXXXXXXXXX"), which is
  *  not a hardcoded id. Strip them before looking for one. */
@@ -50,23 +53,43 @@ test("the id is overridable, and is the only literal allowed", () => {
   assert.equal(ids.size, 1, `expected exactly one measurement id in the source, found ${[...ids].join(", ") || "none"}`);
 });
 
-test("consent defaults are declared before config", () => {
-  const consent = component.indexOf("'consent', 'default'");
+test("the consent default is emitted before config", () => {
+  // gtag applies whatever posture is in place when config runs, so the
+  // default has to come first or the opening page_view uses the wrong one.
+  const dflt = component.indexOf("consentDefaultScript()");
   const cfg = component.indexOf("'config'");
-  assert.ok(consent !== -1 && cfg !== -1, "both calls must exist");
-  assert.ok(consent < cfg, "consent must be pushed before config or the first hit uses granted storage");
+  assert.ok(dflt !== -1 && cfg !== -1, "both must exist");
+  assert.ok(dflt < cfg, "the consent default must precede config");
 });
 
-test("storage is denied unless cookies are explicitly allowed", () => {
-  assert.match(config, /GA_COOKIES_ALLOWED = process\.env\.NEXT_PUBLIC_GA_COOKIES === "true"/);
-  assert.match(component, /GA_COOKIES_ALLOWED \? "granted" : "denied"/);
-  assert.match(component, /client_storage: 'none'/, "the cookieless branch must switch client storage off");
+test("the default reads the reader's stored choice, it does not hardcode one", () => {
+  // Hardcoding "denied" and upgrading after hydration would lose the first
+  // hit of every session for a reader who already agreed. Asserted on the
+  // emitted script rather than the source, which builds it from constants.
+  const js = consentDefaultScript();
+  assert.match(js, /localStorage\.getItem/);
+  assert.match(js, /analytics_storage:c==='granted'\?'granted':'denied'/);
 });
 
-test("advertising signals are denied whatever the cookie setting", () => {
+test("advertising signals are denied and nothing can grant them", () => {
+  const js = consentDefaultScript();
   for (const key of ["ad_storage", "ad_user_data", "ad_personalization"]) {
-    assert.match(component, new RegExp(`${key}: 'denied'`), key);
+    assert.match(js, new RegExp(`${key}:'denied'`), key);
   }
+  assert.ok(
+    !/ad_storage['"]?\s*:\s*['"]granted/.test(consent + banner + component),
+    "no code path may grant an advertising signal",
+  );
+});
+
+test("declining is offered as plainly as accepting", () => {
+  // Consent that is harder to refuse than to give is not consent.
+  assert.match(banner, /decide\(DENIED\)/);
+  assert.match(banner, /decide\(GRANTED\)/);
+});
+
+test("the banner is absent where analytics are off", () => {
+  assert.match(banner, /if \(!enabled \|\| !hydrated\) return null;/);
 });
 
 test("the privacy page mentions Google Analytics, so it cannot be added quietly", () => {

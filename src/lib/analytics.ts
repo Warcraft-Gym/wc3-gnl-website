@@ -31,20 +31,8 @@ export const GA_ENABLED =
   process.env.NEXT_PUBLIC_VERCEL_ENV !== "development";
 
 /**
- * Whether GA may use cookies and browser storage.
- *
- * Off by default, and deliberately so. The Gym's audience is largely UK and
- * European — the KotH page announces in UK time — and under UK GDPR and the
- * ePrivacy rules, analytics cookies need consent *before* they are set. There
- * is no consent banner on this site, and the privacy page says there is
- * nothing to consent to.
- *
- * So GA runs in Consent Mode v2 with storage denied: no `_ga` cookie, no
- * client id, no cross-visit identity. Google still receives cookieless pings,
- * so page views, referrers and countries are reported, but returning-visitor
- * and user-level metrics are modelled rather than measured.
- *
- * Set `NEXT_PUBLIC_GA_COOKIES=true` only once a consent banner exists and the
- * privacy page has been updated to match.
+ * Analytics storage is now the reader's decision, not a build-time flag.
+ * `NEXT_PUBLIC_GA_COOKIES` is gone: the banner records a choice, the inline
+ * Consent Mode default reads it, and `src/lib/consent.mjs` owns the states.
+ * Until someone chooses, storage is denied and GA sets nothing.
  */
-export const GA_COOKIES_ALLOWED = process.env.NEXT_PUBLIC_GA_COOKIES === "true";
