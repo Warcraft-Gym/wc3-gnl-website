@@ -37,7 +37,7 @@ function Bar({ seasons, seasonNumber }: { seasons: SubNavSeason[]; seasonNumber:
   const param = current && latest && current.number !== latest.number ? current.number : undefined;
   return (
     <div className="sticky top-[var(--wg-header-h)] z-40 h-[var(--wg-subnav-h)] px-3 pt-1.5 sm:px-4">
-      <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line-soft bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
+      <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
         {current ? <SeasonMenu seasons={seasons} current={current} pathname={pathname} /> : null}
         <nav
           aria-label="GNL section"

@@ -29,7 +29,7 @@ export function MobileNav() {
       </button>
 
       {open ? (
-        <div className="fixed inset-x-3 top-[calc(var(--wg-header-h)-4px)] z-40 max-h-[calc(100dvh-var(--wg-header-h))] overflow-y-auto rounded-lg border border-line-soft bg-surface/95 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] backdrop-blur-xl">
+        <div className="fixed inset-x-3 top-[calc(var(--wg-header-h)-4px)] z-40 max-h-[calc(100dvh-var(--wg-header-h))] overflow-y-auto rounded-lg border border-line bg-surface/95 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] backdrop-blur-xl">
           <nav className="flex flex-col px-5 py-4" aria-label="Mobile">
             {PRIMARY_NAV.map((item) =>
               item.external ? (

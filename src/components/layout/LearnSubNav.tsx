@@ -17,7 +17,7 @@ export function LearnSubNav({ activeHref }: { activeHref?: string }) {
           `span` with no link, and the bar's own first item ("Guides") already
           goes to /learn. A reader reported it as "not really a button, idk if
           we even need that there" — both halves correct. */}
-      <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line-soft bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
+      <div className="mx-auto flex h-12 max-w-[84rem] items-center gap-4 rounded-lg border border-line bg-surface/80 px-3 shadow-[0_10px_30px_-12px_rgba(0,0,0,.9),inset_0_1px_0_rgba(255,255,255,.06)] backdrop-blur-xl sm:px-4">
         <nav
           aria-label="Learn section"
           className="flex h-full flex-1 items-center gap-1 overflow-x-auto max-sm:[mask-image:linear-gradient(90deg,black_calc(100%-2.5rem),transparent)] max-sm:[scrollbar-width:none]"

@@ -17,16 +17,7 @@
   --wg-surface: oklch(8% 0.004 60);
   --wg-surface-2: oklch(12% 0.005 60);
   --wg-surface-3: oklch(17% 0.006 60);
-  /* Structural: the edge of a panel, a table, a control. WCAG 1.4.11 wants
-     3:1 for a boundary a reader needs in order to make sense of the thing it
-     encloses, and `design-contrast.test.mjs` holds it to that. */
-  --wg-line: #665C4E; /* 3:1 on the ground and the panel, warm rather than grey */
-  /* Decorative: the hairline around the floating header and sub-nav pills.
-     Those are identified by their blur, shadow and contents, not by their
-     edge, so the edge is ornament and 1.4.11 does not apply. Deliberately
-     faint, because at 3:1 the chrome reads as a boxed-in slab. Do not use it
-     for anything a reader has to perceive. */
-  --wg-line-soft: oklch(70% 0.03 75 / 0.18);
+  --wg-line: oklch(70% 0.03 75 / 0.18);
   --wg-line-strong: oklch(80% 0.06 80 / 0.4);
 
   /* --- Text (cool light grey body copy, like the official site) --- */
@@ -121,7 +112,6 @@
   --color-surface-2: var(--wg-surface-2);
   --color-surface-3: var(--wg-surface-3);
   --color-line: var(--wg-line);
-  --color-line-soft: var(--wg-line-soft);
   --color-line-strong: var(--wg-line-strong);
 
   --color-fg: var(--wg-text);

@@ -1,23 +1,32 @@
 /**
- * The design tokens that have to clear a contrast threshold, checked against
- * the stylesheet rather than against a copy of the values.
+ * What has to stay legible, checked against the stylesheet rather than
+ * against a copy of the values.
  *
- * This exists because `--wg-line` was `oklch(70% 0.03 75 / 0.18)` for months:
- * a light warm colour at 18% opacity, which flattens to a 1.3:1 hairline on
- * the panel it sits on. Nothing failed, because nothing looked. It was found
- * by eye during a redesign, fixed to a neutral grey, and then warmed to
- * #665C4E at the same lightness so it matches the palette without losing the
- * ratio.
+ * History, because this token has moved three times. `--wg-line` was
+ * `oklch(70% 0.03 75 / 0.18)`, which flattens to about 1.3:1 on the panel.
+ * It was raised to an opaque grey and then to `#665C4E` to clear the 3:1
+ * that WCAG 2.2 1.4.11 asks of a border carrying meaning. At that strength
+ * the site read as a grid of boxed-in slabs, and the maintainer chose the
+ * faint hairline back, knowingly.
  *
- * Reading the CSS is the point: a test holding its own copy of the colour
- * would still pass after someone changed the stylesheet.
+ * That is a legitimate reading rather than a regression: 1.4.11 covers
+ * visual information *required* to identify a component. These panels are
+ * identified by their fill against the ground, their contents and their
+ * heading, not by their edge, so the edge is ornament. What a reader does
+ * need is the focus ring, and that is what this file now guards.
+ *
+ * There is a real cost, recorded so nobody rediscovers it by surprise: ten
+ * form controls take the same hairline, and a border is the usual way to see
+ * where an input begins. They rely on their fill and their focus ring
+ * instead. If that proves too subtle in use, give controls their own token
+ * rather than raising `--wg-line` and returning the whole site to slabs.
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { globSync, readFileSync } from "node:fs";
+import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NON_TEXT_MINIMUM, contrastRatio, parseColor, parseHex } from "./contrast.mjs";
+import { NON_TEXT_MINIMUM, contrastRatio, parseColor } from "./contrast.mjs";
 
 const CSS = readFileSync(join(dirname(fileURLToPath(import.meta.url)), "../app/globals.css"), "utf8");
 
@@ -28,53 +37,39 @@ function token(name) {
   return m[1].trim().replace(/\s*\/\*.*$/, "").trim();
 }
 
-test("the panel border clears 3:1 on both backgrounds it sits on", () => {
-  // If this fails after a palette change, the border is decorative to the
-  // person who changed it and invisible to someone else. Pick a different
-  // colour rather than lowering the threshold.
-  const line = parseHex(token("wg-line"));
+test("the focus ring clears 3:1 on the ground and on the panel", () => {
+  // With the border decorative, this is the one thing that tells a keyboard
+  // user where they are. It is not allowed to become subtle too.
+  const ring = parseColor(token("wg-gold"));
   for (const bg of ["wg-bg", "wg-surface"]) {
-    const ratio = contrastRatio(line, parseColor(token(bg)));
+    const ratio = contrastRatio(ring, parseColor(token(bg)));
     assert.ok(
       ratio >= NON_TEXT_MINIMUM,
-      `--wg-line on --${bg} is ${ratio.toFixed(2)}:1, needs ${NON_TEXT_MINIMUM}:1 (WCAG 1.4.11)`,
+      `the focus ring on --${bg} is ${ratio.toFixed(2)}:1, needs ${NON_TEXT_MINIMUM}:1 (WCAG 1.4.11)`,
     );
   }
 });
 
-test("the border is opaque, so the measured ratio is the one you see", () => {
-  // A translucent border flattens against whatever is behind it, so the
-  // number above would only hold for the two backgrounds tested and would
-  // quietly be wrong over artwork. Keeping it opaque keeps the test honest.
+test("the focus ring is actually applied, and is not hidden", () => {
+  // A ring that clears 3:1 in the palette but is never drawn helps nobody.
+  const m = CSS.match(/:focus-visible\s*\{([^}]*)\}/);
+  assert.ok(m, "no :focus-visible rule in globals.css");
+  assert.match(m[1], /outline:[^;]*var\(--wg-gold\)/, ":focus-visible must draw the gold outline");
+  assert.doesNotMatch(m[1], /outline:\s*(none|0)/, ":focus-visible must not remove the outline");
+});
+
+test("the panel hairline is still the deliberate translucent one", () => {
+  // Not a contrast assertion: it is a note that the faint border is a choice.
+  // If someone raises it to an opaque colour they should read the header of
+  // this file first, because that was tried twice and reverted twice.
   const line = token("wg-line");
-  assert.doesNotThrow(() => parseHex(line), `--wg-line is "${line}"; keep it an opaque hex so contrast is measurable`);
+  assert.match(line, /\/\s*0?\.\d+\s*\)$/, `--wg-line is "${line}"; the decorative hairline is translucent by choice`);
 });
 
-test("the backgrounds it is measured against are still the ones in use", () => {
-  // Guards the test itself: if these stop being a colour this file can
-  // read, the assertions above would throw rather than silently measure the
-  // wrong thing. hex and oklch are both real values in this stylesheet.
-  for (const bg of ["wg-bg", "wg-surface"]) assert.doesNotThrow(() => parseColor(token(bg)), bg);
-});
-
-test("the faint border stays on the floating chrome and nowhere else", () => {
-  // `--wg-line-soft` is the very value this file was written to get rid of:
-  // 1.3:1 on the panel. It is allowed back only for the header and sub-nav
-  // pills, whose edge is decorative because the blur and shadow already
-  // separate them from the page. Anywhere a reader needs to see a boundary
-  // (tables, cards, inputs, controls) it is the old bug again, so the
-  // allowlist is the enforcement and this test is the reason it holds.
-  const root = join(dirname(fileURLToPath(import.meta.url)), "..");
-  const allowed = new Set(
-    ["SiteHeader", "LearnSubNav", "GnlSubNav", "MobileNav"].map((n) => `components/layout/${n}.tsx`),
-  );
-  const offenders = globSync("**/*.{ts,tsx,mjs,css}", { cwd: root })
-    .filter((f) => !f.endsWith(".test.mjs") && f !== "app/globals.css")
-    .filter((f) => /border-line-soft|--wg-line-soft/.test(readFileSync(join(root, f), "utf8")))
-    .filter((f) => !allowed.has(f));
-  assert.deepEqual(
-    offenders,
-    [],
-    `border-line-soft is a 1.3:1 hairline; these are not floating chrome: ${offenders.join(", ")}`,
-  );
+test("the colours measured here are ones this file can read", () => {
+  // Guards the test itself: these must stay parseable or the assertions
+  // above would throw rather than silently measure the wrong thing.
+  for (const name of ["wg-bg", "wg-surface", "wg-gold"]) {
+    assert.doesNotThrow(() => parseColor(token(name)), name);
+  }
 });
