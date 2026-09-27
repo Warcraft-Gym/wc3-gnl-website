@@ -3,32 +3,15 @@ import { vsRaceOfSeason } from "@/lib/w3c-vs-race.mjs";
 import type { Race } from "@/lib/utils";
 
 /**
- * Read-only client for the public W3Champions API. Per-player ladder
- * standing and the season split against each opponent race: the two reads
- * behind the race chips and the league-vs-ladder comparison. Games, heroes
- * and MMR timelines stay on W3Champions. Everything is cached for ten
- * minutes and degrades to empty results when W3C is unavailable.
+ * Read-only client for the public W3Champions API: the season split against
+ * each opponent race, behind the league-vs-ladder comparison. Ladder rows and
+ * MMR come from the backend sync. Games, heroes and MMR timelines stay on
+ * W3Champions. Everything is cached for one hour and degrades to empty
+ * results when W3C is unavailable.
  */
 
 const API = "https://website-backend.w3champions.com/api";
-const GATEWAY = 20; // Europe, where the GNL plays
-const GAME_MODE_1V1 = 1;
-const REVALIDATE = 600;
-
-/** W3C race ids. */
-const RACE_BY_ID: Record<number, Race> = { 0: "random", 1: "human", 2: "orc", 4: "nightelf", 8: "undead" };
-const LEAGUE_BY_ORDER = ["Grand Master", "Master", "Adept", "Diamond", "Platinum", "Gold", "Silver", "Bronze", "Grass"];
-
-export type W3cLadderEntry = {
-  race: Race;
-  mmr: number;
-  league: string;
-  division: number;
-  rank: number;
-  games: number;
-  wins: number;
-  losses: number;
-};
+const REVALIDATE = 3600;
 
 /** Record against each opponent race over the whole ladder season. */
 export type VsRaceRecord = Partial<Record<Race, { wins: number; losses: number }>>;
@@ -36,8 +19,7 @@ export type VsRaceRecord = Partial<Record<Race, { wins: number; losses: number }
 export type W3cProfile = {
   season: number;
   battleTag: string;
-  ladder: W3cLadderEntry[];
-  /** The whole season against each opponent race. Empty when the read fails. */
+  /** The whole season against each opponent race. Empty when the player has no games in it. */
   vsRace: VsRaceRecord;
   profileUrl: string;
 };
@@ -60,36 +42,16 @@ async function currentSeason(): Promise<number> {
   return seasons?.length ? Math.max(...seasons.map((s) => s.id)) : 25;
 }
 
-type RawModeStat = { gameMode: number; race: number; mmr: number; leagueOrder: number; division: number; rank: number; games: number; wins: number; losses: number };
-
-/** Everything the profile page shows from W3Champions, for one BattleTag. */
-export async function getW3cProfile(battleTag: string): Promise<W3cProfile | null> {
+/** The season split of one BattleTag; null when W3Champions does not answer.
+ *  `season` defaults to the current W3Champions season. */
+export async function getW3cProfile(battleTag: string, season?: number): Promise<W3cProfile | null> {
   const tag = encodeURIComponent(battleTag);
-  const season = await currentSeason();
-  const [modes, seasonSplit] = await Promise.all([
-    w3c<RawModeStat[]>(`/players/${tag}/game-mode-stats?gateWay=${GATEWAY}&season=${season}`),
-    // About 49 KB: every map and every race the player picked, of which the
-    // page reads one row.
-    w3c<unknown>(`/player-stats/${tag}/race-on-map-versus-race?season=${season}`),
-  ]);
-  if (!modes) return null;
-  const vsRace: VsRaceRecord = vsRaceOfSeason(seasonSplit) ?? {};
-
-  const ladder: W3cLadderEntry[] = modes
-    .filter((m) => m.gameMode === GAME_MODE_1V1 && m.games > 0)
-    .map((m) => ({
-      race: RACE_BY_ID[m.race] ?? "random",
-      mmr: m.mmr,
-      league: LEAGUE_BY_ORDER[m.leagueOrder] ?? "",
-      division: m.division,
-      rank: m.rank,
-      games: m.games,
-      wins: m.wins,
-      losses: m.losses,
-    }))
-    .sort((a, b) => b.games - a.games);
-
-  return { season, battleTag, ladder, vsRace, profileUrl: w3cPlayerUrl(battleTag) };
+  season ??= await currentSeason();
+  // About 49 KB: every map and every race the player picked, of which the
+  // page reads one row.
+  const seasonSplit = await w3c<unknown>(`/player-stats/${tag}/race-on-map-versus-race?season=${season}`);
+  if (seasonSplit == null) return null;
+  return { season, battleTag, vsRace: vsRaceOfSeason(seasonSplit) ?? {}, profileUrl: w3cPlayerUrl(battleTag) };
 }
 
 /** The season of a person's other tag: the whole season against each
@@ -101,10 +63,10 @@ export type W3cTagGames = {
   vsRace: VsRaceRecord | null;
 };
 
-/** One W3Champions read per tag; the season list read is shared with getW3cProfile. */
-export async function getW3cTagGames(battleTag: string): Promise<W3cTagGames> {
+/** One W3Champions read per tag; `season` defaults to the current W3Champions season. */
+export async function getW3cTagGames(battleTag: string, season?: number): Promise<W3cTagGames> {
   const tag = encodeURIComponent(battleTag);
-  const season = await currentSeason();
+  season ??= await currentSeason();
   const seasonSplit = await w3c<unknown>(`/player-stats/${tag}/race-on-map-versus-race?season=${season}`);
   return { battleTag, season, vsRace: vsRaceOfSeason(seasonSplit) };
 }

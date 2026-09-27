@@ -184,18 +184,19 @@ export default async function PlayerPage({ params }: Params) {
   const tags = player.tags?.length ? player.tags : player.battleTag ? [player.battleTag] : [];
   const noAccount = !tags.length;
   const otherTags = tags.filter((t) => t.toLowerCase() !== player.battleTag?.toLowerCase());
-  const [live, others] = await Promise.all([
-    player.battleTag ? getW3cProfile(player.battleTag) : null,
-    Promise.all(otherTags.map(getW3cTagGames)),
-  ]);
-  const w3cUrl = player.battleTag ? w3cPlayerUrl(player.battleTag) : undefined;
-  // Every ladder race of one season, best MMR first. The rows and the season
-  // name come from the same source, so a count never carries another season's number.
-  const liveLadder = live?.ladder.length ? live.ladder : undefined;
+  // Every ladder race of one season, best MMR first, from the backend sync.
+  // The season splits are read for that same season, so the rows, the splits
+  // and the season name never mix two seasons. With no synced row the splits
+  // fall back to the current W3Champions season.
   const synced = w3c.filter((r) => !r.stale);
   const syncedSeason = synced.length ? Math.max(...synced.map((r) => r.season)) : undefined;
-  const ladderSeason = (liveLadder ? live?.season : syncedSeason) ?? others[0]?.season;
-  const ladder = [...(liveLadder ?? synced.filter((r) => r.season === ladderSeason))].sort((a, b) => b.mmr - a.mmr);
+  const [live, others] = await Promise.all([
+    player.battleTag ? getW3cProfile(player.battleTag, syncedSeason) : null,
+    Promise.all(otherTags.map((t) => getW3cTagGames(t, syncedSeason))),
+  ]);
+  const w3cUrl = player.battleTag ? w3cPlayerUrl(player.battleTag) : undefined;
+  const ladderSeason = syncedSeason ?? live?.season ?? others[0]?.season;
+  const ladder = synced.filter((r) => r.season === ladderSeason).sort((a, b) => b.mmr - a.mmr);
   // A race with no row in that season keeps a chip tagged with the season of its MMR.
   const olderChips = w3c
     .filter((r) => !ladder.some((l) => l.race === r.race))
