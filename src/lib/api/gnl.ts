@@ -335,7 +335,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
       const played = seasons.filter((s) => seated.has(s.id));
       const series = new Map(
         await Promise.all(
-          played.map(async (s) => [s.id, await apiGetAll<RawSeries>(`/events/${s.id}/series`)] as const),
+          played.map(async (s) => [s.id, await apiGetAll<RawSeries>(`/events/${s.id}/series`, { query: { player_id: user.id } })] as const),
         ),
       );
       return mapPlayerProfile({ seasons, user, history, leagueTeams, series, career }) ?? null;
