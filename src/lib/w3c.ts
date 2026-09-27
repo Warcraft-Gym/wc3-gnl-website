@@ -6,12 +6,12 @@ import type { Race } from "@/lib/utils";
  * Read-only client for the public W3Champions API: the season split against
  * each opponent race, behind the league-vs-ladder comparison. Ladder rows and
  * MMR come from the backend sync. Games, heroes and MMR timelines stay on
- * W3Champions. Everything is cached for one hour and degrades to empty
+ * W3Champions. Everything is cached for one day and degrades to empty
  * results when W3C is unavailable.
  */
 
 const API = "https://website-backend.w3champions.com/api";
-const REVALIDATE = 3600;
+const REVALIDATE = 86400;
 
 /** Record against each opponent race over the whole ladder season. */
 export type VsRaceRecord = Partial<Record<Race, { wins: number; losses: number }>>;
