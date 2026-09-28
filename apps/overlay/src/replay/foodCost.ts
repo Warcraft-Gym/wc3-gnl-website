@@ -20,8 +20,8 @@ const RAW_COSTS: Record<string, number> = {
   hmtm: 3,
   hgyr: 1,
   hgry: 4,
-  hmtt: 3,
-  hrtt: 3,
+  hmtt: 4,
+  hrtt: 4,
   hdhw: 3,
   hmil: 0,
   // Orc
@@ -47,8 +47,8 @@ const RAW_COSTS: Record<string, number> = {
   edry: 3,
   edoc: 4,
   emtg: 7,
-  ehip: 3,
-  edot: 3,
+  ehip: 2,
+  edot: 2,
   efdr: 2,
   echm: 5,
   // Undead
