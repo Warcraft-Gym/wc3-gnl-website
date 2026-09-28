@@ -1,6 +1,6 @@
 import "server-only";
 
-import { ApiError, apiGet, apiGetAll, withFallback } from "./client";
+import { ApiError, LIVE_REVALIDATE, apiGet, apiGetAll, withFallback } from "./client";
 import { slugify } from "@/lib/utils";
 import { slugMatch } from "@/lib/tags.mjs";
 import {
@@ -147,7 +147,7 @@ export async function getFixtures(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const series = await apiGetAll<RawSeries>(`/events/${s.id}/series`);
+      const series = await apiGetAll<RawSeries>(`/events/${s.id}/series`, { revalidate: LIVE_REVALIDATE });
       return mapFixtures(series);
     },
     () => FIXTURE_FIXTURES,
@@ -186,8 +186,8 @@ export async function getStandings(seasonNumber?: number): Promise<{
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
       const [teams, matches] = await Promise.all([
-        apiGet<RawTeam[]>(`/events/${s.id}/teams`),
-        apiGet<RawMatch[]>(`/events/${s.id}/matches`),
+        apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE }),
+        apiGet<RawMatch[]>(`/events/${s.id}/matches`, { revalidate: LIVE_REVALIDATE }),
       ]);
       return mapStandings(teams, matchesToFixtures(matches), s.id);
     },
@@ -201,7 +201,7 @@ export async function getTeams(seasonNumber?: number): Promise<{ teams: Team[]; 
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
+      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE });
       return mapTeams(teams, s);
     },
     () => FIXTURE_TEAMS,
@@ -243,12 +243,12 @@ export async function getTeamPage(
       if (pick < 0) return null;
       const raw = played[pick];
       const [teams, matches] = await Promise.all([
-        apiGet<RawTeam[]>(`/events/${raw.id}/teams`),
-        apiGet<RawMatch[]>(`/events/${raw.id}/matches`),
+        apiGet<RawTeam[]>(`/events/${raw.id}/teams`, { revalidate: LIVE_REVALIDATE }),
+        apiGet<RawMatch[]>(`/events/${raw.id}/matches`, { revalidate: LIVE_REVALIDATE }),
       ]);
       const team = mapTeams(teams, raw).find((t) => t.slug === slug);
       if (!team) return null;
-      const teamSeries = await apiGetAll<RawSeries>(`/events/${raw.id}/series`, {
+      const teamSeries = await apiGetAll<RawSeries>(`/events/${raw.id}/series`, { revalidate: LIVE_REVALIDATE,
         query: { team_id: team.id },
       });
       return {
@@ -355,7 +355,7 @@ export async function getPlayers(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`);
+      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE });
       return flattenPlayers(mapTeams(teams, s));
     },
     () => FIXTURE_PLAYERS,
@@ -372,7 +372,7 @@ export async function getFantasy(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const teams = await apiGet<RawFantasyTeam[]>(`/events/${s.id}/fantasy/teams`, {
+      const teams = await apiGet<RawFantasyTeam[]>(`/events/${s.id}/fantasy/teams`, { revalidate: LIVE_REVALIDATE,
         query: { limit: 500 },
       });
       return mapFantasy(teams, s.id);
@@ -412,7 +412,7 @@ export async function getLadder(seasonNumber?: number): Promise<{ ladder: Ladder
       const s = await fetchSeasonRaw(seasonNumber);
       const [ladder, teams] = await Promise.all([
         apiGet<RawLadder>(`/events/${s.id}/ladder`, { revalidate: 900 }),
-        apiGet<RawTeam[]>(`/events/${s.id}/teams`),
+        apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE }),
       ]);
       return mapLadder(ladder, teams, s.maps);
     },

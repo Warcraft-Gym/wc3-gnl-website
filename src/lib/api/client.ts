@@ -30,6 +30,18 @@ const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");
  */
 const DEFAULT_REVALIDATE = 86_400;
 
+/**
+ * Cache window for data that moves during a season: fixtures, results,
+ * rosters, the fantasy table.
+ *
+ * The pages showing these all read `searchParams` for the season, so Next
+ * renders them per request and they write no ISR entry at all. The day-long
+ * default therefore bought nothing on them and only made a live standings
+ * table up to a day stale. Five minutes costs upstream calls to the GNL
+ * service, not Vercel writes.
+ */
+export const LIVE_REVALIDATE = 300;
+
 export function isApiConfigured(): boolean {
   return Boolean(BASE_URL);
 }
