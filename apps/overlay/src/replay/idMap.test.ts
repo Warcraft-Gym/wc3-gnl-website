@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseReplay } from "./parseReplay";
-import { describeId, ID_MAP, NO_ICON_IDS } from "./idMap";
+import { describeId, ID_MAP } from "./idMap";
 import { FOOD_COST } from "./foodCost";
 
 const FIXTURES_DIR = join(__dirname, "__fixtures__");
@@ -49,7 +49,7 @@ describe("idMap", () => {
         expect(described.title, `describeId(${id}) should have a real title`).not.toBe(id);
 
         const needsIcon = described.kind === "unit" || described.kind === "building" || described.kind === "hero";
-        if (needsIcon && !NO_ICON_IDS.has(id)) {
+        if (needsIcon) {
           expect(described.iconKey, `describeId(${id}) (${described.kind}) should have a manifest icon key`).toBeDefined();
           expect(
             manifestKeys.has(described.iconKey as string),

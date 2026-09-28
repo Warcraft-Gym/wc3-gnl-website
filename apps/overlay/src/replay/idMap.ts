@@ -10,11 +10,6 @@ import type { DescribedId, IdKind } from "./types";
  * English-name pairs this was built from); icon keys are matched against
  * the site's `/api/icons` manifest (snapshotted in
  * `__fixtures__/icon-keys.json`).
- *
- * The Forsaken Paladin neutral hero has no site icon (night elf's Entangled
- * Gold Mine is simply not tracked); it keeps a real title but omits
- * `iconKey`, per the feature spec's "leave icon undefined but keep the
- * title" fallback.
  */
 export const ID_MAP: Record<string, { iconKey?: string; title: string; kind: IdKind }> = {
   // --- Human units ---
@@ -165,8 +160,7 @@ export const ID_MAP: Record<string, { iconKey?: string; title: string; kind: IdK
   Ntin: { iconKey: "nt-goblin-tinker", title: "Goblin Tinker", kind: "hero" },
   Nfir: { iconKey: "nt-firelord", title: "Firelord", kind: "hero" },
   Nalc: { iconKey: "nt-goblin-alchemist", title: "Goblin Alchemist", kind: "hero" },
-  // No matching site icon for the Forsaken Paladin — keep the title, no icon.
-  Npal: { title: "Forsaken Paladin", kind: "hero" },
+  Npal: { iconKey: "hu-forsaken-paladin", title: "Forsaken Paladin", kind: "hero" },
 
   // --- Neutral hostile / mercenary-camp units seen in the wild fixtures ---
   // (creep-camp units, not race melee units; icons as W3Champions draws them).
@@ -174,10 +168,6 @@ export const ID_MAP: Record<string, { iconKey?: string; title: string; kind: IdK
   ngir: { iconKey: "junkgolem", title: "Goblin Shredder", kind: "unit" },
 };
 
-/** Ids that are legitimately known (real title, correct `kind`) but have no
- *  matching site icon: one neutral hero. Consulted only by tests that
- *  otherwise require every unit/building/hero to carry an icon key. */
-export const NO_ICON_IDS: ReadonlySet<string> = new Set(["Npal"]);
 
 /** Creep and mercenary unit id -> site icon key, for the ids only
  *  `UNIT_NAMES` names. From the W3Champions icon art each unit id is drawn

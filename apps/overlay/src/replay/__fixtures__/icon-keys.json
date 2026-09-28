@@ -877,7 +877,7 @@
   },
   {
     "key": "avataroff",
-    "title": "Avatar of F",
+    "title": "Avatar Off",
     "race": "human",
     "kind": "ability"
   },
@@ -892,18 +892,6 @@
     "title": "Blizzard",
     "race": "human",
     "kind": "ability"
-  },
-  {
-    "key": "bloodelfpeasant",
-    "title": "Blood Elf Peasant",
-    "race": "human",
-    "kind": "misc"
-  },
-  {
-    "key": "bloodmage2",
-    "title": "Blood Mage2",
-    "race": "human",
-    "kind": "misc"
   },
   {
     "key": "brilliance",
@@ -922,12 +910,6 @@
     "title": "Control Magic",
     "race": "human",
     "kind": "misc"
-  },
-  {
-    "key": "dalaranguardtower",
-    "title": "Dalaran Guard Tower",
-    "race": "human",
-    "kind": "building"
   },
   {
     "key": "darktrollshadowpriest",
@@ -967,7 +949,7 @@
   },
   {
     "key": "divineshieldoff",
-    "title": "Divine Shield of F",
+    "title": "Divine Shield Off",
     "race": "human",
     "kind": "ability"
   },
@@ -979,21 +961,9 @@
   },
   {
     "key": "dryaddispelmagicoff",
-    "title": "Dryad Dispel Magic of F",
+    "title": "Dryad Dispel Magic Off",
     "race": "human",
     "kind": "ability"
-  },
-  {
-    "key": "elvenfarm",
-    "title": "Elven Farm",
-    "race": "human",
-    "kind": "building"
-  },
-  {
-    "key": "elvenguardtower",
-    "title": "Elven Guard Tower",
-    "race": "human",
-    "kind": "building"
   },
   {
     "key": "feedback",
@@ -1003,7 +973,7 @@
   },
   {
     "key": "flakcannons",
-    "title": "Flak Cannon S",
+    "title": "Flak Cannons",
     "race": "human",
     "kind": "misc"
   },
@@ -1015,7 +985,7 @@
   },
   {
     "key": "flyingmachinetruesight",
-    "title": "Flying Machinetruesight",
+    "title": "Flying Machine True Sight",
     "race": "human",
     "kind": "ability"
   },
@@ -1080,14 +1050,8 @@
     "kind": "ability"
   },
   {
-    "key": "holywater",
-    "title": "Holy Water",
-    "race": "human",
-    "kind": "misc"
-  },
-  {
     "key": "humanarcanetower",
-    "title": "Hu Mana Rcane Tower",
+    "title": "Human Arcane Tower",
     "race": "human",
     "kind": "building"
   },
@@ -1111,7 +1075,7 @@
   },
   {
     "key": "imbuedmasonry",
-    "title": "Imbuedmasonry",
+    "title": "Imbued Masonry",
     "race": "human",
     "kind": "upgrade"
   },
@@ -1135,7 +1099,7 @@
   },
   {
     "key": "innerfireoff",
-    "title": "Inner Fire of F",
+    "title": "Inner Fire Off",
     "race": "human",
     "kind": "misc"
   },
@@ -1159,7 +1123,7 @@
   },
   {
     "key": "manaflareoff",
-    "title": "Mana Flare of F",
+    "title": "Mana Flare Off",
     "race": "human",
     "kind": "misc"
   },
@@ -1174,12 +1138,6 @@
     "title": "Orb of Slow Ness",
     "race": "human",
     "kind": "ability"
-  },
-  {
-    "key": "pigfarm",
-    "title": "Pig Farm",
-    "race": "human",
-    "kind": "building"
   },
   {
     "key": "polymorph",
@@ -1213,7 +1171,7 @@
   },
   {
     "key": "slowoff",
-    "title": "Slow of F",
+    "title": "Slow Off",
     "race": "human",
     "kind": "ability"
   },
@@ -1236,18 +1194,6 @@
     "kind": "upgrade"
   },
   {
-    "key": "spellbreakermagicdefend",
-    "title": "Spell Breaker Magic Defend",
-    "race": "human",
-    "kind": "misc"
-  },
-  {
-    "key": "spellbreakermagicundefend",
-    "title": "Spell Breaker Magic Un Defend",
-    "race": "human",
-    "kind": "misc"
-  },
-  {
     "key": "spellsteal",
     "title": "Spell Steal",
     "race": "human",
@@ -1255,7 +1201,7 @@
   },
   {
     "key": "spellstealoff",
-    "title": "Spell Stealoff",
+    "title": "Spell Steal Off",
     "race": "human",
     "kind": "ability"
   },
@@ -1338,50 +1284,8 @@
     "kind": "upgrade"
   },
   {
-    "key": "advanceddeathtower",
-    "title": "Advanced Death Tower",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "advancedenergytower",
-    "title": "Advanced Energy Tower",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "advancedflametower",
-    "title": "Advanced Flame Tower",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "advancedfrosttower",
-    "title": "Advanced Frost Tower",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "advancedrocktower",
-    "title": "Advanced Rock Tower",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
     "key": "advancedspikedbarricades",
     "title": "Advanced Spiked Barricades",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "advstruct",
-    "title": "Advanced Structure",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "airattackoff",
-    "title": "Air Attack of F",
     "race": "neutral",
     "kind": "upgrade"
   },
@@ -1392,32 +1296,14 @@
     "kind": "upgrade"
   },
   {
-    "key": "akama",
-    "title": "Akama",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "alleriaflute",
     "title": "Alleria's Flute of Accuracy",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "altarofdepths",
-    "title": "Altar of Depths",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
     "key": "ambush",
     "title": "Ambush",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "ambushday",
-    "title": "Ambushday",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1453,19 +1339,19 @@
   },
   {
     "key": "arachnathidgreen",
-    "title": "Arachnathidgreen",
+    "title": "Arachnathid Green",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "arachnathidpurple",
-    "title": "Arachnathidpurple",
+    "title": "Arachnathid Purple",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "arcanitemelee",
-    "title": "Arcan Item Elee",
+    "key": "arcanitearchitecture",
+    "title": "Arcanite Architecture",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1476,28 +1362,16 @@
     "kind": "upgrade"
   },
   {
-    "key": "arcanitearchitecture",
-    "title": "Arcanitearchitecture",
+    "key": "arcanitemelee",
+    "title": "Arcanite Melee",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "arcaniteranged",
-    "title": "Arcaniteranged",
+    "title": "Arcanite Ranged",
     "race": "neutral",
     "kind": "misc"
-  },
-  {
-    "key": "archimonde",
-    "title": "Archimonde",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "armoredogre",
-    "title": "Armor Ed Ogre",
-    "race": "neutral",
-    "kind": "upgrade"
   },
   {
     "key": "armorgolem",
@@ -1506,10 +1380,10 @@
     "kind": "upgrade"
   },
   {
-    "key": "arthas",
-    "title": "Arthas",
+    "key": "armoredogre",
+    "title": "Armored Ogre",
     "race": "neutral",
-    "kind": "misc"
+    "kind": "upgrade"
   },
   {
     "key": "assassin",
@@ -1525,25 +1399,19 @@
   },
   {
     "key": "auraofdarkness",
-    "title": "Aura of Dark Ness",
+    "title": "Aura of Darkness",
     "race": "neutral",
     "kind": "ability"
   },
   {
     "key": "avengingwatcher",
-    "title": "Avenging Watch Er",
+    "title": "Avenging Watcher",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "avengingwatcheroff",
-    "title": "Avenging Watch Eroff",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "avengingassassin",
-    "title": "Avengingassassin",
+    "title": "Avenging Watcher Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1556,12 +1424,6 @@
   {
     "key": "backtowork",
     "title": "Backtowork",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "ballista",
-    "title": "Ballista",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1579,13 +1441,13 @@
   },
   {
     "key": "banditmage",
-    "title": "Banditmage",
+    "title": "Bandit Mage",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "banditspearthrower",
-    "title": "Banditsp Earth Rower",
+    "title": "Bandit Spear Thrower",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1620,20 +1482,8 @@
     "kind": "ability"
   },
   {
-    "key": "basicstruct",
-    "title": "Basic Struct",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "battlestations",
     "title": "Battle Stations",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "bearden",
-    "title": "Bear Den",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1668,18 +1518,6 @@
     "kind": "misc"
   },
   {
-    "key": "blackmarket",
-    "title": "Black Mark Et",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "bluedemoness",
-    "title": "Blue Demon Ess",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "bluedragonroost",
     "title": "Blue Dragon Roost",
     "race": "neutral",
@@ -1687,13 +1525,13 @@
   },
   {
     "key": "bluedragonspawn",
-    "title": "Blue Dragon Spawn",
+    "title": "Blue Dragonspawn",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "bluemagnataur",
-    "title": "Bluemagnataur",
+    "title": "Blue Magnataur",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1741,13 +1579,13 @@
   },
   {
     "key": "bundleoflumber",
-    "title": "Bundleof Lumber",
+    "title": "Bundle of Lumber",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "calltoarms",
-    "title": "Calltoarms",
+    "title": "Call to Arms",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1765,7 +1603,7 @@
   },
   {
     "key": "carrionscarabsoff",
-    "title": "Carrion Scarabsoff",
+    "title": "Carrion Scarabs Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1777,37 +1615,7 @@
   },
   {
     "key": "centaurkhan",
-    "title": "Centaurkhan",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "chaosgrom",
-    "title": "Chaos Grom",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "chaoswarlord",
-    "title": "Chaos War Lord",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "chaoswarlock",
-    "title": "Chaos Warlock",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "chaoswarlockgreen",
-    "title": "Chaos Warlock Green",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "chaoswolfrider",
-    "title": "Chaos Wolf Rider",
+    "title": "Centaur Khan",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1819,13 +1627,13 @@
   },
   {
     "key": "chemicalrage",
-    "title": "Chemicalrage",
+    "title": "Chemical Rage",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "chestofgold",
-    "title": "Chestof Gold",
+    "title": "Chest of Gold",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1843,7 +1651,7 @@
   },
   {
     "key": "clayfigurine",
-    "title": "Clayfigurine",
+    "title": "Clay Figurine",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1861,7 +1669,7 @@
   },
   {
     "key": "cloakofflames",
-    "title": "Cloak of Flame S",
+    "title": "Cloak of Flames",
     "race": "neutral",
     "kind": "misc"
   },
@@ -1879,27 +1687,21 @@
   },
   {
     "key": "clusterrockets",
-    "title": "Cluster Rock Ets",
+    "title": "Cluster Rockets",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "coldarrows",
-    "title": "Cold Arrow S",
+    "title": "Cold Arrows",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "coldarrowsoff",
-    "title": "Cold Arrow Soff",
+    "title": "Cold Arrows Off",
     "race": "neutral",
     "kind": "misc"
-  },
-  {
-    "key": "coldtower",
-    "title": "Cold Tower",
-    "race": "neutral",
-    "kind": "building"
   },
   {
     "key": "command",
@@ -1908,28 +1710,10 @@
     "kind": "misc"
   },
   {
-    "key": "coralbed",
-    "title": "Coralbed",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "corpseexplode",
-    "title": "Corpse Explode",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "corrosivebreath",
     "title": "Corrosive Breath",
     "race": "neutral",
     "kind": "ability"
-  },
-  {
-    "key": "corruptedancientprotector",
-    "title": "Corrupted Ancient Protector",
-    "race": "neutral",
-    "kind": "misc"
   },
   {
     "key": "corruptedent",
@@ -1950,6 +1734,12 @@
     "kind": "upgrade"
   },
   {
+    "key": "helmutpurple",
+    "title": "Crown of Kings",
+    "race": "neutral",
+    "kind": "misc"
+  },
+  {
     "key": "crushingwave",
     "title": "Crushing Wave",
     "race": "neutral",
@@ -1962,62 +1752,20 @@
     "kind": "misc"
   },
   {
-    "key": "drain",
-    "title": "D Rain",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "daggerofescape",
     "title": "Dagger of Escape",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "dalaranmutant",
-    "title": "Dalaranmutant",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "dalaranreject",
-    "title": "Dalaranreject",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "darksummoning",
-    "title": "Dark Summon Ing",
+    "title": "Dark Summoning",
     "race": "neutral",
     "kind": "ability"
   },
   {
-    "key": "deathtower",
-    "title": "Death Tower",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
     "key": "deeplordrevenant",
     "title": "Deep Lord Revenant",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "demolish",
-    "title": "Demolish",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "demoness",
-    "title": "Demon Ess",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "denofwonders",
-    "title": "Denofwonders",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2030,12 +1778,6 @@
   {
     "key": "disenchant",
     "title": "Disenchant",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "dizzy",
-    "title": "Dizzy",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2076,38 +1818,14 @@
     "kind": "upgrade"
   },
   {
-    "key": "dragonroost",
-    "title": "Dragon Roost",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "dranai",
     "title": "Dranai",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "dranaichiefhut",
-    "title": "Dranai Chief Hut",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "dranaiakama",
-    "title": "Dranaiakama",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "dranaihut",
-    "title": "Dranaihut",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "dranaimage",
-    "title": "Dranaimage",
+    "title": "Dranai Mage",
     "race": "neutral",
     "kind": "ability"
   },
@@ -2148,14 +1866,8 @@
     "kind": "misc"
   },
   {
-    "key": "elfvillager",
-    "title": "Elfvillager",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "enchantedbears",
-    "title": "Enchanted Bear S",
+    "title": "Enchanted Bears",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2166,14 +1878,8 @@
     "kind": "misc"
   },
   {
-    "key": "energytower",
-    "title": "Energy Tower",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
     "key": "engineeringupgrade",
-    "title": "Engine E Ring Upgrade",
+    "title": "Engineering Upgrade",
     "race": "neutral",
     "kind": "upgrade"
   },
@@ -2196,62 +1902,26 @@
     "kind": "misc"
   },
   {
-    "key": "eredarwarlockpurple",
-    "title": "Eredar Warlock Purple",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "eredarred",
-    "title": "Eredarred",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "etherealformon",
     "title": "Etherealformon",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "evilillidan",
-    "title": "Evilillidan",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "exhumecorpses",
-    "title": "Exhume Corpse S",
+    "title": "Exhume Corpses",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "facelessone",
-    "title": "Facelessone",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "felguard",
-    "title": "Fel Guard",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "felguardblue",
-    "title": "Fel Guard Blue",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "felboar",
-    "title": "Felboar",
+    "title": "Faceless One",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "felhound",
-    "title": "Felhound",
+    "title": "Fel Hound",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2275,19 +1945,7 @@
   },
   {
     "key": "firerocks",
-    "title": "Fire Rock S",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "flametower",
-    "title": "Flame Tower",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
-    "key": "flamingarrows",
-    "title": "Flaming Arrow S",
+    "title": "Fire Rocks",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2305,7 +1963,7 @@
   },
   {
     "key": "fragmentationbombs",
-    "title": "Fragmentation Bomb S",
+    "title": "Fragmentation Bombs",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2334,12 +1992,6 @@
     "kind": "ability"
   },
   {
-    "key": "frosttower",
-    "title": "Frost Tower",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
     "key": "furbolg",
     "title": "Furbolg",
     "race": "neutral",
@@ -2364,18 +2016,6 @@
     "kind": "misc"
   },
   {
-    "key": "furion",
-    "title": "Furion",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "garithos",
-    "title": "Garithos",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "gathergold",
     "title": "Gather Gold",
     "race": "neutral",
@@ -2383,7 +2023,7 @@
   },
   {
     "key": "gauntletsofogrepower",
-    "title": "Gauntletsof Ogre Power",
+    "title": "Gauntlets of Ogre Power",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2491,7 +2131,7 @@
   },
   {
     "key": "greendragonspawn",
-    "title": "Green Dragon Spawn",
+    "title": "Green Dragonspawn",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2506,18 +2146,6 @@
     "title": "Grim Ward",
     "race": "neutral",
     "kind": "ability"
-  },
-  {
-    "key": "guldan",
-    "title": "Guldan",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "guldanskull",
-    "title": "Guldanskull",
-    "race": "neutral",
-    "kind": "misc"
   },
   {
     "key": "hallofthedead",
@@ -2562,6 +2190,12 @@
     "kind": "ability"
   },
   {
+    "key": "healoff",
+    "title": "Heal Off",
+    "race": "neutral",
+    "kind": "ability"
+  },
+  {
     "key": "healingsalve",
     "title": "Healing Salve",
     "race": "neutral",
@@ -2574,56 +2208,20 @@
     "kind": "ability"
   },
   {
-    "key": "healoff",
-    "title": "Healoff",
-    "race": "neutral",
-    "kind": "ability"
-  },
-  {
     "key": "healthstone",
     "title": "Health Stone",
     "race": "neutral",
     "kind": "ability"
   },
   {
-    "key": "heartofaszune",
-    "title": "Heartofaszune",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "heartofsearinox",
-    "title": "Heartofsearinox",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "hellscream",
-    "title": "Hellscream",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "helmofvalor",
-    "title": "Helmofvalor",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "helmutpurple",
-    "title": "Helmutpurple",
+    "title": "Helm of Valor",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "heroalchemist",
     "title": "Hero Alchemist",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "herobloodelfprince",
-    "title": "Hero Blood Elfprince",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2641,7 +2239,7 @@
   },
   {
     "key": "hippogriffrider",
-    "title": "Hippogriffrider",
+    "title": "Hippogriff Rider",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2654,12 +2252,6 @@
   {
     "key": "hoodofcunning",
     "title": "Hood of Cunning",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "hornofcenarius",
-    "title": "Horn of Cenarius",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2683,25 +2275,25 @@
   },
   {
     "key": "humanarmorupone",
-    "title": "Hu Mana Rmorupone",
+    "title": "Human Armor Up One",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "humanarmorupthree",
-    "title": "Hu Mana Rmorupthree",
+    "title": "Human Armor Up Three",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "humanarmoruptwo",
-    "title": "Hu Mana Rmoruptwo",
+    "title": "Human Armor Up Two",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "humanartilleryupone",
-    "title": "Hu Mana Rtilleryupone",
+    "title": "Human Artillery Up One",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2719,31 +2311,31 @@
   },
   {
     "key": "humanlumberupgrade1",
-    "title": "Human Lumber Upgrade1",
+    "title": "Human Lumber Upgrade 1",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "humanlumberupgrade2",
-    "title": "Human Lumber Upgrade2",
+    "title": "Human Lumber Upgrade 2",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "humanmissileupone",
-    "title": "Human Missile Upone",
+    "title": "Human Missile Up One",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "humanmissileupthree",
-    "title": "Human Missile Upthree",
+    "title": "Human Missile Up Three",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "humanmissileuptwo",
-    "title": "Human Missile Uptwo",
+    "title": "Human Missile Up Two",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2755,7 +2347,7 @@
   },
   {
     "key": "humantransport",
-    "title": "Humantransport",
+    "title": "Human Transport",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2766,16 +2358,10 @@
     "kind": "misc"
   },
   {
-    "key": "hydralisk",
-    "title": "Hydra Lisk",
+    "key": "improvedbows",
+    "title": "Improved Bows",
     "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "impalingbolt",
-    "title": "Impaling Bolt",
-    "race": "neutral",
-    "kind": "ability"
+    "kind": "upgrade"
   },
   {
     "key": "improvedcreatureattack",
@@ -2796,12 +2382,6 @@
     "kind": "upgrade"
   },
   {
-    "key": "improvedbows",
-    "title": "Improvedbows",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
     "key": "incinerate",
     "title": "Incinerate",
     "race": "neutral",
@@ -2809,25 +2389,13 @@
   },
   {
     "key": "incinerateoff",
-    "title": "Incinerateoff",
+    "title": "Incinerate Off",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "infernal",
     "title": "Infernal",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "infernalcannon",
-    "title": "Infernal Cannon",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "infernalflamecannon",
-    "title": "Infernal Flame Cannon",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2844,20 +2412,8 @@
     "kind": "misc"
   },
   {
-    "key": "jaina",
-    "title": "Jaina",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "janggo",
     "title": "Janggo",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "juggernaut",
-    "title": "Juggernaut",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2874,12 +2430,6 @@
     "kind": "misc"
   },
   {
-    "key": "kelthuzad",
-    "title": "Kelthuzad",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "kobold",
     "title": "Kobold",
     "race": "neutral",
@@ -2887,31 +2437,31 @@
   },
   {
     "key": "koboldgeomancer",
-    "title": "Koboldgeomancer",
+    "title": "Kobold Geomancer",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "lavaspawn",
-    "title": "Lavaspawn",
+    "title": "Lava Spawn",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "leatherupgradeone",
-    "title": "Leatherupgradeone",
+    "title": "Leather Upgrade One",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "leatherupgradethree",
-    "title": "Leatherupgradethree",
+    "title": "Leather Upgrade Three",
     "race": "neutral",
     "kind": "upgrade"
   },
   {
     "key": "leatherupgradetwo",
-    "title": "Leatherupgradetwo",
+    "title": "Leather Upgrade Two",
     "race": "neutral",
     "kind": "upgrade"
   },
@@ -2941,7 +2491,7 @@
   },
   {
     "key": "lifedrain",
-    "title": "Life D Rain",
+    "title": "Life Drain",
     "race": "neutral",
     "kind": "misc"
   },
@@ -2964,38 +2514,20 @@
     "kind": "misc"
   },
   {
-    "key": "loaddwarf",
-    "title": "Loaddwarf",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "lobstrokkblue",
-    "title": "Lobstrokkblue",
+    "title": "Lobstrokk Blue",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "lobstrokkgreen",
-    "title": "Lobstrokkgreen",
+    "title": "Lobstrokk Green",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "lobstrokkred",
-    "title": "Lobstrokkred",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "magetower",
-    "title": "Mage Tower",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
-    "key": "magicalsentry",
-    "title": "Magic Al Sentry",
+    "title": "Lobstrokk Red",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3012,6 +2544,12 @@
     "kind": "misc"
   },
   {
+    "key": "magicalsentry",
+    "title": "Magical Sentry",
+    "race": "neutral",
+    "kind": "misc"
+  },
+  {
     "key": "magnataur",
     "title": "Magnataur",
     "race": "neutral",
@@ -3019,7 +2557,7 @@
   },
   {
     "key": "magnataurbrown",
-    "title": "Magnataurbrown",
+    "title": "Magnataur Brown",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3031,7 +2569,7 @@
   },
   {
     "key": "manadrain",
-    "title": "Mana D Rain",
+    "title": "Mana Drain",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3043,7 +2581,7 @@
   },
   {
     "key": "manarechargeoff",
-    "title": "Mana Rechargeoff",
+    "title": "Mana Recharge Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3060,14 +2598,8 @@
     "kind": "misc"
   },
   {
-    "key": "mannoroth",
-    "title": "Mannoroth",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "mantleofintelligence",
-    "title": "Mantleofintelligence",
+    "title": "Mantle of Intelligence",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3078,20 +2610,8 @@
     "kind": "misc"
   },
   {
-    "key": "manual2",
-    "title": "Manual2",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "manual3",
-    "title": "Manual3",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "marketplace",
-    "title": "Mark Etplace",
+    "title": "Manual 3",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3102,8 +2622,14 @@
     "kind": "misc"
   },
   {
+    "key": "marketplace",
+    "title": "Marketplace",
+    "race": "neutral",
+    "kind": "misc"
+  },
+  {
     "key": "marksmanship",
-    "title": "Mark Sman Ship",
+    "title": "Marksmanship",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3114,26 +2640,14 @@
     "kind": "misc"
   },
   {
-    "key": "meatapult",
-    "title": "Meatapult",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "mechanicalcritter",
-    "title": "Mech Anicalcritter",
+    "title": "Mechanical Critter",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "medalionofcourage",
     "title": "Meda Lion of Courage",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "medivh",
-    "title": "Medivh",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3145,7 +2659,7 @@
   },
   {
     "key": "minorrejuvpotion",
-    "title": "Minorrejuv Potion",
+    "title": "Minor Rejuv Potion",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3157,7 +2671,7 @@
   },
   {
     "key": "monsterlure",
-    "title": "Monsterlure",
+    "title": "Monster Lure",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3193,7 +2707,7 @@
   },
   {
     "key": "murgultidewarrior",
-    "title": "Murgultide Warrior",
+    "title": "Murgul Tide Warrior",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3222,68 +2736,14 @@
     "kind": "misc"
   },
   {
-    "key": "nagaarmorup1",
-    "title": "Naga Armor Up1",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "nagaarmorup2",
-    "title": "Naga Armor Up2",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "nagaarmorup3",
-    "title": "Naga Armor Up3",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "nagamyrmidon",
-    "title": "Naga Myrmidon",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "nagamyrmidonroyalguard",
-    "title": "Naga Myrmidonroyal Guard",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "nagasummoner",
-    "title": "Naga Summon Er",
-    "race": "neutral",
-    "kind": "ability"
-  },
-  {
-    "key": "nagaweaponup1",
-    "title": "Naga Weaponup1",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "nagaweaponup2",
-    "title": "Naga Weaponup2",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "nagaweaponup3",
-    "title": "Naga Weaponup3",
+    "key": "naturetouchgrow",
+    "title": "Nature Touch Grow",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "naturesblessing",
-    "title": "Naturesblessing",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "naturetouchgrow",
-    "title": "Naturetouchgrow",
+    "title": "Natures Blessing",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3300,14 +2760,14 @@
     "kind": "misc"
   },
   {
-    "key": "nerubianspiderlord",
-    "title": "Nerubian Spider Lord",
+    "key": "nerubianqueen",
+    "title": "Nerubian Queen",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "nerubianqueen",
-    "title": "Nerubianqueen",
+    "key": "nerubianspiderlord",
+    "title": "Nerubian Spider Lord",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3325,7 +2785,7 @@
   },
   {
     "key": "neutralmanashieldoff",
-    "title": "Neutral Mana Shield of F",
+    "title": "Neutral Mana Shield Off",
     "race": "neutral",
     "kind": "ability"
   },
@@ -3348,14 +2808,8 @@
     "kind": "misc"
   },
   {
-    "key": "nightelfrunner",
-    "title": "Night Elfrunner",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "nightelftransport",
-    "title": "Night Elftransport",
+    "title": "Night Elf Transport",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3378,12 +2832,6 @@
     "kind": "misc"
   },
   {
-    "key": "oneheadedogre",
-    "title": "One Head Ed Ogre",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "orbofcorruption",
     "title": "Orb of Corruption",
     "race": "neutral",
@@ -3391,7 +2839,7 @@
   },
   {
     "key": "orbofdarkness",
-    "title": "Orb of Dark Ness",
+    "title": "Orb of Darkness",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3403,7 +2851,7 @@
   },
   {
     "key": "orbofdeathoff",
-    "title": "Orb of Death of F",
+    "title": "Orb of Death Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3433,9 +2881,27 @@
   },
   {
     "key": "orclumberupgradetwo",
-    "title": "Orc Lumber Upgradetwo",
+    "title": "Orc Lumber Upgrade Two",
     "race": "neutral",
     "kind": "upgrade"
+  },
+  {
+    "key": "orcmeleeupone",
+    "title": "Orc Melee Up One",
+    "race": "neutral",
+    "kind": "misc"
+  },
+  {
+    "key": "orcmeleeupthree",
+    "title": "Orc Melee Up Three",
+    "race": "neutral",
+    "kind": "misc"
+  },
+  {
+    "key": "orcmeleeuptwo",
+    "title": "Orc Melee Up Two",
+    "race": "neutral",
+    "kind": "misc"
   },
   {
     "key": "orcrallypoint",
@@ -3450,38 +2916,8 @@
     "kind": "building"
   },
   {
-    "key": "orcwarlock",
-    "title": "Orc Warlock",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "orcwarlockred",
-    "title": "Orc Warlock Red",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "orcmeleeupone",
-    "title": "Orcmeleeupone",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "orcmeleeupthree",
-    "title": "Orcmeleeupthree",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "orcmeleeuptwo",
-    "title": "Orcmeleeuptwo",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "orctransport",
-    "title": "Orctransport",
+    "title": "Orc Transport",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3504,18 +2940,6 @@
     "kind": "ability"
   },
   {
-    "key": "parasite",
-    "title": "Parasite",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "parasiteoff",
-    "title": "Parasiteoff",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "patrol",
     "title": "Patrol",
     "race": "neutral",
@@ -3523,13 +2947,13 @@
   },
   {
     "key": "pendantofenergy",
-    "title": "Pendantof Energy",
+    "title": "Pendant of Energy",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "pendantofmana",
-    "title": "Pendantof Mana",
+    "title": "Pendant of Mana",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3541,7 +2965,7 @@
   },
   {
     "key": "periapt1",
-    "title": "Periapt1",
+    "title": "Periapt 1",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3553,19 +2977,19 @@
   },
   {
     "key": "phaseshiftoff",
-    "title": "Phase Shiftoff",
+    "title": "Phase Shift Off",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "pipeofinsight",
-    "title": "Pipeofinsight",
+    "title": "Pipe of Insight",
     "race": "neutral",
     "kind": "ability"
   },
   {
     "key": "pocketfactory",
-    "title": "Pocketfactory",
+    "title": "Pocket Factory",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3607,13 +3031,13 @@
   },
   {
     "key": "potionbluebig",
-    "title": "Potion Bluebig",
+    "title": "Potion Blue Big",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "potionbluesmall",
-    "title": "Potion Bluesmall",
+    "title": "Potion Blue Small",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3625,7 +3049,7 @@
   },
   {
     "key": "potiongreensmall",
-    "title": "Potion Greensmall",
+    "title": "Potion Green Small",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3672,14 +3096,8 @@
     "kind": "misc"
   },
   {
-    "key": "proudmoore",
-    "title": "Proudmoore",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "purpledragonspawn",
-    "title": "Purple Dragon Spawn",
+    "title": "Purple Dragonspawn",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3703,7 +3121,7 @@
   },
   {
     "key": "quillsprayoff",
-    "title": "Quill Sprayoff",
+    "title": "Quill Spray Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3781,13 +3199,13 @@
   },
   {
     "key": "repairoff",
-    "title": "Repair of F",
+    "title": "Repair Off",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "replenishhealthoff",
-    "title": "Replenish Health of F",
+    "title": "Replenish Health Off",
     "race": "neutral",
     "kind": "ability"
   },
@@ -3805,7 +3223,7 @@
   },
   {
     "key": "replenishmanaoff",
-    "title": "Replenish Mana of F",
+    "title": "Replenish Mana Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3828,12 +3246,6 @@
     "kind": "misc"
   },
   {
-    "key": "riderlesshorse",
-    "title": "Riderlesshorse",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "ringgreen",
     "title": "Ring Green",
     "race": "neutral",
@@ -3841,7 +3253,7 @@
   },
   {
     "key": "ringjadefalcon",
-    "title": "Ring Jadefalcon",
+    "title": "Ring Jade Falcon",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3882,12 +3294,6 @@
     "kind": "misc"
   },
   {
-    "key": "rocktower",
-    "title": "Rock Tower",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
     "key": "rodofnecromancy",
     "title": "Rod of Necromancy",
     "race": "neutral",
@@ -3907,7 +3313,7 @@
   },
   {
     "key": "runedbracers",
-    "title": "Rune Dbracers",
+    "title": "Runed Bracers",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3925,7 +3331,7 @@
   },
   {
     "key": "sacrificialskull",
-    "title": "Sacrificialskull",
+    "title": "Sacrificial Skull",
     "race": "neutral",
     "kind": "misc"
   },
@@ -3943,19 +3349,19 @@
   },
   {
     "key": "satyrtrickster",
-    "title": "Satyrtrickster",
+    "title": "Satyr Trickster",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "scatterrockets",
-    "title": "Scatter Rock Ets",
+    "title": "Scatter Rockets",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "scepterofmastery",
-    "title": "Scepterof Mastery",
+    "title": "Scepter of Mastery",
     "race": "neutral",
     "kind": "upgrade"
   },
@@ -4033,13 +3439,13 @@
   },
   {
     "key": "seaturtlegreen",
-    "title": "Sea Turtlegreen",
+    "title": "Sea Turtle Green",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "seaturtlered",
-    "title": "Sea Turtlered",
+    "title": "Sea Turtle Red",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4063,7 +3469,7 @@
   },
   {
     "key": "selectunit",
-    "title": "Selectunit",
+    "title": "Select Unit",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4075,7 +3481,7 @@
   },
   {
     "key": "selfdestructoff",
-    "title": "Selfdestructoff",
+    "title": "Selfdestruct Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4086,20 +3492,14 @@
     "kind": "ability"
   },
   {
-    "key": "shadowmeld",
-    "title": "Shadow Meld",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "shadowpact",
     "title": "Shadow Pact",
     "race": "neutral",
     "kind": "ability"
   },
   {
-    "key": "shandris",
-    "title": "Shandris",
+    "key": "shadowmeld",
+    "title": "Shadowmeld",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4110,28 +3510,10 @@
     "kind": "misc"
   },
   {
-    "key": "shrineofaszhara",
-    "title": "Shrineofaszhara",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "silence",
     "title": "Silence",
     "race": "neutral",
     "kind": "ability"
-  },
-  {
-    "key": "sirenadept",
-    "title": "Siren Adept",
-    "race": "neutral",
-    "kind": "upgrade"
-  },
-  {
-    "key": "sirenmaster",
-    "title": "Siren Master",
-    "race": "neutral",
-    "kind": "upgrade"
   },
   {
     "key": "skeletonmage",
@@ -4164,12 +3546,6 @@
     "kind": "misc"
   },
   {
-    "key": "snapdragon",
-    "title": "Snap Dragon",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "snazzypotion",
     "title": "Snazzy Potion",
     "race": "neutral",
@@ -4198,12 +3574,6 @@
     "title": "Soul Burn",
     "race": "neutral",
     "kind": "ability"
-  },
-  {
-    "key": "spawninggrounds",
-    "title": "Spawninggrounds",
-    "race": "neutral",
-    "kind": "misc"
   },
   {
     "key": "spellshieldamulet",
@@ -4249,7 +3619,7 @@
   },
   {
     "key": "spidersilkbroach",
-    "title": "Spider Silkbroach",
+    "title": "Spider Silk Broach",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4280,12 +3650,6 @@
   {
     "key": "staffofpreservation",
     "title": "Staff of Preservation",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "staffofpurification",
-    "title": "Staff of Purification",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4321,13 +3685,7 @@
   },
   {
     "key": "statup",
-    "title": "Statup",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "steamtank",
-    "title": "Steam Tank",
+    "title": "Stat Up",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4339,13 +3697,13 @@
   },
   {
     "key": "steelmelee",
-    "title": "Steelmelee",
+    "title": "Steel Melee",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "steelranged",
-    "title": "Steelranged",
+    "title": "Steel Ranged",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4399,21 +3757,9 @@
   },
   {
     "key": "sunderingblades",
-    "title": "Sundering Blade S",
+    "title": "Sundering Blades",
     "race": "neutral",
     "kind": "misc"
-  },
-  {
-    "key": "sylvanuswindrunner",
-    "title": "Sylvanus Wind Runner",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "thornyshieldoff",
-    "title": "T Horn Y Shield of F",
-    "race": "neutral",
-    "kind": "ability"
   },
   {
     "key": "talisman",
@@ -4440,12 +3786,6 @@
     "kind": "misc"
   },
   {
-    "key": "templeoftides",
-    "title": "Temple of Tides",
-    "race": "neutral",
-    "kind": "building"
-  },
-  {
     "key": "theblackarrow",
     "title": "The Black Arrow",
     "race": "neutral",
@@ -4453,13 +3793,7 @@
   },
   {
     "key": "theblackarrowoff",
-    "title": "The Black Arrow of F",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "thecaptain",
-    "title": "The Captain",
+    "title": "The Black Arrow Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4477,21 +3811,21 @@
   },
   {
     "key": "thoriummelee",
-    "title": "Thoriummelee",
+    "title": "Thorium Melee",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "thoriumranged",
-    "title": "Thoriumranged",
+    "title": "Thorium Ranged",
     "race": "neutral",
     "kind": "misc"
   },
   {
-    "key": "thrall",
-    "title": "Thrall",
+    "key": "thornyshieldoff",
+    "title": "Thorny Shield Off",
     "race": "neutral",
-    "kind": "misc"
+    "kind": "ability"
   },
   {
     "key": "thunderlizard",
@@ -4501,25 +3835,13 @@
   },
   {
     "key": "thunderlizardsalamander",
-    "title": "Thunder Lizardsalamander",
+    "title": "Thunder Lizard Salamander",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "thunderlizardvizier",
-    "title": "Thunder Lizardvizier",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "tichondrius",
-    "title": "Tichondrius",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "tidalguardian",
-    "title": "Tidal Guardian",
+    "title": "Thunder Lizard Vizier",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4543,7 +3865,7 @@
   },
   {
     "key": "tomeofretraining",
-    "title": "Tome of Re Training",
+    "title": "Tome of Retraining",
     "race": "neutral",
     "kind": "upgrade"
   },
@@ -4608,12 +3930,6 @@
     "kind": "misc"
   },
   {
-    "key": "undeadairbarge",
-    "title": "Undead Air Barge",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "undeadbattleship",
     "title": "Undead Battle Ship",
     "race": "neutral",
@@ -4627,7 +3943,7 @@
   },
   {
     "key": "undeadloadoff",
-    "title": "Undead Loadoff",
+    "title": "Undead Load Off",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4656,14 +3972,8 @@
     "kind": "misc"
   },
   {
-    "key": "unloaddwarf",
-    "title": "Unloaddwarf",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
     "key": "unstableconcoction",
-    "title": "Unstableconcoction",
+    "title": "Unstable Concoction",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4681,7 +3991,7 @@
   },
   {
     "key": "voidwalker",
-    "title": "Void Walker",
+    "title": "Voidwalker",
     "race": "neutral",
     "kind": "ability"
   },
@@ -4693,13 +4003,13 @@
   },
   {
     "key": "vorpalblades",
-    "title": "Vorpal Blade S",
+    "title": "Vorpal Blades",
     "race": "neutral",
     "kind": "misc"
   },
   {
     "key": "walloffire",
-    "title": "Wallof Fire",
+    "title": "Wall of Fire",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4723,7 +4033,7 @@
   },
   {
     "key": "wandofshadowsight",
-    "title": "Wand of Shadow Sight",
+    "title": "Wand of Shadowsight",
     "race": "neutral",
     "kind": "ability"
   },
@@ -4741,7 +4051,7 @@
   },
   {
     "key": "wellspring",
-    "title": "Wellsp Ring",
+    "title": "Well Spring",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4754,18 +4064,6 @@
   {
     "key": "whirlwind",
     "title": "Whirlwind",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "windserpent",
-    "title": "Wind Serpent",
-    "race": "neutral",
-    "kind": "misc"
-  },
-  {
-    "key": "zergling",
-    "title": "Zergling",
     "race": "neutral",
     "kind": "misc"
   },
@@ -4825,7 +4123,7 @@
   },
   {
     "key": "centaurarcher",
-    "title": "Cent Aura Rcher",
+    "title": "Centaur Archer",
     "race": "nightelf",
     "kind": "ability"
   },
@@ -4836,24 +4134,6 @@
     "kind": "upgrade"
   },
   {
-    "key": "corruptedancientofwar",
-    "title": "Corrupted Ancient of War",
-    "race": "nightelf",
-    "kind": "misc"
-  },
-  {
-    "key": "corruptedmoonwell",
-    "title": "Corrupted Moon Well",
-    "race": "nightelf",
-    "kind": "building"
-  },
-  {
-    "key": "corruptedtreeoflife",
-    "title": "Corrupted Tree of Life",
-    "race": "nightelf",
-    "kind": "misc"
-  },
-  {
     "key": "cyclone",
     "title": "Cyclone",
     "race": "nightelf",
@@ -4861,7 +4141,7 @@
   },
   {
     "key": "elunesblessing",
-    "title": "Elune Sblessing",
+    "title": "Elunes Blessing",
     "race": "nightelf",
     "kind": "misc"
   },
@@ -4885,7 +4165,7 @@
   },
   {
     "key": "faeriefireoff",
-    "title": "Faerie Fire of F",
+    "title": "Faerie Fire Off",
     "race": "nightelf",
     "kind": "misc"
   },
@@ -4920,12 +4200,6 @@
     "kind": "ability"
   },
   {
-    "key": "highelvenarcher",
-    "title": "Highelven Archer",
-    "race": "nightelf",
-    "kind": "misc"
-  },
-  {
     "key": "immolation",
     "title": "Immolation",
     "race": "nightelf",
@@ -4933,7 +4207,7 @@
   },
   {
     "key": "immolationoff",
-    "title": "Immolation of F",
+    "title": "Immolation Off",
     "race": "nightelf",
     "kind": "ability"
   },
@@ -4987,7 +4261,7 @@
   },
   {
     "key": "moonstone",
-    "title": "Moon Stone",
+    "title": "Moonstone",
     "race": "nightelf",
     "kind": "misc"
   },
@@ -5011,13 +4285,13 @@
   },
   {
     "key": "searingarrows",
-    "title": "Searing Arrow S",
+    "title": "Searing Arrows",
     "race": "nightelf",
     "kind": "misc"
   },
   {
     "key": "searingarrowsoff",
-    "title": "Searing Arrow Soff",
+    "title": "Searing Arrows Off",
     "race": "nightelf",
     "kind": "misc"
   },
@@ -5064,14 +4338,14 @@
     "kind": "upgrade"
   },
   {
-    "key": "thorns",
-    "title": "Thorns",
+    "key": "thornshield",
+    "title": "Thorn Shield",
     "race": "nightelf",
     "kind": "ability"
   },
   {
-    "key": "thornshield",
-    "title": "Thorns Hield",
+    "key": "thorns",
+    "title": "Thorns",
     "race": "nightelf",
     "kind": "ability"
   },
@@ -5101,7 +4375,7 @@
   },
   {
     "key": "vengeanceincarnate",
-    "title": "Vengeanceincarnate",
+    "title": "Vengeance Incarnate",
     "race": "nightelf",
     "kind": "ability"
   },
@@ -5112,14 +4386,8 @@
     "kind": "ability"
   },
   {
-    "key": "warden2",
-    "title": "Warden 2",
-    "race": "nightelf",
-    "kind": "ability"
-  },
-  {
     "key": "wisphealoff",
-    "title": "Wisp Healoff",
+    "title": "Wisp Heal Off",
     "race": "nightelf",
     "kind": "ability"
   },
@@ -5155,13 +4423,7 @@
   },
   {
     "key": "bloodlustoff",
-    "title": "Bloodlust of F",
-    "race": "orc",
-    "kind": "misc"
-  },
-  {
-    "key": "catapult",
-    "title": "Catapult",
+    "title": "Bloodlust Off",
     "race": "orc",
     "kind": "misc"
   },
@@ -5170,30 +4432,6 @@
     "title": "Chain Lightning",
     "race": "orc",
     "kind": "ability"
-  },
-  {
-    "key": "chaosblademaster",
-    "title": "Chaos Blademaster",
-    "race": "orc",
-    "kind": "upgrade"
-  },
-  {
-    "key": "chaosgrunt",
-    "title": "Chaos Grunt",
-    "race": "orc",
-    "kind": "misc"
-  },
-  {
-    "key": "chaoskodobeast",
-    "title": "Chaos Kodo Beast",
-    "race": "orc",
-    "kind": "misc"
-  },
-  {
-    "key": "chaospeon",
-    "title": "Chaos Peon",
-    "race": "orc",
-    "kind": "misc"
   },
   {
     "key": "criticalstrike",
@@ -5209,7 +4447,7 @@
   },
   {
     "key": "cryptfiendunburrow",
-    "title": "Crypt Fiend Un Burrow",
+    "title": "Crypt Fiend Unburrow",
     "race": "orc",
     "kind": "building"
   },
@@ -5275,7 +4513,7 @@
   },
   {
     "key": "headhunterberserker",
-    "title": "Head Hunter Berserker",
+    "title": "Headhunter Berserker",
     "race": "orc",
     "kind": "misc"
   },
@@ -5364,18 +4602,6 @@
     "kind": "ability"
   },
   {
-    "key": "nagaburrow",
-    "title": "Naga Burrow",
-    "race": "orc",
-    "kind": "building"
-  },
-  {
-    "key": "nagaunburrow",
-    "title": "Naga Un Burrow",
-    "race": "orc",
-    "kind": "building"
-  },
-  {
     "key": "pillage",
     "title": "Pillage",
     "race": "orc",
@@ -5407,15 +4633,9 @@
   },
   {
     "key": "reinforcedburrows",
-    "title": "Reinforced Burrow S",
+    "title": "Reinforced Burrows",
     "race": "orc",
     "kind": "building"
-  },
-  {
-    "key": "riderlesskodo",
-    "title": "Riderless Kodo",
-    "race": "orc",
-    "kind": "misc"
   },
   {
     "key": "sasquatchshaman",
@@ -5455,7 +4675,7 @@
   },
   {
     "key": "skeletalorcgrunt",
-    "title": "Skeletalorcgrunt",
+    "title": "Skeletal Orc Grunt",
     "race": "orc",
     "kind": "misc"
   },
@@ -5539,7 +4759,7 @@
   },
   {
     "key": "animatedead",
-    "title": "Animatedead",
+    "title": "Animate Dead",
     "race": "undead",
     "kind": "misc"
   },
@@ -5575,7 +4795,7 @@
   },
   {
     "key": "curseoff",
-    "title": "Curseoff",
+    "title": "Curse Off",
     "race": "undead",
     "kind": "ability"
   },
@@ -5611,7 +4831,7 @@
   },
   {
     "key": "frostarmoroff",
-    "title": "Frost Armor of F",
+    "title": "Frost Armor Off",
     "race": "undead",
     "kind": "upgrade"
   },
@@ -5634,12 +4854,6 @@
     "kind": "misc"
   },
   {
-    "key": "herolich",
-    "title": "Hero Lich",
-    "race": "undead",
-    "kind": "misc"
-  },
-  {
     "key": "humandestroyer",
     "title": "Human Destroyer",
     "race": "undead",
@@ -5650,12 +4864,6 @@
     "title": "Impale",
     "race": "undead",
     "kind": "ability"
-  },
-  {
-    "key": "lichversion2",
-    "title": "Lich Version2",
-    "race": "undead",
-    "kind": "misc"
   },
   {
     "key": "locustswarm",
@@ -5674,12 +4882,6 @@
     "title": "Necromancer Master",
     "race": "undead",
     "kind": "upgrade"
-  },
-  {
-    "key": "nerubianziggurat",
-    "title": "Nerubian Ziggurat",
-    "race": "undead",
-    "kind": "building"
   },
   {
     "key": "nightelfdestroyer",
@@ -5713,31 +4915,31 @@
   },
   {
     "key": "raisedeadoff",
-    "title": "Raise Deadoff",
+    "title": "Raise Dead Off",
     "race": "undead",
     "kind": "misc"
   },
   {
     "key": "shadetruesight",
-    "title": "Shade Truesight",
+    "title": "Shade True Sight",
     "race": "undead",
     "kind": "ability"
   },
   {
     "key": "skeletallongevity",
-    "title": "Skeletal Long Evity",
+    "title": "Skeletal Longevity",
     "race": "undead",
     "kind": "misc"
   },
   {
     "key": "skeletalorc",
-    "title": "Skeletalorc",
+    "title": "Skeletal Orc",
     "race": "undead",
     "kind": "misc"
   },
   {
     "key": "skeletalorcchampion",
-    "title": "Skeletalorcchampion",
+    "title": "Skeletal Orc Champion",
     "race": "undead",
     "kind": "misc"
   },
@@ -5767,7 +4969,7 @@
   },
   {
     "key": "weboff",
-    "title": "Web of F",
+    "title": "Web Off",
     "race": "undead",
     "kind": "misc"
   },
