@@ -92,7 +92,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
       />
       <JsonLd
         data={breadcrumbJsonLd([
-          { name: "Gym Newbie League", path: "/gnl/schedule" },
+          { name: "Gym Newbie League", path: "/gnl/about" },
           { name: "Teams", path: "/gnl/teams" },
           { name: team.name, path: `/gnl/teams/${team.slug}` },
         ])}
@@ -123,7 +123,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                 </p>
                 <h1
                   className={cn(
-                    "mt-1 font-extrabold leading-none",
+                    "wg-name mt-1 font-extrabold leading-none",
                     // Long names step down so they keep their place beside the stats block
                     team.name.length >= 20
                       ? "text-[length:clamp(1.4rem,0.6rem+1.9vw,2.1rem)]"
@@ -239,7 +239,7 @@ export default async function TeamPage({ params, searchParams }: Params) {
                       <Flag code={p.country} size={16} className="shrink-0" />
                       <Link
                         href={playerPath(p.id, p.name)}
-                        className={cn("truncate font-display font-bold uppercase transition-colors hover:text-gold", p.isCaptain ? "text-fg" : "text-fg/90")}
+                        className={cn("wg-name truncate font-display font-bold uppercase transition-colors hover:text-gold", p.isCaptain ? "text-fg" : "text-fg/90")}
                       >
                         {p.name}
                       </Link>

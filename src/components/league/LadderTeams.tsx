@@ -40,7 +40,7 @@ export function LadderTeams({ teams }: { teams: LadderTeam[] }) {
               </span>
               <TeamPlate tag={t.tag ?? ""} logoUrl={t.logoUrl} name={t.name} size="md" />
               <div className="min-w-0">
-                <p className="truncate font-display font-bold uppercase text-fg">{t.name}</p>
+                <p className="wg-name truncate font-display font-bold uppercase text-fg">{t.name}</p>
                 <Meter
                   value={t.points}
                   max={max}

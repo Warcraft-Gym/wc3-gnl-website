@@ -381,7 +381,7 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
           >
             <RaceIcon race={p.race} size={32} />
             <span className="min-w-0 flex-1">
-              <span className="block truncate font-display text-sm font-bold uppercase text-fg">{p.name.replace(/#\d+$/, "")}</span>
+              <span className="wg-name block truncate font-display text-sm font-bold uppercase text-fg">{p.name.replace(/#\d+$/, "")}</span>
               <span className="tnum block text-xs text-faint">
                 {p.dropped > 0 ? `${p.build.steps.length} steps · ${p.dropped} dropped` : `${p.build.steps.length} steps`}
                 {p.won === true ? <span className="ml-2 text-win">Won</span> : p.won === false ? <span className="ml-2 text-loss">Lost</span> : null}

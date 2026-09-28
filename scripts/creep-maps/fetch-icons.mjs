@@ -28,6 +28,12 @@ import { fileURLToPath } from "node:url";
 import { downscaleIconPng } from "./icons.mjs";
 
 const USER_AGENT = "gnl-w3-creep-routes-bot/1.0 (stefano@eenhoorndigital.com; research use, Liquipedia API)";
+
+/** Liquipedia rejects API requests that do not advertise gzip, with a 406
+ *  ("Gzip encoding is required for API requests"). Node's fetch sends an
+ *  Accept-Encoding of its own, but not one this passes, so it is set
+ *  explicitly — without it every call here fails before it starts. */
+const API_HEADERS = { "User-Agent": USER_AGENT, "Accept-Encoding": "gzip" };
 const THROTTLE_MS = 2100;
 
 const DEFAULT_CREEPS = fileURLToPath(new URL("../../src/lib/creep-routes/creeps.json", import.meta.url));
@@ -73,7 +79,7 @@ async function resolveUrl(iconKey) {
   const url = `https://liquipedia.net/commons/api.php?action=query&titles=${encodeURIComponent(
     title,
   )}&prop=imageinfo&iiprop=url&format=json`;
-  const res = await fetch(url, { headers: { "User-Agent": USER_AGENT } });
+  const res = await fetch(url, { headers: API_HEADERS });
   if (!res.ok) throw new Error(`Liquipedia API ${res.status} for ${title}`);
   const json = await res.json();
   const page = Object.values(json.query.pages)[0];
@@ -82,7 +88,7 @@ async function resolveUrl(iconKey) {
 }
 
 async function downloadTo(url, destPath) {
-  const res = await fetch(url, { headers: { "User-Agent": USER_AGENT } });
+  const res = await fetch(url, { headers: API_HEADERS });
   if (!res.ok) throw new Error(`download failed (${res.status}): ${url}`);
   writeFileSync(destPath, Buffer.from(await res.arrayBuffer()));
 }

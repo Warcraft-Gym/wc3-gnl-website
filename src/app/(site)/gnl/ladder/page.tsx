@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { playerPath } from "@/lib/slug.mjs";
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Trophy } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
@@ -10,6 +9,7 @@ import { RaceIcon } from "@/components/ui/RaceIcon";
 import { TeamPlate } from "@/components/league/VsBadge";
 import { DataSourceNote } from "@/components/DataSourceNote";
 import { LadderTeams } from "@/components/league/LadderTeams";
+import { AchievementIcon } from "@/components/league/AchievementIcon";
 import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getLadder, getSeason, getSeasons } from "@/lib/api/gnl";
 import { record, signed } from "@/lib/figures.mjs";
@@ -125,7 +125,7 @@ export default async function LadderPage({ searchParams }: Props) {
                       <div className="min-w-0">
                         <p className="flex items-center gap-2">
                           <RaceIcon race={p.race} size={22} />
-                          <Link href={playerPath(p.id, p.name)} className="truncate font-display font-bold uppercase text-fg hover:text-gold">
+                          <Link href={playerPath(p.id, p.name)} className="wg-name truncate font-display font-bold uppercase text-fg hover:text-gold">
                             {p.name}
                           </Link>
                         </p>
@@ -161,7 +161,7 @@ export default async function LadderPage({ searchParams }: Props) {
                     return (
                       <div key={r.id} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
                         <span className="grid size-9 place-items-center rounded border border-gold/30 bg-gold/10 text-gold">
-                          <Trophy size={18} />
+                          <AchievementIcon id={r.id} picture={r.picture} size={18} />
                         </span>
                         <div className="min-w-0">
                           <p className="font-display text-sm font-bold uppercase text-fg">{r.name}</p>
@@ -177,6 +177,13 @@ export default async function LadderPage({ searchParams }: Props) {
                     );
                   })}
                 </Surface>
+                <p className="mt-2 text-xs text-faint">
+                  Icons by Lorc, Delapouite and Caro Asercion from{" "}
+                  <a href="https://game-icons.net" target="_blank" rel="noreferrer" className="hover:text-gold">
+                    game-icons.net
+                  </a>
+                  , CC BY 3.0.
+                </p>
               </section>
             </div>
 

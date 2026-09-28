@@ -2,6 +2,7 @@ import "server-only";
 import { isSanityConfigured, sanityClient } from "./sanity";
 import { FIXTURE_POSTS } from "./fixtures";
 import type { Post, ContentSourceName } from "./types";
+import { sanityCache } from "./cache";
 
 export type { Post } from "./types";
 
@@ -24,7 +25,7 @@ async function fromSanity(): Promise<Post[] | null> {
     return await client.fetch<Post[]>(
       `*[_type == "post" && defined(slug.current)] | order(publishedAt desc) ${POST_PROJECTION}`,
       {},
-      { next: { revalidate: 300 } },
+      sanityCache("post"),
     );
   } catch (err) {
     if (process.env.NODE_ENV !== "production") {

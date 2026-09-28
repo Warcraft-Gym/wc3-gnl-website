@@ -171,7 +171,7 @@
           "name": "Ice Troll Warlord",
           "level": 6,
           "count": 1,
-          "icon": "BTNICeTroll",
+          "icon": "BTNIceTroll",
           "drops": [
             {
               "kind": "class",
@@ -247,7 +247,7 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater",
+          "icon": "BTNMurlocFleshEater",
           "drops": [
             {
               "kind": "class",
@@ -320,7 +320,7 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater",
+          "icon": "BTNMurlocFleshEater",
           "drops": [
             {
               "kind": "class",
@@ -548,7 +548,7 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater",
+          "icon": "BTNMurlocFleshEater",
           "drops": [
             {
               "kind": "class",
@@ -619,7 +619,7 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater",
+          "icon": "BTNMurlocFleshEater",
           "drops": [
             {
               "kind": "class",

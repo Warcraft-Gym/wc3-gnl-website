@@ -98,8 +98,8 @@ function Step({
         href={`/gnl/teams/${row.team.slug}`}
         className={
           isChampion
-            ? "mt-3 font-display text-base font-bold uppercase leading-tight tracking-[0.04em] text-fg transition-colors hover:text-gold sm:text-lg"
-            : "mt-2 font-display text-sm font-bold uppercase leading-tight text-muted transition-colors hover:text-gold"
+            ? "wg-name mt-3 font-display text-base font-bold uppercase leading-tight tracking-[0.04em] text-fg transition-colors hover:text-gold sm:text-lg"
+            : "wg-name mt-2 font-display text-sm font-bold uppercase leading-tight text-muted transition-colors hover:text-gold"
         }
       >
         {row.team.name}
@@ -201,7 +201,7 @@ export default async function ChampionsPage({ searchParams }: Props) {
                       <span className="w-14 shrink-0 font-display text-xs font-bold uppercase tracking-[0.1em] text-gold">
                         {c.season.shortName}
                       </span>
-                      <span className="min-w-0 flex-1 truncate font-display text-sm font-bold uppercase text-fg">
+                      <span className="wg-name min-w-0 flex-1 truncate font-display text-sm font-bold uppercase text-fg">
                         {c.champion.team.name}
                       </span>
                     </Link>

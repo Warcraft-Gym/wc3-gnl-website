@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
-type Variant = "primary" | "ghost" | "outline" | "discord";
+type Variant = "primary" | "ghost" | "outline" | "discord" | "twitch";
 type Size = "sm" | "md" | "lg";
 
 // Blizzard-style CTA: squared corners, serif uppercase label, burnished gold
@@ -23,6 +23,10 @@ const variants: Record<Variant, string> = {
   /** Discord Blurple (#5865F2) per discord.com/branding, for links into the server. */
   discord:
     "bg-[#5865F2] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_1px_2px_rgba(0,0,0,.6)] hover:bg-[#4752C4] hover:shadow-[0_0_28px_-6px_rgba(88,101,242,.7)]",
+  /** Twitch Purple (#9146FF) per brand.twitch.tv, with their darker #772CE8
+   *  for the hover — the same shape as `discord` above. */
+  twitch:
+    "bg-[#9146FF] text-white shadow-[inset_0_1px_0_rgba(255,255,255,.18),0_1px_2px_rgba(0,0,0,.6)] hover:bg-[#772CE8] hover:shadow-[0_0_28px_-6px_rgba(145,70,255,.7)]",
 };
 
 const sizes: Record<Size, string> = {

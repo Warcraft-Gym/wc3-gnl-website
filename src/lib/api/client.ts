@@ -35,8 +35,8 @@ export class ApiError extends Error {
 
 type GetOptions = {
   revalidate?: number;
-  /** Extra query params. */
-  query?: Record<string, string | number | undefined>;
+  /** Extra query params; an array repeats its key. */
+  query?: Record<string, string | number | undefined | (string | number)[]>;
 };
 
 export async function apiGet<T = unknown>(
@@ -50,7 +50,8 @@ export async function apiGet<T = unknown>(
   const url = new URL(path.replace(/^\//, ""), BASE_URL + "/");
   if (query) {
     for (const [k, v] of Object.entries(query)) {
-      if (v !== undefined) url.searchParams.set(k, String(v));
+      if (Array.isArray(v)) v.forEach((x) => url.searchParams.append(k, String(x)));
+      else if (v !== undefined) url.searchParams.set(k, String(v));
     }
   }
 

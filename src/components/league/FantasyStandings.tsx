@@ -34,7 +34,7 @@ function FantasyRow({ entry }: { entry: FantasyEntry }) {
         <RankChip rank={entry.rank} />
 
         <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-sm font-bold uppercase tracking-wide text-fg sm:text-base">
+          <p className="wg-name truncate font-display text-sm font-bold uppercase tracking-wide text-fg sm:text-base">
             {entry.name}
           </p>
           {entry.captain ? (

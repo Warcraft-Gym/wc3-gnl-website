@@ -221,13 +221,15 @@ export function StopRow({
           <div>
             <input
               aria-label="Condition"
-              placeholder='Condition, e.g. "if harassed"'
+              placeholder='Condition, e.g. "Only if harassed"'
               value={stop.condition}
               onChange={(e) => onChange({ condition: e.target.value })}
               maxLength={STOP_CONDITION_MAX}
               className={input}
             />
-            <p className="mt-1 text-[0.65rem] text-faint">Short trigger shown before the note, e.g. if harassed, if no scout</p>
+            <p className="mt-1 text-[0.65rem] text-faint">
+              Shown as written, above the note — write the whole phrase, e.g. Only if harassed, Skip if they scouted
+            </p>
           </div>
         </div>
       ) : (

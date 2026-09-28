@@ -187,6 +187,15 @@
     }
   }
 
+  /* A name is the one thing the display register does not get to shout.
+     Case belongs to whoever chose it, so player and team names opt out here
+     rather than each carrying their own `normal-case`. Clears the tracking
+     too: uppercase letter-spacing on mixed-case text reads as a bug. */
+  .wg-name {
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
   h1, h2, h3, h4 {
     font-family: var(--wg-font-display);
     font-weight: 700;

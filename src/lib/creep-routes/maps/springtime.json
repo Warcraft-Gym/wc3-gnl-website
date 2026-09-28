@@ -355,7 +355,7 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNIceTroll"
         }
       ],
       "level": 16,
@@ -411,7 +411,7 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNIceTroll"
         },
         {
           "id": "nomg",
@@ -764,7 +764,7 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll",
+          "icon": "BTNIceTroll",
           "drops": [
             {
               "kind": "class",
@@ -794,7 +794,7 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNIceTroll"
         },
         {
           "id": "nitp",
@@ -883,14 +883,14 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNIceTroll"
         },
         {
           "id": "nitt",
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll",
+          "icon": "BTNIceTroll",
           "drops": [
             {
               "kind": "class",
@@ -1164,7 +1164,7 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNIceTroll"
         },
         {
           "id": "nwwf",
@@ -1281,7 +1281,7 @@
           "name": "Ice Troll Trapper",
           "level": 3,
           "count": 1,
-          "icon": "BTNICeTroll"
+          "icon": "BTNIceTroll"
         },
         {
           "id": "nwwf",

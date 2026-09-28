@@ -93,10 +93,17 @@ Vercel (this app, Next.js)
 | `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts (build orders and creep routes both reuse this one token — no separate creep-routes credential). |
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
 | `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Otherwise the origin is the project's production host on Vercel (`VERCEL_PROJECT_PRODUCTION_URL`, the custom domain once one is attached), falling back to `https://warcraft3.gym`. Share cards and canonicals use it, so it must be a host that answers. |
+| `NEXT_PUBLIC_GA_ID` | Overrides the GA4 measurement id, for a staging property. The Gym's own id is a publishable default in `src/lib/analytics.ts` — it is in the page source of every page, so it is not a secret. Set it to an empty string to switch Google Analytics off. |
+| `NEXT_PUBLIC_GA_COOKIES` | `true` lets GA use cookies. **Leave unset.** GA runs in Consent Mode with storage denied, so it sets no cookies and needs no consent banner, which is what the privacy page says. Only turn it on together with a consent banner and a privacy-page update. |
 
-No variable is needed for analytics: `@vercel/analytics` and
+Vercel's own analytics need no variable: `@vercel/analytics` and
 `@vercel/speed-insights` are rendered in `src/app/layout.tsx` and only report
-when the site runs on Vercel.
+when the site runs on Vercel. Google Analytics sits alongside them in
+`src/components/analytics/GoogleAnalytics.tsx` and only reports from the
+production deployment — a Vercel preview is also a production *build*, so
+`NEXT_PUBLIC_VERCEL_ENV` is what keeps branch pushes out of the property.
+`src/lib/analytics.test.mjs` guards the parts that fail silently, chiefly
+that the consent defaults are pushed before `config`.
 
 ### Analytics
 

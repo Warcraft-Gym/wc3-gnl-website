@@ -263,14 +263,14 @@
     "level": 3,
     "sleeps": true,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
-    "icon": "BTNICeTroll"
+    "icon": "BTNIceTroll"
   },
   "nitw": {
     "name": "Ice Troll Warlord",
     "level": 6,
     "sleeps": true,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
-    "icon": "BTNICeTroll"
+    "icon": "BTNIceTroll"
   },
   "nkob": {
     "name": "Kobold",
@@ -333,7 +333,7 @@
     "level": 3,
     "sleeps": true,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
-    "icon": "BTNMurlocFlesheater"
+    "icon": "BTNMurlocFleshEater"
   },
   "nmgr": {
     "name": "Magnataur Reaver",

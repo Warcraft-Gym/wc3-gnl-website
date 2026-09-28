@@ -59,38 +59,6 @@ export const kothPage = defineType({
       description: "Where it is played and watched, e.g. https://twitch.tv/Barrentv",
     }),
     defineField({
-      name: "kings",
-      title: "Current kings",
-      type: "array",
-      group: "thisWeek",
-      description:
-        "One row per bracket, in the order they should read. Clear them when a season ends; the page hides the section rather than showing last year's holders.",
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "king",
-          fields: [
-            defineField({
-              name: "bracket",
-              type: "string",
-              description: 'The bracket, as players say it — e.g. "1600 and above".',
-              validation: (rule) => rule.required(),
-            }),
-            defineField({
-              name: "player",
-              type: "string",
-              description: "Who holds it.",
-              validation: (rule) => rule.required(),
-            }),
-          ],
-          preview: {
-            select: { title: "player", subtitle: "bracket" },
-          },
-        }),
-      ],
-    }),
-
-    defineField({
       name: "joining",
       title: "Who can join, and how",
       type: "array",

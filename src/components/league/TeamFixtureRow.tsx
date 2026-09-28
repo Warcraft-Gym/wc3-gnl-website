@@ -35,7 +35,7 @@ export function TeamFixtureRow({ fixture, teamId }: { fixture: TeamFixture; team
       <Link href={`/gnl/teams/${them.slug}`} className="flex min-w-0 items-center gap-2.5">
         <TeamPlate tag={them.tag} logoUrl={them.logoUrl} name={them.name} size="sm" />
         <span className="min-w-0">
-          <span className="block truncate font-display text-sm font-bold uppercase text-fg transition-colors hover:text-gold">
+          <span className="wg-name block truncate font-display text-sm font-bold uppercase text-fg transition-colors hover:text-gold">
             {them.name}
           </span>
           <span className="block text-xs text-faint">

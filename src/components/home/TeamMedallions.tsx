@@ -29,7 +29,7 @@ export function TeamMedallions({ teams }: { teams: Team[] }) {
                 )}
               </span>
             </span>
-            <span className="mt-3 line-clamp-2 font-display text-[0.72rem] sm:text-[0.68rem] font-bold uppercase leading-tight tracking-[0.1em] text-muted transition-colors group-hover:text-fg">
+            <span className="wg-name mt-3 line-clamp-2 font-display text-[0.72rem] sm:text-[0.68rem] font-bold uppercase leading-tight tracking-[0.1em] text-muted transition-colors group-hover:text-fg">
               {t.name}
             </span>
           </Link>

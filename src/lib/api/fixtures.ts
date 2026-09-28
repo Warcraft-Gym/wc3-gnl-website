@@ -121,6 +121,7 @@ export const FIXTURE_TEAMS: Team[] = Object.entries(ROSTERS).map(
       teamId: ti + 1,
       teamName: name,
       isCaptain: pi === 0,
+      record: { wins: (ti + pi) % 4, losses: (ti * 2 + pi) % 3 },
     }));
     const slug = slugify(name);
     return {

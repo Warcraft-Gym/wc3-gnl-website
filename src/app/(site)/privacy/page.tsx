@@ -8,7 +8,7 @@ import { DISCORD_URL, GITHUB_ISSUES_URL } from "@/lib/links";
 export const metadata: Metadata = {
   title: "Privacy",
   description:
-    "What the Warcraft 3 Gym site collects and why: anonymous page analytics, build orders you submit, and league data from public sources. No accounts, no cookies, no advertising.",
+    "What the Warcraft 3 Gym site collects and why: page analytics you can decline, build orders you submit, and league data from public sources. No accounts, no advertising.",
   alternates: { canonical: "/privacy" },
 };
 
@@ -16,9 +16,13 @@ const SECTIONS = [
   {
     title: "Anonymous analytics",
     points: [
-      "We use Vercel Analytics and Vercel Speed Insights to count page views and measure how fast pages load.",
-      "They set no cookies, store no personal data, and do not keep your IP address. Visits are counted per page, not per person, and cannot be tied to you.",
-      "There is no consent banner because there is nothing to consent to. If you block the script, the site works exactly the same.",
+      "We use Vercel Analytics and Vercel Speed Insights to count page views and measure how fast pages load. Neither sets cookies, and neither asks your permission, because neither stores anything on your device.",
+      "Google Analytics is different, so we ask. On your first visit a banner offers Allow or Decline, and until you choose, Google Analytics stores nothing.",
+      "Allow, and it sets a cookie that recognises your browser between visits, so we can tell one reader returning from twenty separate ones. That is the whole of what it buys us: which guides get read, and what people came looking for.",
+      "Decline, and nothing is stored. The site works exactly the same, and we will not ask again.",
+      "Advertising is refused either way. We run none, and Google is told so explicitly, so your visit is never used to target anything at you.",
+      "Google does receive your IP address to work out an approximate country, as any site you visit does. It is not stored by us and IP anonymisation is on.",
+      "To change your mind, clear this site's data in your browser and the banner will ask again.",
     ],
   },
   {

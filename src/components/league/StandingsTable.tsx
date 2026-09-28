@@ -91,7 +91,7 @@ export function StandingsTable({
                     {/* A table cell grows to its content, so the name gets a cap on
                         phones and the captains line waits for a wider screen. */}
                     <span className="min-w-0 max-sm:max-w-[8.5rem]">
-                      <span className="block truncate font-display font-bold uppercase text-fg transition-colors group-hover:text-gold">
+                      <span className="wg-name block truncate font-display font-bold uppercase text-fg transition-colors group-hover:text-gold">
                         {row.team.name}
                       </span>
                       {row.captains.length && !compact ? (

@@ -337,7 +337,7 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater",
+          "icon": "BTNMurlocFleshEater",
           "drops": [
             {
               "kind": "class",
@@ -543,7 +543,7 @@
           "name": "Murloc Flesheater",
           "level": 3,
           "count": 1,
-          "icon": "BTNMurlocFlesheater",
+          "icon": "BTNMurlocFleshEater",
           "drops": [
             {
               "kind": "class",
