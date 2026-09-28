@@ -15,8 +15,20 @@ import "server-only";
 
 const BASE_URL = process.env.GNL_API_BASE_URL?.replace(/\/$/, "");
 
-/** Default cache window for public league data (seconds). */
-const DEFAULT_REVALIDATE = 60;
+/**
+ * Default cache window for public league data (seconds).
+ *
+ * A day. It was 60, which meant any page reading this API rewrote its ISR
+ * entry up to 1,440 times a day for as long as it kept getting traffic, and
+ * the player pages are an unbounded URL space that crawlers walk. That was
+ * the bulk of the ISR writes.
+ *
+ * Nothing here pushes an invalidation: the Sanity webhook purges Sanity
+ * types, and this is the GNL service, so a day is genuinely how stale league
+ * data can now get. Anything that has to be fresher passes `revalidate`
+ * explicitly, as the ladder does at 900.
+ */
+const DEFAULT_REVALIDATE = 86_400;
 
 export function isApiConfigured(): boolean {
   return Boolean(BASE_URL);

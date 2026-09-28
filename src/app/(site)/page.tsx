@@ -17,8 +17,6 @@ import { getDiscordCommunity } from "@/lib/discord";
 import { DISCORD_URL } from "@/lib/links";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 
-export const dynamic = "force-dynamic";
-
 /* Homepage: the Gym is first a place to learn Warcraft III and hang out with
  * other players; the league is one of the things it runs. Stack of full-bleed
  * painted sections split by riveted strips:
