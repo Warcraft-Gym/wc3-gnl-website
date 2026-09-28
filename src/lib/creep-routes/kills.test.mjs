@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, addRestOfCamp, campKills, creepsLeft, killStepsByRow, killsProblem } from "./kills.mjs";
+import { addKill, addRestOfCamp, campKills, creepsLeft, killStepsByRow, killsProblem, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -42,4 +42,8 @@ test("addRestOfCamp finishes the camp after the chosen kills", () => {
   const kills = addRestOfCamp([{ row: 3, n: 1 }], COUNTS);
   assert.deepEqual(kills, [{ row: 3, n: 1 }, { row: 0, n: 1 }, { row: 1, n: 1 }, { row: 2, n: 2 }]);
   assert.equal(creepsLeft(CAMP, kills), 0);
+});
+
+test("wedgePath draws a half circle for one half, from 12 o'clock", () => {
+  assert.equal(wedgePath(10, 10, 5, 0.5), "M10 10L10 5A5 5 0 0 1 10.00 15.00Z");
 });

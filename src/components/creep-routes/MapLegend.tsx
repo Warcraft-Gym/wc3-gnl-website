@@ -12,7 +12,7 @@ import { cn } from "@/lib/utils";
  * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
  * lets it wrap on mobile without special-casing.
  */
-export function MapLegend({ className }: { className?: string }) {
+export function MapLegend({ className, partial = false }: { className?: string; partial?: boolean }) {
   return (
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
       <span className="inline-flex items-center gap-1.5">
@@ -33,6 +33,16 @@ export function MapLegend({ className }: { className?: string }) {
         <img src="/map-icons/gold-mine.png" alt="" aria-hidden width={18} height={15} className="inline-block" />
         Gold mine
       </span>
+      {partial ? (
+        <span className="inline-flex items-center gap-1.5">
+          {/* Same mark as a partly cleared camp: a wedge over a faded disc. */}
+          <svg aria-hidden width="11" height="11" viewBox="0 0 10 10">
+            <circle cx="5" cy="5" r="5" fill="var(--wg-camp-medium)" fillOpacity="0.3" />
+            <path d="M5 5L5 0A5 5 0 0 1 5 10Z" fill="var(--wg-camp-medium)" />
+          </svg>
+          Partly cleared
+        </span>
+      ) : null}
     </p>
   );
 }

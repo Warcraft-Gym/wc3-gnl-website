@@ -80,7 +80,7 @@ export function CreepMapPlayground({
           onCampCardHoverLeave={hoverLeave}
           openCampId={openCampId}
         />
-        <MapLegend />
+        <MapLegend partial={route.stops.some((s) => s.kills?.length)} />
       </div>
       <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <RouteStepTable

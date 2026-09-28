@@ -69,3 +69,13 @@ export function killStepsByRow(camp, kills) {
   kills.forEach(({ row }, i) => steps[row]?.push(i + 1));
   return steps;
 }
+
+/** SVG path of a pie wedge covering `fraction` of a circle, clockwise from
+ *  12 o'clock — the killed share of a partly cleared camp's marker. */
+export function wedgePath(cx, cy, r, fraction) {
+  const a = 2 * Math.PI * Math.min(Math.max(fraction, 0), 0.9999);
+  const x = cx + r * Math.sin(a);
+  const y = cy - r * Math.cos(a);
+  const large = fraction > 0.5 ? 1 : 0;
+  return `M${cx} ${cy}L${cx} ${cy - r}A${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}Z`;
+}
