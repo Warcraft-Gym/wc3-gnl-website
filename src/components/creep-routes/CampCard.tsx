@@ -3,9 +3,10 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import type { CampCardTrigger, MapCamp, MapCampDrop } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, MapCamp, MapCampDrop, StopKill } from "@/lib/creep-routes/types";
 import { campSpotTitle, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { creepXp } from "@/lib/creep-routes/xp.mjs";
+import { killStepsByRow } from "@/lib/creep-routes/kills.mjs";
 import { BandDot } from "./RouteBadges";
 import { CampIcon } from "./CampIcon";
 import { cn } from "@/lib/utils";
@@ -93,12 +94,16 @@ export function CampCard({
   onPointerLeave,
   titleId,
   showCampId = false,
+  kills,
 }: {
   camp: MapCamp;
   /** Shows the camp id (`c07`) in the header. On by default nowhere: it is
    *  the authoring handle — what a stop stores and what the stop list shows —
    *  so the editor asks for it and the reader-facing route page does not. */
   showCampId?: boolean;
+  /** The stop's kill order. When set, a "Kill" column numbers each creep's
+   *  place in the order and creeps left alive are dimmed. */
+  kills?: StopKill[];
   /** Defaults to `camp.band`; accepted separately per the spec so a caller
    *  can override it (e.g. a synthetic camp without its own band). */
   band?: string;
@@ -231,6 +236,7 @@ export function CampCard({
     };
   }, [pinned]);
 
+  const killSteps = kills?.length ? killStepsByRow(camp, kills) : null;
   const dropIndex = useMemo(() => dropIndexByKey(camp.drops ?? []), [camp.drops]);
 
   if (typeof document === "undefined") return null;
@@ -297,6 +303,7 @@ export function CampCard({
           </caption>
           <thead>
             <tr className="text-left font-mono text-[0.6rem] uppercase tracking-[0.12em] text-faint">
+              {killSteps ? <th className="py-1.5 pl-3 text-center font-medium">Kill</th> : null}
               <th className="px-3 py-1.5 font-medium">Unit</th>
               <th className="px-2 py-1.5 text-right font-medium">Count</th>
               <th className="px-2 py-1.5 text-right font-medium">Level</th>
@@ -306,7 +313,12 @@ export function CampCard({
           </thead>
           <tbody>
             {camp.creeps.map((c, i) => (
-              <tr key={i} className="border-t border-line/40">
+              <tr key={i} className={cn("border-t border-line/40", killSteps && !killSteps[i].length && "opacity-45")}>
+                {killSteps ? (
+                  <td className="tnum py-1.5 pl-3 text-center text-gold">
+                    {killSteps[i].length ? killSteps[i].join(", ") : <span className="text-faint">Left</span>}
+                  </td>
+                ) : null}
                 <td className="px-3 py-1.5">
                   <span className="flex items-center gap-2">
                     <CampIcon iconKey={c.icon} title={c.name} kind="creep" size={28} />

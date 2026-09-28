@@ -5,6 +5,7 @@
  * running level/xp total, folding camps in the route's order, skipping
  * non-camp stops. A route has no time dimension — order is everything.
  */
+import { campKills, creepsLeft } from "./kills.mjs";
 import { creepXp, creepXpFactor, heroXpForLevel } from "./xp.mjs";
 
 function findCamp(map, campId) {
@@ -21,7 +22,8 @@ function levelForXp(xp) {
  * Non-camp stops (`campId: null`, e.g. a TP-home or shop stop) pass through
  * without changing level/xp. Returns `{ stops, finalLevel, finalXp }`; each
  * derived stop is `{ campId, camp, heroLevelAfter, xpAfter, campLevel,
- * band }`. The creep-xp reduction factor (`creepXpFactor`) is re-read at
+ * band, left }`. A stop with `kills` counts only those creeps, in that
+ * order (see `kills.mjs`); `left` is how many creeps it leaves alive. The creep-xp reduction factor (`creepXpFactor`) is re-read at
  * the hero's *current* level on every single kill, not fixed once per camp
  * — Blizzard's `HeroFactorXP` table applies per kill (see
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
@@ -33,14 +35,12 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
   const stops = route.stops.map((stop) => {
     const camp = stop.campId ? findCamp(map, stop.campId) : null;
     if (camp) {
-      for (const creep of camp.creeps) {
-        for (let i = 0; i < creep.count; i++) {
-          const factor = creepXpFactor(level);
-          // Floor each creep's grant, same rounding as xp.mjs's
-          // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
-          xp += Math.floor(creepXp(creep.level) * factor);
-          level = levelForXp(xp);
-        }
+      for (const creep of campKills(camp, stop.kills)) {
+        const factor = creepXpFactor(level);
+        // Floor each creep's grant, same rounding as xp.mjs's
+        // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
+        xp += Math.floor(creepXp(creep.level) * factor);
+        level = levelForXp(xp);
       }
     }
     return {
@@ -50,6 +50,7 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
       xpAfter: xp,
       campLevel: camp ? camp.level : null,
       band: camp ? camp.band : null,
+      left: camp ? creepsLeft(camp, stop.kills) : 0,
     };
   });
 

@@ -422,10 +422,32 @@ data layer share:
   `campId: null` base action like `"TP home"`, buying from a shop, or
   taking an expansion), `units` (what the *player* brings to the stop —
   never the camp's contents, which are always looked up from the map by
-  `campId`), `note`, `condition`. No time dimension: a route is an ordered
+  `campId`), `note`, `condition`, and `kills` (see "Kill order" below). No
+  time dimension: a route is an ordered
   list of stops, nothing more (F007 removed the per-stop clock and the
   day/night cycle it drove — see the user decision at the top of that
   feature's spec).
+
+### Kill order
+
+A camp stop may carry `kills: { row, n }[]`, an ordered list: `row` is an
+index into the camp's `creeps[]` and `n` is how many of that row to kill.
+Empty or missing means the whole camp, which is every route written before
+this field. Creeps not listed stay alive. Two cases it covers:
+
+- Kill one creep and leave, e.g. take the item Ogre Warrior of Last Refuge
+  c16: `kills: [{ row: 0, n: 1 }]`.
+- Clear the camp in a set order, e.g. the Troll High Priest first so it
+  cannot heal: `kills: [{ row: 0, n: 1 }, { row: 2, n: 1 }, { row: 1, n: 1 }]`.
+
+A row index, not a unit rawcode: 21 of 241 catalogue camps list one rawcode
+in two rows, split only by item drop (Last Refuge c04 has two Forest Troll
+Trapper rows, one with the item), so only the row can name "the item
+creep". The helpers live in `src/lib/creep-routes/kills.mjs`
+(`kills.test.mjs`). The submit action checks each row and count against
+the live camp (`creepCounts` in the submission catalogue); the Sanity
+schema has the same field, and the `#route=` edit link and the JSON API
+carry it unchanged.
 
 `src/lib/creep-routes/fixtures.ts` (backed by the plain-JS
 `fixtures.mjs`, so `node --test` can check it directly — see
@@ -482,7 +504,9 @@ route is an ordered list of camp stops and base actions, nothing more. What
 *is* derived, and stays load-bearing, is the hero's running level/xp —
 `src/lib/creep-routes/derive.mjs`'s `deriveRoute(route, map, { startLevel })`
 runs a hero through a route's stops **in order**, folding camp stops
-through `xp.mjs`'s per-kill math (skipping non-camp stops).
+through `xp.mjs`'s per-kill math (skipping non-camp stops). A stop with
+`kills` counts only those creeps, in that order, and each derived stop
+reports `left`, the creeps it leaves alive (also in the API's `derived`).
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
 come from Blizzard's own
@@ -1201,7 +1225,9 @@ After rebuilding, for every route on a map whose `mapVersion` changed:
    compare creep composition. Matching composition at a small distance is a
    safe re-point; anything else needs a human.
 2. Update the route's `campId`s, then bump its `mapVersion` to the new
-   catalogue value.
+   catalogue value. A stop with `kills` also points at creep rows: check
+   each `row` still names the same creep in the new camp, and re-point it
+   if the rows moved.
 3. Routes carry `mapVersion` precisely so the route page can render
    "Written for vX; the catalogue is vY". That warning only fires when the
    route *has* a `mapVersion` — `fixtures.test.mjs` fails the build if a

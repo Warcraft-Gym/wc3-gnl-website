@@ -132,7 +132,12 @@ export type RouteStop = {
   units?: { icon: string; count: number }[];
   note?: string;
   condition?: string;
+  /** Kill order: `row` indexes the camp's `creeps[]`, `n` is how many of
+   *  that row. Empty or missing means the whole camp. See `kills.mjs`. */
+  kills?: StopKill[];
 };
+
+export type StopKill = { row: number; n: number };
 
 export type CreepRoute = {
   slug: string;

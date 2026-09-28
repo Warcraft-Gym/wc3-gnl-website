@@ -30,6 +30,7 @@ const stopSchema = z.object({
   units: z.array(unitSchema).optional(),
   note: z.string().optional(),
   condition: z.string().optional(),
+  kills: z.array(z.object({ row: z.number(), n: z.number() })).optional(),
 });
 
 export const creepRouteExchangeSchema = z.object({

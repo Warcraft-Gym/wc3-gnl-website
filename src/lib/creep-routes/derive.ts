@@ -19,6 +19,8 @@ export type DerivedStop = {
   xpAfter: number;
   campLevel: number | null;
   band: string | null;
+  /** Creeps left alive by a stop with a partial `kills` list. */
+  left: number;
 };
 
 export type DerivedRoute = {

@@ -3,10 +3,12 @@
 import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
-import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, MapCamp, StopKill } from "@/lib/creep-routes/types";
+import { addKill, addRestOfCamp, creepsLeft } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
 import { BandDot } from "./RouteBadges";
+import { CampIcon } from "./CampIcon";
 import { cn } from "@/lib/utils";
 
 export type UnitRow = { id: number; icon: string; count: string };
@@ -18,6 +20,8 @@ export type StopRowData = {
   units: UnitRow[];
   note: string;
   condition: string;
+  /** Kill order; empty means the whole camp. See `kills.mjs`. */
+  kills: StopKill[];
 };
 
 const input =
@@ -55,6 +59,94 @@ function NoteField({ value, onChange }: { value: string; onChange: (v: string) =
           </p>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+/** Optional kill order for a camp stop: click creeps in the order to kill
+ *  them; each chosen step is a chip that can be removed. */
+function KillOrderField({
+  camp,
+  kills,
+  error,
+  onChange,
+}: {
+  camp: MapCamp;
+  kills: StopKill[];
+  error?: string;
+  onChange: (kills: StopKill[]) => void;
+}) {
+  const counts = camp.creeps.map((c) => c.count);
+  const used = counts.map((_, row) => kills.filter((k) => k.row === row).reduce((sum, k) => sum + k.n, 0));
+  const left = creepsLeft(camp, kills);
+  const chip = "inline-flex h-8 items-center gap-1 rounded border px-1.5 text-xs";
+  return (
+    <div>
+      <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Kill order</p>
+      <div className="flex flex-wrap items-center gap-1.5">
+        {camp.creeps.map((c, row) => {
+          const remaining = c.count - used[row];
+          return (
+            <button
+              key={row}
+              type="button"
+              disabled={remaining === 0}
+              onClick={() => onChange(addKill(kills, row, counts))}
+              aria-label={`Kill ${c.name}`}
+              className={cn(chip, "border-line/70 bg-surface/40 text-muted hover:border-gold/50 hover:text-gold disabled:opacity-30")}
+            >
+              <CampIcon iconKey={c.icon} title={c.name} kind="creep" size={22} />
+              {c.name}
+              <span className="tnum text-faint">{remaining}</span>
+            </button>
+          );
+        })}
+      </div>
+      {kills.length ? (
+        <ol className="mt-2 flex flex-wrap items-center gap-1.5" aria-label="Chosen kill order">
+          {kills.map((k, i) => {
+            const c = camp.creeps[k.row];
+            if (!c) return null;
+            return (
+              <li key={i} className={cn(chip, "border-gold/40 bg-gold/10 text-fg")}>
+                <span className="tnum text-gold">{i + 1}</span>
+                <CampIcon iconKey={c.icon} title={c.name} kind="creep" size={22} />
+                {c.name}
+                {k.n > 1 ? <span className="tnum text-faint">×{k.n}</span> : null}
+                <button
+                  type="button"
+                  onClick={() => onChange(kills.filter((_, j) => j !== i))}
+                  aria-label={`Remove ${c.name} from kill order`}
+                  className="text-faint hover:text-loss"
+                >
+                  <X size={14} />
+                </button>
+              </li>
+            );
+          })}
+          {left > 0 ? (
+            <li>
+              <button type="button" onClick={() => onChange(addRestOfCamp(kills, counts))} className="h-8 px-1.5 text-xs text-muted hover:text-gold">
+                Add rest of camp
+              </button>
+            </li>
+          ) : null}
+          <li>
+            <button type="button" onClick={() => onChange([])} className="h-8 px-1.5 text-xs text-muted hover:text-loss">
+              Clear
+            </button>
+          </li>
+        </ol>
+      ) : null}
+      {error ? (
+        <p className="mt-1 text-[0.65rem] text-loss">{error}</p>
+      ) : (
+        <p className="mt-1 text-[0.65rem] text-faint">
+          {kills.length
+            ? left > 0 ? `Leaves ${left} alive. Hero after counts only these kills.` : "Clears the camp in this order."
+            : "Optional. Click creeps in the order to kill them. Empty means clear the whole camp."}
+        </p>
+      )}
     </div>
   );
 }
@@ -213,6 +305,10 @@ export function StopRow({
               ) : null}
             </div>
           </div>
+
+          {camp ? (
+            <KillOrderField camp={camp} kills={stop.kills} error={error?.("kills")} onChange={(kills) => onChange({ kills })} />
+          ) : null}
 
           {/* Note */}
           <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} />

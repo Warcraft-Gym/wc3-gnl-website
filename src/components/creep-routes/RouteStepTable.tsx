@@ -7,6 +7,7 @@ import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BandDot } from "./RouteBadges";
+import { KillOrder } from "./KillOrder";
 import { cn } from "@/lib/utils";
 
 /**
@@ -89,7 +90,7 @@ export function RouteStepTable({
       <div className="overflow-x-auto">
         <table className="route-step-table w-full border-collapse text-sm md:table-fixed">
           <caption className="border-b border-line/60 px-4 py-2 text-left text-xs text-muted sm:px-5">
-            Bring: units to take into the fight · Hero after: your hero&apos;s level and XP once the camp is cleared.
+            Bring: units to take into the fight · Hero after: your hero&apos;s level and XP after the stop&apos;s kills.
           </caption>
           {/* `table-fixed` + these widths are what stop the browser from
               collapsing Notes toward zero as Camp/Bring content grows (the
@@ -192,6 +193,7 @@ export function RouteStepTable({
                   </td>
                   <td data-label="Notes" className="px-2 py-2.5 text-xs text-muted">
                     <span className="flex flex-col items-start gap-1">
+                      {d.camp ? <KillOrder camp={d.camp} kills={stop.kills} /> : null}
                       {stop.condition ? (
                         <span
                           title="Condition"
@@ -204,7 +206,7 @@ export function RouteStepTable({
                         </span>
                       ) : null}
                       {stop.note ? <span>{stop.note}</span> : null}
-                      {!stop.note && !stop.condition ? <span className="text-faint">-</span> : null}
+                      {!stop.note && !stop.condition && !stop.kills?.length ? <span className="text-faint">-</span> : null}
                     </span>
                   </td>
                   <td data-label="Hero after" className="tnum whitespace-nowrap px-2 py-2.5 text-xs text-muted">

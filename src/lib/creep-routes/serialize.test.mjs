@@ -80,10 +80,10 @@ test("toApiRoute: adds description, build and derived (real deriveRoute)", () =>
   assert.deepEqual(item.tags, ["fast-expand", "archmage"]);
 });
 
-test("toApiRoute: derived stops only carry heroLevelAfter/xpAfter, not the whole camp object", () => {
+test("toApiRoute: derived stops only carry heroLevelAfter/xpAfter/left, not the whole camp object", () => {
   const item = toApiRoute(route, map, "https://site.example", iconSrc, deriveRoute);
   for (const s of item.derived.stops) {
-    assert.deepEqual(Object.keys(s).sort(), ["heroLevelAfter", "xpAfter"]);
+    assert.deepEqual(Object.keys(s).sort(), ["heroLevelAfter", "left", "xpAfter"]);
   }
 });
 

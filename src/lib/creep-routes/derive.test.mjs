@@ -110,3 +110,12 @@ test("deriveRoute re-reads the reduction factor mid-camp: leveling up partway th
   assert.equal(result.finalXp, 345);
   assert.equal(result.finalLevel, 2);
 });
+
+test("a stop with kills counts only those creeps and reports the rest as left", () => {
+  // Only the one level-2 creep of c1: 1 kill at factor 0.8 of creepXp(2).
+  const partial = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1 }] }] }, MAP);
+  const full = deriveRoute({ stops: [{ campId: "c1" }] }, MAP);
+  assert.ok(partial.stops[0].xpAfter < full.stops[0].xpAfter);
+  assert.equal(partial.stops[0].left, 2);
+  assert.equal(full.stops[0].left, 0);
+});

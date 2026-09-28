@@ -285,6 +285,26 @@ export const creepRoute = defineType({
               description: "Conditional guidance for this stop, shown exactly as written, e.g. \"Only if both wolves are alive\".",
               validation: (rule) => rule.max(STOP_CONDITION_MAX),
             }),
+            defineField({
+              name: "kills",
+              title: "Kill order",
+              type: "array",
+              description: "Creeps to kill, in order. Row is the creep's position in the camp's list (0 is the first). Empty means the whole camp.",
+              of: [
+                defineArrayMember({
+                  type: "object",
+                  name: "kill",
+                  fields: [
+                    defineField({ name: "row", type: "number", validation: (rule) => rule.required().min(0).integer() }),
+                    defineField({ name: "n", title: "Count", type: "number", validation: (rule) => rule.required().min(1).integer() }),
+                  ],
+                  preview: {
+                    select: { row: "row", n: "n" },
+                    prepare: ({ row, n }) => ({ title: `Row ${row} ×${n}` }),
+                  },
+                }),
+              ],
+            }),
           ],
           preview: {
             select: { campId: "campId", action: "action", note: "note" },
