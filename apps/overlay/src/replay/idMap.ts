@@ -1,4 +1,4 @@
-import { HERO_NAMES, ITEM_NAMES, UPGRADE_NAMES } from "./w3gjsData";
+import { HERO_NAMES, ITEM_NAMES, UNIT_NAMES, UPGRADE_NAMES } from "./w3gjsData";
 import type { DescribedId, IdKind } from "./types";
 
 /**
@@ -189,7 +189,7 @@ function inferKind(id: string): IdKind {
 }
 
 /** Looks up a WC3 object id's icon/title/kind. Falls back to `w3gjs`'s
- *  upgrade/item name tables, then to the id itself as the title (per the
+ *  upgrade/item/hero/unit name tables, then to the id itself as the title (per the
  *  spec's "unknown ids -> { title: id, ... }" rule). Never throws. */
 export function describeId(id: string): DescribedId {
   const known = ID_MAP[id];
@@ -208,6 +208,9 @@ export function describeId(id: string): DescribedId {
 
   const heroName = HERO_NAMES[id];
   if (heroName) return { title: heroName, kind: "hero" };
+
+  const unitName = UNIT_NAMES[id];
+  if (unitName) return { title: unitName, kind: "unit" };
 
   return { title: id, kind: inferKind(id) };
 }
