@@ -8,13 +8,13 @@ import type { DescribedId, IdKind } from "./types";
  * `w3gjs` decodes from the replay stream (`node_modules/w3gjs/dist/esm/
  * mappings.js`'s `units`/`buildings` tables gave the authoritative id ->
  * English-name pairs this was built from); icon keys are matched against
- * the site's `/api/icons` manifest (141 keys, snapshotted in
+ * the site's `/api/icons` manifest (snapshotted in
  * `__fixtures__/icon-keys.json`).
  *
- * A handful of ids have no matching site icon (human's Cannon Tower, night
- * elf's Entangled Gold Mine is simply not tracked, the Forsaken Paladin
- * neutral hero) — those keep a real title but omit `iconKey`, per the
- * feature spec's "leave icon undefined but keep the title" fallback.
+ * The Forsaken Paladin neutral hero has no site icon (night elf's Entangled
+ * Gold Mine is simply not tracked); it keeps a real title but omits
+ * `iconKey`, per the feature spec's "leave icon undefined but keep the
+ * title" fallback.
  */
 export const ID_MAP: Record<string, { iconKey?: string; title: string; kind: IdKind }> = {
   // --- Human units ---
@@ -48,7 +48,7 @@ export const ID_MAP: Record<string, { iconKey?: string; title: string; kind: IdK
   hwtw: { iconKey: "hu-scout-tower", title: "Scout Tower", kind: "building" },
   hgtw: { iconKey: "hu-guard-tower", title: "Guard Tower", kind: "building" },
   hatw: { iconKey: "hu-arcane-tower", title: "Arcane Tower", kind: "building" },
-  hctw: { title: "Cannon Tower", kind: "building" },
+  hctw: { iconKey: "cannontower", title: "Cannon Tower", kind: "building" },
   // --- Human heroes ---
   Hamg: { iconKey: "hu-archmage", title: "Archmage", kind: "hero" },
   Hpal: { iconKey: "hu-paladin", title: "Paladin", kind: "hero" },
@@ -169,18 +169,107 @@ export const ID_MAP: Record<string, { iconKey?: string; title: string; kind: IdK
   Npal: { title: "Forsaken Paladin", kind: "hero" },
 
   // --- Neutral hostile / mercenary-camp units seen in the wild fixtures ---
-  // (creep-camp units, not race melee units — the site's manifest has no
-  // icon for them; kept here so `describeId` still returns a real title).
-  nftb: { title: "Forest Troll Berserker", kind: "unit" },
-  ngir: { title: "Goblin Shredder", kind: "unit" },
+  // (creep-camp units, not race melee units; icons as W3Champions draws them).
+  nftb: { iconKey: "foresttroll", title: "Forest Troll Berserker", kind: "unit" },
+  ngir: { iconKey: "junkgolem", title: "Goblin Shredder", kind: "unit" },
 };
 
 /** Ids that are legitimately known (real title, correct `kind`) but have no
- *  matching site icon — mercenary/neutral units the manifest doesn't cover,
- *  a human tower tier the manifest skips, and one neutral hero. Consulted
- *  only by tests that otherwise require every unit/building/hero to carry
- *  an icon key. */
-export const NO_ICON_IDS: ReadonlySet<string> = new Set(["hctw", "Npal", "nftb", "ngir"]);
+ *  matching site icon: one neutral hero. Consulted only by tests that
+ *  otherwise require every unit/building/hero to carry an icon key. */
+export const NO_ICON_IDS: ReadonlySet<string> = new Set(["Npal"]);
+
+/** Creep and mercenary unit id -> site icon key, for the ids only
+ *  `UNIT_NAMES` names. From the W3Champions icon art each unit id is drawn
+ *  with (w3warehouse `services/api/src/api/icon_art.json`), kept where the
+ *  site has that art. */
+const UNIT_ICONS: Record<string, string> = {
+  nadk: "azuredragon",
+  nadr: "azuredragon",
+  nadw: "azuredragon",
+  nanb: "arachnathid",
+  nanm: "arachnathid",
+  nass: "banditspearthrower",
+  nban: "bandit",
+  nbdk: "blackdragon",
+  nbdm: "bluedragonspawn",
+  nbdr: "blackdragon",
+  nbot: "transport",
+  nbwm: "blackdragon",
+  nbzd: "bronzedragon",
+  nbzk: "bronzedragon",
+  nbzw: "bronzedragon",
+  ncea: "centaurarcher",
+  ncen: "centaur",
+  ncer: "centaur",
+  ndrd: "dranai",
+  ndrm: "dranaimage",
+  ndtb: "darktroll",
+  ndth: "darktrollshadowpriest",
+  ndtp: "darktrollshadowpriest",
+  ndtr: "darktroll",
+  ndtt: "darktrolltrapper",
+  ndtw: "darktrolltrapper",
+  nenf: "bandit",
+  nfps: "polarfurbolgshaman",
+  nfrs: "furbolgshaman",
+  nfsh: "foresttrollshadowpriest",
+  nfsp: "foresttrollshadowpriest",
+  nftk: "foresttroll",
+  nftr: "foresttroll",
+  nftt: "foresttrolltrapper",
+  ngdk: "greendragon",
+  ngna: "gnollarcher",
+  ngnb: "gnoll",
+  ngno: "gnoll",
+  ngns: "gnollarcher",
+  ngnv: "gnollking",
+  ngnw: "gnollwarden",
+  ngrd: "greendragon",
+  ngrw: "greendragon",
+  ngsp: "goblinsapper",
+  nhrr: "harpy",
+  nhrw: "harpywitch",
+  nitt: "icetroll",
+  nkob: "kobold",
+  nkog: "koboldgeomancer",
+  nlds: "lobstrokkgreen",
+  nlsn: "lobstrokkred",
+  nmfs: "murlocflesheater",
+  nmgw: "magnataur",
+  nmrr: "murloc",
+  nmsn: "murgulshadowcaster",
+  nndk: "netherdragon",
+  nndr: "netherdragon",
+  nnht: "netherdragon",
+  nnwa: "nerubian",
+  nnwl: "nerubianqueen",
+  nogl: "ogrelord",
+  nogm: "ogre",
+  nogr: "ogre",
+  nomg: "ogremagi",
+  nowb: "owlbear",
+  npfl: "purplefelhound",
+  nrdk: "reddragon",
+  nrdr: "reddragon",
+  nrog: "bandit",
+  nrvs: "revenant",
+  nrwm: "reddragon",
+  nrzm: "razormanechief",
+  nsc2: "spidercrab",
+  nsc3: "spidercrab",
+  nscb: "spidercrab",
+  nskf: "skeletonarcher",
+  nskm: "skeletonarcher",
+  nslf: "sludgecreature",
+  nstl: "satyr",
+  nsts: "satyrtrickster",
+  nthl: "thunderlizard",
+  ntrt: "seaturtlegreen",
+  nvdg: "voidwalker",
+  nvdw: "voidwalker",
+  nzep: "goblinzeppelin",
+};
 
 function inferKind(id: string): IdKind {
   if (id.startsWith("R")) return "upgrade";
@@ -210,7 +299,7 @@ export function describeId(id: string): DescribedId {
   if (heroName) return { title: heroName, kind: "hero" };
 
   const unitName = UNIT_NAMES[id];
-  if (unitName) return { title: unitName, kind: "unit" };
+  if (unitName) return { iconKey: UNIT_ICONS[id], title: unitName, kind: "unit" };
 
   return { title: id, kind: inferKind(id) };
 }
