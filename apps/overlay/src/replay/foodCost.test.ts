@@ -74,11 +74,16 @@ describe("FOOD_COST", () => {
     expect(FOOD_COST).toMatchObject(REFERENCE);
   });
 
-  it("has exactly ID_MAP's unit+hero id set as keys", () => {
-    const expectedKeys = Object.entries(ID_MAP)
-      .filter(([, entry]) => entry.kind === "unit" || entry.kind === "hero")
-      .map(([id]) => id)
-      .sort();
-    expect(Object.keys(FOOD_COST).sort()).toEqual(expectedKeys);
+  it("covers every unit and hero of ID_MAP", () => {
+    const missing = Object.entries(ID_MAP)
+      .filter(([id, entry]) => (entry.kind === "unit" || entry.kind === "hero") && FOOD_COST[id] === undefined)
+      .map(([id]) => id);
+    expect(missing).toEqual([]);
+  });
+
+  it("charges a hired mercenary its food from the game data", () => {
+    expect(FOOD_COST.nfsp).toBe(2); // Forest Troll Shadow Priest
+    expect(FOOD_COST.ngsp).toBe(2); // Goblin Sapper
+    expect(FOOD_COST.nftb).toBe(3); // Forest Troll Berserker, named in ID_MAP
   });
 });

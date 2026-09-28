@@ -852,6 +852,24 @@
     "kind": "misc"
   },
   {
+    "key": "nt-dragon-hawk",
+    "title": "Dragon Hawk",
+    "race": "neutral",
+    "kind": "unit"
+  },
+  {
+    "key": "nt-magic-vault",
+    "title": "Magic Vault",
+    "race": "neutral",
+    "kind": "building"
+  },
+  {
+    "key": "nt-icy-treasure-box",
+    "title": "Icy Treasure Box",
+    "race": "neutral",
+    "kind": "misc"
+  },
+  {
     "key": "advancedunholyarmor",
     "title": "Advanced Unholy Armor",
     "race": "human",
