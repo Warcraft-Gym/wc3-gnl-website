@@ -67,8 +67,8 @@ describe("idMap", () => {
     expect(described.iconKey).toBeUndefined();
   });
 
-  it("names creep and mercenary ids from w3gjs's unit table", () => {
-    expect(describeId("nfsp")).toEqual({ title: "Forest Troll Shadow Priest", kind: "unit" });
+  it("names creep and mercenary ids from w3gjs's unit table, with their icon", () => {
+    expect(describeId("nfsp")).toEqual({ iconKey: "foresttrollshadowpriest", title: "Forest Troll Shadow Priest", kind: "unit" });
   });
 
   it("maps 'stwp' to the town portal scroll icon", () => {
