@@ -1,6 +1,6 @@
 import type { RouteLevel } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
-import { wedgePath } from "@/lib/creep-routes/kills.mjs";
+import { halfPath } from "@/lib/creep-routes/kills.mjs";
 
 /** The three camp difficulty bands, mirroring `scripts/creep-maps/camps.mjs`'s
  *  `BAND_MAX_LEVEL` (easy <= 9, medium <= 19, hard above — Liquipedia's own
@@ -15,7 +15,7 @@ export const BAND_TOKEN: Record<string, string> = {
 
 /** A small filled dot in the camp's band colour; band is a mark, never text,
  *  same rule as a race colour. With `killed` below 1 it draws the map's
- *  partly cleared mark: a wedge of that share over the colour at 30%. */
+ *  partly cleared mark: a solid diagonal half over the colour at 20%. */
 export function BandDot({ band, killed, className }: { band?: string | null; killed?: number; className?: string }) {
   if (!band) return null;
   const colour = BAND_TOKEN[band] ?? "var(--wg-text-faint)";
@@ -23,8 +23,8 @@ export function BandDot({ band, killed, className }: { band?: string | null; kil
     return (
       <svg aria-hidden viewBox="0 0 10 10" className={cn("inline-block size-2 shrink-0", className)}>
         <title>{`${BAND_LABEL[band] ?? band}, partly cleared`}</title>
-        <circle cx="5" cy="5" r="5" fill={colour} fillOpacity="0.3" />
-        <path d={wedgePath(5, 5, 5, killed)} fill={colour} />
+        <circle cx="5" cy="5" r="5" fill={colour} fillOpacity="0.2" />
+        <path d={halfPath(5, 5, 5)} fill={colour} />
       </svg>
     );
   }

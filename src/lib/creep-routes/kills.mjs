@@ -106,14 +106,12 @@ export function killStepsByRow(camp, kills) {
   return steps;
 }
 
-/** SVG path of a pie wedge covering `fraction` of a circle, clockwise from
- *  12 o'clock — the killed share of a partly cleared camp's marker. */
-export function wedgePath(cx, cy, r, fraction) {
-  const a = 2 * Math.PI * Math.min(Math.max(fraction, 0), 0.9999);
-  const x = cx + r * Math.sin(a);
-  const y = cy - r * Math.cos(a);
-  const large = fraction > 0.5 ? 1 : 0;
-  return `M${cx} ${cy}L${cx} ${cy - r}A${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}Z`;
+/** SVG path of the upper-left half of a circle, cut on the diagonal — the
+ *  killed half of a partly cleared camp's marker. Always half, whatever the
+ *  share, so the eye reads "partly cleared" at a glance. */
+export function halfPath(cx, cy, r) {
+  const d = r * Math.SQRT1_2;
+  return `M${(cx + d).toFixed(2)} ${(cy - d).toFixed(2)}A${r} ${r} 0 0 0 ${(cx - d).toFixed(2)} ${(cy + d).toFixed(2)}Z`;
 }
 
 /** Every creep not in the kill list, one `{ creep, row }` per creep, in
@@ -128,8 +126,8 @@ export function unorderedCreeps(camp, kills) {
 }
 
 /** Share of the camp's base creep XP (`creepXp(level)`, no hero factor)
- *  that the kill list takes: the killed wedge of a partly cleared camp's
- *  marker. 1 unless the stop leaves the rest alive. */
+ *  that the kill list takes; below 1 marks a partly cleared camp
+ *  (a diagonal half). 1 unless the stop leaves the rest alive. */
 export function killedXpShare(camp, kills, leaveRest = false) {
   if (!validKills(camp, kills).length || !leaveRest) return 1;
   const total = camp.creeps.reduce((sum, c) => sum + creepXp(c.level) * c.count, 0);
