@@ -1,5 +1,5 @@
 import { leftRows } from "@/lib/creep-routes/kills.mjs";
-import type { MapCamp, StopKill } from "@/lib/creep-routes/types";
+import type { MapCamp, MapCampCreep, StopKill } from "@/lib/creep-routes/types";
 import { CampIcon } from "./CampIcon";
 
 /**
@@ -11,7 +11,7 @@ import { CampIcon } from "./CampIcon";
  */
 export function KillOrder({ camp, kills }: { camp: MapCamp; kills?: StopKill[] }) {
   if (!kills?.length) return null;
-  const left = leftRows(camp, kills);
+  const left = leftRows(camp, kills) as { creep: MapCampCreep; n: number }[];
   return (
     <div className="w-full rounded border border-line/60 bg-surface-2/60 px-2.5 py-2">
       <p className="mb-1.5 text-[0.7rem] font-medium text-muted">Kill order</p>
