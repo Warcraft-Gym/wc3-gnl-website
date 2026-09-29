@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { creepDropKind } from "@/lib/creep-routes/camp-label.mjs";
 import type { MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
@@ -46,6 +47,12 @@ export function KillOrder({
   onRemove?: (index: number) => void;
   onAdd?: (row: number) => void;
 }) {
+  // At most one pinned drop popover per chain: pinning one unpins the other.
+  const [pinned, setPinned] = useState<string | null>(null);
+  const pin = (key: string) => ({
+    pinned: pinned === key,
+    onPinnedChange: (on: boolean) => setPinned((p) => (on ? key : p === key ? null : p)),
+  });
   if (!kills.length && !skipped.length) return null;
   const focus = "rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold";
   return (
@@ -106,7 +113,7 @@ export function KillOrder({
               </DropPortrait>
             ) : (
               <>
-                <DropPortrait creep={k.creep} camp={camp} clickable={!onRemove && !onAdd}>
+                <DropPortrait creep={k.creep} camp={camp} clickable={!onRemove && !onAdd} {...pin(`k${i}`)}>
                   {portrait}
                 </DropPortrait>
                 {caption}
@@ -150,7 +157,7 @@ export function KillOrder({
               </DropPortrait>
             ) : (
               <span className="block">
-                <DropPortrait creep={creep} camp={camp} clickable>
+                <DropPortrait creep={creep} camp={camp} clickable {...pin(`s${i}`)}>
                   {portrait}
                 </DropPortrait>
                 {caption}
@@ -161,5 +168,27 @@ export function KillOrder({
         );
       })}
     </ol>
+  );
+}
+
+/** The collapsed stop's strip: 24px portraits in kill order, drop frames
+ *  kept, dashed ghosts for creeps left alive; no badges, captions or tags. */
+export function KillStrip({ kills, skipped = [] }: { kills: DerivedKill[]; skipped?: { creep: MapCampCreep }[] }) {
+  return (
+    <span aria-hidden className="flex flex-wrap items-center gap-1">
+      {kills.map((k, i) => (
+        <CampIcon key={`k${i}`} iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={24} className={cn("size-6", frame(k.creep))} />
+      ))}
+      {skipped.map(({ creep }, i) => (
+        <CampIcon
+          key={`s${i}`}
+          iconKey={creep.icon}
+          title="Left alive"
+          kind="creep"
+          size={24}
+          className={cn("size-6 border-dashed opacity-40 grayscale", frame(creep) ?? "border-line")}
+        />
+      ))}
+    </span>
   );
 }

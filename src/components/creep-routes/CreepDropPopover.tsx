@@ -101,21 +101,27 @@ export function CreepDropPopover({
 /**
  * A chain portrait that shows `CreepDropPopover` for a creep carrying drops:
  * on hover (fine pointer, >= 768px) after ~120ms, and, when `clickable`, on
- * click or tap, pinned until clicked again, closed or Escape. Clicks never
- * reach the stop block, so the portrait does not open the camp card.
+ * click or tap, pinned until clicked again, closed, Escape or a pointerdown
+ * outside it. The pin is owned by the caller (`pinned`/`onPinnedChange`) so
+ * one chain has at most one pinned popover. Clicks never reach the stop.
  */
 export function DropPortrait({
   creep,
   camp,
   clickable,
+  pinned = false,
+  onPinnedChange,
   children,
 }: {
   creep: MapCampCreep;
   camp: MapCamp;
   clickable: boolean;
+  pinned?: boolean;
+  onPinnedChange?: (pinned: boolean) => void;
   children: ReactNode;
 }) {
-  const [mode, setMode] = useState<null | "hover" | "pin">(null);
+  const [hovered, setHovered] = useState(false);
+  const mode = pinned ? "pin" : hovered ? "hover" : null;
   const [style, setStyle] = useState<CSSProperties>({});
   const ref = useRef<HTMLSpanElement>(null);
   const button = useRef<HTMLButtonElement>(null);
@@ -123,28 +129,34 @@ export function DropPortrait({
   const id = useId();
 
   useEffect(() => {
-    if (mode !== "pin") return;
+    if (!pinned) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
-      setMode(null);
+      onPinnedChange?.(false);
       button.current?.focus();
     };
+    const onDown = (e: PointerEvent) => {
+      if (!ref.current?.contains(e.target as Node)) onPinnedChange?.(false);
+    };
     document.addEventListener("keydown", onKey);
-    return () => document.removeEventListener("keydown", onKey);
-  }, [mode]);
+    document.addEventListener("pointerdown", onDown);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onDown);
+    };
+  }, [pinned, onPinnedChange]);
   useEffect(() => () => {
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
   if (!creep.drops?.length) return <span className="relative block">{children}</span>;
 
-  const open = (next: "hover" | "pin") => {
+  const place = () => {
     if (ref.current) setStyle(placement(ref.current));
-    setMode(next);
   };
   // Closing a pinned popover hands focus back to the portrait that opened it.
   const close = () => {
-    setMode(null);
+    onPinnedChange?.(false);
     button.current?.focus();
   };
   const popover = mode ? (
@@ -157,11 +169,14 @@ export function DropPortrait({
       className="relative block"
       onPointerEnter={() => {
         if (mode || !canHover()) return;
-        timer.current = setTimeout(() => open("hover"), HOVER_OPEN_DELAY_MS);
+        timer.current = setTimeout(() => {
+          place();
+          setHovered(true);
+        }, HOVER_OPEN_DELAY_MS);
       }}
       onPointerLeave={() => {
         if (timer.current) clearTimeout(timer.current);
-        setMode((m) => (m === "hover" ? null : m));
+        setHovered(false);
       }}
     >
       {clickable ? (
@@ -174,8 +189,9 @@ export function DropPortrait({
           onClick={(e) => {
             e.stopPropagation();
             if (timer.current) clearTimeout(timer.current);
-            if (mode === "pin") setMode(null);
-            else open("pin");
+            if (!pinned) place();
+            setHovered(false);
+            onPinnedChange?.(!pinned);
           }}
           onKeyDown={(e) => e.stopPropagation()}
           className="relative block rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold"
