@@ -85,11 +85,12 @@ export function dropKind(drop) {
   return drop?.kind === "class" && drop.class === "PowerUp" ? "powerup" : "item";
 }
 
-/** The frame kind of a creep that carries drops: "item" when any set is
- *  not a Power Up, else "powerup"; null when it carries none. */
+/** The frame kind of a creep that carries drops: "item", "powerup", or
+ *  "both" when it carries a set of each kind; null when it carries none. */
 export function creepDropKind(creep) {
   if (!creep?.drops?.length) return null;
-  return creep.drops.some((d) => dropKind(d) === "item") ? "item" : "powerup";
+  const kinds = new Set(creep.drops.map(dropKind));
+  return kinds.size > 1 ? "both" : [...kinds][0];
 }
 
 /** Stable key for a drop pool: lines a creep's own drop up with the

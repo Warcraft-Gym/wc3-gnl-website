@@ -95,9 +95,10 @@ test("dropKind: Power Up pools are red, every other set is blue", () => {
   assert.equal(dropKind({ kind: "item", id: "ckng" }), "item");
 });
 
-test("creepDropKind: item wins over power up, null without drops", () => {
+test("creepDropKind: one kind, both kinds, or null without drops", () => {
   assert.equal(creepDropKind({ drops: [{ kind: "class", class: "PowerUp", level: 1 }] }), "powerup");
-  assert.equal(creepDropKind({ drops: [{ kind: "class", class: "PowerUp", level: 1 }, { kind: "item", id: "ckng" }] }), "item");
+  assert.equal(creepDropKind({ drops: [{ kind: "item", id: "ckng" }] }), "item");
+  assert.equal(creepDropKind({ drops: [{ kind: "class", class: "PowerUp", level: 1 }, { kind: "item", id: "ckng" }] }), "both");
   assert.equal(creepDropKind({ drops: [] }), null);
   assert.equal(creepDropKind({}), null);
 });

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { dropKey, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { creepXp } from "@/lib/creep-routes/xp.mjs";
@@ -16,17 +17,32 @@ function canHover() {
   return window.matchMedia("(hover: hover)").matches && window.matchMedia("(min-width: 768px)").matches;
 }
 
-/** Under the icon, 18rem wide, right-aligned when it would pass the stops
- *  panel's right edge; on a phone, the chain's full width. */
-function placement(el: HTMLElement): CSSProperties {
-  const r = el.getBoundingClientRect();
-  const chain = el.closest("ol") ?? el;
-  if (window.innerWidth < 640) {
-    const c = chain.getBoundingClientRect();
-    return { left: c.left - r.left, width: c.width };
+/** Places the fixed popover `box` from its portrait `anchor`: below it, or
+ *  above when it would pass the viewport bottom, clamped 8px inside the
+ *  viewport; 18rem wide, or the chain's full width on a phone. */
+function placeFixed(box: HTMLElement, anchor: HTMLElement) {
+  const r = anchor.getBoundingClientRect();
+  const vw = window.innerWidth;
+  const vh = window.innerHeight;
+  const M = 8;
+  let left: number;
+  let width: number;
+  if (vw < 640) {
+    const c = (anchor.closest("ol") ?? anchor).getBoundingClientRect();
+    left = Math.max(c.left, M);
+    width = Math.min(c.width, vw - 2 * M);
+  } else {
+    width = Math.min(WIDTH, vw - 2 * M);
+    left = Math.min(Math.max(r.left, M), vw - M - width);
   }
-  const bound = (el.closest(".panel") ?? chain).getBoundingClientRect();
-  return r.left + WIDTH > bound.right - 8 ? { right: 0, width: WIDTH } : { left: 0, width: WIDTH };
+  const h = box.offsetHeight;
+  let top = r.bottom + M;
+  if (top + h > vh - M) top = r.top - M - h;
+  top = Math.min(Math.max(top, M), Math.max(M, vh - M - h));
+  box.style.left = `${left}px`;
+  box.style.top = `${top}px`;
+  box.style.width = `${width}px`;
+  box.style.visibility = "visible";
 }
 
 /** What one creep drops: its name, level and base XP, then one row per drop set. */
@@ -35,18 +51,37 @@ export function CreepDropPopover({
   camp,
   pinned,
   onClose,
-  style,
+  anchorRef,
+  boxRef,
   id,
 }: {
   creep: MapCampCreep;
   camp: MapCamp;
   pinned: boolean;
   onClose: () => void;
-  style: CSSProperties;
+  /** The portrait the popover hangs from. */
+  anchorRef: React.RefObject<HTMLElement | null>;
+  /** Receives the popover element, so the caller can tell inside from outside clicks. */
+  boxRef: React.RefObject<HTMLDivElement | null>;
   id: string;
 }) {
-  return (
+  // Portalled to <body> and fixed, so no sibling panel can paint over it; re-placed on scroll and resize.
+  useLayoutEffect(() => {
+    const box = boxRef.current;
+    const anchor = anchorRef.current;
+    if (!box || !anchor) return;
+    const update = () => placeFixed(box, anchor);
+    update();
+    window.addEventListener("scroll", update, true);
+    window.addEventListener("resize", update);
+    return () => {
+      window.removeEventListener("scroll", update, true);
+      window.removeEventListener("resize", update);
+    };
+  }, [anchorRef, boxRef]);
+  return createPortal(
     <div
+      ref={boxRef}
       id={id}
       role={pinned ? "dialog" : "tooltip"}
       aria-label={pinned ? `${creep.name} item drops` : undefined}
@@ -55,8 +90,8 @@ export function CreepDropPopover({
         e.stopPropagation();
         if (e.key === "Escape" && pinned) onClose();
       }}
-      style={style}
-      className="absolute top-full z-40 mt-2 cursor-auto rounded border border-line-strong bg-surface p-3 text-left shadow-[0_12px_32px_-8px_rgba(0,0,0,.9)]"
+      style={{ position: "fixed", left: 0, top: 0, width: WIDTH, visibility: "hidden" }}
+      className="z-50 cursor-auto rounded border border-line-strong bg-surface p-3 text-left shadow-[0_12px_32px_-8px_rgba(0,0,0,.9)]"
     >
       <div className="flex items-start justify-between gap-2">
         <div>
@@ -94,7 +129,8 @@ export function CreepDropPopover({
           );
         })}
       </ul>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -122,8 +158,8 @@ export function DropPortrait({
 }) {
   const [hovered, setHovered] = useState(false);
   const mode = pinned ? "pin" : hovered ? "hover" : null;
-  const [style, setStyle] = useState<CSSProperties>({});
   const ref = useRef<HTMLSpanElement>(null);
+  const box = useRef<HTMLDivElement>(null);
   const button = useRef<HTMLButtonElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const id = useId();
@@ -136,7 +172,8 @@ export function DropPortrait({
       button.current?.focus();
     };
     const onDown = (e: PointerEvent) => {
-      if (!ref.current?.contains(e.target as Node)) onPinnedChange?.(false);
+      const t = e.target as Node;
+      if (!ref.current?.contains(t) && !box.current?.contains(t)) onPinnedChange?.(false);
     };
     document.addEventListener("keydown", onKey);
     document.addEventListener("pointerdown", onDown);
@@ -151,16 +188,13 @@ export function DropPortrait({
 
   if (!creep.drops?.length) return <span className="relative block">{children}</span>;
 
-  const place = () => {
-    if (ref.current) setStyle(placement(ref.current));
-  };
   // Closing a pinned popover hands focus back to the portrait that opened it.
   const close = () => {
     onPinnedChange?.(false);
     button.current?.focus();
   };
   const popover = mode ? (
-    <CreepDropPopover creep={creep} camp={camp} pinned={mode === "pin"} onClose={close} style={style} id={id} />
+    <CreepDropPopover creep={creep} camp={camp} pinned={mode === "pin"} onClose={close} anchorRef={ref} boxRef={box} id={id} />
   ) : null;
 
   return (
@@ -169,10 +203,7 @@ export function DropPortrait({
       className="relative block"
       onPointerEnter={() => {
         if (mode || !canHover()) return;
-        timer.current = setTimeout(() => {
-          place();
-          setHovered(true);
-        }, HOVER_OPEN_DELAY_MS);
+        timer.current = setTimeout(() => setHovered(true), HOVER_OPEN_DELAY_MS);
       }}
       onPointerLeave={() => {
         if (timer.current) clearTimeout(timer.current);
@@ -189,7 +220,6 @@ export function DropPortrait({
           onClick={(e) => {
             e.stopPropagation();
             if (timer.current) clearTimeout(timer.current);
-            if (!pinned) place();
             setHovered(false);
             onPinnedChange?.(!pinned);
           }}

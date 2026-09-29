@@ -16,10 +16,40 @@ const FRAME = { item: "border-2 border-arcane", powerup: "border-2 border-loss" 
 const LEVEL_RING = "border-2 border-gold";
 const LEVEL_OUTLINE = "outline outline-2 outline-offset-2 outline-gold";
 
-/** 2px frame in the creep's drop kind, or nothing without drops. */
-function frame(creep: MapCampCreep) {
-  const kind = creepDropKind(creep) as keyof typeof FRAME | null;
-  return kind ? FRAME[kind] : undefined;
+/** A diagonal split for a creep carrying both kinds: blue top-left, red bottom-right. */
+const BOTH_FILL = "linear-gradient(135deg, var(--wg-arcane) 50%, var(--wg-loss) 50%)";
+
+/** A creep icon in its drop frame: a `width`px border in the drop colour, a
+ *  wrapper filled with the blue/red split (icon inset by `width`) for a creep
+ *  carrying both kinds, or `plain` without drops. `className` goes on the
+ *  outermost element. */
+function Portrait({
+  creep,
+  title,
+  size,
+  sizeClass,
+  width = 2,
+  plain,
+  className,
+}: {
+  creep: MapCampCreep;
+  title: string;
+  size: number;
+  sizeClass: string;
+  width?: 2 | 1.5;
+  plain?: string | false;
+  className?: string | false;
+}) {
+  const kind = creepDropKind(creep) as "item" | "powerup" | "both" | null;
+  if (kind === "both") {
+    return (
+      <span className={cn("block shrink-0 rounded", sizeClass, className)} style={{ background: BOTH_FILL, padding: width }}>
+        <CampIcon iconKey={creep.icon} title={title} kind="creep" size={size} className="size-full rounded-[2px] border-0" />
+      </span>
+    );
+  }
+  const frame = kind ? cn(FRAME[kind], width === 1.5 && "border-[1.5px]") : plain;
+  return <CampIcon iconKey={creep.icon} title={title} kind="creep" size={size} className={cn(sizeClass, frame, className)} />;
 }
 
 type Member = { kill: DerivedKill; index: number };
@@ -103,12 +133,13 @@ export function KillOrder({
           const { kill: k, index: i } = u.members[0];
           const portrait = (
             <>
-              <CampIcon
-                iconKey={k.creep.icon}
+              <Portrait
+                creep={k.creep}
                 title={k.creep.name}
-                kind="creep"
                 size={40}
-                className={cn(CHAIN_ICON, frame(k.creep) ?? (k.leveledUp && LEVEL_RING), k.leveledUp && frame(k.creep) && LEVEL_OUTLINE)}
+                sizeClass={CHAIN_ICON}
+                plain={k.leveledUp && LEVEL_RING}
+                className={k.leveledUp && creepDropKind(k.creep) && LEVEL_OUTLINE}
               />
               {badged ? badge(step, "-left-1 -top-1.5") : null}
             </>
@@ -172,7 +203,7 @@ export function KillOrder({
             >
               {u.members.map(({ kill: k, index: i }, j) => {
                 const icon = (
-                  <CampIcon iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={40} className={cn(CHAIN_ICON, frame(k.creep))} />
+                  <Portrait creep={k.creep} title={k.creep.name} size={40} sizeClass={CHAIN_ICON} />
                 );
                 // Builder: a listed set member is removed on click, a remainder member is pulled into the order.
                 const action = listed ? onRemove && (() => onRemove(i)) : onAdd && (() => onAdd(k.row));
@@ -212,16 +243,13 @@ export function KillOrder({
       })}
       {skipped.map(({ creep, row }, i) => {
         const portrait = (
-          <CampIcon
-            iconKey={creep.icon}
+          <Portrait
+            creep={creep}
             title={onAdd ? creep.name : "Left alive"}
-            kind="creep"
             size={40}
-            className={cn(
-              CHAIN_ICON,
-              frame(creep) ?? "border-line",
-              "border-dashed opacity-40 grayscale group-hover:opacity-100 group-focus-visible:opacity-100",
-            )}
+            sizeClass={CHAIN_ICON}
+            plain="border-line"
+            className="border-dashed opacity-40 grayscale group-hover:opacity-100 group-focus-visible:opacity-100"
           />
         );
         const caption = <span aria-hidden className={cn(CAPTION, "text-faint")}>skip</span>;
@@ -260,9 +288,8 @@ export function KillOrder({
  *  inside it), drop frames at 1.5px, then dashed ghosts; no badges,
  *  captions or tags. */
 export function KillStrip({ kills, skipped = [] }: { kills: DerivedKill[]; skipped?: { creep: MapCampCreep }[] }) {
-  const thin = (creep: MapCampCreep) => (frame(creep) ? cn(frame(creep), "border-[1.5px]") : undefined);
   const icon = (k: DerivedKill, key: string) => (
-    <CampIcon key={key} iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={24} className={cn("size-6", thin(k.creep))} />
+    <Portrait key={key} creep={k.creep} title={k.creep.name} size={24} sizeClass="size-6" width={1.5} />
   );
   return (
     <span aria-hidden className="flex flex-wrap items-center gap-1">
@@ -282,13 +309,15 @@ export function KillStrip({ kills, skipped = [] }: { kills: DerivedKill[]; skipp
         ),
       )}
       {skipped.map(({ creep }, i) => (
-        <CampIcon
+        <Portrait
           key={`s${i}`}
-          iconKey={creep.icon}
+          creep={creep}
           title="Left alive"
-          kind="creep"
           size={24}
-          className={cn("size-6 border-dashed opacity-40 grayscale", thin(creep) ?? "border-line")}
+          sizeClass="size-6"
+          width={1.5}
+          plain="border-line"
+          className="border-dashed opacity-40 grayscale"
         />
       ))}
     </span>
