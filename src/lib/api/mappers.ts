@@ -186,20 +186,24 @@ export interface RawMatch {
   team1_score: number;
   team2_score: number;
 }
-export interface RawSeries {
+/** One side of a series row: the player and the race played (off race, else signup race). */
+interface RawSeriesPlayer {
   id: number;
+  name: string;
+  race?: string | null;
+}
+/** One row of GET /events/{id}/series/summary: a fixture series, joined to its match by match_id. */
+export interface RawSeriesSummary {
+  id: number;
+  match_id: number;
   date_time?: string;
+  player1: RawSeriesPlayer | null;
+  player2: RawSeriesPlayer | null;
   player1_score: number;
   player2_score: number;
-  player1: RawPlayer;
-  player2: RawPlayer;
-  /** Race actually played in this series (W3C codes), may differ from the signup race. */
-  player1_race?: string | null;
-  player2_race?: string | null;
   player1_points?: number | null;
   player2_points?: number | null;
   casts?: Array<{ id: number; name?: string | null; channel_url?: string | null; vod_url?: string | null }>;
-  match: RawMatch;
 }
 export interface RawFantasyTeam {
   id: number;
@@ -393,7 +397,7 @@ function playerMatchStatus(dateTime: string | undefined, a: number, b: number): 
   return !Number.isNaN(t) && t > Date.now() ? "scheduled" : "completed";
 }
 
-function toPlayerMatch(s: RawSeries): PlayerMatch {
+function toPlayerMatch(s: RawSeriesSummary): PlayerMatch {
   return {
     id: s.id,
     scheduledAt: s.date_time,
@@ -401,14 +405,14 @@ function toPlayerMatch(s: RawSeries): PlayerMatch {
     home: {
       playerId: s.player1?.id,
       playerName: s.player1?.name ?? "TBD",
-      race: raceOf(s.player1_race ?? s.player1?.signup_race),
+      race: raceOf(s.player1?.race),
       score: s.player1_score ?? 0,
       points: s.player1_points ?? undefined,
     },
     away: {
       playerId: s.player2?.id,
       playerName: s.player2?.name ?? "TBD",
-      race: raceOf(s.player2_race ?? s.player2?.signup_race),
+      race: raceOf(s.player2?.race),
       score: s.player2_score ?? 0,
       points: s.player2_points ?? undefined,
     },
@@ -422,18 +426,19 @@ function toPlayerMatch(s: RawSeries): PlayerMatch {
   };
 }
 
-export function mapFixtures(raw: RawSeries[]): TeamFixture[] {
-  const byMatch = new Map<number, RawSeries[]>();
+export function mapFixtures(raw: RawSeriesSummary[], rawMatches: RawMatch[]): TeamFixture[] {
+  const matchById = new Map(rawMatches.map((m) => [m.id, m]));
+  const byMatch = new Map<number, RawSeriesSummary[]>();
   for (const s of raw) {
-    if (!s.match) continue;
-    const arr = byMatch.get(s.match.id) ?? [];
+    if (!matchById.has(s.match_id)) continue;
+    const arr = byMatch.get(s.match_id) ?? [];
     arr.push(s);
-    byMatch.set(s.match.id, arr);
+    byMatch.set(s.match_id, arr);
   }
 
   const fixtures: TeamFixture[] = [];
-  for (const list of byMatch.values()) {
-    const m = list[0].match;
+  for (const [matchId, list] of byMatch) {
+    const m = matchById.get(matchId)!;
     const matches = list
       .map(toPlayerMatch)
       .sort((a, b) => (ms(a.scheduledAt) || 0) - (ms(b.scheduledAt) || 0));
