@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, addRestOfCamp, campKills, creepsLeft, killStepsByRow, killsProblem, wedgePath } from "./kills.mjs";
+import { addKill, addRestOfCamp, campKills, creepsLeft, killStepsByRow, killsProblem, leftRows, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -46,4 +46,9 @@ test("addRestOfCamp finishes the camp after the chosen kills", () => {
 
 test("wedgePath draws a half circle for one half, from 12 o'clock", () => {
   assert.equal(wedgePath(10, 10, 5, 0.5), "M10 10L10 5A5 5 0 0 1 10.00 15.00Z");
+});
+
+test("leftRows names what a partial stop leaves alive", () => {
+  const left = leftRows(CAMP, [{ row: 3, n: 1 }, { row: 2, n: 1 }]);
+  assert.deepEqual(left.map((r) => [r.creep.name, r.n]), [["Troll (item)", 1], ["Troll", 1], ["Ogre", 1]]);
 });

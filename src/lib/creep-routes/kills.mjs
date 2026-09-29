@@ -79,3 +79,13 @@ export function wedgePath(cx, cy, r, fraction) {
   const large = fraction > 0.5 ? 1 : 0;
   return `M${cx} ${cy}L${cx} ${cy - r}A${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}Z`;
 }
+
+/** The creeps a kill order leaves alive, as `{ creep, n }` per row that
+ *  still has any — the "Leave" line under a partial stop's kill order. */
+export function leftRows(camp, kills) {
+  const used = camp.creeps.map(() => 0);
+  for (const { row, n } of kills ?? []) if (row in used) used[row] += n;
+  return camp.creeps
+    .map((creep, row) => ({ creep, n: creep.count - used[row] }))
+    .filter((r) => r.n > 0);
+}
