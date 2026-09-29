@@ -6,6 +6,8 @@ import { radiusFor } from "./CampMarker";
 
 /** Outer edge of a camp mark past its radius: the 1.5px halo ring at r + 1.5. */
 const MARK_HALO = 2.25;
+/** Light neutral for the path and its chevrons: edges stay quieter than the gold stop badges. */
+const LINE = "rgba(255,255,255,.85)";
 
 /**
  * The route itself: a polyline through the camp stops in order (non-camp
@@ -53,18 +55,18 @@ export const RoutePath = memo(function RoutePath({
 
   return (
     <g>
-      {/* A 2px gold line over a 4px ground-colour under-stroke, so it reads
+      {/* A 2px light line over a 4px ground-colour under-stroke, so it reads
           over any terrain on the minimap. */}
       <path d={d} fill="none" strokeWidth="4" {...under} />
-      <path d={d} fill="none" stroke="var(--wg-gold)" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-      {/* A 6px direction chevron at the middle of every leg. */}
+      <path d={d} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      {/* A 6px direction chevron at the middle of every leg, same light fill. */}
       {segments.map((g, i) => (
         <path
           key={i}
           data-route-direction
           d="M3,0L-3,-3L-3,3Z"
           transform={`translate(${g.mx.toFixed(1)},${g.my.toFixed(1)}) rotate(${g.angle.toFixed(1)})`}
-          fill="var(--wg-gold)"
+          fill={LINE}
           strokeWidth="2"
           paintOrder="stroke"
           {...under}
