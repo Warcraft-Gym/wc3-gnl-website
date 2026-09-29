@@ -12,7 +12,7 @@ import { HeroMeter } from "./HeroMeter";
 import { KillOrder, KillStrip } from "./KillOrder";
 import { cn } from "@/lib/utils";
 
-/** The chain's inputs for a stop: its kills and, with `leaveRest`, the creeps left alive. */
+/** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
 function skippedOf(stop: RouteStop, camp: MapCamp) {
   return stop.leaveRest && validKills(camp, stop.kills).length
     ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[])

@@ -110,7 +110,7 @@ export function CreepDropPopover({
                 {pool?.items.length ? (
                   <span className="mt-1 flex flex-wrap gap-1">
                     {pool.items.map((it) => (
-                      <CampIcon key={it.id} iconKey={it.icon} title={it.name} kind="item" size={22} />
+                      <CampIcon key={it.id} iconKey={it.icon} title={it.name} kind="item" size={22} eager />
                     ))}
                   </span>
                 ) : (

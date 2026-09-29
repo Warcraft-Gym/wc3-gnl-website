@@ -18,7 +18,7 @@ export type DerivedStop = {
   xpAfter: number;
   campLevel: number | null;
   band: string | null;
-  /** Creeps left alive by a stop with a partial `kills` list. */
+  /** Creeps a stop skips (`leaveRest`). */
   left: number;
   /** One entry per kill, in kill order. */
   kills: DerivedKill[];

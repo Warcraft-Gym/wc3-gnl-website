@@ -27,12 +27,15 @@ export function CampIcon({
   kind,
   size = 32,
   className,
+  eager = false,
 }: {
   iconKey?: string;
   title: string;
   kind: "creep" | "item";
   size?: number;
   className?: string;
+  /** Load at once: for icons in a card or popover that has just opened, where lazy loading can leave empty tiles. */
+  eager?: boolean;
 }) {
   const [broken, setBroken] = useState(false);
   const ref = useRef<HTMLImageElement>(null);
@@ -72,7 +75,7 @@ export function CampIcon({
       title={title}
       width={size}
       height={size}
-      loading="lazy"
+      loading={eager ? "eager" : "lazy"}
       onError={() => setBroken(true)}
       className={cn("shrink-0 rounded border border-line-strong bg-surface-2 object-cover", className)}
     />

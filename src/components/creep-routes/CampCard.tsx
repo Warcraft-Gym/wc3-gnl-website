@@ -85,9 +85,9 @@ export function CampCard({
   showCampId?: boolean;
   /** The stop's ordered kill prefix. When set, rows sort by step, a "Kill"
    *  column numbers each ordered kill, then the unordered rest, then (with
-   *  `leaveRest`) creeps left alive, dimmed. */
+   *  `leaveRest`) skipped creeps, dimmed. */
   kills?: StopKill[];
-  /** True when creeps not in `kills` stay alive ("Left"); false leaves their Kill cell blank. */
+  /** True when creeps not in `kills` are skipped ("Skip"); false leaves their Kill cell blank. */
   leaveRest?: boolean;
   /** Defaults to `camp.band`; accepted separately per the spec so a caller
    *  can override it (e.g. a synthetic camp without its own band). */
@@ -222,7 +222,7 @@ export function CampCard({
   }, [pinned]);
 
   const killSteps = validKills(camp, kills).length ? killStepsByRow(camp, kills) : null;
-  // Rows in kill order (first step first), creeps left alive last.
+  // Rows in kill order (first step first), skipped creeps last.
   const rowOrder = camp.creeps.map((_, i) => i);
   if (killSteps) rowOrder.sort((a, b) => (killSteps[a][0] ?? Infinity) - (killSteps[b][0] ?? Infinity) || a - b);
   const dropIndex = useMemo(() => dropIndexByKey(camp.drops ?? []), [camp.drops]);
@@ -306,7 +306,7 @@ export function CampCard({
               <tr key={i} className={cn("border-t border-line/40", killSteps && leaveRest && !killSteps[i].length && "opacity-45")}>
                 {killSteps ? (
                   <td className="tnum w-px whitespace-nowrap py-1.5 pl-3 text-center text-gold">
-                    {killSteps[i].length ? killSteps[i].join(", ") : leaveRest ? <span className="text-faint">Left</span> : null}
+                    {killSteps[i].length ? killSteps[i].join(", ") : leaveRest ? <span className="text-faint">Skip</span> : null}
                   </td>
                 ) : null}
                 <td className="px-3 py-1.5">
@@ -360,7 +360,7 @@ export function CampCard({
                     {drop.items.length ? (
                       <span className="flex flex-wrap items-center gap-1">
                         {drop.items.map((it) => (
-                          <CampIcon key={it.id} iconKey={it.icon} title={itemTitle(it.name, drop.chance)} kind="item" size={26} />
+                          <CampIcon key={it.id} iconKey={it.icon} title={itemTitle(it.name, drop.chance)} kind="item" size={26} eager />
                         ))}
                       </span>
                     ) : (

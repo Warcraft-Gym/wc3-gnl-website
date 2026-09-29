@@ -245,7 +245,7 @@ export function KillOrder({
         const portrait = (
           <Portrait
             creep={creep}
-            title={onAdd ? creep.name : "Left alive"}
+            title={onAdd ? creep.name : "Skipped"}
             size={40}
             sizeClass={CHAIN_ICON}
             plain="border-line"
@@ -273,7 +273,7 @@ export function KillOrder({
                   {portrait}
                 </DropPortrait>
                 {caption}
-                <span className="sr-only">{creep.name}, left alive</span>
+                <span className="sr-only">{creep.name}, skipped</span>
               </span>
             )}
           </li>
@@ -312,7 +312,7 @@ export function KillStrip({ kills, skipped = [] }: { kills: DerivedKill[]; skipp
         <Portrait
           key={`s${i}`}
           creep={creep}
-          title="Left alive"
+          title="Skipped"
           size={24}
           sizeClass="size-6"
           width={1.5}

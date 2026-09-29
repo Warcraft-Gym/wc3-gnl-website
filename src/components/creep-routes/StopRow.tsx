@@ -109,7 +109,7 @@ function KillOrderField({
         kills={trace}
         onRemove={(i) => {
           const next = removeKillAt(valid, i);
-          // An empty list means the whole camp, so "Leave the rest" goes with it.
+          // An empty list means the whole camp, so "Skip the rest" goes with it.
           onChange(next.length ? { kills: next } : { kills: next, leaveRest: false });
         }}
         onJoin={(i) => onChange({ kills: joinWithPrevious(valid, i) })}
@@ -142,7 +142,7 @@ function KillOrderField({
                     leaveRest === value ? "bg-gold/10 text-fg" : "text-muted hover:text-fg",
                   )}
                 >
-                  {value ? "Leave the rest" : "Then clear the rest"}
+                  {value ? "Skip the rest" : "Then clear the rest"}
                 </button>
               ))}
             </div>
@@ -161,7 +161,7 @@ function KillOrderField({
             : !rest.length
               ? "Clears the camp in this order."
               : leaveRest
-                ? `Leaves ${rest.length} alive. Hero after counts only these kills.`
+                ? `Skips ${rest.length}. Hero after counts only these kills.`
                 : "Kills these first, then the rest of the camp."}
         </p>
       )}

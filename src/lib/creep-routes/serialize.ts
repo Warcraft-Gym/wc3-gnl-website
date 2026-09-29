@@ -24,7 +24,7 @@ export type ApiRouteStop = {
   condition?: string;
   /** Ordered kill prefix; see `kills.mjs`. */
   kills?: { row: number; n: number; set?: number }[];
-  /** True leaves the creeps `kills` does not list alive. */
+  /** True skips the creeps `kills` does not list ("Skip the rest"). */
   leaveRest?: boolean;
 };
 

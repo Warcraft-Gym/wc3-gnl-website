@@ -433,11 +433,12 @@ data layer share:
 A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is
 an index into the camp's `creeps[]` and `n` is how many of that row to
 kill. Empty or missing means the whole camp, which is every route written
-before this field. The optional boolean `leaveRest` (default false) says
-what happens to the creeps the prefix does not list: false kills them after
-the prefix, in catalogue order; true leaves them alive. Three cases it covers:
+before this field. The optional boolean `leaveRest` (default false; "Skip
+the rest" in the builder and the Studio) says what happens to the creeps
+the list does not name: false kills them after it, in catalogue order; true
+skips them. Three cases it covers:
 
-- Kill one creep and leave, e.g. take the item Ogre Warrior of Last Refuge
+- Kill one creep and skip the rest, e.g. take the item Ogre Warrior of Last Refuge
   c16: `kills: [{ row: 0, n: 1 }], leaveRest: true`.
 - Focus one creep, then the rest in any order, e.g. the High Priest first
   on Springtime c14: `kills: [{ row: 2, n: 1 }]`.
@@ -457,7 +458,7 @@ A kill entry may also carry an integer `set`: consecutive entries with the same 
 On the route page each stop block draws its kills as a chain (`KillOrder`):
 one creep icon per kill with the XP that kill paid, a gold ring and "Lv N"
 tag on the kill that levels the hero up, step badges when the order is
-authored, and one ghosted "skip" icon per creep left alive. The numbers come from
+authored, and one ghosted "skip" icon per skipped creep. The numbers come from
 `deriveRoute`'s per-kill trace (`kills: { creep, xp, levelAfter, leveledUp }[]`
 on each derived stop); the JSON API's `derived` block does not carry it
 (`serialize.mjs` maps fields one by one). The builder edits the same chain:
@@ -526,8 +527,8 @@ route is an ordered list of camp stops and base actions, nothing more. What
 runs a hero through a route's stops **in order**, folding camp stops
 through `xp.mjs`'s per-kill math (skipping non-camp stops). A stop with
 `kills` counts those creeps first, in that order, then the rest of the
-camp, or only those creeps when `leaveRest` is set; each derived stop
-reports `left`, the creeps it leaves alive (also in the API's `derived`).
+camp, or only those creeps when `leaveRest` ("Skip the rest") is set; each
+derived stop reports `left`, the creeps it skips (also in the API's `derived`).
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
 come from Blizzard's own

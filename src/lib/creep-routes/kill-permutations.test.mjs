@@ -130,7 +130,7 @@ test("S5 single, a set of two, then singles to the end: no remainder", () => {
   const b = builder().add(PRIEST).add(GOLEM).add(MUD).join(2).add(TRAPPER).add(TRAPPER);
   assert.deepEqual(b.s.kills, [{ row: 3, n: 1 }, { row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }, { row: 1, n: 2 }]);
   checkShape(b.s, { units: [T(3, 0), S(0, 1), S(2, 1), T(1, 2), T(1, 3)], ordered: [true, true, true, true, true], left: 0 });
-  // Leave the rest has nothing to leave once the list covers the camp.
+  // Skip the rest has nothing to skip once the list covers the camp.
   checkShape(b.leave(true).s, { units: [T(3, 0), S(0, 1), S(2, 1), T(1, 2), T(1, 3)], ordered: [true, true, true, true, true], left: 0 });
 });
 
@@ -146,7 +146,7 @@ test("S6 two Trappers as singles, joined into one set, split again", () => {
   checkShape(b.s, { units: [T(1, 0), T(1, 1), S(0, 2), S(2, 2), S(3, 2)], ordered: [true, true, false, false, false], left: 0 });
 });
 
-test("S7 no kills: the whole camp as one set, Leave the rest has no effect", () => {
+test("S7 no kills: the whole camp as one set, Skip the rest has no effect", () => {
   const whole = { units: [S(0, 0), S(1, 0), S(1, 0), S(2, 0), S(3, 0)], ordered: [false, false, false, false, false], left: 0 };
   checkShape(builder().s, whole);
   checkShape(builder().leave(true).s, whole);

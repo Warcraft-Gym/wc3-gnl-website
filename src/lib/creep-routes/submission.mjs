@@ -73,7 +73,7 @@ function baseStopSchema(iconSet) {
         .array(z.object({ row: z.number().int().min(0), n: z.number().int().min(1).max(20), set: z.number().int().min(0).max(99).optional() }))
         .max(20, "Up to 20 kills")
         .optional(),
-      /** True leaves the creeps `kills` does not list alive. */
+      /** True skips the creeps `kills` does not list ("Skip the rest"). */
       leaveRest: z.boolean().optional(),
     })
     .refine((stop) => stop.campId !== null || Boolean(stop.action), {
