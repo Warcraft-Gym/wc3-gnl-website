@@ -22,6 +22,22 @@ export function isPast(iso, now = new Date()) {
   return Number.isNaN(t) ? false : t < now.getTime();
 }
 
+/** "Saturday, 3 January 2026" with the year, "Sunday 27 September" without,
+ *  in `timeZone`. Built from the parts, because the separator `en-GB` puts
+ *  after the weekday differs between ICU versions (Node builds, browsers). */
+function dayText(d, timeZone, withYear) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    ...(withYear ? { year: "numeric" } : {}),
+    timeZone,
+  }).formatToParts(d);
+  const part = (type) => parts.find((p) => p.type === type)?.value;
+  const date = [part("day"), part("month"), part("year")].filter(Boolean).join(" ");
+  return `${part("weekday")}${withYear ? "," : ""} ${date}`;
+}
+
 /** `{ day, times: [{ label, time }] }`, or null when the date is unusable.
  *  The day is rendered in the first zone, the one the event is anchored to. */
 export function formatNextEvent(iso) {
@@ -29,13 +45,7 @@ export function formatNextEvent(iso) {
   if (Number.isNaN(t)) return null;
   const d = new Date(t);
 
-  const day = new Intl.DateTimeFormat("en-GB", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: ZONES[0].tz,
-  }).format(d);
+  const day = dayText(d, ZONES[0].tz, true);
 
   const times = ZONES.map(({ label, tz }) => ({
     label,
@@ -65,9 +75,7 @@ export function formatInZone(iso, timeZone) {
   if (Number.isNaN(t) || typeof timeZone !== "string" || !timeZone) return null;
   const d = new Date(t);
   try {
-    const day = new Intl.DateTimeFormat("en-GB", {
-      weekday: "long", day: "numeric", month: "long", timeZone,
-    }).format(d);
+    const day = dayText(d, timeZone, false);
     const time = new Intl.DateTimeFormat("en-GB", {
       hour: "numeric", minute: "2-digit", hour12: true, timeZone,
     }).format(d);

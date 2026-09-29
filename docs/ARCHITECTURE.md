@@ -65,9 +65,9 @@ The selected event scopes every public table:
 | season header and weeks | selected event | `mapSeason`, `deriveWeeks` |
 | teams and rosters | `GET /events/{event_id}/teams` | `mapTeams`, `flattenPlayers` |
 | schedule and results | `GET /events/{event_id}/series` | `mapFixtures` |
-| standings | event teams plus event series | `mapStandings` |
-| player pages | roster entry, `gnl_stats`, `race_mmrs` and `main_race`, `/stats/career`, series, across every published event | `mapPlayerProfile` |
-| team pages | teams and series of the chosen season, across every published event for the switcher | `getTeamPage` |
+| standings | `GET /events/{event_id}/teams` and `GET /events/{event_id}/matches` | `mapStandings` |
+| player pages | `GET /users/{user_id}` (tags, `race_mmrs`, `main_race`), `/users/{user_id}/seasons`, `/stats/career/{user_id}` and `/users/{user_id}/series` for the events played | `mapPlayerProfile` |
+| team pages | the league's teams for the switcher; the chosen season's teams and matches, and the team's series (`team_id`) | `getTeamPage` |
 | season ladder | `GET /events/{event_id}/ladder` | `mapLadder` |
 | fantasy table | `GET /events/{event_id}/fantasy/teams` | `mapFantasy` |
 
