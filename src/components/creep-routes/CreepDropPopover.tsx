@@ -62,7 +62,7 @@ export function CreepDropPopover({
         <div>
           <p className="text-sm font-medium text-fg">{creep.name}</p>
           <p className="tnum text-[0.75rem] text-muted">
-            Lv {creep.level} · {creepXp(creep.level)} xp
+            Lv {creep.level} · {creepXp(creep.level)} base xp
           </p>
         </div>
         {pinned ? (

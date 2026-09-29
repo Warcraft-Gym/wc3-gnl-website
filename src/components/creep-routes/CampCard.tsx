@@ -6,7 +6,13 @@ import { X } from "lucide-react";
 import type { CampCardTrigger, MapCamp, MapCampDrop, StopKill } from "@/lib/creep-routes/types";
 import { campSpotTitle, dropKey, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { DropDiamond } from "./DropDiamond";
-import { creepXp } from "@/lib/creep-routes/xp.mjs";
+import { creepXp, creepXpFactor } from "@/lib/creep-routes/xp.mjs";
+
+/** "A hero keeps 80% of base XP at level 1, 70% at 2, …, none from 5.", built from `creepXpFactor`. */
+const XP_FACTOR_NOTE = (() => {
+  const parts = [1, 2, 3, 4].map((l) => `${Math.round(creepXpFactor(l) * 100)}%${l === 1 ? " of base XP at level 1" : ` at ${l}`}`);
+  return `A hero keeps ${parts.join(", ")}, ${creepXpFactor(5) === 0 ? "none" : `${Math.round(creepXpFactor(5) * 100)}%`} from 5.`;
+})();
 import { killStepsByRow, validKills } from "@/lib/creep-routes/kills.mjs";
 import { BandDot } from "./RouteBadges";
 import { CampIcon } from "./CampIcon";
@@ -289,7 +295,7 @@ export function CampCard({
               <th className="px-3 py-1.5 font-medium">Unit</th>
               <th className="px-2 py-1.5 text-right font-medium">Count</th>
               <th className="px-2 py-1.5 text-right font-medium">Level</th>
-              <th className="px-2 py-1.5 text-right font-medium">XP</th>
+              <th className="whitespace-nowrap px-2 py-1.5 text-right font-medium">Base XP</th>
               <th className="px-2 py-1.5 text-center font-medium">Item</th>
             </tr>
           </thead>
@@ -329,6 +335,7 @@ export function CampCard({
             })}
           </tbody>
         </table>
+        <p className="border-t border-line/40 px-3 py-1.5 text-[0.7rem] text-muted">{XP_FACTOR_NOTE}</p>
 
         {camp.drops?.length ? (
           <table className="w-full border-collapse text-xs">
