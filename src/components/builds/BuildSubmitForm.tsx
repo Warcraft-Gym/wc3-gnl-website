@@ -1,15 +1,16 @@
 "use client";
 
 import { useActionState, useEffect, useId, useRef, useState } from "react";
-import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, Plus, ShieldCheck, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, Eye, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
+import { StepTable } from "./StepTable";
 import { TagInput } from "./TagInput";
 import { RaceCrestMultiRow, RaceCrestRow, type CrestOption } from "./RaceCrestPicker";
 import { BuildImportZone, type ImportMessage } from "./BuildImportZone";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import type { IconRace } from "@/lib/builds/icons";
-import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace } from "@/lib/builds/types";
+import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace, type BuildStep } from "@/lib/builds/types";
 import type { StepInput } from "@/lib/builds/submission";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeBuild } from "@/lib/builds/exchange";
 import { cn } from "@/lib/utils";
@@ -115,6 +116,20 @@ export function BuildSubmitForm() {
     })),
   );
 
+  // The steps as the published build page shows them; blank rows left out.
+  const previewSteps = steps
+    .filter((s) => s.instruction.trim())
+    .map<BuildStep>((s) => ({
+      time: s.time || undefined,
+      supply: s.supply === "" ? undefined : Number(s.supply),
+      instruction: s.instruction,
+      icon: s.icon || undefined,
+    }));
+  const [previewing, setPreviewing] = useState(false);
+  const stepsSection = useRef<HTMLElement>(null);
+  // A rejected step needs its row on screen, so errors force the edit view.
+  const showPreview = previewing && !Object.keys(errors).some((k) => k.startsWith("steps"));
+
   const update = (id: number, patch: Partial<StepRow>) =>
     setSteps((rows) => rows.map((r) => (r.id === id ? { ...r, ...patch } : r)));
   const move = (index: number, dir: -1 | 1) =>
@@ -168,8 +183,11 @@ export function BuildSubmitForm() {
         icon: st.icon ?? "",
       })),
     );
+    // Show the imported steps as the build page will, not two screens down.
+    setPreviewing(true);
+    window.setTimeout(() => stepsSection.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
     const steps = `${b.steps.length} step${b.steps.length === 1 ? "" : "s"}`;
-    setImportMsg({ tone: "ok", text: `"${b.title || "Untitled build"}", ${steps}. Check it over below, then submit.` });
+    setImportMsg({ tone: "ok", text: `"${b.title || "Untitled build"}", ${steps}. Check the steps below, then submit.` });
   };
   // The #build= deep link from the overlay's Submit-to-site button.
   const importJson = (json: string) => {
@@ -306,12 +324,21 @@ export function BuildSubmitForm() {
         </section>
 
         {/* 2, Steps */}
-        <section className="panel relative z-20 p-5 sm:p-7">
+        <section ref={stepsSection} className="panel relative z-20 scroll-mt-36 p-5 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <SectionTitle n={2}>Steps</SectionTitle>
             {errors.steps ? <p className="text-xs text-loss">{errors.steps}</p> : null}
+            <Button type="button" variant="outline" size="sm" onClick={() => setPreviewing(!showPreview)} aria-pressed={showPreview}>
+              {showPreview ? <Pencil size={16} /> : <Eye size={16} />} {showPreview ? "Edit steps" : "Preview"}
+            </Button>
           </div>
 
+          {showPreview ? (
+            <div className="mt-4">
+              {previewSteps.length ? <StepTable steps={previewSteps} /> : <p className="text-sm text-muted">No steps yet.</p>}
+            </div>
+          ) : (
+          <>
           <div className="mt-4 hidden grid-cols-[2rem_4.5rem_4rem_3.25rem_minmax(0,1fr)_7.25rem] gap-x-2 px-3 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint sm:grid">
             <span>#</span><span>Time</span><span>Food</span><span>Icon</span><span>Instruction</span><span />
           </div>
@@ -395,6 +422,8 @@ export function BuildSubmitForm() {
             </button>
             <span className="text-xs text-faint">Enter on the last instruction adds a step.</span>
           </div>
+          </>
+          )}
         </section>
 
         {/* 3, Notes & credit */}

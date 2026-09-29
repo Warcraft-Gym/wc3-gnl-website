@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
-import { CheckCircle2, ClipboardPaste, FileUp, Loader2, RotateCcw, Swords } from "lucide-react";
+import { CheckCircle2, ChevronRight, ClipboardPaste, FileUp, Loader2, RotateCcw, Swords } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { W3cMark } from "@/components/ui/W3cMark";
@@ -377,7 +377,7 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
             key={p.id}
             type="button"
             onClick={() => onPick(p)}
-            className="flex items-center gap-3 rounded border border-line bg-surface/60 p-3 text-left transition-colors hover:border-gold/60 hover:bg-gold/5"
+            className="group flex cursor-pointer items-center gap-3 rounded border border-line bg-surface/60 p-3 text-left transition-colors hover:border-gold/60 hover:bg-gold/5 focus-visible:border-gold"
           >
             <RaceIcon race={p.race} size={32} />
             <span className="min-w-0 flex-1">
@@ -386,6 +386,9 @@ function PlayerPicker({ replay, onPick }: { replay: ReplayImport; onPick: (p: Re
                 {p.dropped > 0 ? `${p.build.steps.length} steps · ${p.dropped} dropped` : `${p.build.steps.length} steps`}
                 {p.won === true ? <span className="ml-2 text-win">Won</span> : p.won === false ? <span className="ml-2 text-loss">Lost</span> : null}
               </span>
+            </span>
+            <span className="flex shrink-0 items-center gap-0.5 font-display text-xs font-bold uppercase tracking-[0.08em] text-gold/70 group-hover:text-gold">
+              Import <ChevronRight size={16} />
             </span>
           </button>
         ))}
