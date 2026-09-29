@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, campKills, creepsLeft, flatKills, killRows, killStepsByRow, killsProblem, killedXpShare, mergeKills, unorderedCreeps, validKills, wedgePath } from "./kills.mjs";
+import { addKill, campKills, creepsLeft, flatKillItems, flatKills, joinWithPrevious, killRows, killStepsByRow, killUnits, killedXpShare, killsProblem, mergeKills, removeKillAt, splitSet, unorderedCreeps, validKills, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -89,4 +89,37 @@ test("flatKills and mergeKills round-trip, and removing one kill re-merges", () 
   const rows = flatKills(kills).filter((_, i) => i !== 2);
   assert.deepEqual(mergeKills(rows), [{ row: 2, n: 3 }]);
   assert.deepEqual(flatKills(undefined), []);
+});
+
+test("killUnits: singles, a leading set, and the rest as a trailing set", () => {
+  const kills = [{ row: 0, n: 1, set: 0 }, { row: 3, n: 1, set: 0 }, { row: 1, n: 1 }];
+  assert.deepEqual(
+    killUnits(CAMP, kills).map((k) => [k.row, k.unit, k.inSet, k.ordered]),
+    [[0, 0, true, true], [3, 0, true, true], [1, 1, false, true], [2, 2, true, false], [2, 2, true, false]],
+  );
+  // leaveRest drops the trailing set; no kill list is one set.
+  assert.equal(killUnits(CAMP, kills, true).length, 3);
+  assert.deepEqual(new Set(killUnits(CAMP, []).map((k) => k.unit)), new Set([0]));
+  // A set's members share one Kill step on the camp card.
+  assert.deepEqual(killStepsByRow(CAMP, kills), [[1], [2], [], [1]]);
+});
+
+test("sets: validKills keeps set, killsProblem rejects a split set, addKill never merges into a set", () => {
+  assert.deepEqual(validKills(CAMP, [{ row: 2, n: 1, set: 4 }]), [{ row: 2, n: 1, set: 4 }]);
+  assert.equal(killsProblem([{ row: 0, n: 1, set: 0 }, { row: 1, n: 1, set: 0 }], COUNTS), null);
+  assert.match(killsProblem([{ row: 0, n: 1, set: 0 }, { row: 3, n: 1 }, { row: 1, n: 1, set: 0 }], COUNTS), /next to each other/);
+  assert.deepEqual(addKill([{ row: 2, n: 1, set: 0 }], 2, COUNTS), [{ row: 2, n: 1, set: 0 }, { row: 2, n: 1 }]);
+});
+
+test("builder edits: join, split, and removing leaves no one-member set", () => {
+  // Two singles join into a new set; a third joins the set before it.
+  let kills = [{ row: 0, n: 1 }, { row: 1, n: 1 }, { row: 3, n: 1 }];
+  kills = joinWithPrevious(kills, 1);
+  assert.deepEqual(kills, [{ row: 0, n: 1, set: 0 }, { row: 1, n: 1, set: 0 }, { row: 3, n: 1 }]);
+  kills = joinWithPrevious(kills, 2);
+  assert.deepEqual(kills.map((k) => k.set), [0, 0, 0]);
+  assert.deepEqual(splitSet(kills, 0), [{ row: 0, n: 1 }, { row: 1, n: 1 }, { row: 3, n: 1 }]);
+  // Removing from a two-member set turns the survivor into a single.
+  assert.deepEqual(removeKillAt([{ row: 0, n: 1, set: 0 }, { row: 1, n: 1, set: 0 }], 0), [{ row: 1, n: 1 }]);
+  assert.deepEqual(flatKillItems([{ row: 2, n: 2, set: 1 }]), [{ row: 2, set: 1 }, { row: 2, set: 1 }]);
 });

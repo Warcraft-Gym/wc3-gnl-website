@@ -28,8 +28,12 @@ export type DerivedKill = {
   creep: MapCampCreep;
   /** Index into the camp's `creeps[]`. */
   row: number;
-  /** True for a kill in the authored prefix, false for the rest of the camp. */
+  /** True for a kill in the authored list, false for the rest of the camp. */
   ordered: boolean;
+  /** 0-based index of the unit (a single kill or a set) this kill belongs to. */
+  unit: number;
+  /** True when that unit is a set (kills in any order). */
+  inSet: boolean;
   /** XP this kill paid, at the hero's level at that moment. */
   xp: number;
   levelAfter: number;

@@ -23,7 +23,7 @@ export type ApiRouteStop = {
   note?: string;
   condition?: string;
   /** Ordered kill prefix; see `kills.mjs`. */
-  kills?: { row: number; n: number }[];
+  kills?: { row: number; n: number; set?: number }[];
   /** True leaves the creeps `kills` does not list alive. */
   leaveRest?: boolean;
 };

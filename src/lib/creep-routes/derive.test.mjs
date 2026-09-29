@@ -165,3 +165,12 @@ test("kills outside the camp or past a row's count are ignored: ordered flags an
   assert.equal(over.kills.length, 3);
   assert.equal(over.left, 0);
 });
+
+test("derived kills carry their unit and whether it is a set; a leading set keeps list order", () => {
+  const result = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1, set: 0 }, { row: 0, n: 1, set: 0 }] }] }, MAP);
+  assert.deepEqual(result.stops[0].kills.map((k) => [k.creep.id, k.unit, k.inSet, k.ordered]), [
+    ["b", 0, true, true],
+    ["a", 0, true, true],
+    ["a", 1, true, false],
+  ]);
+});

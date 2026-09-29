@@ -297,10 +297,17 @@ export const creepRoute = defineType({
                   fields: [
                     defineField({ name: "row", type: "number", validation: (rule) => rule.required().min(0).integer() }),
                     defineField({ name: "n", title: "Count", type: "number", validation: (rule) => rule.required().min(1).integer() }),
+                    defineField({
+                      name: "set",
+                      title: "Set",
+                      type: "number",
+                      description: "Optional. Consecutive entries with the same number are one set, killed in any order.",
+                      validation: (rule) => rule.min(0).integer(),
+                    }),
                   ],
                   preview: {
-                    select: { row: "row", n: "n" },
-                    prepare: ({ row, n }) => ({ title: `Row ${row} ×${n}` }),
+                    select: { row: "row", n: "n", set: "set" },
+                    prepare: ({ row, n, set }) => ({ title: `Row ${row} ×${n}${set === undefined ? "" : ` (set ${set})`}` }),
                   },
                 }),
               ],

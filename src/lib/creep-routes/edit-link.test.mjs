@@ -64,6 +64,13 @@ test("a kill order and leaveRest survive the round trip", () => {
   });
 });
 
+test("a kill set survives the round trip", () => {
+  const route = FIXTURE_ROUTES.find((r) => r.stops.some((s) => s.kills?.some((k) => k.set !== undefined)));
+  assert.ok(route, "no fixture route has a kill set");
+  const stops = decodeHref(routeEditHref(route)).route.stops;
+  route.stops.forEach((s, i) => assert.deepEqual(stops[i].kills, s.kills));
+});
+
 test("every fixture route produces a usable link", () => {
   for (const route of FIXTURE_ROUTES) {
     const href = routeEditHref(route);

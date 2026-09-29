@@ -71,7 +71,7 @@ export const FIXTURE_ROUTES = [
       { campId: "c09", units: [{ icon: "hu-archmage", count: 1 }], note: "Scout in with the Archmage alone" },
       { campId: "c19", note: "Second camp, keep Water Elemental topped up" },
       { campId: "c03", note: "Bring 2 Footmen for this one" },
-      { campId: "c05", note: "Last camp before the expansion goes down" },
+      { campId: "c05", kills: [{ row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }], note: "Last camp before the expansion goes down" },
     ],
   },
   {

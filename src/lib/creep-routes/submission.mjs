@@ -70,7 +70,7 @@ function baseStopSchema(iconSet) {
       /** Kill order, see `kills.mjs`. Row bounds are checked against the
        *  map's camps in the submission's `superRefine`. */
       kills: z
-        .array(z.object({ row: z.number().int().min(0), n: z.number().int().min(1).max(20) }))
+        .array(z.object({ row: z.number().int().min(0), n: z.number().int().min(1).max(20), set: z.number().int().min(0).max(99).optional() }))
         .max(20, "Up to 20 kills")
         .optional(),
       /** True leaves the creeps `kills` does not list alive. */
@@ -326,7 +326,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
       note: s.note || undefined,
       condition: s.condition || undefined,
       kills: s.campId && s.kills?.length
-        ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n }))
+        ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
         : undefined,
       leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
     })),

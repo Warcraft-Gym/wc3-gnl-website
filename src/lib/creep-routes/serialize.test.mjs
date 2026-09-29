@@ -142,3 +142,8 @@ test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
   assert.deepEqual(stop.kills, [{ row: 0, n: 1 }]);
   assert.equal(stop.leaveRest, true);
 });
+
+test("toApiStop carries a kill set unchanged", () => {
+  const stop = toApiStop({ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }] }, "https://site.example", iconSrc);
+  assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
+});

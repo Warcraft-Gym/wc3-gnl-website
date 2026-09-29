@@ -140,7 +140,8 @@ export type RouteStop = {
   leaveRest?: boolean;
 };
 
-export type StopKill = { row: number; n: number };
+/** `set`: consecutive entries with the same value form one set unit (kills in any order). */
+export type StopKill = { row: number; n: number; set?: number };
 
 export type CreepRoute = {
   slug: string;

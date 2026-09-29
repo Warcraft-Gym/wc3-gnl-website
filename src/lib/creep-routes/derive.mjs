@@ -5,7 +5,7 @@
  * running level/xp total, folding camps in the route's order, skipping
  * non-camp stops. A route has no time dimension — order is everything.
  */
-import { creepsLeft, flatKills, killRows, validKills } from "./kills.mjs";
+import { creepsLeft, killUnits } from "./kills.mjs";
 import { creepXp, creepXpFactor, heroXpForLevel } from "./xp.mjs";
 
 function findCamp(map, campId) {
@@ -25,8 +25,9 @@ function levelForXp(xp) {
  * band, left, kills }`. A stop's `kills` is the ordered prefix; the rest of
  * the camp dies after it unless `leaveRest` (see `kills.mjs`); `left` is how
  * many creeps the stop leaves alive. The derived `kills` is one
- * `{ creep, row, ordered, xp, levelAfter, leveledUp }` per kill, in kill
- * order: whether the author ordered it, the xp it paid and the level it
+ * `{ creep, row, ordered, unit, inSet, xp, levelAfter, leveledUp }` per
+ * kill, in kill order: whether the author listed it, its 0-based unit and
+ * whether that unit is a set (XP inside a set follows list order), the xp it paid and the level it
  * left the hero at. The creep-xp reduction factor (`creepXpFactor`) is re-read at
  * the hero's *current* level on every single kill, not fixed once per camp
  * — Blizzard's `HeroFactorXP` table applies per kill (see
@@ -40,8 +41,7 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
     const camp = stop.campId ? findCamp(map, stop.campId) : null;
     const kills = [];
     if (camp) {
-      const ordered = flatKills(validKills(camp, stop.kills)).length;
-      for (const row of killRows(camp, stop.kills, stop.leaveRest)) {
+      for (const { row, ordered, unit, inSet } of killUnits(camp, stop.kills, stop.leaveRest)) {
         const creep = camp.creeps[row];
         const factor = creepXpFactor(level);
         // Floor each creep's grant, same rounding as xp.mjs's
@@ -49,7 +49,7 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
         const gain = Math.floor(creepXp(creep.level) * factor);
         xp += gain;
         const levelAfter = levelForXp(xp);
-        kills.push({ creep, row, ordered: kills.length < ordered, xp: gain, levelAfter, leveledUp: levelAfter > level });
+        kills.push({ creep, row, ordered, unit, inSet, xp: gain, levelAfter, leveledUp: levelAfter > level });
         level = levelAfter;
       }
     }

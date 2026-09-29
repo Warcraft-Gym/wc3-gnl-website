@@ -19,7 +19,7 @@ export type StopInput = {
   units?: { icon: string; count: number }[];
   note?: string;
   condition?: string;
-  kills?: { row: number; n: number }[];
+  kills?: { row: number; n: number; set?: number }[];
   leaveRest?: boolean;
 };
 

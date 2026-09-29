@@ -371,3 +371,17 @@ test("leaveRest is kept only on a camp stop with a kill order", () => {
   assert.equal(draft.stops[0].leaveRest, true);
   assert.equal(draft.stops[1].leaveRest, undefined);
 });
+
+test("kill sets: kept on the draft, and a split set is rejected", () => {
+  const s = createSubmissionSchema({
+    maps: [{ slug: "autumn-leaves", campIds: ["c01", "c02"], creepCounts: { c01: [1, 2, 1], c02: [3] } }],
+    iconKeys,
+  });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }] }, { campId: "c02" }] }));
+  assert.equal(ok.success, true);
+  const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
+  assert.deepEqual(draft.stops[0].kills.map(({ row, n, set }) => ({ row, n, set })), [{ row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }]);
+  const bad = s.safeParse(payload({ stops: [{ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }, { row: 1, n: 1 }, { row: 2, n: 1, set: 0 }] }, { campId: "c02" }] }));
+  assert.equal(bad.success, false);
+  assert.match(flattenErrors(bad.error)["stops.0.kills"], /next to each other/);
+});
