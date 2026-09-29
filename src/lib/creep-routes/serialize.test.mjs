@@ -41,7 +41,7 @@ const route = {
   description: ["Some notes."],
   stops: [
     { campId: "c01", units: [{ icon: "hu-archmage", count: 1 }], note: "First camp" },
-    { campId: "c02" },
+    { campId: "c02", kills: [{ row: 0, n: 1 }], leaveRest: true },
   ],
 };
 
@@ -135,4 +135,10 @@ test("toApiMap: exposes each camp's drops and each creep's icon (F011)", () => {
       items: [{ id: "afac", name: "Ankh of Reincarnation", icon: "BTNAnkh" }],
     },
   ]);
+});
+
+test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
+  const stop = toApiStop(route.stops[1], "https://site.example", iconSrc);
+  assert.deepEqual(stop.kills, [{ row: 0, n: 1 }]);
+  assert.equal(stop.leaveRest, true);
 });

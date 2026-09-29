@@ -20,6 +20,7 @@ export type StopInput = {
   note?: string;
   condition?: string;
   kills?: { row: number; n: number }[];
+  leaveRest?: boolean;
 };
 
 /** The parsed, transformed output of the schema `createSubmissionSchema`

@@ -135,6 +135,9 @@ export type RouteStop = {
   /** Kill order: `row` indexes the camp's `creeps[]`, `n` is how many of
    *  that row. Empty or missing means the whole camp. See `kills.mjs`. */
   kills?: StopKill[];
+  /** True leaves the creeps `kills` does not list alive; false (default)
+   *  kills them after the prefix, in catalogue order. */
+  leaveRest?: boolean;
 };
 
 export type StopKill = { row: number; n: number };

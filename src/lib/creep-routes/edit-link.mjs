@@ -62,6 +62,7 @@ export function toExchangeRoute(route) {
       note: s.note || undefined,
       condition: s.condition || undefined,
       kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n })) : undefined,
+      leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
     })),
     description: descriptionToText(route.description) || undefined,
   };

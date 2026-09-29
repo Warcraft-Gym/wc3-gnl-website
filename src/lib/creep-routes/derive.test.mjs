@@ -111,9 +111,9 @@ test("deriveRoute re-reads the reduction factor mid-camp: leveling up partway th
   assert.equal(result.finalLevel, 2);
 });
 
-test("a stop with kills counts only those creeps and reports the rest as left", () => {
+test("a stop with kills and leaveRest counts only those creeps and reports the rest as left", () => {
   // Only the one level-2 creep of c1: 1 kill at factor 0.8 of creepXp(2).
-  const partial = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1 }] }] }, MAP);
+  const partial = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1 }], leaveRest: true }] }, MAP);
   const full = deriveRoute({ stops: [{ campId: "c1" }] }, MAP);
   assert.ok(partial.stops[0].xpAfter < full.stops[0].xpAfter);
   assert.equal(partial.stops[0].left, 2);
@@ -145,4 +145,13 @@ test("the kill trace follows the stop's kill order and pays less after a level-u
     [120, 2, true],
     [105, 2, false],
   ]);
+});
+
+test("a prefix-only stop kills its prefix first, then the rest, and flags which kills were ordered", () => {
+  const result = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1 }] }] }, MAP);
+  const [stop] = result.stops;
+  assert.deepEqual(stop.kills.map((k) => [k.creep.id, k.row, k.ordered]), [["b", 1, true], ["a", 0, false], ["a", 0, false]]);
+  assert.equal(stop.left, 0);
+  // Same creeps as a full clear, so the same total xp in this case (no mid-camp level-up).
+  assert.equal(stop.xpAfter, deriveRoute({ stops: [{ campId: "c1" }] }, MAP).stops[0].xpAfter);
 });

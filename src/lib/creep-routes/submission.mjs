@@ -73,6 +73,8 @@ function baseStopSchema(iconSet) {
         .array(z.object({ row: z.number().int().min(0), n: z.number().int().min(1).max(20) }))
         .max(20, "Up to 20 kills")
         .optional(),
+      /** True leaves the creeps `kills` does not list alive. */
+      leaveRest: z.boolean().optional(),
     })
     .refine((stop) => stop.campId !== null || Boolean(stop.action), {
       message: 'Name the base action, e.g. "TP home"',
@@ -326,6 +328,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
       kills: s.campId && s.kills?.length
         ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n }))
         : undefined,
+      leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
     })),
     description: toPortableText(valid.description),
   };

@@ -26,6 +26,10 @@ export type DerivedStop = {
 
 export type DerivedKill = {
   creep: MapCampCreep;
+  /** Index into the camp's `creeps[]`. */
+  row: number;
+  /** True for a kill in the authored prefix, false for the rest of the camp. */
+  ordered: boolean;
   /** XP this kill paid, at the hero's level at that moment. */
   xp: number;
   levelAfter: number;
@@ -40,7 +44,7 @@ export type DerivedRoute = {
 };
 
 export const deriveRoute = impl.deriveRoute as (
-  route: { stops: Pick<RouteStop, "campId" | "kills">[] },
+  route: { stops: Pick<RouteStop, "campId" | "kills" | "leaveRest">[] },
   map: CreepMap,
   opts?: { startLevel?: number },
 ) => DerivedRoute;

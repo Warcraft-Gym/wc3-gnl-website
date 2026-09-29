@@ -289,7 +289,7 @@ export const creepRoute = defineType({
               name: "kills",
               title: "Kill order",
               type: "array",
-              description: "Creeps to kill, in order. Row is the creep's position in the camp's list (0 is the first). Empty means the whole camp.",
+              description: "Creeps to kill first, in order. Row is the creep's position in the camp's list (0 is the first). Empty means the whole camp. The rest of the camp dies after these unless Leave the rest is on.",
               of: [
                 defineArrayMember({
                   type: "object",
@@ -304,6 +304,13 @@ export const creepRoute = defineType({
                   },
                 }),
               ],
+            }),
+            defineField({
+              name: "leaveRest",
+              title: "Leave the rest",
+              type: "boolean",
+              description: "On: creeps not in the kill order stay alive. Off: they die after it, in catalogue order.",
+              hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
             }),
           ],
           preview: {

@@ -54,6 +54,16 @@ test("stop detail — units, notes, conditions — is carried, not dropped", () 
   assert.equal(withUnits.note, original.note);
 });
 
+test("a kill order and leaveRest survive the round trip", () => {
+  const route = FIXTURE_ROUTES.find((r) => r.stops.some((s) => s.leaveRest));
+  assert.ok(route, "no fixture route has leaveRest on a stop");
+  const stops = decodeHref(routeEditHref(route)).route.stops;
+  route.stops.forEach((s, i) => {
+    assert.deepEqual(stops[i].kills, s.kills);
+    assert.equal(stops[i].leaveRest, s.leaveRest);
+  });
+});
+
 test("every fixture route produces a usable link", () => {
   for (const route of FIXTURE_ROUTES) {
     const href = routeEditHref(route);

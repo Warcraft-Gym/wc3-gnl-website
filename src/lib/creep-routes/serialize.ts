@@ -22,6 +22,10 @@ export type ApiRouteStop = {
   units?: { icon: string; count: number; iconUrl: string }[];
   note?: string;
   condition?: string;
+  /** Ordered kill prefix; see `kills.mjs`. */
+  kills?: { row: number; n: number }[];
+  /** True leaves the creeps `kills` does not list alive. */
+  leaveRest?: boolean;
 };
 
 /** List DTO — see `toApiRouteListItem`'s own doc comment (in `serialize.mjs`)
@@ -48,7 +52,7 @@ export type ApiRouteListItem = {
   updatedAt: string;
 };
 
-export type ApiRouteDerivedStop = { heroLevelAfter: number; xpAfter: number };
+export type ApiRouteDerivedStop = { heroLevelAfter: number; xpAfter: number; left: number };
 
 /** Detail DTO — adds `description`, the optional companion `build` link,
  *  and `derived` (requires the route's own `CreepMap` to compute — see

@@ -170,7 +170,7 @@ export const FIXTURE_ROUTES = [
       { campId: "c01", kills: [{ row: 0, n: 1 }, { row: 2, n: 1 }, { row: 1, n: 1 }], note: "Priest first so it can't heal" },
       { campId: "c02", condition: "Skip if the Undead scouted this side" },
       { campId: "c05" },
-      { campId: "c16", kills: [{ row: 0, n: 1 }], note: "Take the item and go home to Watch Tower" },
+      { campId: "c16", kills: [{ row: 0, n: 1 }], leaveRest: true, note: "Take the item and go home to Watch Tower" },
     ],
   },
 ];

@@ -1,11 +1,13 @@
 /**
- * A stop's optional kill order. `kills` is an ordered list of
+ * A stop's optional kill order. `kills` is the ordered prefix, a list of
  * `{ row, n }`: `row` is an index into the camp's `creeps[]`, `n` how many
  * creeps of that row to kill. A row index, not a unit rawcode, because 21
  * of 241 catalogue camps list one rawcode twice, split only by item drop
  * (Last Refuge c04 has two Forest Troll rows, one with the item) — only the
  * row can say "the item troll". Empty or missing means the whole camp, in
- * catalogue order. Creeps not listed stay alive.
+ * catalogue order. The stop's `leaveRest` says what happens to the creeps
+ * the prefix does not list: false (default) kills them after the prefix, in
+ * catalogue order; true leaves them alive.
  */
 import { creepXp } from "./xp.mjs";
 
@@ -14,19 +16,23 @@ export function hasKillOrder(stop) {
   return Array.isArray(stop?.kills) && stop.kills.length > 0;
 }
 
+/** Row index of every creep killed at this stop, one per kill, in kill
+ *  order: the prefix, then (unless `leaveRest`) the rest in catalogue order. */
+export function killRows(camp, kills, leaveRest = false) {
+  const prefix = flatKills(kills).filter((row) => camp.creeps[row]);
+  const rest = leaveRest && prefix.length ? [] : unorderedCreeps(camp, kills).map((c) => c.row);
+  return [...prefix, ...rest];
+}
+
 /** Every creep killed at this stop, one entry per kill, in kill order. */
-export function campKills(camp, kills) {
-  if (!kills?.length) return camp.creeps.flatMap((creep) => Array(creep.count).fill(creep));
-  return kills.flatMap(({ row, n }) => {
-    const creep = camp.creeps[row];
-    return creep ? Array(n).fill(creep) : [];
-  });
+export function campKills(camp, kills, leaveRest = false) {
+  return killRows(camp, kills, leaveRest).map((row) => camp.creeps[row]);
 }
 
 /** How many of the camp's creeps this stop leaves alive. */
-export function creepsLeft(camp, kills) {
+export function creepsLeft(camp, kills, leaveRest = false) {
   const total = camp.creeps.reduce((sum, c) => sum + c.count, 0);
-  return total - campKills(camp, kills).length;
+  return total - killRows(camp, kills, leaveRest).length;
 }
 
 /** First problem with `kills` against a camp's row counts, or null.
@@ -53,21 +59,11 @@ export function addKill(kills, row, counts) {
   return [...list, { row, n: 1 }];
 }
 
-/** Appends every creep not yet listed, row by row, so an author can set
- *  the first few kills and then finish the camp. */
-export function addRestOfCamp(kills, counts) {
-  let list = kills ?? [];
-  counts.forEach((count, row) => {
-    for (let i = 0; i < count; i++) list = addKill(list, row, counts);
-  });
-  return list;
-}
-
-/** For each creep row, the 1-based kill-order steps that name it, e.g.
- *  `[[2], [], [1]]` — the camp card's "Kill" column. */
+/** For each creep row, the 1-based steps of the ordered prefix that kill
+ *  it, one per kill, e.g. `[[2], [], [1, 3]]` — the camp card's "Kill" column. */
 export function killStepsByRow(camp, kills) {
   const steps = camp.creeps.map(() => []);
-  kills.forEach(({ row }, i) => steps[row]?.push(i + 1));
+  flatKills(kills).forEach((row, i) => steps[row]?.push(i + 1));
   return steps;
 }
 
@@ -94,11 +90,11 @@ export function unorderedCreeps(camp, kills) {
 
 /** Share of the camp's base creep XP (`creepXp(level)`, no hero factor)
  *  that the kill list takes: the killed wedge of a partly cleared camp's
- *  marker. 1 when there is no kill order. */
-export function killedXpShare(camp, kills) {
-  if (!kills?.length) return 1;
+ *  marker. 1 unless the stop leaves the rest alive. */
+export function killedXpShare(camp, kills, leaveRest = false) {
+  if (!kills?.length || !leaveRest) return 1;
   const total = camp.creeps.reduce((sum, c) => sum + creepXp(c.level) * c.count, 0);
-  const killed = campKills(camp, kills).reduce((sum, c) => sum + creepXp(c.level), 0);
+  const killed = campKills(camp, kills, true).reduce((sum, c) => sum + creepXp(c.level), 0);
   return total ? killed / total : 1;
 }
 
