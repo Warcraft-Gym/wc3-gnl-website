@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, addRestOfCamp, campKills, creepsLeft, killStepsByRow, killsProblem, leftRows, wedgePath } from "./kills.mjs";
+import { addKill, addRestOfCamp, campKills, creepsLeft, flatKills, killStepsByRow, killsProblem, leftRows, mergeKills, routeHasPartialStop, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -51,4 +51,20 @@ test("wedgePath draws a half circle for one half, from 12 o'clock", () => {
 test("leftRows names what a partial stop leaves alive", () => {
   const left = leftRows(CAMP, [{ row: 3, n: 1 }, { row: 2, n: 1 }]);
   assert.deepEqual(left.map((r) => [r.creep.name, r.n]), [["Troll (item)", 1], ["Troll", 1], ["Ogre", 1]]);
+});
+
+test("flatKills and mergeKills round-trip, and removing one kill re-merges", () => {
+  const kills = [{ row: 2, n: 2 }, { row: 0, n: 1 }, { row: 2, n: 1 }];
+  assert.deepEqual(flatKills(kills), [2, 2, 0, 2]);
+  assert.deepEqual(mergeKills(flatKills(kills)), kills);
+  // Remove the lone troll: the ogres on either side merge into one step.
+  const rows = flatKills(kills).filter((_, i) => i !== 2);
+  assert.deepEqual(mergeKills(rows), [{ row: 2, n: 3 }]);
+  assert.deepEqual(flatKills(undefined), []);
+});
+
+test("routeHasPartialStop is true only when a stop leaves creeps alive", () => {
+  assert.equal(routeHasPartialStop([{ left: 0 }, { left: 0 }]), false);
+  assert.equal(routeHasPartialStop([{ left: 0 }, { left: 2 }]), true);
+  assert.equal(routeHasPartialStop([]), false);
 });

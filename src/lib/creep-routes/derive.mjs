@@ -22,8 +22,11 @@ function levelForXp(xp) {
  * Non-camp stops (`campId: null`, e.g. a TP-home or shop stop) pass through
  * without changing level/xp. Returns `{ stops, finalLevel, finalXp }`; each
  * derived stop is `{ campId, camp, heroLevelAfter, xpAfter, campLevel,
- * band, left }`. A stop with `kills` counts only those creeps, in that
- * order (see `kills.mjs`); `left` is how many creeps it leaves alive. The creep-xp reduction factor (`creepXpFactor`) is re-read at
+ * band, left, kills }`. A stop with `kills` counts only those creeps, in that
+ * order (see `kills.mjs`); `left` is how many creeps it leaves alive.
+ * The derived `kills` is one `{ creep, xp, levelAfter, leveledUp }` per
+ * kill, in kill order: the xp that kill paid and the level it left the
+ * hero at. The creep-xp reduction factor (`creepXpFactor`) is re-read at
  * the hero's *current* level on every single kill, not fixed once per camp
  * — Blizzard's `HeroFactorXP` table applies per kill (see
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
@@ -34,13 +37,17 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
 
   const stops = route.stops.map((stop) => {
     const camp = stop.campId ? findCamp(map, stop.campId) : null;
+    const kills = [];
     if (camp) {
       for (const creep of campKills(camp, stop.kills)) {
         const factor = creepXpFactor(level);
         // Floor each creep's grant, same rounding as xp.mjs's
         // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
-        xp += Math.floor(creepXp(creep.level) * factor);
-        level = levelForXp(xp);
+        const gain = Math.floor(creepXp(creep.level) * factor);
+        xp += gain;
+        const levelAfter = levelForXp(xp);
+        kills.push({ creep, xp: gain, levelAfter, leveledUp: levelAfter > level });
+        level = levelAfter;
       }
     }
     return {
@@ -51,6 +58,7 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
       campLevel: camp ? camp.level : null,
       band: camp ? camp.band : null,
       left: camp ? creepsLeft(camp, stop.kills) : 0,
+      kills,
     };
   });
 

@@ -89,3 +89,25 @@ export function leftRows(camp, kills) {
     .map((creep, row) => ({ creep, n: creep.count - used[row] }))
     .filter((r) => r.n > 0);
 }
+
+/** One row index per kill, in kill order: `[{row: 2, n: 2}]` → `[2, 2]`. */
+export function flatKills(kills) {
+  return (kills ?? []).flatMap(({ row, n }) => Array(n).fill(row));
+}
+
+/** Row indexes back to `{ row, n }[]`, merging consecutive equal rows. */
+export function mergeKills(rows) {
+  const out = [];
+  for (const row of rows) {
+    const last = out[out.length - 1];
+    if (last && last.row === row) last.n++;
+    else out.push({ row, n: 1 });
+  }
+  return out;
+}
+
+/** True when some camp stop of the route leaves creeps alive — the map
+ *  legend's "Partly cleared" entry. `derivedStops` is `deriveRoute(...).stops`. */
+export function routeHasPartialStop(derivedStops) {
+  return derivedStops.some((s) => s.left > 0);
+}

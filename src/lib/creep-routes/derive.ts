@@ -1,5 +1,5 @@
 import * as impl from "./derive.mjs";
-import type { CreepMap, CreepRoute, MapCamp } from "./types";
+import type { CreepMap, CreepRoute, MapCamp, MapCampCreep } from "./types";
 
 /**
  * Typed façade over `derive.mjs`'s pure, plain-JS implementation — same
@@ -8,8 +8,7 @@ import type { CreepMap, CreepRoute, MapCamp } from "./types";
  * function reference into `serialize.mjs`'s pure DTO builder instead of
  * casting the raw `.mjs` call's return value inline (code-a.md, "Should
  * fix": `serialize.ts` used to carry an undocumented `as {...}` there).
- * `StopEditor.tsx`/`RouteStepTable.tsx` still import `derive.mjs` directly
- * — out of scope here, unrelated to that cast.
+ * Components import `deriveRoute` from here too, for the typed `kills` trace.
  */
 
 export type DerivedStop = {
@@ -21,6 +20,17 @@ export type DerivedStop = {
   band: string | null;
   /** Creeps left alive by a stop with a partial `kills` list. */
   left: number;
+  /** One entry per kill, in kill order. */
+  kills: DerivedKill[];
+};
+
+export type DerivedKill = {
+  creep: MapCampCreep;
+  /** XP this kill paid, at the hero's level at that moment. */
+  xp: number;
+  levelAfter: number;
+  /** True when this kill took the hero to a new level. */
+  leveledUp: boolean;
 };
 
 export type DerivedRoute = {
