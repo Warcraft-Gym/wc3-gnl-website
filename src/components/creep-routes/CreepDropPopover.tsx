@@ -19,33 +19,25 @@ function canHover() {
 
 /** Places the fixed popover `box` from its portrait `anchor`: below it, or
  *  above when it would pass the viewport bottom, clamped 8px inside the
- *  viewport; 18rem wide, or the chain's full width on a phone. */
+ *  viewport. The box hugs its content up to 18rem. */
 function placeFixed(box: HTMLElement, anchor: HTMLElement) {
   const r = anchor.getBoundingClientRect();
   const vw = window.innerWidth;
   const vh = window.innerHeight;
   const M = 8;
-  let left: number;
-  let width: number;
-  if (vw < 640) {
-    const c = (anchor.closest("ol") ?? anchor).getBoundingClientRect();
-    left = Math.max(c.left, M);
-    width = Math.min(c.width, vw - 2 * M);
-  } else {
-    width = Math.min(WIDTH, vw - 2 * M);
-    left = Math.min(Math.max(r.left, M), vw - M - width);
-  }
+  box.style.maxWidth = `${Math.min(WIDTH, vw - 2 * M)}px`;
+  const w = box.offsetWidth;
   const h = box.offsetHeight;
+  const left = Math.min(Math.max(r.left, M), vw - M - w);
   let top = r.bottom + M;
   if (top + h > vh - M) top = r.top - M - h;
   top = Math.min(Math.max(top, M), Math.max(M, vh - M - h));
   box.style.left = `${left}px`;
   box.style.top = `${top}px`;
-  box.style.width = `${width}px`;
   box.style.visibility = "visible";
 }
 
-/** What one creep drops: its name, level and base XP, then one row per drop set. */
+/** One creep: a header line "Name · Lv N · N base xp", then one row per drop set it carries. */
 export function CreepDropPopover({
   creep,
   camp,
@@ -84,58 +76,58 @@ export function CreepDropPopover({
       ref={boxRef}
       id={id}
       role={pinned ? "dialog" : "tooltip"}
-      aria-label={pinned ? `${creep.name} item drops` : undefined}
+      aria-label={pinned ? `${creep.name} details` : undefined}
       onClick={(e) => e.stopPropagation()}
       onKeyDown={(e) => {
         e.stopPropagation();
         if (e.key === "Escape" && pinned) onClose();
       }}
-      style={{ position: "fixed", left: 0, top: 0, width: WIDTH, visibility: "hidden" }}
-      className="z-50 cursor-auto rounded border border-line-strong bg-surface p-3 text-left shadow-[0_12px_32px_-8px_rgba(0,0,0,.9)]"
+      style={{ position: "fixed", left: 0, top: 0, visibility: "hidden" }}
+      className="z-50 w-max cursor-auto rounded-md border border-line-strong bg-surface p-2.5 text-left shadow-[0_12px_32px_-8px_rgba(0,0,0,.9)]"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div>
-          <p className="text-sm font-medium text-fg">{creep.name}</p>
-          <p className="tnum text-[0.75rem] text-muted">
-            Lv {creep.level} · {creepXp(creep.level)} base xp
-          </p>
-        </div>
+      <p className="flex items-center gap-2 whitespace-nowrap">
+        <span className="text-[0.85rem] font-medium text-fg">{creep.name}</span>
+        <span className="tnum text-[0.75rem] text-muted">
+          · Lv {creep.level} · {creepXp(creep.level)} base xp
+        </span>
         {pinned ? (
-          <button type="button" onClick={onClose} aria-label="Close item drops" className="grid size-6 shrink-0 place-items-center rounded text-muted hover:text-gold">
-            <X size={16} />
+          <button type="button" onClick={onClose} aria-label={`Close ${creep.name} details`} className="ml-auto grid size-4 shrink-0 place-items-center rounded text-muted hover:text-gold">
+            <X size={14} />
           </button>
         ) : null}
-      </div>
-      <ul className="mt-2 space-y-2">
-        {(creep.drops ?? []).map((d, i) => {
-          const pool = camp.drops?.find((c) => dropKey(c) === dropKey(d));
-          return (
-            <li key={i} className="border-t border-line/60 pt-2">
-              <p className="flex items-center gap-2 text-[0.8rem] text-muted">
-                <DropDiamond drop={d} />
-                {dropSetLabel(pool ?? d)}
-                {d.chance < 100 ? <span className="tnum text-faint">({d.chance}% chance)</span> : null}
-              </p>
-              {pool?.items.length ? (
-                <span className="mt-1.5 flex flex-wrap gap-1">
-                  {pool.items.map((it) => (
-                    <CampIcon key={it.id} iconKey={it.icon} title={it.name} kind="item" size={26} />
-                  ))}
-                </span>
-              ) : (
-                <p className="mt-1 text-[0.75rem] text-faint">Unresolved pool</p>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+      </p>
+      {creep.drops?.length ? (
+        <ul className="mt-1.5 space-y-1.5">
+          {creep.drops.map((d, i) => {
+            const pool = camp.drops?.find((c) => dropKey(c) === dropKey(d));
+            return (
+              <li key={i}>
+                <p className="flex items-center gap-1 text-[0.75rem] text-muted">
+                  <DropDiamond drop={d} className="size-2" />
+                  {dropSetLabel(pool ?? d)}
+                  {d.chance < 100 ? <span className="tnum text-faint">({d.chance}% chance)</span> : null}
+                </p>
+                {pool?.items.length ? (
+                  <span className="mt-1 flex flex-wrap gap-1">
+                    {pool.items.map((it) => (
+                      <CampIcon key={it.id} iconKey={it.icon} title={it.name} kind="item" size={22} />
+                    ))}
+                  </span>
+                ) : (
+                  <p className="mt-1 text-[0.75rem] text-faint">Unresolved pool</p>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      ) : null}
     </div>,
     document.body,
   );
 }
 
 /**
- * A chain portrait that shows `CreepDropPopover` for a creep carrying drops:
+ * A chain portrait that shows `CreepDropPopover` for its creep (any creep):
  * on hover (fine pointer, >= 768px) after ~120ms, and, when `clickable`, on
  * click or tap, pinned until clicked again, closed, Escape or a pointerdown
  * outside it. The pin is owned by the caller (`pinned`/`onPinnedChange`) so
@@ -186,7 +178,6 @@ export function DropPortrait({
     if (timer.current) clearTimeout(timer.current);
   }, []);
 
-  if (!creep.drops?.length) return <span className="relative block">{children}</span>;
 
   // Closing a pinned popover hands focus back to the portrait that opened it.
   const close = () => {
@@ -214,7 +205,7 @@ export function DropPortrait({
         <button
           ref={button}
           type="button"
-          aria-label={`${creep.name} item drops`}
+          aria-label={`${creep.name} details`}
           aria-expanded={mode === "pin"}
           aria-controls={mode ? id : undefined}
           onClick={(e) => {
