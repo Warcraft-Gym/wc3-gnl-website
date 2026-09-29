@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import Link from "next/link";
 import Image from "next/image";
 import { ExternalLink, PencilLine } from "lucide-react";
 import { Container } from "@/components/ui/Container";
@@ -14,6 +13,7 @@ import { Matchup, TagChip } from "@/components/builds/BuildBadges";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { RouteBackLink } from "@/components/creep-routes/RouteBackLink";
+import { RouteRow } from "@/components/creep-routes/RouteRow";
 import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { VideoEmbed } from "@/components/ui/VideoEmbed";
@@ -103,8 +103,9 @@ export default async function CreepRoutePage({ params }: Params) {
 
   const allRoutes = await getCreepRoutes();
 
-  // Same map first, same race elsewhere as filler — see `related.mjs`.
+  // Same race only, same map first — see `related.mjs`.
   const related = relatedRoutes(route, allRoutes);
+  const raceLabel = BUILD_RACES.find((b) => b.id === route.race)?.label ?? route.race;
   const relatedAllSameMap = allOnSameMap(route, related);
 
   const mapVersionMismatch =
@@ -368,28 +369,11 @@ export default async function CreepRoutePage({ params }: Params) {
       {related.length ? (
         <Container className="pb-16">
           <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">
-            {relatedAllSameMap ? `More routes on ${route.map.name}` : "More creep routes"}
+            More {raceLabel} routes{relatedAllSameMap ? ` on ${route.map.name}` : ""}
           </h2>
           <ul className="grid gap-3">
             {related.map((r) => (
-              <li key={r.slug}>
-                <Link
-                  href={`/learn/creep-routes/${r.slug}`}
-                  className="panel group flex items-center justify-between gap-4 px-5 py-3 transition-[border-color,transform] duration-[var(--wg-dur)] ease-[var(--ease-out-expo)] hover:-translate-y-0.5 hover:border-gold/50"
-                >
-                  <span className="min-w-0">
-                    <span className="block truncate font-bold text-fg group-hover:text-gold">{r.title}</span>
-                    <span className="block truncate text-sm text-muted">
-                      {r.map.name}
-                      <span className="text-faint">
-                        {" · "}
-                        {BUILD_RACES.find((b) => b.id === r.race)?.label ?? r.race}
-                      </span>
-                    </span>
-                  </span>
-                  <LevelBadge level={r.level} />
-                </Link>
-              </li>
+              <RouteRow key={r.slug} route={r} />
             ))}
           </ul>
         </Container>

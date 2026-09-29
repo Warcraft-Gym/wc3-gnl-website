@@ -5,13 +5,13 @@ import { relatedRoutes, allOnSameMap } from "./related.mjs";
 const r = (slug, map, race) => ({ slug, map: { slug: map, name: map }, race });
 const current = r("current", "autumn-leaves", "orc");
 
-test("routes on the same map come first, however the list is ordered", () => {
+test("same-race routes on the same map come first, however the list is ordered", () => {
   const all = [
     r("orc-elsewhere-1", "echo-isles", "orc"),
     r("orc-elsewhere-2", "turtle-rock", "orc"),
     current,
-    r("same-map-1", "autumn-leaves", "human"),
-    r("same-map-2", "autumn-leaves", "undead"),
+    r("same-map-1", "autumn-leaves", "orc"),
+    r("same-map-2", "autumn-leaves", "orc"),
   ];
   assert.deepEqual(
     relatedRoutes(current, all).map((x) => x.slug),
@@ -19,11 +19,16 @@ test("routes on the same map come first, however the list is ordered", () => {
   );
 });
 
+test("other races are never offered, even on the same map", () => {
+  const all = [current, r("human-same-map", "autumn-leaves", "human"), r("orc-elsewhere", "echo-isles", "orc")];
+  assert.deepEqual(relatedRoutes(current, all).map((x) => x.slug), ["orc-elsewhere"]);
+});
+
 test("same-map routes are never crowded out by the filler", () => {
   // The old rule took the first N of a mixed pool, so a map's own
   // alternatives could be pushed off the end by unrelated same-race routes.
   const filler = Array.from({ length: 10 }, (_, i) => r(`filler-${i}`, "echo-isles", "orc"));
-  const all = [...filler, current, r("the-alternative", "autumn-leaves", "human")];
+  const all = [...filler, current, r("the-alternative", "autumn-leaves", "orc")];
   const related = relatedRoutes(current, all, 3);
   assert.equal(related[0].slug, "the-alternative");
   assert.equal(related.length, 3);
