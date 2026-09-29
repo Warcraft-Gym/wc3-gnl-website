@@ -1,6 +1,7 @@
 "use client";
 
-import { Fragment, useCallback, useState } from "react";
+import { Fragment, useCallback, useEffect, useReducer, useState } from "react";
+import { initialStopView, stopViewReducer } from "@/lib/creep-routes/stop-view.mjs";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
@@ -9,10 +10,11 @@ import { useCampCard } from "@/components/creep-routes/useCampCard";
 import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/types";
 
 /**
- * The map and the stop list share one piece of state — the active stop —
- * lifted here so hovering, focusing or clicking a stop block lights
- * the same marker on the map, *and* clicking a camp marker on the map
- * selects the matching stop (F009: the read-only page was keyboard-only
+ * The map and the stop list share two pieces of stop state, lifted here in
+ * `stop-view.mjs`'s reducer: the selected stop (the map's pulsing node, the
+ * list's gold dot) and the open stops. A marker click selects and opens its
+ * stop (or deselects the selected one), a summary click selects and opens,
+ * the chevron only opens or closes, Escape deselects (F009: the read-only page was keyboard-only
  * before this — see the F009 review, ux.md item 1). Map left, stops right
  * and sticky at `lg`; stacked below.
  *
@@ -47,11 +49,21 @@ export function CreepMapPlayground({
   /** Rendered under the stop list, inside the right-hand column. */
   aside?: React.ReactNode;
 }) {
-  const [activeStop, setActiveStop] = useState<number | null>(null);
+  const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, initialStopView);
+  const [scrollTo, setScrollTo] = useState<{ index: number } | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
-  // A second click on the same marker clears the selection, same as a
-  // second click on the same stop block. Clicking a camp that ISN'T one of
+  // Escape clears the selection, unless a card or popover is open (it closes that instead).
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !document.querySelector('[role="dialog"]')) dispatch({ type: "deselect" });
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, []);
+
+  // A marker click selects and opens its stop (`stop-view.mjs`); on the
+  // selected stop it deselects. Clicking a camp that ISN'T one of
   // the route's own stops (every camp is clickable now, F012-followup-3)
   // finds no matching stop — `findIndex` returns -1 — and this is a no-op:
   // no stop is selected, nothing crashes.
@@ -59,7 +71,8 @@ export function CreepMapPlayground({
     (campId: string) => {
       const idx = route.stops.findIndex((s) => s.campId === campId);
       if (idx === -1) return;
-      setActiveStop((a) => (a === idx ? null : idx));
+      dispatch({ type: "node", index: idx });
+      setScrollTo({ index: idx });
     },
     [route.stops],
   );
@@ -70,7 +83,7 @@ export function CreepMapPlayground({
         <CreepMap
           map={map}
           route={route}
-          activeStop={activeStop}
+          activeStop={view.selected}
           onCampSelect={onMarkerSelect}
           groupMarkers
           walkAllCamps
@@ -86,8 +99,13 @@ export function CreepMapPlayground({
         <RouteStepTable
           route={route}
           map={map}
-          active={activeStop}
-          onActiveChange={setActiveStop}
+          selected={view.selected}
+          open={view.open}
+          onSummary={(index) => dispatch({ type: "summary", index })}
+          onChevron={(index) => dispatch({ type: "chevron", index })}
+          onExpandAll={() => dispatch({ type: "expandAll", count: route.stops.length })}
+          onCollapseAll={() => dispatch({ type: "collapseAll" })}
+          scrollTo={scrollTo}
           onOpenCard={pin}
           openCampId={openCampId}
         />

@@ -789,7 +789,7 @@ The map and the stop list are the page's core: `CreepMapPlayground.tsx`
 stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
 `RouteStepTable` (`RouteStepTable.tsx`, an `<ol>` of stop blocks, each a
 header with a hero meter, the kill chain, Bring, condition and note) stay
-in sync when you click a stop's summary line (or a marker). Each stop is a disclosure: all open on a route of 5 stops or fewer, all closed beyond that, with "Expand all" / "Collapse all" in the panel header; a marker click opens its stop. `CreepMap` always renders its `<svg>` —
+in sync when you click a stop's summary line (or a marker). Two states live in `stop-view.mjs` (a pure reducer with tests): the selected stop and the open stops. The page starts with stop 1 selected and open; a marker or summary click selects and opens a stop, a stop's chevron only opens or closes it, and "Expand all" / "Collapse all" sit in the panel header. `CreepMap` always renders its `<svg>` —
 sized by CSS (`viewBox` + `w-full h-auto`), not gated behind any
 client-only measurement — so the map's camps, path and stop badges are
 present in the server-rendered HTML a curl or a crawler sees, not only

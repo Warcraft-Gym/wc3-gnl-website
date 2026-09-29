@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
 import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
@@ -53,27 +53,40 @@ function StopBody({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
 }
 
 /**
- * The route as an ordered list of stops, each a disclosure. The summary line
- * is a button over the whole line: it toggles the stop open and toggles the
- * shared selection (`onActiveChange`, lifted to the page so the map agrees).
- * The camp label inside it is its own button that pins the camp card. Every
- * stop starts open on a route of 5 stops or fewer, closed beyond that; a
- * stop selected from the map opens and scrolls into view. Blocks carry
+ * The route as an ordered list of stops, each a disclosure. Both states are
+ * owned by the page (`stop-view.mjs`): `selected` (the gold dot, the map's
+ * pulsing node) and `open` (expanded stops). The summary line is a button
+ * over the whole line that selects and opens its stop (`onSummary`); the
+ * chevron at its right edge only opens or closes it (`onChevron`); the camp
+ * label inside it is its own button that pins the camp card. `scrollTo`
+ * scrolls a stop into view (a selection from the map). Blocks carry
  * `data-stop`; map badges carry `data-stop-marker`.
  */
 export function RouteStepTable({
   route,
   map,
-  active = null,
-  onActiveChange,
+  selected = null,
+  open,
+  onSummary,
+  onChevron,
+  onExpandAll,
+  onCollapseAll,
+  scrollTo = null,
   onOpenCard,
   openCampId = null,
 }: {
   route: CreepRoute;
   map: CreepMap;
-  /** Controlled: the selected stop index, or null. */
-  active?: number | null;
-  onActiveChange?: (index: number | null) => void;
+  /** The selected stop index, or null. */
+  selected?: number | null;
+  /** Indexes of the expanded stops. */
+  open: Set<number>;
+  onSummary: (index: number) => void;
+  onChevron: (index: number) => void;
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+  /** A stop to scroll into view; a new object each time it should scroll. */
+  scrollTo?: { index: number } | null;
   /** Pins the camp card for a stop's camp, from its camp label button. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   /** The camp the card is showing, for the camp button's `aria-expanded`. */
@@ -81,22 +94,14 @@ export function RouteStepTable({
 }) {
   const count = route.stops.length;
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
-  const [open, setOpen] = useState<Set<number>>(() => new Set(count <= 5 ? route.stops.map((_, i) => i) : []));
-  // The selection this list set itself; any other change of `active` came from the map.
-  const [ownActive, setOwnActive] = useState<number | null>(active);
-  const [seenActive, setSeenActive] = useState<number | null>(active);
-  if (active !== seenActive) {
-    setSeenActive(active);
-    if (active !== null && active !== ownActive && !open.has(active)) setOpen(new Set(open).add(active));
-  }
   const items = useRef<(HTMLLIElement | null)[]>([]);
   useEffect(() => {
-    if (active !== null && active !== ownActive) items.current[active]?.scrollIntoView({ block: "nearest" });
-  }, [active, ownActive]);
+    if (scrollTo) items.current[scrollTo.index]?.scrollIntoView({ block: "nearest" });
+  }, [scrollTo]);
 
   const derived = useMemo(() => deriveRoute(route, map), [route, map]);
   const baseId = useId();
-  const allOpen = open.size === count;
+  const allOpen = count > 0 && open.size === count;
 
   return (
     <div className="panel">
@@ -112,8 +117,8 @@ export function RouteStepTable({
         </div>
         <button
           type="button"
-          onClick={() => setOpen(new Set(allOpen ? [] : route.stops.map((_, i) => i)))}
-          className="h-7 shrink-0 px-1 text-xs text-muted hover:text-gold"
+          onClick={allOpen ? onCollapseAll : onExpandAll}
+          className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
         >
           {allOpen ? "Collapse all" : "Expand all"}
         </button>
@@ -123,19 +128,10 @@ export function RouteStepTable({
         {route.stops.map((stop, i) => {
           const d = derived.stops[i];
           const camp = d.camp;
-          const isActive = i === active;
+          const isActive = i === selected;
           const isOpen = open.has(i);
           const bodyId = `${baseId}-stop-${i}`;
           const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
-          const toggle = () => {
-            const next = new Set(open);
-            if (isOpen) next.delete(i);
-            else next.add(i);
-            setOpen(next);
-            const nextActive = active === i ? null : i;
-            setOwnActive(nextActive);
-            onActiveChange?.(nextActive);
-          };
           return (
             <li
               key={i}
@@ -151,11 +147,11 @@ export function RouteStepTable({
                 (isActive || i === hoverIndex) && "bg-gold/10",
               )}
             >
-              {/* Summary line: the disclosure button covers it; only the camp button sits above. */}
-              <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3">
+              {/* Summary line: the select button covers it; the camp button and chevron sit above. */}
+              <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
                 <button
                   type="button"
-                  onClick={toggle}
+                  onClick={() => onSummary(i)}
                   aria-expanded={isOpen}
                   aria-controls={bodyId}
                   aria-label={camp ? `Stop ${i + 1}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${i + 1}, ${label}`}
@@ -210,11 +206,25 @@ export function RouteStepTable({
                     </div>
                   ) : null}
                 </div>
+                <button
+                  type="button"
+                  onClick={() => onChevron(i)}
+                  aria-expanded={isOpen}
+                  aria-controls={bodyId}
+                  aria-label={`${isOpen ? "Hide" : "Show"} stop ${i + 1} details`}
+                  className={cn(
+                    "relative grid size-5 place-items-center self-start rounded hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
+                    isOpen ? "text-gold" : "text-faint",
+                  )}
+                >
+                  <ChevronDown aria-hidden size={16} className={cn("transition-transform motion-reduce:transition-none", isOpen && "rotate-180")} />
+                </button>
               </div>
               {isOpen ? (
-                <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3">
+                <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
                   <span />
                   <StopBody stop={stop} d={d} />
+                  <span />
                 </div>
               ) : null}
             </li>
