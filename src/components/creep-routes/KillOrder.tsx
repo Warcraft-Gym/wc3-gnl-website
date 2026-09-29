@@ -6,7 +6,7 @@ import { CampIcon } from "./CampIcon";
 /** Chain icon: 36px on a phone, 40px from `sm` up. */
 const CHAIN_ICON = "size-9 sm:size-10";
 /** Opaque gold tint shared by the step badge and the level tag. */
-const TAG = "tnum absolute grid place-items-center border border-gold/60 bg-[color-mix(in_oklab,var(--wg-gold)_15%,var(--wg-bg))] font-bold leading-none text-gold";
+const TAG = "absolute grid place-items-center border border-gold/60 bg-[color-mix(in_oklab,var(--wg-gold)_15%,var(--wg-bg))] font-bold leading-none text-gold";
 const CAPTION = "mt-1.5 block text-center text-[0.7rem] leading-none";
 
 /**
@@ -47,9 +47,9 @@ export function KillOrder({
                 size={40}
                 className={cn(CHAIN_ICON, k.leveledUp && "border-2 border-gold")}
               />
-              {step ? <span aria-hidden className={cn(TAG, "-left-1 -top-1.5 size-5 rounded-sm text-[0.7rem]")}>{step}</span> : null}
+              {step ? <span aria-hidden className={cn(TAG, "tnum -left-1 -top-1.5 size-5 rounded-sm text-[0.7rem]")}>{step}</span> : null}
               {k.leveledUp ? (
-                <span aria-hidden className={cn(TAG, "-bottom-1 -right-1.5 h-3.5 rounded-sm px-0.5 text-[0.65rem]")}>
+                <span aria-hidden className={cn(TAG, "-top-1.5 right-0 h-3.5 rounded-sm px-0.5 text-[0.65rem] tabular-nums")}>
                   Lv {k.levelAfter}
                 </span>
               ) : null}
