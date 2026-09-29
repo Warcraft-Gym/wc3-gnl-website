@@ -55,10 +55,9 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
-  /** Not one of the route's stops: drawn like the in-game minimap (solid
-   *  band dot, no halo, hairline outline) with a light grey wash, so the
-   *  route's own camps stand out while the band colour still shows the
-   *  difficulty. */
+  /** Not one of the route's stops: a grey dot with a ring in the band
+   *  colour and no halo, so the route's own camps stand out while the ring
+   *  still shows the difficulty. */
   secondary?: boolean;
   /** Share of the camp's creeps this route kills, when below 1: the band
    *  fill becomes a wedge of that share over a faded full disc. */
@@ -106,7 +105,6 @@ export const CampMarker = memo(function CampMarker({
     // override, which this now is, wins on source order instead).
     <g
       style={{ transformBox: "fill-box" }}
-      opacity={secondary ? 0.85 : 1}
       className={cn(
         "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
         active ? "scale-[1.35]" : "scale-100",
@@ -136,13 +134,12 @@ export const CampMarker = memo(function CampMarker({
         cx={cx}
         cy={cy}
         r={r}
-        fill={fill}
+        fill={secondary ? "#6b6b6b" : fill}
         fillOpacity={partial ? 0.3 : 1}
-        stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
-        strokeWidth={highlighted ? 2 : secondary ? 0.75 : 1.5}
+        stroke={highlighted ? "var(--wg-gold)" : secondary ? fill : "var(--wg-bg)"}
+        strokeWidth={highlighted ? 2 : secondary ? 2.5 : 1.5}
       />
       {partial ? <path d={wedgePath(cx, cy, r - 0.75, killed)} fill={fill} /> : null}
-      {secondary ? <circle cx={cx} cy={cy} r={r - 0.75} fill="#5a5a5a" fillOpacity="0.25" /> : null}
     </g>
   );
 
