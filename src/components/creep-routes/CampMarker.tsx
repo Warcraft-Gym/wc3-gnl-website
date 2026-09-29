@@ -55,9 +55,10 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
-  /** Not one of the route's stops: a grey wash over the band fill, a
-   *  near-invisible halo and 60% opacity, so the route's own camps stand out while the band tint
-   *  still shows the difficulty. */
+  /** Not one of the route's stops: drawn like the in-game minimap (solid
+   *  band dot, no halo, hairline outline) with a light grey wash, so the
+   *  route's own camps stand out while the band colour still shows the
+   *  difficulty. */
   secondary?: boolean;
   /** Share of the camp's creeps this route kills, when below 1: the band
    *  fill becomes a wedge of that share over a faded full disc. */
@@ -105,7 +106,7 @@ export const CampMarker = memo(function CampMarker({
     // override, which this now is, wins on source order instead).
     <g
       style={{ transformBox: "fill-box" }}
-      opacity={secondary ? 0.6 : 1}
+      opacity={secondary ? 0.85 : 1}
       className={cn(
         "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
         active ? "scale-[1.35]" : "scale-100",
@@ -127,15 +128,10 @@ export const CampMarker = memo(function CampMarker({
       {/* Liquipedia's hard-band red is only ~3:1 against black on its own
        *  (see globals.css); this light halo — drawn just outside the dark
        *  under-stroke below — keeps every band's mark readable against any
-       *  terrain colour, light or dark. `secondary` fades it. */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r + 1.5}
-        fill="none"
-        stroke={secondary ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.55)"}
-        strokeWidth="1.5"
-      />
+       *  terrain colour, light or dark. `secondary` drops it. */}
+      {secondary ? null : (
+        <circle cx={cx} cy={cy} r={r + 1.5} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />
+      )}
       <circle
         cx={cx}
         cy={cy}
@@ -143,10 +139,10 @@ export const CampMarker = memo(function CampMarker({
         fill={fill}
         fillOpacity={partial ? 0.3 : 1}
         stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
-        strokeWidth={highlighted ? 2 : 1.5}
+        strokeWidth={highlighted ? 2 : secondary ? 0.75 : 1.5}
       />
       {partial ? <path d={wedgePath(cx, cy, r - 0.75, killed)} fill={fill} /> : null}
-      {secondary ? <circle cx={cx} cy={cy} r={r - 0.75} fill="#5a5a5a" fillOpacity="0.7" /> : null}
+      {secondary ? <circle cx={cx} cy={cy} r={r - 0.75} fill="#5a5a5a" fillOpacity="0.25" /> : null}
     </g>
   );
 
