@@ -22,6 +22,19 @@ function frame(creep: MapCampCreep) {
   return kind ? FRAME[kind] : undefined;
 }
 
+type Member = { kill: DerivedKill; index: number };
+
+/** Kills grouped into units by `unit`, each member with its index in `kills`. */
+function groupUnits(kills: DerivedKill[]) {
+  const units: { inSet: boolean; members: Member[] }[] = [];
+  kills.forEach((kill, index) => {
+    const last = units[units.length - 1];
+    if (last && kills[index - 1]?.unit === kill.unit) last.members.push({ kill, index });
+    else units.push({ inSet: kill.inSet, members: [{ kill, index }] });
+  });
+  return units;
+}
+
 /** The "Lv N" tag under a kill's (or a group's) caption. */
 function LevelTag({ level, className }: { level: number; className?: string }) {
   return (
@@ -32,8 +45,9 @@ function LevelTag({ level, className }: { level: number; className?: string }) {
 }
 
 /**
- * A stop's kills as a row of units. A unit is one ordered kill, or a set:
- * the kills the author did not order, in camp order, inside one outline
+ * A stop's kills as a row of units (`unit`/`inSet` from `deriveRoute`). A
+ * unit is one single kill, or a set: listed kills sharing a `set` value, or
+ * the kills the author did not list, in camp order; a set sits inside one outline
  * ("Kill in any order"), icons 2px apart. Each unit has a centred "+xp"
  * caption (a set's is its total) and, when the stop has two or more units,
  * a step badge. A single kill that levels the hero wears a gold ring; a
@@ -41,9 +55,9 @@ function LevelTag({ level, className }: { level: number; className?: string }) {
  * one; either way the "Lv N" tag sits under the caption. Skip ghosts follow.
  * A creep carrying a drop set wears a 2px frame in its drop kind (blue
  * item, red Power Up; dashed on a ghost); its portrait opens
- * `CreepDropPopover`. In the builder `onRemove` makes each single kill a
- * remove button (back into the set) and `onAdd` makes each set icon and
- * each ghost a "kill next" button.
+ * `CreepDropPopover`. In the builder `onRemove` makes each listed kill a
+ * remove button, `onAdd` makes each remainder icon and ghost a "kill next"
+ * button, and small "join" / "split" controls sit under the captions.
  */
 export function KillOrder({
   camp,
@@ -51,13 +65,20 @@ export function KillOrder({
   skipped = [],
   onRemove,
   onAdd,
+  onJoin,
+  onSplit,
 }: {
   camp: MapCamp;
   kills: DerivedKill[];
   /** One entry per creep not killed, drawn ghosted after the kills. */
   skipped?: { creep: MapCampCreep; row: number }[];
+  /** Builder: remove the listed kill at this index. */
   onRemove?: (index: number) => void;
   onAdd?: (row: number) => void;
+  /** Builder: join the single at this listed index with the unit before it. */
+  onJoin?: (index: number) => void;
+  /** Builder: split the listed set whose first kill is at this index. */
+  onSplit?: (index: number) => void;
 }) {
   // At most one pinned drop popover per chain: pinning one unpins the other.
   const [pinned, setPinned] = useState<string | null>(null);
@@ -66,111 +87,129 @@ export function KillOrder({
     onPinnedChange: (on: boolean) => setPinned((p) => (on ? key : p === key ? null : p)),
   });
   if (!kills.length && !skipped.length) return null;
-  const singles = kills.filter((k) => k.ordered);
-  const set = kills.filter((k) => !k.ordered);
-  const setXp = set.reduce((sum, k) => sum + k.xp, 0);
-  const setLevel = set.filter((k) => k.leveledUp).at(-1)?.levelAfter;
-  const badged = singles.length + (set.length ? 1 : 0) >= 2;
+  const units = groupUnits(kills);
+  const badged = units.length >= 2;
   const focus = "rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold";
+  const edit = "mt-1 block w-full text-center text-[0.65rem] leading-none text-muted hover:text-gold";
   const badge = (step: number, at: string) => (
     <span aria-hidden className={cn(TAG, "tnum size-5 rounded-sm text-[0.7rem]", at)}>{step}</span>
   );
   return (
     // Top and left padding keep the step badges, which overhang the icons, inside the box.
     <ol aria-label="Kill order" className="flex flex-wrap items-start gap-2 pl-1 pt-1.5 sm:gap-2.5">
-      {singles.map((k, i) => {
-        const step = i + 1;
-        const portrait = (
-          <>
-            <CampIcon
-              iconKey={k.creep.icon}
-              title={k.creep.name}
-              kind="creep"
-              size={40}
-              className={cn(CHAIN_ICON, frame(k.creep) ?? (k.leveledUp && LEVEL_RING), k.leveledUp && frame(k.creep) && LEVEL_OUTLINE)}
-            />
-            {badged ? badge(step, "-left-1 -top-1.5") : null}
-          </>
-        );
-        const caption = (
-          <>
-            <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{k.xp}</span>
-            {k.leveledUp ? <LevelTag level={k.levelAfter} className="w-9 sm:w-10" /> : null}
-          </>
-        );
-        // The popover stays outside the builder's buttons: no button fade, no dialog inside a button.
-        return (
-          <li key={`k${i}`}>
-            {onRemove ? (
-              <DropPortrait creep={k.creep} camp={camp} clickable={false}>
-                <button
-                  type="button"
-                  onClick={() => onRemove(i)}
-                  aria-label={`Remove step ${step}, ${k.creep.name}`}
-                  className={cn("block hover:opacity-70", focus)}
-                >
-                  {portrait}
+      {units.map((u, ui) => {
+        const step = ui + 1;
+        if (!u.inSet) {
+          const { kill: k, index: i } = u.members[0];
+          const portrait = (
+            <>
+              <CampIcon
+                iconKey={k.creep.icon}
+                title={k.creep.name}
+                kind="creep"
+                size={40}
+                className={cn(CHAIN_ICON, frame(k.creep) ?? (k.leveledUp && LEVEL_RING), k.leveledUp && frame(k.creep) && LEVEL_OUTLINE)}
+              />
+              {badged ? badge(step, "-left-1 -top-1.5") : null}
+            </>
+          );
+          const caption = (
+            <>
+              <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{k.xp}</span>
+              {k.leveledUp ? <LevelTag level={k.levelAfter} className="w-9 sm:w-10" /> : null}
+            </>
+          );
+          // The popover stays outside the builder's buttons: no button fade, no dialog inside a button.
+          return (
+            <li key={`u${ui}`}>
+              {onRemove ? (
+                <>
+                  <DropPortrait creep={k.creep} camp={camp} clickable={false}>
+                    <button
+                      type="button"
+                      onClick={() => onRemove(i)}
+                      aria-label={`Remove step ${step}, ${k.creep.name}`}
+                      className={cn("block hover:opacity-70", focus)}
+                    >
+                      {portrait}
+                      {caption}
+                    </button>
+                  </DropPortrait>
+                  {onJoin && ui > 0 ? (
+                    <button type="button" onClick={() => onJoin(i)} aria-label={`Join ${k.creep.name} with the previous unit`} className={edit}>
+                      join
+                    </button>
+                  ) : null}
+                </>
+              ) : (
+                <>
+                  <DropPortrait creep={k.creep} camp={camp} clickable={!onAdd} {...pin(`k${ui}`)}>
+                    {portrait}
+                  </DropPortrait>
                   {caption}
-                </button>
-              </DropPortrait>
-            ) : (
-              <>
-                <DropPortrait creep={k.creep} camp={camp} clickable={!onAdd} {...pin(`k${i}`)}>
-                  {portrait}
-                </DropPortrait>
-                {caption}
-                <span className="sr-only">
-                  {badged ? `${step}. ` : ""}
-                  {k.creep.name}, +{k.xp} xp{k.leveledUp ? `, level ${k.levelAfter} reached` : ""}
-                </span>
-              </>
-            )}
+                  <span className="sr-only">
+                    {badged ? `${step}. ` : ""}
+                    {k.creep.name}, +{k.xp} xp{k.leveledUp ? `, level ${k.levelAfter} reached` : ""}
+                  </span>
+                </>
+              )}
+            </li>
+          );
+        }
+        const setXp = u.members.reduce((sum, m) => sum + m.kill.xp, 0);
+        const setLevel = u.members.filter((m) => m.kill.leveledUp).at(-1)?.kill.levelAfter;
+        const listed = u.members[0].kill.ordered;
+        return (
+          // A column as wide as the wider of the set and its caption. The outline takes no
+          // layout space, so the set's icons and caption line up with the single kills.
+          <li key={`u${ui}`} className="flex w-max max-w-full flex-col">
+            <div
+              title="Kill in any order"
+              className={cn(
+                "relative flex flex-wrap justify-start gap-0.5 rounded outline",
+                setLevel ? "outline-2 outline-offset-[3px] outline-gold" : "outline-1 outline-offset-[3px] outline-line",
+              )}
+            >
+              {u.members.map(({ kill: k, index: i }, j) => {
+                const icon = (
+                  <CampIcon iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={40} className={cn(CHAIN_ICON, frame(k.creep))} />
+                );
+                // Builder: a listed set member is removed on click, a remainder member is pulled into the order.
+                const action = listed ? onRemove && (() => onRemove(i)) : onAdd && (() => onAdd(k.row));
+                return action ? (
+                  <DropPortrait key={j} creep={k.creep} camp={camp} clickable={false}>
+                    <button
+                      type="button"
+                      onClick={action}
+                      aria-label={listed ? `Remove ${k.creep.name} from set ${step}` : `Kill ${k.creep.name} next`}
+                      className={cn("block hover:opacity-70", focus)}
+                    >
+                      {icon}
+                    </button>
+                  </DropPortrait>
+                ) : (
+                  <DropPortrait key={j} creep={k.creep} camp={camp} clickable {...pin(`u${ui}-${j}`)}>
+                    {icon}
+                  </DropPortrait>
+                );
+              })}
+              {/* The badge sits on the outline's corner, 3px + 1px outside the icons. */}
+              {badged ? badge(step, "-left-2 -top-2.5") : null}
+            </div>
+            <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{setXp}</span>
+            {setLevel ? <LevelTag level={setLevel} className="w-full" /> : null}
+            {onSplit && listed ? (
+              <button type="button" onClick={() => onSplit(u.members[0].index)} aria-label="Split this set" className={edit}>
+                split
+              </button>
+            ) : null}
+            <span className="sr-only">
+              {badged ? `${step}. ` : ""}In any order: {u.members.map((m) => m.kill.creep.name).join(", ")}, +{setXp} xp
+              {setLevel ? `, level ${setLevel} reached` : ""}
+            </span>
           </li>
         );
       })}
-      {set.length ? (
-        // A column as wide as the wider of the set and its caption. The outline takes no
-        // layout space, so the set's icons and caption line up with the single kills.
-        <li className="flex w-max max-w-full flex-col">
-          <div
-            title="Kill in any order"
-            className={cn(
-              "relative flex flex-wrap justify-start gap-0.5 rounded outline",
-              setLevel ? "outline-2 outline-offset-[3px] outline-gold" : "outline-1 outline-offset-[3px] outline-line",
-            )}
-          >
-            {set.map((k, j) => {
-              const icon = (
-                <CampIcon iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={40} className={cn(CHAIN_ICON, frame(k.creep))} />
-              );
-              return onAdd ? (
-                <DropPortrait key={`u${j}`} creep={k.creep} camp={camp} clickable={false}>
-                  <button
-                    type="button"
-                    onClick={() => onAdd(k.row)}
-                    aria-label={`Kill ${k.creep.name} next`}
-                    className={cn("block hover:opacity-70", focus)}
-                  >
-                    {icon}
-                  </button>
-                </DropPortrait>
-              ) : (
-                <DropPortrait key={`u${j}`} creep={k.creep} camp={camp} clickable {...pin(`u${j}`)}>
-                  {icon}
-                </DropPortrait>
-              );
-            })}
-            {/* The badge sits on the outline's corner, 3px + 1px outside the icons. */}
-            {badged ? badge(singles.length + 1, "-left-2 -top-2.5") : null}
-          </div>
-          <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{setXp}</span>
-          {setLevel ? <LevelTag level={setLevel} className="w-full" /> : null}
-          <span className="sr-only">
-            {badged ? `${singles.length + 1}. ` : ""}In any order: {set.map((k) => k.creep.name).join(", ")}, +{setXp} xp
-            {setLevel ? `, level ${setLevel} reached` : ""}
-          </span>
-        </li>
-      ) : null}
       {skipped.map(({ creep, row }, i) => {
         const portrait = (
           <CampIcon
@@ -221,25 +260,27 @@ export function KillOrder({
  *  inside it), drop frames at 1.5px, then dashed ghosts; no badges,
  *  captions or tags. */
 export function KillStrip({ kills, skipped = [] }: { kills: DerivedKill[]; skipped?: { creep: MapCampCreep }[] }) {
-  const set = kills.filter((k) => !k.ordered);
   const thin = (creep: MapCampCreep) => (frame(creep) ? cn(frame(creep), "border-[1.5px]") : undefined);
+  const icon = (k: DerivedKill, key: string) => (
+    <CampIcon key={key} iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={24} className={cn("size-6", thin(k.creep))} />
+  );
   return (
     <span aria-hidden className="flex flex-wrap items-center gap-1">
-      {kills.filter((k) => k.ordered).map((k, i) => (
-        <CampIcon key={`k${i}`} iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={24} className={cn("size-6", thin(k.creep))} />
-      ))}
-      {set.length ? (
-        <span
-          className={cn(
-            "mx-0.5 flex flex-wrap items-center gap-px rounded-sm outline outline-1 outline-offset-1",
-            set.some((k) => k.leveledUp) ? "outline-gold" : "outline-line",
-          )}
-        >
-          {set.map((k, i) => (
-            <CampIcon key={`u${i}`} iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={24} className={cn("size-6", thin(k.creep))} />
-          ))}
-        </span>
-      ) : null}
+      {groupUnits(kills).map((u, ui) =>
+        u.inSet ? (
+          <span
+            key={ui}
+            className={cn(
+              "mx-0.5 flex flex-wrap items-center gap-px rounded-sm outline outline-1 outline-offset-1",
+              u.members.some((m) => m.kill.leveledUp) ? "outline-gold" : "outline-line",
+            )}
+          >
+            {u.members.map((m, j) => icon(m.kill, `${ui}-${j}`))}
+          </span>
+        ) : (
+          icon(u.members[0].kill, `${ui}`)
+        ),
+      )}
       {skipped.map(({ creep }, i) => (
         <CampIcon
           key={`s${i}`}

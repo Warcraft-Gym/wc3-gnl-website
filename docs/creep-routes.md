@@ -452,7 +452,7 @@ creep". The helpers live in `src/lib/creep-routes/kills.mjs`
 the live camp (`creepCounts` in the submission catalogue); the Sanity
 schema has both fields (`leaveRest` hidden until the stop has a kill
 order), and the `#route=` edit link and the JSON API carry them unchanged.
-The derived trace marks each kill `ordered` (in the prefix) or not.
+A kill entry may also carry an integer `set`: consecutive entries with the same `set` form one set unit (kills in any order) anywhere in the list, and `killsProblem` rejects a `set` value in two separate runs; the trailing rest (unless `leaveRest`) is simply a default set. The derived trace marks each kill `ordered` (listed) or not, its 0-based `unit` and whether that unit is a set (`inSet`); XP inside a listed set follows list order.
 
 On the route page each stop block draws its kills as a chain (`KillOrder`):
 one creep icon per kill with the XP that kill paid, a gold ring and "Lv N"
