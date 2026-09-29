@@ -48,13 +48,14 @@ export function KillOrder({
                 className={cn(CHAIN_ICON, k.leveledUp && "border-2 border-gold")}
               />
               {step ? <span aria-hidden className={cn(TAG, "tnum -left-1 -top-1.5 size-5 rounded-sm text-[0.7rem]")}>{step}</span> : null}
-              {k.leveledUp ? (
-                <span aria-hidden className={cn(TAG, "-top-1.5 right-0 h-3.5 rounded-sm px-0.5 text-[0.65rem] tabular-nums")}>
-                  Lv {k.levelAfter}
-                </span>
-              ) : null}
             </span>
             <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{k.xp}</span>
+            {k.leveledUp ? (
+              // Third row, under the caption: only this item grows downward.
+              <span aria-hidden className={cn(TAG, "tnum static mt-0.5 h-4 w-9 rounded-sm text-[0.65rem] sm:w-10")}>
+                Lv {k.levelAfter}
+              </span>
+            ) : null}
             {k.leveledUp ? <span className="sr-only">Level {k.levelAfter} reached</span> : null}
           </>
         );
