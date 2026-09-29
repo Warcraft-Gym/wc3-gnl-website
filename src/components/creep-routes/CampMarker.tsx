@@ -140,7 +140,7 @@ export const CampMarker = memo(function CampMarker({
         cy={cy}
         r={r}
         fill={fill}
-        fillOpacity={partial ? 0.2 : secondary ? 0.75 : 1}
+        fillOpacity={partial ? 0.6 : secondary ? 0.75 : 1}
         stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
         strokeWidth={highlighted ? 2 : secondary ? 1 : 1.5}
       />

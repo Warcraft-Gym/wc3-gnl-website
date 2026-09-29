@@ -15,7 +15,7 @@ export const BAND_TOKEN: Record<string, string> = {
 
 /** A small filled dot in the camp's band colour; band is a mark, never text,
  *  same rule as a race colour. With `killed` below 1 it draws the map's
- *  partly cleared mark: a solid diagonal half over the colour at 20%. */
+ *  partly cleared mark: a solid diagonal half over the colour at 60%. */
 export function BandDot({ band, killed, className }: { band?: string | null; killed?: number; className?: string }) {
   if (!band) return null;
   const colour = BAND_TOKEN[band] ?? "var(--wg-text-faint)";
@@ -23,7 +23,7 @@ export function BandDot({ band, killed, className }: { band?: string | null; kil
     return (
       <svg aria-hidden viewBox="0 0 10 10" className={cn("inline-block size-2 shrink-0", className)}>
         <title>{`${BAND_LABEL[band] ?? band}, partly cleared`}</title>
-        <circle cx="5" cy="5" r="5" fill={colour} fillOpacity="0.2" />
+        <circle cx="5" cy="5" r="5" fill={colour} fillOpacity="0.6" />
         <path d={halfPath(5, 5, 5)} fill={colour} />
       </svg>
     );
