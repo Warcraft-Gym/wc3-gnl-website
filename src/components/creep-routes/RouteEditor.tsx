@@ -59,7 +59,7 @@ export function RouteEditor({
   // What the map needs to draw the live path: campId, in order — order
   // alone drives the polyline and the numbered badges.
   const routeForMap = useMemo(
-    () => ({ stops: stops.map((s) => ({ campId: s.campId, kills: s.kills })), start }),
+    () => ({ stops: stops.map((s) => ({ campId: s.campId, kills: s.kills, leaveRest: s.leaveRest })), start }),
     [stops, start],
   );
 

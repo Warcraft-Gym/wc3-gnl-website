@@ -10,7 +10,7 @@ import { StopRow, type StopRowData } from "./StopRow";
 /** Turns the raw editor rows into the shape `deriveRoute` wants — just
  *  `campId`, in order; the xp/level math only cares about stop *order*. */
 function toDerivable(stops: StopRowData[]) {
-  return { stops: stops.map((s) => ({ campId: s.campId, kills: s.kills })) };
+  return { stops: stops.map((s) => ({ campId: s.campId, kills: s.kills, leaveRest: s.leaveRest })) };
 }
 
 export function StopEditor({
@@ -78,7 +78,7 @@ export function StopEditor({
   function addBaseAction() {
     setStops((rows) => [
       ...rows,
-      { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [] },
+      { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false },
     ]);
   }
 

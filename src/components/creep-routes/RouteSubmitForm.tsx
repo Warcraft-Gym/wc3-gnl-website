@@ -118,7 +118,7 @@ export function RouteSubmitForm({
       if (idx !== -1) return rows.filter((_, i) => i !== idx);
       return [
         ...rows,
-        { id: Date.now() + Math.random(), campId, action: "", units: [], note: "", condition: "", kills: [] },
+        { id: Date.now() + Math.random(), campId, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false },
       ];
     });
   }, []);
@@ -152,6 +152,7 @@ export function RouteSubmitForm({
         note: s.note ?? "",
         condition: s.condition ?? "",
         kills: s.kills ?? [],
+        leaveRest: Boolean(s.leaveRest),
       })),
     );
   };
@@ -212,6 +213,7 @@ export function RouteSubmitForm({
       note: s.note || undefined,
       condition: s.condition || undefined,
       kills: s.campId && s.kills.length ? s.kills : undefined,
+      leaveRest: s.campId && s.kills.length && s.leaveRest ? true : undefined,
     })),
   );
 
@@ -335,6 +337,7 @@ export function RouteSubmitForm({
             showCampId
             camp={card.camp}
             kills={stops.find((s) => s.campId === card.camp.id)?.kills}
+            leaveRest={stops.find((s) => s.campId === card.camp.id)?.leaveRest}
             anchorEl={card.trigger}
             pinned={card.pinned}
             onClose={close}

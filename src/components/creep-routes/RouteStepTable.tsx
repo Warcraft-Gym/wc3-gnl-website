@@ -21,7 +21,7 @@ function StopBlock({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
         {camp ? (
           <div className="min-w-0 pt-0.5 text-sm sm:flex sm:flex-wrap sm:items-center sm:gap-x-2">
             <span className="inline-flex items-center gap-1.5">
-              <BandDot band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills) : undefined} />
+              <BandDot band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
               <span className="font-medium text-fg">{campLabel(camp)}</span>
             </span>
             <span className="flex items-center gap-1.5 pl-3.5 text-muted sm:pl-0">
@@ -40,8 +40,7 @@ function StopBlock({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
       {camp ? (
         <KillOrder
           kills={d.kills}
-          ordered={hasKillOrder(stop)}
-          skipped={hasKillOrder(stop) ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[]) : []}
+          skipped={hasKillOrder(stop) && stop.leaveRest ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[]) : []}
         />
       ) : null}
 

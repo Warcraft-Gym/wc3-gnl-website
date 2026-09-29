@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { CampCardTrigger, MapCamp, MapCampCreep, StopKill } from "@/lib/creep-routes/types";
-import { addKill, addRestOfCamp, creepsLeft, flatKills, killedXpShare, mergeKills, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
+import { addKill, creepsLeft, flatKills, killedXpShare, mergeKills, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
@@ -21,8 +21,10 @@ export type StopRowData = {
   units: UnitRow[];
   note: string;
   condition: string;
-  /** Kill order; empty means the whole camp. See `kills.mjs`. */
+  /** Ordered kill prefix; empty means the whole camp. See `kills.mjs`. */
   kills: StopKill[];
+  /** True leaves the creeps `kills` does not list alive. */
+  leaveRest: boolean;
 };
 
 const input =
@@ -65,59 +67,78 @@ function NoteField({ value, onChange }: { value: string; onChange: (v: string) =
 }
 
 /** Optional kill order for a camp stop, drawn as the reader's chain: click
- *  a greyed creep to kill it next, click a chain step to remove it. */
+ *  a plain or greyed creep to kill it next, click a numbered step to remove
+ *  it, and choose whether the creeps not in the order die after it or stay. */
 function KillOrderField({
   camp,
   kills,
+  leaveRest,
   trace,
   error,
   onChange,
 }: {
   camp: MapCamp;
   kills: StopKill[];
+  leaveRest: boolean;
   /** This stop's `deriveRoute` kill trace. */
   trace: DerivedKill[];
   error?: string;
-  onChange: (kills: StopKill[]) => void;
+  onChange: (patch: Partial<Pick<StopRowData, "kills" | "leaveRest">>) => void;
 }) {
   const counts = camp.creeps.map((c) => c.count);
   const rows: number[] = flatKills(kills);
-  const remaining = unorderedCreeps(camp, kills) as { creep: MapCampCreep; row: number }[];
-  const left = creepsLeft(camp, kills);
-  const text = "h-7 px-1.5 text-xs text-muted";
+  const rest = unorderedCreeps(camp, kills) as { creep: MapCampCreep; row: number }[];
+  const leaving = kills.length > 0 && leaveRest;
+  const option = "h-7 px-2 text-xs transition-colors";
   return (
     <div>
       <p className="mb-2 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Kill order</p>
       <KillOrder
-        kills={kills.length ? trace : []}
-        ordered
-        onRemove={(i) => onChange(mergeKills(rows.filter((_, j) => j !== i)))}
-        skipped={remaining}
-        onAdd={(row) => onChange(addKill(kills, row, counts))}
+        kills={trace}
+        onRemove={(i) => onChange({ kills: mergeKills(rows.filter((_, j) => j !== i)) })}
+        skipped={leaving ? rest : []}
+        onAdd={(row) => onChange({ kills: addKill(kills, row, counts) })}
       />
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3">
-        {error ? (
-          <p className="text-[0.65rem] text-loss">{error}</p>
-        ) : (
-          <p className="text-[0.65rem] text-faint">
-            {kills.length
-              ? left > 0 ? `Leaves ${left} alive. Hero after counts only these kills.` : "Clears the camp in this order."
-              : "Optional. Click creeps in the order to kill them. Empty means clear the whole camp."}
-          </p>
-        )}
-        {kills.length ? (
-          <span className="ml-auto flex">
-            {left > 0 ? (
-              <button type="button" onClick={() => onChange(addRestOfCamp(kills, counts))} className={cn(text, "hover:text-gold")}>
-                Add rest of camp
-              </button>
-            ) : null}
-            <button type="button" onClick={() => onChange([])} className={cn(text, "hover:text-fg")}>
-              Clear
-            </button>
-          </span>
-        ) : null}
-      </div>
+      {kills.length ? (
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+          {rest.length ? (
+            <div role="radiogroup" aria-label="The rest of the camp" className="inline-flex overflow-hidden rounded border border-line">
+              {([false, true] as const).map((value) => (
+                <button
+                  key={String(value)}
+                  type="button"
+                  role="radio"
+                  aria-checked={leaveRest === value}
+                  onClick={() => onChange({ leaveRest: value })}
+                  className={cn(
+                    option,
+                    value && "border-l border-line",
+                    leaveRest === value ? "bg-gold/10 text-fg" : "text-muted hover:text-fg",
+                  )}
+                >
+                  {value ? "Leave the rest" : "Then clear the rest"}
+                </button>
+              ))}
+            </div>
+          ) : null}
+          <button type="button" onClick={() => onChange({ kills: [], leaveRest: false })} className="ml-auto h-7 px-1.5 text-xs text-muted hover:text-fg">
+            Clear
+          </button>
+        </div>
+      ) : null}
+      {error ? (
+        <p className="mt-1 text-[0.65rem] text-loss">{error}</p>
+      ) : (
+        <p className="mt-1 text-[0.65rem] text-faint">
+          {!kills.length
+            ? "Optional. Click creeps in the order to kill them. Empty means clear the whole camp."
+            : !rest.length
+              ? "Clears the camp in this order."
+              : leaveRest
+                ? `Leaves ${rest.length} alive. Hero after counts only these kills.`
+                : "Kills these first, then the rest of the camp."}
+        </p>
+      )}
     </div>
   );
 }
@@ -194,7 +215,7 @@ export function StopRow({
           {stop.campId ? (
             <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">
               {camp ? (
-                <BandDot band={camp.band} killed={creepsLeft(camp, stop.kills) > 0 ? killedXpShare(camp, stop.kills) : undefined} />
+                <BandDot band={camp.band} killed={creepsLeft(camp, stop.kills, stop.leaveRest) > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
               ) : null}
               <span className="truncate font-bold text-fg">{camp ? campLabel(camp) : stop.campId}</span>
               {camp ? (
@@ -286,9 +307,10 @@ export function StopRow({
             <KillOrderField
               camp={camp}
               kills={stop.kills}
+              leaveRest={stop.leaveRest}
               trace={trace ?? []}
               error={error?.("kills")}
-              onChange={(kills) => onChange({ kills })}
+              onChange={onChange}
             />
           ) : null}
 

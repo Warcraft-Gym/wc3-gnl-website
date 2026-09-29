@@ -11,20 +11,19 @@ const CAPTION = "mt-1.5 block text-center text-[0.7rem] leading-none";
 
 /**
  * A stop's kills as a chain: one icon per kill with the XP it paid under it,
- * then one ghosted "skip" icon per creep not killed. Step badges show only
- * when the order is authored (`ordered`); the kill that levels the hero up
- * wears a gold ring and a "Lv N" tag. With `onRemove` each kill is a button
- * and with `onAdd` each ghost is a "kill next" button (the builder).
+ * then one ghosted "skip" icon per creep left alive. Only kills in the
+ * authored prefix (`ordered`) carry a step badge; the kill that levels the
+ * hero up wears a gold ring and a "Lv N" tag. In the builder `onRemove`
+ * makes each ordered kill a remove button and `onAdd` makes each unordered
+ * kill and each ghost a "kill next" button.
  */
 export function KillOrder({
   kills,
-  ordered,
   skipped = [],
   onRemove,
   onAdd,
 }: {
   kills: DerivedKill[];
-  ordered: boolean;
   /** One entry per creep not killed, drawn ghosted after the kills. */
   skipped?: { creep: MapCampCreep; row: number }[];
   onRemove?: (index: number) => void;
@@ -34,9 +33,9 @@ export function KillOrder({
   const focus = "rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold";
   return (
     // Top and left padding keep the step badges, which overhang the icons, inside the box.
-    <ol aria-label={ordered ? "Kill order" : "Kills"} className="flex flex-wrap items-start gap-1.5 pl-1 pt-1.5 sm:gap-2">
+    <ol aria-label={kills.some((k) => k.ordered) ? "Kill order" : "Kills"} className="flex flex-wrap items-start gap-1.5 pl-1 pt-1.5 sm:gap-2">
       {kills.map((k, i) => {
-        const step = ordered ? i + 1 : null;
+        const step = k.ordered ? i + 1 : null;
         const body = (
           <>
             <span className="relative block">
@@ -61,11 +60,20 @@ export function KillOrder({
         );
         return (
           <li key={`k${i}`}>
-            {onRemove ? (
+            {onRemove && k.ordered ? (
               <button
                 type="button"
                 onClick={() => onRemove(i)}
                 aria-label={`Remove step ${i + 1}, ${k.creep.name}`}
+                className={cn("block hover:opacity-70", focus)}
+              >
+                {body}
+              </button>
+            ) : onAdd && !k.ordered ? (
+              <button
+                type="button"
+                onClick={() => onAdd(k.row)}
+                aria-label={`Kill ${k.creep.name} next`}
                 className={cn("block hover:opacity-70", focus)}
               >
                 {body}

@@ -102,6 +102,7 @@ export function CreepMapPlayground({
         <CampCard
           camp={card.camp}
           kills={route.stops.find((s) => s.campId === card.camp.id)?.kills}
+          leaveRest={route.stops.find((s) => s.campId === card.camp.id)?.leaveRest}
           anchorEl={card.trigger}
           pinned={card.pinned}
           onClose={close}

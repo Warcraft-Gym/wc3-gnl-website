@@ -454,6 +454,6 @@ export function CreepMap({
 /** Share of a camp's base creep XP the route takes when a stop on it has a
  *  kill order, else undefined (full clear or not on the route). */
 function killedShare(camp: MapCamp, stops: RouteStop[] | undefined, campId: string) {
-  const stop = stops?.find((s) => s.campId === campId && s.kills?.length);
-  return stop ? killedXpShare(camp, stop.kills) : undefined;
+  const stop = stops?.find((s) => s.campId === campId && s.kills?.length && s.leaveRest);
+  return stop ? killedXpShare(camp, stop.kills, true) : undefined;
 }

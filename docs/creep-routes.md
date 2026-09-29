@@ -430,13 +430,17 @@ data layer share:
 
 ### Kill order
 
-A camp stop may carry `kills: { row, n }[]`, an ordered list: `row` is an
-index into the camp's `creeps[]` and `n` is how many of that row to kill.
-Empty or missing means the whole camp, which is every route written before
-this field. Creeps not listed stay alive. Two cases it covers:
+A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is
+an index into the camp's `creeps[]` and `n` is how many of that row to
+kill. Empty or missing means the whole camp, which is every route written
+before this field. The optional boolean `leaveRest` (default false) says
+what happens to the creeps the prefix does not list: false kills them after
+the prefix, in catalogue order; true leaves them alive. Three cases it covers:
 
 - Kill one creep and leave, e.g. take the item Ogre Warrior of Last Refuge
-  c16: `kills: [{ row: 0, n: 1 }]`.
+  c16: `kills: [{ row: 0, n: 1 }], leaveRest: true`.
+- Focus one creep, then the rest in any order, e.g. the High Priest first
+  on Springtime c14: `kills: [{ row: 2, n: 1 }]`.
 - Clear the camp in a set order, e.g. the Troll High Priest first so it
   cannot heal: `kills: [{ row: 0, n: 1 }, { row: 2, n: 1 }, { row: 1, n: 1 }]`.
 
@@ -446,8 +450,9 @@ Trapper rows, one with the item), so only the row can name "the item
 creep". The helpers live in `src/lib/creep-routes/kills.mjs`
 (`kills.test.mjs`). The submit action checks each row and count against
 the live camp (`creepCounts` in the submission catalogue); the Sanity
-schema has the same field, and the `#route=` edit link and the JSON API
-carry it unchanged.
+schema has both fields (`leaveRest` hidden until the stop has a kill
+order), and the `#route=` edit link and the JSON API carry them unchanged.
+The derived trace marks each kill `ordered` (in the prefix) or not.
 
 On the route page each stop block draws its kills as a chain (`KillOrder`):
 one creep icon per kill with the XP that kill paid, a gold ring and "Lv N"

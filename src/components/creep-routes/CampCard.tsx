@@ -95,15 +95,19 @@ export function CampCard({
   titleId,
   showCampId = false,
   kills,
+  leaveRest = false,
 }: {
   camp: MapCamp;
   /** Shows the camp id (`c07`) in the header. On by default nowhere: it is
    *  the authoring handle — what a stop stores and what the stop list shows —
    *  so the editor asks for it and the reader-facing route page does not. */
   showCampId?: boolean;
-  /** The stop's kill order. When set, rows sort by kill order, a "Kill"
-   *  column numbers each creep's place and creeps left alive sit last, dimmed. */
+  /** The stop's ordered kill prefix. When set, rows sort by step, a "Kill"
+   *  column numbers each ordered kill, then the unordered rest, then (with
+   *  `leaveRest`) creeps left alive, dimmed. */
   kills?: StopKill[];
+  /** True when creeps not in `kills` stay alive ("Left"); false leaves their Kill cell blank. */
+  leaveRest?: boolean;
   /** Defaults to `camp.band`; accepted separately per the spec so a caller
    *  can override it (e.g. a synthetic camp without its own band). */
   band?: string;
@@ -318,10 +322,10 @@ export function CampCard({
             {rowOrder.map((i) => {
               const c = camp.creeps[i];
               return (
-              <tr key={i} className={cn("border-t border-line/40", killSteps && !killSteps[i].length && "opacity-45")}>
+              <tr key={i} className={cn("border-t border-line/40", killSteps && leaveRest && !killSteps[i].length && "opacity-45")}>
                 {killSteps ? (
                   <td className="tnum py-1.5 pl-3 text-center text-gold">
-                    {killSteps[i].length ? killSteps[i].join(", ") : <span className="text-faint">Left</span>}
+                    {killSteps[i].length ? killSteps[i].join(", ") : leaveRest ? <span className="text-faint">Left</span> : null}
                   </td>
                 ) : null}
                 <td className="px-3 py-1.5">
