@@ -239,7 +239,7 @@ export function CampCard({
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       className={cn(
-        "panel z-50 w-[22rem] max-w-[calc(100vw-1rem)] border-gold/40 bg-surface/98 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] outline-none",
+        "panel z-50 w-[24rem] max-w-[calc(100vw-1rem)] border-gold/40 bg-surface/98 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] outline-none",
         // Unpinned is a hover preview, not a click target competing with
         // whatever's under it — it still needs its own pointer-enter/leave
         // (above) to know the pointer is over it, so `pointer-events` stays
@@ -291,12 +291,12 @@ export function CampCard({
           </caption>
           <thead>
             <tr className="text-left font-mono text-[0.6rem] uppercase tracking-[0.12em] text-faint">
-              {killSteps ? <th className="py-1.5 pl-3 text-center font-medium">Kill</th> : null}
+              {killSteps ? <th className="w-px whitespace-nowrap py-1.5 pl-3 text-center font-medium">Kill</th> : null}
               <th className="px-3 py-1.5 font-medium">Unit</th>
-              <th className="px-2 py-1.5 text-right font-medium">Count</th>
-              <th className="px-2 py-1.5 text-right font-medium">Level</th>
-              <th className="whitespace-nowrap px-2 py-1.5 text-right font-medium">Base XP</th>
-              <th className="px-2 py-1.5 text-center font-medium">Item</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-right font-medium">Count</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-right font-medium">Level</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-right font-medium">Base XP</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-center font-medium">Item</th>
             </tr>
           </thead>
           <tbody>
@@ -305,7 +305,7 @@ export function CampCard({
               return (
               <tr key={i} className={cn("border-t border-line/40", killSteps && leaveRest && !killSteps[i].length && "opacity-45")}>
                 {killSteps ? (
-                  <td className="tnum py-1.5 pl-3 text-center text-gold">
+                  <td className="tnum w-px whitespace-nowrap py-1.5 pl-3 text-center text-gold">
                     {killSteps[i].length ? killSteps[i].join(", ") : leaveRest ? <span className="text-faint">Left</span> : null}
                   </td>
                 ) : null}
@@ -315,10 +315,10 @@ export function CampCard({
                     <span className="text-fg">{c.name}</span>
                   </span>
                 </td>
-                <td className="tnum px-2 py-1.5 text-right text-muted">{c.count}</td>
-                <td className="tnum px-2 py-1.5 text-right text-muted">{c.level}</td>
-                <td className="tnum px-2 py-1.5 text-right text-muted">{creepXp(c.level)}</td>
-                <td className="px-2 py-1.5 text-center">
+                <td className="tnum w-px whitespace-nowrap px-2 py-1.5 text-right text-muted">{c.count}</td>
+                <td className="tnum w-px whitespace-nowrap px-2 py-1.5 text-right text-muted">{c.level}</td>
+                <td className="tnum w-px whitespace-nowrap px-2 py-1.5 text-right text-muted">{creepXp(c.level)}</td>
+                <td className="w-px whitespace-nowrap px-2 py-1.5 text-center">
                   {c.drops?.length ? (
                     <span className="inline-flex justify-center gap-1">
                       {c.drops.map((d, j) => {
