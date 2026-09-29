@@ -39,6 +39,7 @@ function StopBlock({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
 
       {camp ? (
         <KillOrder
+          camp={camp}
           kills={d.kills}
           skipped={hasKillOrder(stop) && stop.leaveRest ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[]) : []}
         />
@@ -96,7 +97,7 @@ export function RouteStepTable({
   const derived = useMemo(() => deriveRoute(route, map), [route, map]);
 
   return (
-    <div className="panel overflow-hidden">
+    <div className="panel">
       <div className="border-b border-line/60 px-4 py-3 sm:px-5">
         <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
           Route{" "}

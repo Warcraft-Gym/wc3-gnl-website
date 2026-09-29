@@ -94,6 +94,7 @@ function KillOrderField({
     <div>
       <p className="mb-2 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Kill order</p>
       <KillOrder
+        camp={camp}
         kills={trace}
         onRemove={(i) => onChange({ kills: mergeKills(rows.filter((_, j) => j !== i)) })}
         skipped={leaving ? rest : []}

@@ -465,6 +465,7 @@ click a chain step to remove it (`flatKills`, `mergeKills`), click a greyed
 creep to kill it next (`addKill`). A camp a stop leaves partly alive draws
 as a wedge, the killed share of the camp's base creep XP (`killedXpShare`),
 on its map marker and on the band dot of its stop; the legend does not list it.
+A chain portrait whose creep carries drops is framed blue (items) or red (Power Up, `dropKind`) and opens a small popover with that creep's drop sets and items (`CreepDropPopover`).
 See `DESIGN.md`, "Stop block anatomy".
 
 `src/lib/creep-routes/fixtures.ts` (backed by the plain-JS

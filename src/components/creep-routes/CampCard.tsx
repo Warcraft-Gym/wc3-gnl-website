@@ -4,38 +4,13 @@ import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "re
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import type { CampCardTrigger, MapCamp, MapCampDrop, StopKill } from "@/lib/creep-routes/types";
-import { campSpotTitle, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { campSpotTitle, dropKey, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { DropDiamond } from "./DropDiamond";
 import { creepXp } from "@/lib/creep-routes/xp.mjs";
 import { killStepsByRow } from "@/lib/creep-routes/kills.mjs";
 import { BandDot } from "./RouteBadges";
 import { CampIcon } from "./CampIcon";
 import { cn } from "@/lib/utils";
-
-/** One colour per drop-set index, cycled — Liquipedia colours its Item
- *  markers per drop set (blue/red in the reference screenshot) so a reader
- *  can match a creep's marker to the matching Items row at a glance. All
- *  four are existing, already-validated design tokens (DESIGN.md's motion/
- *  colour rules only gate *new* mark colours — see C-024 — these are
- *  reused, not new), chosen for maximum contrast from one another. */
-const DROP_TOKENS = ["var(--wg-arcane)", "var(--wg-loss)", "var(--wg-win)", "var(--wg-gold)"];
-
-function DropDiamond({ index, title }: { index: number; title?: string }) {
-  return (
-    <span
-      aria-hidden={title ? undefined : true}
-      title={title}
-      style={{ background: DROP_TOKENS[index % DROP_TOKENS.length] }}
-      className="inline-block size-2.5 shrink-0 rotate-45 rounded-[1px]"
-    />
-  );
-}
-
-/** Stable key for a drop pool, matching how `drops.mjs` groups them — used
- *  to line a creep's own drop up with the camp-level `drops[]` entry (and so
- *  with its diamond colour in the Items table). */
-function dropKey(drop: { kind: string; class?: string; level?: number; id?: string }) {
-  return drop.kind === "class" ? `class:${drop.class}:${drop.level}` : `item:${drop.id}`;
-}
 
 /** Camp-level drop index per pool key, so the Creeps table can mark exactly
  *  which creep carries which pool. The catalogue now records each creep's
@@ -343,7 +318,7 @@ export function CampCard({
                       {c.drops.map((d, j) => {
                         const idx = dropIndex.get(dropKey(d));
                         return idx === undefined ? null : (
-                          <DropDiamond key={j} index={idx} title={dropTitle(camp.drops[idx])} />
+                          <DropDiamond key={j} drop={camp.drops[idx]} title={dropTitle(camp.drops[idx])} />
                         );
                       })}
                     </span>
@@ -364,7 +339,7 @@ export function CampCard({
               {camp.drops.map((drop, i) => (
                 <tr key={i} className="border-t border-line/40">
                   <td className="w-6 px-3 py-2 align-middle">
-                    <DropDiamond index={i} title={dropTitle(drop)} />
+                    <DropDiamond drop={drop} title={dropTitle(drop)} />
                   </td>
                   <td className="w-28 py-2 pr-2 align-middle text-muted">
                     {dropSetLabel(drop)}
