@@ -60,7 +60,7 @@ export function KillOrder({
   onAdd?: (row: number) => void;
 }) {
   return (
-    <div className="flex flex-wrap items-start gap-x-3 gap-y-3">
+    <div className="flex flex-wrap items-start gap-x-3 gap-y-3 pl-1 pt-1.5">
       {kills.length ? (
         <ol aria-label={ordered ? "Kill order" : "Kills"} className="flex flex-wrap items-start gap-1.5 sm:gap-2">
           {kills.map((k, i) => {
@@ -110,11 +110,11 @@ export function KillOrder({
           <span className="flex h-8 items-center text-[0.75rem] text-muted">leave</span>
           {leave.map(({ creep, n }, i) => (
             <span key={i} className="flex max-w-[6.5rem] flex-col items-center gap-1 text-center">
-              <span className="flex items-center gap-1">
-                <CampIcon iconKey={creep.icon} title={creep.name} kind="creep" size={32} className="opacity-45 grayscale" />
-                {n > 1 ? <span className="tnum text-[0.75rem] text-muted">×{n}</span> : null}
+              <CampIcon iconKey={creep.icon} title={creep.name} kind="creep" size={32} className="opacity-45 grayscale" />
+              <span className="text-[0.7rem] leading-tight text-faint">
+                {creep.name}
+                {n > 1 ? <span className="tnum"> ×{n}</span> : null}
               </span>
-              <span className="text-[0.7rem] leading-tight text-faint">{creep.name}</span>
             </span>
           ))}
         </div>

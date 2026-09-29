@@ -188,7 +188,7 @@ export function StopRow({
 
   return (
     <li className="relative rounded border border-line/70 bg-bg/40 p-3">
-      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)_auto] items-start gap-x-3 gap-y-2">
+      <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto]">
         <span className="tnum pt-2.5 text-center text-xs text-faint">{index + 1}</span>
 
         {/* Camp / base action */}
@@ -225,8 +225,8 @@ export function StopRow({
           )}
         </div>
 
-        {/* Reorder / remove */}
-        <div className="flex justify-end gap-1">
+        {/* Reorder / remove: own line under the camp box on a phone */}
+        <div className="col-start-2 flex justify-end gap-1 sm:col-start-auto">
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
             <ArrowUp size={16} />
           </button>
