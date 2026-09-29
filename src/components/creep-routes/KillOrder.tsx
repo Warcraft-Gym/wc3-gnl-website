@@ -124,9 +124,10 @@ export function KillOrder({
       })}
       {group.length ? (
         // The unordered kills as one bracketed group: no badges, one total, "any order".
-        <li className="max-w-full">
-          {/* -mt-[5px] offsets the 1px border + 4px padding so group icons line up with ordered ones. */}
-          <div className="-mt-[5px] flex max-w-full flex-wrap gap-2 rounded border border-line p-1 sm:gap-2.5">
+        // A column as wide as the wider of the icon row and the caption. The bracket is an
+        // outline (offset 3px), so it takes no layout space and icons and captions line up.
+        <li className="flex w-max max-w-full flex-col">
+          <div className="flex flex-wrap justify-start gap-2 rounded outline outline-1 outline-offset-[3px] outline-line sm:gap-2.5">
             {group.map((k, j) => {
               const icon = (
                 <CampIcon iconKey={k.creep.icon} title={k.creep.name} kind="creep" size={40} className={cn(CHAIN_ICON, frame(k.creep))} />
@@ -149,7 +150,7 @@ export function KillOrder({
               );
             })}
           </div>
-          <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{groupXp} · any order</span>
+          <span aria-hidden className={cn(CAPTION, "tnum whitespace-nowrap text-muted")}>+{groupXp} · any order</span>
           {groupLevel ? <LevelTag level={groupLevel} className="w-full" /> : null}
           <span className="sr-only">
             In any order: {group.map((k) => k.creep.name).join(", ")}, +{groupXp} xp
