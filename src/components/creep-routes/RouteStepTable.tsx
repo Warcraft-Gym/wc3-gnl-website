@@ -108,7 +108,7 @@ export function RouteStepTable({
               · {count} stops
             </span>
           </h2>
-          <p className="mt-1 text-[0.8rem] text-muted">XP per kill at the hero&apos;s level at that moment.</p>
+          <p className="mt-1 text-[0.8rem] text-muted">XP per kill at the hero&apos;s level at that moment; an unordered group is totalled in camp order.</p>
         </div>
         <button
           type="button"
