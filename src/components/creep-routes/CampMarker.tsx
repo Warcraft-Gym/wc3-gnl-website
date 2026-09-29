@@ -55,8 +55,8 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
-  /** Not one of the route's stops: a grey wash over the band fill and a
-   *  fainter halo, so the route's own camps stand out while the band tint
+  /** Not one of the route's stops: a grey wash over the band fill, a
+   *  near-invisible halo and 60% opacity, so the route's own camps stand out while the band tint
    *  still shows the difficulty. */
   secondary?: boolean;
   /** Share of the camp's creeps this route kills, when below 1: the band
@@ -105,6 +105,7 @@ export const CampMarker = memo(function CampMarker({
     // override, which this now is, wins on source order instead).
     <g
       style={{ transformBox: "fill-box" }}
+      opacity={secondary ? 0.6 : 1}
       className={cn(
         "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
         active ? "scale-[1.35]" : "scale-100",
@@ -132,7 +133,7 @@ export const CampMarker = memo(function CampMarker({
         cy={cy}
         r={r + 1.5}
         fill="none"
-        stroke={secondary ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.55)"}
+        stroke={secondary ? "rgba(255,255,255,.1)" : "rgba(255,255,255,.55)"}
         strokeWidth="1.5"
       />
       <circle
@@ -145,7 +146,7 @@ export const CampMarker = memo(function CampMarker({
         strokeWidth={highlighted ? 2 : 1.5}
       />
       {partial ? <path d={wedgePath(cx, cy, r - 0.75, killed)} fill={fill} /> : null}
-      {secondary ? <circle cx={cx} cy={cy} r={r - 0.75} fill="#6b6b6b" fillOpacity="0.6" /> : null}
+      {secondary ? <circle cx={cx} cy={cy} r={r - 0.75} fill="#5a5a5a" fillOpacity="0.7" /> : null}
     </g>
   );
 
