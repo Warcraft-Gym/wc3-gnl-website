@@ -107,7 +107,11 @@ function KillOrderField({
       <KillOrder
         camp={camp}
         kills={trace}
-        onRemove={(i) => onChange({ kills: removeKillAt(valid, i) })}
+        onRemove={(i) => {
+          const next = removeKillAt(valid, i);
+          // An empty list means the whole camp, so "Leave the rest" goes with it.
+          onChange(next.length ? { kills: next } : { kills: next, leaveRest: false });
+        }}
         onJoin={(i) => onChange({ kills: joinWithPrevious(valid, i) })}
         onSplit={(i) => onChange({ kills: splitSet(valid, rows[i]?.set) })}
         skipped={leaving ? rest : []}
