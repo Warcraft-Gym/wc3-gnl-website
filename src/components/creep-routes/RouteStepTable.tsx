@@ -1,49 +1,65 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
-import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
+import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
+import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap, CreepRoute, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
-import { BandDot } from "./RouteBadges";
+import { BAND_LABEL, BandDot } from "./RouteBadges";
+import { HeroMeter } from "./HeroMeter";
+import { KillOrder, KillStrip } from "./KillOrder";
 import { cn } from "@/lib/utils";
 
+/** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
+function skippedOf(stop: RouteStop, camp: MapCamp) {
+  return stop.leaveRest && validKills(camp, stop.kills).length
+    ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[])
+    : [];
+}
+
+/** A stop's expanded body: the kill chain, Bring, condition and note. */
+function StopBody({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
+  const camp = d.camp;
+  return (
+    <div className="min-w-0 space-y-3">
+      {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} /> : null}
+
+      {stop.units?.length ? (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-[0.75rem] text-muted">Bring</span>
+          {stop.units.map((u, ui) => (
+            <span key={ui} className="inline-flex items-center gap-1">
+              <GameIcon iconKey={u.icon} size={28} />
+              {u.count > 1 ? <span className="tnum text-[0.75rem] text-muted">×{u.count}</span> : null}
+            </span>
+          ))}
+        </div>
+      ) : null}
+
+      {stop.condition ? (
+        <span
+          title="Condition"
+          className="inline-flex w-fit max-w-full items-center whitespace-normal rounded border border-arcane/40 bg-arcane/10 px-1.5 py-0.5 text-[0.75rem] leading-snug text-arcane"
+        >
+          {stop.condition}
+        </span>
+      ) : null}
+
+      {stop.note ? <p className="max-w-[60ch] text-sm leading-relaxed text-muted">{stop.note}</p> : null}
+    </div>
+  );
+}
+
 /**
- * The route itself: an ordered table of stops, no time dimension. Clicking
- * a row (or pressing Enter/Space once it has focus) *selects* it —
- * reported to the page via `onActiveChange`, so `CreepMap` glows the same
- * stop's marker, and vice versa: clicking a marker selects the matching
- * row (F009 — `active`/`onActiveChange` are fully controlled by the
- * parent, so both directions agree on one piece of state). Selection is a
- * sticky toggle: the *same* click or Enter/Space clears it again.
- *
- * Two things are deliberately *not* wired into `active`, both because a
- * real mouse click always fires them first, which would otherwise fight
- * the toggle above (click an already-"active" row → immediately read as
- * "deselect", reproducing the exact silent-no-op the F009 review's ux.md
- * item 1 found for a plain row click):
- * - **Hover** is a separate, purely cosmetic preview (`hoverIndex`, local,
- *   uncommitted, mouse only).
- * - **Focus.** A mouse click on a focusable element focuses it *before*
- *   the click event fires (standard browser order: mousedown → focus →
- *   click) — an `onFocus` handler driving `active` would read the
- *   just-focused value inside the very click that's supposed to toggle it.
- *   Only an explicit Enter/Space (see `onKeyDown` below) selects via the
- *   keyboard, mirroring `CampMarker`'s own `asGroup` keyboard handling —
- *   not bare `Tab`-focus.
- *
- * Every row carries `data-stop`, the map's numbered badges carry
- * `data-stop-marker` instead, so the two never double-count.
- *
- * F012/F012a: the same row click/Enter that toggles `active` above also
- * pins the camp card (`onOpenCard`), purely additive — the selection
- * toggle itself is unchanged ("existing selection stays" per the spec).
- * The Camp cell lost its composition line ("1× X · 1× Y…") in F012 — that's
- * now in the card the row opens, not duplicated here. Rows don't hover-open
- * the card themselves (only map markers do, per the F012a spec); a row's
- * `aria-expanded` still reflects `openCampId` so a screen reader knows the
- * card is showing this row's camp, however it got opened.
+ * The route as an ordered list of stops, each a disclosure. The summary line
+ * is a button over the whole line: it toggles the stop open and toggles the
+ * shared selection (`onActiveChange`, lifted to the page so the map agrees).
+ * The camp label inside it is its own button that pins the camp card. Every
+ * stop starts open on a route of 5 stops or fewer, closed beyond that; a
+ * stop selected from the map opens and scrolls into view. Blocks carry
+ * `data-stop`; map badges carry `data-stop-marker`.
  */
 export function RouteStepTable({
   route,
@@ -55,167 +71,156 @@ export function RouteStepTable({
 }: {
   route: CreepRoute;
   map: CreepMap;
-  /** Controlled: which stop index is selected, or null. Lifted to the page
-   *  (`CreepMapPlayground`) so the map and the table always agree. */
+  /** Controlled: the selected stop index, or null. */
   active?: number | null;
   onActiveChange?: (index: number | null) => void;
-  /** Pins the F012 camp card for a camp stop's camp — the existing
-   *  select/toggle above is untouched (`onActiveChange`, "existing
-   *  selection stays" per the spec); this is purely additive, called
-   *  alongside it on every row click/Enter so the same click both selects
-   *  the row (as before) and pins the card. Undefined for a base-action
-   *  row (no camp to show). */
+  /** Pins the camp card for a stop's camp, from its camp label button. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
-  /** F012a: the camp id the card is currently showing, or null — drives
-   *  this row's own `aria-expanded` (C-025). */
+  /** The camp the card is showing, for the camp button's `aria-expanded`. */
   openCampId?: string | null;
 }) {
-  const rowRefs = useRef<(HTMLTableRowElement | null)[]>([]);
+  const count = route.stops.length;
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
+  const [open, setOpen] = useState<Set<number>>(() => new Set(count <= 5 ? route.stops.map((_, i) => i) : []));
+  // The selection this list set itself; any other change of `active` came from the map.
+  const [ownActive, setOwnActive] = useState<number | null>(active);
+  const [seenActive, setSeenActive] = useState<number | null>(active);
+  if (active !== seenActive) {
+    setSeenActive(active);
+    if (active !== null && active !== ownActive && !open.has(active)) setOpen(new Set(open).add(active));
+  }
+  const items = useRef<(HTMLLIElement | null)[]>([]);
+  useEffect(() => {
+    if (active !== null && active !== ownActive) items.current[active]?.scrollIntoView({ block: "nearest" });
+  }, [active, ownActive]);
 
   const derived = useMemo(() => deriveRoute(route, map), [route, map]);
+  const baseId = useId();
+  const allOpen = open.size === count;
 
   return (
-    <div className="panel overflow-hidden">
-      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
-        <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
-          Route{" "}
-          <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
-            · {route.stops.length} stops
-          </span>
-        </h2>
+    <div className="panel">
+      <div className="flex items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
+        <div>
+          <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
+            Route{" "}
+            <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
+              · {count} stops
+            </span>
+          </h2>
+          <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setOpen(new Set(allOpen ? [] : route.stops.map((_, i) => i)))}
+          className="h-7 shrink-0 px-1 text-xs text-muted hover:text-gold"
+        >
+          {allOpen ? "Collapse all" : "Expand all"}
+        </button>
       </div>
 
-      <div className="overflow-x-auto">
-        <table className="route-step-table w-full border-collapse text-sm md:table-fixed">
-          <caption className="border-b border-line/60 px-4 py-2 text-left text-xs text-muted sm:px-5">
-            Bring: units to take into the fight · Hero after: your hero&apos;s level and XP once the camp is cleared.
-          </caption>
-          {/* `table-fixed` + these widths are what stop the browser from
-              collapsing Notes toward zero as Camp/Bring content grows (the
-              reported bug: Camp ate almost the full row). Notes has no
-              explicit width — it takes whatever's left, which is the
-              majority of the row once # and Hero after are pinned and
-              Camp/Bring are kept modest; see DESIGN.md "Table anatomy". */}
-          <colgroup>
-            <col style={{ width: "2.5rem" }} />
-            <col style={{ width: "17%" }} />
-            <col style={{ width: "12%" }} />
-            <col />
-            <col style={{ width: "7rem" }} />
-          </colgroup>
-          <thead>
-            <tr className="text-left font-mono text-[0.62rem] uppercase tracking-[0.16em] text-faint">
-              <th className="px-3 py-2.5 text-center font-medium sm:px-4">#</th>
-              <th className="px-2 py-2.5 font-medium">Camp</th>
-              <th className="px-2 py-2.5 font-medium">Bring</th>
-              <th className="px-2 py-2.5 font-medium">Notes</th>
-              <th className="whitespace-nowrap px-2 py-2.5 font-medium">Hero after</th>
-            </tr>
-          </thead>
-          <tbody>
-            {route.stops.map((stop, i) => {
-              const d = derived.stops[i];
-              const isActive = i === active;
-              const isHovered = i === hoverIndex;
-              return (
-                <tr
-                  key={i}
-                  data-stop={i + 1}
-                  ref={(el) => {
-                    rowRefs.current[i] = el;
-                  }}
-                  tabIndex={0}
-                  onMouseEnter={() => setHoverIndex(i)}
-                  onMouseLeave={() => setHoverIndex((h) => (h === i ? null : h))}
-                  onClick={(e) => {
-                    onActiveChange?.(active === i ? null : i);
-                    if (d.camp) onOpenCard?.(d.camp, e.currentTarget);
-                  }}
-                  onKeyDown={(e) => {
-                    // A `<tr>` isn't a native button, so Enter/Space needs
-                    // an explicit handler — same toggle as a click, so
-                    // keyboard and mouse selection agree exactly (mirrors
-                    // `CampMarker`'s own `asGroup` keyboard handling).
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      onActiveChange?.(active === i ? null : i);
-                      if (d.camp) onOpenCard?.(d.camp, e.currentTarget);
-                    }
-                  }}
-                  aria-current={isActive ? "step" : undefined}
-                  aria-expanded={d.camp ? d.camp.id === openCampId : undefined}
-                  className={cn(
-                    "cursor-pointer border-t border-line/40 transition-colors",
-                    (isActive || isHovered) && "bg-gold/10",
+      <ol>
+        {route.stops.map((stop, i) => {
+          const d = derived.stops[i];
+          const camp = d.camp;
+          const isActive = i === active;
+          const isOpen = open.has(i);
+          const bodyId = `${baseId}-stop-${i}`;
+          const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
+          const toggle = () => {
+            const next = new Set(open);
+            if (isOpen) next.delete(i);
+            else next.add(i);
+            setOpen(next);
+            const nextActive = active === i ? null : i;
+            setOwnActive(nextActive);
+            onActiveChange?.(nextActive);
+          };
+          return (
+            <li
+              key={i}
+              ref={(el) => {
+                items.current[i] = el;
+              }}
+              data-stop={i + 1}
+              onMouseEnter={() => setHoverIndex(i)}
+              onMouseLeave={() => setHoverIndex((h) => (h === i ? null : h))}
+              aria-current={isActive ? "step" : undefined}
+              className={cn(
+                "border-t border-line/40 px-4 py-4 transition-colors first:border-t-0 sm:px-5",
+                (isActive || i === hoverIndex) && "bg-gold/10",
+              )}
+            >
+              {/* Summary line: the disclosure button covers it; only the camp button sits above. */}
+              <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3">
+                <button
+                  type="button"
+                  onClick={toggle}
+                  aria-expanded={isOpen}
+                  aria-controls={bodyId}
+                  aria-label={camp ? `Stop ${i + 1}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${i + 1}, ${label}`}
+                  className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
+                />
+                <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
+                  {isActive ? (
+                    <span aria-hidden className="inline-block size-2 rounded-full bg-gold shadow-[0_0_10px_var(--wg-gold-glow)]" />
+                  ) : (
+                    i + 1
                   )}
-                >
-                  <td data-label="#" className="tnum px-3 py-2.5 text-center text-xs text-faint sm:px-4">
-                    {isActive ? (
-                      <span aria-hidden className="inline-block size-2 rounded-full bg-gold shadow-[0_0_10px_var(--wg-gold-glow)]" />
-                    ) : (
-                      i + 1
+                </span>
+                <div className="pointer-events-none relative min-w-0">
+                  <div
+                    className={cn(
+                      "flex gap-3",
+                      isOpen ? "flex-col sm:flex-row sm:items-start sm:justify-between sm:gap-4" : "items-start justify-between",
                     )}
-                  </td>
-                  <td data-label="Camp" className="px-2 py-2.5">
-                    {d.camp ? (
-                      // F012: the composition line ("1× X · 1× Y…") is gone
-                      // — the same facts now live in the camp card this row
-                      // opens, one line here instead of two. The chevron is
-                      // a decorative "there's more" affordance only; the
-                      // whole row is the real click target (see `onClick`
-                      // above), matching the spec's "clicking the row (or
-                      // Enter) opens the CampCard" — not just the icon.
-                      <span className="inline-flex min-w-0 flex-wrap items-center gap-1.5">
-                        <BandDot band={d.band} />
-                        <span className="font-medium text-fg">{campLabel(d.camp)}</span>
-                        <span className="tnum text-faint">Lv {d.camp.level}</span>
-                        <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
-                      </span>
-                    ) : (
-                      <span className="text-muted">{stop.action ?? "-"}</span>
-                    )}
-                  </td>
-                  <td data-label="Bring" className="px-2 py-2.5">
-                    {stop.units?.length ? (
-                      <span className="flex flex-wrap items-center gap-1.5">
-                        {stop.units.map((u, ui) => (
-                          <span key={ui} className="inline-flex items-center gap-1">
-                            <GameIcon iconKey={u.icon} size={24} />
-                            {u.count > 1 ? <span className="tnum text-xs text-faint">×{u.count}</span> : null}
-                          </span>
-                        ))}
-                      </span>
-                    ) : (
-                      <span className="text-faint">—</span>
-                    )}
-                  </td>
-                  <td data-label="Notes" className="px-2 py-2.5 text-xs text-muted">
-                    <span className="flex flex-col items-start gap-1">
-                      {stop.condition ? (
-                        <span
-                          title="Condition"
-                          className="inline-flex w-fit max-w-full items-center whitespace-normal rounded border border-arcane/40 bg-arcane/10 px-1.5 py-0.5 text-[0.65rem] leading-snug text-arcane"
-                        >
-                          {/* Exactly as the author wrote it: the site used to prepend
-                              "If " unless the text already opened with a trigger word,
-                              which guessed at wording that belongs to the author. */}
-                          {stop.condition}
+                  >
+                    {camp ? (
+                      <button
+                        type="button"
+                        onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
+                        aria-haspopup="dialog"
+                        aria-expanded={camp.id === openCampId}
+                        className="pointer-events-auto min-w-0 rounded pt-0.5 text-left text-sm hover:[&_.camp-name]:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:flex sm:flex-wrap sm:items-center sm:gap-x-2"
+                      >
+                        <span className="inline-flex items-start gap-1.5">
+                          <BandDot className="mt-1.5" band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
+                          <span className="camp-name font-medium text-fg">{label}</span>
                         </span>
-                      ) : null}
-                      {stop.note ? <span>{stop.note}</span> : null}
-                      {!stop.note && !stop.condition ? <span className="text-faint">-</span> : null}
-                    </span>
-                  </td>
-                  <td data-label="Hero after" className="tnum whitespace-nowrap px-2 py-2.5 text-xs text-muted">
-                    {`Lv ${d.heroLevelAfter} · ${d.xpAfter} xp`}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                        <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
+                          <span>
+                            {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
+                          </span>
+                          <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
+                        </span>
+                      </button>
+                    ) : (
+                      <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
+                    )}
+                    {camp && isOpen ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+                    {camp && !isOpen ? (
+                      <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
+                        Lv {d.heroLevelAfter} · {d.xpAfter} xp
+                      </span>
+                    ) : null}
+                  </div>
+                  {camp && !isOpen ? (
+                    <div className="mt-2">
+                      <KillStrip kills={d.kills} skipped={skippedOf(stop, camp)} />
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+              {isOpen ? (
+                <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3">
+                  <span />
+                  <StopBody stop={stop} d={d} />
+                </div>
+              ) : null}
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

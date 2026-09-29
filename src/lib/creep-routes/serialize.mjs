@@ -68,6 +68,7 @@ export function toApiRoute(route, map, origin, iconSrc, deriveRouteFn) {
       stops: derived.stops.map((s) => ({
         heroLevelAfter: s.heroLevelAfter,
         xpAfter: s.xpAfter,
+        left: s.left,
       })),
       finalLevel: derived.finalLevel,
       finalXp: derived.finalXp,

@@ -1,5 +1,6 @@
 import { memo } from "react";
 import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
+import { wedgePath } from "@/lib/creep-routes/kills.mjs";
 import { BAND_TOKEN } from "./RouteBadges";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -40,6 +41,7 @@ export const CampMarker = memo(function CampMarker({
   highlighted,
   pressed,
   secondary,
+  killed,
   onCampSelect,
   asGroup,
   onCampCardOpen,
@@ -61,6 +63,9 @@ export const CampMarker = memo(function CampMarker({
    *  purely visual, third cue). Deliberately subtle: the band colour fill
    *  itself is untouched, so the camp is still fully readable at a glance. */
   secondary?: boolean;
+  /** Share of the camp's creeps this route kills, when below 1: the band
+   *  fill becomes a wedge of that share over a faded full disc. */
+  killed?: number;
   onCampSelect?: (campId: string) => void;
   /** See the component doc comment: renders the `<g>` itself as the click
    *  target instead of adding a nested `<button>`. */
@@ -87,6 +92,8 @@ export const CampMarker = memo(function CampMarker({
   const cy = camp.y * imageHeight;
   const r = radiusFor(camp.level);
   const fill = BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)";
+  const partial = killed !== undefined && killed < 1;
+  const partialLabel = partial ? ", partly cleared" : "";
 
   const dot = (
     // The "grow when active" effect: a `transform: scale()` on this
@@ -138,9 +145,11 @@ export const CampMarker = memo(function CampMarker({
         cy={cy}
         r={r}
         fill={fill}
+        fillOpacity={partial ? 0.3 : 1}
         stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
         strokeWidth={highlighted ? 2 : 1.5}
       />
+      {partial ? <path d={wedgePath(cx, cy, r - 0.75, killed)} fill={fill} /> : null}
     </g>
   );
 
@@ -155,7 +164,7 @@ export const CampMarker = memo(function CampMarker({
         data-camp={camp.id}
         role="button"
         tabIndex={0}
-        aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
+        aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}${partialLabel}`}
         aria-pressed={pressed ?? false}
         aria-expanded={cardOpen ?? false}
         onClick={(e) => {
@@ -195,7 +204,7 @@ export const CampMarker = memo(function CampMarker({
               e.preventDefault();
               onCampCardOpen(camp.id, e.currentTarget);
             }}
-            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
+            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}${partialLabel}`}
             aria-pressed={pressed ?? false}
             aria-expanded={cardOpen ?? false}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}

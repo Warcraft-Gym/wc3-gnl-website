@@ -77,3 +77,24 @@ export function dropSetLabel(drop) {
   }
   return drop.items?.[0]?.name ?? "Item";
 }
+
+/** A drop set's colour kind, one rule for the whole feature: a Power Up
+ *  pool (tomes, manuals) is "powerup" (red), every other set, fixed items
+ *  included, is "item" (blue). */
+export function dropKind(drop) {
+  return drop?.kind === "class" && drop.class === "PowerUp" ? "powerup" : "item";
+}
+
+/** The frame kind of a creep that carries drops: "item", "powerup", or
+ *  "both" when it carries a set of each kind; null when it carries none. */
+export function creepDropKind(creep) {
+  if (!creep?.drops?.length) return null;
+  const kinds = new Set(creep.drops.map(dropKind));
+  return kinds.size > 1 ? "both" : [...kinds][0];
+}
+
+/** Stable key for a drop pool: lines a creep's own drop up with the
+ *  camp-level `drops[]` entry that holds its resolved items. */
+export function dropKey(drop) {
+  return drop.kind === "class" ? `class:${drop.class}:${drop.level}` : `item:${drop.id}`;
+}

@@ -110,3 +110,67 @@ test("deriveRoute re-reads the reduction factor mid-camp: leveling up partway th
   assert.equal(result.finalXp, 345);
   assert.equal(result.finalLevel, 2);
 });
+
+test("a stop with kills and leaveRest counts only those creeps and reports the rest as left", () => {
+  // Only the one level-2 creep of c1: 1 kill at factor 0.8 of creepXp(2).
+  const partial = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1 }], leaveRest: true }] }, MAP);
+  const full = deriveRoute({ stops: [{ campId: "c1" }] }, MAP);
+  assert.ok(partial.stops[0].xpAfter < full.stops[0].xpAfter);
+  assert.equal(partial.stops[0].left, 2);
+  assert.equal(full.stops[0].left, 0);
+});
+
+test("each stop carries a per-kill trace: xp paid, level after, and the kill that levels up", () => {
+  const result = deriveRoute(ROUTE, MAP);
+  const [s1, s2, s3] = result.stops;
+  assert.deepEqual(s1.kills.map((k) => k.creep.id), ["a", "a", "b"]);
+  // Kills sum to the stop's xp gain.
+  assert.equal(s1.kills.reduce((sum, k) => sum + k.xp, 0), s1.xpAfter);
+  assert.equal(s2.kills.reduce((sum, k) => sum + k.xp, 0), s2.xpAfter - s1.xpAfter);
+  // Exactly one kill in stop 2 crosses into level 2, and it is flagged.
+  const ups = s2.kills.filter((k) => k.leveledUp);
+  assert.equal(ups.length, 1);
+  assert.equal(ups[0].levelAfter, 2);
+  assert.equal(s2.kills.at(-1).levelAfter, s2.heroLevelAfter);
+  assert.deepEqual(s3.kills, []);
+});
+
+test("the kill trace follows the stop's kill order and pays less after a level-up", () => {
+  const map = {
+    camps: [{ id: "c1", level: 18, band: "hard", creeps: [{ id: "f", name: "F", level: 6, count: 3 }] }],
+  };
+  const result = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 0, n: 3 }] }] }, map);
+  assert.deepEqual(result.stops[0].kills.map((k) => [k.xp, k.levelAfter, k.leveledUp]), [
+    [120, 1, false],
+    [120, 2, true],
+    [105, 2, false],
+  ]);
+});
+
+test("a prefix-only stop kills its prefix first, then the rest, and flags which kills were ordered", () => {
+  const result = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1 }] }] }, MAP);
+  const [stop] = result.stops;
+  assert.deepEqual(stop.kills.map((k) => [k.creep.id, k.row, k.ordered]), [["b", 1, true], ["a", 0, false], ["a", 0, false]]);
+  assert.equal(stop.left, 0);
+  // Same creeps as a full clear, so the same total xp in this case (no mid-camp level-up).
+  assert.equal(stop.xpAfter, deriveRoute({ stops: [{ campId: "c1" }] }, MAP).stops[0].xpAfter);
+});
+
+test("kills outside the camp or past a row's count are ignored: ordered flags and left match the real kills", () => {
+  const out = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }], leaveRest: true }] }, MAP).stops[0];
+  assert.deepEqual(out.kills.map((k) => [k.row, k.ordered]), [[0, false], [0, false], [1, false]]);
+  const mixed = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }, { row: 1, n: 1 }] }] }, MAP).stops[0];
+  assert.deepEqual(mixed.kills.map((k) => [k.row, k.ordered]), [[1, true], [0, false], [0, false]]);
+  const over = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 0, n: 5 }] }] }, MAP).stops[0];
+  assert.equal(over.kills.length, 3);
+  assert.equal(over.left, 0);
+});
+
+test("derived kills carry their unit and whether it is a set; a leading set keeps list order", () => {
+  const result = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 1, n: 1, set: 0 }, { row: 0, n: 1, set: 0 }] }] }, MAP);
+  assert.deepEqual(result.stops[0].kills.map((k) => [k.creep.id, k.unit, k.inSet, k.ordered]), [
+    ["b", 0, true, true],
+    ["a", 0, true, true],
+    ["a", 1, true, false],
+  ]);
+});

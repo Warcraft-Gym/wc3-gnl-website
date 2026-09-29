@@ -19,6 +19,7 @@
 // `maps/index.mjs` (written by `scripts/creep-maps/add-map.mjs`): the
 // bundler cannot read a directory, and hand-maintaining one import per map
 // is how Northern Isles once shipped missing from every map select.
+import { killsProblem } from "./kills.mjs";
 import { RAW_MAPS } from "./maps/index.mjs";
 
 const MAP_SLUGS = Object.keys(RAW_MAPS);
@@ -70,7 +71,7 @@ export const FIXTURE_ROUTES = [
       { campId: "c09", units: [{ icon: "hu-archmage", count: 1 }], note: "Scout in with the Archmage alone" },
       { campId: "c19", note: "Second camp, keep Water Elemental topped up" },
       { campId: "c03", note: "Bring 2 Footmen for this one" },
-      { campId: "c05", note: "Last camp before the expansion goes down" },
+      { campId: "c05", kills: [{ row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }], note: "Last camp before the expansion goes down" },
     ],
   },
   {
@@ -166,10 +167,10 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-09-14T10:00:00Z",
     updatedAt: "2026-09-14T10:00:00Z",
     stops: [
-      { campId: "c01" },
+      { campId: "c01", kills: [{ row: 0, n: 1 }, { row: 2, n: 1 }, { row: 1, n: 1 }], note: "Priest first so it can't heal" },
       { campId: "c02", condition: "Skip if the Undead scouted this side" },
       { campId: "c05" },
-      { campId: "c16", note: "Home to Watch Tower after this one" },
+      { campId: "c16", kills: [{ row: 0, n: 1 }], leaveRest: true, note: "Take the item and go home to Watch Tower" },
     ],
   },
 ];
@@ -185,8 +186,11 @@ for (const route of FIXTURE_ROUTES) {
   if (!map) throw new Error(`fixture route ${route.slug} references unknown map ${route.map.slug}`);
   route.map.minimapUrl = map.minimapUrl;
   for (const stop of route.stops) {
-    if (stop.campId && !map.camps.some((c) => c.id === stop.campId)) {
+    const camp = stop.campId && map.camps.find((c) => c.id === stop.campId);
+    if (stop.campId && !camp) {
       throw new Error(`fixture route ${route.slug} references unknown camp ${stop.campId} on ${map.slug}`);
     }
+    const problem = camp && stop.kills && killsProblem(stop.kills, camp.creeps.map((c) => c.count));
+    if (problem) throw new Error(`fixture route ${route.slug} stop ${stop.campId}: ${problem}`);
   }
 }

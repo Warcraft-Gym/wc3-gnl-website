@@ -19,6 +19,8 @@ export type StopInput = {
   units?: { icon: string; count: number }[];
   note?: string;
   condition?: string;
+  kills?: { row: number; n: number; set?: number }[];
+  leaveRest?: boolean;
 };
 
 /** The parsed, transformed output of the schema `createSubmissionSchema`
@@ -55,7 +57,13 @@ export type SubmissionInput = {
 export type SubmissionCatalogue = {
   /** `startsCount` is optional — omit it to skip the `start >= starts.length`
    *  check (e.g. a caller that doesn't have the live map's `starts` handy). */
-  maps: { slug: string; campIds: string[]; startsCount?: number }[];
+  maps: {
+    slug: string;
+    campIds: string[];
+    startsCount?: number;
+    /** Camp id → each creep row's count, for the kill-order check. */
+    creepCounts?: Record<string, number[]>;
+  }[];
   iconKeys: string[];
   buildSlugs?: string[];
 };

@@ -1,5 +1,6 @@
 "use client";
 
+import { killedXpShare, validKills } from "@/lib/creep-routes/kills.mjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker } from "./CampMarker";
@@ -351,7 +352,7 @@ export function CreepMap({
   // showed. Leaving the marker (pointerout) or tabbing away still clears it
   // normally. It also forwards to whatever the caller's own `onCampSelect`
   // does with the click (the editor adds/removes a stop; the read-only
-  // route page toggles the matching table row — see `CreepMapPlayground`).
+  // route page toggles the matching stop block — see `CreepMapPlayground`).
   const handleCampClick = useCallback(
     (campId: string) => {
       setHoverCamp(campId);
@@ -421,6 +422,7 @@ export function CreepMap({
                 cardOpen={openCampId === camp.id}
                 asGroup={groupMarkers}
                 secondary={deemphasizeOffRoute && stopIndex === -1}
+                killed={killedShare(camp, route?.stops, camp.id)}
               />
             );
           })}
@@ -447,4 +449,11 @@ export function CreepMap({
       </p>
     </div>
   );
+}
+
+/** Share of a camp's base creep XP the route takes when a stop on it has a
+ *  kill order, else undefined (full clear or not on the route). */
+function killedShare(camp: MapCamp, stops: RouteStop[] | undefined, campId: string) {
+  const stop = stops?.find((s) => s.campId === campId && s.leaveRest && validKills(camp, s.kills).length);
+  return stop ? killedXpShare(camp, stop.kills, true) : undefined;
 }

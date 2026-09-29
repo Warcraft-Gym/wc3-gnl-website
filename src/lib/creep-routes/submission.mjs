@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { isEmbeddable } from "../video-embed.mjs";
 import { isKnownPatch } from "../patches.mjs";
+import { killsProblem } from "./kills.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -66,6 +67,14 @@ function baseStopSchema(iconSet) {
         .trim()
         .max(STOP_CONDITION_MAX, `Max ${STOP_CONDITION_MAX} characters`)
         .optional(),
+      /** Kill order, see `kills.mjs`. Row bounds are checked against the
+       *  map's camps in the submission's `superRefine`. */
+      kills: z
+        .array(z.object({ row: z.number().int().min(0), n: z.number().int().min(1).max(20), set: z.number().int().min(0).max(99).optional() }))
+        .max(20, "Up to 20 kills")
+        .optional(),
+      /** True skips the creeps `kills` does not list ("Skip the rest"). */
+      leaveRest: z.boolean().optional(),
     })
     .refine((stop) => stop.campId !== null || Boolean(stop.action), {
       message: 'Name the base action, e.g. "TP home"',
@@ -86,6 +95,9 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   if (!maps || !maps.length) throw new Error("createSubmissionSchema needs at least one map");
   const mapSlugs = maps.map((m) => m.slug);
   const campsByMap = new Map(maps.map((m) => [m.slug, new Set(m.campIds)]));
+  // `creepCounts` (camp id → each creep row's count) is optional like
+  // `startsCount`; the kill-order check only runs when it is known.
+  const creepCountsByMap = new Map(maps.map((m) => [m.slug, m.creepCounts]));
   // `startsCount` is optional on each catalogue entry (callers that don't
   // care about the start-index bound, like a handful of pre-existing
   // tests, can omit it); the check below only runs when it's known.
@@ -193,6 +205,11 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
             path: ["stops", i, "campId"],
           });
         }
+        const counts = stop.campId && creepCountsByMap.get(data.map)?.[stop.campId];
+        const problem = stop.kills?.length
+          ? stop.campId ? counts && killsProblem(stop.kills, counts) : "A base action has no creeps"
+          : null;
+        if (problem) ctx.addIssue({ code: "custom", message: problem, path: ["stops", i, "kills"] });
       });
       const startsCount = startsCountByMap.get(data.map);
       if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
@@ -308,6 +325,10 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
         : undefined,
       note: s.note || undefined,
       condition: s.condition || undefined,
+      kills: s.campId && s.kills?.length
+        ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
+        : undefined,
+      leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
     })),
     description: toPortableText(valid.description),
   };

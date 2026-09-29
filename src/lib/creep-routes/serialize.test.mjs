@@ -41,7 +41,7 @@ const route = {
   description: ["Some notes."],
   stops: [
     { campId: "c01", units: [{ icon: "hu-archmage", count: 1 }], note: "First camp" },
-    { campId: "c02" },
+    { campId: "c02", kills: [{ row: 0, n: 1 }], leaveRest: true },
   ],
 };
 
@@ -80,10 +80,10 @@ test("toApiRoute: adds description, build and derived (real deriveRoute)", () =>
   assert.deepEqual(item.tags, ["fast-expand", "archmage"]);
 });
 
-test("toApiRoute: derived stops only carry heroLevelAfter/xpAfter, not the whole camp object", () => {
+test("toApiRoute: derived stops only carry heroLevelAfter/xpAfter/left, not the whole camp object", () => {
   const item = toApiRoute(route, map, "https://site.example", iconSrc, deriveRoute);
   for (const s of item.derived.stops) {
-    assert.deepEqual(Object.keys(s).sort(), ["heroLevelAfter", "xpAfter"]);
+    assert.deepEqual(Object.keys(s).sort(), ["heroLevelAfter", "left", "xpAfter"]);
   }
 });
 
@@ -135,4 +135,15 @@ test("toApiMap: exposes each camp's drops and each creep's icon (F011)", () => {
       items: [{ id: "afac", name: "Ankh of Reincarnation", icon: "BTNAnkh" }],
     },
   ]);
+});
+
+test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
+  const stop = toApiStop(route.stops[1], "https://site.example", iconSrc);
+  assert.deepEqual(stop.kills, [{ row: 0, n: 1 }]);
+  assert.equal(stop.leaveRest, true);
+});
+
+test("toApiStop carries a kill set unchanged", () => {
+  const stop = toApiStop({ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }] }, "https://site.example", iconSrc);
+  assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
 });

@@ -422,10 +422,53 @@ data layer share:
   `campId: null` base action like `"TP home"`, buying from a shop, or
   taking an expansion), `units` (what the *player* brings to the stop —
   never the camp's contents, which are always looked up from the map by
-  `campId`), `note`, `condition`. No time dimension: a route is an ordered
+  `campId`), `note`, `condition`, and `kills` (see "Kill order" below). No
+  time dimension: a route is an ordered
   list of stops, nothing more (F007 removed the per-stop clock and the
   day/night cycle it drove — see the user decision at the top of that
   feature's spec).
+
+### Kill order
+
+A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is
+an index into the camp's `creeps[]` and `n` is how many of that row to
+kill. Empty or missing means the whole camp, which is every route written
+before this field. The optional boolean `leaveRest` (default false; "Skip
+the rest" in the builder and the Studio) says what happens to the creeps
+the list does not name: false kills them after it, in catalogue order; true
+skips them. Three cases it covers:
+
+- Kill one creep and skip the rest, e.g. take the item Ogre Warrior of Last Refuge
+  c16: `kills: [{ row: 0, n: 1 }], leaveRest: true`.
+- Focus one creep, then the rest in any order, e.g. the High Priest first
+  on Springtime c14: `kills: [{ row: 2, n: 1 }]`.
+- Clear the camp in a set order, e.g. the Troll High Priest first so it
+  cannot heal: `kills: [{ row: 0, n: 1 }, { row: 2, n: 1 }, { row: 1, n: 1 }]`.
+
+A row index, not a unit rawcode: 21 of 241 catalogue camps list one rawcode
+in two rows, split only by item drop (Last Refuge c04 has two Forest Troll
+Trapper rows, one with the item), so only the row can name "the item
+creep". The helpers live in `src/lib/creep-routes/kills.mjs`
+(`kills.test.mjs`). The submit action checks each row and count against
+the live camp (`creepCounts` in the submission catalogue); the Sanity
+schema has both fields (`leaveRest` hidden until the stop has a kill
+order), and the `#route=` edit link and the JSON API carry them unchanged.
+A kill entry may also carry an integer `set`: consecutive entries with the same `set` form one set unit (kills in any order) anywhere in the list, and `killsProblem` rejects a `set` value in two separate runs; the trailing rest (unless `leaveRest`) is simply a default set. The derived trace marks each kill `ordered` (listed) or not, its 0-based `unit` and whether that unit is a set (`inSet`); XP inside a listed set follows list order.
+
+On the route page each stop block draws its kills as a chain (`KillOrder`):
+one creep icon per kill with the XP that kill paid, a gold ring and "Lv N"
+tag on the kill that levels the hero up, step badges when the order is
+authored, and one ghosted "skip" icon per skipped creep. The numbers come from
+`deriveRoute`'s per-kill trace (`kills: { creep, xp, levelAfter, leveledUp }[]`
+on each derived stop); the JSON API's `derived` block does not carry it
+(`serialize.mjs` maps fields one by one). The builder edits the same chain:
+click a chain step to remove it (`flatKills`, `mergeKills`), click a greyed
+creep to kill it next (`addKill`). A camp a stop leaves partly alive draws
+as a wedge, the killed share of the camp's base creep XP (`killedXpShare`),
+on its map marker and on the band dot of its stop; the legend does not list it.
+The chain is a row of units: each ordered kill is a single, and the kills the author did not order form one set inside an outline, with one "+xp" total and a step badge only when the stop has two or more units.
+A chain portrait whose creep carries drops is framed blue (items) or red (Power Up, `dropKind`) and opens a small popover with that creep's drop sets and items (`CreepDropPopover`).
+See `DESIGN.md`, "Stop block anatomy".
 
 `src/lib/creep-routes/fixtures.ts` (backed by the plain-JS
 `fixtures.mjs`, so `node --test` can check it directly — see
@@ -452,7 +495,7 @@ like `"c09"` means nothing on its own:
   `" · "`, in the data's own order: `"1× Giant Skeleton Warrior · 1× Sludge
   Flinger · 1× Skeleton Archer"`.
 
-Every reader-facing surface calls one or both: the route page's step table
+Every reader-facing surface calls one or both: the route page's stop list
 (label + "Lv N" on one line, composition muted underneath), the map's hover
 panel title, the editor's stop rows, the map's `aria-live` readout, and the
 route page's `HowTo` JSON-LD step names. A camp id itself is never fully
@@ -482,7 +525,10 @@ route is an ordered list of camp stops and base actions, nothing more. What
 *is* derived, and stays load-bearing, is the hero's running level/xp —
 `src/lib/creep-routes/derive.mjs`'s `deriveRoute(route, map, { startLevel })`
 runs a hero through a route's stops **in order**, folding camp stops
-through `xp.mjs`'s per-kill math (skipping non-camp stops).
+through `xp.mjs`'s per-kill math (skipping non-camp stops). A stop with
+`kills` counts those creeps first, in that order, then the rest of the
+camp, or only those creeps when `leaveRest` ("Skip the rest") is set; each
+derived stop reports `left`, the creeps it skips (also in the API's `derived`).
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
 come from Blizzard's own
@@ -738,11 +784,12 @@ published `creepRoute` documents (this repo's own dev setup today, see
 for any build, fixture-paired or not; found via this feature's own browser
 verification, not assumed from the spec.
 
-The map and the step table are the page's core: `CreepMapPlayground.tsx`
+The map and the stop list are the page's core: `CreepMapPlayground.tsx`
 (a client island next to the page) lifts one piece of state, the active
 stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
-`RouteStepTable` (`RouteStepTable.tsx`) stay in sync when you hover, focus
-or click a stop row (or a marker). `CreepMap` always renders its `<svg>` —
+`RouteStepTable` (`RouteStepTable.tsx`, an `<ol>` of stop blocks, each a
+header with a hero meter, the kill chain, Bring, condition and note) stay
+in sync when you click a stop's summary line (or a marker). Each stop is a disclosure: all open on a route of 5 stops or fewer, all closed beyond that, with "Expand all" / "Collapse all" in the panel header; a marker click opens its stop. `CreepMap` always renders its `<svg>` —
 sized by CSS (`viewBox` + `w-full h-auto`), not gated behind any
 client-only measurement — so the map's camps, path and stop badges are
 present in the server-rendered HTML a curl or a crawler sees, not only
@@ -780,11 +827,11 @@ back down so every trigger can set its own `aria-expanded`.
 **The camp card (F012).** `CampCard` (`src/components/creep-routes/CampCard.tsx`)
 is a portal-rendered (`createPortal(…, document.body)`) dialog, so it's
 never clipped by an ancestor's `overflow-hidden`/`overflow-x-auto` (the
-map's own card, the step table's scroll wrapper) — every trigger just
+map's own card) — every trigger just
 hands it a `MapCamp` and the DOM element that opened it
 (`CampCardTrigger = HTMLElement | SVGElement`, `src/lib/creep-routes/types.ts`,
-since a map marker's trigger is an SVG `<g>` and a table row's is an HTML
-`<tr>`). `CreepMapPlayground` (this page) and `RouteSubmitForm` (the
+since a map marker's trigger is an SVG `<g>` and a stop block's is an HTML
+`<li>`). `CreepMapPlayground` (this page) and `RouteSubmitForm` (the
 editor, below) each own one shared state machine —
 `useCampCard()` (`src/components/creep-routes/useCampCard.ts`), `{ camp,
 trigger, pinned } | null` — so there's exactly one card open at a time
@@ -1201,7 +1248,9 @@ After rebuilding, for every route on a map whose `mapVersion` changed:
    compare creep composition. Matching composition at a small distance is a
    safe re-point; anything else needs a human.
 2. Update the route's `campId`s, then bump its `mapVersion` to the new
-   catalogue value.
+   catalogue value. A stop with `kills` also points at creep rows: check
+   each `row` still names the same creep in the new camp, and re-point it
+   if the rows moved.
 3. Routes carry `mapVersion` precisely so the route page can render
    "Written for vX; the catalogue is vY". That warning only fires when the
    route *has* a `mapVersion` — `fixtures.test.mjs` fails the build if a

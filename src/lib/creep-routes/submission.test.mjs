@@ -338,3 +338,50 @@ test("a blank patch is dropped from the draft rather than stored as an empty str
   const draft = toCreepRouteDraft(parsed.data, "creepMap-autumn-leaves");
   assert.equal(draft.patch, undefined);
 });
+
+test("kills: checked against the camp's creep rows when counts are known", () => {
+  const s = createSubmissionSchema({
+    maps: [{ slug: "autumn-leaves", campIds: ["c01", "c02"], creepCounts: { c01: [1, 2], c02: [3] } }],
+    iconKeys,
+  });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01", kills: [{ row: 1, n: 2 }] }, { campId: "c02" }] }));
+  assert.equal(ok.success, true);
+  const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
+  assert.deepEqual(draft.stops[0].kills.map(({ row, n }) => ({ row, n })), [{ row: 1, n: 2 }]);
+  assert.equal(draft.stops[1].kills, undefined);
+
+  const bad = s.safeParse(payload({ stops: [{ campId: "c01", kills: [{ row: 1, n: 3 }] }, { campId: "c02" }] }));
+  assert.equal(bad.success, false);
+  assert.match(flattenErrors(bad.error)["stops.0.kills"], /More kills/);
+
+  const base = s.safeParse(payload({ stops: [{ campId: null, action: "TP home", kills: [{ row: 0, n: 1 }] }, { campId: "c02" }] }));
+  assert.equal(base.success, false);
+});
+
+test("leaveRest is kept only on a camp stop with a kill order", () => {
+  const s = createSubmissionSchema({
+    maps: [{ slug: "autumn-leaves", campIds: ["c01", "c02"], creepCounts: { c01: [1, 2], c02: [3] } }],
+    iconKeys,
+  });
+  const ok = s.safeParse(
+    payload({ stops: [{ campId: "c01", kills: [{ row: 0, n: 1 }], leaveRest: true }, { campId: "c02", leaveRest: true }] }),
+  );
+  assert.equal(ok.success, true);
+  const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
+  assert.equal(draft.stops[0].leaveRest, true);
+  assert.equal(draft.stops[1].leaveRest, undefined);
+});
+
+test("kill sets: kept on the draft, and a split set is rejected", () => {
+  const s = createSubmissionSchema({
+    maps: [{ slug: "autumn-leaves", campIds: ["c01", "c02"], creepCounts: { c01: [1, 2, 1], c02: [3] } }],
+    iconKeys,
+  });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }] }, { campId: "c02" }] }));
+  assert.equal(ok.success, true);
+  const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
+  assert.deepEqual(draft.stops[0].kills.map(({ row, n, set }) => ({ row, n, set })), [{ row: 0, n: 1, set: 0 }, { row: 2, n: 1, set: 0 }]);
+  const bad = s.safeParse(payload({ stops: [{ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }, { row: 1, n: 1 }, { row: 2, n: 1, set: 0 }] }, { campId: "c02" }] }));
+  assert.equal(bad.success, false);
+  assert.match(flattenErrors(bad.error)["stops.0.kills"], /next to each other/);
+});

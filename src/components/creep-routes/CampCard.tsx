@@ -3,38 +3,20 @@
 import { useEffect, useId, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
-import type { CampCardTrigger, MapCamp, MapCampDrop } from "@/lib/creep-routes/types";
-import { campSpotTitle, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { creepXp } from "@/lib/creep-routes/xp.mjs";
+import type { CampCardTrigger, MapCamp, MapCampDrop, StopKill } from "@/lib/creep-routes/types";
+import { campSpotTitle, dropKey, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { DropDiamond } from "./DropDiamond";
+import { creepXp, creepXpFactor } from "@/lib/creep-routes/xp.mjs";
+
+/** "A hero keeps 80% of base XP at level 1, 70% at 2, …, none from 5.", built from `creepXpFactor`. */
+const XP_FACTOR_NOTE = (() => {
+  const parts = [1, 2, 3, 4].map((l) => `${Math.round(creepXpFactor(l) * 100)}%${l === 1 ? " of base XP at level 1" : ` at ${l}`}`);
+  return `A hero keeps ${parts.join(", ")}, ${creepXpFactor(5) === 0 ? "none" : `${Math.round(creepXpFactor(5) * 100)}%`} from 5.`;
+})();
+import { killStepsByRow, validKills } from "@/lib/creep-routes/kills.mjs";
 import { BandDot } from "./RouteBadges";
 import { CampIcon } from "./CampIcon";
 import { cn } from "@/lib/utils";
-
-/** One colour per drop-set index, cycled — Liquipedia colours its Item
- *  markers per drop set (blue/red in the reference screenshot) so a reader
- *  can match a creep's marker to the matching Items row at a glance. All
- *  four are existing, already-validated design tokens (DESIGN.md's motion/
- *  colour rules only gate *new* mark colours — see C-024 — these are
- *  reused, not new), chosen for maximum contrast from one another. */
-const DROP_TOKENS = ["var(--wg-arcane)", "var(--wg-loss)", "var(--wg-win)", "var(--wg-gold)"];
-
-function DropDiamond({ index, title }: { index: number; title?: string }) {
-  return (
-    <span
-      aria-hidden={title ? undefined : true}
-      title={title}
-      style={{ background: DROP_TOKENS[index % DROP_TOKENS.length] }}
-      className="inline-block size-2.5 shrink-0 rotate-45 rounded-[1px]"
-    />
-  );
-}
-
-/** Stable key for a drop pool, matching how `drops.mjs` groups them — used
- *  to line a creep's own drop up with the camp-level `drops[]` entry (and so
- *  with its diamond colour in the Items table). */
-function dropKey(drop: { kind: string; class?: string; level?: number; id?: string }) {
-  return drop.kind === "class" ? `class:${drop.class}:${drop.level}` : `item:${drop.id}`;
-}
 
 /** Camp-level drop index per pool key, so the Creeps table can mark exactly
  *  which creep carries which pool. The catalogue now records each creep's
@@ -70,7 +52,7 @@ function focusableElements(root: HTMLElement) {
  * `onClose` — the caller is expected to return focus to whatever opened the
  * card (this component only knows the anchor's position, not its focus
  * semantics, since the same card is opened from very different triggers: a
- * map marker, a table row, an editor stop's info button).
+ * map marker, a stop block, an editor stop's info button).
  *
  * F012a: hovering a marker opens this same card **unpinned** — a click (or
  * Enter/Space, or right-click/ⓘ in the editor) **pins** it. `pinned` drives
@@ -93,12 +75,20 @@ export function CampCard({
   onPointerLeave,
   titleId,
   showCampId = false,
+  kills,
+  leaveRest = false,
 }: {
   camp: MapCamp;
   /** Shows the camp id (`c07`) in the header. On by default nowhere: it is
    *  the authoring handle — what a stop stores and what the stop list shows —
    *  so the editor asks for it and the reader-facing route page does not. */
   showCampId?: boolean;
+  /** The stop's ordered kill prefix. When set, rows sort by step, a "Kill"
+   *  column numbers each ordered kill, then the unordered rest, then (with
+   *  `leaveRest`) skipped creeps, dimmed. */
+  kills?: StopKill[];
+  /** True when creeps not in `kills` are skipped ("Skip"); false leaves their Kill cell blank. */
+  leaveRest?: boolean;
   /** Defaults to `camp.band`; accepted separately per the spec so a caller
    *  can override it (e.g. a synthetic camp without its own band). */
   band?: string;
@@ -231,6 +221,10 @@ export function CampCard({
     };
   }, [pinned]);
 
+  const killSteps = validKills(camp, kills).length ? killStepsByRow(camp, kills) : null;
+  // Rows in kill order (first step first), skipped creeps last.
+  const rowOrder = camp.creeps.map((_, i) => i);
+  if (killSteps) rowOrder.sort((a, b) => (killSteps[a][0] ?? Infinity) - (killSteps[b][0] ?? Infinity) || a - b);
   const dropIndex = useMemo(() => dropIndexByKey(camp.drops ?? []), [camp.drops]);
 
   if (typeof document === "undefined") return null;
@@ -245,7 +239,7 @@ export function CampCard({
       onPointerEnter={onPointerEnter}
       onPointerLeave={onPointerLeave}
       className={cn(
-        "panel z-50 w-[22rem] max-w-[calc(100vw-1rem)] border-gold/40 bg-surface/98 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] outline-none",
+        "panel z-50 w-[24rem] max-w-[calc(100vw-1rem)] border-gold/40 bg-surface/98 shadow-[0_20px_50px_-12px_rgba(0,0,0,.9)] outline-none",
         // Unpinned is a hover preview, not a click target competing with
         // whatever's under it — it still needs its own pointer-enter/leave
         // (above) to know the pointer is over it, so `pointer-events` stays
@@ -297,41 +291,51 @@ export function CampCard({
           </caption>
           <thead>
             <tr className="text-left font-mono text-[0.6rem] uppercase tracking-[0.12em] text-faint">
+              {killSteps ? <th className="w-px whitespace-nowrap py-1.5 pl-3 text-center font-medium">Kill</th> : null}
               <th className="px-3 py-1.5 font-medium">Unit</th>
-              <th className="px-2 py-1.5 text-right font-medium">Count</th>
-              <th className="px-2 py-1.5 text-right font-medium">Level</th>
-              <th className="px-2 py-1.5 text-right font-medium">XP</th>
-              <th className="px-2 py-1.5 text-center font-medium">Item</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-right font-medium">Count</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-right font-medium">Level</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-right font-medium">Base XP</th>
+              <th className="w-px whitespace-nowrap px-2 py-1.5 text-center font-medium">Item</th>
             </tr>
           </thead>
           <tbody>
-            {camp.creeps.map((c, i) => (
-              <tr key={i} className="border-t border-line/40">
+            {rowOrder.map((i) => {
+              const c = camp.creeps[i];
+              return (
+              <tr key={i} className={cn("border-t border-line/40", killSteps && leaveRest && !killSteps[i].length && "opacity-45")}>
+                {killSteps ? (
+                  <td className="tnum w-px whitespace-nowrap py-1.5 pl-3 text-center text-gold">
+                    {killSteps[i].length ? killSteps[i].join(", ") : leaveRest ? <span className="text-faint">Skip</span> : null}
+                  </td>
+                ) : null}
                 <td className="px-3 py-1.5">
                   <span className="flex items-center gap-2">
                     <CampIcon iconKey={c.icon} title={c.name} kind="creep" size={28} />
                     <span className="text-fg">{c.name}</span>
                   </span>
                 </td>
-                <td className="tnum px-2 py-1.5 text-right text-muted">{c.count}</td>
-                <td className="tnum px-2 py-1.5 text-right text-muted">{c.level}</td>
-                <td className="tnum px-2 py-1.5 text-right text-muted">{creepXp(c.level)}</td>
-                <td className="px-2 py-1.5 text-center">
+                <td className="tnum w-px whitespace-nowrap px-2 py-1.5 text-right text-muted">{c.count}</td>
+                <td className="tnum w-px whitespace-nowrap px-2 py-1.5 text-right text-muted">{c.level}</td>
+                <td className="tnum w-px whitespace-nowrap px-2 py-1.5 text-right text-muted">{creepXp(c.level)}</td>
+                <td className="w-px whitespace-nowrap px-2 py-1.5 text-center">
                   {c.drops?.length ? (
                     <span className="inline-flex justify-center gap-1">
                       {c.drops.map((d, j) => {
                         const idx = dropIndex.get(dropKey(d));
                         return idx === undefined ? null : (
-                          <DropDiamond key={j} index={idx} title={dropTitle(camp.drops[idx])} />
+                          <DropDiamond key={j} drop={camp.drops[idx]} title={dropTitle(camp.drops[idx])} />
                         );
                       })}
                     </span>
                   ) : null}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
+        <p className="border-t border-line/40 px-3 py-1.5 text-[0.7rem] text-muted">{XP_FACTOR_NOTE}</p>
 
         {camp.drops?.length ? (
           <table className="w-full border-collapse text-xs">
@@ -342,7 +346,7 @@ export function CampCard({
               {camp.drops.map((drop, i) => (
                 <tr key={i} className="border-t border-line/40">
                   <td className="w-6 px-3 py-2 align-middle">
-                    <DropDiamond index={i} title={dropTitle(drop)} />
+                    <DropDiamond drop={drop} title={dropTitle(drop)} />
                   </td>
                   <td className="w-28 py-2 pr-2 align-middle text-muted">
                     {dropSetLabel(drop)}
@@ -356,7 +360,7 @@ export function CampCard({
                     {drop.items.length ? (
                       <span className="flex flex-wrap items-center gap-1">
                         {drop.items.map((it) => (
-                          <CampIcon key={it.id} iconKey={it.icon} title={itemTitle(it.name, drop.chance)} kind="item" size={26} />
+                          <CampIcon key={it.id} iconKey={it.icon} title={itemTitle(it.name, drop.chance)} kind="item" size={26} eager />
                         ))}
                       </span>
                     ) : (
