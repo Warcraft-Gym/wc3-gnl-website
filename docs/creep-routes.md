@@ -449,6 +449,18 @@ the live camp (`creepCounts` in the submission catalogue); the Sanity
 schema has the same field, and the `#route=` edit link and the JSON API
 carry it unchanged.
 
+On the route page each stop block draws its kills as a chain (`KillOrder`):
+one creep icon per kill with the XP that kill paid, a gold "Lv N" pill after
+the kill that levels the hero up, step badges when the order is authored,
+and a greyed "leave" group for creeps left alive. The numbers come from
+`deriveRoute`'s per-kill trace (`kills: { creep, xp, levelAfter, leveledUp }[]`
+on each derived stop); the JSON API's `derived` block does not carry it
+(`serialize.mjs` maps fields one by one). The builder edits the same chain:
+click a chain step to remove it (`flatKills`, `mergeKills`), click a greyed
+creep to kill it next (`addKill`). The map legend's "Partly cleared" entry
+shows only when some stop leaves creeps alive (`routeHasPartialStop`).
+See `DESIGN.md`, "Stop block anatomy".
+
 `src/lib/creep-routes/fixtures.ts` (backed by the plain-JS
 `fixtures.mjs`, so `node --test` can check it directly — see
 `fixtures.test.mjs`) ships `FIXTURE_MAPS` (one per generated catalogue) and
@@ -474,7 +486,7 @@ like `"c09"` means nothing on its own:
   `" · "`, in the data's own order: `"1× Giant Skeleton Warrior · 1× Sludge
   Flinger · 1× Skeleton Archer"`.
 
-Every reader-facing surface calls one or both: the route page's step table
+Every reader-facing surface calls one or both: the route page's stop list
 (label + "Lv N" on one line, composition muted underneath), the map's hover
 panel title, the editor's stop rows, the map's `aria-live` readout, and the
 route page's `HowTo` JSON-LD step names. A camp id itself is never fully
@@ -762,11 +774,12 @@ published `creepRoute` documents (this repo's own dev setup today, see
 for any build, fixture-paired or not; found via this feature's own browser
 verification, not assumed from the spec.
 
-The map and the step table are the page's core: `CreepMapPlayground.tsx`
+The map and the stop list are the page's core: `CreepMapPlayground.tsx`
 (a client island next to the page) lifts one piece of state, the active
 stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
-`RouteStepTable` (`RouteStepTable.tsx`) stay in sync when you hover, focus
-or click a stop row (or a marker). `CreepMap` always renders its `<svg>` —
+`RouteStepTable` (`RouteStepTable.tsx`, an `<ol>` of stop blocks, each a
+header with a hero meter, the kill chain, Bring, condition and note) stay
+in sync when you click a stop block (or a marker). `CreepMap` always renders its `<svg>` —
 sized by CSS (`viewBox` + `w-full h-auto`), not gated behind any
 client-only measurement — so the map's camps, path and stop badges are
 present in the server-rendered HTML a curl or a crawler sees, not only
