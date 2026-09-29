@@ -53,18 +53,20 @@ export function KillOrder({
     <ol aria-label={kills.some((k) => k.ordered) ? "Kill order" : "Kills"} className="flex flex-wrap items-start gap-2 pl-1 pt-1.5 sm:gap-2.5">
       {kills.map((k, i) => {
         const step = k.ordered ? i + 1 : null;
-        const body = (
+        const portrait = (
           <>
-            <DropPortrait creep={k.creep} camp={camp} clickable={!onRemove && !onAdd}>
-              <CampIcon
-                iconKey={k.creep.icon}
-                title={k.creep.name}
-                kind="creep"
-                size={40}
-                className={cn(CHAIN_ICON, frame(k.creep) ?? (k.leveledUp && LEVEL_RING), k.leveledUp && frame(k.creep) && LEVEL_OUTLINE)}
-              />
-              {step ? <span aria-hidden className={cn(TAG, "tnum -left-1 -top-1.5 size-5 rounded-sm text-[0.7rem]")}>{step}</span> : null}
-            </DropPortrait>
+            <CampIcon
+              iconKey={k.creep.icon}
+              title={k.creep.name}
+              kind="creep"
+              size={40}
+              className={cn(CHAIN_ICON, frame(k.creep) ?? (k.leveledUp && LEVEL_RING), k.leveledUp && frame(k.creep) && LEVEL_OUTLINE)}
+            />
+            {step ? <span aria-hidden className={cn(TAG, "tnum -left-1 -top-1.5 size-5 rounded-sm text-[0.7rem]")}>{step}</span> : null}
+          </>
+        );
+        const caption = (
+          <>
             <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{k.xp}</span>
             {k.leveledUp ? (
               // Third row, under the caption: only this item grows downward.
@@ -75,29 +77,39 @@ export function KillOrder({
             {k.leveledUp ? <span className="sr-only">Level {k.levelAfter} reached</span> : null}
           </>
         );
+        // The popover stays outside the builder's buttons: no button fade, no dialog inside a button.
         return (
           <li key={`k${i}`}>
             {onRemove && k.ordered ? (
-              <button
-                type="button"
-                onClick={() => onRemove(i)}
-                aria-label={`Remove step ${i + 1}, ${k.creep.name}`}
-                className={cn("block hover:opacity-70", focus)}
-              >
-                {body}
-              </button>
+              <DropPortrait creep={k.creep} camp={camp} clickable={false}>
+                <button
+                  type="button"
+                  onClick={() => onRemove(i)}
+                  aria-label={`Remove step ${i + 1}, ${k.creep.name}`}
+                  className={cn("block hover:opacity-70", focus)}
+                >
+                  {portrait}
+                  {caption}
+                </button>
+              </DropPortrait>
             ) : onAdd && !k.ordered ? (
-              <button
-                type="button"
-                onClick={() => onAdd(k.row)}
-                aria-label={`Kill ${k.creep.name} next`}
-                className={cn("block hover:opacity-70", focus)}
-              >
-                {body}
-              </button>
+              <DropPortrait creep={k.creep} camp={camp} clickable={false}>
+                <button
+                  type="button"
+                  onClick={() => onAdd(k.row)}
+                  aria-label={`Kill ${k.creep.name} next`}
+                  className={cn("block hover:opacity-70", focus)}
+                >
+                  {portrait}
+                  {caption}
+                </button>
+              </DropPortrait>
             ) : (
               <>
-                {body}
+                <DropPortrait creep={k.creep} camp={camp} clickable={!onRemove && !onAdd}>
+                  {portrait}
+                </DropPortrait>
+                {caption}
                 <span className="sr-only">
                   {step ? `${step}. ` : ""}
                   {k.creep.name}, +{k.xp} xp
@@ -108,38 +120,40 @@ export function KillOrder({
         );
       })}
       {skipped.map(({ creep, row }, i) => {
-        const body = (
-          <>
-            <DropPortrait creep={creep} camp={camp} clickable={!onAdd}>
-              <CampIcon
-                iconKey={creep.icon}
-                title={onAdd ? creep.name : "Left alive"}
-                kind="creep"
-                size={40}
-                className={cn(
-                  CHAIN_ICON,
-                  frame(creep) ?? "border-line",
-                "border-dashed opacity-40 grayscale group-hover:opacity-100 group-focus-visible:opacity-100",
-                )}
-              />
-            </DropPortrait>
-            <span aria-hidden className={cn(CAPTION, "text-faint")}>skip</span>
-          </>
+        const portrait = (
+          <CampIcon
+            iconKey={creep.icon}
+            title={onAdd ? creep.name : "Left alive"}
+            kind="creep"
+            size={40}
+            className={cn(
+              CHAIN_ICON,
+              frame(creep) ?? "border-line",
+              "border-dashed opacity-40 grayscale group-hover:opacity-100 group-focus-visible:opacity-100",
+            )}
+          />
         );
+        const caption = <span aria-hidden className={cn(CAPTION, "text-faint")}>skip</span>;
         return (
           <li key={`s${i}`}>
             {onAdd ? (
-              <button
-                type="button"
-                onClick={() => onAdd(row)}
-                aria-label={`Kill ${creep.name} next`}
-                className={cn("group block", focus)}
-              >
-                {body}
-              </button>
+              <DropPortrait creep={creep} camp={camp} clickable={false}>
+                <button
+                  type="button"
+                  onClick={() => onAdd(row)}
+                  aria-label={`Kill ${creep.name} next`}
+                  className={cn("group block", focus)}
+                >
+                  {portrait}
+                  {caption}
+                </button>
+              </DropPortrait>
             ) : (
               <span className="block">
-                {body}
+                <DropPortrait creep={creep} camp={camp} clickable>
+                  {portrait}
+                </DropPortrait>
+                {caption}
                 <span className="sr-only">{creep.name}, left alive</span>
               </span>
             )}

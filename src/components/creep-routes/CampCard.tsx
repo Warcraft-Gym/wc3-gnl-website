@@ -7,7 +7,7 @@ import type { CampCardTrigger, MapCamp, MapCampDrop, StopKill } from "@/lib/cree
 import { campSpotTitle, dropKey, dropSetLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { DropDiamond } from "./DropDiamond";
 import { creepXp } from "@/lib/creep-routes/xp.mjs";
-import { killStepsByRow } from "@/lib/creep-routes/kills.mjs";
+import { killStepsByRow, validKills } from "@/lib/creep-routes/kills.mjs";
 import { BandDot } from "./RouteBadges";
 import { CampIcon } from "./CampIcon";
 import { cn } from "@/lib/utils";
@@ -46,7 +46,7 @@ function focusableElements(root: HTMLElement) {
  * `onClose` — the caller is expected to return focus to whatever opened the
  * card (this component only knows the anchor's position, not its focus
  * semantics, since the same card is opened from very different triggers: a
- * map marker, a table row, an editor stop's info button).
+ * map marker, a stop block, an editor stop's info button).
  *
  * F012a: hovering a marker opens this same card **unpinned** — a click (or
  * Enter/Space, or right-click/ⓘ in the editor) **pins** it. `pinned` drives
@@ -215,7 +215,7 @@ export function CampCard({
     };
   }, [pinned]);
 
-  const killSteps = kills?.length ? killStepsByRow(camp, kills) : null;
+  const killSteps = validKills(camp, kills).length ? killStepsByRow(camp, kills) : null;
   // Rows in kill order (first step first), creeps left alive last.
   const rowOrder = camp.creeps.map((_, i) => i);
   if (killSteps) rowOrder.sort((a, b) => (killSteps[a][0] ?? Infinity) - (killSteps[b][0] ?? Infinity) || a - b);

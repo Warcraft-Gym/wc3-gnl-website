@@ -5,7 +5,7 @@
  * running level/xp total, folding camps in the route's order, skipping
  * non-camp stops. A route has no time dimension — order is everything.
  */
-import { creepsLeft, flatKills, hasKillOrder, killRows } from "./kills.mjs";
+import { creepsLeft, flatKills, killRows, validKills } from "./kills.mjs";
 import { creepXp, creepXpFactor, heroXpForLevel } from "./xp.mjs";
 
 function findCamp(map, campId) {
@@ -40,7 +40,7 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
     const camp = stop.campId ? findCamp(map, stop.campId) : null;
     const kills = [];
     if (camp) {
-      const ordered = hasKillOrder(stop) ? flatKills(stop.kills).length : 0;
+      const ordered = flatKills(validKills(camp, stop.kills)).length;
       for (const row of killRows(camp, stop.kills, stop.leaveRest)) {
         const creep = camp.creeps[row];
         const factor = creepXpFactor(level);

@@ -155,3 +155,13 @@ test("a prefix-only stop kills its prefix first, then the rest, and flags which 
   // Same creeps as a full clear, so the same total xp in this case (no mid-camp level-up).
   assert.equal(stop.xpAfter, deriveRoute({ stops: [{ campId: "c1" }] }, MAP).stops[0].xpAfter);
 });
+
+test("kills outside the camp or past a row's count are ignored: ordered flags and left match the real kills", () => {
+  const out = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }], leaveRest: true }] }, MAP).stops[0];
+  assert.deepEqual(out.kills.map((k) => [k.row, k.ordered]), [[0, false], [0, false], [1, false]]);
+  const mixed = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }, { row: 1, n: 1 }] }] }, MAP).stops[0];
+  assert.deepEqual(mixed.kills.map((k) => [k.row, k.ordered]), [[1, true], [0, false], [0, false]]);
+  const over = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 0, n: 5 }] }] }, MAP).stops[0];
+  assert.equal(over.kills.length, 3);
+  assert.equal(over.left, 0);
+});

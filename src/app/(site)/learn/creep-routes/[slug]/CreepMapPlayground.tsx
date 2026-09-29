@@ -89,6 +89,7 @@ export function CreepMapPlayground({
           active={activeStop}
           onActiveChange={setActiveStop}
           onOpenCard={pin}
+          openCampId={openCampId}
         />
         {/* Anything the page wants directly under the stops — the Discord
             card. It belongs *in* this column rather than in a band below the

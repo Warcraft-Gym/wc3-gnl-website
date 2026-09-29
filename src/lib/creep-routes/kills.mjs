@@ -11,15 +11,25 @@
  */
 import { creepXp } from "./xp.mjs";
 
-/** True when the stop names its own kill order. */
-export function hasKillOrder(stop) {
-  return Array.isArray(stop?.kills) && stop.kills.length > 0;
+/** The kill list cut to this camp: rows the camp lacks dropped, each `n`
+ *  capped at the creeps that row has left. Every helper reads this list. */
+export function validKills(camp, kills) {
+  const used = camp.creeps.map(() => 0);
+  const out = [];
+  for (const { row, n } of kills ?? []) {
+    if (!Number.isInteger(row) || !camp.creeps[row]) continue;
+    const take = Math.min(n, camp.creeps[row].count - used[row]);
+    if (take <= 0) continue;
+    used[row] += take;
+    out.push({ row, n: take });
+  }
+  return out;
 }
 
 /** Row index of every creep killed at this stop, one per kill, in kill
  *  order: the prefix, then (unless `leaveRest`) the rest in catalogue order. */
 export function killRows(camp, kills, leaveRest = false) {
-  const prefix = flatKills(kills).filter((row) => camp.creeps[row]);
+  const prefix = flatKills(validKills(camp, kills));
   const rest = leaveRest && prefix.length ? [] : unorderedCreeps(camp, kills).map((c) => c.row);
   return [...prefix, ...rest];
 }
@@ -63,7 +73,7 @@ export function addKill(kills, row, counts) {
  *  it, one per kill, e.g. `[[2], [], [1, 3]]` — the camp card's "Kill" column. */
 export function killStepsByRow(camp, kills) {
   const steps = camp.creeps.map(() => []);
-  flatKills(kills).forEach((row, i) => steps[row]?.push(i + 1));
+  flatKills(validKills(camp, kills)).forEach((row, i) => steps[row].push(i + 1));
   return steps;
 }
 
@@ -82,7 +92,7 @@ export function wedgePath(cx, cy, r, fraction) {
  *  builder's "kill next" choices. An empty list returns the whole camp. */
 export function unorderedCreeps(camp, kills) {
   const used = camp.creeps.map(() => 0);
-  for (const { row, n } of kills ?? []) if (row in used) used[row] += n;
+  for (const { row, n } of validKills(camp, kills)) used[row] += n;
   return camp.creeps.flatMap((creep, row) =>
     Array.from({ length: Math.max(creep.count - used[row], 0) }, () => ({ creep, row })),
   );
@@ -92,7 +102,7 @@ export function unorderedCreeps(camp, kills) {
  *  that the kill list takes: the killed wedge of a partly cleared camp's
  *  marker. 1 unless the stop leaves the rest alive. */
 export function killedXpShare(camp, kills, leaveRest = false) {
-  if (!kills?.length || !leaveRest) return 1;
+  if (!validKills(camp, kills).length || !leaveRest) return 1;
   const total = camp.creeps.reduce((sum, c) => sum + creepXp(c.level) * c.count, 0);
   const killed = campKills(camp, kills, true).reduce((sum, c) => sum + creepXp(c.level), 0);
   return total ? killed / total : 1;

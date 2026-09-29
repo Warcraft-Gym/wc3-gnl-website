@@ -51,7 +51,10 @@ export function CreepDropPopover({
       role={pinned ? "dialog" : "tooltip"}
       aria-label={pinned ? `${creep.name} item drops` : undefined}
       onClick={(e) => e.stopPropagation()}
-      onKeyDown={(e) => e.stopPropagation()}
+      onKeyDown={(e) => {
+        e.stopPropagation();
+        if (e.key === "Escape" && pinned) onClose();
+      }}
       style={style}
       className="absolute top-full z-40 mt-2 cursor-auto rounded border border-line-strong bg-surface p-3 text-left shadow-[0_12px_32px_-8px_rgba(0,0,0,.9)]"
     >
@@ -115,13 +118,16 @@ export function DropPortrait({
   const [mode, setMode] = useState<null | "hover" | "pin">(null);
   const [style, setStyle] = useState<CSSProperties>({});
   const ref = useRef<HTMLSpanElement>(null);
+  const button = useRef<HTMLButtonElement>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const id = useId();
 
   useEffect(() => {
     if (mode !== "pin") return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setMode(null);
+      if (e.key !== "Escape") return;
+      setMode(null);
+      button.current?.focus();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -136,8 +142,13 @@ export function DropPortrait({
     if (ref.current) setStyle(placement(ref.current));
     setMode(next);
   };
+  // Closing a pinned popover hands focus back to the portrait that opened it.
+  const close = () => {
+    setMode(null);
+    button.current?.focus();
+  };
   const popover = mode ? (
-    <CreepDropPopover creep={creep} camp={camp} pinned={mode === "pin"} onClose={() => setMode(null)} style={style} id={id} />
+    <CreepDropPopover creep={creep} camp={camp} pinned={mode === "pin"} onClose={close} style={style} id={id} />
   ) : null;
 
   return (
@@ -155,6 +166,7 @@ export function DropPortrait({
     >
       {clickable ? (
         <button
+          ref={button}
           type="button"
           aria-label={`${creep.name} item drops`}
           aria-expanded={mode === "pin"}

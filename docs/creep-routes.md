@@ -524,7 +524,8 @@ route is an ordered list of camp stops and base actions, nothing more. What
 `src/lib/creep-routes/derive.mjs`'s `deriveRoute(route, map, { startLevel })`
 runs a hero through a route's stops **in order**, folding camp stops
 through `xp.mjs`'s per-kill math (skipping non-camp stops). A stop with
-`kills` counts only those creeps, in that order, and each derived stop
+`kills` counts those creeps first, in that order, then the rest of the
+camp, or only those creeps when `leaveRest` is set; each derived stop
 reports `left`, the creeps it leaves alive (also in the API's `derived`).
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
@@ -824,11 +825,11 @@ back down so every trigger can set its own `aria-expanded`.
 **The camp card (F012).** `CampCard` (`src/components/creep-routes/CampCard.tsx`)
 is a portal-rendered (`createPortal(…, document.body)`) dialog, so it's
 never clipped by an ancestor's `overflow-hidden`/`overflow-x-auto` (the
-map's own card, the step table's scroll wrapper) — every trigger just
+map's own card) — every trigger just
 hands it a `MapCamp` and the DOM element that opened it
 (`CampCardTrigger = HTMLElement | SVGElement`, `src/lib/creep-routes/types.ts`,
-since a map marker's trigger is an SVG `<g>` and a table row's is an HTML
-`<tr>`). `CreepMapPlayground` (this page) and `RouteSubmitForm` (the
+since a map marker's trigger is an SVG `<g>` and a stop block's is an HTML
+`<li>`). `CreepMapPlayground` (this page) and `RouteSubmitForm` (the
 editor, below) each own one shared state machine —
 `useCampCard()` (`src/components/creep-routes/useCampCard.ts`), `{ camp,
 trigger, pinned } | null` — so there's exactly one card open at a time

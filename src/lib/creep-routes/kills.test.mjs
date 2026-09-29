@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, campKills, creepsLeft, flatKills, killRows, killStepsByRow, killsProblem, killedXpShare, mergeKills, unorderedCreeps, wedgePath } from "./kills.mjs";
+import { addKill, campKills, creepsLeft, flatKills, killRows, killStepsByRow, killsProblem, killedXpShare, mergeKills, unorderedCreeps, validKills, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -31,6 +31,20 @@ test("a kill list is the ordered prefix; the rest dies after it unless leaveRest
   assert.equal(creepsLeft(CAMP, [], true), 0);
   assert.deepEqual(killStepsByRow(CAMP, kills), [[2], [], [], [1]]);
   assert.deepEqual(killStepsByRow(CAMP, [{ row: 2, n: 2 }]), [[], [], [1, 2], []]);
+});
+
+test("rows outside the camp are dropped and n is capped at the row's count", () => {
+  assert.deepEqual(validKills(CAMP, [{ row: 7, n: 1 }, { row: 2, n: 5 }, { row: 2, n: 1 }]), [{ row: 2, n: 2 }]);
+  // Only out-of-camp rows: no kill order, so the whole camp dies even with leaveRest.
+  assert.deepEqual(killRows(CAMP, [{ row: 7, n: 1 }], true), [0, 1, 2, 2, 3]);
+  assert.equal(killedXpShare(CAMP, [{ row: 7, n: 1 }], true), 1);
+  assert.equal(unorderedCreeps(CAMP, [{ row: 7, n: 1 }]).length, 5);
+  assert.deepEqual(killStepsByRow(CAMP, [{ row: 7, n: 1 }, { row: 1, n: 1 }]), [[], [1], [], []]);
+  // Over-count: no extra kills, never negative left, share at most 1.
+  assert.deepEqual(killRows(CAMP, [{ row: 2, n: 5 }]), [2, 2, 0, 1, 3]);
+  assert.equal(creepsLeft(CAMP, [{ row: 2, n: 5 }], true), 3);
+  assert.deepEqual(killStepsByRow(CAMP, [{ row: 2, n: 5 }]), [[], [], [1, 2], []]);
+  assert.ok(killedXpShare(CAMP, [{ row: 3, n: 3 }], true) <= 1);
 });
 
 test("killsProblem rejects an unknown row and more kills than creeps", () => {

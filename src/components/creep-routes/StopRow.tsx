@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { CampCardTrigger, MapCamp, MapCampCreep, StopKill } from "@/lib/creep-routes/types";
-import { addKill, creepsLeft, flatKills, killedXpShare, mergeKills, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
+import { addKill, creepsLeft, flatKills, killedXpShare, mergeKills, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
@@ -86,9 +86,9 @@ function KillOrderField({
   onChange: (patch: Partial<Pick<StopRowData, "kills" | "leaveRest">>) => void;
 }) {
   const counts = camp.creeps.map((c) => c.count);
-  const rows: number[] = flatKills(kills);
+  const rows: number[] = flatKills(validKills(camp, kills));
   const rest = unorderedCreeps(camp, kills) as { creep: MapCampCreep; row: number }[];
-  const leaving = kills.length > 0 && leaveRest;
+  const leaving = rows.length > 0 && leaveRest;
   const option = "h-7 px-2 text-xs transition-colors";
   return (
     <div>
@@ -110,7 +110,15 @@ function KillOrderField({
                   type="button"
                   role="radio"
                   aria-checked={leaveRest === value}
+                  tabIndex={leaveRest === value ? 0 : -1}
                   onClick={() => onChange({ leaveRest: value })}
+                  onKeyDown={(e) => {
+                    // Arrow keys move the choice and focus to the other option, as a radio group does.
+                    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+                    e.preventDefault();
+                    onChange({ leaveRest: !value });
+                    (e.currentTarget.parentElement?.children[value ? 0 : 1] as HTMLElement | undefined)?.focus();
+                  }}
                   className={cn(
                     option,
                     value && "border-l border-line",
@@ -131,7 +139,7 @@ function KillOrderField({
         <p className="mt-1 text-[0.65rem] text-loss">{error}</p>
       ) : (
         <p className="mt-1 text-[0.65rem] text-faint">
-          {!kills.length
+          {!rows.length
             ? "Optional. Click creeps in the order to kill them. Empty means clear the whole camp."
             : !rest.length
               ? "Clears the camp in this order."

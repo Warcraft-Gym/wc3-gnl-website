@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
-import { hasKillOrder, killedXpShare, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
+import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
@@ -41,7 +41,7 @@ function StopBlock({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
         <KillOrder
           camp={camp}
           kills={d.kills}
-          skipped={hasKillOrder(stop) && stop.leaveRest ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[]) : []}
+          skipped={stop.leaveRest && validKills(camp, stop.kills).length ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[]) : []}
         />
       ) : null}
 
@@ -84,6 +84,7 @@ export function RouteStepTable({
   active = null,
   onActiveChange,
   onOpenCard,
+  openCampId = null,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -92,6 +93,8 @@ export function RouteStepTable({
   onActiveChange?: (index: number | null) => void;
   /** Pins the camp card for a camp stop's camp, alongside the selection toggle. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
+  /** The camp the card is showing, for each block's `aria-expanded`. */
+  openCampId?: string | null;
 }) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const derived = useMemo(() => deriveRoute(route, map), [route, map]);
@@ -131,6 +134,7 @@ export function RouteStepTable({
                 }
               }}
               aria-current={isActive ? "step" : undefined}
+              aria-expanded={d.camp ? d.camp.id === openCampId : undefined}
               className={cn(
                 "grid cursor-pointer grid-cols-[1.25rem_minmax(0,1fr)] gap-x-3 border-t border-line/40 px-4 py-4 transition-colors first:border-t-0 sm:px-5",
                 (isActive || i === hoverIndex) && "bg-gold/10",
