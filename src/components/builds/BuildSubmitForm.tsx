@@ -126,7 +126,7 @@ export function BuildSubmitForm() {
       icon: s.icon || undefined,
     }));
   const [previewing, setPreviewing] = useState(false);
-  const stepsSection = useRef<HTMLElement>(null);
+  const buildSection = useRef<HTMLElement>(null);
   // A rejected step needs its row on screen, so errors force the edit view.
   const showPreview = previewing && !Object.keys(errors).some((k) => k.startsWith("steps"));
 
@@ -183,11 +183,11 @@ export function BuildSubmitForm() {
         icon: st.icon ?? "",
       })),
     );
-    // Show the imported steps as the build page will, not two screens down.
+    // Land on the build details to review; the steps preview sits below.
     setPreviewing(true);
-    window.setTimeout(() => stepsSection.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+    window.setTimeout(() => buildSection.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
     const steps = `${b.steps.length} step${b.steps.length === 1 ? "" : "s"}`;
-    setImportMsg({ tone: "ok", text: `"${b.title || "Untitled build"}", ${steps}. Check the steps below, then submit.` });
+    setImportMsg({ tone: "ok", text: `"${b.title || "Untitled build"}", ${steps}. Check it over below, then submit.` });
   };
   // The #build= deep link from the overlay's Submit-to-site button.
   const importJson = (json: string) => {
@@ -262,7 +262,7 @@ export function BuildSubmitForm() {
         <BuildImportZone onImport={applyImport} message={importMsg} onReset={() => setImportMsg(null)} />
 
         {/* 1, The build */}
-        <section className="panel space-y-6 p-5 sm:p-7">
+        <section ref={buildSection} className="panel scroll-mt-36 space-y-6 p-5 sm:p-7">
           <SectionTitle n={1}>The build</SectionTitle>
 
           <Field name="title" title="Title" error={errors.title} counter={`${text.title.length}/90`} hint="e.g. Fast Death Knight into Fiends">
@@ -324,7 +324,7 @@ export function BuildSubmitForm() {
         </section>
 
         {/* 2, Steps */}
-        <section ref={stepsSection} className="panel relative z-20 scroll-mt-36 p-5 sm:p-7">
+        <section className="panel relative z-20 p-5 sm:p-7">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <SectionTitle n={2}>Steps</SectionTitle>
             {errors.steps ? <p className="text-xs text-loss">{errors.steps}</p> : null}
