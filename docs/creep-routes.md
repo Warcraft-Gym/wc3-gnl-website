@@ -457,10 +457,9 @@ authored, and one ghosted "skip" icon per creep left alive. The numbers come fro
 on each derived stop); the JSON API's `derived` block does not carry it
 (`serialize.mjs` maps fields one by one). The builder edits the same chain:
 click a chain step to remove it (`flatKills`, `mergeKills`), click a greyed
-creep to kill it next (`addKill`). The map legend's "Partly cleared" entry
-shows only when some stop leaves creeps alive (`routeHasPartialStop`); the
-marker's wedge is the killed share of the camp's base creep XP
-(`killedXpShare`).
+creep to kill it next (`addKill`). A camp a stop leaves partly alive draws
+as a wedge, the killed share of the camp's base creep XP (`killedXpShare`),
+on its map marker and on the band dot of its stop; the legend does not list it.
 See `DESIGN.md`, "Stop block anatomy".
 
 `src/lib/creep-routes/fixtures.ts` (backed by the plain-JS

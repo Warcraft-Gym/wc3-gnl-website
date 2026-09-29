@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, addRestOfCamp, campKills, creepsLeft, flatKills, killStepsByRow, killsProblem, killedXpShare, mergeKills, routeHasPartialStop, unorderedCreeps, wedgePath } from "./kills.mjs";
+import { addKill, addRestOfCamp, campKills, creepsLeft, flatKills, killStepsByRow, killsProblem, killedXpShare, mergeKills, unorderedCreeps, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -72,10 +72,4 @@ test("flatKills and mergeKills round-trip, and removing one kill re-merges", () 
   const rows = flatKills(kills).filter((_, i) => i !== 2);
   assert.deepEqual(mergeKills(rows), [{ row: 2, n: 3 }]);
   assert.deepEqual(flatKills(undefined), []);
-});
-
-test("routeHasPartialStop is true only when a stop leaves creeps alive", () => {
-  assert.equal(routeHasPartialStop([{ left: 0 }, { left: 0 }]), false);
-  assert.equal(routeHasPartialStop([{ left: 0 }, { left: 2 }]), true);
-  assert.equal(routeHasPartialStop([]), false);
 });

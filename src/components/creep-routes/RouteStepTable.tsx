@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
-import { hasKillOrder, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
+import { hasKillOrder, killedXpShare, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
@@ -21,7 +21,7 @@ function StopBlock({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
         {camp ? (
           <div className="min-w-0 pt-0.5 text-sm sm:flex sm:flex-wrap sm:items-center sm:gap-x-2">
             <span className="inline-flex items-center gap-1.5">
-              <BandDot band={d.band} />
+              <BandDot band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills) : undefined} />
               <span className="font-medium text-fg">{campLabel(camp)}</span>
             </span>
             <span className="flex items-center gap-1.5 pl-3.5 text-muted sm:pl-0">

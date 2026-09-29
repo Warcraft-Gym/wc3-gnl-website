@@ -1,8 +1,6 @@
 "use client";
 
 import { useMemo } from "react";
-import { deriveRoute } from "@/lib/creep-routes/derive";
-import { routeHasPartialStop } from "@/lib/creep-routes/kills.mjs";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { StopEditor } from "./StopEditor";
@@ -64,7 +62,6 @@ export function RouteEditor({
     () => ({ stops: stops.map((s) => ({ campId: s.campId, kills: s.kills })), start }),
     [stops, start],
   );
-  const partial = useMemo(() => routeHasPartialStop(deriveRoute(routeForMap, map).stops), [routeForMap, map]);
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
@@ -78,7 +75,7 @@ export function RouteEditor({
           onCampCardHoverLeave={onHoverLeave}
           openCampId={openCampId}
         />
-        <MapLegend partial={partial} />
+        <MapLegend />
         <p className="mt-2 text-xs text-faint">
           Hover a camp to see what&apos;s inside; click to add it as the next stop; right-click or
           the ⓘ pins the card.

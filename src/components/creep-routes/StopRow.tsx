@@ -4,7 +4,7 @@ import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { CampCardTrigger, MapCamp, MapCampCreep, StopKill } from "@/lib/creep-routes/types";
-import { addKill, addRestOfCamp, creepsLeft, flatKills, mergeKills, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
+import { addKill, addRestOfCamp, creepsLeft, flatKills, killedXpShare, mergeKills, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
@@ -193,7 +193,9 @@ export function StopRow({
         <div className="min-w-0">
           {stop.campId ? (
             <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">
-              {camp ? <BandDot band={camp.band} /> : null}
+              {camp ? (
+                <BandDot band={camp.band} killed={creepsLeft(camp, stop.kills) > 0 ? killedXpShare(camp, stop.kills) : undefined} />
+              ) : null}
               <span className="truncate font-bold text-fg">{camp ? campLabel(camp) : stop.campId}</span>
               {camp ? (
                 <button

@@ -1,14 +1,12 @@
 "use client";
 
-import { Fragment, useCallback, useMemo, useState } from "react";
+import { Fragment, useCallback, useState } from "react";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
 import { CampCard } from "@/components/creep-routes/CampCard";
 import { useCampCard } from "@/components/creep-routes/useCampCard";
 import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/types";
-import { deriveRoute } from "@/lib/creep-routes/derive";
-import { routeHasPartialStop } from "@/lib/creep-routes/kills.mjs";
 
 /**
  * The map and the stop list share one piece of state — the active stop —
@@ -51,7 +49,6 @@ export function CreepMapPlayground({
 }) {
   const [activeStop, setActiveStop] = useState<number | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
-  const partial = useMemo(() => routeHasPartialStop(deriveRoute(route, map).stops), [route, map]);
 
   // A second click on the same marker clears the selection, same as a
   // second click on the same stop block. Clicking a camp that ISN'T one of
@@ -83,7 +80,7 @@ export function CreepMapPlayground({
           onCampCardHoverLeave={hoverLeave}
           openCampId={openCampId}
         />
-        <MapLegend partial={partial} />
+        <MapLegend />
       </div>
       <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <RouteStepTable

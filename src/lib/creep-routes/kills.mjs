@@ -117,9 +117,3 @@ export function mergeKills(rows) {
   }
   return out;
 }
-
-/** True when some camp stop of the route leaves creeps alive — the map
- *  legend's "Partly cleared" entry. `derivedStops` is `deriveRoute(...).stops`. */
-export function routeHasPartialStop(derivedStops) {
-  return derivedStops.some((s) => s.left > 0);
-}
