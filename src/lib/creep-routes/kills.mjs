@@ -7,6 +7,7 @@
  * row can say "the item troll". Empty or missing means the whole camp, in
  * catalogue order. Creeps not listed stay alive.
  */
+import { creepXp } from "./xp.mjs";
 
 /** True when the stop names its own kill order. */
 export function hasKillOrder(stop) {
@@ -80,16 +81,25 @@ export function wedgePath(cx, cy, r, fraction) {
   return `M${cx} ${cy}L${cx} ${cy - r}A${r} ${r} 0 ${large} 1 ${x.toFixed(2)} ${y.toFixed(2)}Z`;
 }
 
-/** The creeps a kill order leaves alive, as `{ creep, n }` per row that
- *  still has any — the leave group after a partial stop's kill chain. No
- *  kill order means the whole camp, so nothing is left. */
-export function leftRows(camp, kills) {
-  if (!kills?.length) return [];
+/** Every creep not in the kill list, one `{ creep, row }` per creep, in
+ *  catalogue order: the ghosted icons after a stop's kill chain, and the
+ *  builder's "kill next" choices. An empty list returns the whole camp. */
+export function unorderedCreeps(camp, kills) {
   const used = camp.creeps.map(() => 0);
   for (const { row, n } of kills ?? []) if (row in used) used[row] += n;
-  return camp.creeps
-    .map((creep, row) => ({ creep, n: creep.count - used[row] }))
-    .filter((r) => r.n > 0);
+  return camp.creeps.flatMap((creep, row) =>
+    Array.from({ length: Math.max(creep.count - used[row], 0) }, () => ({ creep, row })),
+  );
+}
+
+/** Share of the camp's base creep XP (`creepXp(level)`, no hero factor)
+ *  that the kill list takes: the killed wedge of a partly cleared camp's
+ *  marker. 1 when there is no kill order. */
+export function killedXpShare(camp, kills) {
+  if (!kills?.length) return 1;
+  const total = camp.creeps.reduce((sum, c) => sum + creepXp(c.level) * c.count, 0);
+  const killed = campKills(camp, kills).reduce((sum, c) => sum + creepXp(c.level), 0);
+  return total ? killed / total : 1;
 }
 
 /** One row index per kill, in kill order: `[{row: 2, n: 2}]` → `[2, 2]`. */

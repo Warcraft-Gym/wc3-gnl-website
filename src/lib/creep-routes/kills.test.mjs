@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, addRestOfCamp, campKills, creepsLeft, flatKills, killStepsByRow, killsProblem, leftRows, mergeKills, routeHasPartialStop, wedgePath } from "./kills.mjs";
+import { addKill, addRestOfCamp, campKills, creepsLeft, flatKills, killStepsByRow, killsProblem, killedXpShare, mergeKills, routeHasPartialStop, unorderedCreeps, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -48,12 +48,20 @@ test("wedgePath draws a half circle for one half, from 12 o'clock", () => {
   assert.equal(wedgePath(10, 10, 5, 0.5), "M10 10L10 5A5 5 0 0 1 10.00 15.00Z");
 });
 
-test("leftRows names what a partial stop leaves alive", () => {
-  const left = leftRows(CAMP, [{ row: 3, n: 1 }, { row: 2, n: 1 }]);
-  assert.deepEqual(left.map((r) => [r.creep.name, r.n]), [["Troll (item)", 1], ["Troll", 1], ["Ogre", 1]]);
-  // No kill order is a full clear: nothing left.
-  assert.deepEqual(leftRows(CAMP, undefined), []);
-  assert.deepEqual(leftRows(CAMP, []), []);
+test("unorderedCreeps lists each creep not in the kill list, one per creep", () => {
+  const left = unorderedCreeps(CAMP, [{ row: 3, n: 1 }, { row: 2, n: 1 }]);
+  assert.deepEqual(left.map((r) => [r.creep.name, r.row]), [["Troll (item)", 0], ["Troll", 1], ["Ogre", 2]]);
+  // An empty list leaves the whole camp to choose from.
+  assert.equal(unorderedCreeps(CAMP, []).length, 5);
+  assert.deepEqual(unorderedCreeps(CAMP, addRestOfCamp([], COUNTS)), []);
+});
+
+test("killedXpShare weighs kills by base creep XP, not by count", () => {
+  // creepXp: level 3 = 60, level 5 = 115. Camp total = 60*4 + 115 = 355.
+  assert.equal(killedXpShare(CAMP, [{ row: 3, n: 1 }]), 115 / 355);
+  assert.equal(killedXpShare(CAMP, [{ row: 0, n: 1 }]), 60 / 355);
+  assert.equal(killedXpShare(CAMP, undefined), 1);
+  assert.equal(killedXpShare(CAMP, addRestOfCamp([], COUNTS)), 1);
 });
 
 test("flatKills and mergeKills round-trip, and removing one kill re-merges", () => {

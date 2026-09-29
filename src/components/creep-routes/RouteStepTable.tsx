@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { ChevronRight } from "lucide-react";
 import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
-import { hasKillOrder, leftRows } from "@/lib/creep-routes/kills.mjs";
+import { hasKillOrder, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
@@ -41,7 +41,7 @@ function StopBlock({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
         <KillOrder
           kills={d.kills}
           ordered={hasKillOrder(stop)}
-          leave={leftRows(camp, stop.kills) as { creep: MapCampCreep; n: number }[]}
+          skipped={hasKillOrder(stop) ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[]) : []}
         />
       ) : null}
 

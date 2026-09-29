@@ -1,6 +1,6 @@
 "use client";
 
-import { campKills } from "@/lib/creep-routes/kills.mjs";
+import { killedXpShare } from "@/lib/creep-routes/kills.mjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker } from "./CampMarker";
@@ -451,11 +451,9 @@ export function CreepMap({
   );
 }
 
-/** Share of a camp's creeps the route kills when a stop on it has a kill
- *  order, else undefined (full clear or not on the route). */
+/** Share of a camp's base creep XP the route takes when a stop on it has a
+ *  kill order, else undefined (full clear or not on the route). */
 function killedShare(camp: MapCamp, stops: RouteStop[] | undefined, campId: string) {
   const stop = stops?.find((s) => s.campId === campId && s.kills?.length);
-  if (!stop) return undefined;
-  const total = camp.creeps.reduce((sum, c) => sum + c.count, 0);
-  return total ? campKills(camp, stop.kills).length / total : undefined;
+  return stop ? killedXpShare(camp, stop.kills) : undefined;
 }

@@ -3,8 +3,8 @@
 import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
-import type { CampCardTrigger, MapCamp, StopKill } from "@/lib/creep-routes/types";
-import { addKill, addRestOfCamp, creepsLeft, flatKills, mergeKills } from "@/lib/creep-routes/kills.mjs";
+import type { CampCardTrigger, MapCamp, MapCampCreep, StopKill } from "@/lib/creep-routes/types";
+import { addKill, addRestOfCamp, creepsLeft, flatKills, mergeKills, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
@@ -82,9 +82,7 @@ function KillOrderField({
 }) {
   const counts = camp.creeps.map((c) => c.count);
   const rows: number[] = flatKills(kills);
-  const remaining = camp.creeps.flatMap((creep, row) =>
-    Array.from({ length: Math.max(creep.count - rows.filter((r) => r === row).length, 0) }, () => ({ creep, row })),
-  );
+  const remaining = unorderedCreeps(camp, kills) as { creep: MapCampCreep; row: number }[];
   const left = creepsLeft(camp, kills);
   const text = "h-7 px-1.5 text-xs text-muted";
   return (
@@ -94,7 +92,7 @@ function KillOrderField({
         kills={kills.length ? trace : []}
         ordered
         onRemove={(i) => onChange(mergeKills(rows.filter((_, j) => j !== i)))}
-        remaining={remaining}
+        skipped={remaining}
         onAdd={(row) => onChange(addKill(kills, row, counts))}
       />
       <div className="mt-2 flex flex-wrap items-center justify-between gap-x-3">
