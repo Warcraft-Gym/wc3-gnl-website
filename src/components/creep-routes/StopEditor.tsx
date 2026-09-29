@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef } from "react";
 import { Plus } from "lucide-react";
-import { deriveRoute } from "@/lib/creep-routes/derive.mjs";
+import { deriveRoute } from "@/lib/creep-routes/derive";
 import type { CampCardTrigger, CreepMap, MapCamp } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { StopRow, type StopRowData } from "./StopRow";
@@ -122,6 +122,7 @@ export function StopEditor({
               }}
               onOpenCard={onOpenCard}
               cardOpen={Boolean(s.campId) && s.campId === openCampId}
+              trace={derived.stops[i]?.kills}
             />
           ))}
         </ol>

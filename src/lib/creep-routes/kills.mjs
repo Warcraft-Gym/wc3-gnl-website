@@ -81,8 +81,10 @@ export function wedgePath(cx, cy, r, fraction) {
 }
 
 /** The creeps a kill order leaves alive, as `{ creep, n }` per row that
- *  still has any — the "Leave" line under a partial stop's kill order. */
+ *  still has any — the leave group after a partial stop's kill chain. No
+ *  kill order means the whole camp, so nothing is left. */
 export function leftRows(camp, kills) {
+  if (!kills?.length) return [];
   const used = camp.creeps.map(() => 0);
   for (const { row, n } of kills ?? []) if (row in used) used[row] += n;
   return camp.creeps

@@ -101,8 +101,8 @@ export function CampCard({
    *  the authoring handle — what a stop stores and what the stop list shows —
    *  so the editor asks for it and the reader-facing route page does not. */
   showCampId?: boolean;
-  /** The stop's kill order. When set, a "Kill" column numbers each creep's
-   *  place in the order and creeps left alive are dimmed. */
+  /** The stop's kill order. When set, rows sort by kill order, a "Kill"
+   *  column numbers each creep's place and creeps left alive sit last, dimmed. */
   kills?: StopKill[];
   /** Defaults to `camp.band`; accepted separately per the spec so a caller
    *  can override it (e.g. a synthetic camp without its own band). */
@@ -237,6 +237,9 @@ export function CampCard({
   }, [pinned]);
 
   const killSteps = kills?.length ? killStepsByRow(camp, kills) : null;
+  // Rows in kill order (first step first), creeps left alive last.
+  const rowOrder = camp.creeps.map((_, i) => i);
+  if (killSteps) rowOrder.sort((a, b) => (killSteps[a][0] ?? Infinity) - (killSteps[b][0] ?? Infinity) || a - b);
   const dropIndex = useMemo(() => dropIndexByKey(camp.drops ?? []), [camp.drops]);
 
   if (typeof document === "undefined") return null;
@@ -312,7 +315,9 @@ export function CampCard({
             </tr>
           </thead>
           <tbody>
-            {camp.creeps.map((c, i) => (
+            {rowOrder.map((i) => {
+              const c = camp.creeps[i];
+              return (
               <tr key={i} className={cn("border-t border-line/40", killSteps && !killSteps[i].length && "opacity-45")}>
                 {killSteps ? (
                   <td className="tnum py-1.5 pl-3 text-center text-gold">
@@ -341,7 +346,8 @@ export function CampCard({
                   ) : null}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
 

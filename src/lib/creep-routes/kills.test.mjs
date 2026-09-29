@@ -51,6 +51,9 @@ test("wedgePath draws a half circle for one half, from 12 o'clock", () => {
 test("leftRows names what a partial stop leaves alive", () => {
   const left = leftRows(CAMP, [{ row: 3, n: 1 }, { row: 2, n: 1 }]);
   assert.deepEqual(left.map((r) => [r.creep.name, r.n]), [["Troll (item)", 1], ["Troll", 1], ["Ogre", 1]]);
+  // No kill order is a full clear: nothing left.
+  assert.deepEqual(leftRows(CAMP, undefined), []);
+  assert.deepEqual(leftRows(CAMP, []), []);
 });
 
 test("flatKills and mergeKills round-trip, and removing one kill re-merges", () => {

@@ -1,23 +1,25 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { Fragment, useCallback, useMemo, useState } from "react";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
 import { CampCard } from "@/components/creep-routes/CampCard";
 import { useCampCard } from "@/components/creep-routes/useCampCard";
 import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/types";
+import { deriveRoute } from "@/lib/creep-routes/derive";
+import { routeHasPartialStop } from "@/lib/creep-routes/kills.mjs";
 
 /**
- * The map and the step table share one piece of state — the active stop —
- * lifted here so hovering, focusing or clicking a row in the table lights
+ * The map and the stop list share one piece of state — the active stop —
+ * lifted here so hovering, focusing or clicking a stop block lights
  * the same marker on the map, *and* clicking a camp marker on the map
- * selects the matching row (F009: the read-only page was keyboard-only
- * before this — see the F009 review, ux.md item 1). Map left, table right
+ * selects the matching stop (F009: the read-only page was keyboard-only
+ * before this — see the F009 review, ux.md item 1). Map left, stops right
  * and sticky at `lg`; stacked below.
  *
  * F012/F012a: also owns the camp card's hover/pin state (`useCampCard`) —
- * every trigger (a table row, or a map marker's hover/click/keyboard-walk,
+ * every trigger (a stop block, or a map marker's hover/click/keyboard-walk,
  * see `CampMarker`'s and `CreepMap`'s doc comments) reports up through this
  * one hook, so there's exactly one card open at a time regardless of which
  * side opened it. `card.trigger` is the DOM element that opened it: the
@@ -44,17 +46,18 @@ export function CreepMapPlayground({
 }: {
   map: CreepMapType;
   route: CreepRoute;
-  /** Rendered under the step table, inside the right-hand column. */
+  /** Rendered under the stop list, inside the right-hand column. */
   aside?: React.ReactNode;
 }) {
   const [activeStop, setActiveStop] = useState<number | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
+  const partial = useMemo(() => routeHasPartialStop(deriveRoute(route, map).stops), [route, map]);
 
   // A second click on the same marker clears the selection, same as a
-  // second click on the same table row. Clicking a camp that ISN'T one of
+  // second click on the same stop block. Clicking a camp that ISN'T one of
   // the route's own stops (every camp is clickable now, F012-followup-3)
-  // finds no matching row — `findIndex` returns -1 — and this is a no-op:
-  // no table row is selected, nothing crashes.
+  // finds no matching stop — `findIndex` returns -1 — and this is a no-op:
+  // no stop is selected, nothing crashes.
   const onMarkerSelect = useCallback(
     (campId: string) => {
       const idx = route.stops.findIndex((s) => s.campId === campId);
@@ -80,7 +83,7 @@ export function CreepMapPlayground({
           onCampCardHoverLeave={hoverLeave}
           openCampId={openCampId}
         />
-        <MapLegend partial={route.stops.some((s) => s.kills?.length)} />
+        <MapLegend partial={partial} />
       </div>
       <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <RouteStepTable
@@ -89,14 +92,14 @@ export function CreepMapPlayground({
           active={activeStop}
           onActiveChange={setActiveStop}
           onOpenCard={pin}
-          openCampId={openCampId}
         />
         {/* Anything the page wants directly under the stops — the Discord
             card. It belongs *in* this column rather than in a band below the
-            grid: the map column is far taller than a short step table, so a
+            grid: the map column is far taller than a short stop list, so a
             three-stop route left a column of dead space that pushed whatever
-            followed the whole height of the map down the page. */}
-        {aside}
+            followed the whole height of the map down the page. A server
+            element in a client child list needs a key, hence the fragment. */}
+        <Fragment key="aside">{aside}</Fragment>
       </div>
       {card ? (
         <CampCard

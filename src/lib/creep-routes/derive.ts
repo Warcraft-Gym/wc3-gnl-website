@@ -1,5 +1,5 @@
 import * as impl from "./derive.mjs";
-import type { CreepMap, CreepRoute, MapCamp, MapCampCreep } from "./types";
+import type { CreepMap, MapCamp, MapCampCreep, RouteStop } from "./types";
 
 /**
  * Typed façade over `derive.mjs`'s pure, plain-JS implementation — same
@@ -40,7 +40,7 @@ export type DerivedRoute = {
 };
 
 export const deriveRoute = impl.deriveRoute as (
-  route: CreepRoute,
+  route: { stops: Pick<RouteStop, "campId" | "kills">[] },
   map: CreepMap,
   opts?: { startLevel?: number },
 ) => DerivedRoute;
