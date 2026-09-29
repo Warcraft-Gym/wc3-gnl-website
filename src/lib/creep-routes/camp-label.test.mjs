@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { campLabel, campComposition, campSpotTitle, dropSetLabel } from "./camp-label.mjs";
+import { campLabel, campComposition, campSpotTitle, creepDropKind, dropKey, dropKind, dropSetLabel } from "./camp-label.mjs";
 import autumnLeaves from "./maps/autumn-leaves.json" with { type: "json" };
 
 // c09: Giant Skeleton Warrior (lvl 3), Sludge Flinger (lvl 3), Skeleton
@@ -87,4 +87,22 @@ test("dropSetLabel: a concrete item with no resolved items[] falls back to \"Ite
 
 test("dropSetLabel: a missing drop is an empty string, not a throw", () => {
   assert.equal(dropSetLabel(undefined), "");
+});
+
+test("dropKind: Power Up pools are red, every other set is blue", () => {
+  assert.equal(dropKind({ kind: "class", class: "PowerUp", level: 1 }), "powerup");
+  assert.equal(dropKind({ kind: "class", class: "Permanent", level: 3 }), "item");
+  assert.equal(dropKind({ kind: "item", id: "ckng" }), "item");
+});
+
+test("creepDropKind: item wins over power up, null without drops", () => {
+  assert.equal(creepDropKind({ drops: [{ kind: "class", class: "PowerUp", level: 1 }] }), "powerup");
+  assert.equal(creepDropKind({ drops: [{ kind: "class", class: "PowerUp", level: 1 }, { kind: "item", id: "ckng" }] }), "item");
+  assert.equal(creepDropKind({ drops: [] }), null);
+  assert.equal(creepDropKind({}), null);
+});
+
+test("dropKey: one key per pool or fixed item", () => {
+  assert.equal(dropKey({ kind: "class", class: "PowerUp", level: 1 }), "class:PowerUp:1");
+  assert.equal(dropKey({ kind: "item", id: "ckng" }), "item:ckng");
 });
