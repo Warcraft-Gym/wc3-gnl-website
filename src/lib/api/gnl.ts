@@ -27,7 +27,7 @@ import {
   type RawLadder,
   type RawSeason,
   type RawTeam,
-  type RawSeries,
+  type RawSeriesSummary,
   type RawMatch,
   type RawFantasyTeam,
   type RawCareerStat,
@@ -147,8 +147,11 @@ export async function getFixtures(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const series = await apiGetAll<RawSeries>(`/events/${s.id}/series`, { revalidate: LIVE_REVALIDATE });
-      return mapFixtures(series);
+      const [series, matches] = await Promise.all([
+        apiGetAll<RawSeriesSummary>(`/events/${s.id}/series/summary`, { revalidate: LIVE_REVALIDATE }),
+        apiGet<RawMatch[]>(`/events/${s.id}/matches`, { revalidate: LIVE_REVALIDATE }),
+      ]);
+      return mapFixtures(series, matches);
     },
     () => FIXTURE_FIXTURES,
     "getFixtures",
@@ -248,7 +251,7 @@ export async function getTeamPage(
       ]);
       const team = mapTeams(teams, raw).find((t) => t.slug === slug);
       if (!team) return null;
-      const teamSeries = await apiGetAll<RawSeries>(`/events/${raw.id}/series`, { revalidate: LIVE_REVALIDATE,
+      const teamSeries = await apiGetAll<RawSeriesSummary>(`/events/${raw.id}/series/summary`, { revalidate: LIVE_REVALIDATE,
         query: { team_id: team.id },
       });
       return {
@@ -256,7 +259,7 @@ export async function getTeamPage(
         season: seasons[pick],
         seasons,
         standing: mapStandings(teams, matchesToFixtures(matches), raw.id).find((r) => r.team.id === team.id),
-        fixtures: mapFixtures(teamSeries)
+        fixtures: mapFixtures(teamSeries, matches)
           .filter((f) => f.home.id === team.id || f.away.id === team.id)
           .sort((a, b) => a.week - b.week),
       };
