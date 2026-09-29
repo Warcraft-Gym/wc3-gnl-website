@@ -113,62 +113,44 @@ function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih
   );
 }
 
-/** Gold mine, drawn with Liquipedia's own icon (`/map-icons/gold-mine.png`,
- *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map.
- *  `<image>`'s default `preserveAspectRatio` ("xMidYMid meet") fits the
- *  icon inside the box without distorting it, so a fixed square box works
- *  for every icon regardless of its own aspect ratio. */
-const MINE_ICON_WIDTH = 16;
+/** Gold mines and neutral buildings use the game's own 16x16 minimap icons
+ *  (`UI/MiniMap/minimap-gold.blp`, `minimap-neutralbuilding.blp`): a gold
+ *  disc and a gold house, the marks players already know from the minimap.
+ *  ~12px at this 256-viewBox scale, scales with the map. */
+const MINIMAP_ICON_WIDTH = 12;
 
-function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number }) {
-  const cx = mine.x * iw;
-  const cy = mine.y * ih;
-  const w = MINE_ICON_WIDTH * (iw / 256);
-  const h = w * (53 / 64);
+function MinimapIcon({ x, y, iw, ih, src, label, ...data }: {
+  x: number; y: number; iw: number; ih: number; src: string; label: string; "data-mine"?: string; "data-shop"?: string;
+}) {
+  const w = MINIMAP_ICON_WIDTH * (iw / 256);
   return (
     <image
-      data-mine=""
-      href="/map-icons/gold-mine.png"
-      x={cx - w / 2}
-      y={cy - h / 2}
+      {...data}
+      href={src}
+      x={x * iw - w / 2}
+      y={y * ih - w / 2}
       width={w}
-      height={h}
-      aria-label="Gold mine"
-      style={{ pointerEvents: "none" }}
+      height={w}
+      aria-label={label}
+      style={{ pointerEvents: "none", imageRendering: "pixelated" }}
     >
-      <title>Gold mine</title>
+      <title>{label}</title>
     </image>
   );
 }
 
-/** A neutral building (tavern, goblin merchant, mercenary camp…), drawn
- *  with Liquipedia's icon for that unit — see `neutral-icons.ts` for the
- *  rawcode -> icon map. A shop whose rawcode has no icon (a decorative
- *  critter/hut, not a real shop — `hrdh`, `ntn2`, `nrat`… on Autumn Leaves)
- *  renders nothing, per that module's doc comment. */
-const SHOP_ICON_WIDTH = 14;
+function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number }) {
+  return <MinimapIcon data-mine="" x={mine.x} y={mine.y} iw={iw} ih={ih} src="/map-icons/minimap-gold-mine.png" label="Gold mine" />;
+}
 
+/** A neutral building (tavern, goblin merchant, mercenary camp…); the
+ *  tooltip names it from `neutral-icons.ts`. A shop whose rawcode is not in
+ *  that map (a decorative critter/hut — `hrdh`, `ntn2`, `nrat`… on Autumn
+ *  Leaves) renders nothing. */
 function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number }) {
   const icon = neutralIconFor(shop.id);
   if (!icon) return null;
-  const cx = shop.x * iw;
-  const cy = shop.y * ih;
-  const w = SHOP_ICON_WIDTH * (iw / 256);
-  const h = w;
-  return (
-    <image
-      data-shop={shop.id}
-      href={`/map-icons/${icon.icon}.png`}
-      x={cx - w / 2}
-      y={cy - h / 2}
-      width={w}
-      height={h}
-      aria-label={icon.label}
-      style={{ pointerEvents: "none" }}
-    >
-      <title>{icon.label}</title>
-    </image>
-  );
+  return <MinimapIcon data-shop={shop.id} x={shop.x} y={shop.y} iw={iw} ih={ih} src="/map-icons/minimap-neutral-building.png" label={icon.label} />;
 }
 
 /**

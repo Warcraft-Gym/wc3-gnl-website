@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 /**
  * One line under the map (route page and editor alike) naming the marks a
  * reader has to decode: the three band dots with their level ranges, and the
- * gold-mine icon. The start markers are deliberately not listed — a red and a
+ * gold-mine and neutral-building icons. The start markers are deliberately not listed — a red and a
  * blue X either side of a minimap need no caption, and naming them "your base"
  * asserted a side the reader may not be playing. No source attribution here by
  * design (F009-followup-2, user request) — the map icons are Blizzard art
@@ -30,8 +30,13 @@ export function MapLegend({ className }: { className?: string }) {
       <span className="inline-flex items-center gap-1.5">
         {/* eslint-disable-next-line @next/next/no-img-element -- a small
             legend glyph, not a real content image; no next/image benefit. */}
-        <img src="/map-icons/gold-mine.png" alt="" aria-hidden width={18} height={15} className="inline-block" />
+        <img src="/map-icons/minimap-gold-mine.png" alt="" aria-hidden width={16} height={16} className="inline-block [image-rendering:pixelated]" />
         Gold mine
+      </span>
+      <span className="inline-flex items-center gap-1.5">
+        {/* eslint-disable-next-line @next/next/no-img-element -- legend glyph, as above. */}
+        <img src="/map-icons/minimap-neutral-building.png" alt="" aria-hidden width={16} height={16} className="inline-block [image-rendering:pixelated]" />
+        Neutral building
       </span>
     </p>
   );

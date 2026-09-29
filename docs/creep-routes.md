@@ -125,9 +125,14 @@ because bands never feed minimap rendering). Across the nine catalogues'
 
 ### Map icons (F008)
 
-Gold mines and neutral buildings (taverns, goblin merchants, mercenary
-camps…) draw with Liquipedia's own icons, matching the marker colours
-above. The originals are Blizzard art, hosted on Liquipedia — CC-BY-SA
+On the map, gold mines and neutral buildings draw with the game's own
+16x16 minimap icons, `public/map-icons/minimap-gold-mine.png` and
+`minimap-neutral-building.png` (a gold disc and a gold house). They come
+from `UI/MiniMap/minimap-gold.blp` and `minimap-neutralbuilding.blp` in the
+War3 archive (extracted copy: https://github.com/WarRaft/War3.mpq, folder
+`extract/UI/MiniMap`), decoded as BLP1 paletted with an 8-bit alpha plane.
+The Liquipedia icons below are kept for the building names and the
+rawcode map in `neutral-icons.mjs`. The originals are Blizzard art, hosted on Liquipedia — CC-BY-SA
 covers Liquipedia's own text, not this art. The site's UI carries no
 "Map icons via Liquipedia" credit (F009-followup-2 removed it from
 `MapLegend.tsx` on the route page and the editor, at the user's request);
