@@ -183,7 +183,6 @@ export const GAME_ICONS: GameIcon[] = [
   X("nt-attack", "Attack / push", "misc"),
   X("nt-scout", "Scout", "misc"),
   // Art W3Champions has and the launcher set lacks (w3champions/website).
-  X("nt-dragon-hawk", "Dragon Hawk", "unit"),
   X("nt-magic-vault", "Magic Vault", "building"),
   X("nt-icy-treasure-box", "Icy Treasure Box", "misc"),
 ];

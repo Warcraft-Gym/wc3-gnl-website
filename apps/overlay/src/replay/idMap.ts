@@ -262,7 +262,7 @@ const UNIT_ICONS: Record<string, string> = {
   ntrt: "seaturtlegreen",
   nvdg: "voidwalker",
   nvdw: "voidwalker",
-  nws1: "nt-dragon-hawk",
+  nws1: "hu-dragonhawk",
   nzep: "goblinzeppelin",
 };
 
