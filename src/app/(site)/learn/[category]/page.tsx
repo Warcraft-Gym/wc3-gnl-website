@@ -14,6 +14,7 @@ import { breadcrumbJsonLd } from "@/lib/seo";
 import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { ButtonLink } from "@/components/ui/Button";
+import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 
 type Params = { params: Promise<{ category: string }> };
 
@@ -91,6 +92,11 @@ export default async function LearnCategoryPage({ params }: Params) {
         {race ? (
           <ButtonLink href={buildsHref} size="sm">
             {cat.title} build orders <ArrowRight size={16} />
+          </ButtonLink>
+        ) : null}
+        {race && CREEP_ROUTES_LIVE ? (
+          <ButtonLink href={`/learn/creep-routes?race=${race}#routes`} size="sm">
+            {cat.title} creep routes <ArrowRight size={16} />
           </ButtonLink>
         ) : null}
       </PageHeader>
