@@ -11,5 +11,8 @@ export default defineConfig({
   test: {
     include: ["src/lib/replay/**/*.test.ts"],
     environment: "node",
+    // These tests parse real .w3g replay files and can exceed vitest's 5s
+    // default under full-suite load (seen flaking on extractBuild.test.ts).
+    testTimeout: 20000,
   },
 });
