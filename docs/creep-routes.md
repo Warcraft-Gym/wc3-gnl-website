@@ -1309,10 +1309,10 @@ the document history either way.
 What this mission deliberately left undone, in the order a future
 mission would likely want to pick it up:
 
-- **Overlay panel.** The desktop overlay (`apps/overlay`) shows build
-  orders today; a creep-route panel driven by `/api/creep-routes` is the
-  natural next surface — the JSON API this feature ships is exactly the
-  seam it would read from.
+- **Overlay panel.** The desktop overlay ([`Warcraft-Gym/wc3-gym-overlay`](https://github.com/Warcraft-Gym/wc3-gym-overlay))
+  shows build orders today; a creep-route panel driven by `/api/creep-routes`
+  is the natural next surface — the JSON API this feature ships is exactly
+  the seam it would read from.
 - **Replay → route import.** `/api/replay-import` already turns a `.w3g`
   replay into a build-order draft; teaching it to also emit a creep-route
   draft (camps cleared, in order) would let a coach generate a route from

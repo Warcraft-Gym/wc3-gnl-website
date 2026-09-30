@@ -47,11 +47,6 @@ yarn-error.log*
 # vercel
 .vercel
 
-# overlay app (Tauri build artifacts, not source)
-apps/overlay/dist/
-apps/overlay/src-tauri/target/
-apps/overlay/src-tauri/gen/
-
 # typescript
 *.tsbuildinfo
 next-env.d.ts
