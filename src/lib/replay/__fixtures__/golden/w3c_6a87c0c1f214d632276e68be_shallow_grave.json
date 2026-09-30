@@ -1,0 +1,1084 @@
+{
+  "file": "w3c_6a87c0c1f214d632276e68be_shallow_grave.w3g",
+  "map": {
+    "file": "61_w3c_260615_2308_ShallowGrave_v1.5.w3x",
+    "name": "Shallow Grave"
+  },
+  "version": "2.00",
+  "buildNumber": 6117,
+  "durationMs": 2209291,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "skyplague#11228",
+        "race": "random",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "skyplague#11228 (Human) vs Undead — Shallow Grave",
+          "race": "human",
+          "vsRaces": [
+            "undead"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 61_w3c_260615_2308_ShallowGrave_v1.5.w3x (v2.00, 36:49). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:08",
+              "supply": "6",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "6",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:21",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:25",
+              "supply": "7",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:00",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:03",
+              "supply": "10",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:13",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:16",
+              "supply": "15",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:24",
+              "supply": "16",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:28",
+              "supply": "18",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:41",
+              "supply": "18",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:42",
+              "supply": "20",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:46",
+              "supply": "21",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "1:59",
+              "supply": "21",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:12",
+              "supply": "22",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:13",
+              "supply": "24",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:32",
+              "supply": "25",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:33",
+              "supply": "27",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:58",
+              "supply": "28",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "3:01",
+              "supply": "28",
+              "instruction": "Train Forest Troll Shadow Priest",
+              "icon": "foresttrollshadowpriest"
+            },
+            {
+              "time": "3:31",
+              "supply": "30",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "3:36",
+              "supply": "30",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:50",
+              "supply": "31",
+              "instruction": "Train Forest Troll Berserker",
+              "icon": "foresttroll"
+            },
+            {
+              "time": "4:04",
+              "supply": "34",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "4:18",
+              "supply": "34",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "4:25",
+              "supply": "34",
+              "instruction": "Build Town Hall",
+              "icon": "hu-town-hall"
+            },
+            {
+              "time": "4:46",
+              "supply": "34",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "5:32",
+              "supply": "36",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "5:34",
+              "supply": "38",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "5:56",
+              "supply": "40",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "6:00",
+              "supply": "42",
+              "instruction": "Build Arcane Vault",
+              "icon": "hu-arcane-vault"
+            },
+            {
+              "time": "6:57",
+              "supply": "42",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "6:58",
+              "supply": "44",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "7:00",
+              "supply": "44",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "7:07",
+              "supply": "44",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "7:27",
+              "supply": "45",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "7:28",
+              "supply": "47",
+              "instruction": "Research Defend",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:30",
+              "supply": "47",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "7:33",
+              "supply": "47",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "7:35",
+              "supply": "47",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "7:36",
+              "supply": "47",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "7:53",
+              "supply": "47",
+              "instruction": "Train Goblin Shredder",
+              "icon": "junkgolem"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "React#21633",
+        "race": "undead",
+        "raceDetected": "undead",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "React#21633 (Undead) vs Human — Shallow Grave",
+          "race": "undead",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 61_w3c_260615_2308_ShallowGrave_v1.5.w3x (v2.00, 36:49). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:03",
+              "supply": "5",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:08",
+              "supply": "6",
+              "instruction": "Build Altar of Darkness",
+              "icon": "ud-altar"
+            },
+            {
+              "time": "0:11",
+              "supply": "6",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "0:26",
+              "supply": "6",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "0:33",
+              "supply": "6",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:47",
+              "supply": "7",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "1:04",
+              "supply": "8",
+              "instruction": "Build Tomb of Relics",
+              "icon": "ud-tomb-of-relics"
+            },
+            {
+              "time": "1:17",
+              "supply": "8",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:20",
+              "supply": "10",
+              "instruction": "Hero: Crypt Lord",
+              "icon": "ud-crypt-lord"
+            },
+            {
+              "time": "1:34",
+              "supply": "15",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "1:37",
+              "supply": "15",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:52",
+              "supply": "17",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:41",
+              "supply": "19",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:44",
+              "supply": "21",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "3:06",
+              "supply": "21",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:27",
+              "supply": "23",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:40",
+              "supply": "27",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "3:41",
+              "supply": "27",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "4:06",
+              "supply": "29",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "4:12",
+              "supply": "31",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "4:35",
+              "supply": "32",
+              "instruction": "Train 3× Acolyte",
+              "icon": "ud-acolyte",
+              "importNote": "4 ordered · 1 cancelled"
+            },
+            {
+              "time": "5:11",
+              "supply": "35",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "5:39",
+              "supply": "35",
+              "instruction": "Train 2× Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "6:00",
+              "supply": "37",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "6:06",
+              "supply": "41",
+              "instruction": "Build Haunted Gold Mine",
+              "icon": "ud-haunted-mine"
+            },
+            {
+              "time": "6:17",
+              "supply": "41",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "6:19",
+              "supply": "43",
+              "instruction": "Build Graveyard",
+              "icon": "ud-graveyard"
+            },
+            {
+              "time": "6:40",
+              "supply": "43",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "7:08",
+              "supply": "45",
+              "instruction": "Build Halls of the Dead",
+              "icon": "ud-halls-of-the-dead"
+            },
+            {
+              "time": "7:26",
+              "supply": "45",
+              "instruction": "Build Necropolis",
+              "icon": "ud-necropolis"
+            },
+            {
+              "time": "7:43",
+              "supply": "45",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "18": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "20": {
+                "ordered": 4,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "skyplague#11228",
+        "race": "random",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "skyplague#11228 (Human) vs Undead — Shallow Grave",
+          "race": "human",
+          "vsRaces": [
+            "undead"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 61_w3c_260615_2308_ShallowGrave_v1.5.w3x (v2.00, 36:49). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:08",
+              "supply": "6",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "6",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:21",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:25",
+              "supply": "7",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:00",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:03",
+              "supply": "10",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:13",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:16",
+              "supply": "15",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:24",
+              "supply": "16",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:28",
+              "supply": "18",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:41",
+              "supply": "18",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:42",
+              "supply": "20",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:46",
+              "supply": "21",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "1:59",
+              "supply": "21",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:12",
+              "supply": "22",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:13",
+              "supply": "24",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:32",
+              "supply": "25",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:33",
+              "supply": "27",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:58",
+              "supply": "28",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "3:01",
+              "supply": "28",
+              "instruction": "Train Forest Troll Shadow Priest",
+              "icon": "foresttrollshadowpriest"
+            },
+            {
+              "time": "3:31",
+              "supply": "30",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "3:36",
+              "supply": "30",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:50",
+              "supply": "31",
+              "instruction": "Train Forest Troll Berserker",
+              "icon": "foresttroll"
+            },
+            {
+              "time": "4:04",
+              "supply": "34",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "4:18",
+              "supply": "34",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "4:25",
+              "supply": "34",
+              "instruction": "Build Town Hall",
+              "icon": "hu-town-hall"
+            },
+            {
+              "time": "4:46",
+              "supply": "34",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "5:32",
+              "supply": "36",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "5:34",
+              "supply": "38",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "5:56",
+              "supply": "40",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "6:00",
+              "supply": "42",
+              "instruction": "Build Arcane Vault",
+              "icon": "hu-arcane-vault"
+            },
+            {
+              "time": "6:57",
+              "supply": "42",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "6:58",
+              "supply": "44",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "7:00",
+              "supply": "44",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "7:07",
+              "supply": "44",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "7:27",
+              "supply": "45",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "7:28",
+              "supply": "47",
+              "instruction": "Research Defend",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:30",
+              "supply": "47",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "7:33",
+              "supply": "47",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "7:35",
+              "supply": "47",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "7:36",
+              "supply": "47",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "7:53",
+              "supply": "47",
+              "instruction": "Train Goblin Shredder",
+              "icon": "junkgolem"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "React#21633",
+        "race": "undead",
+        "raceDetected": "undead",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "React#21633 (Undead) vs Human — Shallow Grave",
+          "race": "undead",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 61_w3c_260615_2308_ShallowGrave_v1.5.w3x (v2.00, 36:49). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:03",
+              "supply": "5",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:08",
+              "supply": "6",
+              "instruction": "Build Altar of Darkness",
+              "icon": "ud-altar"
+            },
+            {
+              "time": "0:11",
+              "supply": "6",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "0:26",
+              "supply": "6",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "0:33",
+              "supply": "6",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:47",
+              "supply": "7",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "1:04",
+              "supply": "8",
+              "instruction": "Build Tomb of Relics",
+              "icon": "ud-tomb-of-relics"
+            },
+            {
+              "time": "1:17",
+              "supply": "8",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:20",
+              "supply": "10",
+              "instruction": "Hero: Crypt Lord",
+              "icon": "ud-crypt-lord"
+            },
+            {
+              "time": "1:34",
+              "supply": "15",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "1:37",
+              "supply": "15",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:52",
+              "supply": "17",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:41",
+              "supply": "19",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:44",
+              "supply": "21",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "3:06",
+              "supply": "21",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:27",
+              "supply": "23",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:40",
+              "supply": "27",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "3:41",
+              "supply": "27",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "4:06",
+              "supply": "29",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "4:12",
+              "supply": "31",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "4:35",
+              "supply": "32",
+              "instruction": "Train 3× Acolyte",
+              "icon": "ud-acolyte",
+              "importNote": "4 ordered · 1 cancelled"
+            },
+            {
+              "time": "5:11",
+              "supply": "35",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "5:39",
+              "supply": "35",
+              "instruction": "Train 2× Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "6:00",
+              "supply": "37",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "6:06",
+              "supply": "41",
+              "instruction": "Build Haunted Gold Mine",
+              "icon": "ud-haunted-mine"
+            },
+            {
+              "time": "6:17",
+              "supply": "41",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "6:19",
+              "supply": "43",
+              "instruction": "Build Graveyard",
+              "icon": "ud-graveyard"
+            },
+            {
+              "time": "6:40",
+              "supply": "43",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "7:08",
+              "supply": "45",
+              "instruction": "Build Halls of the Dead",
+              "icon": "ud-halls-of-the-dead"
+            },
+            {
+              "time": "7:26",
+              "supply": "45",
+              "instruction": "Build Necropolis",
+              "icon": "ud-necropolis"
+            },
+            {
+              "time": "7:43",
+              "supply": "45",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "18": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "20": {
+                "ordered": 4,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}

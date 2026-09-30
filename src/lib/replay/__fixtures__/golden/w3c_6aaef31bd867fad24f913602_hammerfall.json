@@ -1,0 +1,652 @@
+{
+  "file": "w3c_6aaef31bd867fad24f913602_hammerfall.w3g",
+  "map": {
+    "file": "5185_w3c_260919_1153_Hammerfall.w3x",
+    "name": "Hammerfall"
+  },
+  "version": "3.00",
+  "buildNumber": 7000,
+  "durationMs": 381090,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "shiNe#1396",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "shiNe#1396 (Human) vs Orc — Hammerfall",
+          "race": "human",
+          "vsRaces": [
+            "orc"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 5185_w3c_260919_1153_Hammerfall.w3x (v3.00, 6:21). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:06",
+              "supply": "6",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:07",
+              "supply": "6",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:18",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:20",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:23",
+              "supply": "7",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:35",
+              "supply": "8",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:47",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:55",
+              "supply": "10",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:06",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:07",
+              "supply": "15",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:22",
+              "supply": "17",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:29",
+              "supply": "19",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:43",
+              "supply": "19",
+              "instruction": "Train 3× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:51",
+              "supply": "25",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "2:05",
+              "supply": "26",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:15",
+              "supply": "28",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:24",
+              "supply": "29",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:48",
+              "supply": "31",
+              "instruction": "Train Footman",
+              "icon": "hu-footman",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "3:09",
+              "supply": "33",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:28",
+              "supply": "33",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "4:15",
+              "supply": "33",
+              "instruction": "Train Footman",
+              "icon": "hu-footman",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "4:24",
+              "supply": "35",
+              "instruction": "Research Defend",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:31",
+              "supply": "35",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "14": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "18": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "21": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Starglobal#4361",
+        "race": "random",
+        "raceDetected": "orc",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Starglobal#4361 (Orc) vs Human — Hammerfall",
+          "race": "orc",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 5185_w3c_260919_1153_Hammerfall.w3x (v3.00, 6:21). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:03",
+              "supply": "5",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:06",
+              "supply": "7",
+              "instruction": "Build Altar of Storms",
+              "icon": "or-altar"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "0:21",
+              "supply": "7",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:31",
+              "supply": "8",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:50",
+              "supply": "10",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "1:10",
+              "supply": "12",
+              "instruction": "Hero: Far Seer",
+              "icon": "or-far-seer"
+            },
+            {
+              "time": "1:48",
+              "supply": "17",
+              "instruction": "Build Stronghold",
+              "icon": "or-stronghold"
+            },
+            {
+              "time": "1:52",
+              "supply": "17",
+              "instruction": "Build War Mill",
+              "icon": "or-war-mill"
+            },
+            {
+              "time": "2:02",
+              "supply": "17",
+              "instruction": "Build Voodoo Lounge",
+              "icon": "or-voodoo-lounge"
+            },
+            {
+              "time": "2:13",
+              "supply": "17",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "3:21",
+              "supply": "17",
+              "instruction": "Research Spiked Barricades",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:25",
+              "supply": "17",
+              "instruction": "Build Watch Tower",
+              "icon": "or-watch-tower"
+            },
+            {
+              "time": "4:14",
+              "supply": "17",
+              "instruction": "Hero: Tauren Chieftain",
+              "icon": "or-tauren-chieftain"
+            },
+            {
+              "time": "4:16",
+              "supply": "22",
+              "instruction": "Build Beastiary",
+              "icon": "or-beastiary"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "shiNe#1396",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "shiNe#1396 (Human) vs Orc — Hammerfall",
+          "race": "human",
+          "vsRaces": [
+            "orc"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 5185_w3c_260919_1153_Hammerfall.w3x (v3.00, 6:21). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:06",
+              "supply": "6",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:07",
+              "supply": "6",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:18",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:20",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:23",
+              "supply": "7",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:35",
+              "supply": "8",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:47",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:55",
+              "supply": "10",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:06",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:07",
+              "supply": "15",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:22",
+              "supply": "17",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:29",
+              "supply": "19",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:43",
+              "supply": "19",
+              "instruction": "Train 3× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:51",
+              "supply": "25",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "2:05",
+              "supply": "26",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:15",
+              "supply": "28",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:24",
+              "supply": "29",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:48",
+              "supply": "31",
+              "instruction": "Train Footman",
+              "icon": "hu-footman",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "3:09",
+              "supply": "33",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:28",
+              "supply": "33",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "4:15",
+              "supply": "33",
+              "instruction": "Train Footman",
+              "icon": "hu-footman",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "4:24",
+              "supply": "35",
+              "instruction": "Research Defend",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:31",
+              "supply": "35",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "14": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "18": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "21": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Starglobal#4361",
+        "race": "random",
+        "raceDetected": "orc",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Starglobal#4361 (Orc) vs Human — Hammerfall",
+          "race": "orc",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 5185_w3c_260919_1153_Hammerfall.w3x (v3.00, 6:21). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:03",
+              "supply": "5",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:06",
+              "supply": "7",
+              "instruction": "Build Altar of Storms",
+              "icon": "or-altar"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "0:21",
+              "supply": "7",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:31",
+              "supply": "8",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:50",
+              "supply": "10",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "1:10",
+              "supply": "12",
+              "instruction": "Hero: Far Seer",
+              "icon": "or-far-seer"
+            },
+            {
+              "time": "1:48",
+              "supply": "17",
+              "instruction": "Build Stronghold",
+              "icon": "or-stronghold"
+            },
+            {
+              "time": "1:52",
+              "supply": "17",
+              "instruction": "Build War Mill",
+              "icon": "or-war-mill"
+            },
+            {
+              "time": "2:02",
+              "supply": "17",
+              "instruction": "Build Voodoo Lounge",
+              "icon": "or-voodoo-lounge"
+            },
+            {
+              "time": "2:13",
+              "supply": "17",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "3:21",
+              "supply": "17",
+              "instruction": "Research Spiked Barricades",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:25",
+              "supply": "17",
+              "instruction": "Build Watch Tower",
+              "icon": "or-watch-tower"
+            },
+            {
+              "time": "4:14",
+              "supply": "17",
+              "instruction": "Hero: Tauren Chieftain",
+              "icon": "or-tauren-chieftain"
+            },
+            {
+              "time": "4:16",
+              "supply": "22",
+              "instruction": "Build Beastiary",
+              "icon": "or-beastiary"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}

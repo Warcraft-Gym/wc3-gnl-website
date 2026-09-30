@@ -1,0 +1,907 @@
+{
+  "file": "phoenix_vs_changer_concealed_hill.w3g",
+  "map": {
+    "file": "1_w3c_251104_0950_ConcealedHill.w3x",
+    "name": "Concealed Hill"
+  },
+  "version": "2.00",
+  "buildNumber": 6117,
+  "durationMs": 1130724,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "DorraNi#2523",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "DorraNi#2523 (Night Elf) vs Human — Concealed Hill",
+          "race": "nightelf",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1_w3c_251104_0950_ConcealedHill.w3x (v2.00, 18:50). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:00",
+              "supply": "5",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:07",
+              "supply": "6",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:09",
+              "supply": "6",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "6",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:23",
+              "supply": "6",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:34",
+              "supply": "7",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:46",
+              "supply": "8",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:09",
+              "supply": "10",
+              "instruction": "Hero: Keeper of the Grove",
+              "icon": "ne-keeper-of-the-grove"
+            },
+            {
+              "time": "1:10",
+              "supply": "15",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:18",
+              "supply": "17",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:37",
+              "supply": "19",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:39",
+              "supply": "19",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:45",
+              "supply": "19",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:00",
+              "supply": "20",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:22",
+              "supply": "21",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:42",
+              "supply": "21",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "3:02",
+              "supply": "22",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "3:09",
+              "supply": "22",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:15",
+              "supply": "24",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "3:31",
+              "supply": "24",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:46",
+              "supply": "26",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:09",
+              "supply": "28",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:30",
+              "supply": "30",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "5:10",
+              "supply": "32",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "5:29",
+              "supply": "34",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "5:30",
+              "supply": "36",
+              "instruction": "Hero: Demon Hunter",
+              "icon": "ne-demon-hunter"
+            },
+            {
+              "time": "5:50",
+              "supply": "41",
+              "instruction": "Train Goblin Shredder",
+              "icon": "junkgolem"
+            },
+            {
+              "time": "6:07",
+              "supply": "45",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "6:41",
+              "supply": "46",
+              "instruction": "Build Tree of Eternity",
+              "icon": "ne-tree-of-eternity"
+            },
+            {
+              "time": "6:57",
+              "supply": "46",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Changer#21493",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Changer#21493 (Human) vs Night Elf — Concealed Hill",
+          "race": "human",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1_w3c_251104_0950_ConcealedHill.w3x (v2.00, 18:50). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:07",
+              "supply": "7",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:22",
+              "supply": "7",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:47",
+              "supply": "9",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:59",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:08",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:16",
+              "supply": "15",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:21",
+              "supply": "16",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:28",
+              "supply": "18",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:32",
+              "supply": "19",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:47",
+              "supply": "19",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:53",
+              "supply": "21",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:11",
+              "supply": "22",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:12",
+              "supply": "24",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:22",
+              "supply": "25",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:36",
+              "supply": "26",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:36",
+              "supply": "28",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:08",
+              "supply": "29",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:28",
+              "supply": "29",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "3:54",
+              "supply": "29",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:57",
+              "supply": "29",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:19",
+              "supply": "32",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:33",
+              "supply": "35",
+              "instruction": "Hero: Mountain King",
+              "icon": "hu-mountain-king"
+            },
+            {
+              "time": "5:38",
+              "supply": "40",
+              "instruction": "Build Arcane Sanctum",
+              "icon": "hu-arcane-sanctum"
+            },
+            {
+              "time": "5:51",
+              "supply": "40",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:51",
+              "supply": "43",
+              "instruction": "Research Long Rifles",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "6:19",
+              "supply": "43",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:20",
+              "supply": "46",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "7:09",
+              "supply": "46",
+              "instruction": "Research Priest Training",
+              "icon": "nt-upgrade"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 2,
+            "byId": {
+              "hmpr": 2
+            },
+            "orderIndices": [
+              23,
+              24
+            ]
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "DorraNi#2523",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "DorraNi#2523 (Night Elf) vs Human — Concealed Hill",
+          "race": "nightelf",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1_w3c_251104_0950_ConcealedHill.w3x (v2.00, 18:50). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:00",
+              "supply": "5",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:07",
+              "supply": "6",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:09",
+              "supply": "6",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "6",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:23",
+              "supply": "6",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:34",
+              "supply": "7",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:46",
+              "supply": "8",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:09",
+              "supply": "10",
+              "instruction": "Hero: Keeper of the Grove",
+              "icon": "ne-keeper-of-the-grove"
+            },
+            {
+              "time": "1:10",
+              "supply": "15",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:18",
+              "supply": "17",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:37",
+              "supply": "19",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:39",
+              "supply": "19",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:45",
+              "supply": "19",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:00",
+              "supply": "20",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:22",
+              "supply": "21",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:42",
+              "supply": "21",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "3:02",
+              "supply": "22",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "3:09",
+              "supply": "22",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:15",
+              "supply": "24",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "3:31",
+              "supply": "24",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:46",
+              "supply": "26",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:09",
+              "supply": "28",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:30",
+              "supply": "30",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "5:10",
+              "supply": "32",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "5:29",
+              "supply": "34",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "5:30",
+              "supply": "36",
+              "instruction": "Hero: Demon Hunter",
+              "icon": "ne-demon-hunter"
+            },
+            {
+              "time": "5:50",
+              "supply": "41",
+              "instruction": "Train Goblin Shredder",
+              "icon": "junkgolem"
+            },
+            {
+              "time": "6:07",
+              "supply": "45",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "6:41",
+              "supply": "46",
+              "instruction": "Build Tree of Eternity",
+              "icon": "ne-tree-of-eternity"
+            },
+            {
+              "time": "6:57",
+              "supply": "46",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Changer#21493",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Changer#21493 (Human) vs Night Elf — Concealed Hill",
+          "race": "human",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1_w3c_251104_0950_ConcealedHill.w3x (v2.00, 18:50). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:07",
+              "supply": "7",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:22",
+              "supply": "7",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:47",
+              "supply": "9",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:59",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:08",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:16",
+              "supply": "15",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:21",
+              "supply": "16",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:28",
+              "supply": "18",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:32",
+              "supply": "19",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:47",
+              "supply": "19",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:53",
+              "supply": "21",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:11",
+              "supply": "22",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:12",
+              "supply": "24",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:22",
+              "supply": "25",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:36",
+              "supply": "26",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:36",
+              "supply": "28",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:08",
+              "supply": "29",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:28",
+              "supply": "29",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "3:54",
+              "supply": "29",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:57",
+              "supply": "29",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:19",
+              "supply": "32",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:33",
+              "supply": "35",
+              "instruction": "Hero: Mountain King",
+              "icon": "hu-mountain-king"
+            },
+            {
+              "time": "5:38",
+              "supply": "40",
+              "instruction": "Build Arcane Sanctum",
+              "icon": "hu-arcane-sanctum"
+            },
+            {
+              "time": "5:51",
+              "supply": "40",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:51",
+              "supply": "43",
+              "instruction": "Research Long Rifles",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "6:19",
+              "supply": "43",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:20",
+              "supply": "46",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "6:45",
+              "supply": "46",
+              "instruction": "Train 2× Priest",
+              "icon": "hu-priest"
+            },
+            {
+              "time": "7:09",
+              "supply": "50",
+              "instruction": "Research Priest Training",
+              "icon": "nt-upgrade"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}
