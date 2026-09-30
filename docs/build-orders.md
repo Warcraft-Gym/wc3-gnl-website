@@ -30,9 +30,10 @@ and presses Submit for review.
 
 - **A Warcraft III replay (`.w3g`)**, dropped on the zone or chosen with the
   file button. The file goes to `POST /api/replay-import` (multipart,
-  field `replay`, 8 MB max), which parses it on the server with the overlay
-  app's pipeline (`apps/overlay/src/replay`, imported through the
-  `@overlay-replay/*` tsconfig alias, `w3gjs` underneath) and returns one
+  field `replay`, 8 MB max), which parses it on the server with the site's
+  own copy of the overlay's parsing pipeline (`src/lib/replay`, `w3gjs`
+  underneath — F001 moved the site off the `@overlay-replay/*` tsconfig
+  alias so it no longer depends on the overlay app) and returns one
   build draft per player: the first eight minutes of orders as timed steps
   with supply and icons, race and opponent races, a title and an author
   from the player name. With two players the zone asks whose build to take,

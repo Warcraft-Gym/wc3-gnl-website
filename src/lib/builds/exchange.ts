@@ -4,8 +4,8 @@ import { BUILD_DIFFICULTIES, BUILD_RACES } from "./types";
 /**
  * The overlay app's private-build export format (`wc3gym-build`, version 1)
  * and a lenient reader for it, so a build written in the overlay can be
- * dropped into the site's submit form. Mirrors apps/overlay/src/lib/
- * buildExchange.ts; keep the two in step. A bare build object, or the
+ * dropped into the site's submit form. Mirrors the overlay's own
+ * `buildExchange.ts`; keep the two in step. A bare build object, or the
  * multi-build file (first build wins), is accepted too.
  */
 

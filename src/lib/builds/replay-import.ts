@@ -1,9 +1,9 @@
 import "server-only";
 
-import { parseReplay } from "@overlay-replay/parseReplay";
-import { extractBuild } from "@overlay-replay/extractBuild";
-import { fetchW3ChampionsReplay, parseMatchRef, W3ChampionsError } from "@overlay-replay/w3champions";
-import { ReplayParseError, type ReplayRace } from "@overlay-replay/types";
+import { parseReplay } from "@/lib/replay/parseReplay";
+import { extractBuild } from "@/lib/replay/extractBuild";
+import { fetchW3ChampionsReplay, parseMatchRef, W3ChampionsError } from "@/lib/replay/w3champions";
+import { ReplayParseError, type ReplayRace } from "@/lib/replay/types";
 import type { ExchangeBuild } from "./exchange";
 import { BUILD_RACES, type BuildRace } from "./types";
 
@@ -11,9 +11,11 @@ import { BUILD_RACES, type BuildRace } from "./types";
  * Turns a Warcraft III replay (an uploaded `.w3g`, or one fetched from a
  * W3Champions match link) into build-order drafts, one per player, in the
  * same shape the overlay's export uses so the submit form fills in the same
- * way. The parsing pipeline is the overlay app's, imported straight from
- * `apps/overlay/src/replay` (the `@overlay-replay/*` alias); it runs here
- * on the server, where `w3gjs` needs no browser shims.
+ * way. F001 (site-owns-replay-parser): the parsing pipeline used to be the
+ * overlay app's, imported straight from its replay folder through a
+ * tsconfig path alias; the site now owns its own byte-for-byte copy at
+ * `src/lib/replay` (see that folder's fixtures/golden parity proof). It
+ * runs here on the server, where `w3gjs` needs no browser shims.
  */
 
 /** A replay of a long game is a few MB; anything bigger is not a melee game. */

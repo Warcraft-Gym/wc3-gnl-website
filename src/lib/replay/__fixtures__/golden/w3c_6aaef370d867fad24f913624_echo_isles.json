@@ -1,0 +1,857 @@
+{
+  "file": "w3c_6aaef370d867fad24f913624_echo_isles.w3g",
+  "map": {
+    "file": "1051_w3c_260919_1153_EchoIsles_v2.2.w3x",
+    "name": "Echo Isles"
+  },
+  "version": "3.00",
+  "buildNumber": 7000,
+  "durationMs": 694110,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "Deathmark#21320",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Deathmark#21320 (Human) vs Orc — Echo Isles",
+          "race": "human",
+          "vsRaces": [
+            "orc"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1051_w3c_260919_1153_EchoIsles_v2.2.w3x (v3.00, 11:34). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:02",
+              "supply": "5",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:08",
+              "supply": "7",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:22",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:25",
+              "supply": "7",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:47",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:58",
+              "supply": "10",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:02",
+              "supply": "10",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:10",
+              "supply": "11",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:15",
+              "supply": "16",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:21",
+              "supply": "17",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:27",
+              "supply": "19",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "1:39",
+              "supply": "19",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:51",
+              "supply": "21",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:57",
+              "supply": "23",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "2:27",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "2:39",
+              "supply": "23",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:04",
+              "supply": "25",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "3:06",
+              "supply": "27",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:21",
+              "supply": "27",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "3:51",
+              "supply": "27",
+              "instruction": "Train 2× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "4:42",
+              "supply": "31",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:06",
+              "supply": "31",
+              "instruction": "Train Footman",
+              "icon": "hu-footman",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "5:47",
+              "supply": "33",
+              "instruction": "Build Arcane Sanctum",
+              "icon": "hu-arcane-sanctum"
+            },
+            {
+              "time": "5:52",
+              "supply": "33",
+              "instruction": "Hero: Mountain King",
+              "icon": "hu-mountain-king"
+            },
+            {
+              "time": "5:55",
+              "supply": "38",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:56",
+              "supply": "38",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:47",
+              "supply": "41",
+              "instruction": "Build Arcane Vault",
+              "icon": "hu-arcane-vault"
+            },
+            {
+              "time": "7:08",
+              "supply": "41",
+              "instruction": "Train 2× Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "7:42",
+              "supply": "47",
+              "instruction": "Train Spell Breaker",
+              "icon": "hu-spellbreaker",
+              "importNote": "2 ordered · 1 cancelled"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "22": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "29": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 2,
+            "byId": {
+              "hmpr": 2
+            },
+            "orderIndices": [
+              20,
+              21
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "UnHoly#21934",
+        "race": "orc",
+        "raceDetected": "orc",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "UnHoly#21934 (Orc) vs Human — Echo Isles",
+          "race": "orc",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1051_w3c_260919_1153_EchoIsles_v2.2.w3x (v3.00, 11:34). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:04",
+              "supply": "5",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:05",
+              "supply": "7",
+              "instruction": "Build Altar of Storms",
+              "icon": "or-altar"
+            },
+            {
+              "time": "0:17",
+              "supply": "7",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "0:28",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "or-barracks"
+            },
+            {
+              "time": "0:35",
+              "supply": "7",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:45",
+              "supply": "8",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:59",
+              "supply": "9",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "1:07",
+              "supply": "10",
+              "instruction": "Hero: Blademaster",
+              "icon": "or-blademaster"
+            },
+            {
+              "time": "1:19",
+              "supply": "15",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "1:31",
+              "supply": "16",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "1:42",
+              "supply": "19",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "2:33",
+              "supply": "19",
+              "instruction": "Build Stronghold",
+              "icon": "or-stronghold"
+            },
+            {
+              "time": "2:38",
+              "supply": "19",
+              "instruction": "Build War Mill",
+              "icon": "or-war-mill"
+            },
+            {
+              "time": "2:49",
+              "supply": "19",
+              "instruction": "Build Voodoo Lounge",
+              "icon": "or-voodoo-lounge"
+            },
+            {
+              "time": "3:15",
+              "supply": "19",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "3:33",
+              "supply": "22",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "4:29",
+              "supply": "25",
+              "instruction": "Build Watch Tower",
+              "icon": "or-watch-tower"
+            },
+            {
+              "time": "4:56",
+              "supply": "25",
+              "instruction": "Hero: Shadow Hunter",
+              "icon": "or-shadow-hunter"
+            },
+            {
+              "time": "5:36",
+              "supply": "30",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "6:41",
+              "supply": "30",
+              "instruction": "Build Voodoo Lounge",
+              "icon": "or-voodoo-lounge"
+            },
+            {
+              "time": "6:42",
+              "supply": "30",
+              "instruction": "Train Troll Headhunter",
+              "icon": "or-headhunter"
+            },
+            {
+              "time": "6:49",
+              "supply": "32",
+              "instruction": "Build Beastiary",
+              "icon": "or-beastiary"
+            },
+            {
+              "time": "7:11",
+              "supply": "32",
+              "instruction": "Train Troll Headhunter",
+              "icon": "or-headhunter"
+            },
+            {
+              "time": "7:24",
+              "supply": "34",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "7:27",
+              "supply": "37",
+              "instruction": "Research Melee Weapons",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:27",
+              "supply": "37",
+              "instruction": "Research Ranged Weapons",
+              "icon": "nt-upgrade"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "Deathmark#21320",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Deathmark#21320 (Human) vs Orc — Echo Isles",
+          "race": "human",
+          "vsRaces": [
+            "orc"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1051_w3c_260919_1153_EchoIsles_v2.2.w3x (v3.00, 11:34). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:02",
+              "supply": "5",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:08",
+              "supply": "7",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:19",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:22",
+              "supply": "7",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:25",
+              "supply": "7",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:47",
+              "supply": "9",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:58",
+              "supply": "10",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:02",
+              "supply": "10",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:10",
+              "supply": "11",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:15",
+              "supply": "16",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:21",
+              "supply": "17",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:27",
+              "supply": "19",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "1:39",
+              "supply": "19",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:51",
+              "supply": "21",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:57",
+              "supply": "23",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "2:27",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "2:39",
+              "supply": "23",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:04",
+              "supply": "25",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "3:06",
+              "supply": "27",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:21",
+              "supply": "27",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "3:51",
+              "supply": "27",
+              "instruction": "Train 2× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "4:42",
+              "supply": "31",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:06",
+              "supply": "31",
+              "instruction": "Train Footman",
+              "icon": "hu-footman",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "5:47",
+              "supply": "33",
+              "instruction": "Build Arcane Sanctum",
+              "icon": "hu-arcane-sanctum"
+            },
+            {
+              "time": "5:52",
+              "supply": "33",
+              "instruction": "Hero: Mountain King",
+              "icon": "hu-mountain-king"
+            },
+            {
+              "time": "5:55",
+              "supply": "38",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:56",
+              "supply": "38",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:44",
+              "supply": "41",
+              "instruction": "Train 2× Priest",
+              "icon": "hu-priest"
+            },
+            {
+              "time": "6:47",
+              "supply": "45",
+              "instruction": "Build Arcane Vault",
+              "icon": "hu-arcane-vault"
+            },
+            {
+              "time": "7:08",
+              "supply": "45",
+              "instruction": "Train 2× Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "7:42",
+              "supply": "51",
+              "instruction": "Train Spell Breaker",
+              "icon": "hu-spellbreaker",
+              "importNote": "2 ordered · 1 cancelled"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "22": {
+                "ordered": 2,
+                "cancelled": 1
+              },
+              "30": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "UnHoly#21934",
+        "race": "orc",
+        "raceDetected": "orc",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "UnHoly#21934 (Orc) vs Human — Echo Isles",
+          "race": "orc",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 1051_w3c_260919_1153_EchoIsles_v2.2.w3x (v3.00, 11:34). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:04",
+              "supply": "5",
+              "instruction": "Train 2× Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:05",
+              "supply": "7",
+              "instruction": "Build Altar of Storms",
+              "icon": "or-altar"
+            },
+            {
+              "time": "0:17",
+              "supply": "7",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "0:28",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "or-barracks"
+            },
+            {
+              "time": "0:35",
+              "supply": "7",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:45",
+              "supply": "8",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "0:59",
+              "supply": "9",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "1:07",
+              "supply": "10",
+              "instruction": "Hero: Blademaster",
+              "icon": "or-blademaster"
+            },
+            {
+              "time": "1:19",
+              "supply": "15",
+              "instruction": "Train Peon",
+              "icon": "or-peon"
+            },
+            {
+              "time": "1:31",
+              "supply": "16",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "1:42",
+              "supply": "19",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "2:33",
+              "supply": "19",
+              "instruction": "Build Stronghold",
+              "icon": "or-stronghold"
+            },
+            {
+              "time": "2:38",
+              "supply": "19",
+              "instruction": "Build War Mill",
+              "icon": "or-war-mill"
+            },
+            {
+              "time": "2:49",
+              "supply": "19",
+              "instruction": "Build Voodoo Lounge",
+              "icon": "or-voodoo-lounge"
+            },
+            {
+              "time": "3:15",
+              "supply": "19",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "3:33",
+              "supply": "22",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "4:29",
+              "supply": "25",
+              "instruction": "Build Watch Tower",
+              "icon": "or-watch-tower"
+            },
+            {
+              "time": "4:56",
+              "supply": "25",
+              "instruction": "Hero: Shadow Hunter",
+              "icon": "or-shadow-hunter"
+            },
+            {
+              "time": "5:36",
+              "supply": "30",
+              "instruction": "Build Orc Burrow",
+              "icon": "or-burrow"
+            },
+            {
+              "time": "6:41",
+              "supply": "30",
+              "instruction": "Build Voodoo Lounge",
+              "icon": "or-voodoo-lounge"
+            },
+            {
+              "time": "6:42",
+              "supply": "30",
+              "instruction": "Train Troll Headhunter",
+              "icon": "or-headhunter"
+            },
+            {
+              "time": "6:49",
+              "supply": "32",
+              "instruction": "Build Beastiary",
+              "icon": "or-beastiary"
+            },
+            {
+              "time": "7:11",
+              "supply": "32",
+              "instruction": "Train Troll Headhunter",
+              "icon": "or-headhunter"
+            },
+            {
+              "time": "7:24",
+              "supply": "34",
+              "instruction": "Train Grunt",
+              "icon": "or-grunt"
+            },
+            {
+              "time": "7:27",
+              "supply": "37",
+              "instruction": "Research Melee Weapons",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:27",
+              "supply": "37",
+              "instruction": "Research Ranged Weapons",
+              "icon": "nt-upgrade"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}

@@ -1,0 +1,788 @@
+{
+  "file": "w3c_6aaef330d867fad24f91360c_turtle_rock.w3g",
+  "map": {
+    "file": "12_w3c_260919_1153_TurtleRock_v2.0.w3x",
+    "name": "Turtle Rock"
+  },
+  "version": "3.00",
+  "buildNumber": 7000,
+  "durationMs": 791880,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "lolicore#21233",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "lolicore#21233 (Human) vs Human — Turtle Rock",
+          "race": "human",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 12_w3c_260919_1153_TurtleRock_v2.0.w3x (v3.00, 13:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:07",
+              "supply": "5",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:09",
+              "supply": "5",
+              "instruction": "Train 4× Peasant",
+              "icon": "hu-peasant",
+              "importNote": "5 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:32",
+              "supply": "9",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:41",
+              "supply": "9",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:58",
+              "supply": "9",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "1:19",
+              "supply": "9",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "1:27",
+              "supply": "9",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:47",
+              "supply": "11",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "2:16",
+              "supply": "11",
+              "instruction": "Hero: Goblin Tinker",
+              "icon": "nt-goblin-tinker"
+            },
+            {
+              "time": "2:22",
+              "supply": "16",
+              "instruction": "Train 2× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "3:15",
+              "supply": "20",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:35",
+              "supply": "23",
+              "instruction": "Research Lumber Harvesting",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:41",
+              "supply": "23",
+              "instruction": "Research Plating",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:53",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "3:56",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:02",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:04",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:39",
+              "supply": "23",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "5:40",
+              "supply": "23",
+              "instruction": "Train 3× Footman",
+              "icon": "hu-footman"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "1": {
+                "ordered": 5,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Promario#11149",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Promario#11149 (Human) vs Human — Turtle Rock",
+          "race": "human",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 12_w3c_260919_1153_TurtleRock_v2.0.w3x (v3.00, 13:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:03",
+              "supply": "5",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:10",
+              "supply": "7",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:23",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:34",
+              "supply": "7",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:38",
+              "supply": "8",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:51",
+              "supply": "8",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:53",
+              "supply": "8",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:13",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:24",
+              "supply": "15",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:25",
+              "supply": "17",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:39",
+              "supply": "18",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:45",
+              "supply": "18",
+              "instruction": "Build Arcane Vault",
+              "icon": "hu-arcane-vault"
+            },
+            {
+              "time": "1:51",
+              "supply": "18",
+              "instruction": "Train 5× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:07",
+              "supply": "28",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "2:21",
+              "supply": "28",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "3:08",
+              "supply": "30",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "4:13",
+              "supply": "30",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "4:27",
+              "supply": "30",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "4:30",
+              "supply": "33",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "4:36",
+              "supply": "33",
+              "instruction": "Research Lumber Harvesting",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:19",
+              "supply": "33",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:30",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "5:33",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "5:39",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "5:53",
+              "supply": "36",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:55",
+              "supply": "36",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:58",
+              "supply": "36",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "6:52",
+              "supply": "36",
+              "instruction": "Hero: Mountain King",
+              "icon": "hu-mountain-king"
+            },
+            {
+              "time": "6:53",
+              "supply": "41",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:58",
+              "supply": "44",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "7:12",
+              "supply": "45",
+              "instruction": "Research Lumber Harvesting",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:15",
+              "supply": "45",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "7:24",
+              "supply": "46",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "lolicore#21233",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "lolicore#21233 (Human) vs Human — Turtle Rock",
+          "race": "human",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 12_w3c_260919_1153_TurtleRock_v2.0.w3x (v3.00, 13:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:07",
+              "supply": "5",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:09",
+              "supply": "5",
+              "instruction": "Train 4× Peasant",
+              "icon": "hu-peasant",
+              "importNote": "5 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:32",
+              "supply": "9",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:41",
+              "supply": "9",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:58",
+              "supply": "9",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "1:19",
+              "supply": "9",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "1:27",
+              "supply": "9",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:47",
+              "supply": "11",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "2:16",
+              "supply": "11",
+              "instruction": "Hero: Goblin Tinker",
+              "icon": "nt-goblin-tinker"
+            },
+            {
+              "time": "2:22",
+              "supply": "16",
+              "instruction": "Train 2× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "3:15",
+              "supply": "20",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:35",
+              "supply": "23",
+              "instruction": "Research Lumber Harvesting",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:41",
+              "supply": "23",
+              "instruction": "Research Plating",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:53",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "3:56",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:02",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:04",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:39",
+              "supply": "23",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "5:40",
+              "supply": "23",
+              "instruction": "Train 3× Footman",
+              "icon": "hu-footman"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "1": {
+                "ordered": 5,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Promario#11149",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Promario#11149 (Human) vs Human — Turtle Rock",
+          "race": "human",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 12_w3c_260919_1153_TurtleRock_v2.0.w3x (v3.00, 13:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:03",
+              "supply": "5",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:10",
+              "supply": "7",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:23",
+              "supply": "7",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "0:34",
+              "supply": "7",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:38",
+              "supply": "8",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:51",
+              "supply": "8",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:53",
+              "supply": "8",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:13",
+              "supply": "10",
+              "instruction": "Hero: Archmage",
+              "icon": "hu-archmage"
+            },
+            {
+              "time": "1:24",
+              "supply": "15",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "1:25",
+              "supply": "17",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:39",
+              "supply": "18",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:45",
+              "supply": "18",
+              "instruction": "Build Arcane Vault",
+              "icon": "hu-arcane-vault"
+            },
+            {
+              "time": "1:51",
+              "supply": "18",
+              "instruction": "Train 5× Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "2:07",
+              "supply": "28",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "2:21",
+              "supply": "28",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "3:08",
+              "supply": "30",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "4:13",
+              "supply": "30",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "4:27",
+              "supply": "30",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "4:30",
+              "supply": "33",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "4:36",
+              "supply": "33",
+              "instruction": "Research Lumber Harvesting",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:19",
+              "supply": "33",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "5:30",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "5:33",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "5:39",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "5:53",
+              "supply": "36",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:55",
+              "supply": "36",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:58",
+              "supply": "36",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "6:52",
+              "supply": "36",
+              "instruction": "Hero: Mountain King",
+              "icon": "hu-mountain-king"
+            },
+            {
+              "time": "6:53",
+              "supply": "41",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:58",
+              "supply": "44",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "7:12",
+              "supply": "45",
+              "instruction": "Research Lumber Harvesting",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:15",
+              "supply": "45",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "7:24",
+              "supply": "46",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}

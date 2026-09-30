@@ -1,0 +1,970 @@
+{
+  "file": "w3c_6aae9d48d867fad24f911778_last_refuge.w3g",
+  "map": {
+    "file": "3_w3c_260919_1153_LastRefuge_v1.5.w3x",
+    "name": "Last Refuge"
+  },
+  "version": "3.00",
+  "buildNumber": 7000,
+  "durationMs": 782101,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "Dretwiak#2963",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Dretwiak#2963 (Human) vs Undead — Last Refuge",
+          "race": "human",
+          "vsRaces": [
+            "undead"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260919_1153_LastRefuge_v1.5.w3x (v3.00, 13:02). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 5× Peasant",
+              "icon": "hu-peasant",
+              "importNote": "6 ordered · 1 cancelled · 3 dropped (likely rejected)"
+            },
+            {
+              "time": "0:16",
+              "supply": "10",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant",
+              "importNote": "2 ordered · 1 cancelled · 2 dropped (likely rejected)"
+            },
+            {
+              "time": "0:32",
+              "supply": "11",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:47",
+              "supply": "11",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:49",
+              "supply": "11",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "0:55",
+              "supply": "11",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:14",
+              "supply": "14",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "1:16",
+              "supply": "14",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:21",
+              "supply": "14",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:33",
+              "supply": "15",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "1:36",
+              "supply": "15",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:41",
+              "supply": "16",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "1:49",
+              "supply": "16",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant",
+              "importNote": "1 dropped (likely rejected)"
+            },
+            {
+              "time": "2:07",
+              "supply": "17",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "2:15",
+              "supply": "17",
+              "instruction": "Hero: Dark Ranger",
+              "icon": "nt-dark-ranger"
+            },
+            {
+              "time": "2:33",
+              "supply": "22",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "2:52",
+              "supply": "22",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:23",
+              "supply": "23",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:26",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "3:47",
+              "supply": "23",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "4:02",
+              "supply": "23",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "4:03",
+              "supply": "23",
+              "instruction": "Research Masonry",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "4:57",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:59",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:39",
+              "supply": "23",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:49",
+              "supply": "23",
+              "instruction": "Hero: Forsaken Paladin",
+              "icon": "hu-forsaken-paladin"
+            },
+            {
+              "time": "6:15",
+              "supply": "28",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "6:21",
+              "supply": "28",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:23",
+              "supply": "31",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "6:25",
+              "supply": "31",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "6:37",
+              "supply": "31",
+              "instruction": "Build Guard Tower",
+              "icon": "hu-guard-tower"
+            },
+            {
+              "time": "6:52",
+              "supply": "31",
+              "instruction": "Build Town Hall",
+              "icon": "hu-town-hall"
+            },
+            {
+              "time": "7:27",
+              "supply": "31",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "7:30",
+              "supply": "31",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 6,
+                "cancelled": 1
+              },
+              "1": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {
+              "0": 3,
+              "1": 2,
+              "12": 1
+            }
+          },
+          "dropped": {
+            "count": 7,
+            "byId": {
+              "hpea": 6,
+              "hfoo": 1
+            },
+            "orderIndices": [
+              5,
+              6,
+              7,
+              9,
+              10,
+              17,
+              20
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "SoulKeeper#1844",
+        "race": "random",
+        "raceDetected": "undead",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "SoulKeeper#1844 (Undead) vs Human — Last Refuge",
+          "race": "undead",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260919_1153_LastRefuge_v1.5.w3x (v3.00, 13:02). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:02",
+              "supply": "5",
+              "instruction": "Train 2× Acolyte",
+              "icon": "ud-acolyte",
+              "importNote": "3 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:09",
+              "supply": "7",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "0:13",
+              "supply": "7",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "0:18",
+              "supply": "7",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:37",
+              "supply": "8",
+              "instruction": "Build Altar of Darkness",
+              "icon": "ud-altar"
+            },
+            {
+              "time": "1:10",
+              "supply": "8",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:14",
+              "supply": "12",
+              "instruction": "Build Tomb of Relics",
+              "icon": "ud-tomb-of-relics"
+            },
+            {
+              "time": "1:39",
+              "supply": "12",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:40",
+              "supply": "14",
+              "instruction": "Hero: Crypt Lord",
+              "icon": "ud-crypt-lord"
+            },
+            {
+              "time": "1:59",
+              "supply": "19",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:03",
+              "supply": "21",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "2:24",
+              "supply": "21",
+              "instruction": "Research Cannibalize",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:09",
+              "supply": "21",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:32",
+              "supply": "23",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:34",
+              "supply": "27",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "3:36",
+              "supply": "27",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "4:32",
+              "supply": "27",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "5:10",
+              "supply": "31",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "5:22",
+              "supply": "31",
+              "instruction": "Train 3× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "5:42",
+              "supply": "37",
+              "instruction": "Train 2× Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "6:13",
+              "supply": "39",
+              "instruction": "Build Halls of the Dead",
+              "icon": "ud-halls-of-the-dead"
+            },
+            {
+              "time": "6:19",
+              "supply": "39",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "6:20",
+              "supply": "39",
+              "instruction": "Build Necropolis",
+              "icon": "ud-necropolis"
+            },
+            {
+              "time": "6:32",
+              "supply": "39",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "7:28",
+              "supply": "39",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "7:31",
+              "supply": "39",
+              "instruction": "Train 5× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "7:32",
+              "supply": "49",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "7:46",
+              "supply": "51",
+              "instruction": "Build Graveyard",
+              "icon": "ud-graveyard"
+            },
+            {
+              "time": "7:57",
+              "supply": "51",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 3,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "Dretwiak#2963",
+        "race": "human",
+        "raceDetected": "human",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Dretwiak#2963 (Human) vs Undead — Last Refuge",
+          "race": "human",
+          "vsRaces": [
+            "undead"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260919_1153_LastRefuge_v1.5.w3x (v3.00, 13:02). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 5× Peasant",
+              "icon": "hu-peasant",
+              "importNote": "6 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:01",
+              "supply": "10",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "0:16",
+              "supply": "13",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant",
+              "importNote": "4 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:32",
+              "supply": "16",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "0:47",
+              "supply": "16",
+              "instruction": "Build Altar of Kings",
+              "icon": "hu-altar"
+            },
+            {
+              "time": "0:49",
+              "supply": "16",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "0:55",
+              "supply": "16",
+              "instruction": "Train 3× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:14",
+              "supply": "19",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "1:16",
+              "supply": "19",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "1:21",
+              "supply": "19",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:33",
+              "supply": "20",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "1:36",
+              "supply": "20",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "1:41",
+              "supply": "21",
+              "instruction": "Build Lumber Mill",
+              "icon": "hu-lumber-mill"
+            },
+            {
+              "time": "1:49",
+              "supply": "21",
+              "instruction": "Train 2× Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "2:07",
+              "supply": "23",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "2:15",
+              "supply": "23",
+              "instruction": "Hero: Dark Ranger",
+              "icon": "nt-dark-ranger"
+            },
+            {
+              "time": "2:33",
+              "supply": "28",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "2:52",
+              "supply": "28",
+              "instruction": "Train Peasant",
+              "icon": "hu-peasant"
+            },
+            {
+              "time": "3:23",
+              "supply": "29",
+              "instruction": "Build Keep",
+              "icon": "hu-keep"
+            },
+            {
+              "time": "3:26",
+              "supply": "29",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "3:47",
+              "supply": "29",
+              "instruction": "Build Barracks",
+              "icon": "hu-barracks"
+            },
+            {
+              "time": "4:02",
+              "supply": "29",
+              "instruction": "Build Blacksmith",
+              "icon": "hu-blacksmith"
+            },
+            {
+              "time": "4:03",
+              "supply": "29",
+              "instruction": "Research Masonry",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "4:31",
+              "supply": "29",
+              "instruction": "Train Footman",
+              "icon": "hu-footman"
+            },
+            {
+              "time": "4:57",
+              "supply": "31",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "4:59",
+              "supply": "31",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:39",
+              "supply": "31",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            },
+            {
+              "time": "5:49",
+              "supply": "31",
+              "instruction": "Hero: Forsaken Paladin",
+              "icon": "hu-forsaken-paladin"
+            },
+            {
+              "time": "6:15",
+              "supply": "36",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "6:21",
+              "supply": "36",
+              "instruction": "Train Rifleman",
+              "icon": "hu-rifleman"
+            },
+            {
+              "time": "6:23",
+              "supply": "39",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "6:25",
+              "supply": "39",
+              "instruction": "Build Arcane Tower",
+              "icon": "hu-arcane-tower"
+            },
+            {
+              "time": "6:37",
+              "supply": "39",
+              "instruction": "Build Guard Tower",
+              "icon": "hu-guard-tower"
+            },
+            {
+              "time": "6:52",
+              "supply": "39",
+              "instruction": "Build Town Hall",
+              "icon": "hu-town-hall"
+            },
+            {
+              "time": "7:27",
+              "supply": "39",
+              "instruction": "Build Scout Tower",
+              "icon": "hu-scout-tower"
+            },
+            {
+              "time": "7:30",
+              "supply": "39",
+              "instruction": "Build Farm",
+              "icon": "hu-farm"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 6,
+                "cancelled": 1
+              },
+              "2": {
+                "ordered": 4,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "SoulKeeper#1844",
+        "race": "random",
+        "raceDetected": "undead",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "SoulKeeper#1844 (Undead) vs Human — Last Refuge",
+          "race": "undead",
+          "vsRaces": [
+            "human"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260919_1153_LastRefuge_v1.5.w3x (v3.00, 13:02). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:02",
+              "supply": "5",
+              "instruction": "Train 2× Acolyte",
+              "icon": "ud-acolyte",
+              "importNote": "3 ordered · 1 cancelled"
+            },
+            {
+              "time": "0:09",
+              "supply": "7",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "0:13",
+              "supply": "7",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "0:18",
+              "supply": "7",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:37",
+              "supply": "8",
+              "instruction": "Build Altar of Darkness",
+              "icon": "ud-altar"
+            },
+            {
+              "time": "1:10",
+              "supply": "8",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:14",
+              "supply": "12",
+              "instruction": "Build Tomb of Relics",
+              "icon": "ud-tomb-of-relics"
+            },
+            {
+              "time": "1:39",
+              "supply": "12",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "1:40",
+              "supply": "14",
+              "instruction": "Hero: Crypt Lord",
+              "icon": "ud-crypt-lord"
+            },
+            {
+              "time": "1:59",
+              "supply": "19",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:03",
+              "supply": "21",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "2:24",
+              "supply": "21",
+              "instruction": "Research Cannibalize",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "3:09",
+              "supply": "21",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:32",
+              "supply": "23",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "3:34",
+              "supply": "27",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "3:36",
+              "supply": "27",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "4:32",
+              "supply": "27",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "5:10",
+              "supply": "31",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "5:22",
+              "supply": "31",
+              "instruction": "Train 3× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "5:42",
+              "supply": "37",
+              "instruction": "Train 2× Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "6:13",
+              "supply": "39",
+              "instruction": "Build Halls of the Dead",
+              "icon": "ud-halls-of-the-dead"
+            },
+            {
+              "time": "6:19",
+              "supply": "39",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "6:20",
+              "supply": "39",
+              "instruction": "Build Necropolis",
+              "icon": "ud-necropolis"
+            },
+            {
+              "time": "6:32",
+              "supply": "39",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "7:28",
+              "supply": "39",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "7:31",
+              "supply": "39",
+              "instruction": "Train 5× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "7:32",
+              "supply": "49",
+              "instruction": "Train Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "7:46",
+              "supply": "51",
+              "instruction": "Build Graveyard",
+              "icon": "ud-graveyard"
+            },
+            {
+              "time": "7:57",
+              "supply": "51",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "0": {
+                "ordered": 3,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}

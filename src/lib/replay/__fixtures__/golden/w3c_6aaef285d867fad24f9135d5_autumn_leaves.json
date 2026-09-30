@@ -1,0 +1,848 @@
+{
+  "file": "w3c_6aaef285d867fad24f9135d5_autumn_leaves.w3g",
+  "map": {
+    "file": "44_w3c_260919_1153_AutumnLeaves_v2.0.w3x",
+    "name": "Autumn Leaves"
+  },
+  "version": "3.00",
+  "buildNumber": 7000,
+  "durationMs": 671760,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "Dkblitz#11988",
+        "race": "undead",
+        "raceDetected": "undead",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Dkblitz#11988 (Undead) vs Night Elf — Autumn Leaves",
+          "race": "undead",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 44_w3c_260919_1153_AutumnLeaves_v2.0.w3x (v3.00, 11:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:04",
+              "supply": "5",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:04",
+              "supply": "6",
+              "instruction": "Build Altar of Darkness",
+              "icon": "ud-altar"
+            },
+            {
+              "time": "0:06",
+              "supply": "6",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "0:06",
+              "supply": "6",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:35",
+              "supply": "7",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "0:41",
+              "supply": "7",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:57",
+              "supply": "8",
+              "instruction": "Build Tomb of Relics",
+              "icon": "ud-tomb-of-relics"
+            },
+            {
+              "time": "1:05",
+              "supply": "8",
+              "instruction": "Hero: Death Knight",
+              "icon": "ud-death-knight"
+            },
+            {
+              "time": "1:17",
+              "supply": "13",
+              "instruction": "Build Graveyard",
+              "icon": "ud-graveyard"
+            },
+            {
+              "time": "1:37",
+              "supply": "13",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:31",
+              "supply": "17",
+              "instruction": "Build Halls of the Dead",
+              "icon": "ud-halls-of-the-dead"
+            },
+            {
+              "time": "2:49",
+              "supply": "17",
+              "instruction": "Train Crypt Fiend",
+              "icon": "ud-crypt-fiend"
+            },
+            {
+              "time": "3:11",
+              "supply": "20",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "3:46",
+              "supply": "20",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "4:18",
+              "supply": "20",
+              "instruction": "Train Crypt Fiend",
+              "icon": "ud-crypt-fiend"
+            },
+            {
+              "time": "4:54",
+              "supply": "23",
+              "instruction": "Build Black Citadel",
+              "icon": "ud-black-citadel"
+            },
+            {
+              "time": "5:22",
+              "supply": "23",
+              "instruction": "Hero: Lich",
+              "icon": "ud-lich"
+            },
+            {
+              "time": "5:57",
+              "supply": "28",
+              "instruction": "Build Slaughterhouse",
+              "icon": "ud-slaughterhouse"
+            },
+            {
+              "time": "6:07",
+              "supply": "28",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "6:34",
+              "supply": "28",
+              "instruction": "Research Burrow",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:02",
+              "supply": "28",
+              "instruction": "Train Obsidian Statue",
+              "icon": "ud-obsidian-statue"
+            },
+            {
+              "time": "7:21",
+              "supply": "31",
+              "instruction": "Hero: Dark Ranger",
+              "icon": "nt-dark-ranger"
+            },
+            {
+              "time": "7:47",
+              "supply": "36",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Sonik#21222",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Sonik#21222 (Night Elf) vs Undead — Autumn Leaves",
+          "race": "nightelf",
+          "vsRaces": [
+            "undead"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 44_w3c_260919_1153_AutumnLeaves_v2.0.w3x (v3.00, 11:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:20",
+              "supply": "7",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:24",
+              "supply": "7",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:30",
+              "supply": "8",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:32",
+              "supply": "8",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:44",
+              "supply": "10",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:03",
+              "supply": "11",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:13",
+              "supply": "12",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "1:21",
+              "supply": "12",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:23",
+              "supply": "14",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:25",
+              "supply": "14",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:37",
+              "supply": "15",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:43",
+              "supply": "17",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:03",
+              "supply": "19",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "2:15",
+              "supply": "21",
+              "instruction": "Hero: Dark Ranger",
+              "icon": "nt-dark-ranger"
+            },
+            {
+              "time": "2:18",
+              "supply": "26",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "3:06",
+              "supply": "27",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "3:08",
+              "supply": "27",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:25",
+              "supply": "29",
+              "instruction": "Build Hunter's Hall",
+              "icon": "ne-hunters-hall"
+            },
+            {
+              "time": "3:45",
+              "supply": "29",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "4:27",
+              "supply": "29",
+              "instruction": "Train Huntress",
+              "icon": "ne-huntress"
+            },
+            {
+              "time": "4:45",
+              "supply": "32",
+              "instruction": "Train Huntress",
+              "icon": "ne-huntress"
+            },
+            {
+              "time": "5:30",
+              "supply": "35",
+              "instruction": "Hero: Forsaken Paladin",
+              "icon": "hu-forsaken-paladin"
+            },
+            {
+              "time": "5:33",
+              "supply": "40",
+              "instruction": "Research Upgrade Moon Glaive",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:39",
+              "supply": "40",
+              "instruction": "Train Forest Troll Berserker",
+              "icon": "foresttroll"
+            },
+            {
+              "time": "5:44",
+              "supply": "43",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "6:03",
+              "supply": "43",
+              "instruction": "Build Ancient of Lore",
+              "icon": "ne-ancient-of-lore"
+            },
+            {
+              "time": "6:21",
+              "supply": "43",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "6:46",
+              "supply": "43",
+              "instruction": "Research Improved Bows",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "6:59",
+              "supply": "43",
+              "instruction": "Build Tree of Life",
+              "icon": "ne-tree-of-life"
+            },
+            {
+              "time": "7:12",
+              "supply": "43",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "7:15",
+              "supply": "44",
+              "instruction": "Train Huntress",
+              "icon": "ne-huntress"
+            },
+            {
+              "time": "7:26",
+              "supply": "47",
+              "instruction": "Train Dryad",
+              "icon": "ne-dryad"
+            },
+            {
+              "time": "7:53",
+              "supply": "50",
+              "instruction": "Train Dryad",
+              "icon": "ne-dryad"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "30": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "Dkblitz#11988",
+        "race": "undead",
+        "raceDetected": "undead",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Dkblitz#11988 (Undead) vs Night Elf — Autumn Leaves",
+          "race": "undead",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 44_w3c_260919_1153_AutumnLeaves_v2.0.w3x (v3.00, 11:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:04",
+              "supply": "5",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:04",
+              "supply": "6",
+              "instruction": "Build Altar of Darkness",
+              "icon": "ud-altar"
+            },
+            {
+              "time": "0:06",
+              "supply": "6",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "0:06",
+              "supply": "6",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:35",
+              "supply": "7",
+              "instruction": "Build Crypt",
+              "icon": "ud-crypt"
+            },
+            {
+              "time": "0:41",
+              "supply": "7",
+              "instruction": "Train Acolyte",
+              "icon": "ud-acolyte"
+            },
+            {
+              "time": "0:57",
+              "supply": "8",
+              "instruction": "Build Tomb of Relics",
+              "icon": "ud-tomb-of-relics"
+            },
+            {
+              "time": "1:05",
+              "supply": "8",
+              "instruction": "Hero: Death Knight",
+              "icon": "ud-death-knight"
+            },
+            {
+              "time": "1:17",
+              "supply": "13",
+              "instruction": "Build Graveyard",
+              "icon": "ud-graveyard"
+            },
+            {
+              "time": "1:37",
+              "supply": "13",
+              "instruction": "Train 2× Ghoul",
+              "icon": "ud-ghoul"
+            },
+            {
+              "time": "2:31",
+              "supply": "17",
+              "instruction": "Build Halls of the Dead",
+              "icon": "ud-halls-of-the-dead"
+            },
+            {
+              "time": "2:49",
+              "supply": "17",
+              "instruction": "Train Crypt Fiend",
+              "icon": "ud-crypt-fiend"
+            },
+            {
+              "time": "3:11",
+              "supply": "20",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "3:46",
+              "supply": "20",
+              "instruction": "Build Nerubian Tower",
+              "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "4:18",
+              "supply": "20",
+              "instruction": "Train Crypt Fiend",
+              "icon": "ud-crypt-fiend"
+            },
+            {
+              "time": "4:54",
+              "supply": "23",
+              "instruction": "Build Black Citadel",
+              "icon": "ud-black-citadel"
+            },
+            {
+              "time": "5:22",
+              "supply": "23",
+              "instruction": "Hero: Lich",
+              "icon": "ud-lich"
+            },
+            {
+              "time": "5:57",
+              "supply": "28",
+              "instruction": "Build Slaughterhouse",
+              "icon": "ud-slaughterhouse"
+            },
+            {
+              "time": "6:07",
+              "supply": "28",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            },
+            {
+              "time": "6:34",
+              "supply": "28",
+              "instruction": "Research Burrow",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:02",
+              "supply": "28",
+              "instruction": "Train Obsidian Statue",
+              "icon": "ud-obsidian-statue"
+            },
+            {
+              "time": "7:21",
+              "supply": "31",
+              "instruction": "Hero: Dark Ranger",
+              "icon": "nt-dark-ranger"
+            },
+            {
+              "time": "7:47",
+              "supply": "36",
+              "instruction": "Build Ziggurat",
+              "icon": "ud-ziggurat"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Sonik#21222",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Sonik#21222 (Night Elf) vs Undead — Autumn Leaves",
+          "race": "nightelf",
+          "vsRaces": [
+            "undead"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 44_w3c_260919_1153_AutumnLeaves_v2.0.w3x (v3.00, 11:11). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:20",
+              "supply": "7",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:24",
+              "supply": "7",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:30",
+              "supply": "8",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:32",
+              "supply": "8",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:44",
+              "supply": "10",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:03",
+              "supply": "11",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:13",
+              "supply": "12",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "1:21",
+              "supply": "12",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:23",
+              "supply": "14",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:25",
+              "supply": "14",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:37",
+              "supply": "15",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:43",
+              "supply": "17",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:03",
+              "supply": "19",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "2:15",
+              "supply": "21",
+              "instruction": "Hero: Dark Ranger",
+              "icon": "nt-dark-ranger"
+            },
+            {
+              "time": "2:18",
+              "supply": "26",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "3:06",
+              "supply": "27",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "3:08",
+              "supply": "27",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:25",
+              "supply": "29",
+              "instruction": "Build Hunter's Hall",
+              "icon": "ne-hunters-hall"
+            },
+            {
+              "time": "3:45",
+              "supply": "29",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "4:27",
+              "supply": "29",
+              "instruction": "Train Huntress",
+              "icon": "ne-huntress"
+            },
+            {
+              "time": "4:45",
+              "supply": "32",
+              "instruction": "Train Huntress",
+              "icon": "ne-huntress"
+            },
+            {
+              "time": "5:30",
+              "supply": "35",
+              "instruction": "Hero: Forsaken Paladin",
+              "icon": "hu-forsaken-paladin"
+            },
+            {
+              "time": "5:33",
+              "supply": "40",
+              "instruction": "Research Upgrade Moon Glaive",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:39",
+              "supply": "40",
+              "instruction": "Train Forest Troll Berserker",
+              "icon": "foresttroll"
+            },
+            {
+              "time": "5:44",
+              "supply": "43",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "6:03",
+              "supply": "43",
+              "instruction": "Build Ancient of Lore",
+              "icon": "ne-ancient-of-lore"
+            },
+            {
+              "time": "6:21",
+              "supply": "43",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "6:46",
+              "supply": "43",
+              "instruction": "Research Improved Bows",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "6:59",
+              "supply": "43",
+              "instruction": "Build Tree of Life",
+              "icon": "ne-tree-of-life"
+            },
+            {
+              "time": "7:12",
+              "supply": "43",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp",
+              "importNote": "2 ordered · 1 cancelled"
+            },
+            {
+              "time": "7:15",
+              "supply": "44",
+              "instruction": "Train Huntress",
+              "icon": "ne-huntress"
+            },
+            {
+              "time": "7:26",
+              "supply": "47",
+              "instruction": "Train Dryad",
+              "icon": "ne-dryad"
+            },
+            {
+              "time": "7:53",
+              "supply": "50",
+              "instruction": "Train Dryad",
+              "icon": "ne-dryad"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "30": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}
