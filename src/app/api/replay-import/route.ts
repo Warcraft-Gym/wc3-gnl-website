@@ -29,7 +29,12 @@ export async function POST(request: Request) {
 
     let result;
     if (type.includes("multipart/form-data")) {
-      const form = await request.formData();
+      let form: FormData;
+      try {
+        form = await request.formData();
+      } catch {
+        return NextResponse.json({ error: "Could not read that request." }, { status: 400, headers: cors });
+      }
       const file = form.get("replay");
       if (!(file instanceof File)) {
         return NextResponse.json({ error: "Attach a .w3g replay file." }, { status: 400, headers: cors });
@@ -50,7 +55,11 @@ export async function POST(request: Request) {
       status: 200,
       headers: { ...cors, "Cache-Control": "no-store" },
     });
-  } catch {
-    return NextResponse.json({ error: "Could not read that request." }, { status: 400, headers: cors });
+  } catch (err) {
+    console.error("[replay-import] unexpected error", err);
+    return NextResponse.json(
+      { error: "Something went wrong importing that replay. Please try again." },
+      { status: 500, headers: cors },
+    );
   }
 }
