@@ -6,8 +6,8 @@ const ALLOWED = [
   "tauri://localhost",
   "http://tauri.localhost",
   "https://tauri.localhost",
-  "http://localhost:1420",
-  "http://127.0.0.1:1420",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ];
 
 test("every allowlisted overlay origin gets its own origin echoed back with the full header set", () => {
@@ -29,6 +29,10 @@ test("look-alike origins are rejected: no prefix/suffix tricks, no null, no trai
     "null",
     "http://tauri.localhost/",
     "HTTP://TAURI.LOCALHOST",
+    // F002b: the overlay's dev server moved off this port; it must no
+    // longer be allowlisted.
+    "http://localhost:1420",
+    "http://127.0.0.1:1420",
   ];
   for (const origin of rejected) {
     const headers = replayCorsHeaders(origin);

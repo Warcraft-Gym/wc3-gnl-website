@@ -6,13 +6,13 @@
  * the tests with no loader.
  */
 
-/** The desktop overlay's origins: dev (`tauri.localhost`, `1420`) and the packaged app (`tauri://localhost`). */
+/** The desktop overlay's origins: dev (`tauri.localhost`, `5173`, the overlay's Vite dev port) and the packaged app (`tauri://localhost`). */
 const ALLOWED_ORIGINS = new Set([
   "tauri://localhost",
   "http://tauri.localhost",
   "https://tauri.localhost",
-  "http://localhost:1420",
-  "http://127.0.0.1:1420",
+  "http://localhost:5173",
+  "http://127.0.0.1:5173",
 ]);
 
 /**

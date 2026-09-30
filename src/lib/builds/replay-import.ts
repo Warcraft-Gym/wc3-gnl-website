@@ -36,8 +36,17 @@ export type ReplayImportPlayer = {
   dropped: number;
 };
 
-/** Forwarded to `extractBuild`; see its docblock. Default (unset) is on. */
-export type ReplayImportOptions = { dropLikelyRejected?: boolean };
+/** Forwarded to `extractBuild`; see its docblock for each field's default
+ *  when left unset. F002b added `cutoffMs`/`includeUpgrades`/`includeItems`
+ *  alongside the original `dropLikelyRejected` — the API layer
+ *  (`parseReplayImportOptions`) is what turns the request's `cutoffSeconds`
+ *  into `cutoffMs`. */
+export type ReplayImportOptions = {
+  dropLikelyRejected?: boolean;
+  cutoffMs?: number;
+  includeUpgrades?: boolean;
+  includeItems?: boolean;
+};
 
 export type ReplayImport = {
   map: string;
@@ -109,7 +118,12 @@ async function fromBytes(
     const summary = await parseReplay(bytes);
     const game = { map: summary.map.name, duration: clock(summary.durationMs) };
     const players = summary.players.map<ReplayImportPlayer>((p) => {
-      const draft = extractBuild(summary, p.id, { dropLikelyRejected: opts?.dropLikelyRejected });
+      const draft = extractBuild(summary, p.id, {
+        dropLikelyRejected: opts?.dropLikelyRejected,
+        cutoffMs: opts?.cutoffMs,
+        includeUpgrades: opts?.includeUpgrades,
+        includeItems: opts?.includeItems,
+      });
       return {
         id: p.id,
         name: p.name,

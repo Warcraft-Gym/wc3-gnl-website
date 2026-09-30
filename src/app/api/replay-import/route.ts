@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { importReplayFile, importW3ChampionsMatch, MAX_REPLAY_BYTES } from "@/lib/builds/replay-import";
+import { parseReplayImportOptions } from "@/lib/builds/replay-import-options";
 import { replayCorsHeaders } from "@/lib/replay-cors.mjs";
 
 /**
@@ -8,6 +9,13 @@ import { replayCorsHeaders } from "@/lib/replay-cors.mjs";
  * a W3Champions match link or id. Used same-origin by the submit page, and
  * cross-origin by the desktop overlay (see `replayCorsHeaders` for its
  * allowlisted origins); nothing is stored.
+ *
+ * Both request shapes accept the same optional fields (multipart as form
+ * field strings, JSON as native types; see `parseReplayImportOptions`):
+ * `dropLikelyRejected` (default on), `cutoffSeconds` (integer, 1-3600,
+ * default 480), `includeUpgrades` (default on) and `includeItems` (default
+ * off). Any field left out keeps `extractBuild`'s own default; an invalid
+ * value gets a 400.
  */
 
 export const runtime = "nodejs";
@@ -40,14 +48,32 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: "Attach a .w3g replay file." }, { status: 400, headers: cors });
       }
       const dropLikelyRejected = form.get("dropLikelyRejected") !== "false";
-      result = await importReplayFile(file, { dropLikelyRejected });
+      const parsed = parseReplayImportOptions({
+        cutoffSeconds: form.get("cutoffSeconds") ?? undefined,
+        includeUpgrades: form.get("includeUpgrades") ?? undefined,
+        includeItems: form.get("includeItems") ?? undefined,
+      });
+      if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400, headers: cors });
+      result = await importReplayFile(file, { dropLikelyRejected, ...parsed.options });
     } else {
-      const body = (await request.json().catch(() => null)) as { match?: unknown; dropLikelyRejected?: unknown } | null;
+      const body = (await request.json().catch(() => null)) as {
+        match?: unknown;
+        dropLikelyRejected?: unknown;
+        cutoffSeconds?: unknown;
+        includeUpgrades?: unknown;
+        includeItems?: unknown;
+      } | null;
       if (typeof body?.match !== "string") {
         return NextResponse.json({ error: "Send { match: <W3Champions link or id> }." }, { status: 400, headers: cors });
       }
       const dropLikelyRejected = body.dropLikelyRejected !== false;
-      result = await importW3ChampionsMatch(body.match, { dropLikelyRejected });
+      const parsed = parseReplayImportOptions({
+        cutoffSeconds: body.cutoffSeconds,
+        includeUpgrades: body.includeUpgrades,
+        includeItems: body.includeItems,
+      });
+      if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400, headers: cors });
+      result = await importW3ChampionsMatch(body.match, { dropLikelyRejected, ...parsed.options });
     }
 
     if (!result.ok) return NextResponse.json({ error: result.error }, { status: result.status, headers: cors });
