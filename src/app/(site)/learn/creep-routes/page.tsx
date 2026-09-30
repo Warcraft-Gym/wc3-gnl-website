@@ -112,8 +112,12 @@ export default async function CreepRoutesPage({
       />
 
       <Container className="py-10">
-        {/* Submit CTA */}
-        <div className="panel relative overflow-hidden border-gold/40 p-6 sm:p-8">
+        {/* Submit CTA. `#routes` is where a race page's "Undead creep routes"
+            button lands, the same jump as `#builds` on the build list. */}
+        <div
+          id="routes"
+          className="panel relative overflow-hidden border-gold/40 p-6 scroll-mt-[calc(var(--wg-chrome-h,var(--wg-header-h))+1rem)] sm:p-8"
+        >
           <div
             aria-hidden
             className="pointer-events-none absolute inset-0 opacity-70"
