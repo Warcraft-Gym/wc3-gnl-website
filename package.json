@@ -8,9 +8,6 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test src/lib/*.test.mjs src/lib/*/*.test.mjs && vitest run",
-    "overlay:dev": "pnpm --filter wc3gym-overlay tauri dev",
-    "overlay:build": "pnpm --filter wc3gym-overlay tauri build",
-    "overlay:check": "pnpm --filter wc3gym-overlay check:config",
     "maps:add": "node scripts/creep-maps/add-map.mjs",
     "maps:rebuild": "node scripts/creep-maps/add-map.mjs"
   },

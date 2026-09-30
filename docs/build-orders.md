@@ -43,8 +43,8 @@ and presses Submit for review.
   from W3Champions' public API, then continues as above; the match page
   becomes the draft's source link.
 - **The overlay's export** (`.wc3gym.json`, same file format as
-  `apps/overlay/src/lib/buildExchange.ts`, `wc3gym-build` version 1):
-  dropped, chosen, or its JSON pasted.
+  `src/lib/buildExchange.ts` in [`Warcraft-Gym/wc3-gym-overlay`](https://github.com/Warcraft-Gym/wc3-gym-overlay),
+  `wc3gym-build` version 1): dropped, chosen, or its JSON pasted.
 - **Deep link**: `/learn/builds/submit#build=<base64url of the export JSON>`.
   The form reads the fragment on load, fills itself in and removes the
   fragment from the address bar. The fragment never reaches the server. This

@@ -15,8 +15,9 @@ on **Vercel**.
   read server-side; an optional service token never reaches the browser
 - **Fallback:** every data source falls back to bundled fixtures, so local
   dev and preview deployments work with no secrets configured
-- **Desktop overlay:** `apps/overlay`, a Tauri app that floats a build order
-  over the game (see below)
+- **Desktop overlay:** lives at [`Warcraft-Gym/wc3-gym-overlay`](https://github.com/Warcraft-Gym/wc3-gym-overlay),
+  a Tauri app that floats a build order over the game; see
+  [`docs/overlay.md`](docs/overlay.md)
 
 ## Getting started
 
@@ -143,27 +144,12 @@ scripts/
 ├── creep-maps/            # .w3x/.w3m → map catalogue + minimap PNG (build.mjs),
 │                           # creep table (creep-table.mjs), Sanity publish (publish.mjs)
 └── ...                    # WordPress migrations and build-order transcription
-apps/overlay/              # the desktop overlay (separate workspace package)
 public/
 ├── maps/                  # generated creep-map minimap PNGs (see scripts/creep-maps/)
 ├── map-icons/             # gold-mine + neutral-building icons, via Liquipedia (see docs/creep-routes.md)
 ├── wc3-icons/             # creep/item button icons, via Liquipedia (creeps/, items/ — see docs/creep-routes.md)
 └── ...                    # key art, faction crests, classic WC3 icons, logos, country flags (flag-icons, MIT)
 ```
-
-## Desktop overlay
-
-`apps/overlay` is a separate pnpm workspace package: a Tauri v2 desktop app
-that shows a build order in a transparent, always-on-top window while you
-play, driven by `/api/builds`. It builds and lints independently of the Next
-site. See [`docs/overlay.md`](docs/overlay.md) for install steps, shortcuts,
-the release process and the manual checklist. Tagging `overlay-v<version>`
-builds Windows and macOS installers on GitHub Actions and attaches them to a
-Release; the site's `/tools/overlay` page reads the latest one. Releases are
-signed and the app updates itself in-app once installed. Private builds
-can be exported/imported as JSON and submitted to the site from the app — see
-"Private builds" in [`docs/overlay.md`](docs/overlay.md). Build orders can
-also be imported from a Warcraft III replay (`.w3g`) into a private build.
 
 ## Deploy
 

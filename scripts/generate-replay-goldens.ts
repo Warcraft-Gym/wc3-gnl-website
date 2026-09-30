@@ -22,7 +22,10 @@
  *
  * Examples:
  *   # Captured BEFORE the F001 move, from the untouched overlay copy —
- *   # this is the exact command used to produce the committed goldens:
+ *   # this is the exact command used to produce the committed goldens.
+ *   # `apps/overlay` was removed from this repo in F006 once the overlay
+ *   # moved to Warcraft-Gym/wc3-gym-overlay; this path is only reachable
+ *   # by checking out a commit from before that removal:
  *   pnpm exec tsx scripts/generate-replay-goldens.ts apps/overlay/src/replay src/lib/replay/__fixtures__/golden
  *
  *   # Parity check AFTER the move (default args), diffed against git:
@@ -30,7 +33,8 @@
  *   git diff --stat -- src/lib/replay/__fixtures__/golden
  *
  *   # Re-verify at any other commit by pointing at wherever that commit's
- *   # parser lives (still apps/overlay/src/replay before F001 lands):
+ *   # parser lives (still apps/overlay/src/replay before F001 lands, and
+ *   # only present in this repo's history before F006 removed it):
  *   pnpm exec tsx scripts/generate-replay-goldens.ts apps/overlay/src/replay /tmp/goldens-base
  *   diff -r /tmp/goldens-base src/lib/replay/__fixtures__/golden
  */

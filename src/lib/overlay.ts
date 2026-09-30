@@ -8,7 +8,7 @@ import "server-only";
  * to the releases page.
  */
 
-const REPO = "Warcraft-Gym/wc3-gnl-website";
+const REPO = "Warcraft-Gym/wc3-gym-overlay";
 export const OVERLAY_RELEASES_URL = `https://github.com/${REPO}/releases`;
 export const OVERLAY_DOCS_URL = `https://github.com/${REPO}/blob/main/docs/overlay.md`;
 
