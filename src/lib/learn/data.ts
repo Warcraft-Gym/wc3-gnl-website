@@ -27,6 +27,8 @@ export type LearnCategory = {
   race?: Race;
   /** Slug of a guide rendered in full as the category page's main content. */
   featuredGuide?: string;
+  /** The category in "More … guides" under a guide, when `title` reads wrong there. */
+  moreLabel?: string;
 };
 
 export type Guide = {
@@ -84,6 +86,7 @@ export const LEARN_CATEGORIES: LearnCategory[] = [
   {
     id: "creep-routes",
     title: "Creep Routes",
+    moreLabel: "Creep Route",
     blurb: "Where to farm, what drops, and when to move.",
     kind: "topic",
   },
@@ -253,7 +256,17 @@ export const GUIDES: Guide[] = [
       p("The colour comes from the camp's level, the sum of its creeps' levels: easy is 9 or less, medium 10 to 19, hard 20 or more. Hover or tap a camp on a route's map to see its creeps and what each one can drop."),
       p("Prioritise camps that drop the items and experience your build wants. A good creep route is not the most camps, it is the right camps, in an order that keeps your hero and army safe."),
       block("Following a creep route", "h2"),
-      p("A creep route writes that order down as a list of stops. This one is a Night Elf Demon Hunter route on Springtime."),
+      {
+        _type: "block",
+        _key: "following-intro",
+        style: "normal",
+        markDefs: [{ _type: "link", _key: "demo-route", href: `/learn/creep-routes/${CREEP_ROUTE_DEMO.source}` }],
+        children: [
+          { _type: "span", _key: "following-intro-1", text: "A creep route writes that order down as a list of stops. This one is a ", marks: [] },
+          { _type: "span", _key: "following-intro-2", text: "Night Elf Demon Hunter route on Springtime", marks: ["demo-route"] },
+          { _type: "span", _key: "following-intro-3", text: ".", marks: [] },
+        ],
+      },
       block("The map", "h3"),
       p("The numbered nodes are the stops, and the line joins them in order. The red X is your base. Hover or tap any camp to see its creeps and drops."),
       { _type: "creepRoutePart", _key: "route-map", part: "map", ...CREEP_ROUTE_DEMO },
@@ -281,7 +294,7 @@ export const GUIDES: Guide[] = [
       step("Stops: click camps on the map in the order you take them. For each stop, set the kill order, the units to bring, a note and, if needed, a condition."),
       step("Notes and credit: add a title, a summary and your name."),
       { _type: "submitRouteCta", _key: "submit-route-cta" },
-      { _type: "creepRouteList", _key: "creep-route-list", ...CREEP_ROUTE_DEMO },
+      { _type: "creepRouteList", _key: "creep-route-list" },
     ],
   },
   {

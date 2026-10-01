@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { relatedRoutes, allOnSameMap, guideRoutes } from "./related.mjs";
+import { relatedRoutes, allOnSameMap } from "./related.mjs";
 
 const r = (slug, map, race) => ({ slug, map: { slug: map, name: map }, race });
 const current = r("current", "autumn-leaves", "orc");
@@ -55,16 +55,4 @@ test("the heading only names the map when every row is on it", () => {
   assert.equal(allOnSameMap(current, sameOnly), true);
   assert.equal(allOnSameMap(current, mixed), false);
   assert.equal(allOnSameMap(current, []), false, "an empty list must not claim a map");
-});
-
-test("a guide offers its example's own route first, then the list's top picks", () => {
-  const f = (slug, map, featured = false) => ({ ...r(slug, map, "orc"), featured });
-  const all = [f("new-elsewhere", "echo-isles"), f("spring-1", "springtime"), f("starred", "turtle-rock", true), f("example", "springtime")];
-  const slugs = guideRoutes(all, { first: "example" }).map((x) => x.slug);
-  assert.deepEqual(slugs, ["example", "starred", "new-elsewhere"]);
-});
-
-test("a guide whose example route is gone still fills the list with top picks", () => {
-  const all = [r("a", "echo-isles", "orc"), r("b", "springtime", "ud"), r("c", "turtle-rock", "hu"), r("d", "turtle-rock", "hu")];
-  assert.deepEqual(guideRoutes(all, { first: "missing" }).map((x) => x.slug), ["a", "b", "c"]);
 });
