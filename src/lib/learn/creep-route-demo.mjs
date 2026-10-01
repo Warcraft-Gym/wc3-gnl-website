@@ -4,6 +4,8 @@
  *  route's own order. The test next to this file checks the kills fit. */
 export const CREEP_ROUTE_DEMO = {
   map: "springtime",
+  /** The live route the stops come from; the route rows under the guide leave it out. */
+  source: "bm-mirror-image-1-grunt-into-hhs-fast-level-3-e47e",
   caption: "An orc Blademaster route on Springtime.",
   stops: [
     { campId: "c09", kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }, { row: 0, n: 1 }] },

@@ -7,6 +7,8 @@
  * alternatives are never crowded out.
  */
 
+import { featuredFirst } from "./filter.mjs";
+
 export const RELATED_LIMIT = 6;
 
 export function relatedRoutes(route, allRoutes, limit = RELATED_LIMIT) {
@@ -20,4 +22,14 @@ export function relatedRoutes(route, allRoutes, limit = RELATED_LIMIT) {
  *  so the heading never promises something the list does not deliver. */
 export function allOnSameMap(route, related) {
   return related.length > 0 && related.every((r) => r.map.slug === route.map.slug);
+}
+
+/** The routes a guide offers under its example: up to `mapCount` routes on
+ *  the example's map (other people's takes on it), then the route list's own
+ *  top pick (`featuredFirst` over newest first) from any map, `limit` in
+ *  all. `exclude` is the example route's own slug. */
+export function guideRoutes(allRoutes, { mapSlug, exclude, mapCount = 2, limit = 3 }) {
+  const pool = featuredFirst(allRoutes.filter((r) => r.slug !== exclude));
+  const onMap = pool.filter((r) => r.map.slug === mapSlug).slice(0, mapCount);
+  return [...onMap, ...pool.filter((r) => !onMap.includes(r))].slice(0, limit);
 }

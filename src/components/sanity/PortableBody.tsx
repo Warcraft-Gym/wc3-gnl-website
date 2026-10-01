@@ -11,6 +11,8 @@ import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrderDemo";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
+import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
+import { GuideRouteList } from "@/components/learn/GuideRouteList";
 import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
 
@@ -82,6 +84,12 @@ const components: PortableTextComponents = {
       if (!campId || !camps.some((c) => c.id === campId)) return null;
       return <KillOrderDemo camps={camps} before={stops.slice(0, zoom.stop)} campId={campId} caption={zoom.caption} presets={zoom.presets} />;
     },
+    // Route rows under a guide's example, and the route list's submit panel.
+    creepRouteList: ({ value }) => {
+      const { map, source } = value as { map: string; source?: string };
+      return <GuideRouteList mapSlug={map} exclude={source} />;
+    },
+    submitRouteCta: () => <SubmitRouteCta className="my-10" />,
     iconGrid: ({ value }) => {
       const items = (value as { items?: { _key: string; image: { alt?: string }; label: string }[] })?.items ?? [];
       if (!items.length) return null;

@@ -5,9 +5,9 @@ import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
-import { ButtonLink } from "@/components/ui/Button";
 import { RouteFilters } from "@/components/creep-routes/RouteFilters";
 import { RouteRow } from "@/components/creep-routes/RouteRow";
+import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
 import { RouteListUrlRecorder } from "@/components/creep-routes/RouteListUrlRecorder";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getCreepRoutes } from "@/lib/creep-routes/routes";
@@ -114,28 +114,7 @@ export default async function CreepRoutesPage({
       <Container className="py-10">
         {/* Submit CTA. `#routes` is where a race page's "Undead creep routes"
             button lands, the same jump as `#builds` on the build list. */}
-        <div
-          id="routes"
-          className="panel relative overflow-hidden border-gold/40 p-6 scroll-mt-[calc(var(--wg-chrome-h,var(--wg-header-h))+1rem)] sm:p-8"
-        >
-          <div
-            aria-hidden
-            className="pointer-events-none absolute inset-0 opacity-70"
-            style={{ backgroundImage: "radial-gradient(28rem 14rem at 100% 120%, var(--wg-gold-glow), transparent 65%)" }}
-          />
-          <div className="relative flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
-            <div>
-              <p className="kicker">Community routes</p>
-              <h2 className="mt-2 text-[1.15rem] font-bold tracking-[0.05em]">Got a route worth sharing?</h2>
-              <p className="mt-1 max-w-xl text-sm text-muted">
-                Submit it here, no account needed. A coach reviews it and it goes up with your name on it.
-              </p>
-            </div>
-            <ButtonLink href="/learn/creep-routes/submit" size="lg" className="shrink-0">
-              Submit a route
-            </ButtonLink>
-          </div>
-        </div>
+        <SubmitRouteCta id="routes" className="scroll-mt-[calc(var(--wg-chrome-h,var(--wg-header-h))+1rem)]" />
 
         {/* Matchup + filters, the way in */}
         <section className="mt-12">

@@ -99,26 +99,13 @@ export function getCategory(id: string): LearnCategory | undefined {
   return LEARN_CATEGORIES.find((c) => c.id === id);
 }
 
-/** A span in a fixture body: plain text, bold, or a link. */
-type Span = string | { text: string; strong?: boolean; href?: string };
-
 let keySeq = 0;
-/** One Portable Text block, so a fixture guide renders through `PortableBody`
- *  like a Sanity guide and can hold its block types (`killOrderDemo`). */
-function block(spans: Span[], style = "normal", listItem?: "bullet") {
-  const markDefs: { _key: string; _type: "link"; href: string }[] = [];
-  const children = spans.map((s) => {
-    const { text, strong, href }: Exclude<Span, string> = typeof s === "string" ? { text: s } : s;
-    const marks = strong ? ["strong"] : [];
-    if (href) {
-      markDefs.push({ _key: `l${keySeq}`, _type: "link", href });
-      marks.push(`l${keySeq++}`);
-    }
-    return { _type: "span", _key: `s${keySeq++}`, text, marks };
-  });
-  return { _type: "block", _key: `b${keySeq++}`, style, markDefs, children, ...(listItem ? { listItem, level: 1 } : {}) };
+/** One Portable Text block of plain text, so a fixture guide renders through
+ *  `PortableBody` like a Sanity guide and can hold its block types. */
+function block(text: string, style = "normal") {
+  return { _type: "block", _key: `b${keySeq++}`, style, markDefs: [], children: [{ _type: "span", _key: `s${keySeq++}`, text, marks: [] }] };
 }
-const p = (...spans: Span[]) => block(spans);
+const p = (text: string) => block(text);
 
 export const GUIDES: Guide[] = [
   {
@@ -256,18 +243,19 @@ export const GUIDES: Guide[] = [
     minutes: 3,
     publishedAt: "2026-08-11",
     excerpt:
-      "Read a creep route from the map down: the camps, the stops, then the kill order inside each camp.",
+      "Learn how to read Warcraft Gym community creep routes: the map, its creep camps, the route stops, and the kill order inside each camp.",
     body: [
-      p("Read a route from the big picture down: the map, then the stops, then the kills in each camp."),
+      p("Read a route from the big picture down: the map, then the stops, then the kills in each camp. The example is on Springtime."),
       { _type: "creepRouteDemo", _key: "creep-route-demo", ...CREEP_ROUTE_DEMO },
-      block(["The map"], "h2"),
+      block("The map", "h2"),
       p("Each dot is a camp, coloured by difficulty. The numbered nodes are the stops, joined in order by the path. Hover or tap a camp to see its creeps and drops."),
-      block(["The stops"], "h2"),
+      block("The stops", "h2"),
       p("Each stop shows the hero's level and XP after it. Open a stop to see its kill order."),
-      block(["The kill order"], "h2"),
+      block("The kill order", "h2"),
       p("Kills run left to right. Creeps in one box die in any order. A gold ring marks the kill that levels the hero, and every kill after it pays less XP. Try it on stop 3:"),
       { _type: "killOrderDemo", _key: "kill-order-demo", ...CREEP_ROUTE_DEMO },
-      p("To write a creep route, open ", { text: "Submit a route", href: "/learn/creep-routes/submit" }, "."),
+      { _type: "creepRouteList", _key: "creep-route-list", ...CREEP_ROUTE_DEMO },
+      { _type: "submitRouteCta", _key: "submit-route-cta" },
     ],
   },
   {
