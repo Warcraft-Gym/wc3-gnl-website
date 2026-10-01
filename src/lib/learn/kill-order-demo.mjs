@@ -1,8 +1,7 @@
-/** The "Try it" block in the guide "Reading creep camps and item drops":
+/** The "Try it" block in the guide "Reading creep routes":
  *  Springtime's west Sasquatch camp (rows: Ice Troll Trapper, Frost Wolf,
  *  Forest Troll High Priest, Sasquatch) and kill orders from two live
- *  routes. The guide quotes the XP these give; the test next to this file
- *  checks those numbers. */
+ *  routes. The test next to this file checks the XP each order gives. */
 export const KILL_ORDER_DEMO = {
   map: "springtime",
   camp: "c14",

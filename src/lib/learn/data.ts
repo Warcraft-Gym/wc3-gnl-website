@@ -119,8 +119,6 @@ function block(spans: Span[], style = "normal", listItem?: "bullet") {
   return { _type: "block", _key: `b${keySeq++}`, style, markDefs, children, ...(listItem ? { listItem, level: 1 } : {}) };
 }
 const p = (...spans: Span[]) => block(spans);
-const li = (...spans: Span[]) => block(spans, "normal", "bullet");
-const b = (text: string) => ({ text, strong: true });
 
 export const GUIDES: Guide[] = [
   {
@@ -252,35 +250,23 @@ export const GUIDES: Guide[] = [
   },
   {
     slug: "reading-creep-camps-and-drops",
-    title: "Reading creep camps and item drops",
+    title: "Reading creep routes",
     category: "creep-routes",
     level: "intermediate",
-    minutes: 9,
+    minutes: 3,
     publishedAt: "2026-08-11",
     excerpt:
-      "Camp colours, level ranges, which camps are worth your time on ladder maps, and which creep to kill first.",
+      "Read a creep route from the map down: the camps, the stops, then the kill order inside each camp.",
     body: [
-      p("Green, orange, and red camps signal how hard they hit and what they drop. Learning to read them at a glance tells you which camps are safe to take early and which need a hero level or two first."),
-      p("Prioritise camps that drop the items and experience your build wants. A good creep route is not the most camps, it is the right camps, in an order that keeps your hero and army safe."),
-      block(["Kill priority"], "h2"),
-      p("A route also says which creep in a camp to kill first. Three things set the order:"),
-      li(b("Casters."), " A Forest Troll High Priest heals the other creeps and casts Inner Fire on them. While it lives, the camp takes longer to kill and hits harder."),
-      li(b("Items."), " When the hero must leave a camp early, kill the creep that carries the item first."),
-      li(b("Levels."), " A kill pays less XP after the hero gains a level. A level 1 hero gets 80% of a creep's XP, level 2 gets 70%, level 3 gets 60% and level 4 gets 50%. From level 5, creeps give no XP. The order decides which kill gives the level, and every kill after it pays the lower rate."),
-      block(["Read a kill order"], "h3"),
-      p("Each stop on a route page shows its kills as a row of creep portraits, in order from left to right."),
-      li(b("Number:"), " the step. A stop shows numbers only when it has two or more steps."),
-      li(b("Box:"), " the creeps inside one outline die in any order. The creeps the route does not order form the last box."),
-      li(b("+XP:"), " what the kill pays at the hero's level at that moment. A box shows its total."),
-      li(b("Gold ring and Lv tag:"), " this kill gives the hero a level. A gold box means the level comes inside that box."),
-      li(b("skip:"), " a grey, dashed portrait is a creep the route leaves alive."),
-      li(b("Blue or red frame:"), " the creep carries a drop, blue for an item and red for a Power Up (a tome or a manual). Tap the portrait to see what it can drop."),
-      li(b("Lv and bar:"), " the hero's level and XP after the stop."),
-      block(["Try it"], "h3"),
-      p("Below is the route builder's kill order field on a Sasquatch camp. Click a creep to kill it next. Click a numbered creep to take it out of the order. ", b("join"), " puts a kill in one box with the step before it, and ", b("split"), " opens a box. With at least one creep in the order, choose whether the rest of the camp dies after it or stays alive."),
+      p("Read a route from the big picture down: the map, then the stops, then the kills in each camp."),
+      block(["The map"], "h2"),
+      p("Each dot is a camp, coloured by difficulty. The numbered nodes are the route's stops, joined in order by the path. Hover or tap a camp to see its creeps and drops."),
+      block(["The stops"], "h2"),
+      p("Each stop names its camp and the hero's level and XP after it. Open a stop for what to bring, the note and the kill order."),
+      block(["The kill order"], "h2"),
+      p("Kills run left to right. Creeps in one box die in any order. A gold ring marks the kill that levels the hero, and every kill after it pays less XP."),
       { _type: "killOrderDemo", _key: "kill-order-demo", ...KILL_ORDER_DEMO },
-      p("The examples come from two routes on this site. ", { text: "ST: DH FAST 3RD LEVEL", href: "/learn/creep-routes/st-dh-fast-3rd-level-afdb" }, " kills the priest first. ", { text: "BM Mirror Image 1 grunt into HHs fast level 3", href: "/learn/creep-routes/bm-mirror-image-1-grunt-into-hhs-fast-level-3-e47e" }, " kills the priest, then the Sasquatch. Compare the hero meter: with the Sasquatch second, the hero reaches level 2 inside the last box, so the last creep pays 70% and the hero ends on 236 XP, not 240."),
-      p("To write a kill order, open ", { text: "Submit a route", href: "/learn/creep-routes/submit" }, " and add a camp stop. Its Kill order field works like the one above. Leave it empty to clear the whole camp in any order."),
+      p("To write a creep route, open ", { text: "Submit a route", href: "/learn/creep-routes/submit" }, "."),
     ],
   },
   {
