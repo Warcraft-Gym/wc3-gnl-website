@@ -25,10 +25,10 @@ export function allOnSameMap(route, related) {
 }
 
 /** The routes a guide offers under its example: up to `mapCount` routes on
- *  the example's map (other people's takes on it), then the route list's own
- *  top pick (`featuredFirst` over newest first) from any map, `limit` in
+ *  the example's map (another take on it), then the route list's own top
+ *  picks (`featuredFirst` over newest first), any race and map, `limit` in
  *  all. `exclude` is the example route's own slug. */
-export function guideRoutes(allRoutes, { mapSlug, exclude, mapCount = 2, limit = 3 }) {
+export function guideRoutes(allRoutes, { mapSlug, exclude, mapCount = 1, limit = 3 }) {
   const pool = featuredFirst(allRoutes.filter((r) => r.slug !== exclude));
   const onMap = pool.filter((r) => r.map.slug === mapSlug).slice(0, mapCount);
   return [...onMap, ...pool.filter((r) => !onMap.includes(r))].slice(0, limit);

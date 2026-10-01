@@ -754,9 +754,10 @@ that slug; `src/app/(site)/learn/[category]/page.tsx` redirects
 `/learn/creep-routes` to the list explicitly (belt and suspenders — the
 App Router already resolves the static `creep-routes/page.tsx` ahead of
 the dynamic `[category]` segment for that exact path). The guide
-"Reading creep routes" is linked from the list page and lives at
-`/learn/guide/reading-creep-camps-and-drops`; it embeds the playground and
-a playable kill order (`creepRouteDemo` and `killOrderDemo` blocks in
+"Understanding creep routes" is linked from the list page and lives at
+`/learn/guide/understanding-creep-routes` (the old
+`/learn/guide/reading-creep-camps-and-drops` redirects there, `next.config.ts`); it embeds the route page's map, stop list and one open stop (`creepRoutePart` blocks: `CreepMapPlayground` with `show`, `only` or `startClosed`) and
+a playable kill order (`killOrderDemo` block in
 `PortableBody`, data in `src/lib/learn/creep-route-demo.mjs`).
 `src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
 every other category) and every published route slug.
@@ -787,7 +788,7 @@ for any build, fixture-paired or not; found via this feature's own browser
 verification, not assumed from the spec.
 
 The map and the stop list are the page's core: `CreepMapPlayground.tsx`
-(a client island in `src/components/creep-routes/`) lifts one piece of state, the active
+(a client island in `src/components/creep-routes/`, shared with the creep routes guide) lifts one piece of state, the active
 stop index, so `CreepMap` (`src/components/creep-routes/CreepMap.tsx`) and
 `RouteStepTable` (`RouteStepTable.tsx`, an `<ol>` of stop blocks, each a
 header with a hero meter, the kill chain, Bring, condition and note) stay

@@ -102,10 +102,13 @@ export function getCategory(id: string): LearnCategory | undefined {
 let keySeq = 0;
 /** One Portable Text block of plain text, so a fixture guide renders through
  *  `PortableBody` like a Sanity guide and can hold its block types. */
-function block(text: string, style = "normal") {
-  return { _type: "block", _key: `b${keySeq++}`, style, markDefs: [], children: [{ _type: "span", _key: `s${keySeq++}`, text, marks: [] }] };
+function block(text: string, style = "normal", listItem?: "number" | "bullet") {
+  const children = [{ _type: "span", _key: `s${keySeq++}`, text, marks: [] }];
+  return { _type: "block", _key: `b${keySeq++}`, style, markDefs: [], children, ...(listItem ? { listItem, level: 1 } : {}) };
 }
 const p = (text: string) => block(text);
+const step = (text: string) => block(text, "normal", "number");
+const bullet = (text: string) => block(text, "normal", "bullet");
 
 export const GUIDES: Guide[] = [
   {
@@ -236,22 +239,49 @@ export const GUIDES: Guide[] = [
     ],
   },
   {
-    slug: "reading-creep-camps-and-drops",
-    title: "Reading creep routes",
+    slug: "understanding-creep-routes",
+    title: "Understanding creep routes",
     category: "creep-routes",
     level: "intermediate",
-    minutes: 3,
+    minutes: 6,
     publishedAt: "2026-08-11",
     excerpt:
-      "Learn how to read Warcraft Gym community creep routes: the map, its creep camps, the route stops, and the kill order inside each camp.",
+      "Learn how to read Warcraft Gym creep routes. View a map, inspect every creep camp, and follow a detailed route written by our community.",
     body: [
-      p("Read a route from the big picture down: the map, then the stops, then the kills in each camp. The example is an orc Blademaster route on Springtime."),
-      { _type: "creepRouteDemo", _key: "creep-route-demo", ...CREEP_ROUTE_DEMO },
-      block("The kill order", "h2"),
-      p("Kills run left to right. Creeps in one box die in any order. A gold ring marks the kill that levels the hero, and every kill after it pays less XP. Try it on stop 3:"),
+      block("Reading creep camps and item drops", "h2"),
+      p("Green, yellow and red camps signal how hard they hit and what they drop. Learning to read them at a glance tells you which camps are safe to take early and which need a hero level or two first."),
+      p("The colour comes from the camp's level, the sum of its creeps' levels: easy is 9 or less, medium 10 to 19, hard 20 or more. Hover or tap a camp on a route's map to see its creeps and what each one can drop."),
+      p("Prioritise camps that drop the items and experience your build wants. A good creep route is not the most camps, it is the right camps, in an order that keeps your hero and army safe."),
+      block("Following a creep route", "h2"),
+      p("A creep route writes that order down as a list of stops. This one is a Night Elf Demon Hunter route on Springtime."),
+      block("The map", "h3"),
+      p("The numbered nodes are the stops, and the line joins them in order. The red X is your base. Hover or tap any camp to see its creeps and drops."),
+      { _type: "creepRoutePart", _key: "route-map", part: "map", ...CREEP_ROUTE_DEMO },
+      block("The stops", "h3"),
+      p("The route list holds the same stops, each with the hero's level and XP after it. Play them in order, and check your hero's level against each stop's to see if you are on pace. Open a stop for its details."),
+      { _type: "creepRoutePart", _key: "route-stops", part: "stops", ...CREEP_ROUTE_DEMO },
+      block("The kill order", "h3"),
+      p("An open stop shows how to take its camp. This is stop 4:"),
+      { _type: "creepRoutePart", _key: "route-stop", part: "stop", stop: CREEP_ROUTE_DEMO.zoom.stop, ...CREEP_ROUTE_DEMO },
+      bullet("Numbered creeps die in that order, left to right."),
+      bullet("Creeps in one box are a group: kill them in any order."),
+      bullet("A gold frame marks the kill that levels the hero. If the level comes inside a group, its box turns gold."),
+      bullet("A blue frame marks a creep that drops an item, a red frame one that drops a Power Up. Tap it to see what it can drop."),
+      bullet("A grey, dashed creep is skipped: the route leaves it alive."),
+      bullet("Bring lists the units to take to the camp."),
+      bullet("The note holds the author's tips. Read it before you pull."),
+      p("Try it: change the kill order of the same stop and watch the hero meter."),
       { _type: "killOrderDemo", _key: "kill-order-demo", ...CREEP_ROUTE_DEMO },
-      { _type: "creepRouteList", _key: "creep-route-list", ...CREEP_ROUTE_DEMO },
+      block("Advanced: XP and levels", "h3"),
+      p("A hero gets less XP from a creep as it levels: 80% of the creep's XP at level 1, 70% at level 2, 60% at level 3 and 50% at level 4. From level 5, creeps give no XP. The rate is set at each kill, so the kill that gives a level lowers the XP of every kill after it. The +XP under each kill already includes this."),
+      p("The numbers assume one hero. With two heroes alive, each kill's XP is shared between them."),
+      block("Writing a creep route", "h2"),
+      p("Have a route of your own? The route builder has three steps:"),
+      step("Route setup: pick the map, your race, the opponent and the difficulty."),
+      step("Stops: click camps on the map in the order you take them. For each stop, set the kill order, the units to bring, a note and, if needed, a condition."),
+      step("Notes and credit: add a title, a summary and your name."),
       { _type: "submitRouteCta", _key: "submit-route-cta" },
+      { _type: "creepRouteList", _key: "creep-route-list", ...CREEP_ROUTE_DEMO },
     ],
   },
   {

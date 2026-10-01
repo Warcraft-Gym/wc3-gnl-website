@@ -8,6 +8,7 @@ import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
 import { CampCard } from "@/components/creep-routes/CampCard";
 import { useCampCard } from "@/components/creep-routes/useCampCard";
 import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/types";
+import { cn } from "@/lib/utils";
 
 /**
  * The map and the stop list share two pieces of stop state, lifted here in
@@ -43,16 +44,31 @@ export function CreepMapPlayground({
   map,
   route,
   aside,
-  mapAside,
+  show,
+  only,
+  startClosed = false,
+  stopBody,
 }: {
   map: CreepMapType;
   route: CreepRoute;
   /** Rendered under the stop list, inside the right-hand column. */
   aside?: React.ReactNode;
-  /** Rendered under the map legend, inside the left-hand column. */
-  mapAside?: React.ReactNode;
+  /** One column only, for a guide that shows the pieces in turn. */
+  show?: "map" | "stops";
+  /** The stop list shows this one stop, open, with no header (`RouteStepTable`). */
+  only?: number;
+  /** Every stop starts closed and none selected. */
+  startClosed?: boolean;
+  /** Replaces the open stop's body (`RouteStepTable`). */
+  stopBody?: React.ReactNode;
 }) {
-  const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, initialStopView);
+  const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, (count: number) =>
+    only !== undefined
+      ? { selected: null, open: new Set([only]) }
+      : startClosed
+        ? { selected: null, open: new Set<number>() }
+        : initialStopView(count),
+  );
   const [scrollTo, setScrollTo] = useState<{ index: number } | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
@@ -80,47 +96,59 @@ export function CreepMapPlayground({
     [route.stops],
   );
 
+  const mapColumn = (
+    <>
+      <CreepMap
+        map={map}
+        route={route}
+        activeStop={view.selected}
+        onCampSelect={onMarkerSelect}
+        groupMarkers
+        walkAllCamps
+        deemphasizeOffRoute
+        onCampCardPin={pin}
+        onCampCardHoverEnter={hoverEnter}
+        onCampCardHoverLeave={hoverLeave}
+        openCampId={openCampId}
+      />
+      <MapLegend />
+    </>
+  );
+  const stopColumn = (
+    <>
+      <RouteStepTable
+        route={route}
+        map={map}
+        selected={view.selected}
+        open={view.open}
+        onSummary={(index) => dispatch({ type: "summary", index })}
+        onChevron={(index) => dispatch({ type: "chevron", index })}
+        onExpandAll={() => dispatch({ type: "expandAll", count: route.stops.length })}
+        onCollapseAll={() => dispatch({ type: "collapseAll" })}
+        scrollTo={scrollTo}
+        onOpenCard={pin}
+        openCampId={openCampId}
+        only={only}
+        stopBody={stopBody}
+      />
+      {/* Anything the page wants directly under the stops — the Discord
+          card. It belongs *in* this column rather than in a band below the
+          grid: the map column is far taller than a short stop list, so a
+          three-stop route left a column of dead space that pushed whatever
+          followed the whole height of the map down the page. A server
+          element in a client child list needs a key, hence the fragment. */}
+      <Fragment key="aside">{aside}</Fragment>
+    </>
+  );
+
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8">
-      <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
-        <CreepMap
-          map={map}
-          route={route}
-          activeStop={view.selected}
-          onCampSelect={onMarkerSelect}
-          groupMarkers
-          walkAllCamps
-          deemphasizeOffRoute
-          onCampCardPin={pin}
-          onCampCardHoverEnter={hoverEnter}
-          onCampCardHoverLeave={hoverLeave}
-          openCampId={openCampId}
-        />
-        <MapLegend />
-        <Fragment key="map-aside">{mapAside}</Fragment>
-      </div>
-      <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
-        <RouteStepTable
-          route={route}
-          map={map}
-          selected={view.selected}
-          open={view.open}
-          onSummary={(index) => dispatch({ type: "summary", index })}
-          onChevron={(index) => dispatch({ type: "chevron", index })}
-          onExpandAll={() => dispatch({ type: "expandAll", count: route.stops.length })}
-          onCollapseAll={() => dispatch({ type: "collapseAll" })}
-          scrollTo={scrollTo}
-          onOpenCard={pin}
-          openCampId={openCampId}
-        />
-        {/* Anything the page wants directly under the stops — the Discord
-            card. It belongs *in* this column rather than in a band below the
-            grid: the map column is far taller than a short stop list, so a
-            three-stop route left a column of dead space that pushed whatever
-            followed the whole height of the map down the page. A server
-            element in a client child list needs a key, hence the fragment. */}
-        <Fragment key="aside">{aside}</Fragment>
-      </div>
+    <div className={cn(!show && "grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8")}>
+      {show !== "stops" ? (
+        <div className={cn("min-w-0", !show && "lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]")}>{mapColumn}</div>
+      ) : null}
+      {show !== "map" ? (
+        <div className={cn("min-w-0", !show && "lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]")}>{stopColumn}</div>
+      ) : null}
       {card ? (
         <CampCard
           camp={card.camp}

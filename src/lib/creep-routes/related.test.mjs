@@ -57,11 +57,11 @@ test("the heading only names the map when every row is on it", () => {
   assert.equal(allOnSameMap(current, []), false, "an empty list must not claim a map");
 });
 
-test("a guide offers two routes on its map, then the list's top pick", () => {
+test("a guide offers one route on its map, then the list's top picks", () => {
   const f = (slug, map, featured = false) => ({ ...r(slug, map, "orc"), featured });
   const all = [f("new-elsewhere", "echo-isles"), f("example", "springtime"), f("spring-1", "springtime"), f("starred", "turtle-rock", true), f("spring-2", "springtime"), f("spring-3", "springtime")];
   const slugs = guideRoutes(all, { mapSlug: "springtime", exclude: "example" }).map((x) => x.slug);
-  assert.deepEqual(slugs, ["spring-1", "spring-2", "starred"]);
+  assert.deepEqual(slugs, ["spring-1", "starred", "new-elsewhere"]);
 });
 
 test("a guide's map with one route still fills the list from other maps", () => {

@@ -2,89 +2,80 @@
 
 import { useMemo, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
-import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { killedXpShare } from "@/lib/creep-routes/kills.mjs";
-import type { CreepMap, MapCamp, RouteStop, StopKill } from "@/lib/creep-routes/types";
-import { BAND_LABEL, BandDot } from "@/components/creep-routes/RouteBadges";
-import { HeroMeter } from "@/components/creep-routes/HeroMeter";
+import type { CreepMap, CreepRoute, StopKill } from "@/lib/creep-routes/types";
+import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
 import { KillOrderField } from "@/components/creep-routes/KillOrderField";
 import { cn } from "@/lib/utils";
 
 export type KillOrderPreset = { label: string; kills: StopKill[]; leaveRest?: boolean };
 
-type Stop = { kills: StopKill[]; leaveRest: boolean };
+type Edit = { kills: StopKill[]; leaveRest: boolean };
 
-const sameStop = (a: Stop, p: KillOrderPreset) =>
-  JSON.stringify(a.kills) === JSON.stringify(p.kills) && a.leaveRest === Boolean(p.leaveRest);
+const isPreset = (e: Edit, p: KillOrderPreset) =>
+  JSON.stringify(e.kills) === JSON.stringify(p.kills) && e.leaveRest === Boolean(p.leaveRest);
 
 /**
- * A guide's playable stop: the route builder's kill order field on one camp,
- * under the summary line a route page draws for that stop (band dot, camp,
- * hero meter). The hero arrives with the XP of the `before` stops. `presets`
- * load example orders; the first is the start state.
+ * One stop of a route as its route page draws it open, with the route
+ * builder's kill order field in place of the read-only chain, so a reader
+ * can reorder the kills and watch the hero meter. `presets` load example
+ * orders; the first is the start state.
  */
 export function KillOrderDemo({
-  camps,
-  before,
-  campId,
+  map,
+  route,
+  stop,
   caption,
   presets,
 }: {
-  /** The camps of `before` and of this stop. */
-  camps: MapCamp[];
-  before: RouteStop[];
-  campId: string;
+  map: CreepMap;
+  route: CreepRoute;
+  stop: number;
   caption: string;
   presets: KillOrderPreset[];
 }) {
-  const camp = camps.find((c) => c.id === campId)!;
-  const [stop, setStop] = useState<Stop>({ kills: presets[0]?.kills ?? [], leaveRest: Boolean(presets[0]?.leaveRest) });
-  const d = useMemo(
-    // deriveRoute only looks camps up by id, so the camps on the way are enough.
-    () => deriveRoute({ stops: [...before, { campId, ...stop }] }, { camps } as CreepMap).stops.at(-1)!,
-    [camps, before, campId, stop],
+  const [edit, setEdit] = useState<Edit>({ kills: presets[0]?.kills ?? [], leaveRest: Boolean(presets[0]?.leaveRest) });
+  const edited = useMemo(
+    () => ({ ...route, stops: route.stops.map((s, i) => (i === stop ? { ...s, ...edit } : s)) }),
+    [route, stop, edit],
   );
+  const trace = useMemo(() => deriveRoute(edited, map).stops[stop]?.kills ?? [], [edited, map, stop]);
+  const camp = map.camps.find((c) => c.id === route.stops[stop]?.campId);
+  if (!camp) return null;
   return (
-    <figure className="panel my-8 text-base leading-normal">
-      <div className="flex flex-wrap items-center gap-2 border-b border-line/60 px-4 py-3 sm:px-5">
+    <figure className="my-8 text-base leading-normal">
+      <div className="mb-3 flex flex-wrap items-center gap-2">
         <span className="mr-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Examples</span>
         {presets.map((p) => (
           <button
             key={p.label}
             type="button"
-            aria-pressed={sameStop(stop, p)}
-            onClick={() => setStop({ kills: p.kills, leaveRest: Boolean(p.leaveRest) })}
+            aria-pressed={isPreset(edit, p)}
+            onClick={() => setEdit({ kills: p.kills, leaveRest: Boolean(p.leaveRest) })}
             className={cn(
               "h-7 rounded border px-2 text-xs transition-colors",
-              sameStop(stop, p) ? "border-gold/60 bg-gold/10 text-fg" : "border-line text-muted hover:text-fg",
+              isPreset(edit, p) ? "border-gold/60 bg-gold/10 text-fg" : "border-line text-muted hover:text-fg",
             )}
           >
             {p.label}
           </button>
         ))}
       </div>
-      <div className="space-y-4 px-4 py-4 sm:px-5">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-          <p className="min-w-0 pt-0.5 text-sm sm:flex sm:flex-wrap sm:items-center sm:gap-x-2">
-            <span className="inline-flex items-start gap-1.5">
-              <BandDot className="mt-1.5" band={camp.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
-              <span className="font-medium text-fg">{campLabel(camp)}</span>
-            </span>
-            <span className="block pl-3.5 text-muted sm:pl-0">
-              {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
-            </span>
-          </p>
-          <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} />
-        </div>
-        <KillOrderField
-          camp={camp}
-          kills={stop.kills}
-          leaveRest={stop.leaveRest}
-          trace={d.kills}
-          onChange={(patch) => setStop((s) => ({ ...s, ...patch }))}
-        />
-      </div>
-      <figcaption className="border-t border-line/60 px-4 py-2.5 text-xs text-faint sm:px-5">{caption}</figcaption>
+      <CreepMapPlayground
+        map={map}
+        route={edited}
+        show="stops"
+        only={stop}
+        stopBody={
+          <KillOrderField
+            camp={camp}
+            kills={edit.kills}
+            leaveRest={edit.leaveRest}
+            trace={trace}
+            onChange={(patch) => setEdit((e) => ({ ...e, ...patch }))}
+          />
+        }
+      />
+      <figcaption className="mt-2 text-sm text-faint">{caption}</figcaption>
     </figure>
   );
 }

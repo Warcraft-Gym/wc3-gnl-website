@@ -8,6 +8,7 @@ import { embedUrl } from "@/lib/video-embed.mjs";
 import { displayWidth, imageDimensions, isIconSized } from "@/lib/sanity-image-size.mjs";
 import { groupIconLabelPairs } from "@/lib/icon-grid.mjs";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
+import Link from "next/link";
 import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrderDemo";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
@@ -15,6 +16,20 @@ import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
 import { GuideRouteList } from "@/components/learn/GuideRouteList";
 import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
+
+type GuideRouteValue = { map: string; stops: RouteStop[] };
+
+/** A guide's example route on a bundled catalogue map (no Sanity read). The
+ *  map is cut to the route's own camps unless `fullMap`: only the map piece
+ *  draws the other camps, and each block sends its own copy to the browser. */
+function guideRoute({ map, stops }: GuideRouteValue, fullMap: boolean) {
+  const found = FIXTURE_MAPS.find((m) => m.slug === map);
+  if (!found) return null;
+  const onRoute = found.camps.filter((c) => stops.some((s) => s.campId === c.id));
+  // The playground and the map read only `stops` and `start` from a route.
+  const route = { stops, map: { slug: found.slug, name: found.name } } as unknown as CreepRoute;
+  return { map: fullMap ? found : { ...found, camps: onRoute }, route };
+}
 
 /**
  * Renderer for Sanity Portable Text bodies (guides, posts). Handles images,
@@ -55,35 +70,38 @@ const components: PortableTextComponents = {
         </figure>
       );
     },
-    // A creep route on a catalogue map, as its route page draws it (map and
-    // stops), and one of its stops as a playable kill order. Maps come from
-    // the bundled JSON, so a guide makes no Sanity read for them.
-    creepRouteDemo: ({ value }) => {
-      const { map, stops, mapNote, stopsNote } = value as { map: string; stops: RouteStop[]; mapNote: string; stopsNote: string };
-      const found = FIXTURE_MAPS.find((m) => m.slug === map);
-      if (!found) return null;
-      // The playground and the map read only `stops` and `start` from a route.
-      const route = { stops, map: { slug: found.slug, name: found.name } } as unknown as CreepRoute;
-      // Each note sits under the column it explains.
-      const note = (text: string) => <p className="mt-3 max-w-[60ch] text-sm text-muted">{text}</p>;
+    // A route on a catalogue map, one route page piece at a time (the map,
+    // the closed stop list, one open stop), and one stop with an editable
+    // kill order.
+    creepRoutePart: ({ value }) => {
+      const v = value as GuideRouteValue & { part: "map" | "stops" | "stop"; stop?: number; source: string; author: string };
+      const g = guideRoute(v, v.part === "map");
+      if (!g) return null;
       return (
-        <div className="my-8 mx-[min(0px,calc(50%_-_min(36rem,50vw_-_1.5rem)))] text-base leading-normal">
-          <CreepMapPlayground map={found} route={route} mapAside={note(mapNote)} aside={note(stopsNote)} />
-        </div>
+        <figure className="my-6 text-base leading-normal">
+          <div className={v.part === "map" ? "max-w-lg" : undefined}>
+            <CreepMapPlayground
+              map={g.map}
+              route={g.route}
+              show={v.part === "map" ? "map" : "stops"}
+              only={v.part === "stop" ? v.stop : undefined}
+              startClosed={v.part === "stops"}
+            />
+          </div>
+          {v.part === "map" ? (
+            <figcaption className="mt-2 text-sm text-faint">
+              <Link href={`/learn/creep-routes/${v.source}`} className="hover:text-gold">
+                Route by {v.author}
+              </Link>
+            </figcaption>
+          ) : null}
+        </figure>
       );
     },
     killOrderDemo: ({ value }) => {
-      const { map, stops, zoom } = value as {
-        map: string;
-        stops: RouteStop[];
-        zoom: { stop: number; caption: string; presets: KillOrderPreset[] };
-      };
-      const found = FIXTURE_MAPS.find((m) => m.slug === map);
-      const upTo = stops.slice(0, zoom.stop + 1);
-      const camps = found?.camps.filter((c) => upTo.some((s) => s.campId === c.id)) ?? [];
-      const campId = stops[zoom.stop]?.campId;
-      if (!campId || !camps.some((c) => c.id === campId)) return null;
-      return <KillOrderDemo camps={camps} before={stops.slice(0, zoom.stop)} campId={campId} caption={zoom.caption} presets={zoom.presets} />;
+      const v = value as GuideRouteValue & { zoom: { stop: number; caption: string; presets: KillOrderPreset[] } };
+      const g = guideRoute(v, false);
+      return g ? <KillOrderDemo map={g.map} route={g.route} stop={v.zoom.stop} caption={v.zoom.caption} presets={v.zoom.presets} /> : null;
     },
     // Route rows under a guide's example, and the route list's submit panel.
     creepRouteList: ({ value }) => {

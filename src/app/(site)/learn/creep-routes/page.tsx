@@ -135,8 +135,8 @@ export default async function CreepRoutesPage({
 
         <p className="mt-6 max-w-2xl text-sm text-muted">
           New to creep routes?{" "}
-          <Link href="/learn/guide/reading-creep-camps-and-drops" className="text-gold hover:underline">
-            Read: how to read a creep route
+          <Link href="/learn/guide/understanding-creep-routes" className="text-gold hover:underline">
+            Read: understanding creep routes
           </Link>
           .
         </p>
