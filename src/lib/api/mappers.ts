@@ -265,7 +265,8 @@ export function mapSeason(s: RawSeason): Season {
     shortName: shortSeasonName(s),
     number: seasonNumber(s),
     slug: slugify(s.name),
-    isActive: s.phase ? !["complete", "finished"].includes(s.phase) : true,
+    // A past season nobody closed reads running, so the end date decides, as the backend's Season.running does
+    isActive: !isFinished(s),
     currentWeek,
     totalWeeks: total,
     startDate: s.start_date,
@@ -292,7 +293,7 @@ export function deriveWeeks(s: Season): Week[] {
 
 // --- players / teams ---
 
-/** The backend rule for a season that is over: closed, or its end date before today (UTC); the phase decides only when both fields are absent. */
+/** A season that is over: closed, or its end date before today (UTC), so an unclosed past season reads over; the phase decides only when both fields are absent. */
 function isFinished(s: RawSeason): boolean {
   if (s.closed_at === undefined && s.end_date === undefined) return s.phase === "finished";
   return s.closed_at != null || (s.end_date != null && s.end_date.slice(0, 10) < new Date().toISOString().slice(0, 10));
@@ -638,7 +639,7 @@ export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
 
 /** The reads the profile is built from, fetched by gnl.ts. */
 export interface RawProfileReads {
-  /** Every published, finished GNL season. */
+  /** Every published GNL season that is running or finished. */
   seasons: RawSeason[];
   user: RawUser;
   /** The person's roster and captain seats, one row per season. */
