@@ -57,14 +57,14 @@ test("the heading only names the map when every row is on it", () => {
   assert.equal(allOnSameMap(current, []), false, "an empty list must not claim a map");
 });
 
-test("a guide offers one route on its map, then the list's top picks", () => {
+test("a guide offers its example's own route first, then the list's top picks", () => {
   const f = (slug, map, featured = false) => ({ ...r(slug, map, "orc"), featured });
-  const all = [f("new-elsewhere", "echo-isles"), f("example", "springtime"), f("spring-1", "springtime"), f("starred", "turtle-rock", true), f("spring-2", "springtime"), f("spring-3", "springtime")];
-  const slugs = guideRoutes(all, { mapSlug: "springtime", exclude: "example" }).map((x) => x.slug);
-  assert.deepEqual(slugs, ["spring-1", "starred", "new-elsewhere"]);
+  const all = [f("new-elsewhere", "echo-isles"), f("spring-1", "springtime"), f("starred", "turtle-rock", true), f("example", "springtime")];
+  const slugs = guideRoutes(all, { first: "example" }).map((x) => x.slug);
+  assert.deepEqual(slugs, ["example", "starred", "new-elsewhere"]);
 });
 
-test("a guide's map with one route still fills the list from other maps", () => {
-  const all = [r("a", "echo-isles", "orc"), r("b", "springtime", "ud"), r("c", "turtle-rock", "hu")];
-  assert.deepEqual(guideRoutes(all, { mapSlug: "springtime" }).map((x) => x.slug), ["b", "a", "c"]);
+test("a guide whose example route is gone still fills the list with top picks", () => {
+  const all = [r("a", "echo-isles", "orc"), r("b", "springtime", "ud"), r("c", "turtle-rock", "hu"), r("d", "turtle-rock", "hu")];
+  assert.deepEqual(guideRoutes(all, { first: "missing" }).map((x) => x.slug), ["a", "b", "c"]);
 });
