@@ -19,3 +19,13 @@ export async function GuideRouteList() {
     </section>
   );
 }
+
+/** One route's row inside a guide's text, the same row the route list shows. */
+export async function GuideRouteCard({ slug }: { slug: string }) {
+  const route = (await getCreepRoutes()).find((r) => r.slug === slug);
+  return route ? (
+    <ul className="my-6 grid leading-normal">
+      <RouteRow route={route} />
+    </ul>
+  ) : null;
+}

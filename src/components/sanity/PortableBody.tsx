@@ -13,7 +13,7 @@ import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrde
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
 import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
-import { GuideRouteList } from "@/components/learn/GuideRouteList";
+import { GuideRouteCard, GuideRouteList } from "@/components/learn/GuideRouteList";
 import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
 
@@ -103,7 +103,8 @@ const components: PortableTextComponents = {
       const g = guideRoute(v, false);
       return g ? <KillOrderDemo map={g.map} route={g.route} stop={v.zoom.stop} caption={v.zoom.caption} presets={v.zoom.presets} /> : null;
     },
-    // Route rows under a guide's example, and the route list's submit panel.
+    // A guide's example route as a row, the route list's top rows, and its submit panel.
+    creepRouteCard: ({ value }) => <GuideRouteCard slug={(value as { slug: string }).slug} />,
     creepRouteList: () => <GuideRouteList />,
     submitRouteCta: () => <SubmitRouteCta className="my-10" />,
     iconGrid: ({ value }) => {
