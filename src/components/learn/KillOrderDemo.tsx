@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { killedXpShare } from "@/lib/creep-routes/kills.mjs";
-import type { CreepMap, MapCamp, StopKill } from "@/lib/creep-routes/types";
+import type { CreepMap, MapCamp, RouteStop, StopKill } from "@/lib/creep-routes/types";
 import { BAND_LABEL, BandDot } from "@/components/creep-routes/RouteBadges";
 import { HeroMeter } from "@/components/creep-routes/HeroMeter";
 import { KillOrderField } from "@/components/creep-routes/KillOrderField";
@@ -20,15 +20,29 @@ const sameStop = (a: Stop, p: KillOrderPreset) =>
 /**
  * A guide's playable stop: the route builder's kill order field on one camp,
  * under the summary line a route page draws for that stop (band dot, camp,
- * hero meter). A level 1 hero with no XP walks in. `presets` load example
- * orders; the first is the start state.
+ * hero meter). The hero arrives with the XP of the `before` stops. `presets`
+ * load example orders; the first is the start state.
  */
-export function KillOrderDemo({ camp, caption, presets }: { camp: MapCamp; caption: string; presets: KillOrderPreset[] }) {
+export function KillOrderDemo({
+  camps,
+  before,
+  campId,
+  caption,
+  presets,
+}: {
+  /** The camps of `before` and of this stop. */
+  camps: MapCamp[];
+  before: RouteStop[];
+  campId: string;
+  caption: string;
+  presets: KillOrderPreset[];
+}) {
+  const camp = camps.find((c) => c.id === campId)!;
   const [stop, setStop] = useState<Stop>({ kills: presets[0]?.kills ?? [], leaveRest: Boolean(presets[0]?.leaveRest) });
   const d = useMemo(
-    // deriveRoute only looks camps up by id, so a one-camp map is enough.
-    () => deriveRoute({ stops: [{ campId: camp.id, ...stop }] }, { camps: [camp] } as CreepMap).stops[0],
-    [camp, stop],
+    // deriveRoute only looks camps up by id, so the camps on the way are enough.
+    () => deriveRoute({ stops: [...before, { campId, ...stop }] }, { camps } as CreepMap).stops.at(-1)!,
+    [camps, before, campId, stop],
   );
   return (
     <figure className="panel my-8 text-base leading-normal">

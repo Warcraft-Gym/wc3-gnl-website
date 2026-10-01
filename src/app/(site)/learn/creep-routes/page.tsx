@@ -155,9 +155,9 @@ export default async function CreepRoutesPage({
         </section>
 
         <p className="mt-6 max-w-2xl text-sm text-muted">
-          New to reading a creep camp?{" "}
+          New to creep routes?{" "}
           <Link href="/learn/guide/reading-creep-camps-and-drops" className="text-gold hover:underline">
-            Read: how to read creep camps and item drops
+            Read: how to read a creep route
           </Link>
           .
         </p>

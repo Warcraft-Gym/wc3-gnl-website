@@ -1,5 +1,5 @@
 import type { Race } from "@/lib/utils";
-import { KILL_ORDER_DEMO } from "./kill-order-demo.mjs";
+import { CREEP_ROUTE_DEMO } from "./creep-route-demo.mjs";
 
 /**
  * Learn section content. Structured like the live "Learn Warcraft 3" hub:
@@ -259,13 +259,14 @@ export const GUIDES: Guide[] = [
       "Read a creep route from the map down: the camps, the stops, then the kill order inside each camp.",
     body: [
       p("Read a route from the big picture down: the map, then the stops, then the kills in each camp."),
+      { _type: "creepRouteDemo", _key: "creep-route-demo", ...CREEP_ROUTE_DEMO },
       block(["The map"], "h2"),
-      p("Each dot is a camp, coloured by difficulty. The numbered nodes are the route's stops, joined in order by the path. Hover or tap a camp to see its creeps and drops."),
+      p("Each dot is a camp, coloured by difficulty. The numbered nodes are the stops, joined in order by the path. Hover or tap a camp to see its creeps and drops."),
       block(["The stops"], "h2"),
-      p("Each stop names its camp and the hero's level and XP after it. Open a stop for what to bring, the note and the kill order."),
+      p("Each stop shows the hero's level and XP after it. Open a stop to see its kill order."),
       block(["The kill order"], "h2"),
-      p("Kills run left to right. Creeps in one box die in any order. A gold ring marks the kill that levels the hero, and every kill after it pays less XP."),
-      { _type: "killOrderDemo", _key: "kill-order-demo", ...KILL_ORDER_DEMO },
+      p("Kills run left to right. Creeps in one box die in any order. A gold ring marks the kill that levels the hero, and every kill after it pays less XP. Try it on stop 3:"),
+      { _type: "killOrderDemo", _key: "kill-order-demo", ...CREEP_ROUTE_DEMO },
       p("To write a creep route, open ", { text: "Submit a route", href: "/learn/creep-routes/submit" }, "."),
     ],
   },

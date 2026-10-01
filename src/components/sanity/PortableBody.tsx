@@ -10,6 +10,8 @@ import { groupIconLabelPairs } from "@/lib/icon-grid.mjs";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
 import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrderDemo";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
+import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
+import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
 
 /**
@@ -51,12 +53,34 @@ const components: PortableTextComponents = {
         </figure>
       );
     },
-    // A playable kill order on one catalogue camp. The camp comes from the
-    // bundled map JSON, so the guide makes no Sanity read for it.
+    // A creep route on a catalogue map, as its route page draws it (map and
+    // stops), and one of its stops as a playable kill order. Maps come from
+    // the bundled JSON, so a guide makes no Sanity read for them.
+    creepRouteDemo: ({ value }) => {
+      const { map, stops, caption } = value as { map: string; stops: RouteStop[]; caption: string };
+      const found = FIXTURE_MAPS.find((m) => m.slug === map);
+      if (!found) return null;
+      // The playground and the map read only `stops` and `start` from a route.
+      const route = { stops, map: { slug: found.slug, name: found.name } } as unknown as CreepRoute;
+      return (
+        <figure className="my-8 mx-[min(0px,calc(50%_-_min(36rem,50vw_-_1.5rem)))] text-base leading-normal">
+          <CreepMapPlayground map={found} route={route} />
+          <figcaption className="mt-3 text-sm text-faint">{caption}</figcaption>
+        </figure>
+      );
+    },
     killOrderDemo: ({ value }) => {
-      const { map, camp, caption, presets } = value as { map: string; camp: string; caption: string; presets: KillOrderPreset[] };
-      const found = FIXTURE_MAPS.find((m) => m.slug === map)?.camps.find((c) => c.id === camp);
-      return found ? <KillOrderDemo camp={found} caption={caption} presets={presets} /> : null;
+      const { map, stops, zoom } = value as {
+        map: string;
+        stops: RouteStop[];
+        zoom: { stop: number; caption: string; presets: KillOrderPreset[] };
+      };
+      const found = FIXTURE_MAPS.find((m) => m.slug === map);
+      const upTo = stops.slice(0, zoom.stop + 1);
+      const camps = found?.camps.filter((c) => upTo.some((s) => s.campId === c.id)) ?? [];
+      const campId = stops[zoom.stop]?.campId;
+      if (!campId || !camps.some((c) => c.id === campId)) return null;
+      return <KillOrderDemo camps={camps} before={stops.slice(0, zoom.stop)} campId={campId} caption={zoom.caption} presets={zoom.presets} />;
     },
     iconGrid: ({ value }) => {
       const items = (value as { items?: { _key: string; image: { alt?: string }; label: string }[] })?.items ?? [];
