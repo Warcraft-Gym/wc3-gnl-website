@@ -43,11 +43,14 @@ export function CreepMapPlayground({
   map,
   route,
   aside,
+  mapAside,
 }: {
   map: CreepMapType;
   route: CreepRoute;
   /** Rendered under the stop list, inside the right-hand column. */
   aside?: React.ReactNode;
+  /** Rendered under the map legend, inside the left-hand column. */
+  mapAside?: React.ReactNode;
 }) {
   const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, initialStopView);
   const [scrollTo, setScrollTo] = useState<{ index: number } | null>(null);
@@ -94,6 +97,7 @@ export function CreepMapPlayground({
           openCampId={openCampId}
         />
         <MapLegend />
+        <Fragment key="map-aside">{mapAside}</Fragment>
       </div>
       <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <RouteStepTable

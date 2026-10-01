@@ -59,16 +59,17 @@ const components: PortableTextComponents = {
     // stops), and one of its stops as a playable kill order. Maps come from
     // the bundled JSON, so a guide makes no Sanity read for them.
     creepRouteDemo: ({ value }) => {
-      const { map, stops, caption } = value as { map: string; stops: RouteStop[]; caption: string };
+      const { map, stops, mapNote, stopsNote } = value as { map: string; stops: RouteStop[]; mapNote: string; stopsNote: string };
       const found = FIXTURE_MAPS.find((m) => m.slug === map);
       if (!found) return null;
       // The playground and the map read only `stops` and `start` from a route.
       const route = { stops, map: { slug: found.slug, name: found.name } } as unknown as CreepRoute;
+      // Each note sits under the column it explains.
+      const note = (text: string) => <p className="mt-3 max-w-[60ch] text-sm text-muted">{text}</p>;
       return (
-        <figure className="my-8 mx-[min(0px,calc(50%_-_min(36rem,50vw_-_1.5rem)))] text-base leading-normal">
-          <CreepMapPlayground map={found} route={route} />
-          <figcaption className="mt-3 text-sm text-faint">{caption}</figcaption>
-        </figure>
+        <div className="my-8 mx-[min(0px,calc(50%_-_min(36rem,50vw_-_1.5rem)))] text-base leading-normal">
+          <CreepMapPlayground map={found} route={route} mapAside={note(mapNote)} aside={note(stopsNote)} />
+        </div>
       );
     },
     killOrderDemo: ({ value }) => {
