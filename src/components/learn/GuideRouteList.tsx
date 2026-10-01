@@ -3,10 +3,10 @@ import { guideRoutes } from "@/lib/creep-routes/related.mjs";
 import { getCreepRoutes } from "@/lib/creep-routes/routes";
 import type { CreepRoute } from "@/lib/creep-routes/types";
 
-/** Up to three route rows under a guide's example: two on its map, then the
- *  route list's top pick. Reads the same cached route list as /learn/creep-routes. */
-export async function GuideRouteList({ mapSlug, exclude }: { mapSlug: string; exclude?: string }) {
-  const routes: CreepRoute[] = guideRoutes(await getCreepRoutes(), { mapSlug, exclude });
+/** Up to three route rows under a guide's example: the example's own route,
+ *  then the route list's top picks. Reads the same cached route list as /learn/creep-routes. */
+export async function GuideRouteList({ first }: { first?: string }) {
+  const routes: CreepRoute[] = guideRoutes(await getCreepRoutes(), { first });
   if (!routes.length) return null;
   return (
     <section className="my-10 leading-normal">
