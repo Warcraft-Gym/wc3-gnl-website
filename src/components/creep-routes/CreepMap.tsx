@@ -2,6 +2,7 @@
 
 import { killedXpShare, validKills } from "@/lib/creep-routes/kills.mjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { preload } from "react-dom";
 import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
@@ -213,6 +214,10 @@ export function CreepMap({
   openCampId = null,
   className,
 }: CreepMapProps) {
+  // The SVG <image> is fetched only once the parser reaches the map, so the
+  // markers used to paint seconds before the terrain under them. A preload in
+  // <head> starts the fetch with the page.
+  if (map.minimapUrl) preload(map.minimapUrl, { as: "image", fetchPriority: "high" });
   const [hoverCamp, setHoverCamp] = useState<string | null>(null);
   const [walkIndex, setWalkIndex] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
