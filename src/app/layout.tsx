@@ -87,6 +87,8 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
+      // Lets Next skip the CSS smooth scroll on a route change; without it every client-side navigation slides to the top
+      data-scroll-behavior="smooth"
       lang="en"
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
