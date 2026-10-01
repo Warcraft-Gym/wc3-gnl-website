@@ -104,7 +104,7 @@ const components: PortableTextComponents = {
       return g ? <KillOrderDemo map={g.map} route={g.route} stop={v.zoom.stop} caption={v.zoom.caption} presets={v.zoom.presets} /> : null;
     },
     // Route rows under a guide's example, and the route list's submit panel.
-    creepRouteList: ({ value }) => <GuideRouteList first={(value as { source?: string }).source} />,
+    creepRouteList: () => <GuideRouteList />,
     submitRouteCta: () => <SubmitRouteCta className="my-10" />,
     iconGrid: ({ value }) => {
       const items = (value as { items?: { _key: string; image: { alt?: string }; label: string }[] })?.items ?? [];

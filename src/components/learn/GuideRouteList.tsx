@@ -1,12 +1,12 @@
 import { RouteRow } from "@/components/creep-routes/RouteRow";
-import { guideRoutes } from "@/lib/creep-routes/related.mjs";
+import { featuredFirst } from "@/lib/creep-routes/filter";
 import { getCreepRoutes } from "@/lib/creep-routes/routes";
 import type { CreepRoute } from "@/lib/creep-routes/types";
 
-/** Up to three route rows under a guide's example: the example's own route,
- *  then the route list's top picks. Reads the same cached route list as /learn/creep-routes. */
-export async function GuideRouteList({ first }: { first?: string }) {
-  const routes: CreepRoute[] = guideRoutes(await getCreepRoutes(), { first });
+/** The route list's top three picks (featured first, then newest), under a
+ *  guide. Reads the same cached route list as /learn/creep-routes. */
+export async function GuideRouteList() {
+  const routes: CreepRoute[] = featuredFirst(await getCreepRoutes()).slice(0, 3);
   if (!routes.length) return null;
   return (
     <section className="my-10 leading-normal">
