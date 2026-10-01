@@ -8,6 +8,8 @@ import { embedUrl } from "@/lib/video-embed.mjs";
 import { displayWidth, imageDimensions, isIconSized } from "@/lib/sanity-image-size.mjs";
 import { groupIconLabelPairs } from "@/lib/icon-grid.mjs";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
+import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrderDemo";
+import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 
 
 /**
@@ -48,6 +50,13 @@ const components: PortableTextComponents = {
           />
         </figure>
       );
+    },
+    // A playable kill order on one catalogue camp. The camp comes from the
+    // bundled map JSON, so the guide makes no Sanity read for it.
+    killOrderDemo: ({ value }) => {
+      const { map, camp, caption, presets } = value as { map: string; camp: string; caption: string; presets: KillOrderPreset[] };
+      const found = FIXTURE_MAPS.find((m) => m.slug === map)?.camps.find((c) => c.id === camp);
+      return found ? <KillOrderDemo camp={found} caption={caption} presets={presets} /> : null;
     },
     iconGrid: ({ value }) => {
       const items = (value as { items?: { _key: string; image: { alt?: string }; label: string }[] })?.items ?? [];
