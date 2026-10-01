@@ -36,7 +36,8 @@ export type SeasonPodium = {
 };
 
 export async function getChampions(): Promise<{ champions: SeasonPodium[]; source: DataSource }> {
-  const seasons = await getSeasons();
+  // A running season has a leader, not a champion
+  const seasons = (await getSeasons()).filter((season) => !season.isActive);
 
   // One standings call per season, in parallel — nine cached fetches, not a
   // waterfall. A season whose call fails is dropped by the filter below.
