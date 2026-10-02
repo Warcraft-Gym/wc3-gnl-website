@@ -84,8 +84,8 @@ export function RouteStepTable({
   /** Shown in place of the list when the route has no stops. */
   empty?: React.ReactNode;
 }) {
-  // The header counts numbered stops: every way's, not a split's or a waypoint's.
-  const count = countStops(route.stops);
+  // The header counts the numbered stops a reader of the chosen paths sees (no split, no waypoint).
+  const count = countStops(route.stops, choice ?? {});
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const items = useRef(new Map<string, HTMLLIElement>());
   useEffect(() => {
@@ -93,7 +93,7 @@ export function RouteStepTable({
   }, [scrollTo]);
 
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
-  const numbers = useMemo(() => numberStops(route.stops), [route.stops]);
+  const numbers = useMemo(() => numberStops(route.stops, choice ?? {}), [route.stops, choice]);
   const keys = useMemo(() => stopKeys(route.stops) as string[], [route.stops]);
   // Bring lists the hero only on a route that sends him somewhere without the units' company: one hero-off stop.
   const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false), [route.stops]);

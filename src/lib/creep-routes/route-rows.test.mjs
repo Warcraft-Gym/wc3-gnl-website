@@ -28,7 +28,8 @@ test("an or split lists only the chosen path; the path not taken is a dashed lan
   assert.deepEqual(viaA[4].lanes, viaA[1].lanes);
   assert.equal(lanes(viaA[2]), "a^v b^v*");
   const viaB = routeRows(stops, { 1: 1 });
-  assert.deepEqual(shape(viaB), ["1", "split", "2b:b", "join", "4"]);
+  // Path b is one stop long, so the shared stop after it is 3: numbers follow the chosen path.
+  assert.deepEqual(shape(viaB), ["1", "split", "2b:b", "join", "3"]);
   assert.equal(lanes(viaB[2]), "a^v* b^v");
   assert.ok(viaB.filter((r) => r.type === "stop" && r.lane).every((r) => r.panel === "1"));
 });

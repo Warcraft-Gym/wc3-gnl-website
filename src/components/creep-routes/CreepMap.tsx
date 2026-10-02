@@ -407,7 +407,7 @@ export function CreepMap({
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
     opponentStartCount === 1 ? "" : "s"
-  }${route ? `, ${countStops(route.stops)} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
+  }${route ? `, ${countStops(route.stops, choice ?? {})} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
 
   return (
     <div ref={box} className={cn("panel relative overflow-hidden p-3", className)}>

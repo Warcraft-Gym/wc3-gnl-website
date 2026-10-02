@@ -1,12 +1,12 @@
 /**
- * The size caps of a route (v2.7): 3 paths per split, one level of splits, 12 numbered stops and
- * 20 rows. A row is one entry of the stop list: a stop, a waypoint or a split, a path's stops
- * included. The builder's add actions do nothing at a cap and say so (`addBlocked`); the submit
+ * The size caps of a route (v2.7): 3 paths per split, one level of splits, 12 numbered stops (the
+ * highest number any reading reaches, `longestCount`) and 20 rows. A row is one entry of the stop
+ * list: a stop, a waypoint or a split, a path's stops included. The builder's add actions do nothing at a cap and say so (`addBlocked`); the submit
  * check and the Studio (as warnings) repeat it past a cap (`capProblems`). Takes the route's
  * split nodes (`split.arms`), the builder's rows (same shape) and Sanity's `creepSplit` members
  * (`arms` on the item). Plain JS so `node --test` runs `caps.test.mjs`.
  */
-import { countStops } from "./stop-numbers.mjs";
+import { longestCount } from "./stop-numbers.mjs";
 
 export const MAX_PATHS = 3;
 export const MAX_STOPS = 12;
@@ -40,14 +40,14 @@ export function rowCount(stops) {
 export function addBlocked(stops, add, split) {
   if (add === "path") return (armsOf(split)?.length ?? 0) >= MAX_PATHS ? CAP_AT.paths : null;
   if (rowCount(stops) >= MAX_ROWS) return CAP_AT.rows;
-  if (add === "stop" && countStops(stops) >= MAX_STOPS) return CAP_AT.stops;
+  if (add === "stop" && longestCount(stops) >= MAX_STOPS) return CAP_AT.stops;
   return null;
 }
 
 /** The route's problems past a cap: `{ path, message }`, `path` relative to the stop list. */
 export function capProblems(stops) {
   const out = [];
-  if (countStops(stops) > MAX_STOPS) out.push({ path: [], message: CAP_OVER.stops });
+  if (longestCount(stops) > MAX_STOPS) out.push({ path: [], message: CAP_OVER.stops });
   if (rowCount(stops) > MAX_ROWS) out.push({ path: [], message: CAP_OVER.rows });
   (stops ?? []).forEach((s, i) => {
     if ((armsOf(s)?.length ?? 0) > MAX_PATHS) out.push({ path: [i], message: CAP_OVER.paths });

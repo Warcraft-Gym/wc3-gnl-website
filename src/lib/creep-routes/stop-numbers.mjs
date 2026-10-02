@@ -1,12 +1,16 @@
 /**
  * Stop numbers and keys for a route with splits (`RouteStop.split`, one level
- * deep). Stops before a split number as before; the split takes the next
- * number N; an "or" / "xor" split's arm stops read N a, N+1 a, … and N b, …; an "and"
- * split's arms all read N, N+1, …; the stop after the split takes N + the
- * longest arm's length. A waypoint (`place.mjs`) takes no
- * number and no length. Keys are strings: "0", "1", …
- * at the top level and "2.a.0" for the first stop of split 2's arm a. Plain
- * JS so `node --test` runs `stop-numbers.test.mjs` with no loader.
+ * deep). Numbers count only numbered stops: a waypoint (`place.mjs`) takes no
+ * number and never counts. Stops before a split number as before; the split
+ * takes the next number N. An "or" / "xor" split numbers along the chosen path
+ * (`choice`, path a by default): every path's stops read N a, N+1 a / N b, …,
+ * and the stops after the split go on from the chosen path's last number with no
+ * gap, so switching the tab renumbers the list and the map together. An "and"
+ * split's paths all read N, N+1, … and the stop after it takes N + the longest
+ * path. A static count (the route card, the JSON API) uses the first path. Keys
+ * are strings and never change with the choice: "0", "1", … at the top level and
+ * "2.a.0" for the first stop of split 2's path a. Plain JS so `node --test` runs
+ * `stop-numbers.test.mjs` with no loader.
  */
 
 import { isWaypoint } from "./place.mjs";
@@ -18,10 +22,15 @@ export function armsOf(stop) {
   return stop?.split?.arms ?? null;
 }
 
+/** A path's numbered stops (a waypoint does not count). */
+const numbered = (arm) => (arm.stops ?? []).filter((s) => !isWaypoint(s)).length;
+
 /** One entry per top-level stop: `{ key, label }`, plus `arms: [{ letter, stops: [{ key, label }] }]` on a node.
+ *  `choice` maps an "or"/"xor" split's key to the chosen path (default 0).
  *  @param {{ split?: { mode: string, arms: { stops: unknown[] }[] } }[]} stops
+ *  @param {Record<string, number>} [choice]
  *  @returns {{ key: string, label: string, arms?: { letter: string, stops: { key: string, label: string }[] }[] }[]} */
-export function numberStops(stops) {
+export function numberStops(stops, choice = {}) {
   let n = 1;
   return stops.map((stop, i) => {
     const key = String(i);
@@ -34,7 +43,8 @@ export function numberStops(stops) {
       return { key, label };
     }
     // An "or" / "xor" split's arms read N a, N+1 a / N b; an "and" split's arms all read N, N+1.
-    const suffix = (a) => (stop.split.mode === "and" ? "" : ARM_LETTERS[a]);
+    const and = stop.split.mode === "and";
+    const suffix = (a) => (and ? "" : ARM_LETTERS[a]);
     const arms = nodeArms.map((arm, a) => {
       let j = 0;
       return {
@@ -42,7 +52,8 @@ export function numberStops(stops) {
         stops: arm.stops.map((s, k) => ({ key: armKey(i, a, k), label: isWaypoint(s) ? "" : `${n + j++}${suffix(a)}` })),
       };
     });
-    n += Math.max(1, ...nodeArms.map((arm) => arm.stops.filter((s) => !isWaypoint(s)).length));
+    // The next stop goes on from the chosen path ("or"/"xor") or the longest path ("and").
+    n += and ? Math.max(0, ...nodeArms.map(numbered)) : numbered(nodeArms[walkedArm(stop, key, choice)]);
     return { key, label, arms };
   });
 }
@@ -57,9 +68,9 @@ export function parseKey(key) {
   return letter === undefined ? { index: Number(index) } : { index: Number(index), arm: ARM_LETTERS.indexOf(letter), j: Number(j) };
 }
 
-/** Every stop with its key and label, in reading order: a node, then its arms' stops. */
-export function flatStops(stops) {
-  const numbers = numberStops(stops);
+/** Every stop with its key and label (numbered along `choice`), in reading order: a node, then its arms' stops. */
+export function flatStops(stops, choice = {}) {
+  const numbers = numberStops(stops, choice);
   return stops.flatMap((stop, i) => [
     { key: numbers[i].key, label: numbers[i].label, stop },
     ...(armsOf(stop) ?? []).flatMap((arm, a) =>
@@ -70,7 +81,7 @@ export function flatStops(stops) {
 
 /** `flatStops` without the paths not chosen in an "or"/"xor" split: what the map draws. */
 export function shownStops(stops, choice = {}) {
-  return flatStops(stops).filter(({ key }) => {
+  return flatStops(stops, choice).filter(({ key }) => {
     const [index, letter] = String(key).split(".");
     if (letter === undefined) return true;
     const stop = stops[Number(index)];
@@ -98,14 +109,31 @@ export function stopKeys(stops) {
   return flatStops(stops).map((s) => s.key);
 }
 
-/** How many numbered stops a route has: every stop but a waypoint and a split, arm stops included.
- *  Takes Sanity's `creepSplit` array members (`arms` on the item) as well as split nodes.
- *  @param {{ split?: { arms: { stops?: unknown[] }[] }, _type?: string, arms?: { stops?: unknown[] }[] }[]} stops */
-export function countStops(stops) {
+/** How many numbered stops a reader of the route sees: every stop but a waypoint and a split; an "and"
+ *  split counts every path's stops, an "or"/"xor" split only the chosen path's (`choice`, default the
+ *  first path, which a static count such as the route card uses). Takes Sanity's `creepSplit` array
+ *  members (`arms` on the item) as well as split nodes.
+ *  @param {{ split?: { mode?: string, arms: { stops?: unknown[] }[] }, _type?: string, mode?: string, arms?: { stops?: unknown[] }[] }[]} stops
+ *  @param {Record<string, number>} [choice] */
+export function countStops(stops, choice = {}) {
+  return (stops ?? []).reduce((n, s, i) => {
+    const arms = armsOf(s) ?? (s._type === "creepSplit" ? s.arms ?? [] : null);
+    if (!arms) return n + (isWaypoint(s) ? 0 : 1);
+    const mode = s.split?.mode ?? s.mode;
+    if (mode === "and") return n + arms.reduce((m, arm) => m + numbered(arm), 0);
+    const walked = Math.min(Math.max(0, choice[String(i)] ?? 0), arms.length - 1);
+    return n + (arms[walked] ? numbered(arms[walked]) : 0);
+  }, 0);
+}
+
+/** The highest stop number any reading of the route reaches: every "or"/"xor" split read along its
+ *  longest path (the cap of 12 numbered stops). */
+export function longestCount(stops) {
   return (stops ?? []).reduce((n, s) => {
     const arms = armsOf(s) ?? (s._type === "creepSplit" ? s.arms ?? [] : null);
-    if (arms) return n + arms.reduce((m, arm) => m + (arm.stops ?? []).filter((x) => !isWaypoint(x)).length, 0);
-    return n + (isWaypoint(s) ? 0 : 1);
+    if (!arms) return n + (isWaypoint(s) ? 0 : 1);
+    const mode = s.split?.mode ?? s.mode;
+    return n + (mode === "and" ? arms.reduce((m, arm) => m + numbered(arm), 0) : Math.max(0, ...arms.map(numbered)));
   }, 0);
 }
 

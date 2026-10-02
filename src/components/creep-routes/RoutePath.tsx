@@ -71,7 +71,8 @@ export const RoutePath = memo(function RoutePath({
   const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
-  const numbers = useMemo(() => numberStops(stops), [stops]);
+  // Numbers follow the chosen path of each "or"/"xor" split, like the list's.
+  const numbers = useMemo(() => numberStops(stops, choice), [stops, choice]);
 
   // A stop's spot on the map: a camp, or a place (`place.mjs`), pulled inside the map so its disc never clips.
   const nodeOf = (s: RouteStop, key: string, label: string, style: Partial<PathNode> = {}): PathNode | null => {

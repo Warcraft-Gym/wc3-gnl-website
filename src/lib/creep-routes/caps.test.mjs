@@ -25,8 +25,9 @@ test("stop cap: at 12 numbered stops a camp or an attack is blocked, a waypoint 
   assert.equal(addBlocked(camps(11), "stop"), null);
   assert.equal(addBlocked(twelve, "stop"), CAP_AT.stops);
   assert.equal(addBlocked(twelve, "row"), null);
-  // A path's stops count: 10 at the top and 2 in a split are 12.
-  assert.equal(addBlocked([...camps(10), split([camp(10)], [camp(11)])], "stop"), CAP_AT.stops);
+  // A split counts its longest path: 10 at the top and a path of 2 read up to 12.
+  assert.equal(addBlocked([...camps(10), split([camp(10), camp(11)], [camp(12)])], "stop"), CAP_AT.stops);
+  assert.equal(addBlocked([...camps(10), split([camp(10)], [camp(11)])], "stop"), null);
 });
 
 test("row cap: at 20 rows nothing more is added, a waypoint or a split included", () => {

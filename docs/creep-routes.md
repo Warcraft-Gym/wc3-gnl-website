@@ -512,13 +512,20 @@ split at index 0. `condition` stays a single stop's.
 One meaning per mark: the same number means at the same time, letters mean
 choose one, no number means a waypoint.
 
-- **Numbers and keys** (`stop-numbers.mjs`). Stops before a split number as
-  before; the split takes the next number N. `or`/`xor` paths read N a, N+1 a …
-  and N b …; `and` paths all read N, N+1 …. The stop after the split takes N +
-  the longest path's length. Keys are "0", "1", … at the top level and "2.a.0"
-  in a path; the stop view, the scroll target and a badge click use the key,
-  `data-stop` the number. "N stops" counts numbered stops only
-  (`countStops`), every path's included.
+- **Numbers and keys** (`stop-numbers.mjs`, v2.7). Waypoints never take a
+  number and never count. Stops before a split number as before; the split
+  takes the next number N. `or`/`xor` paths read N a, N+1 a … and N b …, and
+  the numbers run along the chosen path: the stop after the split goes on from
+  the chosen path's last number with no gap (1, 2, 3a, 4a, 5; or 1, 2, 3b, 4),
+  so switching the tab renumbers the list and the map together. `and` paths all
+  read N, N+1 …, and the stop after the split takes N + the longest path's
+  numbered stops. Keys are "0", "1", … at the top level and "2.a.0" in a path
+  and never change with the choice; the stop view, the scroll target and a
+  disc click use the key, `data-stop` the number. "N stops" in the route
+  header counts the numbered stops of the chosen paths (`countStops(stops,
+  choice)`, every `and` path included); the route card, the share image, the
+  "at least two stops" check and the JSON API use the first path. The cap of
+  12 numbered stops reads every split along its longest path (`longestCount`).
 - **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
   split key to the chosen path (default a). Every path is derived from the
   hero's state at the split and only the walked (chosen) path feeds the

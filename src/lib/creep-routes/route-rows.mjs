@@ -23,7 +23,7 @@ import { ARM_LETTERS, armsOf, numberStops, walkedArm } from "./stop-numbers.mjs"
 
 /** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). */
 export function routeRows(stops, choice = {}) {
-  const numbers = numberStops(stops);
+  const numbers = numberStops(stops, choice);
   const rows = [];
   const full = (lane, off = false) => ({ lane, top: true, bottom: true, off });
 
