@@ -453,11 +453,11 @@ test("nodes: a node inside an arm, an empty arm and a fork without labels are re
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   const inner = forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]);
   const nested = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [inner] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A way cannot hold another split");
+  assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A path cannot hold another split");
   const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Add at least one stop to this way");
+  assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Add at least one stop to this path");
   const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(unlabelled.error)["stops.1.split.arms.0.label"], "Say when to take this way");
+  assert.equal(flattenErrors(unlabelled.error)["stops.1.split.arms.0.label"], "Say when to take this path");
   const bothOk = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
   assert.equal(bothOk.success, true);
   const badCamp = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "zz" }] }, { stops: [{ campId: "c02" }] }])] }));
@@ -476,7 +476,7 @@ test("a fork node carrying any field besides its ways is rejected, not silently 
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   for (const extra of [{ hero: false }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
     const r = s.safeParse(payload({ stops: [{ campId: "c01" }, { ...forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]), ...extra }] }));
-    assert.equal(flattenErrors(r.error)["stops.1.split"], "A split holds only its ways", JSON.stringify(extra));
+    assert.equal(flattenErrors(r.error)["stops.1.split"], "A split holds only its paths", JSON.stringify(extra));
   }
 });
 

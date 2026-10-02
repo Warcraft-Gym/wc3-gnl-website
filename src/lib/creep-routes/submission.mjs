@@ -91,7 +91,7 @@ function baseStopSchema(iconSet, splitField) {
           (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
         );
         if (stop.campId !== null || extra.length) {
-          ctx.addIssue({ code: "custom", message: "A split holds only its ways", path: ["split"] });
+          ctx.addIssue({ code: "custom", message: "A split holds only its paths", path: ["split"] });
         }
         return;
       }
@@ -115,21 +115,21 @@ function baseStopSchema(iconSet, splitField) {
 function splitSchema(armStopSchema) {
   return z
     .object({
-      mode: z.enum(["and", "or", "xor"], { error: "Pick how the ways run" }),
+      mode: z.enum(["and", "or", "xor"], { error: "Pick how the paths run" }),
       arms: z
         .array(
           z.object({
             label: z.string().trim().max(60, "Max 60 characters").optional(),
-            stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
+            stops: z.array(armStopSchema).min(1, "Add at least one stop to this path").max(20, "Max 20 stops"),
           }),
         )
-        .min(2, "A split needs two or three ways")
-        .max(3, "A split needs two or three ways"),
+        .min(2, "A split needs two or three paths")
+        .max(3, "A split needs two or three paths"),
     })
     .superRefine((split, ctx) => {
       if (split.mode === "and") return;
       split.arms.forEach((arm, a) => {
-        if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this way", path: ["arms", a, "label"] });
+        if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this path", path: ["arms", a, "label"] });
       });
     });
 }
@@ -168,7 +168,7 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A way cannot hold another split");
+  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A path cannot hold another split");
   const armStopSchema = baseStopSchema(iconSet, noSplit);
   const stopSchema = baseStopSchema(iconSet, splitSchema(armStopSchema).optional());
 

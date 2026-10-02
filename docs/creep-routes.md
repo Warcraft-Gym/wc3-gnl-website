@@ -473,7 +473,7 @@ finishing a camp). The submission schema rejects `hero: false` on a waypoint or
 a base action.
 
 - **Derive.** A stop with `hero: false` earns hero XP like any other stop
-  (see "XP model": XP is global). Derive also marks the later ways of an
+  (see "XP model": XP is global). Derive also marks the later paths of an
   `and` split `hero: false`.
 - **Map.** The leg is a normal leg; the badge carries the first Bring unit's
   icon (10px) at its right edge, so the map says who goes. No legend line.
@@ -490,18 +490,18 @@ a base action.
 A split is its own entry in `stops`: `{ campId: null, split: { mode, arms } }`
 with no action, place or other field, one level deep (an arm stop never
 holds a split), 2 or 3 arms of 1..n stops. Stops after a split are shared by
-every way; a continuation of only one way belongs inside that way.
+every path; a continuation of only one path belongs inside that path.
 
-- **`and`**: every way runs at once, no labels. Way a is the hero's line; the
-  builder sets `hero: false` on each camp or attack it adds to ways b.., and
-  derive runs those ways without the hero whatever their flags say.
-- **`or`**: the reader chooses one way by its label (required), then the
+- **`and`**: every path runs at once, no labels. Path a is the hero's line; the
+  builder sets `hero: false` on each camp or attack it adds to paths b.., and
+  derive runs those paths without the hero whatever their flags say.
+- **`or`**: the reader chooses one path by its label (required), then the
   route goes on with the shared stops.
-- **`xor`**: the reader chooses one way and it never rejoins; the schema
+- **`xor`**: the reader chooses one path and it never rejoins; the schema
   rejects stops after an `xor` split ("Nothing follows an either/or split").
 
 In Sanity the split is a `creepSplit` array member (Studio: "At the same
-time" / "Choose a way, then continue" / "Choose a way"), next to the `stop`
+time" / "Choose a path, then continue" / "Choose a path"), next to the `stop`
 members (`creepStop`, stored under the name `stop`). A whole-route pair is a
 split at index 0. `condition` stays a single stop's.
 
@@ -509,50 +509,50 @@ One meaning per mark: the same number means at the same time, letters mean
 choose one, no number means a waypoint.
 
 - **Numbers and keys** (`stop-numbers.mjs`). Stops before a split number as
-  before; the split takes the next number N. `or`/`xor` ways read N a, N+1 a …
-  and N b …; `and` ways all read N, N+1 …. The stop after the split takes N +
-  the longest way's length. Keys are "0", "1", … at the top level and "2.a.0"
-  in a way; the stop view, the scroll target and a badge click use the key,
+  before; the split takes the next number N. `or`/`xor` paths read N a, N+1 a …
+  and N b …; `and` paths all read N, N+1 …. The stop after the split takes N +
+  the longest path's length. Keys are "0", "1", … at the top level and "2.a.0"
+  in a path; the stop view, the scroll target and a badge click use the key,
   `data-stop` the number. "N stops" counts numbered stops only
-  (`countStops`), every way's included.
+  (`countStops`), every path's included.
 - **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
-  split key to the chosen way (default a). Every way is derived from the
-  hero's state at the split and only the walked (chosen) way feeds the
-  running total; in `and` every way feeds it, in list order (way b runs on
-  from way a's total). A derived split carries
-  `split: { mode, walked, arms }`, each way's stop `armIndex` and `forkKey`.
-- **Map.** Every way starts at the node before the split (your start marker
-  for a split at stop 1) and every way's last stop sends a leg into the first
-  shared stop after it. The walked way draws as usual; the other ways' legs
+  split key to the chosen path (default a). Every path is derived from the
+  hero's state at the split and only the walked (chosen) path feeds the
+  running total; in `and` every path feeds it, in list order (path b runs on
+  from path a's total). A derived split carries
+  `split: { mode, walked, arms }`, each path's stop `armIndex` and `forkKey`.
+- **Map.** Every path starts at the node before the split (your start marker
+  for a split at stop 1) and every path's last stop sends a leg into the first
+  shared stop after it. The walked path draws as usual; the other paths' legs
   are thin (1.25px), at 60%, without chevrons and bowed 12% of their length
   to the right of travel (a quadratic curve), so they never lie on a main
-  leg. In `or`/`xor` the ways not taken are dashed (`4 3`) and their badges
+  leg. In `or`/`xor` the paths not taken are dashed (`4 3`) and their badges
   are at 60% too; `and` lanes stay solid. No legend line.
 - **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). Every route is
   a flat list (a linear route is one lane through every row): every stop,
   waypoint and attack is one row in route order with a lane ("" main, "a",
-  "b", "c"); a split's ways follow as blocks, way a's stops, then way b's,
-  then c's (a later way's lane runs down past the earlier blocks), between a
+  "b", "c"); a split's paths follow as blocks, path a's stops, then path b's,
+  then c's (a later path's lane runs down past the earlier blocks), between a
   split row and, when stops follow, a join row. A 44px rail is added in front of today's row and moves nothing: 2px lines in
   `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
   lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
   node for an attack. The split row is a slim caption: "At the same time"
-  (`and`), or "Choose a way" with browser tabs (`role="tablist"`, arrow
-  keys, the hero's level at each way's end; the chosen tab is open at the
-  bottom onto its way's rows, a `tabpanel`; the others are recessed). `and`
-  shows every way. `or` and `xor` show only the chosen way: a way not taken
+  (`and`), or "Choose a path" with browser tabs (`role="tablist"`, arrow
+  keys, the hero's level at each path's end; the chosen tab is open at the
+  bottom onto its path's rows, a `tabpanel`; the others are recessed). `and`
+  shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
   example has no rail.
   A map click on a camp picks the top-level stop or the
-  walked way's (`findStopKey`). HowTo steps follow way a.
-- **Builder.** "+ Split" adds a "Choose a way" (`xor`) split with two empty
-  ways. The split row has the mode chips (Choose a way / Choose a way, then
+  walked path's (`findStopKey`). HowTo steps follow path a.
+- **Builder.** "+ Split" adds a "Choose a path" (`xor`) split with two empty
+  paths. The split row has the mode chips (Choose a path / Choose a path, then
   continue / At the same time), "When…" labels in the choose modes, a box per
-  way with an "Add stops here" toggle and its own stop list, "Add a way" up to
-  3 and a remove per way. Map clicks go into the active way, or the top level
-  when none is active; a click on a camp a way already holds removes it from
-  that way. A `xor` split that is not the last stop says that nothing may
+  path with an "Add stops here" toggle and its own stop list, "Add a path" up to
+  3 and a remove per path. Map clicks go into the active path, or the top level
+  when none is active; a click on a camp a path already holds removes it from
+  that path. A `xor` split that is not the last stop says that nothing may
   follow it.
 
 ### Pictures
@@ -561,7 +561,7 @@ choose one, no number means a waypoint.
 the exact spot, for what the minimap cannot show. A coach adds them in the
 Studio (the stop's "Pictures" field, drag and drop; `alt` is required); the
 route projection resolves each to its asset url and size (`STOP_IMAGES` in
-`routes.ts`), in plain stops and in a split's ways. Public submissions take
+`routes.ts`), in plain stops and in a split's paths. Public submissions take
 no pictures yet (uploads need abuse limits); the submit form says a coach can
 add them after review, and "Suggest an update" does not carry them. The API
 makes fixture urls absolute.
@@ -741,7 +741,7 @@ per-kill grant accordingly is backlog, not shipped.
 
 **XP is global.** A hero earns the XP of every kill his player makes, with
 or without him there, so a stop with `hero: false` (units only) and the
-ways of an `and` split that run without the hero add their kills' XP to the
+paths of an `and` split that run without the hero add their kills' XP to the
 running level and xp like any other stop; the factor still reads the hero's
 current level per kill. The flag only says the hero is not there to fight.
 

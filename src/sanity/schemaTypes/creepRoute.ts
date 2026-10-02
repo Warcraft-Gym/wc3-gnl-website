@@ -484,8 +484,8 @@ export const creepSplit = defineType({
       options: {
         list: [
           { title: "At the same time", value: "and" },
-          { title: "Choose a way, then continue", value: "or" },
-          { title: "Choose a way", value: "xor" },
+          { title: "Choose a path, then continue", value: "or" },
+          { title: "Choose a path", value: "xor" },
         ],
       },
       initialValue: "xor",
@@ -493,7 +493,7 @@ export const creepSplit = defineType({
     }),
     defineField({
       name: "arms",
-      title: "Ways",
+      title: "Paths",
       type: "array",
       validation: (rule) => rule.required().min(2).max(3),
       of: [
@@ -504,7 +504,7 @@ export const creepSplit = defineType({
             defineField({
               name: "label",
               type: "string",
-              description: "When to take this way, e.g. \"They are at their natural\". Required when the reader chooses a way.",
+              description: "When to take this path, e.g. \"They are at their natural\". Required when the reader chooses a path.",
               validation: (rule) => rule.max(60),
             }),
             defineField({
@@ -516,7 +516,7 @@ export const creepSplit = defineType({
           ],
           preview: {
             select: { label: "label", stops: "stops" },
-            prepare: ({ label, stops }) => ({ title: label || "(way)", subtitle: `${(stops as unknown[] | undefined)?.length ?? 0} stops` }),
+            prepare: ({ label, stops }) => ({ title: label || "(path)", subtitle: `${(stops as unknown[] | undefined)?.length ?? 0} stops` }),
           },
         }),
       ],
@@ -525,7 +525,7 @@ export const creepSplit = defineType({
   preview: {
     select: { mode: "mode", arms: "arms" },
     prepare: ({ mode, arms }) => ({
-      title: `${mode === "and" ? "At the same time" : "Choose a way"}: ${(arms as unknown[] | undefined)?.length ?? 0} ways`,
+      title: `${mode === "and" ? "At the same time" : "Choose a path"}: ${(arms as unknown[] | undefined)?.length ?? 0} paths`,
     }),
   },
 });

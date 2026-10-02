@@ -10,18 +10,18 @@ import { updateArm } from "./stop-rows";
 import { cn } from "@/lib/utils";
 
 const MODES = [
-  { id: "xor", label: "Choose a way" },
-  { id: "or", label: "Choose a way, then continue" },
+  { id: "xor", label: "Choose a path" },
+  { id: "or", label: "Choose a path, then continue" },
   { id: "and", label: "At the same time" },
 ] as const;
 
 /**
  * A split in the route being authored: its mode chips, then 2 or 3 ways
  * stacked, each with its own stop list (`StopEditor` at depth 1, which adds no
- * split). "Choose a way" modes give each way a "When…" label; "At the same
+ * split). "Choose a path" modes give each path a "When…" label; "At the same
  * time" takes none, and stops added to its ways 2.. arrive with the hero off
  * (`RouteEditor`). The dot on a way is a toggle, "Add stops here": camps and
- * places clicked on the map go into it. Nothing may follow a "Choose a way"
+ * places clicked on the map go into it. Nothing may follow a "Choose a path"
  * split, and the row says so when it is not the last stop.
  */
 export function SplitEditor({
@@ -135,7 +135,7 @@ export function SplitEditor({
                   type="button"
                   aria-pressed={active}
                   aria-label="Add stops here"
-                  title="Map clicks add stops to this way"
+                  title="Map clicks add stops to this path"
                   onClick={() => onActiveArm?.(active ? null : { splitId: row.id, arm: a })}
                   className="grid size-6 shrink-0 place-items-center rounded-full border border-line hover:border-gold/60"
                 >
@@ -143,7 +143,7 @@ export function SplitEditor({
                 </button>
                 {choose ? (
                   <input
-                    aria-label={`Way ${a + 1}`}
+                    aria-label={`Path ${a + 1}`}
                     placeholder="When…"
                     value={arm.label}
                     onChange={(e) => setSplit({ arms: arms.map((x, i) => (i === a ? { ...x, label: e.target.value } : x)) })}
@@ -154,10 +154,10 @@ export function SplitEditor({
                     )}
                   />
                 ) : (
-                  <p className="min-w-0 flex-1 text-xs text-muted">Way {a + 1}</p>
+                  <p className="min-w-0 flex-1 text-xs text-muted">Path {a + 1}</p>
                 )}
                 {arms.length > 2 ? (
-                  <button type="button" onClick={() => removeArm(a)} aria-label={`Remove way ${a + 1}`} className="grid size-9 shrink-0 place-items-center text-faint hover:text-loss">
+                  <button type="button" onClick={() => removeArm(a)} aria-label={`Remove path ${a + 1}`} className="grid size-9 shrink-0 place-items-center text-faint hover:text-loss">
                     <X size={16} />
                   </button>
                 ) : null}
@@ -191,11 +191,11 @@ export function SplitEditor({
             onClick={() => setSplit({ arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] })}
             className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold uppercase tracking-wide text-muted hover:border-gold/50 hover:text-gold"
           >
-            <Plus size={14} /> Add a way
+            <Plus size={14} /> Add a path
           </button>
         ) : null}
         {mode === "xor" && !last ? (
-          <p className="text-[0.7rem] text-loss">Nothing follows an either/or split: move the stops after it into a way, or choose &quot;Choose a way, then continue&quot;.</p>
+          <p className="text-[0.7rem] text-loss">Nothing follows an either/or split: move the stops after it into a path, or choose &quot;Choose a path, then continue&quot;.</p>
         ) : null}
         {fieldError?.(errorPath) ? <p className="text-[0.7rem] text-loss">{fieldError(errorPath)}</p> : null}
       </div>

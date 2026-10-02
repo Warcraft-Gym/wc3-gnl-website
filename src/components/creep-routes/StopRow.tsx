@@ -264,7 +264,7 @@ export function StopRow({
                   aria-pressed={!heroOff}
                   disabled={forcedOff}
                   onClick={() => onChange({ hero: stop.hero === false ? undefined : false })}
-                  title={forcedOff ? "The hero walks the first way" : heroOff ? "Add the hero" : "Send only the units"}
+                  title={forcedOff ? "The hero walks the first path" : heroOff ? "Add the hero" : "Send only the units"}
                   className={cn(
                     "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
                     heroOff ? "border-dashed border-line text-faint line-through" : "border-gold/50 text-fg",

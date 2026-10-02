@@ -111,7 +111,7 @@ export function StopEditor({
   function addBaseAction() {
     setStops((rows) => [...rows, newRow()]);
   }
-  // A new split starts as "Choose a way" with two empty ways; map clicks go into its first.
+  // A new split starts as "Choose a path" with two empty paths; map clicks go into its first.
   function addSplit() {
     const row = newRow({
       split: { mode: "xor", arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) },
@@ -228,7 +228,7 @@ export function StopEditor({
         </p>
       ) : (
         <p className="rounded border border-dashed border-line px-3 py-3 text-center text-xs text-muted">
-          Pick this way, then click the map to add its stops.
+          Pick this path, then click the map to add its stops.
         </p>
       )}
 

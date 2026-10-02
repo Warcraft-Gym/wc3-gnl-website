@@ -72,7 +72,7 @@ function RailSvg({ children }: { children: React.ReactNode }) {
 
 /**
  * A split's caption row: no number, no band dot, no chevron. The rail curves every lane out of
- * the main line, a path not taken dashed. "or" and "xor" read "Choose a way" and carry the tab
+ * the main line, a path not taken dashed. "or" and "xor" read "Choose a path" and carry the tab
  * strip as browser tabs (`role="tablist"`, arrow keys, the hero's level at each path's end): the
  * chosen tab is open at the bottom onto its path's rows, the `tabpanel` below; the others are
  * recessed. "and" reads "At the same time".
@@ -99,7 +99,7 @@ export function SplitRow({
   const choose = mode !== "and";
   const walked = node?.walked ?? 0;
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const name = choose ? "Choose a way" : "At the same time";
+  const name = choose ? "Choose a path" : "At the same time";
   // Arrow keys move the selection along the tab strip, Home and End to its ends.
   const onTabKey = (e: React.KeyboardEvent, a: number) => {
     const last = arms.length - 1;
