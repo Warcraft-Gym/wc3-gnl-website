@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 import { countStops, findStopKey, flatStops, numberStops, parseKey, stopByKey, stopKeys } from "./stop-numbers.mjs";
 
 const camp = (id) => ({ campId: id });
-const fork = (...arms) => ({ campId: null, fork: { mode: "either", arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
+const fork = (...arms) => ({ campId: null, fork: { arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
+const parallel = (...arms) => ({ campId: null, parallel: { arms: arms.map((stops) => ({ stops })) } });
 const labels = (stops) =>
   numberStops(stops).flatMap((n) => [n.label, ...(n.arms ?? []).flatMap((a) => a.stops.map((s) => s.label))]);
 
@@ -58,4 +59,18 @@ test("a waypoint takes no number and does not count; an attack does", () => {
   const stops = [wp, camp("c1"), fork([camp("c2"), wp], [attack]), camp("c3")];
   assert.deepEqual(labels(stops), ["", "1", "2", "2a", "", "2b", "3"]);
   assert.equal(countStops(stops), 4);
+});
+
+test("a parallel node runs the same numbers down every arm; the next stop takes N + the longest arm", () => {
+  const stops = [camp("c1"), parallel([camp("c2"), camp("c3")], [camp("c4")]), camp("c5")];
+  assert.deepEqual(labels(stops), ["1", "2", "2", "3", "2", "4"]);
+  assert.deepEqual(stopKeys(stops), ["0", "1", "1.a.0", "1.a.1", "1.b.0", "2"]);
+  assert.equal(countStops(stops), 5);
+  assert.equal(countStops([{ _type: "creepParallel", arms: [{ stops: [{}] }, { stops: [{}] }] }]), 2);
+});
+
+test("findStopKey takes arm 0 of a parallel node first, whatever the choice", () => {
+  const stops = [parallel([camp("c2")], [camp("c2")])];
+  assert.equal(findStopKey(stops, "c2", { 0: 1 }), "0.a.0");
+  assert.equal(stopByKey(stops, "0.b.0").campId, "c2");
 });

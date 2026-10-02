@@ -423,7 +423,8 @@ test("hero: false is kept on a camp or attack stop and rejected on a waypoint or
   assert.equal(flattenErrors(onWaypoint.error)["stops.0.hero"], "Only a camp or attack stop can go without the hero");
 });
 
-const forkStop = (mode, arms) => ({ campId: null, fork: { mode, arms } });
+// "either" builds a fork (choose one), "both" a parallel node (all at once).
+const forkStop = (mode, arms) => (mode === "either" ? { campId: null, fork: { arms } } : { campId: null, parallel: { arms } });
 
 test("fork: a valid either fork lands on the draft as a creepFork with arms of stops", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
@@ -441,26 +442,25 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
   assert.equal(ok.success, true);
   const fork = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1];
   assert.equal(fork._type, "creepFork");
-  assert.equal(fork.mode, "either");
   assert.equal(fork.arms[0].label, "No one at their natural");
   assert.equal(fork.arms[0].stops[0]._type, "stop");
   assert.equal(fork.arms[0].stops[0].hero, false);
   assert.deepEqual(fork.arms[1].stops[0].place, { kind: "attack", at: { start: "1" } });
 });
 
-test("fork: a fork inside an arm, an empty arm and either without labels are rejected", () => {
+test("nodes: a node inside an arm, an empty arm and a fork without labels are rejected", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   const inner = forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]);
   const nested = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [inner] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(nested.error)["stops.1.fork.arms.0.stops.0.fork"], "A way cannot hold another fork");
+  assert.equal(flattenErrors(nested.error)["stops.1.parallel.arms.0.stops.0.parallel"], "A way cannot hold another fork");
   const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(empty.error)["stops.1.fork.arms.0.stops"], "Add at least one stop to this way");
+  assert.equal(flattenErrors(empty.error)["stops.1.parallel.arms.0.stops"], "Add at least one stop to this way");
   const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
   assert.equal(flattenErrors(unlabelled.error)["stops.1.fork.arms.0.label"], "Say when to take this way");
   const bothOk = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
   assert.equal(bothOk.success, true);
   const badCamp = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "zz" }] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.match(flattenErrors(badCamp.error)["stops.1.fork.arms.0.stops.0.campId"], /Unknown camp/);
+  assert.match(flattenErrors(badCamp.error)["stops.1.parallel.arms.0.stops.0.campId"], /Unknown camp/);
 });
 
 test("a whole-route pair (one fork at index 0 and nothing else) counts as two stops", () => {
@@ -475,6 +475,16 @@ test("a fork node carrying any field besides its ways is rejected, not silently 
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   for (const extra of [{ hero: false }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
     const r = s.safeParse(payload({ stops: [{ campId: "c01" }, { ...forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]), ...extra }] }));
-    assert.equal(flattenErrors(r.error)["stops.1.fork"], "A fork holds only its ways", JSON.stringify(extra));
+    assert.equal(flattenErrors(r.error)["stops.1.parallel"], "A fork holds only its ways", JSON.stringify(extra));
   }
+});
+
+test("parallel: a valid node lands on the draft as a creepParallel without labels", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c02" }] }, { stops: [{ campId: "c01", hero: false }] }])] }));
+  assert.equal(ok.success, true);
+  const node = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1];
+  assert.equal(node._type, "creepParallel");
+  assert.equal("label" in node.arms[0], false);
+  assert.equal(node.arms[1].stops[0].hero, false);
 });

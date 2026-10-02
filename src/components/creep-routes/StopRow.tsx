@@ -32,8 +32,8 @@ export type StopRowData = {
   place?: Place;
   /** Camp and attack stops: false when only the Bring units go. */
   hero?: boolean;
-  /** A fork node (`ForkRow`): its ways, each with its own stop rows. */
-  fork?: { mode: "either" | "both"; arms: { id: number; label: string; stops: StopRowData[] }[] };
+  /** A fork or parallel node (`ForkRow`): its ways, each with its own stop rows; `label` is unused on a parallel node. */
+  fork?: { kind: "fork" | "parallel"; arms: { id: number; label: string; stops: StopRowData[] }[] };
 };
 
 const input =

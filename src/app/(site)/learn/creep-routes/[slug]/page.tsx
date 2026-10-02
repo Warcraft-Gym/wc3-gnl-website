@@ -124,8 +124,12 @@ export default async function CreepRoutePage({ params }: Params) {
     );
   }
 
-  // A fork contributes the stops of the way the page shows first (arm 0) in its place.
-  const howToSteps = route.stops.flatMap((s) => (s.fork ? (s.fork.arms[0]?.stops ?? []) : [s])).map((s) => {
+  // A fork or parallel node contributes arm 0's stops (the way the page shows first, the hero's line) in its place.
+  const stepStops = route.stops.flatMap((s) => {
+    const arms = s.fork?.arms ?? s.parallel?.arms;
+    return arms ? (arms[0]?.stops ?? []) : [s];
+  });
+  const howToSteps = stepStops.map((s) => {
     const camp = s.campId ? map.camps.find((c) => c.id === s.campId) : undefined;
     const name = camp ? campLabel(camp) : (s.action ?? "Base action");
     return {

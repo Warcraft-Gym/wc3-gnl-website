@@ -8,12 +8,10 @@ export const newRow = editorRows.newRow as (patch?: Partial<StopRowData>) => Sto
 
 /** An editor row as a submitted stop: the shape of the form's `stopsJson`, the map's route and `deriveRoute`'s input. */
 export function rowToStop(s: StopRowData): StopInput {
-  if (s.fork) {
-    return {
-      campId: null,
-      fork: { mode: s.fork.mode, arms: s.fork.arms.map((arm) => ({ label: arm.label.trim() || undefined, stops: arm.stops.map(rowToStop) })) },
-    };
+  if (s.fork?.kind === "fork") {
+    return { campId: null, fork: { arms: s.fork.arms.map((arm) => ({ label: arm.label.trim(), stops: arm.stops.map(rowToStop) })) } };
   }
+  if (s.fork) return { campId: null, parallel: { arms: s.fork.arms.map((arm) => ({ stops: arm.stops.map(rowToStop) })) } };
   return {
     campId: s.campId,
     action: s.action || undefined,
@@ -29,11 +27,15 @@ export function rowToStop(s: StopRowData): StopInput {
 
 type ExchangeStop = ExchangeCreepRoute["stops"][number];
 
-/** An imported (`#route=`) stop as an editor row, fork arms included. */
-export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork">): StopRowData {
-  if ("fork" in s && s.fork) {
+/** An imported (`#route=`) stop as an editor row, node arms included. */
+export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork" | "parallel">): StopRowData {
+  const node = "fork" in s && s.fork ? { kind: "fork" as const, arms: s.fork.arms } : "parallel" in s && s.parallel ? { kind: "parallel" as const, arms: s.parallel.arms } : null;
+  if (node) {
     return newRow({
-      fork: { mode: s.fork.mode, arms: s.fork.arms.map((arm) => ({ id: Date.now() + Math.random(), label: arm.label ?? "", stops: arm.stops.map(stopToRow) })) },
+      fork: {
+        kind: node.kind,
+        arms: node.arms.map((arm) => ({ id: Date.now() + Math.random(), label: "label" in arm ? arm.label : "", stops: arm.stops.map(stopToRow) })),
+      },
     });
   }
   return newRow({

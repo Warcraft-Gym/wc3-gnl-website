@@ -149,7 +149,7 @@ test("toApiStop carries a kill set unchanged", () => {
   assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
 });
 
-test("round trip of a route with a place stop, a stop without the hero and a fork", () => {
+test("round trip of a route with a waypoint, a stop without the hero, a fork and a parallel node", () => {
   const full = {
     ...route,
     stops: [
@@ -158,22 +158,22 @@ test("round trip of a route with a place stop, a stop without the hero and a for
       {
         campId: null,
         fork: {
-          mode: "either",
           arms: [
             { label: "No one at their natural", stops: [{ campId: "c02", units: [{ icon: "hu-archmage", count: 1 }] }] },
             { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "0" } } }] },
           ],
         },
       },
+      { campId: null, parallel: { arms: [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02", hero: false, units: [{ icon: "hu-militia", count: 2 }] }] }] } },
     ],
   };
   const api = toApiRoute(full, map, "https://site.example", iconSrc, deriveRoute);
   assert.deepEqual(api.stops[0].place, { kind: "build", at: { x: 0.4, y: 0.6 } });
   assert.equal(api.stops[1].hero, false);
-  assert.equal(api.stops[2].fork.mode, "either");
+  assert.equal(api.stops[3].parallel.arms[1].stops[0].units[0].iconUrl, "https://site.example/icons/hu-militia.png");
   assert.equal(api.stops[2].fork.arms[0].stops[0].units[0].iconUrl, "https://site.example/icons/hu-archmage.png");
   assert.deepEqual(api.stops[2].fork.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
-  assert.equal(api.derived.stops.length, 3);
+  assert.equal(api.derived.stops.length, 4);
 
   // The "Suggest an update" payload carries all three back to the editor unchanged.
   const back = toExchangeRoute(full).stops;
@@ -182,4 +182,6 @@ test("round trip of a route with a place stop, a stop without the hero and a for
   assert.deepEqual(back[2].fork.arms.map((a) => a.label), ["No one at their natural", "They are at their natural"]);
   assert.deepEqual(back[2].fork.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
   assert.equal(back[2].fork.arms[0].stops[0].campId, "c02");
+  assert.equal(back[3].parallel.arms[1].stops[0].hero, false);
+  assert.equal("label" in back[3].parallel.arms[0], false);
 });

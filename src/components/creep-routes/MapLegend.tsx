@@ -3,11 +3,9 @@ import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { PlaceIcon } from "./PlaceGlyph";
 
-/** Which route marks a route draws, so the legend lists only those: a dashed other way
- *  (an "either" fork) and an attack. */
-export function routeLegendMarks(stops: Pick<RouteStop, "fork" | "place">[]) {
+/** Which route marks a route draws, so the legend lists only those: an attack. */
+export function routeLegendMarks(stops: Pick<RouteStop, "fork" | "parallel" | "place">[]) {
   return {
-    anotherWay: stops.some((s) => s.fork?.mode === "either"),
     attack: (flatStops(stops) as { stop: Pick<RouteStop, "place"> }[]).some(({ stop }) => stop.place?.kind === "attack"),
   };
 }
@@ -22,17 +20,14 @@ export function routeLegendMarks(stops: Pick<RouteStop, "fork" | "place">[]) {
  * hosted on Liquipedia, but that's a provenance note, not something a
  * reader needs; the source URLs and credit live in `docs/creep-routes.md`'s
  * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
- * lets it wrap on mobile without special-casing. A route mark (an attack, a
- * dashed leg of another way) gets an entry only when the route has one.
+ * lets it wrap on mobile without special-casing. A route mark (an attack) gets
+ * an entry only when the route has one.
  */
 export function MapLegend({
   className,
-  anotherWay = false,
   attack = false,
 }: {
   className?: string;
-  /** The route has an "either" fork: its unchosen arms draw dashed. */
-  anotherWay?: boolean;
   /** The route has an attack stop: red swords. */
   attack?: boolean;
 }) {
@@ -57,12 +52,6 @@ export function MapLegend({
         Gold mine
       </span>
       {/* Route marks get an entry only when the route has them. */}
-      {anotherWay ? (
-        <span className="inline-flex items-center gap-1.5">
-          <LegendLine opacity={0.55} dash="4 3" />
-          Another way
-        </span>
-      ) : null}
       {attack ? (
         <span className="inline-flex items-center gap-1.5">
           <PlaceIcon kind="attack" className="text-loss" />
@@ -70,14 +59,5 @@ export function MapLegend({
         </span>
       ) : null}
     </p>
-  );
-}
-
-/** A short stretch of the route line (`RoutePath`'s 2px light stroke). */
-function LegendLine({ opacity = 1, dash }: { opacity?: number; dash?: string }) {
-  return (
-    <svg aria-hidden width={20} height={6} viewBox="0 0 20 6" className="inline-block">
-      <line x1={1} y1={3} x2={19} y2={3} stroke="rgba(255,255,255,.85)" strokeWidth={2} strokeLinecap={dash ? "butt" : "round"} strokeDasharray={dash} opacity={opacity} />
-    </svg>
   );
 }

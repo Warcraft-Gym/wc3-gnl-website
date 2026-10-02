@@ -67,16 +67,15 @@ function normalizeRoute(doc: RawRoute): CreepRoute | null {
   return { ...doc, map: doc.map, stops: (doc.stops ?? []).map(fromSanityStop) };
 }
 
-/** A Sanity `creepFork` array member becomes a fork node (`campId: null`, `fork`); every other stop passes through. */
-function fromSanityStop(stop: RouteStop | SanityFork): RouteStop {
-  if (!("_type" in stop) || stop._type !== "creepFork") return stop as RouteStop;
-  return {
-    campId: null,
-    fork: { mode: stop.mode, arms: (stop.arms ?? []).map((arm) => ({ label: arm.label ?? undefined, stops: arm.stops ?? [] })) },
-  };
+/** A Sanity `creepFork` / `creepParallel` array member becomes a node (`campId: null` and `fork` or
+ *  `parallel`); every other stop passes through. */
+function fromSanityStop(stop: RouteStop | SanityNode): RouteStop {
+  if (!("_type" in stop) || (stop._type !== "creepFork" && stop._type !== "creepParallel")) return stop as RouteStop;
+  if (stop._type === "creepParallel") return { campId: null, parallel: { arms: (stop.arms ?? []).map((arm) => ({ stops: arm.stops ?? [] })) } };
+  return { campId: null, fork: { arms: (stop.arms ?? []).map((arm) => ({ label: arm.label ?? "", stops: arm.stops ?? [] })) } };
 }
 
-type SanityFork = { _type: "creepFork"; mode: "either" | "both"; arms?: { label?: string | null; stops?: RouteStop[] }[] };
+type SanityNode = { _type: "creepFork" | "creepParallel"; arms?: { label?: string | null; stops?: RouteStop[] }[] };
 
 function byUpdatedDesc(a: CreepRoute, b: CreepRoute) {
   return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();

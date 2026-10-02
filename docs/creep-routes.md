@@ -481,49 +481,59 @@ a base action.
 - **Builder.** Bring starts with a "Hero" toggle (the route's hero icon, or a
   generic figure when the route names none), on by default.
 
-### Forks
+### Forks and parallel nodes
 
-A fork is its own entry in `stops`: `{ campId: null, fork: { mode, arms } }`
-with no action and no place. `mode: "either"` means the reader picks one arm
-(every arm's `label` is required: it is the condition); `"both"` means every
-arm runs at once (labels optional). A fork has 2 or 3 arms of 1..n stops,
-one level deep: an arm stop never holds a fork. A whole-route pair is a fork
-at index 0. In Sanity the stop is a `creepFork` array member next to the
-`stop` members (`creepStop`, stored under the name `stop` as before).
+Two node types, each its own entry in `stops` with `campId: null` and no
+action, place or other field, one level deep (an arm stop never holds a
+node), 2 or 3 arms of 1..n stops:
 
-- **Numbers and keys** (`stop-numbers.mjs`). Stops before the fork number as
-  before; the fork takes the next number N; arm stops read N a, N+1 a, … and
-  N b, …; the stop after the fork takes N + the longest arm's length. Keys
-  are "0", "1", … at the top level and "2.a.0" in an arm; the stop view
-  reducer, the scroll target and a badge click use the key. `data-stop` and
-  `data-stop-marker` carry the number ("3a").
+- **Fork** `{ fork: { arms: [{ label, stops }] } }`: choose one way. Every
+  label is required: it is the condition the reader picks the way by.
+- **Parallel** `{ parallel: { arms: [{ stops }] } }`: all ways at once, no
+  labels. Arm 0 is the hero's line; the builder sets `hero: false` on each
+  camp or attack it adds to arms 1.., and derive treats those arms as
+  without the hero whatever their flags say.
+
+A whole-route pair is a node at index 0. In Sanity the nodes are `creepFork`
+and `creepParallel` array members next to the `stop` members (`creepStop`,
+stored under the name `stop`). `condition` stays a single optional stop's.
+
+One meaning per mark: the same number means at the same time, letters mean
+choose one, no number means a waypoint.
+
+- **Numbers and keys** (`stop-numbers.mjs`). Stops before a node number as
+  before; the node takes the next number N. A fork's arms read N a, N+1 a …
+  and N b …; a parallel node's arms all read N, N+1 …. The stop after either
+  takes N + the longest arm's length. Keys are "0", "1", … at the top level
+  and "2.a.0" in an arm, for both kinds; the stop view, the scroll target and
+  a badge click use the key, `data-stop` the number. "N stops" counts numbered
+  stops only (`countStops`), every arm's included.
 - **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
   fork key to an arm index (default 0). Every arm is derived from the hero's
-  state at the fork; only the walked arm (the chosen one in "either", arm 0
-  in "both") feeds the running total. In "both", arms 1.. are derived
-  without the hero. A derived fork carries `fork: { mode, walked, arms }`,
-  each arm stop `armIndex` and `forkKey`.
-- **Map.** Every arm starts at the node before the fork, or your start marker
-  for a fork at stop 1. "Either": the chosen arm is drawn as usual; the other
-  arms' legs are dashed (`4 3`) at 55% with no chevron and their badges at
-  60%; a click on one of their badges chooses that arm and selects the stop.
-  "Both": arm 0 as usual, arms 1.. in the "without the hero" style. The path
-  goes on from the end of the walked arm. Arm badges are pills ("3a"). The
-  legend shows "Another way" only when the route has an "either" fork.
-- **List.** The fork is a stop block: "Choose a way" or "At the same time",
-  its arm labels as chips when collapsed. Open, "either" shows one button per
-  arm (`aria-pressed` buttons in a labelled group: label, then the hero's
-  level at that arm's end) and the chosen arm's stops nested under a 2px
-  arcane rule; "both" lists every arm with its label. The choice is page
-  state, not URL state. A map click on a camp picks the top-level stop or the
-  walked arm's first (`findStopKey`). The header, the list row, the share
-  image and the HowTo steps count every arm's stop (`countStops`); the HowTo
-  steps follow arm 0. A whole-route pair (one fork and nothing else) is valid.
-- **Builder.** "+ Fork" adds a "Choose a way" fork with two empty ways. The
-  fork row has the mode chips, a box per way (an "Add stops here" toggle, a
-  label input, its own stop list), "Add a way" up to 3 and a remove per way.
-  Map clicks go into the active way, or the top level when none is active; a
-  click on a camp that a way already holds removes it from that way.
+  state at the node; only the walked arm (a fork's chosen one, a parallel
+  node's arm 0) feeds the running total. A derived node carries
+  `fork` / `parallel: { walked, arms }`, each arm stop `armIndex` and `forkKey`.
+- **Map.** Every arm starts at the node before it, or your start marker for a
+  node at stop 1. Fork: the chosen arm is drawn as usual; the other arms are
+  the same solid line at 60% with no chevrons and 60% pill badges ("3a"); a
+  click on one of those badges chooses that way. Parallel: every arm is drawn
+  in full, with the same numbers on its badges. The path goes on from the end
+  of the walked arm. No legend line for either.
+- **List.** A fork reads "Choose a way". Open, it shows a tab strip
+  (`role="tablist"`, arrow keys, Home and End): one tab per arm, its label
+  then the hero's level at its end muted; the selected tab in `--wg-text`
+  with a 2px gold underline (the site nav's selected style), the others
+  muted. The panel nests the selected arm's stops under a 2px arcane rule;
+  the map follows the tab, and the choice is page state, not URL state. A
+  parallel node reads "At the same time"; open, its arms sit side by side
+  from 640px up and stack on a phone, each a nested list with the same
+  numbers; each stop's Bring says who goes. A map click on a camp picks the
+  top-level stop or the walked arm's (`findStopKey`). HowTo steps follow arm 0.
+- **Builder.** "+ Fork" and "+ At the same time" add a node with two empty
+  ways. A fork's ways have "When…" label inputs; a parallel node's have none.
+  Each way has an "Add stops here" toggle: map clicks go into the active way,
+  or the top level when none is active; a click on a camp that a way already
+  holds removes it from that way. "Add a way" up to 3 and a remove per way.
 
 ### Kill order
 

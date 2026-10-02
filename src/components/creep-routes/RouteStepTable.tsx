@@ -15,7 +15,7 @@ import { ForkBlock } from "./ForkBlock";
  * chevron at its right edge only opens or closes it (`onChevron`); the camp
  * label inside it is its own button that pins the camp card. `scrollTo`
  * scrolls a stop into view (a selection from the map). Stops are named by
- * the keys of `stop-numbers.mjs`; a fork node is a `ForkBlock` that nests its
+ * the keys of `stop-numbers.mjs`; a fork or parallel node is a `ForkBlock` that nests its
  * arms' stops. Blocks carry `data-stop` (the stop's number, "3a" in an arm);
  * map badges carry `data-stop-marker`.
  */
@@ -56,12 +56,12 @@ export function RouteStepTable({
   only?: number;
   /** Replaces an open stop's body; with `only`, a guide's editable kill order. */
   stopBody?: React.ReactNode;
-  /** Fork key to the chosen arm of each "either" fork; default arm 0. */
+  /** Fork key to the chosen arm of each fork; default arm 0. */
   choice?: Record<string, number>;
-  /** Chooses an arm of an "either" fork from its open block. */
+  /** Chooses an arm of a fork from its tab strip. */
   onChoose?: (forkKey: string, arm: number) => void;
 }) {
-  // The header counts every arm's stops; a fork node is not a stop of its own.
+  // The header counts numbered stops: every arm's, not a node's or a waypoint's.
   const count = countStops(route.stops);
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const items = useRef(new Map<string, HTMLLIElement>());
@@ -107,12 +107,12 @@ export function RouteStepTable({
           if (only !== undefined && i !== only) return null;
           const d = derived.stops[i];
           const { key, label, arms } = numbers[i];
-          if (stop.fork && d.fork && arms) {
+          if ((stop.fork || stop.parallel) && (d.fork || d.parallel) && arms) {
             return (
               <ForkBlock
                 key={key}
-                stop={{ ...stop, fork: stop.fork }}
-                d={{ ...d, fork: d.fork }}
+                stop={stop}
+                d={d}
                 number={label}
                 armNumbers={arms}
                 stopKey={key}

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
 import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
-import { numberStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import { numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
 import { radiusFor } from "./CampMarker";
 import { placeRadius, PlaceRing, SwordsGlyph } from "./PlaceGlyph";
 
@@ -50,6 +50,7 @@ export const RoutePath = memo(function RoutePath({
   youStart = 0,
   onStopSelect,
   choice,
+  attackLayer = false,
 }: {
   map: CreepMap;
   stops: RouteStop[];
@@ -59,8 +60,10 @@ export const RoutePath = memo(function RoutePath({
   youStart?: number;
   /** Selects a stop from its badge: a place stop or an arm stop (a camp stop also selects through its marker). */
   onStopSelect?: (key: string) => void;
-  /** Fork key to the chosen arm of an "either" fork; default arm 0. */
+  /** Fork key to the chosen arm of each fork; default arm 0. */
   choice?: Record<string, number>;
+  /** Draw only the attack badges: `CreepMap` paints this second copy over the camps. */
+  attackLayer?: boolean;
 }) {
   const { width: iw, height: ih } = map.image;
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
@@ -88,7 +91,8 @@ export const RoutePath = memo(function RoutePath({
   let prev: PathNode | null = null;
   stops.forEach((s, i) => {
     const n = numbers[i];
-    if (!s.fork) {
+    const nodeArms = s.fork?.arms ?? s.parallel?.arms;
+    if (!nodeArms) {
       const node = nodeOf(s, n.key, n.label, { absent: s.hero === false });
       if (!node) return;
       if (prev) legs.push({ a: prev, b: node, style: "solid" });
@@ -96,13 +100,14 @@ export const RoutePath = memo(function RoutePath({
       prev = node;
       return;
     }
-    const both = s.fork.mode === "both";
-    const walked = both ? 0 : Math.min(choice?.[n.key] ?? 0, s.fork.arms.length - 1);
+    // A parallel node runs every arm at once; a fork's unchosen arms are drawn at 60%.
+    const both = Boolean(s.parallel);
+    const walked = walkedArm(s, n.key, choice);
     const you = map.starts[youStart];
     const anchor: PathNode | null =
       prev ?? (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + MARK_HALO } : null);
     let walkedEnd: PathNode | null = null;
-    s.fork.arms.forEach((arm, a) => {
+    nodeArms.forEach((arm, a) => {
       let p = anchor;
       arm.stops.forEach((as, j) => {
         const other = !both && a !== walked;
@@ -137,9 +142,89 @@ export const RoutePath = memo(function RoutePath({
   const pathOf = (list: typeof segments) =>
     list.map((g) => `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`).join("");
   const d = pathOf(segments.filter((g) => g.style === "solid"));
-  // A leg of an arm the reader did not choose: dashed 4 3, 55%, no chevron.
+  // A leg of a fork arm the reader did not choose: the same solid line at 60%, no chevron.
   const dOther = pathOf(segments.filter((g) => g.style === "other"));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
+
+  const badges = points.map((p) => {
+    // A waypoint is on the path but takes no badge: its glyph or ring is its mark. An attack's
+    // badge draws in the layer above the camps (`attackLayer`), so a camp by the target never hides it.
+    if (p.waypoint || (p.place?.kind === "attack") !== attackLayer) return null;
+    // Badge floats just above the camp mark, in the same units as the
+    // viewBox so it reads the same on a 256x256 map and a 256x192 one —
+    // and flips below, rather than clipping, for a camp near the top
+    // edge. See `badge-position.mjs`.
+    const badge = badgePosition(p.x, p.y, iw, ih);
+    const cx = badge.x;
+    const badgeY = badge.y;
+    const isActive = activeStop === p.key;
+    const isArm = p.key.includes(".");
+    // ponytail: a badge selects by pointer only; the stop list is the keyboard path to a place or arm stop.
+    const select = (p.place || isArm) && onStopSelect ? () => onStopSelect(p.key) : undefined;
+    // An attack's badge is ringed in the loss red instead of gold, swords under it.
+    const ring = p.place?.kind === "attack" ? "var(--wg-loss)" : "var(--wg-gold)";
+    // Hero off: the first Bring unit's icon butts the badge's right edge, so the map says who goes.
+    const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
+    const fade = p.other ? 0.6 : undefined;
+    // A fork arm badge ("3a") is a pill wide enough for its label; the 8px type stays.
+    const pill = /[a-z]/.test(p.label) ? 6 + p.label.length * 5 : 0;
+    return (
+      <g key={p.key} data-stop-marker={p.label} onClick={select} className={select ? "cursor-pointer" : undefined}>
+        {/* Same rule as `CampMarker`: grow via `transform: scale()` on
+         *  a wrapper, not a CSS transition of `r` (compositor-only
+         *  motion — DESIGN.md, F009 review code-b.md item 2). 7.5/6 =
+         *  1.25, so `scale-125` reproduces the old active radius
+         *  exactly. */}
+        <g
+          opacity={fade}
+          style={{ transformBox: "fill-box" }}
+          className={cn(
+            "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
+            isActive ? "scale-125" : "scale-100",
+          )}
+        >
+          {pill ? (
+            <rect
+              x={cx - pill / 2}
+              y={badgeY - 6}
+              width={pill}
+              height={12}
+              rx={6}
+              fill="var(--wg-bg)"
+              stroke={ring}
+              strokeWidth={isActive ? 2.2 : 1.4}
+              style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
+            />
+          ) : (
+            <circle
+              cx={cx}
+              cy={badgeY}
+              r={6}
+              fill="var(--wg-bg)"
+              stroke={ring}
+              strokeWidth={isActive ? 2.2 : 1.4}
+              style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
+            />
+          )}
+          <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
+            {p.label}
+          </text>
+          {p.place?.kind === "attack" ? <SwordsGlyph cx={cx} cy={badgeY + 9.5} /> : null}
+          {unitIcon ? (
+            <image
+              data-unit-icon
+              href={gameIconSrc(unitIcon)}
+              x={cx + Math.max(6, pill / 2)}
+              y={badgeY - 5}
+              width={10}
+              height={10}
+            />
+          ) : null}
+        </g>
+      </g>
+    );
+  });
+  if (attackLayer) return <g data-route-attacks>{badges}</g>;
 
   return (
     <g>
@@ -148,9 +233,9 @@ export const RoutePath = memo(function RoutePath({
       <path d={d} fill="none" strokeWidth="4" {...under} />
       <path d={d} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
       {dOther ? (
-        <g data-route-other opacity={0.55}>
-          <path d={dOther} fill="none" strokeWidth="4" strokeDasharray="4 3" {...under} strokeLinecap="butt" />
-          <path d={dOther} fill="none" stroke={LINE} strokeWidth="2" strokeDasharray="4 3" strokeLinejoin="round" strokeLinecap="butt" />
+        <g data-route-other opacity={0.6}>
+          <path d={dOther} fill="none" strokeWidth="4" {...under} />
+          <path d={dOther} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         </g>
       ) : null}
       {/* A 6px direction chevron at the middle of every leg, same light fill. */}
@@ -169,83 +254,7 @@ export const RoutePath = memo(function RoutePath({
       {points.map((p) =>
         p.place && p.r !== undefined ? <PlaceRing key={`ring-${p.key}`} place={p.place} cx={p.x * iw} cy={p.y * ih} r={p.r} /> : null,
       )}
-      {points.map((p) => {
-        // A waypoint is on the path but takes no badge: its glyph or ring is its mark.
-        if (p.waypoint) return null;
-        // Badge floats just above the camp mark, in the same units as the
-        // viewBox so it reads the same on a 256x256 map and a 256x192 one —
-        // and flips below, rather than clipping, for a camp near the top
-        // edge. See `badge-position.mjs`.
-        const badge = badgePosition(p.x, p.y, iw, ih);
-        const cx = badge.x;
-        const badgeY = badge.y;
-        const isActive = activeStop === p.key;
-        const isArm = p.key.includes(".");
-        // ponytail: a badge selects by pointer only; the stop list is the keyboard path to a place or arm stop.
-        const select = (p.place || isArm) && onStopSelect ? () => onStopSelect(p.key) : undefined;
-        // An attack's badge is ringed in the loss red instead of gold, swords under it.
-        const ring = p.place?.kind === "attack" ? "var(--wg-loss)" : "var(--wg-gold)";
-        // Hero off: the first Bring unit's icon butts the badge's right edge, so the map says who goes.
-        const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
-        const fade = p.other ? 0.6 : undefined;
-        // An arm badge ("3a") is a pill wide enough for its label; the 8px type stays.
-        const pill = isArm ? 6 + p.label.length * 5 : 0;
-        return (
-          <g key={p.key} data-stop-marker={p.label} onClick={select} className={select ? "cursor-pointer" : undefined}>
-            {/* Same rule as `CampMarker`: grow via `transform: scale()` on
-             *  a wrapper, not a CSS transition of `r` (compositor-only
-             *  motion — DESIGN.md, F009 review code-b.md item 2). 7.5/6 =
-             *  1.25, so `scale-125` reproduces the old active radius
-             *  exactly. */}
-            <g
-              opacity={fade}
-              style={{ transformBox: "fill-box" }}
-              className={cn(
-                "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
-                isActive ? "scale-125" : "scale-100",
-              )}
-            >
-              {pill ? (
-                <rect
-                  x={cx - pill / 2}
-                  y={badgeY - 6}
-                  width={pill}
-                  height={12}
-                  rx={6}
-                  fill="var(--wg-bg)"
-                  stroke={ring}
-                  strokeWidth={isActive ? 2.2 : 1.4}
-                  style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
-                />
-              ) : (
-                <circle
-                  cx={cx}
-                  cy={badgeY}
-                  r={6}
-                  fill="var(--wg-bg)"
-                  stroke={ring}
-                  strokeWidth={isActive ? 2.2 : 1.4}
-                  style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
-                />
-              )}
-              <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
-                {p.label}
-              </text>
-              {p.place?.kind === "attack" ? <SwordsGlyph cx={cx} cy={badgeY + 9.5} /> : null}
-              {unitIcon ? (
-                <image
-                  data-unit-icon
-                  href={gameIconSrc(unitIcon)}
-                  x={cx + Math.max(6, pill / 2)}
-                  y={badgeY - 5}
-                  width={10}
-                  height={10}
-                />
-              ) : null}
-            </g>
-          </g>
-        );
-      })}
+      {badges}
     </g>
   );
 });

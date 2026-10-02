@@ -143,17 +143,19 @@ export type RouteStop = {
   /** Camp and attack stops: false when only the Bring units go, so the stop grants the hero no XP.
    *  Default true; stored only when false. */
   hero?: boolean;
-  /** A fork node: `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
+  /** A fork node (choose one way): `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
   fork?: Fork;
+  /** A parallel node (all ways at once): `campId` null, no action, no place. */
+  parallel?: Parallel;
 };
 
-/** Ways a route can split, one level deep: "either" picks one arm (each labelled
- *  with the condition), "both" runs every arm at once (arm 0 with the hero). */
-export type Fork = {
-  mode: "either" | "both";
-  /** 2 or 3 arms, each with 1..n stops; an arm stop never holds a fork. */
-  arms: { label?: string; stops: RouteStop[] }[];
-};
+/** Choose one: 2 or 3 arms, each labelled with the condition the reader picks it by,
+ *  1..n stops each, one level deep (an arm stop never holds a node). */
+export type Fork = { arms: { label: string; stops: RouteStop[] }[] };
+
+/** All at once: 2 or 3 arms of 1..n stops, no labels, one level deep. Arm 0 is the hero's
+ *  line; arms 1.. run without the hero (derive treats them so whatever their flags say). */
+export type Parallel = { arms: { stops: RouteStop[] }[] };
 
 /** What happens at a place: `attack` is a numbered stop; build, expand, shop and scout are
  *  waypoints (on the path, no number). */

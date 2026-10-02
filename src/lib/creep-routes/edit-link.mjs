@@ -58,14 +58,10 @@ export function toExchangeRoute(route) {
     supersedes: route.slug,
     stops: (route.stops ?? []).map((s) =>
       s.fork
-        ? {
-            campId: null,
-            fork: {
-              mode: s.fork.mode,
-              arms: s.fork.arms.map((arm) => ({ label: arm.label || undefined, stops: (arm.stops ?? []).map(exchangeStop) })),
-            },
-          }
-        : exchangeStop(s),
+        ? { campId: null, fork: { arms: s.fork.arms.map((arm) => ({ label: arm.label ?? "", stops: (arm.stops ?? []).map(exchangeStop) })) } }
+        : s.parallel
+          ? { campId: null, parallel: { arms: s.parallel.arms.map((arm) => ({ stops: (arm.stops ?? []).map(exchangeStop) })) } }
+          : exchangeStop(s),
     ),
     description: descriptionToText(route.description) || undefined,
   };

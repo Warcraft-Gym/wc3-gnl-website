@@ -27,12 +27,14 @@ export type DerivedStop = {
   /** Arm stops only: which arm of which fork (the fork's top-level key). */
   armIndex?: number;
   forkKey?: string;
-  /** Fork stops only: every arm derived from the hero's state at the fork; `walked` is the arm the total follows. */
-  fork?: {
-    mode: "either" | "both";
-    walked: number;
-    arms: { label?: string; stops: DerivedStop[]; levelAfter: number; xpAfter: number }[];
-  };
+  /** Node stops only: every arm derived from the hero's state at the node; `walked` is the arm the total follows. */
+  fork?: DerivedNode;
+  parallel?: DerivedNode;
+};
+
+export type DerivedNode = {
+  walked: number;
+  arms: { label?: string; stops: DerivedStop[]; levelAfter: number; xpAfter: number }[];
 };
 
 export type DerivedKill = {
@@ -58,8 +60,10 @@ export type DerivedRoute = {
   finalXp: number;
 };
 
-type DerivableStop = Pick<RouteStop, "campId" | "kills" | "leaveRest" | "hero"> & {
-  fork?: { mode: "either" | "both"; arms: { label?: string; stops: Pick<RouteStop, "campId" | "kills" | "leaveRest" | "hero">[] }[] };
+type PlainDerivable = Pick<RouteStop, "campId" | "kills" | "leaveRest" | "hero">;
+type DerivableStop = PlainDerivable & {
+  fork?: { arms: { label?: string; stops: PlainDerivable[] }[] };
+  parallel?: { arms: { stops: PlainDerivable[] }[] };
 };
 
 export const deriveRoute = impl.deriveRoute as (

@@ -88,3 +88,10 @@ test("keys: selecting an arm stop also opens its fork; expandAll opens every key
   s = reduce(s, { type: "expandAll", keys: ["0", "1", "2", "2.a.0", "2.b.0"] });
   assert.equal(s.open.size, 5);
 });
+
+test("keys: a parallel node's arm stops share numbers but not keys, so each opens on its own", () => {
+  let s = reduce(initialStopView(2, "0"), { type: "summary", key: "1.a.0", also: ["1"] });
+  s = reduce(s, { type: "chevron", key: "1.b.0" });
+  assert.deepEqual([...s.open].sort(), ["0", "1", "1.a.0", "1.b.0"]);
+  assert.equal(s.selected, "1.a.0");
+});

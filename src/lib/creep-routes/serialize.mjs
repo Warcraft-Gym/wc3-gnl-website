@@ -11,17 +11,20 @@
  */
 
 export function toApiStop(stop, origin, iconSrc) {
-  const { units, fork, ...rest } = stop;
+  const { units, fork, parallel, ...rest } = stop;
   return {
     ...rest,
     ...(units?.length
       ? { units: units.map((u) => ({ ...u, iconUrl: `${origin}${iconSrc(u.icon)}` })) }
       : {}),
-    // A fork's arm stops get the same absolute icon URLs.
-    ...(fork
-      ? { fork: { ...fork, arms: fork.arms.map((arm) => ({ ...arm, stops: arm.stops.map((s) => toApiStop(s, origin, iconSrc)) })) } }
-      : {}),
+    // A node's arm stops get the same absolute icon URLs.
+    ...(fork ? { fork: withApiArms(fork, origin, iconSrc) } : {}),
+    ...(parallel ? { parallel: withApiArms(parallel, origin, iconSrc) } : {}),
   };
+}
+
+function withApiArms(node, origin, iconSrc) {
+  return { ...node, arms: node.arms.map((arm) => ({ ...arm, stops: arm.stops.map((s) => toApiStop(s, origin, iconSrc)) })) };
 }
 
 export function absoluteMinimapUrl(map, origin) {
@@ -69,7 +72,7 @@ export function toApiRoute(route, map, origin, iconSrc, deriveRouteFn) {
     sourceUrl: route.sourceUrl,
     build: route.build,
     derived: {
-      // ponytail: a fork's derived arms are not in the API; its entry carries the walked arm's end level/xp only.
+      // ponytail: a node's derived arms are not in the API; its entry carries the walked arm's end level/xp only.
       stops: derived.stops.map((s) => ({
         heroLevelAfter: s.heroLevelAfter,
         xpAfter: s.xpAfter,

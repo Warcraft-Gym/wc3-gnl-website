@@ -9,16 +9,13 @@ import type { StopRowData } from "./StopRow";
 import { updateArm } from "./stop-rows";
 import { cn } from "@/lib/utils";
 
-const MODES = [
-  { id: "either", label: "Choose a way" },
-  { id: "both", label: "At the same time" },
-] as const;
-
 /**
- * A fork in the route being authored: its mode ("Choose a way" / "At the same
- * time"), then 2 or 3 ways stacked, each with a label and its own stop list
- * (`StopEditor` at depth 1, which has no "+ Fork"). The dot on a way is a
- * toggle, "Add stops here": camps and places clicked on the map go into it.
+ * A node in the route being authored: a fork ("Choose a way", each way with a
+ * "When…" label) or a parallel node ("At the same time", no labels), then 2 or
+ * 3 ways stacked, each with its own stop list (`StopEditor` at depth 1, which
+ * adds no nodes). The dot on a way is a toggle, "Add stops here": camps and
+ * places clicked on the map go into it; in a parallel node's ways 2.. they
+ * arrive with the hero off (`RouteEditor`).
  */
 export function ForkRow({
   row,
@@ -69,7 +66,8 @@ export function ForkRow({
   activeArm: ActiveArm;
   onActiveArm?: (arm: ActiveArm) => void;
 }) {
-  const { mode, arms } = row.fork;
+  const { kind, arms } = row.fork;
+  const fork = kind === "fork";
   const setFork = (fork: Partial<typeof row.fork>) =>
     setStops((rows) => rows.map((r) => (r.id === row.id && r.fork ? { ...r, fork: { ...r.fork, ...fork } } : r)));
   const removeArm = (a: number) => {
@@ -82,22 +80,7 @@ export function ForkRow({
     <li className="relative rounded border border-arcane/40 bg-bg/40 p-3">
       <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto]">
         <span className="tnum pt-2.5 text-center text-xs text-faint">{number}</span>
-        <div role="group" aria-label="Fork mode" className="flex flex-wrap gap-1.5 pt-1">
-          {MODES.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              aria-pressed={mode === m.id}
-              onClick={() => setFork({ mode: m.id })}
-              className={cn(
-                "h-8 rounded border border-arcane/40 px-2.5 text-[0.75rem]",
-                mode === m.id ? "bg-arcane/10 text-fg" : "text-arcane hover:bg-arcane/5",
-              )}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+        <p className="pt-2.5 text-sm font-bold text-fg">{fork ? "Choose a way" : "At the same time"}</p>
         <div className="col-start-2 flex justify-end gap-1 sm:col-start-auto">
           <button type="button" onClick={onMoveUp} disabled={!canMoveUp} aria-label="Move up" className="grid size-10 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30">
             <ArrowUp size={16} />
@@ -133,17 +116,21 @@ export function ForkRow({
                 >
                   <span className={cn("size-2.5 rounded-full", active ? "bg-gold" : "bg-transparent")} />
                 </button>
-                <input
-                  aria-label={`Way ${a + 1}`}
-                  placeholder={mode === "either" ? "When…" : "Label (optional)"}
-                  value={arm.label}
-                  onChange={(e) => setFork({ arms: arms.map((x, i) => (i === a ? { ...x, label: e.target.value } : x)) })}
-                  maxLength={60}
-                  className={cn(
-                    "h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none",
-                    armError(a, "label") && "border-loss",
-                  )}
-                />
+                {fork ? (
+                  <input
+                    aria-label={`Way ${a + 1}`}
+                    placeholder="When…"
+                    value={arm.label}
+                    onChange={(e) => setFork({ arms: arms.map((x, i) => (i === a ? { ...x, label: e.target.value } : x)) })}
+                    maxLength={60}
+                    className={cn(
+                      "h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none",
+                      armError(a, "label") && "border-loss",
+                    )}
+                  />
+                ) : (
+                  <p className="min-w-0 flex-1 text-xs text-muted">Way {a + 1}</p>
+                )}
                 {arms.length > 2 ? (
                   <button type="button" onClick={() => removeArm(a)} aria-label={`Remove way ${a + 1}`} className="grid size-9 shrink-0 place-items-center text-faint hover:text-loss">
                     <X size={16} />
@@ -165,7 +152,7 @@ export function ForkRow({
                 fieldError={fieldError}
                 errorPath={`${errorPath}.arms.${a}.stops`}
                 labels={armLabels[a]}
-                derivedStops={derived?.fork?.arms[a]?.stops}
+                derivedStops={(derived?.fork ?? derived?.parallel)?.arms[a]?.stops}
                 onOpenCard={onOpenCard}
                 openCampId={openCampId}
                 start={start}

@@ -72,7 +72,7 @@ export function CreepMapPlayground({
         : initialStopView(count, numberStops(route.stops).find((n) => n.label)?.key ?? "0"),
   ) as [{ selected: string | null; open: Set<string> }, React.Dispatch<Record<string, unknown>>];
   const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
-  // The arm the reader follows in each "either" fork: page state, not URL state.
+  // The arm the reader follows in each fork: page state, not URL state.
   const [choice, setChoice] = useState<Record<string, number>>({});
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
@@ -90,12 +90,12 @@ export function CreepMapPlayground({
   // the route's own stops (every camp is clickable now, F012-followup-3)
   // finds no matching stop — `findIndex` returns -1 — and this is a no-op:
   // no stop is selected, nothing crashes.
-  // An arm stop also chooses its arm (an "either" fork) and opens its fork's block.
+  // An arm stop of a fork also chooses its arm; any arm stop opens its node's block.
   const onStopSelect = useCallback(
     (key: string) => {
       const { index, arm } = parseKey(key);
       const also = arm === undefined ? [] : [String(index)];
-      if (arm !== undefined && route.stops[index]?.fork?.mode === "either") {
+      if (arm !== undefined && route.stops[index]?.fork) {
         setChoice((c) => (c[String(index)] === arm ? c : { ...c, [String(index)]: arm }));
       }
       dispatch({ type: "node", key, also });

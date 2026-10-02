@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { Crosshair, GitFork, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
 import { placeName } from "@/lib/creep-routes/place.mjs";
 import { numberStops } from "@/lib/creep-routes/stop-numbers.mjs";
@@ -111,10 +111,10 @@ export function StopEditor({
   function addBaseAction() {
     setStops((rows) => [...rows, newRow()]);
   }
-  // A new fork starts as "Choose a way" with two empty ways; map clicks go into its first.
-  function addFork() {
+  // A new node (a fork or "At the same time") starts with two empty ways; map clicks go into its first.
+  function addNode(kind: "fork" | "parallel") {
     const row = newRow({
-      fork: { mode: "either", arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) },
+      fork: { kind, arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) },
     });
     setStops((rows) => [...rows, row]);
     onActiveArm?.({ forkId: row.id, arm: 0 });
@@ -138,13 +138,22 @@ export function StopEditor({
             <Plus size={14} /> Base action
           </button>
           {depth === 0 ? (
-            <button
-              type="button"
-              onClick={addFork}
-              className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
-            >
-              <GitFork size={14} /> Fork
-            </button>
+            <>
+              <button
+                type="button"
+                onClick={() => addNode("fork")}
+                className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
+              >
+                <Plus size={14} /> Fork
+              </button>
+              <button
+                type="button"
+                onClick={() => addNode("parallel")}
+                className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
+              >
+                <Plus size={14} /> At the same time
+              </button>
+            </>
           ) : null}
           {depth === 0 && onPointToggle ? (
             <button
@@ -157,7 +166,7 @@ export function StopEditor({
                 pointArmed ? "border-gold bg-gold/15 text-fg" : "border-gold/50 text-gold hover:bg-gold/10",
               )}
             >
-              <Crosshair size={14} /> Point
+              <Plus size={14} /> Point
             </button>
           ) : null}
         </div>
@@ -175,7 +184,7 @@ export function StopEditor({
               iconRace={iconRace}
               heroIcon={heroIcon}
               fieldError={fieldError}
-              errorPath={`${errorPath}.${i}.fork`}
+              errorPath={`${errorPath}.${i}.${s.fork.kind}`}
               onRemove={() => remove(s.id)}
               onMoveUp={() => move(i, -1)}
               onMoveDown={() => move(i, 1)}

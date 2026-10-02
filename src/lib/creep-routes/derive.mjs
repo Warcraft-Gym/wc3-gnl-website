@@ -34,32 +34,34 @@ function levelForXp(xp) {
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
  * pays the new, lower factor for the rest of that camp's kills. A
  * stop with `hero: false` has kills with `xp: 0` and leaves level/xp unchanged.
- * A fork stop (`stop.fork`) derives every arm and carries them as
- * `fork: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
+ * A node (`stop.fork` or `stop.parallel`) derives every arm and carries them
+ * as `fork` / `parallel: { walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
  * arm stops carry `armIndex` and `forkKey`, and `choice` maps a fork key
- * ("2") to the arm the hero walks in "either" mode (default 0). */
+ * ("2") to the arm the hero walks at a fork (default 0). */
 export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
   let level = startLevel;
   let xp = heroXpForLevel(startLevel);
 
   const stops = route.stops.map((stop, i) => {
-    if (!stop.fork) {
+    const parallel = Boolean(stop.parallel);
+    const rawArms = stop.fork?.arms ?? stop.parallel?.arms;
+    if (!rawArms) {
       const d = deriveStop(stop, map, level, xp, false);
       level = d.heroLevelAfter;
       xp = d.xpAfter;
       return d;
     }
-    // A fork: every arm is derived from the hero's state at the fork. The hero
-    // walks one arm (`choice[forkKey]` in "either", arm 0 in "both"); only that
-    // arm feeds the running total. In "both" arms 1.. are without the hero.
-    const { mode, arms: rawArms } = stop.fork;
+    // A node: every arm is derived from the hero's state at the node. The hero
+    // walks one arm (`choice[forkKey]` at a fork, arm 0 at a parallel node);
+    // only that arm feeds the running total. A parallel node's arms 1.. run
+    // without the hero whatever their own flags say.
     const forkKey = String(i);
-    const walked = mode === "both" ? 0 : Math.min(Math.max(0, choice[forkKey] ?? 0), rawArms.length - 1);
+    const walked = parallel ? 0 : Math.min(Math.max(0, choice[forkKey] ?? 0), rawArms.length - 1);
     const arms = rawArms.map((arm, armIndex) => {
       let armLevel = level;
       let armXp = xp;
       const armStops = arm.stops.map((s) => {
-        const d = deriveStop(s, map, armLevel, armXp, mode === "both" && armIndex > 0);
+        const d = deriveStop(s, map, armLevel, armXp, parallel && armIndex > 0);
         armLevel = d.heroLevelAfter;
         armXp = d.xpAfter;
         return { ...d, armIndex, forkKey };
@@ -79,14 +81,14 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
       band: null,
       left: 0,
       kills: [],
-      fork: { mode, walked, arms },
+      [parallel ? "parallel" : "fork"]: { walked, arms },
     };
   });
 
   return { stops, finalLevel: level, finalXp: xp };
 }
 
-/** One non-fork stop from the hero's `level`/`xp`; `absent` forces "without the hero". */
+/** One plain stop from the hero's `level`/`xp`; `absent` forces hero off. */
 function deriveStop(stop, map, level, xp, absent) {
   const camp = stop.campId ? findCamp(map, stop.campId) : null;
   const noHero = absent || stop.hero === false;

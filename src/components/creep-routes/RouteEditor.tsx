@@ -64,13 +64,21 @@ export function RouteEditor({
   // alone drives the polyline and the numbered badges.
   const routeForMap = useMemo(() => ({ stops: stops.map(rowToStop), start }), [stops, start]);
 
-  // The fork way map clicks go into (its "Add stops here" toggle); none means the top level.
+  // The node way map clicks go into (its "Add stops here" toggle); none means the top level.
   const [activeArm, setActiveArm] = useState<ActiveArm>(null);
   const armOpen = activeArm !== null && stops.some((r) => r.id === activeArm.forkId && r.fork && r.fork.arms[activeArm.arm]);
+  // A parallel node's ways 2.. run without the hero: a camp or attack added there arrives with the hero off.
+  const heroOffArm =
+    armOpen && activeArm !== null && activeArm.arm > 0 && stops.some((r) => r.id === activeArm.forkId && r.fork?.kind === "parallel");
   const addTo = useCallback(
-    (update: (rows: StopRowData[]) => StopRowData[]) =>
-      setStops((rows) => (armOpen && activeArm ? updateArm(rows, activeArm.forkId, activeArm.arm, update) : update(rows))),
-    [setStops, armOpen, activeArm],
+    (update: (rows: StopRowData[]) => StopRowData[]) => {
+      const marked = (rows: StopRowData[]) => {
+        const before = new Set(rows.map((r) => r.id));
+        return update(rows).map((r) => (heroOffArm && !before.has(r.id) && (r.campId || r.place?.kind === "attack") ? { ...r, hero: false } : r));
+      };
+      setStops((rows) => (armOpen && activeArm ? updateArm(rows, activeArm.forkId, activeArm.arm, marked) : update(rows)));
+    },
+    [setStops, armOpen, activeArm, heroOffArm],
   );
   const onCampClick = useCallback(
     (campId: string) => (armOpen ? addTo((rows) => toggleCamp(rows, campId)) : onCampSelect(campId)),

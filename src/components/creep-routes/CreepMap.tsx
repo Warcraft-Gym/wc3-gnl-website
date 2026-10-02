@@ -467,6 +467,9 @@ export function CreepMap({
           {map.shops.map((s) => (
             <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
           ))}
+          {route && allStops.some(({ stop }) => stop.place?.kind === "attack") ? (
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} attackLayer />
+          ) : null}
           {onPlaceSelect && pointArmed ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed /> : null}
         </svg>
       </div>

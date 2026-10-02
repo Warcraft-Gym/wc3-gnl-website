@@ -189,17 +189,21 @@ test("a stop without the hero (hero: false) grants no hero xp: its kills carry x
   assert.equal(result.finalXp, 128);
 });
 
-const forkRoute = (mode) => ({
+// A fork (choose one) or a parallel node (all at once) after c1, then c2.
+const forkRoute = (kind) => ({
   stops: [
     { campId: "c1" },
-    { campId: null, fork: { mode, arms: [{ label: "A", stops: [{ campId: "c2" }] }, { label: "B", stops: [] }] } },
+    kind === "fork"
+      ? { campId: null, fork: { arms: [{ label: "A", stops: [{ campId: "c2" }] }, { label: "B", stops: [] }] } }
+      : { campId: null, parallel: { arms: [{ stops: [{ campId: "c2" }] }, { stops: [] }] } },
     { campId: "c2" },
   ],
 });
+const arms = (route) => (route.stops[1].fork ?? route.stops[1].parallel).arms;
 
-test("either: the hero walks the chosen arm; the other arm is derived but feeds no total", () => {
-  const route = forkRoute("either");
-  route.stops[1].fork.arms[1].stops = [{ campId: "c1" }];
+test("fork: the hero walks the chosen arm; the other arm is derived but feeds no total", () => {
+  const route = forkRoute("fork");
+  arms(route)[1].stops = [{ campId: "c1" }];
   const first = deriveRoute(route, MAP);
   const fork = first.stops[1].fork;
   assert.equal(fork.walked, 0);
@@ -214,19 +218,20 @@ test("either: the hero walks the chosen arm; the other arm is derived but feeds 
   assert.ok(second.stops[1].xpAfter < first.stops[1].xpAfter);
 });
 
-test("both: arm 0 walks with the hero, arms 1.. are derived without the hero", () => {
-  const route = forkRoute("both");
-  route.stops[1].fork.arms[1].stops = [{ campId: "c2" }];
-  const fork = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].fork;
-  assert.equal(fork.walked, 0);
-  assert.equal(fork.arms[1].stops[0].hero, false);
-  assert.ok(fork.arms[1].stops[0].kills.every((k) => k.xp === 0));
-  assert.equal(fork.arms[1].xpAfter, 128);
+test("parallel: arm 0 walks with the hero, arms 1.. are derived without the hero whatever their flags", () => {
+  const route = forkRoute("parallel");
+  arms(route)[1].stops = [{ campId: "c2", hero: true }];
+  const node = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].parallel;
+  assert.equal(node.walked, 0);
+  assert.equal(node.arms[1].stops[0].hero, false);
+  assert.ok(node.arms[1].stops[0].kills.every((k) => k.xp === 0));
+  assert.equal(node.arms[1].xpAfter, 128);
+  assert.equal(node.arms[0].xpAfter, 306);
 });
 
 test("the stop after a fork continues from the chosen arm's total", () => {
-  const route = forkRoute("either");
-  route.stops[1].fork.arms[1].stops = [{ campId: null, action: "Harass" }];
+  const route = forkRoute("fork");
+  arms(route)[1].stops = [{ campId: null, action: "Harass" }];
   const viaA = deriveRoute(route, MAP);
   const viaB = deriveRoute(route, MAP, { choice: { 1: 1 } });
   assert.equal(viaB.stops[1].xpAfter, 128);

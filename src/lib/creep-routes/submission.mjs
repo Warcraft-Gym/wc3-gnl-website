@@ -54,7 +54,7 @@ function unitSchema(iconSet) {
   });
 }
 
-function baseStopSchema(iconSet, forkField) {
+function baseStopSchema(iconSet, forkField, parallelField) {
   return z
     .object({
       /** null marks a base action (TP home, buy from a shop, take the
@@ -81,17 +81,19 @@ function baseStopSchema(iconSet, forkField) {
       place: placeSchema.optional(),
       /** Camp and attack stops: false when only the Bring units go, so it grants no hero XP. */
       hero: z.boolean().optional(),
-      /** A fork node at the top level; inside an arm, any fork is rejected (one level). */
+      /** A fork or parallel node at the top level; inside an arm, either is rejected (one level). */
       fork: forkField,
+      parallel: parallelField,
     })
     .superRefine((stop, ctx) => {
-      if (stop.fork) {
-        // A fork node is `campId: null` and its ways; any other field would be dropped from the draft.
+      const node = stop.fork ? "fork" : stop.parallel ? "parallel" : null;
+      if (node) {
+        // A node is `campId: null` and its ways; any other field would be dropped from the draft.
         const extra = ["action", "place", "hero", "note", "condition", "units", "kills", "leaveRest"].filter(
           (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
         );
-        if (stop.campId !== null || extra.length) {
-          ctx.addIssue({ code: "custom", message: "A fork holds only its ways", path: ["fork"] });
+        if (stop.campId !== null || extra.length || (stop.fork && stop.parallel)) {
+          ctx.addIssue({ code: "custom", message: "A fork holds only its ways", path: [node] });
         }
         return;
       }
@@ -110,27 +112,29 @@ function baseStopSchema(iconSet, forkField) {
     });
 }
 
-/** A fork node's ways: 2 or 3 arms of 1..20 stops; in "either" every arm names its condition. */
+/** A fork's ways: 2 or 3 arms of 1..20 stops, each labelled with its condition. */
 function forkSchema(armStopSchema) {
-  return z
-    .object({
-      mode: z.enum(["either", "both"]),
-      arms: z
-        .array(
-          z.object({
-            label: z.string().trim().max(60, "Max 60 characters").optional(),
-            stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
-          }),
-        )
-        .min(2, "A fork needs two or three ways")
-        .max(3, "A fork needs two or three ways"),
-    })
-    .superRefine((fork, ctx) => {
-      if (fork.mode !== "either") return;
-      fork.arms.forEach((arm, a) => {
-        if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this way", path: ["arms", a, "label"] });
-      });
-    });
+  return z.object({
+    arms: z
+      .array(
+        z.object({
+          label: z.string({ error: "Say when to take this way" }).trim().min(1, "Say when to take this way").max(60, "Max 60 characters"),
+          stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
+        }),
+      )
+      .min(2, "A fork needs two or three ways")
+      .max(3, "A fork needs two or three ways"),
+  });
+}
+
+/** A parallel node's ways: 2 or 3 arms of 1..20 stops, no labels (each stop's Bring says who goes). */
+function parallelSchema(armStopSchema) {
+  return z.object({
+    arms: z
+      .array(z.object({ stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops") }))
+      .min(2, "Add two or three ways")
+      .max(3, "Add two or three ways"),
+  });
 }
 
 const placeSchema = z.object({
@@ -167,11 +171,9 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const armStopSchema = baseStopSchema(
-    iconSet,
-    z.unknown().optional().refine((v) => v === undefined, "A way cannot hold another fork"),
-  );
-  const stopSchema = baseStopSchema(iconSet, forkSchema(armStopSchema).optional());
+  const noNode = z.unknown().optional().refine((v) => v === undefined, "A way cannot hold another fork");
+  const armStopSchema = baseStopSchema(iconSet, noNode, noNode);
+  const stopSchema = baseStopSchema(iconSet, forkSchema(armStopSchema).optional(), parallelSchema(armStopSchema).optional());
 
   return z
     .object({
@@ -284,7 +286,8 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
       };
       data.stops.forEach((stop, i) => {
         checkStop(stop, ["stops", i]);
-        stop.fork?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, "fork", "arms", a, "stops", j])));
+        const node = stop.fork ? "fork" : "parallel";
+        (stop.fork ?? stop.parallel)?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, node, "arms", a, "stops", j])));
       });
       const startsCount = startsCountByMap.get(data.map);
       if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
@@ -391,15 +394,14 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
     featured: false,
     publishedAt: new Date().toISOString(),
     stops: valid.stops.map((s) =>
-      s.fork
+      s.fork || s.parallel
         ? {
-            _type: "creepFork",
+            _type: s.fork ? "creepFork" : "creepParallel",
             _key: shortKey(),
-            mode: s.fork.mode,
-            arms: s.fork.arms.map((arm) => ({
+            arms: (s.fork ?? s.parallel).arms.map((arm) => ({
               _type: "arm",
               _key: shortKey(),
-              label: arm.label || undefined,
+              ...(s.fork ? { label: arm.label } : {}),
               stops: arm.stops.map(draftStop),
             })),
           }

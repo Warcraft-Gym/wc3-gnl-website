@@ -48,12 +48,8 @@ const stopSchema = z.object({
 
 /** A top-level stop may be a fork node whose arms hold plain stops (one level). */
 const topStopSchema = stopSchema.extend({
-  fork: z
-    .object({
-      mode: z.enum(["either", "both"]),
-      arms: z.array(z.object({ label: z.string().optional(), stops: z.array(stopSchema) })),
-    })
-    .optional(),
+  fork: z.object({ arms: z.array(z.object({ label: z.string().default(""), stops: z.array(stopSchema) })) }).optional(),
+  parallel: z.object({ arms: z.array(z.object({ stops: z.array(stopSchema) })) }).optional(),
 });
 
 export const creepRouteExchangeSchema = z.object({
