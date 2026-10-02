@@ -5,7 +5,7 @@ import { gameIconSrc } from "@/lib/builds/icons";
 import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, UNIT_ICON, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
 import { hiddenBadgeKeys } from "@/lib/creep-routes/stop-numbers.mjs";
-import { routeLegs } from "@/lib/creep-routes/route-legs.mjs";
+import { onTheMap, routeLegs } from "@/lib/creep-routes/route-legs.mjs";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { BAND_TOKEN } from "./RouteBadges";
 import { placeRadius, SwordsGlyph, WaypointGlyph } from "./PlaceGlyph";
@@ -55,6 +55,7 @@ export const RoutePath = memo(function RoutePath({
   onStopSelect,
   choice,
   campAt,
+  editing = false,
   layer,
 }: {
   map: CreepMap;
@@ -67,6 +68,8 @@ export const RoutePath = memo(function RoutePath({
   onStopSelect?: (key: string) => void;
   /** Split key to the chosen way of each "or"/"xor" split; default way a. */
   choice?: Record<string, number>;
+  /** The builder's Edit map: a waypoint done by another unit stays drawn so the author can place it. */
+  editing?: boolean;
   /** Where each camp's mark sits (viewBox units), when it guards a building (`campSpot`). */
   campAt?: Map<string, { x: number; y: number }>;
   /** `legs` under the camps, `nodes` (the stop discs) over them: `CreepMap` paints the two apart. */
@@ -95,10 +98,10 @@ export const RoutePath = memo(function RoutePath({
   };
 
   // Which stops are drawn and which legs join them (`route-legs.mjs`): the chosen path of an
-  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed), and no leg into
-  // or out of a waypoint done by another unit.
+  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed). A waypoint done
+  // by another unit is not on the reader's map; the builder's Edit map keeps it.
   const you = map.starts[youStart];
-  const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")));
+  const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")) && (editing || onTheMap(s)));
   const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent }) ?? []);
   const byKey = new Map<string, PathNode>(points.map((p) => [p.key, p]));
   if (you) byKey.set("start", { key: "start", label: "", stop: stops[0], cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" });

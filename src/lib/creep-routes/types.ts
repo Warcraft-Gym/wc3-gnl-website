@@ -141,7 +141,7 @@ export type RouteStop = {
    *  (default) kills them after the list, in catalogue order. */
   leaveRest?: boolean;
   /** Camp and place stops: false when only the Bring units go; the hero still earns their XP (XP is global).
-   *  A waypoint with `hero: false` is done by another unit: no legs into or out of it. Default true; stored only when false. */
+   *  A waypoint with `hero: false` is done by another unit: in the list, not on the reader's map. Default true; stored only when false. */
   hero?: boolean;
   /** Pictures of the spot the minimap cannot show; a coach adds them in the Studio. */
   images?: StopImage[];
