@@ -258,6 +258,217 @@ export const FIXTURE_ROUTES = [
       { campId: "c05", note: "Both groups meet at the gnolls" },
     ],
   },
+  // veS's two Death Knight routes from Sanity production (read only), rebuilt with splits. His
+  // notes are his own words, trimmed to the part that belongs to each stop; actions and way labels
+  // are ours. `start: 1`: his first camps sit by player 1's base (the live documents leave it unset).
+  {
+    slug: "undead-ves-autumn-leaves",
+    title: "Early creep route vs solo Blademaster Wind Walk",
+    race: "undead",
+    vsRaces: ["orc"],
+    level: "standard",
+    map: { slug: "autumn-leaves", name: "Autumn Leaves v2" },
+    start: 1,
+    hero: "ud-death-knight",
+    summary: "This is based on Happy vs Soin game. You can use this creep route if blademaster tries to snipe items early and gives you a bit of space.",
+    author: "veS",
+    patch: "2.0.3",
+    mapVersion: "2.0",
+    featured: false,
+    publishedAt: "2026-10-02T12:00:00Z",
+    updatedAt: "2026-10-02T12:00:00Z",
+    stops: [
+      {
+        campId: null,
+        // ponytail: a split has no caption ("Their build"); the way labels carry it.
+        split: {
+          mode: "or",
+          arms: [
+            {
+              label: "Any other build",
+              stops: [
+                {
+                  campId: "c06",
+                  units: [{ icon: "ud-ghoul", count: 2 }],
+                  kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }],
+                  note: "Standard opening camp in almost all scenarios vs ORC. Bring 2 ghouls if you expect orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
+                },
+              ],
+            },
+            // c03 guards the expansion gold mine nearest his base (mine 4); the nearest shop camp, c08, is the next stop.
+            { label: "Mirror Image build", stops: [{ campId: "c03", note: "In that case, start with gold mine/shop." }] },
+          ],
+        },
+      },
+      {
+        campId: null,
+        // ponytail: no split caption ("Their early army"); the way labels carry it.
+        split: {
+          mode: "or",
+          arms: [
+            {
+              label: "Solo Blademaster with Wind Walk",
+              stops: [
+                {
+                  campId: "c08",
+                  units: [{ icon: "ud-ghoul", count: 5 }],
+                  kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }],
+                  note: "You need to bring at least 5 ghouls, but you will be able to buy circlet + dust.",
+                },
+              ],
+            },
+            {
+              label: "Far Seer or Headhunters",
+              stops: [
+                {
+                  campId: null,
+                  action: "Buy a Rod of Necromancy",
+                  place: { kind: "shop", at: { shop: "ngme-14" } },
+                  note: "Do not attempt if you face a build with strong early presence, e.g. Far Seer/Headhunters",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        campId: null,
+        // ponytail: no split caption ("Reaching level 3"); the way labels carry it.
+        split: {
+          mode: "xor",
+          arms: [
+            {
+              label: "Safer",
+              stops: [
+                {
+                  campId: "c03",
+                  units: [{ icon: "rodofnecromancy", count: 1 }],
+                  kills: [{ row: 1, n: 2 }],
+                  note: "Going for this camp is a safer option, because it's closer to your base. After creeping the shop, bring additional rod of necromancy. Kill two trolls first, then finish with the magi.",
+                },
+              ],
+            },
+            {
+              label: "Risky, passive Orc",
+              stops: [
+                {
+                  campId: "c04",
+                  kills: [{ row: 1, n: 2 }],
+                  note: "Sometimes your orc opponent will be very passive. In this case, if you had a smooth early game and you feel confident, you can go for this camp. This will ensure you hit level 3 and that you will deprive him of important camp.",
+                },
+                {
+                  campId: null,
+                  action: "Push his burrows and T2 buildings",
+                  place: { kind: "attack", at: { start: "0" } },
+                  note: "If you manage to clear this camp as well, you can use this momentum and go for his burrows/t2 buildings.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: "undead-ves-echo-isles",
+    title: "Early creep route vs Demon Hunter and Naga",
+    race: "undead",
+    vsRaces: ["nightelf"],
+    level: "standard",
+    map: { slug: "echo-isles", name: "Echo Isles v2" },
+    start: 1,
+    hero: "ud-death-knight",
+    summary: "Principles of this creep route can be applied on other maps as well. This guide is based on Happy vs Life replay analysis.",
+    author: "veS",
+    patch: "2.0.3",
+    mapVersion: "2.2",
+    featured: false,
+    publishedAt: "2026-10-02T12:00:00Z",
+    updatedAt: "2026-10-02T12:00:00Z",
+    stops: [
+      {
+        campId: "c11",
+        condition: "Only on 1 base",
+        note: "Standard first camp if you play to stay on 1 base. If you go for Naga 2nd, bring 2 ghouls here.",
+      },
+      {
+        campId: "c02",
+        units: [{ icon: "ud-ghoul", count: 6 }],
+        note: "This is the quickest and the most efficient lvl 2 creep route on this map. Bring 6 ghouls total to this camp.",
+      },
+      {
+        campId: null,
+        action: "Scout where his Ancient of War goes",
+        place: { kind: "scout", at: { start: "1" } },
+        note: "Meanwhile, scout Night Elf and check if his Ancient of War is moving towards the marketplace.",
+      },
+      {
+        campId: null,
+        // ponytail: no split caption ("The shop camp"); the way labels carry it.
+        split: {
+          mode: "or",
+          arms: [
+            {
+              label: "Buy only",
+              stops: [
+                {
+                  campId: null,
+                  action: "Buy Boots and Dust",
+                  place: { kind: "shop", at: { shop: "ngme-0" } },
+                  note: "Go there only to buy boots (for your Naga) and dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight.",
+                },
+              ],
+            },
+            {
+              label: "Greedy",
+              stops: [
+                {
+                  campId: "c05",
+                  note: "You CAN creep this, if you feel greedy, but you will lose HP on your ghouls and will be unable to contest NE in mid-game",
+                },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        campId: null,
+        // ponytail: no split caption ("His Ancient of War"); the way labels carry it.
+        split: {
+          mode: "xor",
+          arms: [
+            {
+              label: "Went to the marketplace",
+              stops: [
+                {
+                  campId: null,
+                  action: "Stop his Ancient creeping the marketplace",
+                  // ponytail: an attack cannot stand on a camp; a free point on c03 stands in for it.
+                  place: { kind: "attack", at: { x: 0.499, y: 0.243 } },
+                  note: "In mid-game your goal is to stop Elf from creeping a big camp with his Ancient, that now has moved towards it. In most cases he will move towards the marketplace, as it gives a lot of XP and a good consumable.",
+                },
+                {
+                  campId: "c03",
+                  kills: [{ row: 3, n: 1 }],
+                  note: "When creeping, kill blue ogre first. Whoever gets this camp in mid-game, achieves a big advantage.",
+                },
+              ],
+            },
+            {
+              label: "Stayed on his green ogre camp",
+              stops: [
+                {
+                  campId: "c03",
+                  kills: [{ row: 3, n: 1 }],
+                  note: "When creeping, kill blue ogre first. Whoever gets this camp in mid-game, achieves a big advantage.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
 ];
 
 // Sanity check the seed data at import time (this file is also `node --test`ed
