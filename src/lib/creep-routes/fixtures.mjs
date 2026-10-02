@@ -280,12 +280,13 @@ export const FIXTURE_ROUTES = [
     stops: [
       {
         campId: null,
-        // ponytail: a split has no caption ("Their build"); the way labels carry it.
+        // ponytail: the two camp orders are really xor, but the level-3 choice follows both and a
+        // split cannot sit inside a way, so this stays "or" with the "Reaching level 3" xor shared after.
         split: {
           mode: "or",
           arms: [
             {
-              label: "Any other build",
+              label: "Standard order",
               stops: [
                 {
                   campId: "c06",
@@ -293,39 +294,20 @@ export const FIXTURE_ROUTES = [
                   kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }],
                   note: "Standard opening camp in almost all scenarios vs ORC. Bring 2 ghouls if you expect orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
                 },
-              ],
-            },
-            // c03 guards the expansion gold mine nearest his base (mine 4); the nearest shop camp, c08, is the next stop.
-            { label: "Mirror Image build", stops: [{ campId: "c03", note: "In that case, start with gold mine/shop." }] },
-          ],
-        },
-      },
-      {
-        campId: null,
-        // ponytail: no split caption ("Their early army"); the way labels carry it.
-        split: {
-          mode: "or",
-          arms: [
-            {
-              label: "Solo Blademaster with Wind Walk",
-              stops: [
                 {
                   campId: "c08",
                   units: [{ icon: "ud-ghoul", count: 5 }],
                   kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }],
+                  condition: "Not against Far Seer or Headhunters",
                   note: "You need to bring at least 5 ghouls, but you will be able to buy circlet + dust.",
                 },
               ],
             },
             {
-              label: "Far Seer or Headhunters",
+              label: "Mirror Image build",
               stops: [
-                {
-                  campId: null,
-                  action: "Buy a Rod of Necromancy",
-                  place: { kind: "shop", at: { shop: "ngme-14" } },
-                  note: "Do not attempt if you face a build with strong early presence, e.g. Far Seer/Headhunters",
-                },
+                { campId: "c08", note: "Do not start with this camp, if you face mirror image build. In that case, start with gold mine/shop." },
+                { campId: "c06" },
               ],
             },
           ],
