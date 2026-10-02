@@ -358,7 +358,7 @@ test("kills: checked against the camp's creep rows when counts are known", () =>
   assert.equal(base.success, false);
 });
 
-test("leaveRest is kept only on a camp stop with a kill order", () => {
+test("leaveRest is kept on a camp stop, with a kill order or without one (creeps stay)", () => {
   const s = createSubmissionSchema({
     maps: [{ slug: "autumn-leaves", campIds: ["c01", "c02"], creepCounts: { c01: [1, 2], c02: [3] } }],
     iconKeys,
@@ -369,7 +369,7 @@ test("leaveRest is kept only on a camp stop with a kill order", () => {
   assert.equal(ok.success, true);
   const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
   assert.equal(draft.stops[0].leaveRest, true);
-  assert.equal(draft.stops[1].leaveRest, undefined);
+  assert.equal(draft.stops[1].leaveRest, true);
 });
 
 test("kill sets: kept on the draft, and a split set is rejected", () => {

@@ -10,7 +10,8 @@
  * without `set` is one single unit per kill. The stop's `leaveRest` says
  * what happens to the creeps the list does not name: false (default) kills
  * them after it as one trailing set, in catalogue order; true leaves them
- * alive.
+ * alive. So an empty list with `leaveRest` kills nothing: "Creeps stay", a
+ * camp stop where the hero only passes (a shop by the camp), zero XP.
  */
 import { creepXp } from "./xp.mjs";
 
@@ -42,7 +43,7 @@ export function killUnits(camp, kills, leaveRest = false) {
     prevSet = set;
     out.push({ row, ordered: true, unit, inSet: set !== undefined });
   }
-  if (leaveRest && out.length) return out;
+  if (leaveRest) return out;
   const rest = unorderedCreeps(camp, kills);
   if (rest.length) unit++;
   for (const { row } of rest) out.push({ row, ordered: false, unit, inSet: true });
@@ -135,6 +136,18 @@ export function killedXpShare(camp, kills, leaveRest = false) {
   const total = camp.creeps.reduce((sum, c) => sum + creepXp(c.level) * c.count, 0);
   const killed = campKills(camp, kills, true).reduce((sum, c) => sum + creepXp(c.level), 0);
   return total ? killed / total : 1;
+}
+
+/** True for a "Creeps stay" stop: no kill order and `leaveRest`, so nothing dies. */
+export function creepsStay(camp, kills, leaveRest = false) {
+  return Boolean(leaveRest) && !validKills(camp, kills).length;
+}
+
+/** The label of one "rest of the camp" option, and of the reader's chip: with no kill
+ *  order the two options are the whole camp or none ("Creeps stay"). */
+export function restOptionLabel(hasKills, leave) {
+  if (leave) return hasKills ? "Skip the rest" : "Creeps stay";
+  return hasKills ? "Then clear the rest" : "Clear the camp";
 }
 
 /** One row index per kill, in kill order: `[{row: 2, n: 2}]` → `[2, 2]`. */

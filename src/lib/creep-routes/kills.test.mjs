@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, campKills, creepsLeft, flatKillItems, flatKills, joinWithPrevious, killRows, killStepsByRow, killUnits, killedXpShare, killsProblem, mergeKills, removeKillAt, splitSet, unorderedCreeps, validKills, wedgePath } from "./kills.mjs";
+import { addKill, campKills, creepsLeft, creepsStay, restOptionLabel, flatKillItems, flatKills, joinWithPrevious, killRows, killStepsByRow, killUnits, killedXpShare, killsProblem, mergeKills, removeKillAt, splitSet, unorderedCreeps, validKills, wedgePath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -27,16 +27,17 @@ test("a kill list is the ordered prefix; the rest dies after it unless leaveRest
   // leaveRest keeps only the prefix.
   assert.deepEqual(campKills(CAMP, kills, true).map((c) => c.name), ["Ogre Magi", "Troll (item)"]);
   assert.equal(creepsLeft(CAMP, kills, true), 3);
-  // leaveRest means nothing without a prefix: the whole camp dies.
-  assert.equal(creepsLeft(CAMP, [], true), 0);
+  // leaveRest without a prefix: the creeps stay, nothing dies.
+  assert.equal(creepsLeft(CAMP, [], true), 5);
   assert.deepEqual(killStepsByRow(CAMP, kills), [[2], [], [], [1]]);
   assert.deepEqual(killStepsByRow(CAMP, [{ row: 2, n: 2 }]), [[], [], [1, 2], []]);
 });
 
 test("rows outside the camp are dropped and n is capped at the row's count", () => {
   assert.deepEqual(validKills(CAMP, [{ row: 7, n: 1 }, { row: 2, n: 5 }, { row: 2, n: 1 }]), [{ row: 2, n: 2 }]);
-  // Only out-of-camp rows: no kill order, so the whole camp dies even with leaveRest.
-  assert.deepEqual(killRows(CAMP, [{ row: 7, n: 1 }], true), [0, 1, 2, 2, 3]);
+  // Only out-of-camp rows: no kill order, so the whole camp dies, or none with leaveRest.
+  assert.deepEqual(killRows(CAMP, [{ row: 7, n: 1 }]), [0, 1, 2, 2, 3]);
+  assert.deepEqual(killRows(CAMP, [{ row: 7, n: 1 }], true), []);
   assert.equal(killedXpShare(CAMP, [{ row: 7, n: 1 }], true), 1);
   assert.equal(unorderedCreeps(CAMP, [{ row: 7, n: 1 }]).length, 5);
   assert.deepEqual(killStepsByRow(CAMP, [{ row: 7, n: 1 }, { row: 1, n: 1 }]), [[], [1], [], []]);
@@ -122,4 +123,15 @@ test("builder edits: join, split, and removing leaves no one-member set", () => 
   // Removing from a two-member set turns the survivor into a single.
   assert.deepEqual(removeKillAt([{ row: 0, n: 1, set: 0 }, { row: 1, n: 1, set: 0 }], 0), [{ row: 1, n: 1 }]);
   assert.deepEqual(flatKillItems([{ row: 2, n: 2, set: 1 }]), [{ row: 2, set: 1 }, { row: 2, set: 1 }]);
+});
+
+test("creeps stay: the chip and the builder toggle read Creeps stay only with no kill order", () => {
+  assert.equal(creepsStay(CAMP, [], true), true);
+  assert.equal(creepsStay(CAMP, [], false), false);
+  assert.equal(creepsStay(CAMP, [{ row: 0, n: 1 }], true), false);
+  assert.equal(restOptionLabel(false, true), "Creeps stay");
+  assert.equal(restOptionLabel(false, false), "Clear the camp");
+  assert.equal(restOptionLabel(true, true), "Skip the rest");
+  assert.equal(restOptionLabel(true, false), "Then clear the rest");
+  assert.deepEqual(killUnits(CAMP, [], true), []);
 });

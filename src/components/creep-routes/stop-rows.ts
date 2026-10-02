@@ -22,7 +22,7 @@ export function rowToStop(s: StopRowData): StopInput {
     note: s.note || undefined,
     condition: s.condition || undefined,
     kills: s.campId && s.kills.length ? s.kills : undefined,
-    leaveRest: s.campId && s.kills.length && s.leaveRest ? true : undefined,
+    leaveRest: s.campId && s.leaveRest ? true : undefined,
     place: s.place,
     hero: s.hero === false && (s.campId || s.place?.kind === "attack") ? false : undefined,
   };

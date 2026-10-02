@@ -383,9 +383,8 @@ export const FIXTURE_ROUTES = [
               label: "Buy only",
               stops: [
                 {
-                  campId: null,
-                  action: "Buy Boots and Dust",
-                  place: { kind: "shop", at: { shop: "ngme-0" } },
+                  campId: "c05",
+                  leaveRest: true,
                   note: "Go there only to buy boots (for your Naga) and dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight.",
                 },
               ],

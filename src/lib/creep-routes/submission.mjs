@@ -427,7 +427,7 @@ function draftStop(s) {
     kills: s.campId && s.kills?.length
       ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
       : undefined,
-    leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
+    leaveRest: s.campId && s.leaveRest ? true : undefined,
     place: s.place ? { ...s.place } : undefined,
     hero: s.hero === false && (s.campId || s.place?.kind === "attack") ? false : undefined,
   };

@@ -7,6 +7,7 @@ import {
   joinWithPrevious,
   removeKillAt,
   splitSet,
+  restOptionLabel,
   unorderedCreeps,
   validKills,
 } from "@/lib/creep-routes/kills.mjs";
@@ -37,7 +38,7 @@ export function KillOrderField({
   const valid = validKills(camp, kills) as StopKill[];
   const rows = flatKillItems(valid) as { row: number; set?: number }[];
   const rest = unorderedCreeps(camp, kills) as { creep: MapCampCreep; row: number }[];
-  const leaving = rows.length > 0 && leaveRest;
+  const leaving = leaveRest;
   const option = "h-7 px-2 text-xs transition-colors";
   return (
     <div>
@@ -55,46 +56,48 @@ export function KillOrderField({
         skipped={leaving ? rest : []}
         onAdd={(row) => onChange({ kills: addKill(kills, row, counts) })}
       />
-      {kills.length ? (
-        <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          {rest.length ? (
-            <div role="radiogroup" aria-label="The rest of the camp" className="inline-flex overflow-hidden rounded border border-line">
-              {([false, true] as const).map((value) => (
-                <button
-                  key={String(value)}
-                  type="button"
-                  role="radio"
-                  aria-checked={leaveRest === value}
-                  tabIndex={leaveRest === value ? 0 : -1}
-                  onClick={() => onChange({ leaveRest: value })}
-                  onKeyDown={(e) => {
-                    // Arrow keys move the choice and focus to the other option, as a radio group does.
-                    if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
-                    e.preventDefault();
-                    onChange({ leaveRest: !value });
-                    (e.currentTarget.parentElement?.children[value ? 0 : 1] as HTMLElement | undefined)?.focus();
-                  }}
-                  className={cn(
-                    option,
-                    value && "border-l border-line",
-                    leaveRest === value ? "bg-gold/10 text-fg" : "text-muted hover:text-fg",
-                  )}
-                >
-                  {value ? "Skip the rest" : "Then clear the rest"}
-                </button>
-              ))}
-            </div>
-          ) : null}
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+        {rest.length ? (
+          <div role="radiogroup" aria-label="The rest of the camp" className="inline-flex overflow-hidden rounded border border-line">
+            {([false, true] as const).map((value) => (
+              <button
+                key={String(value)}
+                type="button"
+                role="radio"
+                aria-checked={leaveRest === value}
+                tabIndex={leaveRest === value ? 0 : -1}
+                onClick={() => onChange({ leaveRest: value })}
+                onKeyDown={(e) => {
+                  // Arrow keys move the choice and focus to the other option, as a radio group does.
+                  if (!["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown"].includes(e.key)) return;
+                  e.preventDefault();
+                  onChange({ leaveRest: !value });
+                  (e.currentTarget.parentElement?.children[value ? 0 : 1] as HTMLElement | undefined)?.focus();
+                }}
+                className={cn(
+                  option,
+                  value && "border-l border-line",
+                  leaveRest === value ? "bg-gold/10 text-fg" : "text-muted hover:text-fg",
+                )}
+              >
+                {restOptionLabel(rows.length > 0, value)}
+              </button>
+            ))}
+          </div>
+        ) : null}
+        {rows.length ? (
           <button type="button" onClick={() => onChange({ kills: [], leaveRest: false })} className="ml-auto h-7 px-1.5 text-xs text-muted hover:text-fg">
             Clear
           </button>
-        </div>
-      ) : null}
+        ) : null}
+      </div>
       {error ? (
         <p className="mt-1 text-[0.65rem] text-loss">{error}</p>
       ) : (
         <p className="mt-1 text-[0.65rem] text-faint">
-          {!rows.length
+          {!rows.length && leaveRest
+            ? "Nothing dies here: the hero only passes the camp, no XP."
+            : !rows.length
             ? "Optional. Click creeps in the order to kill them. Empty means clear the whole camp."
             : !rest.length
               ? "Clears the camp in this order."
