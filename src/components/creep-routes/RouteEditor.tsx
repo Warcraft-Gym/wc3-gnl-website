@@ -3,7 +3,7 @@
 import { useMemo, useRef, useState } from "react";
 import { GripVertical, Plus } from "lucide-react";
 import { CreepMap } from "./CreepMap";
-import { MapLegend, routeLegendMarks } from "./MapLegend";
+import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
 import {
@@ -434,7 +434,7 @@ export function RouteEditor({
           }}
           choice={choice}
         />
-        <MapLegend {...routeLegendMarks(routeStops)} />
+        <MapLegend />
         <p className="mt-2 text-xs text-faint">
           {pointArmed
             ? "Click the map to put the waypoint on a spot."

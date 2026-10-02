@@ -4,7 +4,7 @@ import { Fragment, useCallback, useEffect, useReducer, useState } from "react";
 import { initialStopView, stopViewReducer } from "@/lib/creep-routes/stop-view.mjs";
 import { findStopKey, numberStops, parseKey, stopByKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
-import { MapLegend, routeLegendMarks } from "@/components/creep-routes/MapLegend";
+import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
 import { CampCard } from "@/components/creep-routes/CampCard";
 import { useCampCard } from "@/components/creep-routes/useCampCard";
@@ -129,7 +129,7 @@ export function CreepMapPlayground({
         onStopSelect={onStopSelect}
         choice={choice}
       />
-      <MapLegend {...routeLegendMarks(route.stops)} />
+      <MapLegend />
     </>
   );
   const stopColumn = (

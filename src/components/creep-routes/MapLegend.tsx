@@ -1,14 +1,4 @@
 import { cn } from "@/lib/utils";
-import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
-import type { RouteStop } from "@/lib/creep-routes/types";
-import { PlaceIcon } from "./PlaceGlyph";
-
-/** Which route marks a route draws, so the legend lists only those: an attack. */
-export function routeLegendMarks(stops: Pick<RouteStop, "split" | "place">[]) {
-  return {
-    attack: (flatStops(stops) as { stop: Pick<RouteStop, "place"> }[]).some(({ stop }) => stop.place?.kind === "attack"),
-  };
-}
 
 /**
  * One line under the map (route page and editor alike) naming the marks a
@@ -20,17 +10,10 @@ export function routeLegendMarks(stops: Pick<RouteStop, "split" | "place">[]) {
  * hosted on Liquipedia, but that's a provenance note, not something a
  * reader needs; the source URLs and credit live in `docs/creep-routes.md`'s
  * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
- * lets it wrap on mobile without special-casing. A route mark (an attack) gets
- * an entry only when the route has one.
+ * lets it wrap on mobile without special-casing. No route marks: an attack's
+ * red disc with its swords and its row's label say what it is (v2.9).
  */
-export function MapLegend({
-  className,
-  attack = false,
-}: {
-  className?: string;
-  /** The route has an attack stop: red swords. */
-  attack?: boolean;
-}) {
+export function MapLegend({ className }: { className?: string }) {
   return (
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
       <span className="inline-flex items-center gap-1.5">
@@ -45,13 +28,6 @@ export function MapLegend({
         <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-hard)" }} />
         Hard &ge; Lv 20
       </span>
-      {/* Route marks get an entry only when the route has them. */}
-      {attack ? (
-        <span className="inline-flex items-center gap-1.5">
-          <PlaceIcon kind="attack" className="text-loss" />
-          Attack
-        </span>
-      ) : null}
     </p>
   );
 }
