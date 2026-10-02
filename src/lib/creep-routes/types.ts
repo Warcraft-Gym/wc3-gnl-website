@@ -129,6 +129,8 @@ export type CreepMap = {
 export type RouteStop = {
   campId: string | null;
   action?: string;
+  /** A stop at a start, mine, shop or free point instead of a camp; needs `campId: null` and `action`. See `place.mjs`. */
+  place?: Place;
   units?: { icon: string; count: number }[];
   note?: string;
   condition?: string;
@@ -139,6 +141,15 @@ export type RouteStop = {
    *  (default) kills them after the list, in catalogue order. */
   leaveRest?: boolean;
 };
+
+/** Where a place stop happens: `start` is `String(player)` of `CreepMap.starts[]`,
+ *  `mine` is `String(index)` into `CreepMap.mines[]`, `shop` is `CreepMap.shops[].id`,
+ *  `point` is an image fraction 0..1, the same units as camps. */
+export type Place =
+  | { kind: "start"; id: string }
+  | { kind: "mine"; id: string }
+  | { kind: "shop"; id: string }
+  | { kind: "point"; x: number; y: number };
 
 /** `set`: consecutive entries with the same value form one set unit (kills in any order). */
 export type StopKill = { row: number; n: number; set?: number };

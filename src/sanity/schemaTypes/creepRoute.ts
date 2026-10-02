@@ -252,7 +252,7 @@ export const creepRoute = defineType({
             defineField({
               name: "action",
               type: "string",
-              description: "Base action when there's no campId, e.g. \"TP home\".",
+              description: "Base action when there's no campId, e.g. \"TP home\". On a place stop, what happens there.",
               validation: (rule) => rule.max(60),
             }),
             defineField({
@@ -319,11 +319,31 @@ export const creepRoute = defineType({
               description: "On: creeps not in the kill order are skipped. Off: they die after it, in catalogue order.",
               hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
             }),
+            defineField({
+              name: "place",
+              type: "object",
+              description: "Optional. A stop at a start, gold mine, shop or point on the map instead of a camp. Leave the camp id empty and name what happens in Action.",
+              fields: [
+                defineField({
+                  name: "kind",
+                  type: "string",
+                  options: { list: ["start", "mine", "shop", "point"] },
+                  validation: (rule) => rule.required(),
+                }),
+                defineField({
+                  name: "id",
+                  type: "string",
+                  description: "Start: the player number. Mine: its index on the map (0 is the first). Shop: its id on the map. Empty for a point.",
+                }),
+                defineField({ name: "x", type: "number", description: "Point only: 0 is the left edge, 1 the right.", validation: (rule) => rule.min(0).max(1) }),
+                defineField({ name: "y", type: "number", description: "Point only: 0 is the top edge, 1 the bottom.", validation: (rule) => rule.min(0).max(1) }),
+              ],
+            }),
           ],
           preview: {
-            select: { campId: "campId", action: "action", note: "note" },
-            prepare: ({ campId, action, note }) => ({
-              title: campId ? `Camp ${campId}` : action || "(stop)",
+            select: { campId: "campId", action: "action", note: "note", place: "place.kind" },
+            prepare: ({ campId, action, note, place }) => ({
+              title: campId ? `Camp ${campId}` : place ? `Place: ${action || place}` : action || "(stop)",
               subtitle: note,
             }),
           },

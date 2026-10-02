@@ -86,14 +86,16 @@ export function CreepMapPlayground({
   // the route's own stops (every camp is clickable now, F012-followup-3)
   // finds no matching stop — `findIndex` returns -1 — and this is a no-op:
   // no stop is selected, nothing crashes.
+  const onStopSelect = useCallback((index: number) => {
+    dispatch({ type: "node", index });
+    setScrollTo({ index });
+  }, []);
   const onMarkerSelect = useCallback(
     (campId: string) => {
       const idx = route.stops.findIndex((s) => s.campId === campId);
-      if (idx === -1) return;
-      dispatch({ type: "node", index: idx });
-      setScrollTo({ index: idx });
+      if (idx !== -1) onStopSelect(idx);
     },
-    [route.stops],
+    [route.stops, onStopSelect],
   );
 
   const mapColumn = (
@@ -110,6 +112,7 @@ export function CreepMapPlayground({
         onCampCardHoverEnter={hoverEnter}
         onCampCardHoverLeave={hoverLeave}
         openCampId={openCampId}
+        onStopSelect={onStopSelect}
       />
       <MapLegend />
     </>

@@ -385,3 +385,27 @@ test("kill sets: kept on the draft, and a split set is rejected", () => {
   assert.equal(bad.success, false);
   assert.match(flattenErrors(bad.error)["stops.0.kills"], /next to each other/);
 });
+
+const placeMaps = [{ slug: "autumn-leaves", campIds: ["c01", "c02"], startIds: ["0", "1"], mineCount: 2, shopIds: ["nmrk-6"] }];
+
+test("place: needs campId null and an action, and lands on the draft", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(payload({ stops: [{ campId: null, action: "Buy circlet", place: { kind: "shop", id: "nmrk-6" } }, { campId: "c01" }] }));
+  assert.equal(ok.success, true);
+  assert.deepEqual(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[0].place, { kind: "shop", id: "nmrk-6" });
+
+  const noAction = s.safeParse(payload({ stops: [{ campId: null, place: { kind: "start", id: "1" } }, { campId: "c01" }] }));
+  assert.equal(flattenErrors(noAction.error)["stops.0.action"], "Say what happens here");
+  const onCamp = s.safeParse(payload({ stops: [{ campId: "c01", action: "Harass", place: { kind: "start", id: "1" } }, { campId: "c02" }] }));
+  assert.equal(flattenErrors(onCamp.error)["stops.0.place"], "A place stop has no camp");
+});
+
+test("place: an id the map does not have is rejected; a point must sit inside the map", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const shop = s.safeParse(payload({ stops: [{ campId: null, action: "Buy", place: { kind: "shop", id: "ngme-1" } }, { campId: "c01" }] }));
+  assert.equal(flattenErrors(shop.error)["stops.0.place"], 'Unknown shop "ngme-1" on this map');
+  const mine = s.safeParse(payload({ stops: [{ campId: null, action: "Expand", place: { kind: "mine", id: "2" } }, { campId: "c01" }] }));
+  assert.match(flattenErrors(mine.error)["stops.0.place"], /Unknown gold mine/);
+  const point = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "point", x: 1.2, y: 0.5 } }, { campId: "c01" }] }));
+  assert.equal(point.success, false);
+});

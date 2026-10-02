@@ -1,11 +1,11 @@
 "use client";
 
-import { useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { StopEditor } from "./StopEditor";
 import type { StopRowData } from "./StopRow";
-import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
@@ -59,8 +59,21 @@ export function RouteEditor({
   // What the map needs to draw the live path: campId, in order — order
   // alone drives the polyline and the numbered badges.
   const routeForMap = useMemo(
-    () => ({ stops: stops.map((s) => ({ campId: s.campId, kills: s.kills, leaveRest: s.leaveRest })), start }),
+    () => ({ stops: stops.map((s) => ({ campId: s.campId, kills: s.kills, leaveRest: s.leaveRest, place: s.place })), start }),
     [stops, start],
+  );
+
+  // A start, mine or shop click appends a place stop; so does the next map click while "Point" is armed.
+  const [pointArmed, setPointArmed] = useState(false);
+  const onPlaceSelect = useCallback(
+    (place: Place) => {
+      setStops((rows) => [
+        ...rows,
+        { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, place },
+      ]);
+      setPointArmed(false);
+    },
+    [setStops],
   );
 
   return (
@@ -74,11 +87,13 @@ export function RouteEditor({
           onCampCardHoverEnter={onHoverEnter}
           onCampCardHoverLeave={onHoverLeave}
           openCampId={openCampId}
+          onPlaceSelect={onPlaceSelect}
+          pointArmed={pointArmed}
         />
         <MapLegend />
         <p className="mt-2 text-xs text-faint">
           Hover a camp to see what&apos;s inside; click to add it as the next stop; right-click or
-          the ⓘ pins the card.
+          the ⓘ pins the card. Click a base, gold mine or shop to add a stop there.
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -112,6 +127,9 @@ export function RouteEditor({
         fieldError={fieldError}
         onOpenCard={onOpenCard}
         openCampId={openCampId}
+        start={start}
+        pointArmed={pointArmed}
+        onPointToggle={() => setPointArmed((v) => !v)}
       />
     </div>
   );

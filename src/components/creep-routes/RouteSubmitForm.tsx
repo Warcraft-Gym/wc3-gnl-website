@@ -153,6 +153,7 @@ export function RouteSubmitForm({
         condition: s.condition ?? "",
         kills: s.kills ?? [],
         leaveRest: Boolean(s.leaveRest),
+        place: s.place,
       })),
     );
   };
@@ -214,6 +215,7 @@ export function RouteSubmitForm({
       condition: s.condition || undefined,
       kills: s.campId && s.kills.length ? s.kills : undefined,
       leaveRest: s.campId && s.kills.length && s.leaveRest ? true : undefined,
+      place: s.place,
     })),
   );
 

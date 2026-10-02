@@ -32,6 +32,12 @@ const stopSchema = z.object({
   condition: z.string().optional(),
   kills: z.array(z.object({ row: z.number(), n: z.number(), set: z.number().optional() })).optional(),
   leaveRest: z.boolean().optional(),
+  place: z
+    .discriminatedUnion("kind", [
+      z.object({ kind: z.enum(["start", "mine", "shop"]), id: z.string() }),
+      z.object({ kind: z.literal("point"), x: z.number(), y: z.number() }),
+    ])
+    .optional(),
 });
 
 export const creepRouteExchangeSchema = z.object({

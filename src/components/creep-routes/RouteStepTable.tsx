@@ -5,11 +5,13 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import { deriveRoute, type DerivedStop } from "@/lib/creep-routes/derive";
 import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { placeName } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BAND_LABEL, BandDot } from "./RouteBadges";
 import { HeroMeter } from "./HeroMeter";
 import { KillOrder, KillStrip } from "./KillOrder";
+import { PlaceIcon } from "./PlaceGlyph";
 import { cn } from "@/lib/utils";
 
 /** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
@@ -141,6 +143,7 @@ export function RouteStepTable({
           const isOpen = open.has(i);
           const bodyId = `${baseId}-stop-${i}`;
           const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
+          const where = !camp && stop.place ? placeName(map, stop.place, route.start ?? 0) : null;
           return (
             <li
               key={i}
@@ -163,7 +166,7 @@ export function RouteStepTable({
                   onClick={() => onSummary(i)}
                   aria-expanded={isOpen}
                   aria-controls={bodyId}
-                  aria-label={camp ? `Stop ${i + 1}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${i + 1}, ${label}`}
+                  aria-label={camp ? `Stop ${i + 1}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${i + 1}, ${label}${where ? `, ${where}` : ""}`}
                   className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
                 />
                 <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -199,6 +202,12 @@ export function RouteStepTable({
                           <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
                         </span>
                       </button>
+                    ) : stop.place ? (
+                      <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
+                        <PlaceIcon place={stop.place} className="shrink-0 self-center text-fg" />
+                        <span className="font-medium text-fg">{label}</span>
+                        <span className="text-muted">{where}</span>
+                      </p>
                     ) : (
                       <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
                     )}

@@ -1,18 +1,23 @@
 import { memo, useMemo } from "react";
-import type { CreepMap, RouteStop } from "@/lib/creep-routes/types";
+import type { CreepMap, Place, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
+import { placePoint } from "@/lib/creep-routes/place.mjs";
 import { radiusFor } from "./CampMarker";
+import { placeRadius, PlaceRing, SwordsGlyph } from "./PlaceGlyph";
 
 /** Outer edge of a camp mark past its radius: the 1.5px halo ring at r + 1.5. */
 const MARK_HALO = 2.25;
 /** Light neutral for the path and its chevrons: edges stay quieter than the gold stop badges. */
 const LINE = "rgba(255,255,255,.85)";
 
+/** A stop with a spot on the map; `x`/`y` are image fractions. `place` and its mark radius `r` only for a place stop. */
+type PathNode = { index: number; x: number; y: number; trim: number; place?: Place; r?: number };
+
 /**
- * The route itself: a polyline through the camp stops in order (non-camp
- * stops, `campId: null`, are skipped here and shown only in the stop
- * list) with a numbered badge at each camp stop. Numbers are the stop's
+ * The route itself: a polyline through the camp and place stops in order
+ * (a base action with no place is skipped here and shown only in the stop
+ * list) with a numbered badge at each of them. Numbers are the stop's
  * real 1-based position in `route.stops`, so they always match the stop
  * list's numbers even when a non-camp stop sits between two camps.
  * `React.memo`d and its own `campById` lookup `useMemo`d — see the F009
@@ -23,28 +28,43 @@ export const RoutePath = memo(function RoutePath({
   map,
   stops,
   activeStop,
+  youStart = 0,
+  onStopSelect,
 }: {
   map: CreepMap;
   stops: RouteStop[];
   activeStop?: number | null;
+  /** Index into `map.starts` of your own base; sizes a start place's ring. */
+  youStart?: number;
+  /** Selects a place stop from its badge; a camp stop selects through its camp marker. */
+  onStopSelect?: (index: number) => void;
 }) {
   const { width: iw, height: ih } = map.image;
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
-  const points = stops
-    .map((s, i) => ({ stop: s, index: i, camp: s.campId ? campById.get(s.campId) : undefined }))
-    .filter((p): p is { stop: RouteStop; index: number; camp: NonNullable<typeof p.camp> } => !!p.camp);
+  // Every stop with a spot on the map: a camp, or a place (`place.mjs`).
+  // `trim` is the mark's radius plus its halo, where a leg stops short.
+  const points: PathNode[] = stops.flatMap((s, i): PathNode[] => {
+    if (s.campId) {
+      const camp = campById.get(s.campId);
+      return camp ? [{ index: i, x: camp.x, y: camp.y, trim: radiusFor(camp.level) + MARK_HALO }] : [];
+    }
+    const at = s.place ? placePoint(map, s.place) : null;
+    if (!s.place || !at) return [];
+    const r = placeRadius(s.place, iw, s.place.kind === "start" && map.starts[youStart] && String(map.starts[youStart].player) === s.place.id);
+    return [{ index: i, x: at.x, y: at.y, trim: r + MARK_HALO, place: s.place, r }];
+  });
 
   if (!points.length) return null;
 
-  // One segment per leg, trimmed to the edge of each camp mark (its radius
+  // One segment per leg, trimmed to the edge of each mark (its radius
   // plus the halo ring) so the line never runs under a mark or its badge.
   const segments = points.slice(1).flatMap((b, i) => {
     const a = points[i];
-    const ax = a.camp.x * iw, ay = a.camp.y * ih, bx = b.camp.x * iw, by = b.camp.y * ih;
+    const ax = a.x * iw, ay = a.y * ih, bx = b.x * iw, by = b.y * ih;
     const len = Math.hypot(bx - ax, by - ay);
-    const ra = radiusFor(a.camp.level) + MARK_HALO;
-    const rb = radiusFor(b.camp.level) + MARK_HALO;
+    const ra = a.trim;
+    const rb = b.trim;
     if (len <= ra + rb) return [];
     const ux = (bx - ax) / len, uy = (by - ay) / len;
     const x1 = ax + ux * ra, y1 = ay + uy * ra, x2 = bx - ux * rb, y2 = by - uy * rb;
@@ -72,17 +92,21 @@ export const RoutePath = memo(function RoutePath({
           {...under}
         />
       ))}
+      {points.map((p) =>
+        p.place && p.r !== undefined ? <PlaceRing key={`ring-${p.index}`} place={p.place} cx={p.x * iw} cy={p.y * ih} r={p.r} /> : null,
+      )}
       {points.map((p) => {
         // Badge floats just above the camp mark, in the same units as the
         // viewBox so it reads the same on a 256x256 map and a 256x192 one —
         // and flips below, rather than clipping, for a camp near the top
         // edge. See `badge-position.mjs`.
-        const badge = badgePosition(p.camp.x, p.camp.y, iw, ih);
+        const badge = badgePosition(p.x, p.y, iw, ih);
         const cx = badge.x;
         const badgeY = badge.y;
         const isActive = activeStop === p.index;
+        const select = p.place && onStopSelect ? () => onStopSelect(p.index) : undefined;
         return (
-          <g key={p.index} data-stop-marker={p.index + 1}>
+          <g key={p.index} data-stop-marker={p.index + 1} onClick={select} className={select ? "cursor-pointer" : undefined}>
             {/* Same rule as `CampMarker`: grow via `transform: scale()` on
              *  a wrapper, not a CSS transition of `r` (compositor-only
              *  motion — DESIGN.md, F009 review code-b.md item 2). 7.5/6 =
@@ -107,6 +131,7 @@ export const RoutePath = memo(function RoutePath({
               <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
                 {p.index + 1}
               </text>
+              {p.place?.kind === "start" ? <SwordsGlyph cx={cx + 10.5} cy={badgeY} /> : null}
             </g>
           </g>
         );

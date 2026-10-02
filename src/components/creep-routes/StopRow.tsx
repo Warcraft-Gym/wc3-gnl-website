@@ -3,13 +3,14 @@
 import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
-import type { CampCardTrigger, MapCamp, StopKill } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, MapCamp, Place, StopKill } from "@/lib/creep-routes/types";
 import { creepsLeft, killedXpShare } from "@/lib/creep-routes/kills.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
 import { BandDot } from "./RouteBadges";
 import { KillOrderField } from "./KillOrderField";
+import { PlaceIcon } from "./PlaceGlyph";
 import { cn } from "@/lib/utils";
 
 export type UnitRow = { id: number; icon: string; count: string };
@@ -25,6 +26,8 @@ export type StopRowData = {
   kills: StopKill[];
   /** True leaves the creeps `kills` does not list alive. */
   leaveRest: boolean;
+  /** A place stop (`campId` null); `action` says what happens there. */
+  place?: Place;
 };
 
 const input =
@@ -91,6 +94,7 @@ export function StopRow({
   onOpenCard,
   cardOpen,
   trace,
+  placeLabel,
 }: {
   index: number;
   stop: StopRowData;
@@ -116,6 +120,8 @@ export function StopRow({
   cardOpen?: boolean;
   /** This stop's `deriveRoute` kill trace, for the kill order chain. */
   trace?: DerivedKill[];
+  /** The place's name ("their base", "Marketplace"), for a place stop. */
+  placeLabel?: string;
 }) {
   function addUnit() {
     if (stop.units.length >= 6) return;
@@ -133,9 +139,14 @@ export function StopRow({
       <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto]">
         <span className="tnum pt-2.5 text-center text-xs text-faint">{index + 1}</span>
 
-        {/* Camp / base action */}
+        {/* Camp / place / base action */}
         <div className="min-w-0">
-          {stop.campId ? (
+          {stop.place ? (
+            <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">
+              <PlaceIcon place={stop.place} className="shrink-0 text-fg" />
+              <span className="truncate font-bold text-fg first-letter:uppercase">{placeLabel}</span>
+            </div>
+          ) : stop.campId ? (
             <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">
               {camp ? (
                 <BandDot band={camp.band} killed={creepsLeft(camp, stop.kills, stop.leaveRest) > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
@@ -189,12 +200,28 @@ export function StopRow({
         </div>
       </div>
 
-      {stop.campId ? (
+      {stop.campId || stop.place ? (
         // Stacked, not columned: the note is up to 160 characters and the
         // condition up to 60, so both get the full row rather than a quarter
         // of it (the note used to be half of a half). Bring is a chip row
         // and reads better with the room too.
         <div className="mt-2.5 space-y-2.5">
+          {stop.place ? (
+            <div>
+              <label htmlFor={`stop-${stop.id}-action`} className="mb-1 block text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">
+                What happens here
+              </label>
+              <input
+                id={`stop-${stop.id}-action`}
+                placeholder="e.g. Harass their base, Buy circlet"
+                value={stop.action}
+                onChange={(e) => onChange({ action: e.target.value })}
+                maxLength={60}
+                className={cn(input, error?.("action") && "border-loss")}
+              />
+              {error?.("action") ? <p className="mt-1 text-[0.65rem] text-loss">{error("action")}</p> : null}
+            </div>
+          ) : null}
           {/* Bring */}
           <div>
             <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>

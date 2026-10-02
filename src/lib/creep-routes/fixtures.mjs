@@ -21,6 +21,7 @@
 // is how Northern Isles once shipped missing from every map select.
 import { killsProblem } from "./kills.mjs";
 import { RAW_MAPS } from "./maps/index.mjs";
+import { placeIds, placeProblem } from "./place.mjs";
 
 const MAP_SLUGS = Object.keys(RAW_MAPS);
 
@@ -173,6 +174,32 @@ export const FIXTURE_ROUTES = [
       { campId: "c16", kills: [{ row: 0, n: 1 }], leaveRest: true, note: "Take the item and go home to Watch Tower" },
     ],
   },
+  {
+    slug: "nightelf-aow-turtle-rock",
+    title: "AoW at the ogre camp, then creep or harass",
+    race: "nightelf",
+    vsRaces: [],
+    level: "standard",
+    map: { slug: "turtle-rock", name: "Turtle Rock v2" },
+    hero: "ne-keeper-of-the-grove",
+    summary: "The Ancient of War walks to the ogres while the Keeper takes the turtles, then the route reads the opponent's natural.",
+    author: "Gym coaches",
+    patch: "2.0.3",
+    mapVersion: "2.0",
+    featured: false,
+    publishedAt: "2026-10-02T10:00:00Z",
+    updatedAt: "2026-10-02T10:00:00Z",
+    stops: [
+      {
+        campId: null,
+        action: "Plant the Ancient of War by the ogres",
+        place: { kind: "point", x: 0.47, y: 0.86 },
+        units: [{ icon: "ne-ancient-of-war", count: 1 }],
+      },
+      { campId: "c07", note: "Keeper takes the turtles while the Ancient tanks" },
+      { campId: null, action: "Harass their base", place: { kind: "start", id: "3" } },
+    ],
+  },
 ];
 
 // Sanity check the seed data at import time (this file is also `node --test`ed
@@ -192,5 +219,7 @@ for (const route of FIXTURE_ROUTES) {
     }
     const problem = camp && stop.kills && killsProblem(stop.kills, camp.creeps.map((c) => c.count));
     if (problem) throw new Error(`fixture route ${route.slug} stop ${stop.campId}: ${problem}`);
+    const placeIssue = stop.place && placeProblem(stop.place, placeIds(map));
+    if (placeIssue) throw new Error(`fixture route ${route.slug}: ${placeIssue}`);
   }
 }

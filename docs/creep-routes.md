@@ -428,6 +428,33 @@ data layer share:
   day/night cycle it drove — see the user decision at the top of that
   feature's spec).
 
+### Place stops
+
+A stop can happen at a place instead of a camp: `RouteStop.place` is
+`{ kind: "start" | "mine" | "shop", id }` or `{ kind: "point", x, y }`.
+`start` ids are `String(player)` of `map.starts[]`, `mine` ids are the index
+into `map.mines[]`, `shop` ids are `map.shops[].id`, and a point is an image
+fraction (0..1) like a camp's `x`/`y`. A place stop has `campId: null` and an
+`action` that names it ("Harass their base", "Buy circlet"); the submission
+schema rejects a place on a camp stop, a place without an action, and a
+start, mine or shop id the map does not have (`place.mjs`'s `placeProblem`).
+
+- **Derive.** Unchanged: a place stop is a non-camp stop and passes through.
+- **Map.** The path runs to the place like a camp; the badge sits above it and
+  the place's mark gets the camp stop's 1.5px white on-route ring. A start
+  gets crossed swords beside its badge, a point a 5px white diamond; a mine
+  or shop draws no glyph, since the map already shows its icon.
+- **List.** Number, glyph, the action in medium weight, then the place name
+  muted ("their base", "your base", "a gold mine", the shop's name, "on the
+  map"); no level on the right. The body shows Bring, condition and note.
+- **Builder.** A click on a start, mine or shop adds a place stop; "Point"
+  arms one click anywhere on the map. A start, mine or shop under a camp's
+  button takes no mouse click; Tab reaches it.
+- **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
+  Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
+  Appearance under Neutral, from the art the site already has. `count` on an
+  item means charges.
+
 ### Kill order
 
 A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is

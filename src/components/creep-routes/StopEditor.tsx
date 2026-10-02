@@ -1,8 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef } from "react";
-import { Plus } from "lucide-react";
+import { Crosshair, Plus } from "lucide-react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
+import { placeName } from "@/lib/creep-routes/place.mjs";
+import { cn } from "@/lib/utils";
 import type { CampCardTrigger, CreepMap, MapCamp } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { StopRow, type StopRowData } from "./StopRow";
@@ -21,6 +23,9 @@ export function StopEditor({
   fieldError,
   onOpenCard,
   openCampId,
+  start = 0,
+  pointArmed = false,
+  onPointToggle,
 }: {
   map: CreepMap;
   stops: StopRowData[];
@@ -32,6 +37,11 @@ export function StopEditor({
   /** F012a: the camp id the card is currently showing, or null — threaded
    *  to each stop row's ⓘ button (`aria-expanded`, C-025). */
   openCampId?: string | null;
+  /** Index into `map.starts` of your base, so a start place reads "your base". */
+  start?: number;
+  /** The "Point" toggle: armed, the next map click adds a point place stop. */
+  pointArmed?: boolean;
+  onPointToggle?: () => void;
 }) {
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
   const derived = useMemo(() => deriveRoute(toDerivable(stops), map), [stops, map]);
@@ -97,6 +107,20 @@ export function StopEditor({
           >
             <Plus size={14} /> Base action
           </button>
+          {onPointToggle ? (
+            <button
+              type="button"
+              onClick={onPointToggle}
+              aria-pressed={pointArmed}
+              title="Click the map once to add a stop at that point"
+              className={cn(
+                "inline-flex h-8 items-center gap-1.5 rounded border px-2.5 text-[0.65rem] font-bold uppercase tracking-wide",
+                pointArmed ? "border-gold bg-gold/15 text-fg" : "border-gold/50 text-gold hover:bg-gold/10",
+              )}
+            >
+              <Crosshair size={14} /> Point
+            </button>
+          ) : null}
         </div>
       </div>
 
@@ -123,6 +147,7 @@ export function StopEditor({
               onOpenCard={onOpenCard}
               cardOpen={Boolean(s.campId) && s.campId === openCampId}
               trace={derived.stops[i]?.kills}
+              placeLabel={s.place ? placeName(map, s.place, start) : undefined}
             />
           ))}
         </ol>

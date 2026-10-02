@@ -10,6 +10,7 @@ import {
 } from "@/lib/creep-routes/submission";
 import { canAcceptSubmissions, createCreepRouteDraft } from "@/lib/creep-routes/submit";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
+import { placeIds } from "@/lib/creep-routes/place.mjs";
 import { getBuilds } from "@/lib/builds/builds";
 import { GAME_ICON_OPTIONS } from "@/lib/builds/icons";
 
@@ -65,6 +66,7 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
       campIds: m.camps.map((c) => c.id),
       startsCount: m.starts.length,
       creepCounts: Object.fromEntries(m.camps.map((c) => [c.id, c.creeps.map((k) => k.count)])),
+      ...placeIds(m),
     })),
     iconKeys: GAME_ICON_OPTIONS.map((o) => o.value),
     buildSlugs: builds.map((b) => b.slug),

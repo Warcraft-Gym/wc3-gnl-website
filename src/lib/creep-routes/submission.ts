@@ -1,5 +1,6 @@
 import type { ZodError, ZodType } from "zod";
 import * as impl from "./submission.mjs";
+import type { Place } from "./types";
 
 /**
  * Typed façade over `submission.mjs`'s pure, plain-JS implementation —
@@ -21,6 +22,7 @@ export type StopInput = {
   condition?: string;
   kills?: { row: number; n: number; set?: number }[];
   leaveRest?: boolean;
+  place?: Place;
 };
 
 /** The parsed, transformed output of the schema `createSubmissionSchema`
@@ -63,6 +65,10 @@ export type SubmissionCatalogue = {
     startsCount?: number;
     /** Camp id → each creep row's count, for the kill-order check. */
     creepCounts?: Record<string, number[]>;
+    /** `String(player)` per start, the mine count and the shop ids, for the place check. */
+    startIds?: string[];
+    mineCount?: number;
+    shopIds?: string[];
   }[];
   iconKeys: string[];
   buildSlugs?: string[];

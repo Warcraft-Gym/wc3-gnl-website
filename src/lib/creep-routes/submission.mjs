@@ -2,6 +2,7 @@ import { z } from "zod";
 import { isEmbeddable } from "../video-embed.mjs";
 import { isKnownPatch } from "../patches.mjs";
 import { killsProblem } from "./kills.mjs";
+import { placeProblem } from "./place.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -75,12 +76,28 @@ function baseStopSchema(iconSet) {
         .optional(),
       /** True skips the creeps `kills` does not list ("Skip the rest"). */
       leaveRest: z.boolean().optional(),
+      /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
+      place: placeSchema.optional(),
     })
-    .refine((stop) => stop.campId !== null || Boolean(stop.action), {
-      message: 'Name the base action, e.g. "TP home"',
-      path: ["action"],
+    .superRefine((stop, ctx) => {
+      if (stop.place && stop.campId !== null) {
+        ctx.addIssue({ code: "custom", message: "A place stop has no camp", path: ["place"] });
+      } else if (stop.campId === null && !stop.action) {
+        ctx.addIssue({
+          code: "custom",
+          message: stop.place ? "Say what happens here" : 'Name the base action, e.g. "TP home"',
+          path: ["action"],
+        });
+      }
     });
 }
+
+const placeSchema = z.discriminatedUnion("kind", [
+  z.object({ kind: z.literal("start"), id: z.string().trim().min(1).max(20) }),
+  z.object({ kind: z.literal("mine"), id: z.string().trim().min(1).max(20) }),
+  z.object({ kind: z.literal("shop"), id: z.string().trim().min(1).max(40) }),
+  z.object({ kind: z.literal("point"), x: z.number().min(0).max(1), y: z.number().min(0).max(1) }),
+]);
 
 /**
  * Builds the zod schema for one submission against a live catalogue:
@@ -102,6 +119,8 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   // care about the start-index bound, like a handful of pre-existing
   // tests, can omit it); the check below only runs when it's known.
   const startsCountByMap = new Map(maps.map((m) => [m.slug, m.startsCount]));
+  // `startIds`, `mineCount`, `shopIds` are optional too; `placeProblem` skips an unknown list.
+  const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
   const stopSchema = baseStopSchema(iconSet);
@@ -210,6 +229,8 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
           ? stop.campId ? counts && killsProblem(stop.kills, counts) : "A base action has no creeps"
           : null;
         if (problem) ctx.addIssue({ code: "custom", message: problem, path: ["stops", i, "kills"] });
+        const placeIssue = stop.place && placeProblem(stop.place, placeIdsByMap.get(data.map));
+        if (placeIssue) ctx.addIssue({ code: "custom", message: placeIssue, path: ["stops", i, "place"] });
       });
       const startsCount = startsCountByMap.get(data.map);
       if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
@@ -329,6 +350,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
         ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
         : undefined,
       leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
+      place: s.place ? { ...s.place } : undefined,
     })),
     description: toPortableText(valid.description),
   };

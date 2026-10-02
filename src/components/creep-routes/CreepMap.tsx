@@ -3,9 +3,10 @@
 import { killedXpShare, validKills } from "@/lib/creep-routes/kills.mjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { preload } from "react-dom";
-import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, Place, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
+import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { cn } from "@/lib/utils";
@@ -87,6 +88,12 @@ export type CreepMapProps = {
   /** The camp id the card is currently showing (pinned or not), or null —
    *  every trigger sets its own `aria-expanded` from this (C-025). */
   openCampId?: string | null;
+  /** Selects a place stop from its badge on the route page (camp stops select through their marker). */
+  onStopSelect?: (index: number) => void;
+  /** Editor: starts, mines and shops become click targets that add a place stop. */
+  onPlaceSelect?: (place: Place) => void;
+  /** Editor: the next click anywhere on the map adds a `point` place stop. */
+  pointArmed?: boolean;
   className?: string;
 };
 
@@ -212,6 +219,9 @@ export function CreepMap({
   onCampCardHoverEnter,
   onCampCardHoverLeave,
   openCampId = null,
+  onStopSelect,
+  onPlaceSelect,
+  pointArmed = false,
   className,
 }: CreepMapProps) {
   // The SVG <image> is fetched only once the parser reaches the map, so the
@@ -406,10 +416,11 @@ export function CreepMap({
           className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
-          {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} /> : null}
+          {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} /> : null}
           {map.starts.map((s, i) => (
             <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
           ))}
+          {onPlaceSelect ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed={false} /> : null}
           {map.camps.map((camp) => {
             const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
             const isInteractive = isCampInteractive(camp.id);
@@ -442,6 +453,7 @@ export function CreepMap({
           {map.shops.map((s) => (
             <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
           ))}
+          {onPlaceSelect && pointArmed ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed /> : null}
         </svg>
       </div>
 

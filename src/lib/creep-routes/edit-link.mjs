@@ -63,9 +63,15 @@ export function toExchangeRoute(route) {
       condition: s.condition || undefined,
       kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
       leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
+      place: s.place ? exchangePlace(s.place) : undefined,
     })),
     description: descriptionToText(route.description) || undefined,
   };
+}
+
+/** A place without Sanity's null fields, so the exchange schema accepts it. */
+function exchangePlace(p) {
+  return p.kind === "point" ? { kind: "point", x: p.x, y: p.y } : { kind: p.kind, id: p.id };
 }
 
 /** `/learn/creep-routes/submit#route=<payload>` for this route, or
