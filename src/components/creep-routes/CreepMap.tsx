@@ -9,7 +9,7 @@ import { RoutePath } from "./RoutePath";
 import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { countStops, findStopKey, flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, findStopKey, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { cn } from "@/lib/utils";
 
 /** `(hover: none)` covers touch and other coarse pointers — the F012a
@@ -245,9 +245,10 @@ export function CreepMap({
   const { width: iw, height: ih } = map.image;
 
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
-  // Every stop, fork arms included, with its key: a camp's marker is on the
-  // route, active and partly cleared through any of them.
-  const allStops = useMemo(() => (route ? (flatStops(route.stops) as { key: string; stop: RouteStop }[]) : []), [route]);
+  // Every stop the map draws, with its key (the paths not chosen in an "or"/"xor" split are
+  // left out, so their camps draw as unused): a camp's marker is on the route, active and
+  // partly cleared through any of them.
+  const allStops = useMemo(() => (route ? (shownStops(route.stops, choice) as { key: string; stop: RouteStop }[]) : []), [route, choice]);
   // The one stop a camp's marker stands for (the first visit, or the walked arm's): only that one rings it.
   const campKey = useMemo(
     () => new Map(map.camps.map((c) => [c.id, route ? findStopKey(route.stops, c.id, choice) : null])),

@@ -525,13 +525,14 @@ choose one, no number means a waypoint.
   running total; in `and` every path feeds it, in list order (path b runs on
   from path a's total). A derived split carries
   `split: { mode, walked, arms }`, each path's stop `armIndex` and `forkKey`.
-- **Map.** Every path starts at the node before the split (your start marker
-  for a split at stop 1) and every path's last stop sends a leg into the first
-  shared stop after it. The walked path draws as usual; the other paths' legs
-  are thin (1.25px), at 60%, without chevrons and bowed 12% of their length
-  to the right of travel (a quadratic curve), so they never lie on a main
-  leg. In `or`/`xor` the paths not taken are dashed (`4 3`) and their badges
-  are at 60% too; `and` lanes stay solid. No legend line.
+- **Map.** The map draws only the active path. Every drawn path starts at
+  the node before the split (your start marker for a split at stop 1) and its
+  last stop sends a leg into the first shared stop after it. In `or`/`xor` the
+  paths not chosen have no legs and no badges, and their camps draw as unused
+  (`shownStops` in `stop-numbers.mjs`); the shared stops stay. In `and` every
+  path is drawn: the hero's as usual, the others thin (1.25px), at 60%,
+  without chevrons and bowed 12% of their length to the right of travel (a
+  quadratic curve), so they never lie on a main leg. No legend line.
 - **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). Every route is
   a flat list (a linear route is one lane through every row): every stop,
   waypoint and attack is one row in route order with a lane ("" main, "a",

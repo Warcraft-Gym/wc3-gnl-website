@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { countStops, findStopKey, flatStops, numberStops, parseKey, stopByKey, stopKeys } from "./stop-numbers.mjs";
+import { countStops, findStopKey, flatStops, numberStops, parseKey, shownStops, stopByKey, stopKeys } from "./stop-numbers.mjs";
 
 const camp = (id) => ({ campId: id });
 const fork = (...arms) => ({ campId: null, split: { mode: "or", arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
@@ -78,4 +78,13 @@ test("findStopKey takes arm 0 of a parallel node first, whatever the choice", ()
 test("an xor split letters its arms like an or split", () => {
   const xor = { campId: null, split: { mode: "xor", arms: [{ label: "a", stops: [camp("c1"), camp("c2")] }, { label: "b", stops: [camp("c3")] }] } };
   assert.deepEqual(labels([camp("c0"), xor]), ["1", "2", "2a", "3a", "2b"]);
+});
+
+test("shownStops: the map leaves out the paths not chosen in or/xor, keeps every and path and the shared stops", () => {
+  const c = (id) => ({ campId: id });
+  const split = (mode) => ({ campId: null, split: { mode, arms: [{ label: "x", stops: [c("a1")] }, { label: "y", stops: [c("b1"), c("b2")] }] } });
+  const ids = (list) => list.map(({ stop }) => stop.campId);
+  assert.deepEqual(ids(shownStops([c("s"), split("or"), c("t")])), ["s", null, "a1", "t"]);
+  assert.deepEqual(ids(shownStops([c("s"), split("xor")], { 1: 1 })), ["s", null, "b1", "b2"]);
+  assert.deepEqual(ids(shownStops([split("and")], { 0: 1 })), [null, "a1", "b1", "b2"]);
 });

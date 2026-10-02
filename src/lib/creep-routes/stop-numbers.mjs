@@ -68,6 +68,16 @@ export function flatStops(stops) {
   ]);
 }
 
+/** `flatStops` without the paths not chosen in an "or"/"xor" split: what the map draws. */
+export function shownStops(stops, choice = {}) {
+  return flatStops(stops).filter(({ key }) => {
+    const [index, letter] = String(key).split(".");
+    if (letter === undefined) return true;
+    const stop = stops[Number(index)];
+    return walkedArm(stop, index, choice) === ARM_LETTERS.indexOf(letter) || stop.split.mode === "and";
+  });
+}
+
 /** Every key, in reading order (the stop list's "Expand all"). */
 export function stopKeys(stops) {
   return flatStops(stops).map((s) => s.key);
