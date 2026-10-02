@@ -12,6 +12,8 @@ import { placeRadius, PlaceRing, SwordsGlyph } from "./PlaceGlyph";
 const MARK_HALO = 2.25;
 /** Light neutral for the path and its chevrons: edges stay quieter than the gold stop badges. */
 const LINE = "rgba(255,255,255,.85)";
+/** The leg into an attack stop: the loss red, so the arrow itself says attack. */
+const ATTACK = "var(--wg-loss)";
 
 /** A stop with a spot on the map; `x`/`y` are image fractions. `place` and its mark radius `r` only for a place stop;
  *  `absent` is a stop the hero does not go to, `other` a stop on an arm the reader did not choose. */
@@ -137,13 +139,17 @@ export const RoutePath = memo(function RoutePath({
     if (len <= ra + rb) return [];
     const ux = (bx - ax) / len, uy = (by - ay) / len;
     const x1 = ax + ux * ra, y1 = ay + uy * ra, x2 = bx - ux * rb, y2 = by - uy * rb;
-    return [{ x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style }];
+    const attack = b.place?.kind === "attack";
+    return [{ x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack }];
   });
   const pathOf = (list: typeof segments) =>
     list.map((g) => `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`).join("");
-  const d = pathOf(segments.filter((g) => g.style === "solid"));
+  const d = pathOf(segments.filter((g) => g.style === "solid" && !g.attack));
   // A leg of a fork arm the reader did not choose: the same solid line at 60%, no chevron.
-  const dOther = pathOf(segments.filter((g) => g.style === "other"));
+  const dOther = pathOf(segments.filter((g) => g.style === "other" && !g.attack));
+  // A leg into an attack stop, line and chevron, is the loss red over the same under-stroke.
+  const dAttack = pathOf(segments.filter((g) => g.style === "solid" && g.attack));
+  const dOtherAttack = pathOf(segments.filter((g) => g.style === "other" && g.attack));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
   const badges = points.map((p) => {
@@ -238,6 +244,18 @@ export const RoutePath = memo(function RoutePath({
           <path d={dOther} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
         </g>
       ) : null}
+      {dAttack ? (
+        <g data-route-attack-leg>
+          <path d={dAttack} fill="none" strokeWidth="4" {...under} />
+          <path d={dAttack} fill="none" stroke={ATTACK} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </g>
+      ) : null}
+      {dOtherAttack ? (
+        <g data-route-attack-leg opacity={0.6}>
+          <path d={dOtherAttack} fill="none" strokeWidth="4" {...under} />
+          <path d={dOtherAttack} fill="none" stroke={ATTACK} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </g>
+      ) : null}
       {/* A 6px direction chevron at the middle of every leg, same light fill. */}
       {segments.map((g, i) => g.style !== "solid" ? null : (
         <path
@@ -245,7 +263,7 @@ export const RoutePath = memo(function RoutePath({
           data-route-direction
           d="M3,0L-3,-3L-3,3Z"
           transform={`translate(${g.mx.toFixed(1)},${g.my.toFixed(1)}) rotate(${g.angle.toFixed(1)})`}
-          fill={LINE}
+          fill={g.attack ? ATTACK : LINE}
           strokeWidth="2"
           paintOrder="stroke"
           {...under}

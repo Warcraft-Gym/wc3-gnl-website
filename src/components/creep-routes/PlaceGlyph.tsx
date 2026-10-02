@@ -1,4 +1,5 @@
 import type { Place, PlaceKind } from "@/lib/creep-routes/types";
+import { Swords } from "lucide-react";
 import { atKind } from "@/lib/creep-routes/place.mjs";
 
 /** The mark a place sits on, as a radius in viewBox units: the start X, the gold-mine and
@@ -17,7 +18,7 @@ const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinecap: "roun
  * A place's mark on the path. A start, mine or shop gets the on-route ring a camp stop's mark
  * gets (1.5px white at 55%): that ring is the whole mark of an expand or shop waypoint and of
  * an attack's target. A build or scout waypoint also draws its 6px white outline glyph on the
- * spot (a square; a circle with a dot); at a free point that glyph is the only mark.
+ * spot (a diamond; a circle with a dot); at a free point that glyph is the only mark.
  */
 export function PlaceRing({ place, cx, cy, r }: { place: Place; cx: number; cy: number; r: number }) {
   const onIcon = atKind(place.at) !== "point";
@@ -30,12 +31,12 @@ export function PlaceRing({ place, cx, cy, r }: { place: Place; cx: number; cy: 
   );
 }
 
-/** A build square or a scout ring with a dot, white 1.2px outline over a dark under-stroke. */
+/** A build diamond or a scout ring with a dot, white 1.2px outline over a dark under-stroke. */
 function WaypointShape({ kind, cx, cy, size }: { kind: PlaceKind; cx: number; cy: number; size: number }) {
   const h = size / 2;
   const shape =
     kind === "build" ? (
-      <rect x={cx - h} y={cy - h} width={size} height={size} />
+      <path d={diamond(cx, cy, size)} />
     ) : (
       <>
         <circle cx={cx} cy={cy} r={h} />
@@ -54,25 +55,43 @@ function WaypointShape({ kind, cx, cy, size }: { kind: PlaceKind; cx: number; cy
   );
 }
 
-/** Crossed swords under an attack stop's badge: two 6px white lines over a dark under-stroke. */
+/** Lucide's `Swords` (lucide-react icons/swords), its 24-unit drawing. */
+const SWORDS = (
+  <>
+    <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+    <line x1="13" x2="19" y1="19" y2="13" />
+    <line x1="16" x2="20" y1="16" y2="20" />
+    <line x1="19" x2="21" y1="21" y2="19" />
+    <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" />
+    <line x1="5" x2="9" y1="14" y2="18" />
+    <line x1="7" x2="4" y1="17" y2="20" />
+    <line x1="3" x2="5" y1="19" y2="21" />
+  </>
+);
+
+/** Lucide's swords under an attack stop's badge, 12px: a white 1.5px stroke over a dark 3px under-stroke.
+ *  Drawn at half scale, so the strokes are twice as wide in the icon's own units. */
 export function SwordsGlyph({ cx, cy }: { cx: number; cy: number }) {
-  const d = swords(cx, cy);
   return (
-    <g aria-hidden pointerEvents="none">
-      <path d={d} fill="none" strokeWidth="2.6" {...under} />
-      <path d={d} fill="none" stroke="#fff" strokeWidth="1.2" strokeLinecap="round" />
+    <g aria-hidden pointerEvents="none" transform={`translate(${cx - 6},${cy - 6}) scale(0.5)`} fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke="var(--wg-bg)" strokeOpacity={0.7} strokeWidth={6}>
+        {SWORDS}
+      </g>
+      <g stroke="#fff" strokeWidth={3} style={{ paintOrder: "stroke" }}>
+        {SWORDS}
+      </g>
     </g>
   );
 }
 
-/** The kind's glyph at text size for the stop list, the builder and the legend: swords for an
- *  attack, a square for build, a ring with a dot for scout, a ring for expand and shop. */
+/** The kind's glyph at text size for the stop list, the builder and the legend: lucide's swords
+ *  for an attack, a diamond for build, a ring with a dot for scout, a ring for expand and shop. */
 export function PlaceIcon({ kind, className }: { kind: PlaceKind; className?: string }) {
+  if (kind === "attack") return <Swords aria-hidden size={12} strokeWidth={2} className={className} />;
   return (
     <svg aria-hidden viewBox="0 0 12 12" width={12} height={12} className={className}>
       <g fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-        {kind === "attack" ? <path d={swords(6, 6, 9)} /> : null}
-        {kind === "build" ? <rect x={2.5} y={2.5} width={7} height={7} /> : null}
+        {kind === "build" ? <path d={diamond(6, 6, 8)} /> : null}
         {kind === "scout" || kind === "expand" || kind === "shop" ? <circle cx={6} cy={6} r={3.5} /> : null}
         {kind === "scout" ? <circle cx={6} cy={6} r={0.7} fill="currentColor" /> : null}
       </g>
@@ -80,7 +99,7 @@ export function PlaceIcon({ kind, className }: { kind: PlaceKind; className?: st
   );
 }
 
-function swords(cx: number, cy: number, len = 6) {
-  const h = len / 2 / Math.SQRT2;
-  return `M${cx - h},${cy - h}L${cx + h},${cy + h}M${cx - h},${cy + h}L${cx + h},${cy - h}`;
+function diamond(cx: number, cy: number, size = 6) {
+  const h = size / 2;
+  return `M${cx},${cy - h}L${cx + h},${cy}L${cx},${cy + h}L${cx - h},${cy}Z`;
 }

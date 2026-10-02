@@ -445,8 +445,9 @@ path, no number, not counted in "N stops" (`stop-numbers.mjs`).
 
 - **Derive.** Unchanged: a place stop is a non-camp stop and passes through.
 - **Map.** The path runs through every place. An attack gets a numbered badge
-  ringed in `--wg-loss` with white swords under it, and its target mark gets
-  the on-route ring. A waypoint has no badge: build is a 6px white square on
+  ringed in `--wg-loss` with lucide's `Swords` (white) under it, the leg into
+  it (line and chevron) is `--wg-loss`, and its target mark gets the
+  on-route ring. A waypoint has no badge: build is a 6px white diamond on
   the spot, scout a 6px circle with a dot, expand and shop the on-route ring
   on the mine's or shop's own icon. The legend lists "Attack" (red swords)
   only when the route has one.
