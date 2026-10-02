@@ -114,3 +114,20 @@ describe("RouteSubmitForm: Submit another with the builder", () => {
     expect(screen.getByRole("radio", { name: "Edit" })).toHaveAttribute("aria-checked", "true");
   });
 });
+
+describe("RouteSubmitForm: the submit check opens the stop it names", () => {
+  it("opens the first stop with an error, so its message shows", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    submitCreepRoute.mockResolvedValue({ status: "error", message: "Please fix the highlighted fields.", fields: { "stops.1.kills": "Too long" } });
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    // Neither stop is open, so a stop's message has nowhere to show.
+    expect(screen.queryByText("Too long")).not.toBeInTheDocument();
+
+    fireEvent.submit(container.querySelector("form")!);
+    expect(await screen.findByText("Too long")).toBeInTheDocument();
+    expect(container.querySelector('li[data-stop="2"]')).toHaveAttribute("aria-current", "step");
+  });
+});

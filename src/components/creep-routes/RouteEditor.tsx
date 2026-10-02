@@ -87,6 +87,7 @@ export function RouteEditor({
   iconRace,
   heroIcon,
   fieldError,
+  errorKeys,
   onOpenCard,
   onHoverEnter,
   onHoverLeave,
@@ -104,6 +105,8 @@ export function RouteEditor({
   /** The route's hero, the first Bring entry on camp and attack stops. */
   heroIcon?: string;
   fieldError?: (key: string) => string | undefined;
+  /** The submit check's error keys ("stops.2.action"), a new array per result: the first stop with one opens, so its message shows. */
+  errorKeys?: string[];
   /** Pins the camp card: a right-click on a marker, or the camp name in a stop's row. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   onHoverEnter?: (camp: MapCamp, el: CampCardTrigger) => void;
@@ -166,6 +169,20 @@ export function RouteEditor({
     const row = rowAtKey(stops, key);
     select(row && row.id !== selectedId ? row.id : null);
   };
+  // After a submit check, the first stop with an error opens and scrolls into view: its message
+  // sits in the stop's body, which is hidden while the stop is closed.
+  const firstError = (errorKeys ?? [])
+    .map((k) => /^stops\.(\d+)(?:\.split\.arms\.(\d+)\.stops\.(\d+))?\.(?!split\b)/.exec(k))
+    .find(Boolean);
+  const errorKey = firstError ? (firstError[2] === undefined ? firstError[1] : `${firstError[1]}.${"abc"[Number(firstError[2])]}.${firstError[3]}`) : null;
+  // Adjusted during render (not in an effect): only a new submit result moves the selection.
+  const [seenErrors, setSeenErrors] = useState(errorKeys);
+  if (errorKeys !== seenErrors) {
+    setSeenErrors(errorKeys);
+    const row = errorKey ? rowAtKey(stops, errorKey) : undefined;
+    if (row) select(row.id, true);
+  }
+
   // A selected split caption adds into its shown path.
   const selection = selectedId === null ? null : { id: selectedId, arm: tabs[selectedId] ?? 0 };
 

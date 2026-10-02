@@ -122,7 +122,8 @@ export function StopBlock({
 }) {
   const d = entry ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
-  const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
+  // A place stop the author has not named yet (the builder) reads as new, never as a bare dash.
+  const label = camp ? campLabel(camp) : stop.action || (stop.place ? (stop.place.kind === "attack" ? "New attack" : "New waypoint") : stop.campId || "-");
   const placeLabel = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
   const pictures = stop.images?.length ?? 0;

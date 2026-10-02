@@ -228,6 +228,8 @@ function RouteSubmitFormInner({
   }, []);
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
+  // One array per submit result, so the builder opens the first stop with an error once.
+  const errorKeys = useMemo(() => (state.status === "error" ? Object.keys(state.fields ?? {}) : undefined), [state]);
   const stopsJson = JSON.stringify(rowsToStops(stops));
   // The submit check's notes that do not block: a split whose paths are the same camps in the same order.
   const notes = stops.some((r) => sameCampSequence(r.split)) ? [SAME_CAMP_LINE] : [];
@@ -396,6 +398,7 @@ function RouteSubmitFormInner({
               iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
               heroIcon={hero || undefined}
               fieldError={(k) => errors[k]}
+              errorKeys={errorKeys}
               onOpenCard={pin}
               onHoverEnter={hoverEnter}
               onHoverLeave={hoverLeave}
