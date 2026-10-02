@@ -275,6 +275,30 @@ export default async function CreepRoutePage({ params }: Params) {
         <div className="rivets relative z-10" aria-hidden />
       </div>
 
+      {/* "About this route" opens the page (v2.9, Daniel): a full-width band
+          between the banner and the map + stop list, so a reader gets the
+          route's goal before its stops. Same heading and text as before; no
+          empty-state placeholder (F009-followup-4): the band, heading
+          included, is absent when the route has no description. */}
+      {route.description && route.description.length ? (
+        <Container className="pt-10">
+          <section className="min-w-0">
+            <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
+            {isPortableText(route.description) ? (
+              <div className="prose-invert max-w-none">
+                <PortableBody value={route.description} />
+              </div>
+            ) : (
+              <div className="space-y-4 text-[1.02rem] leading-7 text-muted">
+                {(route.description as string[]).map((p, i) => (
+                  <p key={i}>{p}</p>
+                ))}
+              </div>
+            )}
+          </section>
+        </Container>
+      ) : null}
+
       {/* Map + step table dominate: map left, table right sticky at lg,
           stacked below — the client island owns the shared active-stop
           state so hovering/playing the table lights the same marker on
@@ -307,36 +331,7 @@ export default async function CreepRoutePage({ params }: Params) {
       </Container>
 
 
-      {/* "About this route" spans the full width, a sibling band of
-          Companion build and "More creep routes" below rather than a narrow
-          column with an empty half beside it (it kept the two-column grid
-          after F009-followup-5 moved Companion build and the Discord panel
-          out of it, leaving a spacer that did nothing). No empty-state
-          placeholder
-          (F009-followup-4): the block, heading included, is absent when
-          the route has no description — and so is this wrapping band, so
-          an empty description never leaves a blank gap above Companion
-          build. */}
-      {route.description && route.description.length ? (
-        <Container className="pb-16">
-          <section className="min-w-0">
-            <h2 className="mb-4 text-[1.05rem] font-bold tracking-[0.06em]">About this route</h2>
-            {isPortableText(route.description) ? (
-              <div className="prose-invert max-w-none">
-                <PortableBody value={route.description} />
-              </div>
-            ) : (
-              <div className="space-y-4 text-[1.02rem] leading-7 text-muted">
-                {(route.description as string[]).map((p, i) => (
-                  <p key={i}>{p}</p>
-                ))}
-              </div>
-            )}
-          </section>
-        </Container>
-      ) : null}
-
-      {/* The route played out, below the notes and built exactly like them:
+      {/* The route played out, below the route and built like the notes band:
           same Container, same section, same heading, so the two line up on
           the left. It previously carried `max-w-3xl`, which — because
           `Container` is `mx-auto` — centred the block and left its edge
