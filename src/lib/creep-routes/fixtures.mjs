@@ -386,7 +386,7 @@ export const FIXTURE_ROUTES = [
           mode: "or",
           arms: [
             {
-              label: "Contest Creeps",
+              label: "Contest Marketplace",
               stops: [
                 {
                   campId: null,
