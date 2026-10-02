@@ -27,6 +27,13 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNArachnathidGreen"
   },
+  "narg": {
+    "name": "Battle Golem",
+    "level": 3,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNArmorGolem"
+  },
   "nass": {
     "name": "Assassin",
     "level": 4,
@@ -61,6 +68,13 @@
     "sleeps": false,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNBandit"
+  },
+  "nfov": {
+    "name": "Overlord",
+    "level": 6,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNFelGuardBlue"
   },
   "nfpl": {
     "name": "Polar Furbolg",
@@ -222,6 +236,20 @@
     "sleeps": false,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNRockGolem"
+  },
+  "nhdc": {
+    "name": "Deceiver",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNAcolyte"
+  },
+  "nhhr": {
+    "name": "Heretic",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNAcolyte"
   },
   "nhyh": {
     "name": "Hydra Hatchling",
@@ -447,6 +475,13 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNRedDragon"
   },
+  "nrdr": {
+    "name": "Red Drake",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRedDragon"
+  },
   "nrel": {
     "name": "Reef Elemental",
     "level": 2,
@@ -461,6 +496,20 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNBandit"
   },
+  "nrvi": {
+    "name": "Ice Revenant",
+    "level": 8,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRevenant"
+  },
+  "nsc2": {
+    "name": "Spider Crab Limbripper",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSpiderCrab"
+  },
   "nsc3": {
     "name": "Spider Crab Behemoth",
     "level": 5,
@@ -474,6 +523,13 @@
     "sleeps": true,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNSpiderCrab"
+  },
+  "nsel": {
+    "name": "Sea Elemental",
+    "level": 5,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSeaElemental"
   },
   "nsgh": {
     "name": "Sea Giant Hunter",
@@ -545,6 +601,13 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNOrcWarlock"
   },
+  "nsrv": {
+    "name": "Revenant of the Seas",
+    "level": 5,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRevenant"
+  },
   "ntka": {
     "name": "Tuskarr Spearman",
     "level": 2,
@@ -607,6 +670,13 @@
     "sleeps": true,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNSeaTurtleGreen"
+  },
+  "nvdg": {
+    "name": "Greater Voidwalker",
+    "level": 6,
+    "sleeps": false,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNVoidWalker"
   },
   "nvdw": {
     "name": "Voidwalker",

@@ -4,7 +4,9 @@
 // `RAW_MAPS` from here; `fixtures.test.mjs` fails if this file and the
 // directory disagree.
 
+import amazonia from "./amazonia.json" with { type: "json" };
 import autumnLeaves from "./autumn-leaves.json" with { type: "json" };
+import concealedHill from "./concealed-hill.json" with { type: "json" };
 import echoIsles from "./echo-isles.json" with { type: "json" };
 import fadingAutumn from "./fading-autumn.json" with { type: "json" };
 import hammerfall from "./hammerfall.json" with { type: "json" };
@@ -12,13 +14,17 @@ import lastRefuge from "./last-refuge.json" with { type: "json" };
 import northernIsles from "./northern-isles.json" with { type: "json" };
 import scrimmage from "./scrimmage.json" with { type: "json" };
 import shallowGrave from "./shallow-grave.json" with { type: "json" };
+import shatteredExile from "./shattered-exile.json" with { type: "json" };
 import springtime from "./springtime.json" with { type: "json" };
+import terenasStand from "./terenas-stand.json" with { type: "json" };
 import tidehunters from "./tidehunters.json" with { type: "json" };
 import turtleRock from "./turtle-rock.json" with { type: "json" };
 import twistedMeadows from "./twisted-meadows.json" with { type: "json" };
 
 export const RAW_MAPS = {
+  "amazonia": amazonia,
   "autumn-leaves": autumnLeaves,
+  "concealed-hill": concealedHill,
   "echo-isles": echoIsles,
   "fading-autumn": fadingAutumn,
   "hammerfall": hammerfall,
@@ -26,7 +32,9 @@ export const RAW_MAPS = {
   "northern-isles": northernIsles,
   "scrimmage": scrimmage,
   "shallow-grave": shallowGrave,
+  "shattered-exile": shatteredExile,
   "springtime": springtime,
+  "terenas-stand": terenasStand,
   "tidehunters": tidehunters,
   "turtle-rock": turtleRock,
   "twisted-meadows": twistedMeadows,
