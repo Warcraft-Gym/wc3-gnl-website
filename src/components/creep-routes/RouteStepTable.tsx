@@ -10,7 +10,7 @@ import { JoinRow, SplitRow, StopRail, type RailLine } from "./LaneRail";
 
 /** One row of the flat lane list, see `route-rows.mjs`. */
 type LaneRow =
-  | { type: "stop"; key: string; label: string; stop: RouteStop; lane: string; lines: RailLine[]; off: boolean }
+  | { type: "stop"; key: string; label: string; stop: RouteStop; lane: string; lines: RailLine[]; panel?: string }
   | { type: "split"; key: string; stop: RouteStop; index: number; mode: "and" | "or" | "xor"; lanes: { lane: string; off: boolean }[]; lines: RailLine[] }
   | { type: "join"; key: string; lanes: { lane: string; off: boolean }[] };
 
@@ -97,32 +97,7 @@ export function RouteStepTable({
     else items.current.delete(key);
   };
 
-  return (
-    <div className="panel">
-      {only === undefined ? (
-        <div className="flex items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
-          <div>
-            <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
-              Route{" "}
-              <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
-                · {count} stops
-              </span>
-            </h2>
-            <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
-          </div>
-          <button
-            type="button"
-            onClick={allOpen ? onCollapseAll : onExpandAll}
-            className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
-          >
-            {allOpen ? "Collapse all" : "Expand all"}
-          </button>
-        </div>
-      ) : null}
-
-      {lanes ? (
-        <ol>
-          {rows.map((row) => {
+  const renderRow = (row: LaneRow) => {
             if (row.type === "split") {
               return (
                 <SplitRow
@@ -161,9 +136,46 @@ export function RouteStepTable({
                 showHero={showHero}
                 heroIcon={route.hero}
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
-                dim={row.off}
               />
             );
+          };
+
+  return (
+    <div className="panel">
+      {only === undefined ? (
+        <div className="flex items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
+          <div>
+            <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
+              Route{" "}
+              <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
+                · {count} stops
+              </span>
+            </h2>
+            <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
+          </div>
+          <button
+            type="button"
+            onClick={allOpen ? onCollapseAll : onExpandAll}
+            className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
+          >
+            {allOpen ? "Collapse all" : "Expand all"}
+          </button>
+        </div>
+      ) : null}
+
+      {lanes ? (
+        <ol>
+          {groupPanels(rows).map((group) => {
+            // The chosen path of an "or"/"xor" split: one tab panel holding its rows.
+            if (Array.isArray(group)) {
+              const panel = group[0].panel!;
+              return (
+                <li key={`panel-${panel}`} role="tabpanel" id={`${baseId}-panel-${panel}`} aria-labelledby={`${baseId}-tab-${panel}-${derived.stops[Number(panel)].split?.walked ?? 0}`}>
+                  <ol>{group.map(renderRow)}</ol>
+                </li>
+              );
+            }
+            return renderRow(group);
           })}
         </ol>
       ) : (
@@ -201,4 +213,16 @@ export function RouteStepTable({
       )}
     </div>
   );
+}
+
+/** Rows in order, with each run of rows from one tab panel gathered into an array. */
+function groupPanels(rows: LaneRow[]): (LaneRow | (LaneRow & { type: "stop" })[])[] {
+  const out: (LaneRow | (LaneRow & { type: "stop" })[])[] = [];
+  for (const row of rows) {
+    const last = out[out.length - 1];
+    if (row.type !== "stop" || !row.panel) out.push(row);
+    else if (Array.isArray(last) && last[0].panel === row.panel) last.push(row);
+    else out.push([row]);
+  }
+  return out;
 }

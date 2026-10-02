@@ -536,10 +536,13 @@ choose one, no number means a waypoint.
   `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
   lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
   node for an attack. The split row is a slim caption: "At the same time"
-  (`and`), or "Choose a way" with the tab strip (`role="tablist"`, arrow keys,
-  the hero's level at each way's end). `and` shows every way; `or` shows
-  every way and dims the ways not chosen to 45% (their lane lines at 35%);
-  `xor` lists only the chosen way. A guide's one-stop example has no rail.
+  (`and`), or "Choose a way" with browser tabs (`role="tablist"`, arrow
+  keys, the hero's level at each way's end; the chosen tab is open at the
+  bottom onto its way's rows, a `tabpanel`; the others are recessed). `and`
+  shows every way. `or` and `xor` show only the chosen way: a way not taken
+  has no rows, only a dashed lane, from the split row to the join row in
+  `or`, a stub that ends in the split row in `xor`. A guide's one-stop
+  example has no rail.
   A map click on a camp picks the top-level stop or the
   walked way's (`findStopKey`). HowTo steps follow way a.
 - **Builder.** "+ Split" adds a "Choose a way" (`xor`) split with two empty

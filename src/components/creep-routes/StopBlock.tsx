@@ -84,7 +84,6 @@ export function StopBlock({
   openCampId,
   stopBody,
   rail,
-  dim = false,
   showHero = false,
   heroIcon,
 }: {
@@ -107,8 +106,6 @@ export function StopBlock({
   stopBody?: React.ReactNode;
   /** The lane rail cell (`StopRail`); absent on a guide's one stop. */
   rail?: React.ReactNode;
-  /** A way not chosen in an "or" split: drawn at 45%. */
-  dim?: boolean;
   /** The route uses the hero toggle somewhere: Bring lists the hero first wherever he goes. */
   showHero?: boolean;
   /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
@@ -136,7 +133,6 @@ export function StopBlock({
         rail
           ? `relative border-t border-line/40 pl-[60px] pr-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:pr-5`
           : `border-t border-line/40 px-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:px-5`,
-        dim && "opacity-[.45]",
         (isActive || isHover) && "bg-gold/10",
       )}
     >

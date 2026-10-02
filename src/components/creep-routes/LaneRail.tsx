@@ -11,7 +11,7 @@ import { cn } from "@/lib/utils";
  * The lane rail of every route (`route-rows.mjs`): a 44px column at the left
  * of every row, added in front of today's row; a linear route has one lane. Lane a
  * (the main line) runs at x 14, lane b at 30, lane c at 46; 2px lines in
- * `--wg-line-strong`, at 35% off the chosen way. The row's own node sits on its
+ * `--wg-line-strong`, dashed for a path not taken. The row's own node sits on its
  * lane at the summary line: a small neutral dot for a camp or base action, the
  * diamond for a waypoint, a red-ringed Swords node for an attack.
  */
@@ -22,6 +22,9 @@ const LANE_X: Record<string, number> = { "": 14, a: 14, b: 30, c: 46 };
 /** Where the node sits: the middle of the summary line (16px row padding + half a line); 8px padding for a waypoint. */
 const nodeY = (waypoint: boolean) => (waypoint ? 18 : 26);
 const LINE = "absolute w-0.5 bg-line-strong";
+/** A path not taken: the same lane, dashed. */
+const DASHED = "absolute w-0 border-l-2 border-dashed border-line-strong";
+const DASH = "4 3";
 
 /** The rail cell of a stop row; the `<li>` it sits in is `relative`. */
 export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
@@ -31,9 +34,9 @@ export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: strin
   return (
     <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-11">
       {lines.map((l) => (
-        <span key={l.lane} className={cn(l.off && "opacity-35")}>
-          {l.top ? <span className={LINE} style={{ left: LANE_X[l.lane] - 1, top: 0, height: y }} /> : null}
-          {l.bottom ? <span className={LINE} style={{ left: LANE_X[l.lane] - 1, top: y, bottom: 0 }} /> : null}
+        <span key={l.lane}>
+          {l.top ? <span className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: 0, height: y }} /> : null}
+          {l.bottom ? <span className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: y, bottom: 0 }} /> : null}
         </span>
       ))}
       {stop.place?.kind === "attack" ? (
@@ -68,10 +71,11 @@ function RailSvg({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * A split's caption row: no number, no band dot, no chevron. The rail curves the shown lanes
- * out of the main line (only the chosen way's lane in "xor"; the others at 35% in "or"). "or" and
- * "xor" read "Choose a way" and carry the tab strip (`role="tablist"`, arrow keys, the hero's
- * level at each way's end); "and" reads "At the same time".
+ * A split's caption row: no number, no band dot, no chevron. The rail curves every lane out of
+ * the main line, a path not taken dashed. "or" and "xor" read "Choose a way" and carry the tab
+ * strip as browser tabs (`role="tablist"`, arrow keys, the hero's level at each path's end): the
+ * chosen tab is open at the bottom onto its path's rows, the `tabpanel` below; the others are
+ * recessed. "and" reads "At the same time".
  */
 export function SplitRow({
   mode,
@@ -107,13 +111,13 @@ export function SplitRow({
   };
   const from = main.top ? 0 : 20;
   return (
-    <li data-split={stopKey} className="relative min-h-8 border-t border-line/40 py-1.5 pl-[60px] pr-4 first:border-t-0 sm:pr-5">
+    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5")}>
       <RailSvg>
         {lanes.map((l) =>
           l.lane === "a" ? (
-            <path key="a" d={`M14,${from} V40`} opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+            <path key="a" d={`M14,${from} V40`} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
           ) : (
-            <path key={l.lane} d={curve(LANE_X[l.lane], true, from)} opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+            <path key={l.lane} d={curve(LANE_X[l.lane], true, from)} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
           ),
         )}
       </RailSvg>
@@ -124,10 +128,12 @@ export function SplitRow({
             </span>
           ))
         : null}
-      <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
-        {choose ? (
-          <div role="tablist" aria-label={name} className="flex flex-wrap gap-x-4">
+      {choose ? (
+        // Browser tabs: the strip's base line runs under the caption, the recessed tabs and the
+        // filler; the chosen tab has no bottom edge, so it opens into its path's rows below.
+        <div className="flex min-w-0 flex-wrap items-end">
+          <span className="basis-full pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint sm:basis-auto sm:border-b sm:border-line-strong sm:pr-3">{name}</span>
+          <div role="tablist" aria-label={name} className="flex min-w-0 items-end">
             {arms.map((arm, a) => {
               const chosen = a === walked;
               return (
@@ -140,24 +146,29 @@ export function SplitRow({
                   type="button"
                   role="tab"
                   aria-selected={chosen}
+                  aria-controls={chosen ? `${baseId}-panel-${stopKey}` : undefined}
                   tabIndex={chosen ? 0 : -1}
                   onClick={() => onChoose(stopKey, a)}
                   onKeyDown={(e) => onTabKey(e, a)}
                   className={cn(
-                    "relative inline-flex max-w-full items-baseline gap-1.5 pb-1 pt-0.5 text-left text-[0.84rem] transition-colors",
-                    "after:absolute after:inset-x-0 after:-bottom-px after:h-0.5 after:rounded-full after:bg-gold after:opacity-0",
-                    "rounded-t focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
-                    chosen ? "text-fg after:opacity-100" : "text-muted hover:text-fg",
+                    "inline-flex min-w-0 items-baseline gap-1.5 rounded-t border px-3 text-left text-[0.84rem] transition-colors",
+                    "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold",
+                    chosen
+                      ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
+                      : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
                   )}
                 >
                   <span>{arm.label}</span>
-                  {node?.arms[a] ? <span className="tnum shrink-0 text-[0.8rem] text-muted">Lv {node.arms[a].levelAfter}</span> : null}
+                  {node?.arms[a] ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null}
                 </button>
               );
             })}
           </div>
-        ) : null}
-      </div>
+          <span aria-hidden className="min-w-2 flex-1 self-stretch border-b border-line-strong" />
+        </div>
+      ) : (
+        <span className="text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
+      )}
     </li>
   );
 }
@@ -169,9 +180,9 @@ export function JoinRow({ lanes }: { lanes: { lane: string; off: boolean }[] }) 
       <RailSvg>
         {lanes.map((l) =>
           l.lane === "a" ? (
-            <path key="a" d="M14,0 V40" opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+            <path key="a" d="M14,0 V40" strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
           ) : (
-            <path key={l.lane} d={curve(LANE_X[l.lane], false)} opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+            <path key={l.lane} d={curve(LANE_X[l.lane], false)} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
           ),
         )}
       </RailSvg>
