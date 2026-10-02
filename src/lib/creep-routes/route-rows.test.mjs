@@ -1,6 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { joinXpLabel, routeRows } from "./route-rows.mjs";
+import { deriveRoute } from "./derive.mjs";
+import { hiddenBadgeKeys, shownStops } from "./stop-numbers.mjs";
 
 const camp = (id) => ({ campId: id });
 const choose = (mode) => (...arms) => ({ campId: null, split: { mode, arms: arms.map((stops, i) => ({ label: `path ${i}`, stops })) } });
@@ -81,4 +83,30 @@ test("the rail starts at the first row's node and stops at the last", () => {
 test("an and block's join row reads the level after the block and its XP total", () => {
   assert.equal(joinXpLabel({ levelBefore: 2, levelAfter: 3, xpBefore: 260, xpGained: 250 }), "Lv 3 · +250 xp");
   assert.equal(joinXpLabel({ levelBefore: 1, levelAfter: 1, xpBefore: 0, xpGained: 0 }), "Lv 1 · +0 xp");
+});
+
+// The staging Echo Isles route: 1 c11, 2 c02, a scout waypoint, an "or" split on c05, then c03.
+const echo = () => [camp("c11"), camp("c02"), { campId: null, action: "Scout", place: { kind: "scout", at: { start: "1" } } }, or([camp("c05")], [camp("c05")]), camp("c03")];
+
+test("the first stop after an or split keeps its number in the list and on the map, on either path", () => {
+  for (const pick of [0, 1]) {
+    const choice = { 3: pick };
+    const row = routeRows(echo(), choice).find((r) => r.type === "stop" && r.stop.campId === "c03");
+    assert.equal(row.label, "4");
+    // The map draws every shown stop's label as its disc, and hides none of the shared stops.
+    const shown = shownStops(echo(), choice).find((s) => s.stop.campId === "c03");
+    assert.equal(shown.label, "4");
+    assert.ok(!hiddenBadgeKeys(echo(), choice).has(shown.key));
+  }
+});
+
+test("an and block's join row still shows the grouped total", () => {
+  const map = { camps: ["c1", "c2", "c3"].map((id) => ({ id, level: 4, xp: 80, band: "easy", creeps: [{ id: "x", name: "X", level: 2, count: 2 }] })) };
+  const stops = [camp("c1"), and([camp("c2")], [camp("c3")]), camp("c1")];
+  const rows = routeRows(stops);
+  const join = rows.find((r) => r.type === "join");
+  assert.equal(join.mode, "and");
+  const node = deriveRoute({ stops }, map).stops[join.index].split;
+  assert.match(joinXpLabel(node), /^Lv \d+ · \+\d+ xp$/);
+  assert.ok(node.xpGained > 0);
 });

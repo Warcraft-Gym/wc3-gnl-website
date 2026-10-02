@@ -159,7 +159,10 @@ export function StopBlock({
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
-          {isActive ? (
+          {/* Selected: the number stays and turns gold; a stop without a number gets the gold dot. */}
+          {isActive && number ? (
+            <span className="font-bold text-gold [text-shadow:0_0_10px_var(--wg-gold-glow)]">{number}</span>
+          ) : isActive ? (
             <span aria-hidden className="inline-block size-2 rounded-full bg-gold shadow-[0_0_10px_var(--wg-gold-glow)]" />
           ) : (
             number
