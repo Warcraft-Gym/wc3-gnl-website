@@ -134,3 +134,14 @@ test("an and split keeps every path on the same numbers and the join after the l
   // A path of waypoints only does not count.
   assert.deepEqual(labels([camp("c1"), parallel([scout], [scout]), camp("c5")]), ["1", "2", "", "", "2"]);
 });
+
+test("Echo Isles: path a (a shop waypoint) reads 1, 2, scout, shop, 3; path b reads 1, 2, scout, 3b, 4", async () => {
+  const { FIXTURE_ROUTES } = await import("./fixtures.mjs");
+  const echo = FIXTURE_ROUTES.find((r) => r.slug === "undead-ves-echo-isles").stops;
+  const read = (choice) => flatStops(echo, choice).filter(({ stop }) => !stop.split).map(({ label, stop }) => label || stop.place?.kind);
+  assert.deepEqual(read({}), ["1", "2", "scout", "shop", "3b", "3"]);
+  assert.deepEqual(shownStops(echo).filter(({ stop }) => !stop.split).map(({ label, stop }) => label || stop.place?.kind), ["1", "2", "scout", "shop", "3"]);
+  assert.deepEqual(shownStops(echo, { 3: 1 }).filter(({ stop }) => !stop.split).map(({ label, stop }) => label || stop.place?.kind), ["1", "2", "scout", "3b", "4"]);
+  assert.equal(countStops(echo), 3);
+  assert.equal(countStops(echo, { 3: 1 }), 4);
+});

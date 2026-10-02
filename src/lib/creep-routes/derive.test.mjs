@@ -157,10 +157,8 @@ test("a prefix-only stop kills its prefix first, then the rest, and flags which 
 });
 
 test("kills outside the camp or past a row's count are ignored: ordered flags and left match the real kills", () => {
-  const out = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }] }] }, MAP).stops[0];
+  const out = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }], leaveRest: true }] }, MAP).stops[0];
   assert.deepEqual(out.kills.map((k) => [k.row, k.ordered]), [[0, false], [0, false], [1, false]]);
-  // With leaveRest, a list of only unknown rows is no kill order: the creeps stay.
-  assert.equal(deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }], leaveRest: true }] }, MAP).stops[0].left, 3);
   const mixed = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 7, n: 1 }, { row: 1, n: 1 }] }] }, MAP).stops[0];
   assert.deepEqual(mixed.kills.map((k) => [k.row, k.ordered]), [[1, true], [0, false], [0, false]]);
   const over = deriveRoute({ stops: [{ campId: "c1", kills: [{ row: 0, n: 5 }] }] }, MAP).stops[0];
@@ -262,12 +260,10 @@ test("the stop after a split continues from the chosen arm's total", () => {
   assert.ok(viaB.finalXp > 128 && viaB.finalXp < viaA.finalXp);
 });
 
-test("creeps stay: no kill order with leaveRest kills nothing, grants no xp and leaves every creep", () => {
-  const result = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2", kills: [], leaveRest: true }] }, MAP);
-  const stay = result.stops[1];
-  assert.equal(stay.kills.length, 0);
-  assert.equal(stay.xpAfter, result.stops[0].xpAfter);
-  assert.equal(stay.left, MAP.camps.find((c) => c.id === "c2").creeps.reduce((n, c) => n + c.count, 0));
-  // Without leaveRest an empty kill order is still the whole camp.
-  assert.equal(deriveRoute({ stops: [{ campId: "c2", kills: [] }] }, MAP).stops[0].left, 0);
+test("a camp stop always kills something: no kill order is the whole camp, leaveRest or not", () => {
+  const whole = deriveRoute({ stops: [{ campId: "c2", kills: [] }] }, MAP).stops[0];
+  const leave = deriveRoute({ stops: [{ campId: "c2", kills: [], leaveRest: true }] }, MAP).stops[0];
+  assert.equal(leave.left, 0);
+  assert.equal(leave.kills.length, MAP.camps.find((c) => c.id === "c2").creeps.reduce((n, c) => n + c.count, 0));
+  assert.equal(leave.xpAfter, whole.xpAfter);
 });

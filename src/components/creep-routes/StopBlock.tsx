@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronRight, Image as ImageIcon } from "lucide-react";
 import type { DerivedStop } from "@/lib/creep-routes/derive";
-import { creepsStay, killedXpShare, restOptionLabel, unorderedCreeps } from "@/lib/creep-routes/kills.mjs";
+import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { actionNamesPlace, isWaypoint, placeName } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
@@ -17,14 +17,9 @@ import { cn } from "@/lib/utils";
 
 /** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
 function skippedOf(stop: RouteStop, camp: MapCamp) {
-  return stop.leaveRest
+  return stop.leaveRest && validKills(camp, stop.kills).length
     ? (unorderedCreeps(camp, stop.kills) as { creep: MapCampCreep; row: number }[])
     : [];
-}
-
-/** A "Creeps stay" stop's chip: no kill order and `leaveRest`, so every creep shows as skipped. */
-function StayChip() {
-  return <span className="inline-flex w-fit items-center rounded border border-line px-1.5 py-0.5 text-[0.75rem] leading-snug text-muted">{restOptionLabel(false, true)}</span>;
 }
 
 /** A stop's expanded body: the kill chain, Bring, condition, note and pictures. */
@@ -33,7 +28,6 @@ function StopBody({ stop, d, hero }: { stop: RouteStop; d: DerivedStop; hero?: R
   return (
     <div className="min-w-0 space-y-3">
       {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} /> : null}
-      {camp && creepsStay(camp, stop.kills, stop.leaveRest) ? <StayChip /> : null}
 
       {stop.units?.length || hero ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -219,9 +213,8 @@ export function StopBlock({
             ) : null}
           </div>
           {camp && !isOpen ? (
-            <div className="mt-2 flex flex-wrap items-center gap-2">
+            <div className="mt-2">
               <KillStrip kills={d.kills} skipped={skippedOf(stop, camp)} />
-              {creepsStay(camp, stop.kills, stop.leaveRest) ? <StayChip /> : null}
             </div>
           ) : null}
         </div>

@@ -430,9 +430,7 @@ data layer share:
 
 ### Place stops: attacks and waypoints
 
-Authoring rule: a place with a camp is a camp stop: creep it fully, partly,
-or not at all. Waypoints are for places without a camp: your base, a mine,
-a free point, an attack.
+A camp stop always kills something; everything else is a waypoint.
 
 A stop can happen at a place instead of a camp: `RouteStop.place` is
 `{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop` or
@@ -598,14 +596,8 @@ kill. Empty or missing means the whole camp, which is every route written
 before this field. The optional boolean `leaveRest` (default false; "Skip
 the rest" in the builder and the Studio) says what happens to the creeps
 the list does not name: false kills them after it, in catalogue order; true
-skips them. With no kill order, false is the whole camp and true is none:
-"Creeps stay", a camp stop where nothing dies and the hero gains no XP (a
-shop by the camp, say). It keeps its number and band colour; the chain shows
-every creep as skipped, with a "Creeps stay" chip, and the builder's toggle
-reads "Clear the camp" / "Creeps stay" until a kill is picked. Four cases:
-
-- Creeps stay, e.g. walk to the Echo Isles shop camp c05 only to buy:
-  `kills: [], leaveRest: true`.
+skips them. With no kill order the whole camp dies, `leaveRest` or not. Three
+cases it covers:
 
 - Kill one creep and skip the rest, e.g. take the item Ogre Warrior of Last Refuge
   c16: `kills: [{ row: 0, n: 1 }], leaveRest: true`.
@@ -620,7 +612,8 @@ Trapper rows, one with the item), so only the row can name "the item
 creep". The helpers live in `src/lib/creep-routes/kills.mjs`
 (`kills.test.mjs`). The submit action checks each row and count against
 the live camp (`creepCounts` in the submission catalogue); the Sanity
-schema has both fields (`leaveRest` on every camp stop), and the `#route=` edit link and the JSON API carry them unchanged.
+schema has both fields (`leaveRest` hidden until the stop has a kill
+order), and the `#route=` edit link and the JSON API carry them unchanged.
 A kill entry may also carry an integer `set`: consecutive entries with the same `set` form one set unit (kills in any order) anywhere in the list, and `killsProblem` rejects a `set` value in two separate runs; the trailing rest (unless `leaveRest`) is simply a default set. The derived trace marks each kill `ordered` (listed) or not, its 0-based `unit` and whether that unit is a set (`inSet`); XP inside a listed set follows list order.
 
 On the route page each stop block draws its kills as a chain (`KillOrder`):

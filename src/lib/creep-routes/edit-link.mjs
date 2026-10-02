@@ -81,7 +81,7 @@ function exchangeStop(s) {
     note: s.note || undefined,
     condition: s.condition || undefined,
     kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
-    leaveRest: s.campId && s.leaveRest ? true : undefined,
+    leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
     place: s.place ? exchangePlace(s.place) : undefined,
     hero: s.hero === false && (s.campId || s.place?.kind === "attack") ? false : undefined,
   };

@@ -76,7 +76,7 @@ function checkShape(stop, expected) {
   // (4) submission schema accepts the stop and the Sanity draft keeps set and leaveRest
   const parsed = schema.safeParse(payload(stop));
   assert.equal(parsed.success, true, parsed.success ? "" : JSON.stringify(parsed.error.issues));
-  const keptLeave = stop.leaveRest ? true : undefined;
+  const keptLeave = stop.kills.length && stop.leaveRest ? true : undefined;
   assert.deepEqual(parsed.data.stops[0].kills, stop.kills);
   const draftStop = toCreepRouteDraft(parsed.data, "creepMap-last-refuge").stops[0];
   assert.deepEqual(draftStop.kills?.map(({ row, n, set }) => (set === undefined ? { row, n } : { row, n, set })), stop.kills.length ? stop.kills : undefined);
@@ -146,10 +146,10 @@ test("S6 two Trappers as singles, joined into one set, split again", () => {
   checkShape(b.s, { units: [T(1, 0), T(1, 1), S(0, 2), S(2, 2), S(3, 2)], ordered: [true, true, false, false, false], left: 0 });
 });
 
-test("S7 no kills: the whole camp as one set; with Skip the rest the creeps stay", () => {
+test("S7 no kills: the whole camp as one set, Skip the rest has no effect", () => {
   const whole = { units: [S(0, 0), S(1, 0), S(1, 0), S(2, 0), S(3, 0)], ordered: [false, false, false, false, false], left: 0 };
   checkShape(builder().s, whole);
-  checkShape(builder().leave(true).s, { units: [], ordered: [], left: 5 });
+  checkShape(builder().leave(true).s, whole);
   // Clear from a built shape returns to the same state.
   assert.deepEqual(builder().add(PRIEST).leave(true).clear().s, { kills: [], leaveRest: false });
 });
