@@ -1,13 +1,14 @@
 "use client";
 
-import { Fragment, useCallback, useEffect, useReducer, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 import { initialStopView, stopViewReducer } from "@/lib/creep-routes/stop-view.mjs";
+import { flatStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
 import { CampCard } from "@/components/creep-routes/CampCard";
 import { useCampCard } from "@/components/creep-routes/useCampCard";
-import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/types";
+import type { CreepMap as CreepMapType, CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -62,14 +63,18 @@ export function CreepMapPlayground({
   /** Replaces the open stop's body (`RouteStepTable`). */
   stopBody?: React.ReactNode;
 }) {
+  // Stops are named by their `stop-numbers.mjs` keys ("0", "2.a.0").
   const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, (count: number) =>
     only !== undefined
-      ? { selected: null, open: new Set([only]) }
+      ? { selected: null, open: new Set([String(only)]) }
       : startClosed
-        ? { selected: null, open: new Set<number>() }
-        : initialStopView(count),
-  );
-  const [scrollTo, setScrollTo] = useState<{ index: number } | null>(null);
+        ? { selected: null, open: new Set<string>() }
+        : initialStopView(count, "0"),
+  ) as [{ selected: string | null; open: Set<string> }, React.Dispatch<Record<string, unknown>>];
+  const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
+  // The arm the reader follows in each "either" fork: page state, not URL state.
+  const [choice, setChoice] = useState<Record<string, number>>({});
+  const allStops = useMemo(() => flatStops(route.stops) as { key: string; stop: RouteStop }[], [route.stops]);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
   // Escape clears the selection, unless a card or popover is open (it closes that instead).
@@ -86,16 +91,25 @@ export function CreepMapPlayground({
   // the route's own stops (every camp is clickable now, F012-followup-3)
   // finds no matching stop — `findIndex` returns -1 — and this is a no-op:
   // no stop is selected, nothing crashes.
-  const onStopSelect = useCallback((index: number) => {
-    dispatch({ type: "node", index });
-    setScrollTo({ index });
-  }, []);
+  // An arm stop also chooses its arm (an "either" fork) and opens its fork's block.
+  const onStopSelect = useCallback(
+    (key: string) => {
+      const { index, arm } = parseKey(key);
+      const also = arm === undefined ? [] : [String(index)];
+      if (arm !== undefined && route.stops[index]?.fork?.mode === "either") {
+        setChoice((c) => (c[String(index)] === arm ? c : { ...c, [String(index)]: arm }));
+      }
+      dispatch({ type: "node", key, also });
+      setScrollTo({ key });
+    },
+    [route.stops],
+  );
   const onMarkerSelect = useCallback(
     (campId: string) => {
-      const idx = route.stops.findIndex((s) => s.campId === campId);
-      if (idx !== -1) onStopSelect(idx);
+      const match = allStops.find(({ stop }) => stop.campId === campId);
+      if (match) onStopSelect(match.key);
     },
-    [route.stops, onStopSelect],
+    [allStops, onStopSelect],
   );
 
   const mapColumn = (
@@ -113,8 +127,12 @@ export function CreepMapPlayground({
         onCampCardHoverLeave={hoverLeave}
         openCampId={openCampId}
         onStopSelect={onStopSelect}
+        choice={choice}
       />
-      <MapLegend heroAbsent={route.stops.some((s) => s.heroAbsent)} />
+      <MapLegend
+        heroAbsent={allStops.some(({ stop }) => stop.heroAbsent) || route.stops.some((s) => s.fork?.mode === "both")}
+        anotherWay={route.stops.some((s) => s.fork?.mode === "either")}
+      />
     </>
   );
   const stopColumn = (
@@ -124,15 +142,17 @@ export function CreepMapPlayground({
         map={map}
         selected={view.selected}
         open={view.open}
-        onSummary={(index) => dispatch({ type: "summary", index })}
-        onChevron={(index) => dispatch({ type: "chevron", index })}
-        onExpandAll={() => dispatch({ type: "expandAll", count: route.stops.length })}
+        onSummary={(key) => dispatch({ type: "summary", key, also: key.includes(".") ? [String(parseKey(key).index)] : [] })}
+        onChevron={(key) => dispatch({ type: "chevron", key })}
+        onExpandAll={() => dispatch({ type: "expandAll", keys: stopKeys(route.stops) })}
         onCollapseAll={() => dispatch({ type: "collapseAll" })}
         scrollTo={scrollTo}
         onOpenCard={pin}
         openCampId={openCampId}
         only={only}
         stopBody={stopBody}
+        choice={choice}
+        onChoose={(forkKey, arm) => setChoice((c) => ({ ...c, [forkKey]: arm }))}
       />
       {/* Anything the page wants directly under the stops — the Discord
           card. It belongs *in* this column rather than in a band below the
@@ -155,8 +175,8 @@ export function CreepMapPlayground({
       {card ? (
         <CampCard
           camp={card.camp}
-          kills={route.stops.find((s) => s.campId === card.camp.id)?.kills}
-          leaveRest={route.stops.find((s) => s.campId === card.camp.id)?.leaveRest}
+          kills={allStops.find(({ stop }) => stop.campId === card.camp.id)?.stop.kills}
+          leaveRest={allStops.find(({ stop }) => stop.campId === card.camp.id)?.stop.leaveRest}
           anchorEl={card.trigger}
           pinned={card.pinned}
           onClose={close}

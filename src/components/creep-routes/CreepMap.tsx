@@ -9,6 +9,7 @@ import { RoutePath } from "./RoutePath";
 import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { cn } from "@/lib/utils";
 
 /** `(hover: none)` covers touch and other coarse pointers — the F012a
@@ -25,10 +26,10 @@ function canHoverCard() {
 export type CreepMapProps = {
   map: CreepMapType;
   route?: { stops: RouteStop[]; start?: number };
-  /** 0-based index into `route.stops`; enlarges/glows that stop's marker
-   *  when it's a camp stop. Lifted by the page so the map and the step
-   *  table's hover/focus/click stay in sync. */
-  activeStop?: number | null;
+  /** The selected stop's key (`stop-numbers.mjs`: "0", "2.a.0"); enlarges/glows
+   *  that stop's marker when it's a camp stop. Lifted by the page so the map and
+   *  the step table's hover/focus/click stay in sync. */
+  activeStop?: string | null;
   /** Renders camps as real `<button>`s (via `foreignObject`) — the
    *  editor's add/remove-a-stop click, and the read-only route page's
    *  select-a-stop click (F009). */
@@ -88,8 +89,10 @@ export type CreepMapProps = {
   /** The camp id the card is currently showing (pinned or not), or null —
    *  every trigger sets its own `aria-expanded` from this (C-025). */
   openCampId?: string | null;
-  /** Selects a place stop from its badge on the route page (camp stops select through their marker). */
-  onStopSelect?: (index: number) => void;
+  /** Selects a place or arm stop from its badge on the route page (camp stops select through their marker). */
+  onStopSelect?: (key: string) => void;
+  /** Fork key to the chosen arm of each "either" fork (`CreepMapPlayground`); default arm 0. */
+  choice?: Record<string, number>;
   /** Editor: starts, mines and shops become click targets that add a place stop. */
   onPlaceSelect?: (place: Place) => void;
   /** Editor: the next click anywhere on the map adds a `point` place stop. */
@@ -220,6 +223,7 @@ export function CreepMap({
   onCampCardHoverLeave,
   openCampId = null,
   onStopSelect,
+  choice,
   onPlaceSelect,
   pointArmed = false,
   className,
@@ -241,6 +245,9 @@ export function CreepMap({
   const { width: iw, height: ih } = map.image;
 
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
+  // Every stop, fork arms included, with its key: a camp's marker is on the
+  // route, active and partly cleared through any of them.
+  const allStops = useMemo(() => (route ? (flatStops(route.stops) as { key: string; stop: RouteStop }[]) : []), [route]);
 
   // Keyboard walk order: every camp on the map when `walkAllCamps` (the
   // route page, F012-followup-3 — every camp is interactive there now, so
@@ -249,9 +256,9 @@ export function CreepMap({
   // this — its walk order is unaffected by this feature).
   const walkCampIds = useMemo(() => {
     if (walkAllCamps) return map.camps.map((c) => c.id);
-    if (route) return route.stops.map((s) => s.campId).filter((id): id is string => !!id);
+    if (route) return allStops.map(({ stop }) => stop.campId).filter((id): id is string => !!id);
     return map.camps.map((c) => c.id);
-  }, [walkAllCamps, route, map.camps]);
+  }, [walkAllCamps, route, allStops, map.camps]);
 
   const walkCampId = walkIndex != null ? (walkCampIds[walkIndex] ?? null) : null;
   const detailCampId = hoverCamp ?? walkCampId;
@@ -416,13 +423,15 @@ export function CreepMap({
           className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
-          {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} /> : null}
+          {route ? (
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} />
+          ) : null}
           {map.starts.map((s, i) => (
             <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
           ))}
           {onPlaceSelect ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed={false} /> : null}
           {map.camps.map((camp) => {
-            const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
+            const keys = allStops.filter(({ stop }) => stop.campId === camp.id).map(({ key }) => key);
             const isInteractive = isCampInteractive(camp.id);
             return (
               <CampMarker
@@ -430,15 +439,15 @@ export function CreepMap({
                 camp={camp}
                 imageWidth={iw}
                 imageHeight={ih}
-                active={activeStop != null && stopIndex === activeStop}
+                active={activeStop != null && keys.includes(activeStop)}
                 highlighted={highlightCamps?.has(camp.id) ?? false}
-                pressed={stopIndex !== -1}
+                pressed={keys.length > 0}
                 onCampSelect={isInteractive ? handleCampClick : undefined}
                 onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
                 cardOpen={openCampId === camp.id}
                 asGroup={groupMarkers}
-                secondary={deemphasizeOffRoute && stopIndex === -1}
-                killed={killedShare(camp, route?.stops, camp.id)}
+                secondary={deemphasizeOffRoute && keys.length === 0}
+                killed={killedShare(camp, allStops.map(({ stop }) => stop), camp.id)}
               />
             );
           })}

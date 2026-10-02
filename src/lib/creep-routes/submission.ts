@@ -24,6 +24,8 @@ export type StopInput = {
   leaveRest?: boolean;
   place?: Place;
   heroAbsent?: boolean;
+  /** A fork node; its arms' stops never hold a fork. */
+  fork?: { mode: "either" | "both"; arms: { label?: string; stops: StopInput[] }[] };
 };
 
 /** The parsed, transformed output of the schema `createSubmissionSchema`

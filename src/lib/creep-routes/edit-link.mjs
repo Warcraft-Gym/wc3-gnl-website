@@ -55,18 +55,33 @@ export function toExchangeRoute(route) {
     sourceUrl: route.sourceUrl || undefined,
     videoUrl: route.videoUrl || undefined,
     supersedes: route.slug,
-    stops: (route.stops ?? []).map((s) => ({
-      campId: s.campId ?? null,
-      action: s.action || undefined,
-      units: s.units?.length ? s.units.map((u) => ({ icon: u.icon, count: u.count })) : undefined,
-      note: s.note || undefined,
-      condition: s.condition || undefined,
-      kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
-      leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
-      place: s.place ? exchangePlace(s.place) : undefined,
-      heroAbsent: s.campId && s.heroAbsent ? true : undefined,
-    })),
+    stops: (route.stops ?? []).map((s) =>
+      s.fork
+        ? {
+            campId: null,
+            fork: {
+              mode: s.fork.mode,
+              arms: s.fork.arms.map((arm) => ({ label: arm.label || undefined, stops: (arm.stops ?? []).map(exchangeStop) })),
+            },
+          }
+        : exchangeStop(s),
+    ),
     description: descriptionToText(route.description) || undefined,
+  };
+}
+
+/** One camp, place or base-action stop without Sanity's keys and nulls. */
+function exchangeStop(s) {
+  return {
+    campId: s.campId ?? null,
+    action: s.action || undefined,
+    units: s.units?.length ? s.units.map((u) => ({ icon: u.icon, count: u.count })) : undefined,
+    note: s.note || undefined,
+    condition: s.condition || undefined,
+    kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
+    leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
+    place: s.place ? exchangePlace(s.place) : undefined,
+    heroAbsent: s.campId && s.heroAbsent ? true : undefined,
   };
 }
 

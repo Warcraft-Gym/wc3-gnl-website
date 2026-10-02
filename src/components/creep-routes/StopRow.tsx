@@ -30,6 +30,8 @@ export type StopRowData = {
   place?: Place;
   /** Camp stops only: the Bring units clear it without the hero. */
   heroAbsent?: boolean;
+  /** A fork node (`ForkRow`): its ways, each with its own stop rows. */
+  fork?: { mode: "either" | "both"; arms: { id: number; label: string; stops: StopRowData[] }[] };
 };
 
 const input =
@@ -97,6 +99,7 @@ export function StopRow({
   cardOpen,
   trace,
   placeLabel,
+  number,
 }: {
   index: number;
   stop: StopRowData;
@@ -124,6 +127,8 @@ export function StopRow({
   trace?: DerivedKill[];
   /** The place's name ("their base", "Marketplace"), for a place stop. */
   placeLabel?: string;
+  /** The stop's number from `stop-numbers.mjs` ("3a" in a fork's way); default `index + 1`. */
+  number?: string;
 }) {
   function addUnit() {
     if (stop.units.length >= 6) return;
@@ -139,7 +144,7 @@ export function StopRow({
   return (
     <li className="relative rounded border border-line/70 bg-bg/40 p-3">
       <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto]">
-        <span className="tnum pt-2.5 text-center text-xs text-faint">{index + 1}</span>
+        <span className="tnum pt-2.5 text-center text-xs text-faint">{number ?? index + 1}</span>
 
         {/* Camp / place / base action */}
         <div className="min-w-0">

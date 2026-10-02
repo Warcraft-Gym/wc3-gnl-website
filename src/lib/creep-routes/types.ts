@@ -142,6 +142,16 @@ export type RouteStop = {
   leaveRest?: boolean;
   /** Camp stops only: units clear this camp without the hero, so it grants the hero no XP. */
   heroAbsent?: boolean;
+  /** A fork node: `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
+  fork?: Fork;
+};
+
+/** Ways a route can split, one level deep: "either" picks one arm (each labelled
+ *  with the condition), "both" runs every arm at once (arm 0 with the hero). */
+export type Fork = {
+  mode: "either" | "both";
+  /** 2 or 3 arms, each with 1..n stops; an arm stop never holds a fork. */
+  arms: { label?: string; stops: RouteStop[] }[];
 };
 
 /** Where a place stop happens: `start` is `String(player)` of `CreepMap.starts[]`,

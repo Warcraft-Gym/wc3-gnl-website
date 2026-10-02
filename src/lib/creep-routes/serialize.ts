@@ -30,6 +30,8 @@ export type ApiRouteStop = {
   place?: Place;
   /** Camp stops only: cleared without the hero, no hero XP. */
   heroAbsent?: boolean;
+  /** A fork node; see `stop-numbers.mjs` for how its arms number. */
+  fork?: { mode: "either" | "both"; arms: { label?: string; stops: ApiRouteStop[] }[] };
 };
 
 /** List DTO — see `toApiRouteListItem`'s own doc comment (in `serialize.mjs`)

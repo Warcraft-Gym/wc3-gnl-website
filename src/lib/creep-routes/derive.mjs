@@ -33,39 +33,87 @@ function levelForXp(xp) {
  * — Blizzard's `HeroFactorXP` table applies per kill (see
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
  * pays the new, lower factor for the rest of that camp's kills. A
- * `heroAbsent` stop's kills carry `xp: 0` and leave level/xp unchanged. */
-export function deriveRoute(route, map, { startLevel = 1 } = {}) {
+ * `heroAbsent` stop's kills carry `xp: 0` and leave level/xp unchanged.
+ * A fork stop (`stop.fork`) derives every arm and carries them as
+ * `fork: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
+ * arm stops carry `armIndex` and `forkKey`, and `choice` maps a fork key
+ * ("2") to the arm the hero walks in "either" mode (default 0). */
+export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
   let level = startLevel;
   let xp = heroXpForLevel(startLevel);
 
-  const stops = route.stops.map((stop) => {
-    const camp = stop.campId ? findCamp(map, stop.campId) : null;
-    const kills = [];
-    if (camp) {
-      for (const { row, ordered, unit, inSet } of killUnits(camp, stop.kills, stop.leaveRest)) {
-        const creep = camp.creeps[row];
-        const factor = creepXpFactor(level);
-        // Floor each creep's grant, same rounding as xp.mjs's
-        // `heroLevelAfter` — see docs/creep-routes.md's "XP model". A stop
-        // without the hero (`heroAbsent`) grants the hero nothing.
-        const gain = stop.heroAbsent ? 0 : Math.floor(creepXp(creep.level) * factor);
-        xp += gain;
-        const levelAfter = levelForXp(xp);
-        kills.push({ creep, row, ordered, unit, inSet, xp: gain, levelAfter, leveledUp: levelAfter > level });
-        level = levelAfter;
-      }
+  const stops = route.stops.map((stop, i) => {
+    if (!stop.fork) {
+      const d = deriveStop(stop, map, level, xp, false);
+      level = d.heroLevelAfter;
+      xp = d.xpAfter;
+      return d;
+    }
+    // A fork: every arm is derived from the hero's state at the fork. The hero
+    // walks one arm (`choice[forkKey]` in "either", arm 0 in "both"); only that
+    // arm feeds the running total. In "both" arms 1.. are without the hero.
+    const { mode, arms: rawArms } = stop.fork;
+    const forkKey = String(i);
+    const walked = mode === "both" ? 0 : Math.min(Math.max(0, choice[forkKey] ?? 0), rawArms.length - 1);
+    const arms = rawArms.map((arm, armIndex) => {
+      let armLevel = level;
+      let armXp = xp;
+      const armStops = arm.stops.map((s) => {
+        const d = deriveStop(s, map, armLevel, armXp, mode === "both" && armIndex > 0);
+        armLevel = d.heroLevelAfter;
+        armXp = d.xpAfter;
+        return { ...d, armIndex, forkKey };
+      });
+      return { label: arm.label, stops: armStops, levelAfter: armLevel, xpAfter: armXp };
+    });
+    if (arms[walked]) {
+      level = arms[walked].levelAfter;
+      xp = arms[walked].xpAfter;
     }
     return {
-      campId: stop.campId ?? null,
-      camp,
+      campId: null,
+      camp: null,
       heroLevelAfter: level,
       xpAfter: xp,
-      campLevel: camp ? camp.level : null,
-      band: camp ? camp.band : null,
-      left: camp ? creepsLeft(camp, stop.kills, stop.leaveRest) : 0,
-      kills,
+      campLevel: null,
+      band: null,
+      left: 0,
+      kills: [],
+      fork: { mode, walked, arms },
     };
   });
 
   return { stops, finalLevel: level, finalXp: xp };
+}
+
+/** One non-fork stop from the hero's `level`/`xp`; `absent` forces "without the hero". */
+function deriveStop(stop, map, level, xp, absent) {
+  const camp = stop.campId ? findCamp(map, stop.campId) : null;
+  const noHero = absent || Boolean(stop.heroAbsent);
+  const kills = [];
+  if (camp) {
+    for (const { row, ordered, unit, inSet } of killUnits(camp, stop.kills, stop.leaveRest)) {
+      const creep = camp.creeps[row];
+      const factor = creepXpFactor(level);
+      // Floor each creep's grant, same rounding as xp.mjs's
+      // `heroLevelAfter` — see docs/creep-routes.md's "XP model". A stop
+      // without the hero (`heroAbsent`) grants the hero nothing.
+      const gain = noHero ? 0 : Math.floor(creepXp(creep.level) * factor);
+      xp += gain;
+      const levelAfter = levelForXp(xp);
+      kills.push({ creep, row, ordered, unit, inSet, xp: gain, levelAfter, leveledUp: levelAfter > level });
+      level = levelAfter;
+    }
+  }
+  return {
+    campId: stop.campId ?? null,
+    camp,
+    heroLevelAfter: level,
+    xpAfter: xp,
+    campLevel: camp ? camp.level : null,
+    band: camp ? camp.band : null,
+    left: camp ? creepsLeft(camp, stop.kills, stop.leaveRest) : 0,
+    kills,
+    ...(absent ? { heroAbsent: true } : {}),
+  };
 }

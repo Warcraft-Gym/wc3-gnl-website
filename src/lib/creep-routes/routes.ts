@@ -1,7 +1,7 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { FIXTURE_ROUTES } from "./fixtures";
-import type { CreepRoute } from "./types";
+import type { CreepRoute, RouteStop } from "./types";
 import { filterCreepRoutes, type CreepRouteFilter } from "./filter";
 import { sanityCache } from "@/lib/content/cache";
 
@@ -64,8 +64,19 @@ const DETAIL_PROJECTION = `{
  *  is dropped rather than shown broken; `null` signals that to the caller. */
 function normalizeRoute(doc: RawRoute): CreepRoute | null {
   if (!doc.map) return null;
-  return { ...doc, map: doc.map };
+  return { ...doc, map: doc.map, stops: (doc.stops ?? []).map(fromSanityStop) };
 }
+
+/** A Sanity `creepFork` array member becomes a fork node (`campId: null`, `fork`); every other stop passes through. */
+function fromSanityStop(stop: RouteStop | SanityFork): RouteStop {
+  if (!("_type" in stop) || stop._type !== "creepFork") return stop as RouteStop;
+  return {
+    campId: null,
+    fork: { mode: stop.mode, arms: (stop.arms ?? []).map((arm) => ({ label: arm.label ?? undefined, stops: arm.stops ?? [] })) },
+  };
+}
+
+type SanityFork = { _type: "creepFork"; mode: "either" | "both"; arms?: { label?: string | null; stops?: RouteStop[] }[] };
 
 function byUpdatedDesc(a: CreepRoute, b: CreepRoute) {
   return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();

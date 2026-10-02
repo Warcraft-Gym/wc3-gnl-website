@@ -197,7 +197,16 @@ export const FIXTURE_ROUTES = [
         units: [{ icon: "ne-ancient-of-war", count: 1 }],
       },
       { campId: "c07", note: "Keeper takes the turtles while the Ancient tanks" },
-      { campId: null, action: "Harass their base", place: { kind: "start", id: "3" } },
+      {
+        campId: null,
+        fork: {
+          mode: "either",
+          arms: [
+            { label: "No one at their natural", stops: [{ campId: "c08", note: "Take their natural's turtles" }] },
+            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "start", id: "3" } }] },
+          ],
+        },
+      },
     ],
   },
   {
@@ -217,8 +226,19 @@ export const FIXTURE_ROUTES = [
     updatedAt: "2026-10-02T11:00:00Z",
     stops: [
       { campId: "c11", units: [{ icon: "hu-militia", count: 5 }], note: "Call to Arms, clear the marketplace camp together" },
-      { campId: "c04", note: "The army takes the turtles" },
-      { campId: "c19", heroAbsent: true, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" },
+      {
+        campId: null,
+        fork: {
+          mode: "both",
+          arms: [
+            { label: "Army", stops: [{ campId: "c04", note: "The army takes the turtles" }] },
+            {
+              label: "Militia",
+              stops: [{ campId: "c19", heroAbsent: true, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" }],
+            },
+          ],
+        },
+      },
     ],
   },
 ];
@@ -233,7 +253,7 @@ for (const route of FIXTURE_ROUTES) {
   const map = MAP_BY_SLUG.get(route.map.slug);
   if (!map) throw new Error(`fixture route ${route.slug} references unknown map ${route.map.slug}`);
   route.map.minimapUrl = map.minimapUrl;
-  for (const stop of route.stops) {
+  for (const stop of route.stops.flatMap((s) => [s, ...(s.fork?.arms.flatMap((arm) => arm.stops) ?? [])])) {
     const camp = stop.campId && map.camps.find((c) => c.id === stop.campId);
     if (stop.campId && !camp) {
       throw new Error(`fixture route ${route.slug} references unknown camp ${stop.campId} on ${map.slug}`);

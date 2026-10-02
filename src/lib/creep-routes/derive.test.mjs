@@ -188,3 +188,49 @@ test("a heroAbsent stop grants no hero xp: its kills carry xp 0 and level and xp
   }
   assert.equal(result.finalXp, 128);
 });
+
+const forkRoute = (mode) => ({
+  stops: [
+    { campId: "c1" },
+    { campId: null, fork: { mode, arms: [{ label: "A", stops: [{ campId: "c2" }] }, { label: "B", stops: [] }] } },
+    { campId: "c2" },
+  ],
+});
+
+test("either: the hero walks the chosen arm; the other arm is derived but feeds no total", () => {
+  const route = forkRoute("either");
+  route.stops[1].fork.arms[1].stops = [{ campId: "c1" }];
+  const first = deriveRoute(route, MAP);
+  const fork = first.stops[1].fork;
+  assert.equal(fork.walked, 0);
+  assert.equal(fork.arms[0].xpAfter, 306);
+  assert.equal(fork.arms[1].stops[0].armIndex, 1);
+  assert.equal(fork.arms[1].stops[0].forkKey, "1");
+  assert.equal(first.stops[1].xpAfter, 306);
+
+  const second = deriveRoute(route, MAP, { choice: { 1: 1 } });
+  assert.equal(second.stops[1].fork.walked, 1);
+  assert.equal(second.stops[1].xpAfter, second.stops[1].fork.arms[1].xpAfter);
+  assert.ok(second.stops[1].xpAfter < first.stops[1].xpAfter);
+});
+
+test("both: arm 0 walks with the hero, arms 1.. are derived without the hero", () => {
+  const route = forkRoute("both");
+  route.stops[1].fork.arms[1].stops = [{ campId: "c2" }];
+  const fork = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].fork;
+  assert.equal(fork.walked, 0);
+  assert.equal(fork.arms[1].stops[0].heroAbsent, true);
+  assert.ok(fork.arms[1].stops[0].kills.every((k) => k.xp === 0));
+  assert.equal(fork.arms[1].xpAfter, 128);
+});
+
+test("the stop after a fork continues from the chosen arm's total", () => {
+  const route = forkRoute("either");
+  route.stops[1].fork.arms[1].stops = [{ campId: null, action: "Harass" }];
+  const viaA = deriveRoute(route, MAP);
+  const viaB = deriveRoute(route, MAP, { choice: { 1: 1 } });
+  assert.equal(viaB.stops[1].xpAfter, 128);
+  // The hero arrives at level 1 via B, level 2 via A: B's first kill pays the higher factor.
+  assert.ok(viaB.stops[2].kills[0].xp > viaA.stops[2].kills[0].xp);
+  assert.ok(viaB.finalXp > 128 && viaB.finalXp < viaA.finalXp);
+});

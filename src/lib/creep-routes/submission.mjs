@@ -53,7 +53,7 @@ function unitSchema(iconSet) {
   });
 }
 
-function baseStopSchema(iconSet) {
+function baseStopSchema(iconSet, forkField) {
   return z
     .object({
       /** null marks a base action (TP home, buy from a shop, take the
@@ -80,8 +80,16 @@ function baseStopSchema(iconSet) {
       place: placeSchema.optional(),
       /** Camp stops only: cleared without the hero, so it grants no hero XP. */
       heroAbsent: z.boolean().optional(),
+      /** A fork node at the top level; inside an arm, any fork is rejected (one level). */
+      fork: forkField,
     })
     .superRefine((stop, ctx) => {
+      if (stop.fork) {
+        if (stop.campId !== null || stop.action || stop.place) {
+          ctx.addIssue({ code: "custom", message: "A fork has no camp, action or place", path: ["fork"] });
+        }
+        return;
+      }
       if (stop.heroAbsent && stop.campId === null) {
         ctx.addIssue({ code: "custom", message: "Only a camp stop can be without the hero", path: ["heroAbsent"] });
       }
@@ -94,6 +102,29 @@ function baseStopSchema(iconSet) {
           path: ["action"],
         });
       }
+    });
+}
+
+/** A fork node's ways: 2 or 3 arms of 1..20 stops; in "either" every arm names its condition. */
+function forkSchema(armStopSchema) {
+  return z
+    .object({
+      mode: z.enum(["either", "both"]),
+      arms: z
+        .array(
+          z.object({
+            label: z.string().trim().max(60, "Max 60 characters").optional(),
+            stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
+          }),
+        )
+        .min(2, "A fork needs two or three ways")
+        .max(3, "A fork needs two or three ways"),
+    })
+    .superRefine((fork, ctx) => {
+      if (fork.mode !== "either") return;
+      fork.arms.forEach((arm, a) => {
+        if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this way", path: ["arms", a, "label"] });
+      });
     });
 }
 
@@ -128,7 +159,11 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const stopSchema = baseStopSchema(iconSet);
+  const armStopSchema = baseStopSchema(
+    iconSet,
+    z.unknown().optional().refine((v) => v === undefined, "A way cannot hold another fork"),
+  );
+  const stopSchema = baseStopSchema(iconSet, forkSchema(armStopSchema).optional());
 
   return z
     .object({
@@ -221,21 +256,25 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
     })
     .superRefine((data, ctx) => {
       const campIds = campsByMap.get(data.map);
-      data.stops.forEach((stop, i) => {
+      const checkStop = (stop, path) => {
         if (stop.campId && campIds && !campIds.has(stop.campId)) {
           ctx.addIssue({
             code: "custom",
             message: `Unknown camp "${stop.campId}" on this map`,
-            path: ["stops", i, "campId"],
+            path: [...path, "campId"],
           });
         }
         const counts = stop.campId && creepCountsByMap.get(data.map)?.[stop.campId];
         const problem = stop.kills?.length
           ? stop.campId ? counts && killsProblem(stop.kills, counts) : "A base action has no creeps"
           : null;
-        if (problem) ctx.addIssue({ code: "custom", message: problem, path: ["stops", i, "kills"] });
+        if (problem) ctx.addIssue({ code: "custom", message: problem, path: [...path, "kills"] });
         const placeIssue = stop.place && placeProblem(stop.place, placeIdsByMap.get(data.map));
-        if (placeIssue) ctx.addIssue({ code: "custom", message: placeIssue, path: ["stops", i, "place"] });
+        if (placeIssue) ctx.addIssue({ code: "custom", message: placeIssue, path: [...path, "place"] });
+      };
+      data.stops.forEach((stop, i) => {
+        checkStop(stop, ["stops", i]);
+        stop.fork?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, "fork", "arms", a, "stops", j])));
       });
       const startsCount = startsCountByMap.get(data.map);
       if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
@@ -341,23 +380,42 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
     tags: valid.tags,
     featured: false,
     publishedAt: new Date().toISOString(),
-    stops: valid.stops.map((s) => ({
-      _type: "stop",
-      _key: shortKey(),
-      campId: s.campId || undefined,
-      action: s.action || undefined,
-      units: s.units && s.units.length
-        ? s.units.map((u) => ({ _type: "unit", _key: shortKey(), icon: u.icon, count: u.count }))
-        : undefined,
-      note: s.note || undefined,
-      condition: s.condition || undefined,
-      kills: s.campId && s.kills?.length
-        ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
-        : undefined,
-      leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
-      place: s.place ? { ...s.place } : undefined,
-      heroAbsent: s.campId && s.heroAbsent ? true : undefined,
-    })),
+    stops: valid.stops.map((s) =>
+      s.fork
+        ? {
+            _type: "creepFork",
+            _key: shortKey(),
+            mode: s.fork.mode,
+            arms: s.fork.arms.map((arm) => ({
+              _type: "arm",
+              _key: shortKey(),
+              label: arm.label || undefined,
+              stops: arm.stops.map(draftStop),
+            })),
+          }
+        : draftStop(s),
+    ),
     description: toPortableText(valid.description),
+  };
+}
+
+/** One camp, place or base-action stop as a Sanity `stop` array member. */
+function draftStop(s) {
+  return {
+    _type: "stop",
+    _key: shortKey(),
+    campId: s.campId || undefined,
+    action: s.action || undefined,
+    units: s.units && s.units.length
+      ? s.units.map((u) => ({ _type: "unit", _key: shortKey(), icon: u.icon, count: u.count }))
+      : undefined,
+    note: s.note || undefined,
+    condition: s.condition || undefined,
+    kills: s.campId && s.kills?.length
+      ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
+      : undefined,
+    leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
+    place: s.place ? { ...s.place } : undefined,
+    heroAbsent: s.campId && s.heroAbsent ? true : undefined,
   };
 }

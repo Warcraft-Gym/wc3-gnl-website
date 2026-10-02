@@ -11,6 +11,7 @@ import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopRow";
+import { rowToStop, stopToRow, toggleCamp } from "./stop-rows";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
@@ -113,14 +114,7 @@ export function RouteSubmitForm({
   // hardening, so this class of bug can't recur even if a future caller
   // forgets to memoize its own `onCampSelect`.
   const onCampSelect = useCallback((campId: string) => {
-    setStops((rows) => {
-      const idx = rows.findIndex((r) => r.campId === campId);
-      if (idx !== -1) return rows.filter((_, i) => i !== idx);
-      return [
-        ...rows,
-        { id: Date.now() + Math.random(), campId, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false },
-      ];
-    });
+    setStops((rows) => toggleCamp(rows, campId));
   }, []);
 
   // #route= deep link from a future overlay/replay importer.
@@ -143,20 +137,7 @@ export function RouteSubmitForm({
     setHero(r.hero ?? "");
     setBuildSlug(r.build ?? "");
     setTags(r.tags.slice(0, 8));
-    setStops(
-      r.stops.map((s) => ({
-        id: Date.now() + Math.random(),
-        campId: s.campId,
-        action: s.action ?? "",
-        units: (s.units ?? []).map((u) => ({ id: Date.now() + Math.random(), icon: u.icon, count: String(u.count) })),
-        note: s.note ?? "",
-        condition: s.condition ?? "",
-        kills: s.kills ?? [],
-        leaveRest: Boolean(s.leaveRest),
-        place: s.place,
-        heroAbsent: s.heroAbsent,
-      })),
-    );
+    setStops(r.stops.map(stopToRow));
   };
   // Applies a `#route=` payload on mount, and again on `hashchange` so a
   // link followed while the editor is already open (in-tab hash navigation,
@@ -207,19 +188,7 @@ export function RouteSubmitForm({
   }, []);
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
-  const stopsJson = JSON.stringify(
-    stops.map((s) => ({
-      campId: s.campId,
-      action: s.action || undefined,
-      units: s.units.filter((u) => u.icon).map((u) => ({ icon: u.icon, count: Number(u.count) || 1 })),
-      note: s.note || undefined,
-      condition: s.condition || undefined,
-      kills: s.campId && s.kills.length ? s.kills : undefined,
-      leaveRest: s.campId && s.kills.length && s.leaveRest ? true : undefined,
-      place: s.place,
-      heroAbsent: s.campId && s.heroAbsent ? true : undefined,
-    })),
-  );
+  const stopsJson = JSON.stringify(stops.map(rowToStop));
 
   if (state.status === "ok") {
     return (

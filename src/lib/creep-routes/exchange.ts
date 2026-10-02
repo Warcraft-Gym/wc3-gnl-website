@@ -41,6 +41,16 @@ const stopSchema = z.object({
   heroAbsent: z.boolean().optional(),
 });
 
+/** A top-level stop may be a fork node whose arms hold plain stops (one level). */
+const topStopSchema = stopSchema.extend({
+  fork: z
+    .object({
+      mode: z.enum(["either", "both"]),
+      arms: z.array(z.object({ label: z.string().optional(), stops: z.array(stopSchema) })),
+    })
+    .optional(),
+});
+
 export const creepRouteExchangeSchema = z.object({
   title: z.string().default(""),
   map: z.string().default(""),
@@ -75,7 +85,7 @@ export const creepRouteExchangeSchema = z.object({
    *  already naming what it replaces. A plain import (replay, overlay) omits
    *  it, because that is a new route rather than an edit. */
   supersedes: z.string().optional(),
-  stops: z.array(stopSchema).min(1),
+  stops: z.array(topStopSchema).min(1),
   description: z.string().optional(),
 });
 

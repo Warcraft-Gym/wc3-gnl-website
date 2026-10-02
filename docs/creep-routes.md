@@ -475,6 +475,45 @@ only; the submission schema rejects it on a place or base-action stop.
 Two stops in a row where the second is without the hero read as "then".
 Creeping at the same time is a fork with `mode: "both"`, not a flag.
 
+### Forks
+
+A fork is its own entry in `stops`: `{ campId: null, fork: { mode, arms } }`
+with no action and no place. `mode: "either"` means the reader picks one arm
+(every arm's `label` is required: it is the condition); `"both"` means every
+arm runs at once (labels optional). A fork has 2 or 3 arms of 1..n stops,
+one level deep: an arm stop never holds a fork. A whole-route pair is a fork
+at index 0. In Sanity the stop is a `creepFork` array member next to the
+`stop` members (`creepStop`, stored under the name `stop` as before).
+
+- **Numbers and keys** (`stop-numbers.mjs`). Stops before the fork number as
+  before; the fork takes the next number N; arm stops read N a, N+1 a, … and
+  N b, …; the stop after the fork takes N + the longest arm's length. Keys
+  are "0", "1", … at the top level and "2.a.0" in an arm; the stop view
+  reducer, the scroll target and a badge click use the key. `data-stop` and
+  `data-stop-marker` carry the number ("3a").
+- **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
+  fork key to an arm index (default 0). Every arm is derived from the hero's
+  state at the fork; only the walked arm (the chosen one in "either", arm 0
+  in "both") feeds the running total. In "both", arms 1.. are derived
+  without the hero. A derived fork carries `fork: { mode, walked, arms }`,
+  each arm stop `armIndex` and `forkKey`.
+- **Map.** Every arm starts at the node before the fork, or your start marker
+  for a fork at stop 1. "Either": the chosen arm is drawn as usual; the other
+  arms' legs are dashed (`4 3`) at 55% with no chevron and their badges at
+  60%; a click on one of their badges chooses that arm and selects the stop.
+  "Both": arm 0 as usual, arms 1.. in the "without the hero" style. The path
+  goes on from the end of the walked arm. Arm badges are pills ("3a"). The
+  legend shows "Another way" only when the route has an "either" fork.
+- **List.** The fork is a stop block: "Choose a way" or "At the same time",
+  its arm labels as chips when collapsed. Open, "either" shows one button per
+  arm (label, then the hero's level at that arm's end) and the chosen arm's
+  stops nested under a 2px arcane rule; "both" lists every arm with its label.
+  The choice is page state, not URL state.
+- **Builder.** "+ Fork" adds a "Choose a way" fork with two empty ways. The
+  fork row has the mode chips, a box per way (a radio dot, a label input, its
+  own stop list), "Add a way" up to 3 and a remove per way. Map clicks go into
+  the active way, or the top level when none is active.
+
 ### Kill order
 
 A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is

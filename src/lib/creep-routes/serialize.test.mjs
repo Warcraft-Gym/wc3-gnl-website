@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { toApiMap, toApiMapListItem, toApiRoute, toApiRouteListItem, toApiStop } from "./serialize.mjs";
 import { deriveRoute } from "./derive.mjs";
+import { toExchangeRoute } from "./edit-link.mjs";
 
 const iconSrc = (icon) => `/icons/${icon}.png`;
 
@@ -146,4 +147,39 @@ test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
 test("toApiStop carries a kill set unchanged", () => {
   const stop = toApiStop({ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }] }, "https://site.example", iconSrc);
   assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
+});
+
+test("round trip of a route with a place stop, a stop without the hero and a fork", () => {
+  const full = {
+    ...route,
+    stops: [
+      { campId: null, action: "Plant the Ancient", place: { kind: "point", x: 0.4, y: 0.6 }, units: [{ icon: "ne-ancient-of-war", count: 1 }] },
+      { campId: "c01", heroAbsent: true, units: [{ icon: "hu-militia", count: 4 }] },
+      {
+        campId: null,
+        fork: {
+          mode: "either",
+          arms: [
+            { label: "No one at their natural", stops: [{ campId: "c02", units: [{ icon: "hu-archmage", count: 1 }] }] },
+            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "start", id: "0" } }] },
+          ],
+        },
+      },
+    ],
+  };
+  const api = toApiRoute(full, map, "https://site.example", iconSrc, deriveRoute);
+  assert.deepEqual(api.stops[0].place, { kind: "point", x: 0.4, y: 0.6 });
+  assert.equal(api.stops[1].heroAbsent, true);
+  assert.equal(api.stops[2].fork.mode, "either");
+  assert.equal(api.stops[2].fork.arms[0].stops[0].units[0].iconUrl, "https://site.example/icons/hu-archmage.png");
+  assert.deepEqual(api.stops[2].fork.arms[1].stops[0].place, { kind: "start", id: "0" });
+  assert.equal(api.derived.stops.length, 3);
+
+  // The "Suggest an update" payload carries all three back to the editor unchanged.
+  const back = toExchangeRoute(full).stops;
+  assert.deepEqual(back[0].place, full.stops[0].place);
+  assert.equal(back[1].heroAbsent, true);
+  assert.deepEqual(back[2].fork.arms.map((a) => a.label), ["No one at their natural", "They are at their natural"]);
+  assert.deepEqual(back[2].fork.arms[1].stops[0].place, { kind: "start", id: "0" });
+  assert.equal(back[2].fork.arms[0].stops[0].campId, "c02");
 });

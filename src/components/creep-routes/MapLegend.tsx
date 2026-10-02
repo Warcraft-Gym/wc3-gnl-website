@@ -11,9 +11,18 @@ import { cn } from "@/lib/utils";
  * reader needs; the source URLs and credit live in `docs/creep-routes.md`'s
  * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
  * lets it wrap on mobile without special-casing. A route mark (a leg without
- * the hero) gets an entry only when the route has one.
+ * the hero, a dashed leg of another way) gets an entry only when the route has one.
  */
-export function MapLegend({ className, heroAbsent = false }: { className?: string; heroAbsent?: boolean }) {
+export function MapLegend({
+  className,
+  heroAbsent = false,
+  anotherWay = false,
+}: {
+  className?: string;
+  heroAbsent?: boolean;
+  /** The route has an "either" fork: its unchosen arms draw dashed. */
+  anotherWay?: boolean;
+}) {
   return (
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
       <span className="inline-flex items-center gap-1.5">
@@ -41,6 +50,12 @@ export function MapLegend({ className, heroAbsent = false }: { className?: strin
           Without the hero
         </span>
       ) : null}
+      {anotherWay ? (
+        <span className="inline-flex items-center gap-1.5">
+          <LegendLine opacity={0.55} dash="4 3" />
+          Another way
+        </span>
+      ) : null}
     </p>
   );
 }
@@ -49,7 +64,7 @@ export function MapLegend({ className, heroAbsent = false }: { className?: strin
 function LegendLine({ opacity = 1, dash }: { opacity?: number; dash?: string }) {
   return (
     <svg aria-hidden width={20} height={6} viewBox="0 0 20 6" className="inline-block">
-      <line x1={1} y1={3} x2={19} y2={3} stroke="rgba(255,255,255,.85)" strokeWidth={2} strokeLinecap="round" strokeDasharray={dash} opacity={opacity} />
+      <line x1={1} y1={3} x2={19} y2={3} stroke="rgba(255,255,255,.85)" strokeWidth={2} strokeLinecap={dash ? "butt" : "round"} strokeDasharray={dash} opacity={opacity} />
     </svg>
   );
 }

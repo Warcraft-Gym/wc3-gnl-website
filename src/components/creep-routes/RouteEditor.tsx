@@ -3,9 +3,11 @@
 import { useCallback, useMemo, useState } from "react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
-import { StopEditor } from "./StopEditor";
+import { StopEditor, type ActiveArm } from "./StopEditor";
+import { newRow, rowToStop, toggleCamp, updateArm } from "./stop-rows";
 import type { StopRowData } from "./StopRow";
-import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, Place } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, Place, RouteStop } from "@/lib/creep-routes/types";
+import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
@@ -58,33 +60,31 @@ export function RouteEditor({
 }) {
   // What the map needs to draw the live path: campId, in order — order
   // alone drives the polyline and the numbered badges.
-  const routeForMap = useMemo(
-    () => ({
-      stops: stops.map((s) => ({
-        campId: s.campId,
-        kills: s.kills,
-        leaveRest: s.leaveRest,
-        place: s.place,
-        heroAbsent: s.heroAbsent,
-        units: s.units.filter((u) => u.icon).map((u) => ({ icon: u.icon, count: Number(u.count) || 1 })),
-      })),
-      start,
-    }),
-    [stops, start],
+  const routeForMap = useMemo(() => ({ stops: stops.map(rowToStop), start }), [stops, start]);
+
+  // The fork way map clicks go into (its radio dot); none means the top level.
+  const [activeArm, setActiveArm] = useState<ActiveArm>(null);
+  const armOpen = activeArm !== null && stops.some((r) => r.id === activeArm.forkId && r.fork && r.fork.arms[activeArm.arm]);
+  const addTo = useCallback(
+    (update: (rows: StopRowData[]) => StopRowData[]) =>
+      setStops((rows) => (armOpen && activeArm ? updateArm(rows, activeArm.forkId, activeArm.arm, update) : update(rows))),
+    [setStops, armOpen, activeArm],
+  );
+  const onCampClick = useCallback(
+    (campId: string) => (armOpen ? addTo((rows) => toggleCamp(rows, campId)) : onCampSelect(campId)),
+    [armOpen, addTo, onCampSelect],
   );
 
   // A start, mine or shop click appends a place stop; so does the next map click while "Point" is armed.
   const [pointArmed, setPointArmed] = useState(false);
   const onPlaceSelect = useCallback(
     (place: Place) => {
-      setStops((rows) => [
-        ...rows,
-        { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, place },
-      ]);
+      addTo((rows) => [...rows, newRow({ place })]);
       setPointArmed(false);
     },
-    [setStops],
+    [addTo],
   );
+  const allStops = flatStops(routeForMap.stops) as { stop: RouteStop }[];
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
@@ -92,7 +92,7 @@ export function RouteEditor({
         <CreepMap
           map={map}
           route={routeForMap}
-          onCampSelect={onCampSelect}
+          onCampSelect={onCampClick}
           onCampCardPin={onOpenCard}
           onCampCardHoverEnter={onHoverEnter}
           onCampCardHoverLeave={onHoverLeave}
@@ -100,7 +100,10 @@ export function RouteEditor({
           onPlaceSelect={onPlaceSelect}
           pointArmed={pointArmed}
         />
-        <MapLegend heroAbsent={stops.some((s) => s.campId && s.heroAbsent)} />
+        <MapLegend
+          heroAbsent={allStops.some(({ stop }) => stop.heroAbsent) || stops.some((s) => s.fork?.mode === "both")}
+          anotherWay={stops.some((s) => s.fork?.mode === "either")}
+        />
         <p className="mt-2 text-xs text-faint">
           Hover a camp to see what&apos;s inside; click to add it as the next stop; right-click or
           the ⓘ pins the card. Click a base, gold mine or shop to add a stop there.
@@ -140,6 +143,8 @@ export function RouteEditor({
         start={start}
         pointArmed={pointArmed}
         onPointToggle={() => setPointArmed((v) => !v)}
+        activeArm={armOpen ? activeArm : null}
+        onActiveArm={setActiveArm}
       />
     </div>
   );

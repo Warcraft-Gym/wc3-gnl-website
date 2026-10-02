@@ -418,3 +418,43 @@ test("heroAbsent: kept on a camp stop, rejected on a place or base-action stop",
   const onPlace = s.safeParse(payload({ stops: [{ campId: null, action: "Harass", place: { kind: "start", id: "1" }, heroAbsent: true }, { campId: "c01" }] }));
   assert.equal(flattenErrors(onPlace.error)["stops.0.heroAbsent"], "Only a camp stop can be without the hero");
 });
+
+const forkStop = (mode, arms) => ({ campId: null, fork: { mode, arms } });
+
+test("fork: a valid either fork lands on the draft as a creepFork with arms of stops", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(
+    payload({
+      stops: [
+        { campId: "c01" },
+        forkStop("either", [
+          { label: "No one at their natural", stops: [{ campId: "c02", heroAbsent: true }] },
+          { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "start", id: "1" } }] },
+        ]),
+      ],
+    }),
+  );
+  assert.equal(ok.success, true);
+  const fork = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1];
+  assert.equal(fork._type, "creepFork");
+  assert.equal(fork.mode, "either");
+  assert.equal(fork.arms[0].label, "No one at their natural");
+  assert.equal(fork.arms[0].stops[0]._type, "stop");
+  assert.equal(fork.arms[0].stops[0].heroAbsent, true);
+  assert.deepEqual(fork.arms[1].stops[0].place, { kind: "start", id: "1" });
+});
+
+test("fork: a fork inside an arm, an empty arm and either without labels are rejected", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const inner = forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]);
+  const nested = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [inner] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(flattenErrors(nested.error)["stops.1.fork.arms.0.stops.0.fork"], "A way cannot hold another fork");
+  const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(flattenErrors(empty.error)["stops.1.fork.arms.0.stops"], "Add at least one stop to this way");
+  const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
+  assert.equal(flattenErrors(unlabelled.error)["stops.1.fork.arms.0.label"], "Say when to take this way");
+  const bothOk = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(bothOk.success, true);
+  const badCamp = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "zz" }] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.match(flattenErrors(badCamp.error)["stops.1.fork.arms.0.stops.0.campId"], /Unknown camp/);
+});

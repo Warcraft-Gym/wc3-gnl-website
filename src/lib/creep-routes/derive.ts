@@ -22,6 +22,17 @@ export type DerivedStop = {
   left: number;
   /** One entry per kill, in kill order. */
   kills: DerivedKill[];
+  /** Set on an arm stop of a "both" fork past arm 0: derived without the hero whatever its own flag. */
+  heroAbsent?: true;
+  /** Arm stops only: which arm of which fork (the fork's top-level key). */
+  armIndex?: number;
+  forkKey?: string;
+  /** Fork stops only: every arm derived from the hero's state at the fork; `walked` is the arm the total follows. */
+  fork?: {
+    mode: "either" | "both";
+    walked: number;
+    arms: { label?: string; stops: DerivedStop[]; levelAfter: number; xpAfter: number }[];
+  };
 };
 
 export type DerivedKill = {
@@ -47,8 +58,13 @@ export type DerivedRoute = {
   finalXp: number;
 };
 
+type DerivableStop = Pick<RouteStop, "campId" | "kills" | "leaveRest" | "heroAbsent"> & {
+  fork?: { mode: "either" | "both"; arms: { label?: string; stops: Pick<RouteStop, "campId" | "kills" | "leaveRest" | "heroAbsent">[] }[] };
+};
+
 export const deriveRoute = impl.deriveRoute as (
-  route: { stops: Pick<RouteStop, "campId" | "kills" | "leaveRest" | "heroAbsent">[] },
+  route: { stops: DerivableStop[] },
   map: CreepMap,
-  opts?: { startLevel?: number },
+  /** `choice`: fork key ("2") to the arm the hero walks in an "either" fork; default 0. */
+  opts?: { startLevel?: number; choice?: Record<string, number> },
 ) => DerivedRoute;
