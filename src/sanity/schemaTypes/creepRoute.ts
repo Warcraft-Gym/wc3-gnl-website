@@ -320,6 +320,13 @@ export const creepRoute = defineType({
               hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
             }),
             defineField({
+              name: "heroAbsent",
+              title: "Without the hero",
+              type: "boolean",
+              description: "On: the units in Bring clear this camp without the hero, so the hero gets no XP from it.",
+              hidden: ({ parent }) => !(parent as { campId?: string } | undefined)?.campId,
+            }),
+            defineField({
               name: "place",
               type: "object",
               description: "Optional. A stop at a start, gold mine, shop or point on the map instead of a camp. Leave the camp id empty and name what happens in Action.",

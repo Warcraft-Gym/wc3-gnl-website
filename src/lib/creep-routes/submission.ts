@@ -23,6 +23,7 @@ export type StopInput = {
   kills?: { row: number; n: number; set?: number }[];
   leaveRest?: boolean;
   place?: Place;
+  heroAbsent?: boolean;
 };
 
 /** The parsed, transformed output of the schema `createSubmissionSchema`

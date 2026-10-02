@@ -59,7 +59,17 @@ export function RouteEditor({
   // What the map needs to draw the live path: campId, in order — order
   // alone drives the polyline and the numbered badges.
   const routeForMap = useMemo(
-    () => ({ stops: stops.map((s) => ({ campId: s.campId, kills: s.kills, leaveRest: s.leaveRest, place: s.place })), start }),
+    () => ({
+      stops: stops.map((s) => ({
+        campId: s.campId,
+        kills: s.kills,
+        leaveRest: s.leaveRest,
+        place: s.place,
+        heroAbsent: s.heroAbsent,
+        units: s.units.filter((u) => u.icon).map((u) => ({ icon: u.icon, count: Number(u.count) || 1 })),
+      })),
+      start,
+    }),
     [stops, start],
   );
 
@@ -90,7 +100,7 @@ export function RouteEditor({
           onPlaceSelect={onPlaceSelect}
           pointArmed={pointArmed}
         />
-        <MapLegend />
+        <MapLegend heroAbsent={stops.some((s) => s.campId && s.heroAbsent)} />
         <p className="mt-2 text-xs text-faint">
           Hover a camp to see what&apos;s inside; click to add it as the next stop; right-click or
           the ⓘ pins the card. Click a base, gold mine or shop to add a stop there.

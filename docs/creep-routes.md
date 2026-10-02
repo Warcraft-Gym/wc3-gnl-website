@@ -455,6 +455,26 @@ start, mine or shop id the map does not have (`place.mjs`'s `placeProblem`).
   Appearance under Neutral, from the art the site already has. `count` on an
   item means charges.
 
+### Stops without the hero
+
+`RouteStop.heroAbsent: true` marks a camp stop that units clear without the
+hero (an Ancient of War walking ahead, militia finishing a camp). Camp stops
+only; the submission schema rejects it on a place or base-action stop.
+
+- **Derive.** The stop's kills carry `xp: 0`, `levelAfter` = the current
+  level and `leveledUp: false`; `heroLevelAfter`/`xpAfter` pass through.
+- **Map.** The leg into the stop is the same solid line at 55% with no
+  chevron. The badge keeps its number and gets the first Bring unit's icon
+  (10px) at its right edge; with no Bring units the badge fades to 55%. The
+  legend shows "Without the hero" only when the route has such a stop.
+- **List.** "· without the hero" after the band and level, nothing on the
+  right; the open body shows the kill chain without "+xp" captions or level
+  tags, then Bring, condition and note.
+- **Builder.** A "Without the hero" checkbox beside Bring on a camp row.
+
+Two stops in a row where the second is without the hero read as "then".
+Creeping at the same time is a fork with `mode: "both"`, not a flag.
+
 ### Kill order
 
 A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is

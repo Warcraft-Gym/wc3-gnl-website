@@ -38,6 +38,7 @@ const stopSchema = z.object({
       z.object({ kind: z.literal("point"), x: z.number(), y: z.number() }),
     ])
     .optional(),
+  heroAbsent: z.boolean().optional(),
 });
 
 export const creepRouteExchangeSchema = z.object({

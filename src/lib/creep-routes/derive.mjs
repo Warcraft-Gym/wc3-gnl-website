@@ -32,7 +32,8 @@ function levelForXp(xp) {
  * the hero's *current* level on every single kill, not fixed once per camp
  * — Blizzard's `HeroFactorXP` table applies per kill (see
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
- * pays the new, lower factor for the rest of that camp's kills. */
+ * pays the new, lower factor for the rest of that camp's kills. A
+ * `heroAbsent` stop's kills carry `xp: 0` and leave level/xp unchanged. */
 export function deriveRoute(route, map, { startLevel = 1 } = {}) {
   let level = startLevel;
   let xp = heroXpForLevel(startLevel);
@@ -45,8 +46,9 @@ export function deriveRoute(route, map, { startLevel = 1 } = {}) {
         const creep = camp.creeps[row];
         const factor = creepXpFactor(level);
         // Floor each creep's grant, same rounding as xp.mjs's
-        // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
-        const gain = Math.floor(creepXp(creep.level) * factor);
+        // `heroLevelAfter` — see docs/creep-routes.md's "XP model". A stop
+        // without the hero (`heroAbsent`) grants the hero nothing.
+        const gain = stop.heroAbsent ? 0 : Math.floor(creepXp(creep.level) * factor);
         xp += gain;
         const levelAfter = levelForXp(xp);
         kills.push({ creep, row, ordered, unit, inSet, xp: gain, levelAfter, leveledUp: levelAfter > level });

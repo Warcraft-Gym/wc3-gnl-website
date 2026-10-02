@@ -1,6 +1,7 @@
 import { memo, useMemo } from "react";
 import type { CreepMap, Place, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
+import { gameIconSrc } from "@/lib/builds/icons";
 import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
 import { placePoint } from "@/lib/creep-routes/place.mjs";
 import { radiusFor } from "./CampMarker";
@@ -61,6 +62,7 @@ export const RoutePath = memo(function RoutePath({
   // plus the halo ring) so the line never runs under a mark or its badge.
   const segments = points.slice(1).flatMap((b, i) => {
     const a = points[i];
+    const absent = Boolean(stops[b.index].heroAbsent);
     const ax = a.x * iw, ay = a.y * ih, bx = b.x * iw, by = b.y * ih;
     const len = Math.hypot(bx - ax, by - ay);
     const ra = a.trim;
@@ -68,9 +70,13 @@ export const RoutePath = memo(function RoutePath({
     if (len <= ra + rb) return [];
     const ux = (bx - ax) / len, uy = (by - ay) / len;
     const x1 = ax + ux * ra, y1 = ay + uy * ra, x2 = bx - ux * rb, y2 = by - uy * rb;
-    return [{ x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI }];
+    return [{ x1, y1, x2, y2, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, absent }];
   });
-  const d = segments.map((g) => `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`).join("");
+  const pathOf = (list: typeof segments) =>
+    list.map((g) => `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`).join("");
+  const d = pathOf(segments.filter((g) => !g.absent));
+  // A leg into a stop without the hero: the same solid line at 55%, no chevron.
+  const dAbsent = pathOf(segments.filter((g) => g.absent));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
   return (
@@ -79,8 +85,14 @@ export const RoutePath = memo(function RoutePath({
           over any terrain on the minimap. */}
       <path d={d} fill="none" strokeWidth="4" {...under} />
       <path d={d} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+      {dAbsent ? (
+        <g data-route-absent opacity={0.55}>
+          <path d={dAbsent} fill="none" strokeWidth="4" {...under} />
+          <path d={dAbsent} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
+        </g>
+      ) : null}
       {/* A 6px direction chevron at the middle of every leg, same light fill. */}
-      {segments.map((g, i) => (
+      {segments.map((g, i) => g.absent ? null : (
         <path
           key={i}
           data-route-direction
@@ -105,6 +117,9 @@ export const RoutePath = memo(function RoutePath({
         const badgeY = badge.y;
         const isActive = activeStop === p.index;
         const select = p.place && onStopSelect ? () => onStopSelect(p.index) : undefined;
+        // Without the hero: the first Bring unit's icon butts the badge's right edge; with none, the badge fades.
+        const absent = stops[p.index].heroAbsent;
+        const unitIcon = absent ? stops[p.index].units?.[0]?.icon : undefined;
         return (
           <g key={p.index} data-stop-marker={p.index + 1} onClick={select} className={select ? "cursor-pointer" : undefined}>
             {/* Same rule as `CampMarker`: grow via `transform: scale()` on
@@ -113,6 +128,7 @@ export const RoutePath = memo(function RoutePath({
              *  1.25, so `scale-125` reproduces the old active radius
              *  exactly. */}
             <g
+              opacity={absent && !unitIcon ? 0.55 : undefined}
               style={{ transformBox: "fill-box" }}
               className={cn(
                 "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
@@ -132,6 +148,7 @@ export const RoutePath = memo(function RoutePath({
                 {p.index + 1}
               </text>
               {p.place?.kind === "start" ? <SwordsGlyph cx={cx + 10.5} cy={badgeY} /> : null}
+              {unitIcon ? <image data-unit-icon href={gameIconSrc(unitIcon)} x={cx + 6} y={badgeY - 5} width={10} height={10} /> : null}
             </g>
           </g>
         );

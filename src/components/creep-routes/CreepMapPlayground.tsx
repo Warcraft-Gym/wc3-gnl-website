@@ -114,7 +114,7 @@ export function CreepMapPlayground({
         openCampId={openCampId}
         onStopSelect={onStopSelect}
       />
-      <MapLegend />
+      <MapLegend heroAbsent={route.stops.some((s) => s.heroAbsent)} />
     </>
   );
   const stopColumn = (

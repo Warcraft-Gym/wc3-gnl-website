@@ -48,7 +48,7 @@ export type DerivedRoute = {
 };
 
 export const deriveRoute = impl.deriveRoute as (
-  route: { stops: Pick<RouteStop, "campId" | "kills" | "leaveRest">[] },
+  route: { stops: Pick<RouteStop, "campId" | "kills" | "leaveRest" | "heroAbsent">[] },
   map: CreepMap,
   opts?: { startLevel?: number },
 ) => DerivedRoute;

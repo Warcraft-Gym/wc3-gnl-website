@@ -28,6 +28,8 @@ export type ApiRouteStop = {
   leaveRest?: boolean;
   /** A start, mine, shop or free point instead of a camp. */
   place?: Place;
+  /** Camp stops only: cleared without the hero, no hero XP. */
+  heroAbsent?: boolean;
 };
 
 /** List DTO — see `toApiRouteListItem`'s own doc comment (in `serialize.mjs`)

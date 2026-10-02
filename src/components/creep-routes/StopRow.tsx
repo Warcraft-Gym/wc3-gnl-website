@@ -28,6 +28,8 @@ export type StopRowData = {
   leaveRest: boolean;
   /** A place stop (`campId` null); `action` says what happens there. */
   place?: Place;
+  /** Camp stops only: the Bring units clear it without the hero. */
+  heroAbsent?: boolean;
 };
 
 const input =
@@ -224,7 +226,20 @@ export function StopRow({
           ) : null}
           {/* Bring */}
           <div>
-            <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
+            <div className="mb-1 flex items-center justify-between gap-3">
+              <p className="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
+              {stop.campId ? (
+                <label className="inline-flex cursor-pointer items-center gap-1.5 text-[0.7rem] text-muted hover:text-fg">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(stop.heroAbsent)}
+                    onChange={(e) => onChange({ heroAbsent: e.target.checked })}
+                    className="size-3.5 accent-[var(--wg-gold)]"
+                  />
+                  Without the hero
+                </label>
+              ) : null}
+            </div>
             <div className="flex flex-wrap items-center gap-1.5">
               {stop.units.map((u) => (
                 <span key={u.id} className="flex items-center gap-1 rounded border border-line/70 bg-surface/40 py-1 pl-1 pr-1.5">
@@ -261,6 +276,7 @@ export function StopRow({
               trace={trace ?? []}
               error={error?.("kills")}
               onChange={onChange}
+              noXp={stop.heroAbsent}
             />
           ) : null}
 

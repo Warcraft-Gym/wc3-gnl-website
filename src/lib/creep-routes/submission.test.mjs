@@ -409,3 +409,12 @@ test("place: an id the map does not have is rejected; a point must sit inside th
   const point = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "point", x: 1.2, y: 0.5 } }, { campId: "c01" }] }));
   assert.equal(point.success, false);
 });
+
+test("heroAbsent: kept on a camp stop, rejected on a place or base-action stop", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, { campId: "c02", heroAbsent: true }] }));
+  assert.equal(ok.success, true);
+  assert.equal(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1].heroAbsent, true);
+  const onPlace = s.safeParse(payload({ stops: [{ campId: null, action: "Harass", place: { kind: "start", id: "1" }, heroAbsent: true }, { campId: "c01" }] }));
+  assert.equal(flattenErrors(onPlace.error)["stops.0.heroAbsent"], "Only a camp stop can be without the hero");
+});

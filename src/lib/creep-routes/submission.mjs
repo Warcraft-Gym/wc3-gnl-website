@@ -78,8 +78,13 @@ function baseStopSchema(iconSet) {
       leaveRest: z.boolean().optional(),
       /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
       place: placeSchema.optional(),
+      /** Camp stops only: cleared without the hero, so it grants no hero XP. */
+      heroAbsent: z.boolean().optional(),
     })
     .superRefine((stop, ctx) => {
+      if (stop.heroAbsent && stop.campId === null) {
+        ctx.addIssue({ code: "custom", message: "Only a camp stop can be without the hero", path: ["heroAbsent"] });
+      }
       if (stop.place && stop.campId !== null) {
         ctx.addIssue({ code: "custom", message: "A place stop has no camp", path: ["place"] });
       } else if (stop.campId === null && !stop.action) {
@@ -351,6 +356,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
         : undefined,
       leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
       place: s.place ? { ...s.place } : undefined,
+      heroAbsent: s.campId && s.heroAbsent ? true : undefined,
     })),
     description: toPortableText(valid.description),
   };

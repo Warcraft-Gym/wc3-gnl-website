@@ -26,7 +26,7 @@ function StopBody({ stop, d }: { stop: RouteStop; d: DerivedStop }) {
   const camp = d.camp;
   return (
     <div className="min-w-0 space-y-3">
-      {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} /> : null}
+      {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} noXp={stop.heroAbsent} /> : null}
 
       {stop.units?.length ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -166,7 +166,7 @@ export function RouteStepTable({
                   onClick={() => onSummary(i)}
                   aria-expanded={isOpen}
                   aria-controls={bodyId}
-                  aria-label={camp ? `Stop ${i + 1}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${i + 1}, ${label}${where ? `, ${where}` : ""}`}
+                  aria-label={camp && stop.heroAbsent ? `Stop ${i + 1}, ${label}, without the hero` : camp ? `Stop ${i + 1}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${i + 1}, ${label}${where ? `, ${where}` : ""}`}
                   className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
                 />
                 <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -198,6 +198,7 @@ export function RouteStepTable({
                         <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
                           <span>
                             {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
+                            {stop.heroAbsent ? " · without the hero" : null}
                           </span>
                           <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
                         </span>
@@ -211,8 +212,8 @@ export function RouteStepTable({
                     ) : (
                       <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
                     )}
-                    {camp && isOpen ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
-                    {camp && !isOpen ? (
+                    {camp && isOpen && !stop.heroAbsent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+                    {camp && !isOpen && !stop.heroAbsent ? (
                       <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
                         Lv {d.heroLevelAfter} · {d.xpAfter} xp
                       </span>

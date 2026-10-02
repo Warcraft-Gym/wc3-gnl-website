@@ -200,6 +200,27 @@ export const FIXTURE_ROUTES = [
       { campId: null, action: "Harass their base", place: { kind: "start", id: "3" } },
     ],
   },
+  {
+    slug: "human-no-expansion-tidehunters",
+    title: "No expansion",
+    race: "human",
+    vsRaces: [],
+    level: "standard",
+    map: { slug: "tidehunters", name: "Tidehunters" },
+    hero: "hu-archmage",
+    summary: "Militia help at the marketplace camp, then the army and the militia creep two camps at the same time.",
+    author: "Gym coaches",
+    patch: "2.0.3",
+    mapVersion: "1.2",
+    featured: false,
+    publishedAt: "2026-10-02T11:00:00Z",
+    updatedAt: "2026-10-02T11:00:00Z",
+    stops: [
+      { campId: "c11", units: [{ icon: "hu-militia", count: 5 }], note: "Call to Arms, clear the marketplace camp together" },
+      { campId: "c04", note: "The army takes the turtles" },
+      { campId: "c19", heroAbsent: true, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" },
+    ],
+  },
 ];
 
 // Sanity check the seed data at import time (this file is also `node --test`ed

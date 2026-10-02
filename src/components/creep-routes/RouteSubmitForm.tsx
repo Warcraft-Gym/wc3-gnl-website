@@ -154,6 +154,7 @@ export function RouteSubmitForm({
         kills: s.kills ?? [],
         leaveRest: Boolean(s.leaveRest),
         place: s.place,
+        heroAbsent: s.heroAbsent,
       })),
     );
   };
@@ -216,6 +217,7 @@ export function RouteSubmitForm({
       kills: s.campId && s.kills.length ? s.kills : undefined,
       leaveRest: s.campId && s.kills.length && s.leaveRest ? true : undefined,
       place: s.place,
+      heroAbsent: s.campId && s.heroAbsent ? true : undefined,
     })),
   );
 

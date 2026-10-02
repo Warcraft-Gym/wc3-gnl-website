@@ -10,9 +10,10 @@ import { cn } from "@/lib/utils";
  * hosted on Liquipedia, but that's a provenance note, not something a
  * reader needs; the source URLs and credit live in `docs/creep-routes.md`'s
  * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
- * lets it wrap on mobile without special-casing.
+ * lets it wrap on mobile without special-casing. A route mark (a leg without
+ * the hero) gets an entry only when the route has one.
  */
-export function MapLegend({ className }: { className?: string }) {
+export function MapLegend({ className, heroAbsent = false }: { className?: string; heroAbsent?: boolean }) {
   return (
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
       <span className="inline-flex items-center gap-1.5">
@@ -33,6 +34,22 @@ export function MapLegend({ className }: { className?: string }) {
         <img src="/map-icons/gold-mine.png" alt="" aria-hidden width={18} height={15} className="inline-block" />
         Gold mine
       </span>
+      {/* Route marks get an entry only when the route has them. */}
+      {heroAbsent ? (
+        <span className="inline-flex items-center gap-1.5">
+          <LegendLine opacity={0.55} />
+          Without the hero
+        </span>
+      ) : null}
     </p>
+  );
+}
+
+/** A short stretch of the route line (`RoutePath`'s 2px light stroke). */
+function LegendLine({ opacity = 1, dash }: { opacity?: number; dash?: string }) {
+  return (
+    <svg aria-hidden width={20} height={6} viewBox="0 0 20 6" className="inline-block">
+      <line x1={1} y1={3} x2={19} y2={3} stroke="rgba(255,255,255,.85)" strokeWidth={2} strokeLinecap="round" strokeDasharray={dash} opacity={opacity} />
+    </svg>
   );
 }

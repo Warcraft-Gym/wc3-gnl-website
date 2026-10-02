@@ -140,6 +140,8 @@ export type RouteStop = {
   /** "Skip the rest": true skips the creeps `kills` does not list; false
    *  (default) kills them after the list, in catalogue order. */
   leaveRest?: boolean;
+  /** Camp stops only: units clear this camp without the hero, so it grants the hero no XP. */
+  heroAbsent?: boolean;
 };
 
 /** Where a place stop happens: `start` is `String(player)` of `CreepMap.starts[]`,

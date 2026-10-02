@@ -64,6 +64,7 @@ export function toExchangeRoute(route) {
       kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
       leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
       place: s.place ? exchangePlace(s.place) : undefined,
+      heroAbsent: s.campId && s.heroAbsent ? true : undefined,
     })),
     description: descriptionToText(route.description) || undefined,
   };
