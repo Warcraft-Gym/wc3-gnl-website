@@ -140,8 +140,9 @@ export type RouteStop = {
   /** "Skip the rest": true skips the creeps `kills` does not list; false
    *  (default) kills them after the list, in catalogue order. */
   leaveRest?: boolean;
-  /** Camp stops only: units clear this camp without the hero, so it grants the hero no XP. */
-  heroAbsent?: boolean;
+  /** Camp and attack stops: false when only the Bring units go, so the stop grants the hero no XP.
+   *  Default true; stored only when false. */
+  hero?: boolean;
   /** A fork node: `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
   fork?: Fork;
 };

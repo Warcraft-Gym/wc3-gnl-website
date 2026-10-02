@@ -114,8 +114,8 @@ export function StopBlock({
   const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
   const placeLabel = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
-  // An arm of a "both" fork past the first runs without the hero whatever its own flag says.
-  const absent = Boolean(stop.heroAbsent || d.heroAbsent);
+  // Hero off: its own flag, or a later arm of a parallel node, which the hero cannot walk.
+  const absent = stop.hero === false || d.hero === false;
   // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
   const waypoint = isWaypoint(stop) && stop.place ? stop.place.kind : null;
   return (
@@ -140,7 +140,7 @@ export function StopBlock({
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={summaryLabel ?? (waypoint ? `${label}, ${waypoint}` : camp && absent ? `Stop ${number}, ${label}, without the hero` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`)}
+          aria-label={summaryLabel ?? (waypoint ? `${label}, ${waypoint}` : camp && absent ? `Stop ${number}, ${label}` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`)}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -176,7 +176,6 @@ export function StopBlock({
                     <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
                       <span>
                         {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
-                        {absent ? " · without the hero" : null}
                       </span>
                       <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
                     </span>

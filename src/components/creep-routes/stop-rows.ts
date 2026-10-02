@@ -23,7 +23,7 @@ export function rowToStop(s: StopRowData): StopInput {
     kills: s.campId && s.kills.length ? s.kills : undefined,
     leaveRest: s.campId && s.kills.length && s.leaveRest ? true : undefined,
     place: s.place,
-    heroAbsent: s.campId && s.heroAbsent ? true : undefined,
+    hero: s.hero === false && (s.campId || s.place?.kind === "attack") ? false : undefined,
   };
 }
 
@@ -45,7 +45,7 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork">): StopRow
     kills: s.kills ?? [],
     leaveRest: Boolean(s.leaveRest),
     place: s.place,
-    heroAbsent: s.heroAbsent,
+    hero: s.hero,
   });
 }
 

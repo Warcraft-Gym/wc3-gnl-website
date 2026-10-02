@@ -20,6 +20,7 @@ export function StopEditor({
   stops,
   setStops,
   iconRace,
+  heroIcon,
   fieldError,
   onOpenCard,
   openCampId,
@@ -37,6 +38,8 @@ export function StopEditor({
   stops: StopRowData[];
   setStops: React.Dispatch<React.SetStateAction<StopRowData[]>>;
   iconRace?: IconRace;
+  /** The route's hero, the first Bring entry on camp and attack rows. */
+  heroIcon?: string;
   fieldError?: (key: string) => string | undefined;
   /** Pins the F012 camp card from a stop row's ⓘ button — see `StopRow`. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
@@ -170,6 +173,7 @@ export function StopEditor({
               map={map}
               setStops={setStops}
               iconRace={iconRace}
+              heroIcon={heroIcon}
               fieldError={fieldError}
               errorPath={`${errorPath}.${i}.fork`}
               onRemove={() => remove(s.id)}
@@ -211,7 +215,8 @@ export function StopEditor({
               onOpenCard={onOpenCard}
               cardOpen={Boolean(s.campId) && s.campId === openCampId}
               trace={derived.stops[i]?.kills}
-              absent={Boolean(s.heroAbsent || derived.stops[i]?.heroAbsent)}
+              absent={s.hero === false || derived.stops[i]?.hero === false}
+              heroIcon={heroIcon}
               placeLabel={s.place ? placeName(map, s.place, start) : undefined}
             />
           ))}

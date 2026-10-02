@@ -3,14 +3,10 @@ import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { PlaceIcon } from "./PlaceGlyph";
 
-/** Which route marks a route draws, so the legend lists only those: a leg without the hero
- *  (a `heroAbsent` stop, or an arm after the first of a "both" fork) and a dashed other way
- *  (an "either" fork). */
-export function routeLegendMarks(stops: Pick<RouteStop, "heroAbsent" | "fork" | "place">[]) {
+/** Which route marks a route draws, so the legend lists only those: a dashed other way
+ *  (an "either" fork) and an attack. */
+export function routeLegendMarks(stops: Pick<RouteStop, "fork" | "place">[]) {
   return {
-    heroAbsent:
-      (flatStops(stops) as { stop: Pick<RouteStop, "heroAbsent"> }[]).some(({ stop }) => stop.heroAbsent) ||
-      stops.some((s) => s.fork?.mode === "both"),
     anotherWay: stops.some((s) => s.fork?.mode === "either"),
     attack: (flatStops(stops) as { stop: Pick<RouteStop, "place"> }[]).some(({ stop }) => stop.place?.kind === "attack"),
   };
@@ -26,17 +22,15 @@ export function routeLegendMarks(stops: Pick<RouteStop, "heroAbsent" | "fork" | 
  * hosted on Liquipedia, but that's a provenance note, not something a
  * reader needs; the source URLs and credit live in `docs/creep-routes.md`'s
  * "Map icons" section only. `flex-wrap` keeps it to one row on desktop and
- * lets it wrap on mobile without special-casing. A route mark (a leg without
- * the hero, a dashed leg of another way) gets an entry only when the route has one.
+ * lets it wrap on mobile without special-casing. A route mark (an attack, a
+ * dashed leg of another way) gets an entry only when the route has one.
  */
 export function MapLegend({
   className,
-  heroAbsent = false,
   anotherWay = false,
   attack = false,
 }: {
   className?: string;
-  heroAbsent?: boolean;
   /** The route has an "either" fork: its unchosen arms draw dashed. */
   anotherWay?: boolean;
   /** The route has an attack stop: red swords. */
@@ -63,12 +57,6 @@ export function MapLegend({
         Gold mine
       </span>
       {/* Route marks get an entry only when the route has them. */}
-      {heroAbsent ? (
-        <span className="inline-flex items-center gap-1.5">
-          <LegendLine opacity={0.55} />
-          Without the hero
-        </span>
-      ) : null}
       {anotherWay ? (
         <span className="inline-flex items-center gap-1.5">
           <LegendLine opacity={0.55} dash="4 3" />

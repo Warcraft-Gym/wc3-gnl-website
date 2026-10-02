@@ -235,7 +235,7 @@ export const FIXTURE_ROUTES = [
             { label: "Army", stops: [{ campId: "c04", note: "The army takes the turtles" }] },
             {
               label: "Militia",
-              stops: [{ campId: "c19", heroAbsent: true, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" }],
+              stops: [{ campId: "c19", hero: false, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" }],
             },
           ],
         },

@@ -22,8 +22,8 @@ export type DerivedStop = {
   left: number;
   /** One entry per kill, in kill order. */
   kills: DerivedKill[];
-  /** Set on an arm stop of a "both" fork past arm 0: derived without the hero whatever its own flag. */
-  heroAbsent?: true;
+  /** Set on an arm stop the hero cannot walk (a later arm of a parallel node): derived without the hero whatever its own flag. */
+  hero?: false;
   /** Arm stops only: which arm of which fork (the fork's top-level key). */
   armIndex?: number;
   forkKey?: string;
@@ -58,8 +58,8 @@ export type DerivedRoute = {
   finalXp: number;
 };
 
-type DerivableStop = Pick<RouteStop, "campId" | "kills" | "leaveRest" | "heroAbsent"> & {
-  fork?: { mode: "either" | "both"; arms: { label?: string; stops: Pick<RouteStop, "campId" | "kills" | "leaveRest" | "heroAbsent">[] }[] };
+type DerivableStop = Pick<RouteStop, "campId" | "kills" | "leaveRest" | "hero"> & {
+  fork?: { mode: "either" | "both"; arms: { label?: string; stops: Pick<RouteStop, "campId" | "kills" | "leaveRest" | "hero">[] }[] };
 };
 
 export const deriveRoute = impl.deriveRoute as (

@@ -26,6 +26,7 @@ export function RouteEditor({
   start,
   onStartChange,
   iconRace,
+  heroIcon,
   fieldError,
   onOpenCard,
   onHoverEnter,
@@ -42,6 +43,8 @@ export function RouteEditor({
   start: number;
   onStartChange: (start: number) => void;
   iconRace?: IconRace;
+  /** The route's hero, the first Bring entry on camp and attack rows. */
+  heroIcon?: string;
   fieldError?: (key: string) => string | undefined;
   /** Pins the F012 camp card — forwarded to the map (right-click a
    *  marker, `CampMarker`'s doc comment explains why not a left click
@@ -132,6 +135,7 @@ export function RouteEditor({
         stops={stops}
         setStops={setStops}
         iconRace={iconRace}
+        heroIcon={heroIcon}
         fieldError={fieldError}
         onOpenCard={onOpenCard}
         openCampId={openCampId}

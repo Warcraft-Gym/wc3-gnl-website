@@ -33,7 +33,7 @@ function levelForXp(xp) {
  * — Blizzard's `HeroFactorXP` table applies per kill (see
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
  * pays the new, lower factor for the rest of that camp's kills. A
- * `heroAbsent` stop's kills carry `xp: 0` and leave level/xp unchanged.
+ * stop with `hero: false` has kills with `xp: 0` and leaves level/xp unchanged.
  * A fork stop (`stop.fork`) derives every arm and carries them as
  * `fork: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
  * arm stops carry `armIndex` and `forkKey`, and `choice` maps a fork key
@@ -89,7 +89,7 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
 /** One non-fork stop from the hero's `level`/`xp`; `absent` forces "without the hero". */
 function deriveStop(stop, map, level, xp, absent) {
   const camp = stop.campId ? findCamp(map, stop.campId) : null;
-  const noHero = absent || Boolean(stop.heroAbsent);
+  const noHero = absent || stop.hero === false;
   const kills = [];
   if (camp) {
     for (const { row, ordered, unit, inSet } of killUnits(camp, stop.kills, stop.leaveRest)) {
@@ -97,7 +97,7 @@ function deriveStop(stop, map, level, xp, absent) {
       const factor = creepXpFactor(level);
       // Floor each creep's grant, same rounding as xp.mjs's
       // `heroLevelAfter` — see docs/creep-routes.md's "XP model". A stop
-      // without the hero (`heroAbsent`) grants the hero nothing.
+      // the hero does not go to (`hero: false`) grants the hero nothing.
       const gain = noHero ? 0 : Math.floor(creepXp(creep.level) * factor);
       xp += gain;
       const levelAfter = levelForXp(xp);
@@ -114,6 +114,6 @@ function deriveStop(stop, map, level, xp, absent) {
     band: camp ? camp.band : null,
     left: camp ? creepsLeft(camp, stop.kills, stop.leaveRest) : 0,
     kills,
-    ...(absent ? { heroAbsent: true } : {}),
+    ...(absent ? { hero: false } : {}),
   };
 }

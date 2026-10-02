@@ -79,15 +79,15 @@ function baseStopSchema(iconSet, forkField) {
       leaveRest: z.boolean().optional(),
       /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
       place: placeSchema.optional(),
-      /** Camp stops only: cleared without the hero, so it grants no hero XP. */
-      heroAbsent: z.boolean().optional(),
+      /** Camp and attack stops: false when only the Bring units go, so it grants no hero XP. */
+      hero: z.boolean().optional(),
       /** A fork node at the top level; inside an arm, any fork is rejected (one level). */
       fork: forkField,
     })
     .superRefine((stop, ctx) => {
       if (stop.fork) {
         // A fork node is `campId: null` and its ways; any other field would be dropped from the draft.
-        const extra = ["action", "place", "heroAbsent", "note", "condition", "units", "kills", "leaveRest"].filter(
+        const extra = ["action", "place", "hero", "note", "condition", "units", "kills", "leaveRest"].filter(
           (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
         );
         if (stop.campId !== null || extra.length) {
@@ -95,8 +95,8 @@ function baseStopSchema(iconSet, forkField) {
         }
         return;
       }
-      if (stop.heroAbsent && stop.campId === null) {
-        ctx.addIssue({ code: "custom", message: "Only a camp stop can be without the hero", path: ["heroAbsent"] });
+      if (stop.hero === false && stop.campId === null && stop.place?.kind !== "attack") {
+        ctx.addIssue({ code: "custom", message: "Only a camp or attack stop can go without the hero", path: ["hero"] });
       }
       if (stop.place && stop.campId !== null) {
         ctx.addIssue({ code: "custom", message: "A place stop has no camp", path: ["place"] });
@@ -426,6 +426,6 @@ function draftStop(s) {
       : undefined,
     leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
     place: s.place ? { ...s.place } : undefined,
-    heroAbsent: s.campId && s.heroAbsent ? true : undefined,
+    hero: s.hero === false && (s.campId || s.place?.kind === "attack") ? false : undefined,
   };
 }

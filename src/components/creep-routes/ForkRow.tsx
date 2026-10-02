@@ -26,6 +26,7 @@ export function ForkRow({
   map,
   setStops,
   iconRace,
+  heroIcon,
   fieldError,
   errorPath,
   onRemove,
@@ -48,6 +49,7 @@ export function ForkRow({
   /** The top-level rows' setter; a way's stops are updated inside it. */
   setStops: React.Dispatch<React.SetStateAction<StopRowData[]>>;
   iconRace?: IconRace;
+  heroIcon?: string;
   fieldError?: (key: string) => string | undefined;
   /** "stops.2.fork": where this fork's field errors live. */
   errorPath: string;
@@ -159,6 +161,7 @@ export function ForkRow({
                   setStops((rows) => updateArm(rows, row.id, a, (prev) => (typeof action === "function" ? action(prev) : action)))
                 }
                 iconRace={iconRace}
+                heroIcon={heroIcon}
                 fieldError={fieldError}
                 errorPath={`${errorPath}.arms.${a}.stops`}
                 labels={armLabels[a]}

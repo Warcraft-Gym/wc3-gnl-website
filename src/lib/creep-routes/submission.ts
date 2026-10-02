@@ -23,7 +23,7 @@ export type StopInput = {
   kills?: { row: number; n: number; set?: number }[];
   leaveRest?: boolean;
   place?: Place;
-  heroAbsent?: boolean;
+  hero?: boolean;
   /** A fork node; its arms' stops never hold a fork. */
   fork?: { mode: "either" | "both"; arms: { label?: string; stops: StopInput[] }[] };
 };

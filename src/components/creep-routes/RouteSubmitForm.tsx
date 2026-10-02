@@ -296,6 +296,7 @@ export function RouteSubmitForm({
               start={start}
               onStartChange={setStart}
               iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
+              heroIcon={hero || undefined}
               fieldError={(k) => errors[k]}
               onOpenCard={pin}
               onHoverEnter={hoverEnter}

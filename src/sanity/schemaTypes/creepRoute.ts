@@ -399,11 +399,14 @@ export const creepStop = defineType({
       hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
     }),
     defineField({
-      name: "heroAbsent",
-      title: "Without the hero",
+      name: "hero",
+      title: "Hero goes",
       type: "boolean",
-      description: "On: the units in Bring clear this camp without the hero, so the hero gets no XP from it.",
-      hidden: ({ parent }) => !(parent as { campId?: string } | undefined)?.campId,
+      description: "Empty or on: the hero goes with the units in Bring. Off: only the units go, and the hero gets no XP here.",
+      hidden: ({ parent }) => {
+        const p = parent as { campId?: string; place?: { kind?: string } } | undefined;
+        return !p?.campId && p?.place?.kind !== "attack";
+      },
     }),
     defineField({
       name: "place",

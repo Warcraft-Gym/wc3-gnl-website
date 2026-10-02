@@ -14,7 +14,7 @@ const MARK_HALO = 2.25;
 const LINE = "rgba(255,255,255,.85)";
 
 /** A stop with a spot on the map; `x`/`y` are image fractions. `place` and its mark radius `r` only for a place stop;
- *  `absent` is a stop without the hero, `other` a stop on an arm the reader did not choose. */
+ *  `absent` is a stop the hero does not go to, `other` a stop on an arm the reader did not choose. */
 type PathNode = {
   key: string;
   label: string;
@@ -30,7 +30,7 @@ type PathNode = {
   other?: boolean;
 };
 
-type LegStyle = "solid" | "absent" | "other";
+type LegStyle = "solid" | "other";
 
 /**
  * The route itself: a polyline through the camp and place stops in order
@@ -89,9 +89,9 @@ export const RoutePath = memo(function RoutePath({
   stops.forEach((s, i) => {
     const n = numbers[i];
     if (!s.fork) {
-      const node = nodeOf(s, n.key, n.label, { absent: Boolean(s.heroAbsent) });
+      const node = nodeOf(s, n.key, n.label, { absent: s.hero === false });
       if (!node) return;
-      if (prev) legs.push({ a: prev, b: node, style: node.absent ? "absent" : "solid" });
+      if (prev) legs.push({ a: prev, b: node, style: "solid" });
       points.push(node);
       prev = node;
       return;
@@ -107,11 +107,11 @@ export const RoutePath = memo(function RoutePath({
       arm.stops.forEach((as, j) => {
         const other = !both && a !== walked;
         const node = nodeOf(as, n.arms![a].stops[j].key, n.arms![a].stops[j].label, {
-          absent: Boolean(as.heroAbsent) || (both && a > 0),
+          absent: as.hero === false || (both && a > 0),
           other,
         });
         if (!node) return;
-        if (p) legs.push({ a: p, b: node, style: other ? "other" : node.absent ? "absent" : "solid" });
+        if (p) legs.push({ a: p, b: node, style: other ? "other" : "solid" });
         points.push(node);
         p = node;
       });
@@ -137,8 +137,6 @@ export const RoutePath = memo(function RoutePath({
   const pathOf = (list: typeof segments) =>
     list.map((g) => `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`).join("");
   const d = pathOf(segments.filter((g) => g.style === "solid"));
-  // A leg into a stop without the hero: the same solid line at 55%, no chevron.
-  const dAbsent = pathOf(segments.filter((g) => g.style === "absent"));
   // A leg of an arm the reader did not choose: dashed 4 3, 55%, no chevron.
   const dOther = pathOf(segments.filter((g) => g.style === "other"));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
@@ -149,12 +147,6 @@ export const RoutePath = memo(function RoutePath({
           over any terrain on the minimap. */}
       <path d={d} fill="none" strokeWidth="4" {...under} />
       <path d={d} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-      {dAbsent ? (
-        <g data-route-absent opacity={0.55}>
-          <path d={dAbsent} fill="none" strokeWidth="4" {...under} />
-          <path d={dAbsent} fill="none" stroke={LINE} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" />
-        </g>
-      ) : null}
       {dOther ? (
         <g data-route-other opacity={0.55}>
           <path d={dOther} fill="none" strokeWidth="4" strokeDasharray="4 3" {...under} strokeLinecap="butt" />
@@ -193,9 +185,9 @@ export const RoutePath = memo(function RoutePath({
         const select = (p.place || isArm) && onStopSelect ? () => onStopSelect(p.key) : undefined;
         // An attack's badge is ringed in the loss red instead of gold, swords under it.
         const ring = p.place?.kind === "attack" ? "var(--wg-loss)" : "var(--wg-gold)";
-        // Without the hero: the first Bring unit's icon butts the badge's right edge; with none, the badge fades.
+        // Hero off: the first Bring unit's icon butts the badge's right edge, so the map says who goes.
         const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
-        const fade = p.other ? 0.6 : p.absent && !unitIcon ? 0.55 : undefined;
+        const fade = p.other ? 0.6 : undefined;
         // An arm badge ("3a") is a pill wide enough for its label; the 8px type stays.
         const pill = isArm ? 6 + p.label.length * 5 : 0;
         return (

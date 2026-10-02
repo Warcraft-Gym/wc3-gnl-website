@@ -175,8 +175,8 @@ test("derived kills carry their unit and whether it is a set; a leading set keep
   ]);
 });
 
-test("a heroAbsent stop grants no hero xp: its kills carry xp 0 and level and xp pass through", () => {
-  const result = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2", heroAbsent: true }] }, MAP);
+test("a stop without the hero (hero: false) grants no hero xp: its kills carry xp 0 and level and xp pass through", () => {
+  const result = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2", hero: false }] }, MAP);
   const absent = result.stops[1];
   assert.equal(absent.heroLevelAfter, 1);
   assert.equal(absent.xpAfter, 128);
@@ -219,7 +219,7 @@ test("both: arm 0 walks with the hero, arms 1.. are derived without the hero", (
   route.stops[1].fork.arms[1].stops = [{ campId: "c2" }];
   const fork = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].fork;
   assert.equal(fork.walked, 0);
-  assert.equal(fork.arms[1].stops[0].heroAbsent, true);
+  assert.equal(fork.arms[1].stops[0].hero, false);
   assert.ok(fork.arms[1].stops[0].kills.every((k) => k.xp === 0));
   assert.equal(fork.arms[1].xpAfter, 128);
 });

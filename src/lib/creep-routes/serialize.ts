@@ -28,8 +28,8 @@ export type ApiRouteStop = {
   leaveRest?: boolean;
   /** A start, mine, shop or free point instead of a camp. */
   place?: Place;
-  /** Camp stops only: cleared without the hero, no hero XP. */
-  heroAbsent?: boolean;
+  /** Camp and attack stops: false when only the Bring units go (no hero XP). */
+  hero?: boolean;
   /** A fork node; see `stop-numbers.mjs` for how its arms number. */
   fork?: { mode: "either" | "both"; arms: { label?: string; stops: ApiRouteStop[] }[] };
 };

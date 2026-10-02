@@ -464,25 +464,22 @@ path, no number, not counted in "N stops" (`stop-numbers.mjs`).
   Appearance under Neutral, from the art the site already has. `count` on an
   item means charges.
 
-### Stops without the hero
+### The hero in Bring
 
-`RouteStop.heroAbsent: true` marks a camp stop that units clear without the
-hero (an Ancient of War walking ahead, militia finishing a camp). Camp stops
-only; the submission schema rejects it on a place or base-action stop.
+`RouteStop.hero` on a camp or attack stop is `true` by default and stored only
+when `false`: only the Bring units go (an Ancient of War walking ahead, militia
+finishing a camp). The submission schema rejects `hero: false` on a waypoint or
+a base action.
 
-- **Derive.** The stop's kills carry `xp: 0`, `levelAfter` = the current
-  level and `leveledUp: false`; `heroLevelAfter`/`xpAfter` pass through.
-- **Map.** The leg into the stop is the same solid line at 55% with no
-  chevron. The badge keeps its number and gets the first Bring unit's icon
-  (10px) at its right edge; with no Bring units the badge fades to 55%. The
-  legend shows "Without the hero" only when the route has such a stop.
-- **List.** "· without the hero" after the band and level, nothing on the
-  right; the open body shows the kill chain without "+xp" captions or level
-  tags, then Bring, condition and note.
-- **Builder.** A "Without the hero" checkbox beside Bring on a camp row.
-
-Two stops in a row where the second is without the hero read as "then".
-Creeping at the same time is a fork with `mode: "both"`, not a flag.
+- **Derive.** A stop with `hero: false` has kills with `xp: 0`, `levelAfter` =
+  the current level and `leveledUp: false`; `heroLevelAfter`/`xpAfter` pass
+  through. Derive also marks the later arms of a parallel node `hero: false`.
+- **Map.** The leg is a normal leg; the badge carries the first Bring unit's
+  icon (10px) at its right edge, so the map says who goes. No legend line.
+- **List.** No level on the right and no "+xp" captions in the chain; Bring
+  lists the units only. Nothing else changes.
+- **Builder.** Bring starts with a "Hero" toggle (the route's hero icon, or a
+  generic figure when the route names none), on by default.
 
 ### Forks
 

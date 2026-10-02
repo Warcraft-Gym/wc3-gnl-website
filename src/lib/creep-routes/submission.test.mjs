@@ -411,13 +411,16 @@ test("place: an id the map does not have is rejected; a point must sit inside th
   assert.equal(point.success, false);
 });
 
-test("heroAbsent: kept on a camp stop, rejected on a place or base-action stop", () => {
+test("hero: false is kept on a camp or attack stop and rejected on a waypoint or base action", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
-  const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, { campId: "c02", heroAbsent: true }] }));
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, { campId: "c02", hero: false }, { campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } }, hero: false }] }));
   assert.equal(ok.success, true);
-  assert.equal(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1].heroAbsent, true);
-  const onPlace = s.safeParse(payload({ stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } }, heroAbsent: true }, { campId: "c01" }] }));
-  assert.equal(flattenErrors(onPlace.error)["stops.0.heroAbsent"], "Only a camp stop can be without the hero");
+  const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
+  assert.equal(draft.stops[1].hero, false);
+  assert.equal(draft.stops[2].hero, false);
+  assert.equal(draft.stops[0].hero, undefined);
+  const onWaypoint = s.safeParse(payload({ stops: [{ campId: null, action: "Plant", place: { kind: "build", at: { x: 0.2, y: 0.2 } }, hero: false }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.equal(flattenErrors(onWaypoint.error)["stops.0.hero"], "Only a camp or attack stop can go without the hero");
 });
 
 const forkStop = (mode, arms) => ({ campId: null, fork: { mode, arms } });
@@ -429,7 +432,7 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
       stops: [
         { campId: "c01" },
         forkStop("either", [
-          { label: "No one at their natural", stops: [{ campId: "c02", heroAbsent: true }] },
+          { label: "No one at their natural", stops: [{ campId: "c02", hero: false }] },
           { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } } }] },
         ]),
       ],
@@ -441,7 +444,7 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
   assert.equal(fork.mode, "either");
   assert.equal(fork.arms[0].label, "No one at their natural");
   assert.equal(fork.arms[0].stops[0]._type, "stop");
-  assert.equal(fork.arms[0].stops[0].heroAbsent, true);
+  assert.equal(fork.arms[0].stops[0].hero, false);
   assert.deepEqual(fork.arms[1].stops[0].place, { kind: "attack", at: { start: "1" } });
 });
 
@@ -470,7 +473,7 @@ test("a whole-route pair (one fork at index 0 and nothing else) counts as two st
 
 test("a fork node carrying any field besides its ways is rejected, not silently dropped", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
-  for (const extra of [{ heroAbsent: true }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
+  for (const extra of [{ hero: false }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
     const r = s.safeParse(payload({ stops: [{ campId: "c01" }, { ...forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]), ...extra }] }));
     assert.equal(flattenErrors(r.error)["stops.1.fork"], "A fork holds only its ways", JSON.stringify(extra));
   }

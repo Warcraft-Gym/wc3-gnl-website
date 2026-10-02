@@ -1,6 +1,7 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Info, Plus, Trash2, User, X } from "lucide-react";
+import { GameIcon } from "@/components/builds/GameIcon";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { CampCardTrigger, MapCamp, Place, PlaceKind, StopKill } from "@/lib/creep-routes/types";
@@ -29,8 +30,8 @@ export type StopRowData = {
   leaveRest: boolean;
   /** A place stop (`campId` null); `action` says what happens there. */
   place?: Place;
-  /** Camp stops only: the Bring units clear it without the hero. */
-  heroAbsent?: boolean;
+  /** Camp and attack stops: false when only the Bring units go. */
+  hero?: boolean;
   /** A fork node (`ForkRow`): its ways, each with its own stop rows. */
   fork?: { mode: "either" | "both"; arms: { id: number; label: string; stops: StopRowData[] }[] };
 };
@@ -102,6 +103,7 @@ export function StopRow({
   placeLabel,
   number,
   absent,
+  heroIcon,
 }: {
   index: number;
   stop: StopRowData;
@@ -131,9 +133,14 @@ export function StopRow({
   placeLabel?: string;
   /** The stop's number from `stop-numbers.mjs` ("3a" in a fork's way); default `index + 1`. */
   number?: string;
-  /** Derived without the hero: its own flag, or a way after the first of an "At the same time" fork. */
+  /** Derived hero off: its own flag, or a later arm of a parallel node. */
   absent?: boolean;
+  /** The route's hero icon for the Bring hero entry; a generic figure when the route names none. */
+  heroIcon?: string;
 }) {
+  const heroOff = Boolean(absent ?? stop.hero === false);
+  // A later arm of a parallel node: the hero walks arm 0, so this stop cannot take him.
+  const forcedOff = heroOff && stop.hero !== false;
   function addUnit() {
     if (stop.units.length >= 6) return;
     onChange({ units: [...stop.units, { id: Date.now() + Math.random(), icon: "", count: "1" }] });
@@ -248,21 +255,30 @@ export function StopRow({
           ) : null}
           {/* Bring */}
           <div>
-            <div className="mb-1 flex items-center justify-between gap-3">
-              <p className="text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
-              {stop.campId ? (
-                <label className="inline-flex cursor-pointer items-center gap-1.5 text-[0.7rem] text-muted hover:text-fg">
-                  <input
-                    type="checkbox"
-                    checked={Boolean(stop.heroAbsent)}
-                    onChange={(e) => onChange({ heroAbsent: e.target.checked })}
-                    className="size-3.5 accent-[var(--wg-gold)]"
-                  />
-                  Without the hero
-                </label>
-              ) : null}
-            </div>
+            <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
             <div className="flex flex-wrap items-center gap-1.5">
+              {/* The hero is the first entry on a camp or attack stop: on by default, off = only the units go. */}
+              {stop.campId || stop.place?.kind === "attack" ? (
+                <button
+                  type="button"
+                  aria-pressed={!heroOff}
+                  disabled={forcedOff}
+                  onClick={() => onChange({ hero: stop.hero === false ? undefined : false })}
+                  title={forcedOff ? "The hero walks the first way" : heroOff ? "Add the hero" : "Send only the units"}
+                  className={cn(
+                    "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
+                    heroOff ? "border-dashed border-line text-faint line-through" : "border-gold/50 text-fg",
+                    forcedOff && "cursor-not-allowed",
+                  )}
+                >
+                  {heroIcon ? (
+                    <GameIcon iconKey={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
+                  ) : (
+                    <User aria-hidden size={16} className="mx-1" />
+                  )}
+                  Hero
+                </button>
+              ) : null}
               {stop.units.map((u) => (
                 <span key={u.id} className="flex items-center gap-1 rounded border border-line/70 bg-surface/40 py-1 pl-1 pr-1.5">
                   <IconPicker value={u.icon} onChange={(k) => updateUnit(u.id, { icon: k })} race={iconRace} />
@@ -298,7 +314,7 @@ export function StopRow({
               trace={trace ?? []}
               error={error?.("kills")}
               onChange={onChange}
-              noXp={absent ?? stop.heroAbsent}
+              noXp={heroOff}
             />
           ) : null}
 

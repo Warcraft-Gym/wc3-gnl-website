@@ -43,7 +43,7 @@ const stopSchema = z.object({
       ]),
     })
     .optional(),
-  heroAbsent: z.boolean().optional(),
+  hero: z.boolean().optional(),
 });
 
 /** A top-level stop may be a fork node whose arms hold plain stops (one level). */
