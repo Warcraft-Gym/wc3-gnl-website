@@ -23,9 +23,11 @@ export function Wordmark({
         width={640}
         height={299}
         priority={!compact}
+        // A fixed height and the attributes' aspect ratio reserve the width before the file arrives,
+        // so the header's links never shift right when it loads.
         className={cn(
-          "h-auto w-auto drop-shadow-[0_2px_6px_rgba(0,0,0,.6)] transition-opacity group-hover:opacity-85",
-          compact ? "max-h-10" : "max-h-10 sm:max-h-11",
+          "w-auto drop-shadow-[0_2px_6px_rgba(0,0,0,.6)] transition-opacity group-hover:opacity-85",
+          compact ? "h-10" : "h-10 sm:h-11",
         )}
       />
     </Link>
