@@ -1,7 +1,9 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { LABEL_SIZE, LEG_GAP, OUTLINE, STOP_RADIUS, UNIT_ICON, UNUSED_RADIUS, WAYPOINT_RADIUS, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "./map-marks.mjs";
+import { LABEL_SIZE, LEG_GAP, OUTLINE, STOP_RADIUS, UNIT_ICON, UNUSED_RADIUS, WAYPOINT_RADIUS, backdropRadius, campSpot, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "./map-marks.mjs";
 import autumn from "./maps/autumn-leaves.json" with { type: "json" };
+import echo from "./maps/echo-isles.json" with { type: "json" };
+import turtle from "./maps/turtle-rock.json" with { type: "json" };
 
 test("one mark per stop: a waypoint is about 80% of a stop, an unused camp about half", () => {
   assert.ok(Math.abs(WAYPOINT_RADIUS / STOP_RADIUS - 0.8) < 0.05);
@@ -94,4 +96,35 @@ test("a camp at the map's edge keeps its whole disc inside the map", () => {
   assert.equal(edge.x, STOP_RADIUS + OUTLINE);
   assert.equal(edge.y, STOP_RADIUS + OUTLINE);
   assert.equal(nodeCentre(1, 1, 256, 192).y, 192 - STOP_RADIUS - OUTLINE);
+});
+
+// A camp that guards a building (a gold mine, a shop) draws its mark on the icon's backdrop edge, so both read.
+const buildings = (map) => {
+  const { width: iw, height: ih } = map.image;
+  return [
+    ...map.mines.map((m) => ({ x: m.x * iw, y: m.y * ih, r: backdropRadius(16 * (iw / 256)), what: "mine" })),
+    ...map.shops.map((s) => ({ x: s.x * iw, y: s.y * ih, r: backdropRadius(14 * (iw / 256)), what: s.id })),
+  ];
+};
+const spotOf = (map, id) => {
+  const c = map.camps.find((k) => k.id === id);
+  return { camp: { x: c.x * map.image.width, y: c.y * map.image.height }, at: campSpot(c.x * map.image.width, c.y * map.image.height, buildings(map)) };
+};
+
+test("a camp on a building draws at the backdrop's upper-right edge: Echo Isles' shop camp c05 and a mine camp", () => {
+  for (const [id, what] of [["c05", "ngme-0"], ["c07", "mine"]]) {
+    const { camp, at } = spotOf(echo, id);
+    const b = buildings(echo).find((d) => Math.hypot(camp.x - d.x, camp.y - d.y) < d.r);
+    assert.ok(b.what === what || b.what.startsWith(what), `${id} guards ${what}`);
+    assert.ok(Math.abs(Math.hypot(at.x - b.x, at.y - b.y) - b.r) < 1e-9, `${id} sits on the backdrop's edge`);
+    assert.ok(at.x > b.x && at.y < b.y, `${id} sits at the upper right`);
+  }
+});
+
+test("Turtle Rock: a goblin merchant's camp moves to its edge; a camp away from buildings stays put", () => {
+  const { camp, at } = spotOf(turtle, "c09");
+  assert.notDeepEqual(at, camp);
+  const free = turtle.camps.find((c) => !buildings(turtle).some((d) => Math.hypot(c.x * 256 - d.x, c.y * 256 - d.y) < d.r));
+  const plain = spotOf(turtle, free.id);
+  assert.deepEqual(plain.at, plain.camp);
 });

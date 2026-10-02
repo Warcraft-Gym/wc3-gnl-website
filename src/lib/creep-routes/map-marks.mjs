@@ -126,3 +126,17 @@ export function offsetLeg(ax, ay, bx, by, ta, tb, ox = 0, oy = 0) {
   if ((x2 - x1) * ux + (y2 - y1) * uy <= 0) return null;
   return { x1, y1, x2, y2, ux, uy, len };
 }
+
+/** The dark backdrop disc behind a building icon `iconWidth` wide (a gold mine, a shop): a little wider. */
+export function backdropRadius(iconWidth) {
+  return iconWidth / 2 + 1.5;
+}
+
+/** Where a camp's mark sits, in viewBox units: on the camp, or, when the camp's centre lies within a
+ *  building icon's backdrop (a camp guarding a gold mine or a shop), centred on that backdrop's
+ *  upper-right edge, like a badge on the icon, so the icon stays visible under it. `buildings`:
+ *  `[{ x, y, r }]`, each backdrop's centre and radius. */
+export function campSpot(x, y, buildings) {
+  const b = buildings.find((d) => Math.hypot(x - d.x, y - d.y) < d.r);
+  return b ? { x: b.x + b.r * Math.SQRT1_2, y: b.y - b.r * Math.SQRT1_2 } : { x, y };
+}

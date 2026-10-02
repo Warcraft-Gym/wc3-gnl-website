@@ -9,6 +9,7 @@ import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { countStops, findStopKey, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import { backdropRadius, campSpot } from "@/lib/creep-routes/map-marks.mjs";
 import { cn } from "@/lib/utils";
 
 /** `(hover: none)` covers touch and other coarse pointers — the F012a
@@ -121,12 +122,6 @@ function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih
       <path d={d} fill="none" stroke={isYou ? "var(--wg-loss)" : "var(--wg-win)"} strokeWidth={isYou ? 2 : 1.5} strokeLinecap="round" />
     </g>
   );
-}
-
-/** A dark backdrop disc behind a neutral building icon (map structure), a little wider than the icon,
- *  so it reads on any terrain; `--wg-bg` at 55%, the stop discs still paint above it. */
-function backdropRadius(iconWidth: number) {
-  return iconWidth / 2 + 1.5;
 }
 
 /** Gold mine, drawn with Liquipedia's own icon (`/map-icons/gold-mine.png`,
@@ -257,6 +252,15 @@ export function CreepMap({
   const { width: iw, height: ih } = map.image;
 
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
+  // Where each camp's mark sits: on the camp, or at the upper-right edge of the building icon it
+  // guards (a gold mine, a shop), so both read (`campSpot`).
+  const campAt = useMemo(() => {
+    const buildings = [
+      ...map.mines.map((m) => ({ x: m.x * iw, y: m.y * ih, r: backdropRadius(MINE_ICON_WIDTH * (iw / 256)) })),
+      ...map.shops.filter((s) => neutralIconFor(s.id)).map((s) => ({ x: s.x * iw, y: s.y * ih, r: backdropRadius(SHOP_ICON_WIDTH * (iw / 256)) })),
+    ];
+    return new Map(map.camps.map((c) => [c.id, campSpot(c.x * iw, c.y * ih, buildings)]));
+  }, [map, iw, ih]);
   // Every stop the map draws, with its key (the paths not chosen in an "or"/"xor" split are
   // left out, so their camps draw as unused): a camp's marker is on the route, active and
   // partly cleared through any of them.
@@ -442,12 +446,20 @@ export function CreepMap({
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
           {route ? (
-            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} layer="legs" />
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="legs" />
           ) : null}
           {map.starts.map((s, i) => (
             <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
           ))}
           {onPlaceSelect ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed={false} /> : null}
+          {/* Mines and shops are map structure under the camp marks; a camp that guards one draws its
+              mark at the icon's edge (`campAt`), so both read. */}
+          {map.mines.map((m, i) => (
+            <MineMarker key={i} mine={m} iw={iw} ih={ih} />
+          ))}
+          {map.shops.map((s) => (
+            <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
+          ))}
           {map.camps.map((camp) => {
             const onRoute = allStops.some(({ stop }) => stop.campId === camp.id);
             const isInteractive = isCampInteractive(camp.id);
@@ -455,6 +467,7 @@ export function CreepMap({
               <CampMarker
                 key={camp.id}
                 camp={camp}
+                at={campAt.get(camp.id)}
                 imageWidth={iw}
                 imageHeight={ih}
                 active={!onRoute && activeStop != null && campKey.get(camp.id) === activeStop}
@@ -469,20 +482,9 @@ export function CreepMap({
               />
             );
           })}
-          {/* Mines and shops draw last, over the camps: a gold mine is
-              often guarded by (and normalised very close to, sometimes
-              almost on top of) the camp that sits on it — see the F008
-              handoff — so the icon needs to win the paint order to stay
-              visible, not disappear under the camp's own, larger circle. */}
-          {map.mines.map((m, i) => (
-            <MineMarker key={i} mine={m} iw={iw} ih={ih} />
-          ))}
-          {map.shops.map((s) => (
-            <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
-          ))}
           {/* The stop discs over everything else: a stop's node is its badge. */}
           {route ? (
-            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} layer="nodes" />
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="nodes" />
           ) : null}
           {onPlaceSelect && pointArmed ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed /> : null}
         </svg>

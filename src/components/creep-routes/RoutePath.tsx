@@ -54,6 +54,7 @@ export const RoutePath = memo(function RoutePath({
   youStart = 0,
   onStopSelect,
   choice,
+  campAt,
   layer,
 }: {
   map: CreepMap;
@@ -66,6 +67,8 @@ export const RoutePath = memo(function RoutePath({
   onStopSelect?: (key: string) => void;
   /** Split key to the chosen way of each "or"/"xor" split; default way a. */
   choice?: Record<string, number>;
+  /** Where each camp's mark sits (viewBox units), when it guards a building (`campSpot`). */
+  campAt?: Map<string, { x: number; y: number }>;
   /** `legs` under the camps, `nodes` (the stop discs) over them: `CreepMap` paints the two apart. */
   layer: "legs" | "nodes";
 }) {
@@ -79,7 +82,8 @@ export const RoutePath = memo(function RoutePath({
     if (s.campId) {
       const camp = campById.get(s.campId);
       if (!camp) return null;
-      const c = nodeCentre(camp.x, camp.y, iw, ih);
+      const spot = campAt?.get(camp.id);
+      const c = spot ? nodeCentre(spot.x / iw, spot.y / ih, iw, ih) : nodeCentre(camp.x, camp.y, iw, ih);
       return { key, label, stop: s, cx: c.x, cy: c.y, r: STOP_RADIUS, trim: nodeTrim(STOP_RADIUS), fill: BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)", ...style };
     }
     const at = s.place ? placePoint(map, s.place) : null;

@@ -35,6 +35,7 @@ export function radiusFor(level: number) {
  */
 export const CampMarker = memo(function CampMarker({
   camp,
+  at,
   imageWidth,
   imageHeight,
   active,
@@ -48,6 +49,8 @@ export const CampMarker = memo(function CampMarker({
   cardOpen,
 }: {
   camp: MapCamp;
+  /** Where the mark sits in viewBox units when not on the camp itself: a camp guarding a building draws at the icon's edge. */
+  at?: { x: number; y: number };
   imageWidth: number;
   imageHeight: number;
   active?: boolean;
@@ -85,10 +88,10 @@ export const CampMarker = memo(function CampMarker({
   cardOpen?: boolean;
 }) {
   const reduced = useReducedMotion();
-  const cx = camp.x * imageWidth;
-  const cy = camp.y * imageHeight;
+  const cx = at?.x ?? camp.x * imageWidth;
+  const cy = at?.y ?? camp.y * imageHeight;
   const centreOf = (radius: number) => {
-    const c = nodeCentre(camp.x, camp.y, imageWidth, imageHeight, radius);
+    const c = nodeCentre(cx / imageWidth, cy / imageHeight, imageWidth, imageHeight, radius);
     return { cx: c.x, cy: c.y };
   };
   const r = radiusFor(camp.level);
