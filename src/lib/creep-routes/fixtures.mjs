@@ -252,14 +252,14 @@ export const FIXTURE_ROUTES = [
   // are ours. `start: 1`: his first camps sit by player 1's base (the live documents leave it unset).
   {
     slug: "undead-ves-autumn-leaves",
-    title: "Early creep route vs solo Blademaster Wind Walk",
+    title: "Early creep route vs. solo Blademaster Wind Walk",
     race: "undead",
     vsRaces: ["orc"],
     level: "standard",
     map: { slug: "autumn-leaves", name: "Autumn Leaves v2" },
     start: 1,
     hero: "ud-death-knight",
-    summary: "This is based on Happy vs Soin game. You can use this creep route if Blademaster tries to snipe items early and gives you a bit of space.",
+    summary: "This is based on Happy vs. Soin game. You can use this creep route if Blademaster tries to snipe items early and gives you a bit of space.",
     author: "veS",
     patch: "2.0.3",
     mapVersion: "2.0",
@@ -284,7 +284,7 @@ export const FIXTURE_ROUTES = [
                   campId: "c06",
                   units: [{ icon: "ud-ghoul", count: 2 }],
                   kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }],
-                  note: "Standard opening camp in almost all scenarios vs Orc. Bring 2 ghouls if you expect Orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
+                  note: "Standard opening camp in almost all scenarios vs. Orc. Bring 2 ghouls if you expect Orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
                 },
                 {
                   campId: "c08",
@@ -324,7 +324,7 @@ export const FIXTURE_ROUTES = [
               ],
             },
             {
-              label: "Risky; vs a passive Orc",
+              label: "Risky; vs. a passive Orc",
               stops: [
                 {
                   campId: "c04",
@@ -346,14 +346,14 @@ export const FIXTURE_ROUTES = [
   },
   {
     slug: "undead-ves-echo-isles",
-    title: "Early creep route vs Demon Hunter and Naga",
+    title: "Early creep route vs. Demon Hunter and Naga",
     race: "undead",
     vsRaces: ["nightelf"],
     level: "standard",
     map: { slug: "echo-isles", name: "Echo Isles v2" },
     start: 1,
     hero: "ud-death-knight",
-    summary: "Principles of this creep route can be applied on other maps as well. This guide is based on Happy vs Life replay analysis.",
+    summary: "Principles of this creep route can be applied on other maps as well. This guide is based on Happy vs. Life replay analysis.",
     author: "veS",
     patch: "2.0.3",
     mapVersion: "2.2",
@@ -390,7 +390,7 @@ export const FIXTURE_ROUTES = [
                   campId: null,
                   action: "Buy Boots and Dust",
                   place: { kind: "shop", at: { shop: "ngme-0" } },
-                  note: "Go there only to buy Boots (for your Naga) and Dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight.",
+                  note: "Go there only to buy Boots (for your Naga) and Dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs. Naga fight.",
                 },
               ],
             },
