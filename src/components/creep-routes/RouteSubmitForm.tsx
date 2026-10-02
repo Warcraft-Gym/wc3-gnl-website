@@ -11,7 +11,7 @@ import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopRow";
-import { ButtonLink } from "@/components/ui/Button";
+import { Button, ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
@@ -21,24 +21,7 @@ import { normalizePatch } from "@/lib/patches.mjs";
 
 const initial: SubmitState = { status: "idle" };
 
-/**
- * `/learn/creep-routes/submit`: a two-panel click-to-author editor above a
- * details form. Mirrors `BuildSubmitForm`'s shape (honeypot, `startedAt`,
- * `useActionState`, field-level errors keyed like `stops.2.action`) with a
- * map instead of a step list. `submissionsOpen` is read from the server
- * (`canAcceptSubmissions()`, evaluated in `page.tsx`) so the "closed"
- * notice is in the very first server-rendered HTML, not only after a
- * failed submit.
- */
-export function RouteSubmitForm({
-  maps,
-  builds,
-  defaultMapSlug,
-  defaultRace,
-  defaultVsRaces,
-  defaultLevel,
-  submissionsOpen,
-}: {
+type RouteSubmitFormProps = {
   maps: CreepMap[];
   builds: { slug: string; title: string; race: BuildRace }[];
   defaultMapSlug?: string;
@@ -48,7 +31,57 @@ export function RouteSubmitForm({
   defaultVsRaces?: BuildRace[];
   defaultLevel?: RouteLevel;
   submissionsOpen: boolean;
-}) {
+};
+
+/**
+ * `/learn/creep-routes/submit`: a two-panel click-to-author editor above a
+ * details form. Mirrors `BuildSubmitForm`'s shape (honeypot, `startedAt`,
+ * `useActionState`, field-level errors keyed like `stops.2.action`) with a
+ * map instead of a step list. `submissionsOpen` is read from the server
+ * (`canAcceptSubmissions()`, evaluated in `page.tsx`) so the "closed"
+ * notice is in the very first server-rendered HTML, not only after a
+ * failed submit.
+ *
+ * "Submit another" (F009) used to `<ButtonLink>` back to this same page,
+ * which the App Router treats as a soft nav that never remounts — the
+ * success panel just sat there forever. The fix remounts
+ * `RouteSubmitFormInner` under a fresh `key` (the only correct way to also
+ * reset `useActionState`, which has no imperative reset of its own) rather
+ * than a hard reload, so page-level defaults (`defaultMapSlug` etc., from
+ * `?map=`/`?race=` on `page.tsx`) survive exactly as they would on a first
+ * visit — only the import hash and the user's own edits are cleared.
+ */
+export function RouteSubmitForm(props: RouteSubmitFormProps) {
+  const [resetKey, setResetKey] = useState(0);
+  const handleSubmitAnother = useCallback(() => {
+    // Clear any `#route=` import hash first, so the fresh mount below
+    // doesn't immediately re-read and re-apply the very payload that was
+    // just submitted (the trap F009's spec calls out).
+    if (window.location.hash) {
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    setResetKey((k) => k + 1);
+  }, []);
+  // `resetKey > 0` only after a real "Submit another" click, never on the
+  // page's first mount — so a first-time visitor's focus isn't yanked away
+  // from wherever the browser naturally put it, but someone clicking
+  // "Submit another" always lands back at the top of a fresh form.
+  return (
+    <RouteSubmitFormInner key={resetKey} {...props} autoFocus={resetKey > 0} onSubmitAnother={handleSubmitAnother} />
+  );
+}
+
+function RouteSubmitFormInner({
+  maps,
+  builds,
+  defaultMapSlug,
+  defaultRace,
+  defaultVsRaces,
+  defaultLevel,
+  submissionsOpen,
+  autoFocus,
+  onSubmitAnother,
+}: RouteSubmitFormProps & { autoFocus: boolean; onSubmitAnother: () => void }) {
   const [state, formAction, pending] = useActionState(submitCreepRoute, initial);
 
   const [mapSlug, setMapSlug] = useState(defaultMapSlug ?? maps[0]?.slug ?? "");
@@ -87,6 +120,18 @@ export function RouteSubmitForm({
     const id = window.setTimeout(() => setStartedAt(Date.now()), 0);
     return () => window.clearTimeout(id);
   }, []);
+
+  // After "Submit another" remounts this component fresh (`autoFocus`),
+  // move focus to the top of the form and scroll it there, so keyboard and
+  // screen-reader users land somewhere sensible instead of wherever the
+  // success panel happened to be. Never on a plain first visit, which would
+  // yank focus away from where the browser put it unasked.
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (!autoFocus) return;
+    formRef.current?.focus();
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [autoFocus]);
 
   // A camp is on the route at most once via the click path: clicking a camp
   // that isn't on the route yet appends a stop; clicking a camp that's
@@ -227,7 +272,9 @@ export function RouteSubmitForm({
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/learn/creep-routes">Back to routes</ButtonLink>
-          <ButtonLink href="/learn/creep-routes/submit" variant="outline">Submit another</ButtonLink>
+          <Button type="button" variant="outline" onClick={onSubmitAnother}>
+            Submit another
+          </Button>
         </div>
       </div>
     );
@@ -238,7 +285,7 @@ export function RouteSubmitForm({
   }
 
   return (
-    <form action={formAction}>
+    <form ref={formRef} action={formAction} tabIndex={-1}>
       <div className="hidden" aria-hidden>
         <label>
           Website <input type="text" name="website" tabIndex={-1} autoComplete="off" />
