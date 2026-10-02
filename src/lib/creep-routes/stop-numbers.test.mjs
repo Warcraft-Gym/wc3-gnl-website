@@ -135,9 +135,9 @@ test("an and split keeps every path on the same numbers and the join after the l
   assert.deepEqual(labels([camp("c1"), parallel([scout], [scout]), camp("c5")]), ["1", "2", "", "", "2"]);
 });
 
-test("Echo Isles: path a (a shop waypoint) reads 1, 2, scout, shop, 3; path b reads 1, 2, scout, 3b, 4", async () => {
-  const { FIXTURE_ROUTES } = await import("./fixtures.mjs");
-  const echo = FIXTURE_ROUTES.find((r) => r.slug === "undead-ves-echo-isles").stops;
+test("an Echo-shaped split: path a (a shop waypoint) reads 1, 2, scout, shop, 3; path b reads 1, 2, scout, 3b, 4", () => {
+  const shop = { campId: null, action: "Buy", place: { kind: "shop", at: { shop: "ngme-0" } } };
+  const echo = [camp("c11"), camp("c02"), scout, fork([shop], [camp("c05")]), camp("c03")];
   const read = (choice) => flatStops(echo, choice).filter(({ stop }) => !stop.split).map(({ label, stop }) => label || stop.place?.kind);
   assert.deepEqual(read({}), ["1", "2", "scout", "shop", "3b", "3"]);
   assert.deepEqual(shownStops(echo).filter(({ stop }) => !stop.split).map(({ label, stop }) => label || stop.place?.kind), ["1", "2", "scout", "shop", "3"]);

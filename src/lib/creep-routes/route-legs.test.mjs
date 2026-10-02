@@ -9,19 +9,17 @@ const pairs = (plan) => plan.legs.map(({ a, b }) => `${a}>${b}`);
 test("a waypoint done by another unit keeps its disc but gets no leg: Echo Isles' scout", () => {
   const stops = echo();
   assert.equal(offTheLine(stops[2]), true);
-  // Path a: 1 c11, 2 c02, the scout (no leg), then the shop waypoint and 3 c03.
-  const a = routeLegs(stops);
-  assert.deepEqual(pairs(a), ["0>1", "1>3.a.0", "3.a.0>4"]);
-  assert.ok(a.nodes.some((n) => n.key === "2"));
-  // Path b: 2 runs straight to 3b, then 4.
-  assert.deepEqual(pairs(routeLegs(stops, { 3: 1 })), ["0>1", "1>3.b.0", "3.b.0>4"]);
+  // 1 c11, 2 c02, the scout (no leg), 3 c05, 4 c03: the hero's line runs 2 to 3.
+  const plan = routeLegs(stops);
+  assert.deepEqual(pairs(plan), ["0>1", "1>3", "3>4"]);
+  assert.ok(plan.nodes.some((n) => n.key === "2"));
 });
 
 test("a waypoint the hero walks keeps its legs", () => {
   const stops = echo();
   delete stops[2].hero;
   assert.equal(offTheLine(stops[2]), false);
-  assert.deepEqual(pairs(routeLegs(stops)), ["0>1", "1>2", "2>3.a.0", "3.a.0>4"]);
+  assert.deepEqual(pairs(routeLegs(stops)), ["0>1", "1>2", "2>3", "3>4"]);
 });
 
 test("a split that opens the route starts at your base; and draws every path, the later ones thin", () => {
