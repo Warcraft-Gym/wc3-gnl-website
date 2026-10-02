@@ -9,6 +9,18 @@
  * (`GuideCard`'s own level chip, which shares `GuideLevel`'s three values
  * with `BuildDifficulty`).
  *
+ * F010: a creep route's `level` (standard/beginner) is a difficulty too,
+ * not a win/loss or gold accent — `RouteBadges.tsx`'s `LevelBadge` and
+ * `RouteRow.tsx`'s left-edge accent used `win`/`gold` (the win/loss and
+ * primary-accent scale) by analogy with the wrong thing. They now read
+ * `standard` as the difficulty-intermediate token and `beginner` as the
+ * difficulty-beginner token, the same two steps of the build-difficulty
+ * scale `DifficultyBadge` uses for its own "beginner"/"intermediate".
+ * `assertDifficultyScale` now takes an explicit `levels` list so the same
+ * helper covers both the three-value build `difficulty` and the two-value
+ * route `level` without a route mapping ever being asked for a
+ * "difficulty-advanced" token it has no key for.
+ *
  * Reading the component source is the point, same rule as
  * `design-headings.test.mjs`: a test holding its own copy of the class
  * names would still pass after someone typed `before:bg-win` again. Each
@@ -37,13 +49,18 @@ function mapping(src, name) {
   return m[1];
 }
 
-/** Asserts the named mapping in `src` maps every one of `LEVELS` to its own
+/** Asserts the named mapping in `src` maps every one of `levels` to its own
  *  `--color-difficulty-<level>` token (as `difficulty-<level>`, the
  *  Tailwind utility name), and that none of the old `win`/`arcane`/`gold`
- *  classes survive in that mapping. */
-function assertDifficultyScale(src, name) {
+ *  classes survive in that mapping. `levels` defaults to the full
+ *  beginner/intermediate/advanced build-difficulty scale; a route `level`
+ *  mapping only ever has two keys (`beginner`/`standard`) and is checked
+ *  against just the two difficulty steps it actually uses
+ *  (difficulty-beginner, difficulty-intermediate) — it is never asked for
+ *  a difficulty-advanced it has no key for. */
+function assertDifficultyScale(src, name, levels = LEVELS) {
   const body = mapping(src, name);
-  for (const level of LEVELS) {
+  for (const level of levels) {
     assert.match(body, new RegExp(`difficulty-${level}`), `${name} must use the difficulty-${level} token for "${level}"`);
   }
   for (const old of OLD_TOKENS) {
@@ -65,4 +82,14 @@ test("the guide page's difficulty badge uses the difficulty tokens, not win/arca
 
 test("GuideCard's level chip uses the difficulty tokens, not win/arcane/gold (found by grep, F009)", () => {
   assertDifficultyScale(read("../components/learn/GuideCard.tsx"), "LEVEL_TONE");
+});
+
+const ROUTE_LEVELS = ["beginner", "intermediate"]; // route `level` is beginner/standard; "standard" reads the difficulty-intermediate token
+
+test("RouteBadges' LevelBadge uses the difficulty tokens, not win/gold (F010)", () => {
+  assertDifficultyScale(read("../components/creep-routes/RouteBadges.tsx"), "LEVEL_TONE", ROUTE_LEVELS);
+});
+
+test("RouteRow's left-edge accent uses the difficulty tokens, not win/gold (F010)", () => {
+  assertDifficultyScale(read("../components/creep-routes/RouteRow.tsx"), "ACCENT", ROUTE_LEVELS);
 });
