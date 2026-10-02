@@ -66,17 +66,17 @@ export function RouteEditor({
 
   // The node way map clicks go into (its "Add stops here" toggle); none means the top level.
   const [activeArm, setActiveArm] = useState<ActiveArm>(null);
-  const armOpen = activeArm !== null && stops.some((r) => r.id === activeArm.forkId && r.fork && r.fork.arms[activeArm.arm]);
-  // A parallel node's ways 2.. run without the hero: a camp or attack added there arrives with the hero off.
+  const armOpen = activeArm !== null && stops.some((r) => r.id === activeArm.splitId && r.split && r.split.arms[activeArm.arm]);
+  // An "and" split's ways 2.. run without the hero: a camp or attack added there arrives with the hero off.
   const heroOffArm =
-    armOpen && activeArm !== null && activeArm.arm > 0 && stops.some((r) => r.id === activeArm.forkId && r.fork?.kind === "parallel");
+    armOpen && activeArm !== null && activeArm.arm > 0 && stops.some((r) => r.id === activeArm.splitId && r.split?.mode === "and");
   const addTo = useCallback(
     (update: (rows: StopRowData[]) => StopRowData[]) => {
       const marked = (rows: StopRowData[]) => {
         const before = new Set(rows.map((r) => r.id));
         return update(rows).map((r) => (heroOffArm && !before.has(r.id) && (r.campId || r.place?.kind === "attack") ? { ...r, hero: false } : r));
       };
-      setStops((rows) => (armOpen && activeArm ? updateArm(rows, activeArm.forkId, activeArm.arm, marked) : update(rows)));
+      setStops((rows) => (armOpen && activeArm ? updateArm(rows, activeArm.splitId, activeArm.arm, marked) : update(rows)));
     },
     [setStops, armOpen, activeArm, heroOffArm],
   );

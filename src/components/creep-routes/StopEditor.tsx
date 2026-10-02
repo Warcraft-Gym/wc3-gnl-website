@@ -9,11 +9,11 @@ import { cn } from "@/lib/utils";
 import type { CampCardTrigger, CreepMap, MapCamp } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { StopRow, type StopRowData } from "./StopRow";
-import { ForkRow } from "./ForkRow";
+import { SplitEditor } from "./SplitEditor";
 import { newRow, rowToStop } from "./stop-rows";
 
-/** The way map clicks go into while it is set: a fork row's id and the arm's index. */
-export type ActiveArm = { forkId: number; arm: number } | null;
+/** The way map clicks go into while it is set: a split row's id and the way's index. */
+export type ActiveArm = { splitId: number; arm: number } | null;
 
 export function StopEditor({
   map,
@@ -51,15 +51,15 @@ export function StopEditor({
   /** The "Point" toggle: armed, the next map click adds a point place stop. */
   pointArmed?: boolean;
   onPointToggle?: () => void;
-  /** 1 inside a fork's way: no "+ Fork", no "Point", no level readout. */
+  /** 1 inside a split's way: no "+ Split", no "Point", no level readout. */
   depth?: 0 | 1;
   /** Inside a way: each stop's number ("3a"), from the route's `numberStops`. */
   labels?: string[];
   /** Inside a way: its stops' derived trace, from the whole route's `deriveRoute`. */
   derivedStops?: DerivedStop[];
-  /** Where this list's field errors live: "stops", or "stops.2.fork.arms.0.stops" in a way. */
+  /** Where this list's field errors live: "stops", or "stops.2.split.arms.0.stops" in a way. */
   errorPath?: string;
-  /** The way map clicks go into, and its setter (a fork row's "Add stops here" toggle). */
+  /** The way map clicks go into, and its setter (a split row's "Add stops here" toggle). */
   activeArm?: ActiveArm;
   onActiveArm?: (arm: ActiveArm) => void;
 }) {
@@ -111,13 +111,13 @@ export function StopEditor({
   function addBaseAction() {
     setStops((rows) => [...rows, newRow()]);
   }
-  // A new node (a fork or "At the same time") starts with two empty ways; map clicks go into its first.
-  function addNode(kind: "fork" | "parallel") {
+  // A new split starts as "Choose a way" with two empty ways; map clicks go into its first.
+  function addSplit() {
     const row = newRow({
-      fork: { kind, arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) },
+      split: { mode: "xor", arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) },
     });
     setStops((rows) => [...rows, row]);
-    onActiveArm?.({ forkId: row.id, arm: 0 });
+    onActiveArm?.({ splitId: row.id, arm: 0 });
   }
 
   return (
@@ -138,22 +138,13 @@ export function StopEditor({
             <Plus size={14} /> Base action
           </button>
           {depth === 0 ? (
-            <>
-              <button
-                type="button"
-                onClick={() => addNode("fork")}
-                className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
-              >
-                <Plus size={14} /> Fork
-              </button>
-              <button
-                type="button"
-                onClick={() => addNode("parallel")}
-                className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
-              >
-                <Plus size={14} /> At the same time
-              </button>
-            </>
+            <button
+              type="button"
+              onClick={addSplit}
+              className="inline-flex h-8 items-center gap-1.5 rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
+            >
+              <Plus size={14} /> Split
+            </button>
           ) : null}
           {depth === 0 && onPointToggle ? (
             <button
@@ -174,17 +165,18 @@ export function StopEditor({
 
       {stops.length ? (
         <ol className="space-y-2">
-          {stops.map((s, i) => s.fork ? (
-            <ForkRow
+          {stops.map((s, i) => s.split ? (
+            <SplitEditor
               key={s.id}
-              row={{ ...s, fork: s.fork }}
+              row={{ ...s, split: s.split }}
               number={numbers[i].label}
               map={map}
               setStops={setStops}
               iconRace={iconRace}
               heroIcon={heroIcon}
               fieldError={fieldError}
-              errorPath={`${errorPath}.${i}.${s.fork.kind}`}
+              errorPath={`${errorPath}.${i}.split`}
+              last={i === stops.length - 1}
               onRemove={() => remove(s.id)}
               onMoveUp={() => move(i, -1)}
               onMoveDown={() => move(i, 1)}

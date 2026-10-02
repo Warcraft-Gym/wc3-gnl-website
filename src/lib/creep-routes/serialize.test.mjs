@@ -149,7 +149,7 @@ test("toApiStop carries a kill set unchanged", () => {
   assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
 });
 
-test("round trip of a route with a waypoint, a stop without the hero, a fork and a parallel node", () => {
+test("round trip of a route with a waypoint, a stop without the hero, an or split and an and split", () => {
   const full = {
     ...route,
     stops: [
@@ -157,33 +157,33 @@ test("round trip of a route with a waypoint, a stop without the hero, a fork and
       { campId: "c01", hero: false, units: [{ icon: "hu-militia", count: 4 }] },
       {
         campId: null,
-        fork: {
+        split: {
+          mode: "or",
           arms: [
             { label: "No one at their natural", stops: [{ campId: "c02", units: [{ icon: "hu-archmage", count: 1 }] }] },
-            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "0" } } }], ends: true },
+            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "0" } } }] },
           ],
         },
       },
-      { campId: null, parallel: { arms: [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02", hero: false, units: [{ icon: "hu-militia", count: 2 }] }] }] } },
+      { campId: null, split: { mode: "and", arms: [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02", hero: false, units: [{ icon: "hu-militia", count: 2 }] }] }] } },
     ],
   };
   const api = toApiRoute(full, map, "https://site.example", iconSrc, deriveRoute);
   assert.deepEqual(api.stops[0].place, { kind: "build", at: { x: 0.4, y: 0.6 } });
   assert.equal(api.stops[1].hero, false);
-  assert.equal(api.stops[3].parallel.arms[1].stops[0].units[0].iconUrl, "https://site.example/icons/hu-militia.png");
-  assert.equal(api.stops[2].fork.arms[0].stops[0].units[0].iconUrl, "https://site.example/icons/hu-archmage.png");
-  assert.deepEqual(api.stops[2].fork.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
+  assert.equal(api.stops[3].split.arms[1].stops[0].units[0].iconUrl, "https://site.example/icons/hu-militia.png");
+  assert.equal(api.stops[2].split.arms[0].stops[0].units[0].iconUrl, "https://site.example/icons/hu-archmage.png");
+  assert.deepEqual(api.stops[2].split.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
   assert.equal(api.derived.stops.length, 4);
 
   // The "Suggest an update" payload carries all three back to the editor unchanged.
   const back = toExchangeRoute(full).stops;
   assert.deepEqual(back[0].place, full.stops[0].place);
   assert.equal(back[1].hero, false);
-  assert.deepEqual(back[2].fork.arms.map((a) => a.label), ["No one at their natural", "They are at their natural"]);
-  assert.deepEqual(back[2].fork.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
-  assert.equal(back[2].fork.arms[0].stops[0].campId, "c02");
-  assert.equal(back[2].fork.arms[1].ends, true);
-  assert.equal(api.stops[2].fork.arms[1].ends, true);
-  assert.equal(back[3].parallel.arms[1].stops[0].hero, false);
-  assert.equal("label" in back[3].parallel.arms[0], false);
+  assert.deepEqual(back[2].split.arms.map((a) => a.label), ["No one at their natural", "They are at their natural"]);
+  assert.deepEqual(back[2].split.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
+  assert.equal(back[2].split.arms[0].stops[0].campId, "c02");
+  assert.equal(back[2].split.mode, "or");
+  assert.equal(back[3].split.arms[1].stops[0].hero, false);
+  assert.equal("label" in back[3].split.arms[0], false);
 });

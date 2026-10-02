@@ -30,10 +30,8 @@ export type ApiRouteStop = {
   place?: Place;
   /** Camp and attack stops: false when only the Bring units go (no hero XP). */
   hero?: boolean;
-  /** A fork node (choose one); see `stop-numbers.mjs` for how its arms number. */
-  fork?: { arms: { label: string; stops: ApiRouteStop[]; ends?: boolean }[] };
-  /** A parallel node (all at once). */
-  parallel?: { arms: { stops: ApiRouteStop[] }[] };
+  /** A split; see `stop-numbers.mjs` for how its arms number. */
+  split?: { mode: "and" | "or" | "xor"; arms: { label?: string; stops: ApiRouteStop[] }[] };
 };
 
 /** List DTO — see `toApiRouteListItem`'s own doc comment (in `serialize.mjs`)

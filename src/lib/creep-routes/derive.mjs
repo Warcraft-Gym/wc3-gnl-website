@@ -34,27 +34,27 @@ function levelForXp(xp) {
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
  * pays the new, lower factor for the rest of that camp's kills. A
  * stop with `hero: false` has kills with `xp: 0` and leaves level/xp unchanged.
- * A node (`stop.fork` or `stop.parallel`) derives every arm and carries them
- * as `fork` / `parallel: { walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
- * arm stops carry `armIndex` and `forkKey`, and `choice` maps a fork key
- * ("2") to the arm the hero walks at a fork (default 0). */
+ * A split (`stop.split`) derives every arm and carries them as
+ * `split: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
+ * arm stops carry `armIndex` and `forkKey`, and `choice` maps a split key
+ * ("2") to the arm the hero walks in an "or" split (default 0). */
 export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
   let level = startLevel;
   let xp = heroXpForLevel(startLevel);
 
   const stops = route.stops.map((stop, i) => {
-    const parallel = Boolean(stop.parallel);
-    const rawArms = stop.fork?.arms ?? stop.parallel?.arms;
+    const parallel = stop.split?.mode === "and";
+    const rawArms = stop.split?.arms;
     if (!rawArms) {
       const d = deriveStop(stop, map, level, xp, false);
       level = d.heroLevelAfter;
       xp = d.xpAfter;
       return d;
     }
-    // A node: every arm is derived from the hero's state at the node. The hero
-    // walks one arm (`choice[forkKey]` at a fork, arm 0 at a parallel node);
-    // only that arm feeds the running total. A parallel node's arms 1.. run
-    // without the hero whatever their own flags say.
+    // A split: every arm is derived from the hero's state at the split. The hero
+    // walks one arm (`choice[forkKey]` in "or", arm 0 in "and"); only that arm
+    // feeds the running total. An "and" split's arms 1.. run without the hero
+    // whatever their own flags say.
     const forkKey = String(i);
     const walked = parallel ? 0 : Math.min(Math.max(0, choice[forkKey] ?? 0), rawArms.length - 1);
     const arms = rawArms.map((arm, armIndex) => {
@@ -81,7 +81,7 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
       band: null,
       left: 0,
       kills: [],
-      [parallel ? "parallel" : "fork"]: { walked, arms },
+      split: { mode: stop.split.mode, walked, arms },
     };
   });
 

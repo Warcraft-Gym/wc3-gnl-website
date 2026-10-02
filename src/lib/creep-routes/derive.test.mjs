@@ -194,18 +194,18 @@ const forkRoute = (kind) => ({
   stops: [
     { campId: "c1" },
     kind === "fork"
-      ? { campId: null, fork: { arms: [{ label: "A", stops: [{ campId: "c2" }] }, { label: "B", stops: [] }] } }
-      : { campId: null, parallel: { arms: [{ stops: [{ campId: "c2" }] }, { stops: [] }] } },
+      ? { campId: null, split: { mode: "or", arms: [{ label: "A", stops: [{ campId: "c2" }] }, { label: "B", stops: [] }] } }
+      : { campId: null, split: { mode: "and", arms: [{ stops: [{ campId: "c2" }] }, { stops: [] }] } },
     { campId: "c2" },
   ],
 });
-const arms = (route) => (route.stops[1].fork ?? route.stops[1].parallel).arms;
+const arms = (route) => route.stops[1].split.arms;
 
-test("fork: the hero walks the chosen arm; the other arm is derived but feeds no total", () => {
+test("or split: the hero walks the chosen arm; the other arm is derived but feeds no total", () => {
   const route = forkRoute("fork");
   arms(route)[1].stops = [{ campId: "c1" }];
   const first = deriveRoute(route, MAP);
-  const fork = first.stops[1].fork;
+  const fork = first.stops[1].split;
   assert.equal(fork.walked, 0);
   assert.equal(fork.arms[0].xpAfter, 306);
   assert.equal(fork.arms[1].stops[0].armIndex, 1);
@@ -213,15 +213,15 @@ test("fork: the hero walks the chosen arm; the other arm is derived but feeds no
   assert.equal(first.stops[1].xpAfter, 306);
 
   const second = deriveRoute(route, MAP, { choice: { 1: 1 } });
-  assert.equal(second.stops[1].fork.walked, 1);
-  assert.equal(second.stops[1].xpAfter, second.stops[1].fork.arms[1].xpAfter);
+  assert.equal(second.stops[1].split.walked, 1);
+  assert.equal(second.stops[1].xpAfter, second.stops[1].split.arms[1].xpAfter);
   assert.ok(second.stops[1].xpAfter < first.stops[1].xpAfter);
 });
 
-test("parallel: arm 0 walks with the hero, arms 1.. are derived without the hero whatever their flags", () => {
+test("and split: arm 0 walks with the hero, arms 1.. are derived without the hero whatever their flags", () => {
   const route = forkRoute("parallel");
   arms(route)[1].stops = [{ campId: "c2", hero: true }];
-  const node = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].parallel;
+  const node = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].split;
   assert.equal(node.walked, 0);
   assert.equal(node.arms[1].stops[0].hero, false);
   assert.ok(node.arms[1].stops[0].kills.every((k) => k.xp === 0));
@@ -229,7 +229,7 @@ test("parallel: arm 0 walks with the hero, arms 1.. are derived without the hero
   assert.equal(node.arms[0].xpAfter, 306);
 });
 
-test("the stop after a fork continues from the chosen arm's total", () => {
+test("the stop after a split continues from the chosen arm's total", () => {
   const route = forkRoute("fork");
   arms(route)[1].stops = [{ campId: null, action: "Harass" }];
   const viaA = deriveRoute(route, MAP);

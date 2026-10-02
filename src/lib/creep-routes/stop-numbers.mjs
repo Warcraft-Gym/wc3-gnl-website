@@ -1,12 +1,11 @@
 /**
- * Stop numbers and keys for a route with nodes, one level deep: a fork
- * (`RouteStop.fork`, choose one way) or a parallel node (`RouteStop.parallel`,
- * all at once). Stops before a node number as before; the node takes the next
- * number N; a fork's arm stops read N a, N+1 a, … and N b, …; a parallel
- * node's arms all read N, N+1, …; the stop after the node takes N + the
+ * Stop numbers and keys for a route with splits (`RouteStop.split`, one level
+ * deep). Stops before a split number as before; the split takes the next
+ * number N; an "or" / "xor" split's arm stops read N a, N+1 a, … and N b, …; an "and"
+ * split's arms all read N, N+1, …; the stop after the split takes N + the
  * longest arm's length. A waypoint (`place.mjs`) takes no
  * number and no length. Keys are strings: "0", "1", …
- * at the top level and "2.a.0" for the first stop of fork 2's arm a. Plain
+ * at the top level and "2.a.0" for the first stop of split 2's arm a. Plain
  * JS so `node --test` runs `stop-numbers.test.mjs` with no loader.
  */
 
@@ -14,13 +13,13 @@ import { isWaypoint } from "./place.mjs";
 
 export const ARM_LETTERS = ["a", "b", "c"];
 
-/** A node's arms: a fork's (choose one) or a parallel node's (all at once); null for a plain stop. */
+/** A split's arms; null for a plain stop. */
 export function armsOf(stop) {
-  return stop?.fork?.arms ?? stop?.parallel?.arms ?? null;
+  return stop?.split?.arms ?? null;
 }
 
 /** One entry per top-level stop: `{ key, label }`, plus `arms: [{ letter, stops: [{ key, label }] }]` on a node.
- *  @param {{ fork?: { arms: { stops: unknown[] }[] }, parallel?: { arms: { stops: unknown[] }[] } }[]} stops
+ *  @param {{ split?: { mode: string, arms: { stops: unknown[] }[] } }[]} stops
  *  @returns {{ key: string, label: string, arms?: { letter: string, stops: { key: string, label: string }[] }[] }[]} */
 export function numberStops(stops) {
   let n = 1;
@@ -34,8 +33,8 @@ export function numberStops(stops) {
       n += 1;
       return { key, label };
     }
-    // A fork's arms read N a, N+1 a / N b; a parallel node's arms all read N, N+1.
-    const suffix = (a) => (stop.fork ? ARM_LETTERS[a] : "");
+    // An "or" / "xor" split's arms read N a, N+1 a / N b; an "and" split's arms all read N, N+1.
+    const suffix = (a) => (stop.split.mode === "and" ? "" : ARM_LETTERS[a]);
     const arms = nodeArms.map((arm, a) => {
       let j = 0;
       return {
@@ -74,20 +73,20 @@ export function stopKeys(stops) {
   return flatStops(stops).map((s) => s.key);
 }
 
-/** How many numbered stops a route has: every stop but a waypoint and a node, arm stops included.
- *  Takes Sanity's `creepFork`/`creepParallel` array members (`arms` on the item) as well as nodes.
- *  @param {{ fork?: { arms: { stops?: unknown[] }[] }, parallel?: { arms: { stops?: unknown[] }[] }, _type?: string, arms?: { stops?: unknown[] }[] }[]} stops */
+/** How many numbered stops a route has: every stop but a waypoint and a split, arm stops included.
+ *  Takes Sanity's `creepSplit` array members (`arms` on the item) as well as split nodes.
+ *  @param {{ split?: { arms: { stops?: unknown[] }[] }, _type?: string, arms?: { stops?: unknown[] }[] }[]} stops */
 export function countStops(stops) {
   return (stops ?? []).reduce((n, s) => {
-    const arms = armsOf(s) ?? (s._type === "creepFork" || s._type === "creepParallel" ? s.arms ?? [] : null);
+    const arms = armsOf(s) ?? (s._type === "creepSplit" ? s.arms ?? [] : null);
     if (arms) return n + arms.reduce((m, arm) => m + (arm.stops ?? []).filter((x) => !isWaypoint(x)).length, 0);
     return n + (isWaypoint(s) ? 0 : 1);
   }, 0);
 }
 
-/** The arm the hero walks at node `stop` (top-level key `key`): the chosen one of a fork, arm 0 of a parallel node. */
+/** The arm the hero walks at split `stop` (top-level key `key`): the chosen one of an "or" / "xor" split, arm 0 of an "and" split. */
 export function walkedArm(stop, key, choice = {}) {
-  return stop.fork ? Math.min(Math.max(0, choice[key] ?? 0), stop.fork.arms.length - 1) : 0;
+  return stop.split.mode === "and" ? 0 : Math.min(Math.max(0, choice[key] ?? 0), stop.split.arms.length - 1);
 }
 
 /** The key of the stop a map click on `campId` means: the top level and the walked arm of

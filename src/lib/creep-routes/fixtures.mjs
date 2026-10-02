@@ -200,21 +200,21 @@ export const FIXTURE_ROUTES = [
       { campId: "c07", note: "Keeper takes the turtles" },
       {
         campId: null,
-        fork: {
+        // Either/or: each way goes on to its own end, nothing follows the split.
+        split: {
+          mode: "xor",
           arms: [
             {
               label: "No one at their natural",
-              stops: [{ campId: "c08", note: "Take their natural's turtles" }, { campId: "c04" }],
+              stops: [{ campId: "c08", note: "Take their natural's turtles" }, { campId: "c04" }, { campId: "c01" }],
             },
             {
               label: "They are at their natural",
               stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "3" } } }],
-              ends: true,
             },
           ],
         },
       },
-      { campId: "c01" },
     ],
   },
   {
@@ -236,7 +236,8 @@ export const FIXTURE_ROUTES = [
       { campId: "c11", units: [{ icon: "hu-militia", count: 5 }], note: "Call to Arms, clear the marketplace camp together" },
       {
         campId: null,
-        parallel: {
+        split: {
+          mode: "and",
           arms: [
             { stops: [{ campId: "c04", units: [{ icon: "hu-footman", count: 3 }], note: "The hero and the army take the turtles" }] },
             { stops: [{ campId: "c19", hero: false, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" }] },
@@ -258,7 +259,7 @@ for (const route of FIXTURE_ROUTES) {
   const map = MAP_BY_SLUG.get(route.map.slug);
   if (!map) throw new Error(`fixture route ${route.slug} references unknown map ${route.map.slug}`);
   route.map.minimapUrl = map.minimapUrl;
-  for (const stop of route.stops.flatMap((s) => [s, ...((s.fork ?? s.parallel)?.arms.flatMap((arm) => arm.stops) ?? [])])) {
+  for (const stop of route.stops.flatMap((s) => [s, ...(s.split?.arms.flatMap((arm) => arm.stops) ?? [])])) {
     const camp = stop.campId && map.camps.find((c) => c.id === stop.campId);
     if (stop.campId && !camp) {
       throw new Error(`fixture route ${route.slug} references unknown camp ${stop.campId} on ${map.slug}`);

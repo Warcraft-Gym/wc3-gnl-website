@@ -3,9 +3,11 @@ import assert from "node:assert/strict";
 import { hasLanes, routeRows } from "./route-rows.mjs";
 
 const camp = (id) => ({ campId: id });
-const fork = (...arms) => ({ campId: null, fork: { arms: arms.map((a, i) => ({ label: `way ${i}`, stops: a.stops ?? a, ...(a.ends ? { ends: true } : {}) })) } });
-const parallel = (...arms) => ({ campId: null, parallel: { arms: arms.map((stops) => ({ stops })) } });
-const shape = (rows) => rows.map((r) => (r.type === "stop" ? `${r.label || "~"}${r.lane ? `:${r.lane}` : ""}${r.off ? "*" : ""}` : `${r.type}${r.off ? "*" : ""}`));
+const choose = (mode) => (...arms) => ({ campId: null, split: { mode, arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
+const or = choose("or");
+const xor = choose("xor");
+const and = (...arms) => ({ campId: null, split: { mode: "and", arms: arms.map((stops) => ({ stops })) } });
+const shape = (rows) => rows.map((r) => (r.type === "stop" ? `${r.label || "~"}${r.lane ? `:${r.lane}` : ""}${r.off ? "*" : ""}` : r.type));
 const lanes = (row) => row.lines.map((l) => `${l.lane}${l.top ? "^" : ""}${l.bottom ? "v" : ""}${l.off ? "*" : ""}`).join(" ");
 
 test("a linear route has no lanes: one main row per stop", () => {
@@ -14,36 +16,46 @@ test("a linear route has no lanes: one main row per stop", () => {
   assert.deepEqual(shape(routeRows(stops)), ["1", "2", "3"]);
 });
 
-test("a fork mid-route with unequal arms interleaves a[0], b[0], a[1], then joins", () => {
-  const stops = [camp("c1"), fork([camp("c2"), camp("c3")], [camp("c4")]), camp("c5")];
+test("an or split lists every way, dims the ways not chosen and joins before the shared stops", () => {
+  const stops = [camp("c1"), or([camp("c2"), camp("c3")], [camp("c4")]), camp("c5")];
   assert.equal(hasLanes(stops), true);
   assert.deepEqual(shape(routeRows(stops)), ["1", "split", "2a:a", "2b:b*", "3a:a", "join", "4"]);
-  assert.deepEqual(shape(routeRows(stops, { 1: 1 })), ["1", "split", "2a:a*", "2b:b", "3a:a*", "join", "4"]);
+  const viaB = routeRows(stops, { 1: 1 });
+  assert.deepEqual(shape(viaB), ["1", "split", "2a:a*", "2b:b", "3a:a*", "join", "4"]);
+  assert.equal(lanes(viaB[3]), "a^v* b^v");
 });
 
-test("a fork at index 0 opens the list with its split row", () => {
-  assert.deepEqual(shape(routeRows([fork([camp("c1")], [camp("c2")])])), ["split", "1a:a", "1b:b*", "join"]);
+test("an xor split lists only the chosen way and nothing follows it", () => {
+  const stops = [camp("c1"), xor([camp("c2"), camp("c3")], [camp("c4")])];
+  assert.deepEqual(shape(routeRows(stops)), ["1", "split", "2a:a", "3a:a"]);
+  const viaB = routeRows(stops, { 1: 1 });
+  assert.deepEqual(shape(viaB), ["1", "split", "2b:b"]);
+  assert.deepEqual(viaB[1].lanes, [{ lane: "b", off: false }]);
+  assert.equal(lanes(viaB[2]), "b^");
 });
 
-test("a parallel node runs the same numbers, dims nothing and joins", () => {
-  const rows = routeRows([camp("c1"), parallel([camp("c2")], [camp("c3")]), camp("c4")], { 1: 1 });
-  assert.deepEqual(shape(rows), ["1", "split", "2:a", "2:b", "join", "3"]);
+test("a split at index 0 opens the list with its split row", () => {
+  assert.deepEqual(shape(routeRows([xor([camp("c1")], [camp("c2")])], { 0: 1 })), ["split", "1b:b"]);
 });
 
-test("an ending arm stops its line at its last node and needs no join; choosing it turns off what follows", () => {
-  const stops = [camp("c1"), fork([camp("c2"), camp("c3")], { stops: [camp("c4")], ends: true }), camp("c5")];
-  const rows = routeRows(stops);
-  assert.deepEqual(shape(rows), ["1", "split", "2a:a", "2b:b*", "3a:a", "4"]);
-  assert.equal(lanes(rows[2]), "a^v b^v*");
-  assert.equal(lanes(rows[3]), "a^v b^*");
-  assert.equal(lanes(rows[4]), "a^v");
-  assert.deepEqual(shape(routeRows(stops, { 1: 1 })), ["1", "split", "2a:a*", "2b:b", "3a:a*", "4*"]);
-});
-
-test("a node followed by shared stops: the rail starts at the first node and stops at the last", () => {
-  const rows = routeRows([camp("c1"), parallel([camp("c2")], [camp("c3"), camp("c4")]), camp("c5"), camp("c6")]);
-  assert.deepEqual(shape(rows), ["1", "split", "2:a", "2:b", "3:b", "join", "4", "5"]);
-  assert.equal(lanes(rows[0]), "av");
+test("an and split interleaves every arm with the same numbers and joins before the shared stop", () => {
+  const rows = routeRows([camp("c1"), and([camp("c2")], [camp("c3"), camp("c4")]), camp("c5")], { 1: 1 });
+  assert.deepEqual(shape(rows), ["1", "split", "2:a", "2:b", "3:b", "join", "4"]);
+  assert.deepEqual(rows[1].lanes.map((l) => l.lane), ["a", "b"]);
   assert.equal(lanes(rows[4]), "a^v b^v");
-  assert.equal(lanes(rows[7]), "a^");
+});
+
+test("with nothing after the split each way's line stops at its last node and there is no join", () => {
+  const rows = routeRows([camp("c1"), and([camp("c2"), camp("c3")], [camp("c4")])]);
+  assert.deepEqual(shape(rows), ["1", "split", "2:a", "2:b", "3:a"]);
+  assert.equal(lanes(rows[2]), "a^v b^v");
+  assert.equal(lanes(rows[3]), "a^v b^");
+  assert.equal(lanes(rows[4]), "a^");
+});
+
+test("the rail starts at the first row's node and stops at the last", () => {
+  const rows = routeRows([camp("c1"), or([camp("c2")], [camp("c3")]), camp("c4"), camp("c5")]);
+  assert.deepEqual(shape(rows), ["1", "split", "2a:a", "2b:b*", "join", "3", "4"]);
+  assert.equal(lanes(rows[0]), "av");
+  assert.equal(lanes(rows[6]), "a^");
 });

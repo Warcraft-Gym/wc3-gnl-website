@@ -243,8 +243,7 @@ export const creepRoute = defineType({
       // `name: "stop"` keeps `_type: "stop"` on every stored stop, so existing documents stay valid.
       of: [
         defineArrayMember({ type: "creepStop", name: "stop" }),
-        defineArrayMember({ type: "creepFork" }),
-        defineArrayMember({ type: "creepParallel" }),
+        defineArrayMember({ type: "creepSplit" }),
       ],
     }),
 
@@ -315,7 +314,7 @@ export const creepRoute = defineType({
 
 /**
  * One stop: a camp (by id), a place (a start, mine, shop or point) or a base
- * action. A named type so a fork's arms (`creepFork`) can hold the same stops;
+ * action. A named type so a split's ways (`creepSplit`) can hold the same stops;
  * stored under the array member name "stop", as before.
  */
 export const creepStop = defineType({
@@ -453,14 +452,29 @@ export const creepStop = defineType({
 });
 
 /**
- * A fork in the route, one level deep: the reader chooses one way by its label
- * (the condition). Each way holds 1..n stops; a stop inside a way is never a node.
+ * A split in the route, one level deep: 2 or 3 ways of 1..n stops; a stop inside a
+ * way is never a split. "and": every way at once, then the shared stops. "or": the
+ * reader chooses one way by its label, then the shared stops. "xor": the reader
+ * chooses one way and it never rejoins, so nothing follows the split.
  */
-export const creepFork = defineType({
-  name: "creepFork",
-  title: "Fork",
+export const creepSplit = defineType({
+  name: "creepSplit",
+  title: "Split",
   type: "object",
   fields: [
+    defineField({
+      name: "mode",
+      type: "string",
+      options: {
+        list: [
+          { title: "At the same time", value: "and" },
+          { title: "Choose a way, then continue", value: "or" },
+          { title: "Choose a way", value: "xor" },
+        ],
+      },
+      initialValue: "xor",
+      validation: (rule) => rule.required(),
+    }),
     defineField({
       name: "arms",
       title: "Ways",
@@ -474,14 +488,8 @@ export const creepFork = defineType({
             defineField({
               name: "label",
               type: "string",
-              description: "When to take this way, e.g. \"They are at their natural\".",
-              validation: (rule) => rule.required().max(60),
-            }),
-            defineField({
-              name: "ends",
-              title: "Ends here",
-              type: "boolean",
-              description: "On: the route stops at this way's last stop and does not come back to the stops after the fork.",
+              description: "When to take this way, e.g. \"They are at their natural\". Required when the reader chooses a way.",
+              validation: (rule) => rule.max(60),
             }),
             defineField({
               name: "stops",
@@ -499,48 +507,9 @@ export const creepFork = defineType({
     }),
   ],
   preview: {
-    select: { arms: "arms" },
-    prepare: ({ arms }) => ({ title: `Fork: choose one of ${(arms as unknown[] | undefined)?.length ?? 0} ways` }),
-  },
-});
-
-/**
- * Ways run at the same time, one level deep: every way's stops carry the same
- * numbers; way 1 is the hero's line and the other ways run without the hero.
- * No labels: each stop's Bring says who goes.
- */
-export const creepParallel = defineType({
-  name: "creepParallel",
-  title: "At the same time",
-  type: "object",
-  fields: [
-    defineField({
-      name: "arms",
-      title: "Ways",
-      type: "array",
-      validation: (rule) => rule.required().min(2).max(3),
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "arm",
-          fields: [
-            defineField({
-              name: "stops",
-              type: "array",
-              validation: (rule) => rule.required().min(1),
-              of: [defineArrayMember({ type: "creepStop", name: "stop" })],
-            }),
-          ],
-          preview: {
-            select: { stops: "stops" },
-            prepare: ({ stops }) => ({ title: `${(stops as unknown[] | undefined)?.length ?? 0} stops` }),
-          },
-        }),
-      ],
+    select: { mode: "mode", arms: "arms" },
+    prepare: ({ mode, arms }) => ({
+      title: `${mode === "and" ? "At the same time" : "Choose a way"}: ${(arms as unknown[] | undefined)?.length ?? 0} ways`,
     }),
-  ],
-  preview: {
-    select: { arms: "arms" },
-    prepare: ({ arms }) => ({ title: `At the same time: ${(arms as unknown[] | undefined)?.length ?? 0} ways` }),
   },
 });

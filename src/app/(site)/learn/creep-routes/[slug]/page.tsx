@@ -124,9 +124,9 @@ export default async function CreepRoutePage({ params }: Params) {
     );
   }
 
-  // A fork or parallel node contributes arm 0's stops (the way the page shows first, the hero's line) in its place.
+  // A split contributes way a's stops (the way the page shows first, the hero's line) in its place.
   const stepStops = route.stops.flatMap((s) => {
-    const arms = s.fork?.arms ?? s.parallel?.arms;
+    const arms = s.split?.arms;
     return arms ? (arms[0]?.stops ?? []) : [s];
   });
   const howToSteps = stepStops.map((s) => {

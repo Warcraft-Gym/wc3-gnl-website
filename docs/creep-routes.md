@@ -474,7 +474,7 @@ a base action.
 
 - **Derive.** A stop with `hero: false` has kills with `xp: 0`, `levelAfter` =
   the current level and `leveledUp: false`; `heroLevelAfter`/`xpAfter` pass
-  through. Derive also marks the later arms of a parallel node `hero: false`.
+  through. Derive also marks the later ways of an `and` split `hero: false`.
 - **Map.** The leg is a normal leg; the badge carries the first Bring unit's
   icon (10px) at its right edge, so the map says who goes. No legend line.
 - **List.** No level on the right and no "+xp" captions in the chain. On a
@@ -485,72 +485,69 @@ a base action.
 - **Builder.** Bring starts with a "Hero" toggle (the route's hero portrait,
   or the "Any Hero" crown tile when the route names none), on by default.
 
-### Forks and parallel nodes
+### Splits
 
-Two node types, each its own entry in `stops` with `campId: null` and no
-action, place or other field, one level deep (an arm stop never holds a
-node), 2 or 3 arms of 1..n stops:
+A split is its own entry in `stops`: `{ campId: null, split: { mode, arms } }`
+with no action, place or other field, one level deep (an arm stop never
+holds a split), 2 or 3 arms of 1..n stops. Stops after a split are shared by
+every way; a continuation of only one way belongs inside that way.
 
-- **Fork** `{ fork: { arms: [{ label, stops, ends? }] } }`: choose one way.
-  Every label is required: it is the condition the reader picks the way by.
-  `ends: true` means the route stops at that way's last stop.
-- **Parallel** `{ parallel: { arms: [{ stops }] } }`: all ways at once, no
-  labels. Arm 0 is the hero's line; the builder sets `hero: false` on each
-  camp or attack it adds to arms 1.., and derive treats those arms as
-  without the hero whatever their flags say.
+- **`and`**: every way runs at once, no labels. Way a is the hero's line; the
+  builder sets `hero: false` on each camp or attack it adds to ways b.., and
+  derive runs those ways without the hero whatever their flags say.
+- **`or`**: the reader chooses one way by its label (required), then the
+  route goes on with the shared stops.
+- **`xor`**: the reader chooses one way and it never rejoins; the schema
+  rejects stops after an `xor` split ("Nothing follows an either/or split").
 
-A whole-route pair is a node at index 0. In Sanity the nodes are `creepFork`
-and `creepParallel` array members next to the `stop` members (`creepStop`,
-stored under the name `stop`). `condition` stays a single optional stop's.
+In Sanity the split is a `creepSplit` array member (Studio: "At the same
+time" / "Choose a way, then continue" / "Choose a way"), next to the `stop`
+members (`creepStop`, stored under the name `stop`). A whole-route pair is a
+split at index 0. `condition` stays a single stop's.
 
 One meaning per mark: the same number means at the same time, letters mean
 choose one, no number means a waypoint.
 
-- **Numbers and keys** (`stop-numbers.mjs`). Stops before a node number as
-  before; the node takes the next number N. A fork's arms read N a, N+1 a …
-  and N b …; a parallel node's arms all read N, N+1 …. The stop after either
-  takes N + the longest arm's length. Keys are "0", "1", … at the top level
-  and "2.a.0" in an arm, for both kinds; the stop view, the scroll target and
-  a badge click use the key, `data-stop` the number. "N stops" counts numbered
-  stops only (`countStops`), every arm's included.
+- **Numbers and keys** (`stop-numbers.mjs`). Stops before a split number as
+  before; the split takes the next number N. `or`/`xor` ways read N a, N+1 a …
+  and N b …; `and` ways all read N, N+1 …. The stop after the split takes N +
+  the longest way's length. Keys are "0", "1", … at the top level and "2.a.0"
+  in a way; the stop view, the scroll target and a badge click use the key,
+  `data-stop` the number. "N stops" counts numbered stops only
+  (`countStops`), every way's included.
 - **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
-  fork key to an arm index (default 0). Every arm is derived from the hero's
-  state at the node; only the walked arm (a fork's chosen one, a parallel
-  node's arm 0) feeds the running total. A derived node carries
-  `fork` / `parallel: { walked, arms }`, each arm stop `armIndex` and `forkKey`.
-- **Map.** Every arm starts at the node before it, or your start marker for a
-  node at stop 1. Fork: the chosen arm is drawn as usual; the other arms are
-  the same solid line at 60% with no chevrons and 60% pill badges ("3a"); a
-  click on one of those badges chooses that way. Parallel: every arm is drawn
-  in full, with the same numbers on its badges. Every arm that does not end
-  sends a leg into the first shared stop. No legend line for either.
+  split key to the chosen way (default a). Every way is derived from the
+  hero's state at the split; only the walked way (the chosen one, or way a of
+  `and`) feeds the running total. A derived split carries
+  `split: { mode, walked, arms }`, each way's stop `armIndex` and `forkKey`.
+- **Map.** Every way starts at the node before the split (your start marker
+  for a split at stop 1) and every way's last stop sends a leg into the first
+  shared stop after it. The walked way draws as usual; the other ways' legs
+  are thin (1.25px), at 60%, without chevrons and bowed 12% of their length
+  to the right of travel (a quadratic curve), so they never lie on a main
+  leg. In `or`/`xor` the other ways' badges are at 60% too. No legend line.
 - **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). A route with a
-  fork or parallel node is a flat list: every stop, waypoint and attack is one
-  row in route order with a lane ("" main, "a", "b", "c"); a node's arms
-  interleave a[0], b[0], a[1], b[1], … between a split row and a join row. A
+  split is a flat list: every stop, waypoint and attack is one row in route
+  order with a lane ("" main, "a", "b", "c"); a split's ways interleave a[0],
+  b[0], a[1], …, between a split row and, when stops follow, a join row. A
   44px rail is added in front of today's row and moves nothing: 2px lines in
-  `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's lane
-  a small neutral 6px dot, the diamond for a waypoint or a red-ringed Swords
-  node for an attack. The split row is a slim caption, "Choose a way" with the
-  tab strip (`role="tablist"`, arrow keys, the hero's level at each way's end)
-  or "At the same time"; the rail curves the other lanes out of the main line,
-  with the arm letters at their tops for a fork. The join row (24px, no text)
-  curves the rejoining lanes back in, only when a lane other than a rejoins.
-  A way with `ends: true` stops its lane at its last node. Choosing a way
-  turns off the other arms' rows and, when the chosen way ends, every row
-  after the node: hidden in the list, shown at 45% after "Expand all"
-  ("Collapse all" hides them again), their rail lines at 35%. A parallel node
-  dims nothing. A route without a node renders exactly as before, with no
-  rail. A map click on a camp picks the top-level stop or the walked arm's
-  (`findStopKey`). HowTo steps follow arm 0.
-- **Map after a node.** Every arm that does not end sends a leg into the first
-  shared stop after the node; the off set draws at 60% without chevrons.
-- **Builder.** "+ Fork" and "+ At the same time" add a node with two empty
-  ways. A fork's ways have "When…" label inputs; a parallel node's have none.
-  A fork's way has an "Ends here" checkbox (`ends: true`). Each way has an
-  "Add stops here" toggle: map clicks go into the active way,
-  or the top level when none is active; a click on a camp that a way already
-  holds removes it from that way. "Add a way" up to 3 and a remove per way.
+  `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
+  lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
+  node for an attack. The split row is a slim caption: "At the same time"
+  (`and`), or "Choose a way" with the tab strip (`role="tablist"`, arrow keys,
+  the hero's level at each way's end). `and` shows every way; `or` shows
+  every way and dims the ways not chosen to 45% (their lane lines at 35%);
+  `xor` lists only the chosen way. A route without a split renders exactly as
+  before, with no rail. A map click on a camp picks the top-level stop or the
+  walked way's (`findStopKey`). HowTo steps follow way a.
+- **Builder.** "+ Split" adds a "Choose a way" (`xor`) split with two empty
+  ways. The split row has the mode chips (Choose a way / Choose a way, then
+  continue / At the same time), "When…" labels in the choose modes, a box per
+  way with an "Add stops here" toggle and its own stop list, "Add a way" up to
+  3 and a remove per way. Map clicks go into the active way, or the top level
+  when none is active; a click on a camp a way already holds removes it from
+  that way. A `xor` split that is not the last stop says that nothing may
+  follow it.
 
 ### Kill order
 

@@ -57,16 +57,15 @@ export function toExchangeRoute(route) {
     videoUrl: route.videoUrl || undefined,
     supersedes: route.slug,
     stops: (route.stops ?? []).map((s) =>
-      s.fork
+      s.split
         ? {
             campId: null,
-            fork: {
-              arms: s.fork.arms.map((arm) => ({ label: arm.label ?? "", stops: (arm.stops ?? []).map(exchangeStop), ...(arm.ends ? { ends: true } : {}) })),
+            split: {
+              mode: s.split.mode,
+              arms: s.split.arms.map((arm) => ({ ...(arm.label ? { label: arm.label } : {}), stops: (arm.stops ?? []).map(exchangeStop) })),
             },
           }
-        : s.parallel
-          ? { campId: null, parallel: { arms: s.parallel.arms.map((arm) => ({ stops: (arm.stops ?? []).map(exchangeStop) })) } }
-          : exchangeStop(s),
+        : exchangeStop(s),
     ),
     description: descriptionToText(route.description) || undefined,
   };

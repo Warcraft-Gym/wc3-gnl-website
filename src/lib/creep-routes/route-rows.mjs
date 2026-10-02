@@ -1,89 +1,72 @@
 /**
- * The stop list as flat rows for a route with a fork or parallel node (the
- * lane rail, `RouteStepTable`). Every stop is one row in route order: the
- * rows of a node's arms interleave a[0], b[0], a[1], b[1], …, between a
- * "split" row (the node's caption) and a "join" row (the rail merging back),
- * then the shared stops follow. Plain JS so `node --test` runs
- * `route-rows.test.mjs` with no loader.
+ * The stop list as flat rows for a route with a split (the lane rail,
+ * `RouteStepTable`). Every stop is one row in route order between the split's
+ * caption row and, when stops follow it, a join row; the stops after a split
+ * are shared by every way. Arms interleave a[0], b[0], a[1], b[1], …. An "and"
+ * split shows every arm; an "or" split shows every arm and marks the ways not
+ * chosen `off` (the list dims them); an "xor" split lists only the chosen way
+ * (nothing follows it). Plain JS so `node --test` runs `route-rows.test.mjs`
+ * with no loader.
  *
  * Each row carries `lines`, the rail's lane lines through it: lane "a" is the
  * main line (x 14), "b" and "c" the other arms. `top`/`bottom` say whether the
- * line runs above and below the row's node; an arm that `ends` stops at its
- * last node. `off` marks what is not on the chosen way's path: a fork's other
- * arms and, when the chosen way ends, everything after the node.
+ * line runs above and below the row's node; with nothing after the split, an
+ * arm's line stops at its last node.
  */
 import { ARM_LETTERS, armsOf, numberStops, walkedArm } from "./stop-numbers.mjs";
 
-/** True when the route has a fork or parallel node, so the list draws the rail. */
+/** True when the route has a split, so the list draws the rail. */
 export function hasLanes(stops) {
   return stops.some((s) => armsOf(s));
 }
 
-/** The flat rows. `choice` maps a fork key to the chosen arm (default 0). */
+/** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). */
 export function routeRows(stops, choice = {}) {
   const numbers = numberStops(stops);
   const rows = [];
-  let offAfter = false;
-  const main = () => ({ lane: "a", top: true, bottom: true, off: offAfter });
+  const full = (lane, off = false) => ({ lane, top: true, bottom: true, off });
 
   stops.forEach((stop, i) => {
     const n = numbers[i];
     const arms = armsOf(stop);
     if (!arms) {
-      rows.push({ type: "stop", key: n.key, label: n.label, stop, lane: "", lines: [main()], off: offAfter });
+      rows.push({ type: "stop", key: n.key, label: n.label, stop, lane: "", lines: [full("a")], off: false });
       return;
     }
-    const fork = Boolean(stop.fork);
+    const mode = stop.split.mode;
     const walked = walkedArm(stop, n.key, choice);
-    const armOff = (a) => offAfter || (fork && a !== walked);
-    const ends = (a) => fork && Boolean(arms[a].ends);
-    rows.push({ type: "split", key: n.key, label: n.label, stop, index: i, kind: fork ? "fork" : "parallel", arms: arms.length, off: offAfter, lines: [main()] });
+    const follows = i < stops.length - 1;
+    // The arms the list shows: only the chosen way of an "xor" split, every arm otherwise;
+    // in an "or" split the ways not chosen are off.
+    const shown = mode === "xor" ? [walked] : arms.map((_, a) => a);
+    const off = (a) => mode === "or" && a !== walked;
+    const laneOf = (a) => ({ lane: ARM_LETTERS[a], off: off(a) });
+    rows.push({ type: "split", key: n.key, label: n.label, stop, index: i, mode, lanes: shown.map(laneOf), lines: [full("a")] });
 
-    const depth = Math.max(...arms.map((arm) => arm.stops.length));
+    const depth = Math.max(...shown.map((a) => arms[a].stops.length));
     for (let j = 0; j < depth; j++) {
-      arms.forEach((arm, a) => {
-        const s = arm.stops[j];
-        if (!s) return;
-        // Lane b's line runs from the split down to the join, or, when b ends, to its last node.
-        const lines = arms.flatMap((other, b) => {
-          const last = other.stops.length - 1;
-          if (b === a) return [{ lane: ARM_LETTERS[b], top: true, bottom: !(j === last && ends(b)), off: armOff(b) }];
+      for (const a of shown) {
+        const s = arms[a].stops[j];
+        if (!s) continue;
+        // Lane b's line runs from the split to the join; with nothing after the split it stops at b's last node.
+        const lines = shown.flatMap((b) => {
+          const last = arms[b].stops.length - 1;
+          if (b === a) return [{ lane: ARM_LETTERS[b], top: true, bottom: follows || j < last, off: off(b) }];
           const before = j < last || (j === last && a < b);
-          return !ends(b) || before ? [{ lane: ARM_LETTERS[b], top: true, bottom: true, off: armOff(b) }] : [];
+          return follows || before ? [full(ARM_LETTERS[b], off(b))] : [];
         });
-        rows.push({
-          type: "stop",
-          key: n.arms[a].stops[j].key,
-          label: n.arms[a].stops[j].label,
-          stop: s,
-          lane: ARM_LETTERS[a],
-          arm: a,
-          node: i,
-          lines,
-          off: armOff(a),
-        });
-      });
+        rows.push({ type: "stop", key: n.arms[a].stops[j].key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, off: off(a) });
+      }
     }
 
-    const rejoin = arms.map((_, a) => a).filter((a) => !ends(a));
-    if (fork && ends(walked)) offAfter = true;
-    // A join row only when a lane other than the main one curves back in.
-    if (rejoin.some((a) => a > 0)) {
-      rows.push({
-        type: "join",
-        key: `${n.key}.join`,
-        index: i,
-        rejoin: rejoin.map((a) => ({ lane: ARM_LETTERS[a], off: armOff(a) })),
-        off: offAfter,
-        lines: [main()],
-      });
-    }
+    // The join row curves the lanes back into the main line before the first shared stop.
+    if (follows) rows.push({ type: "join", key: `${n.key}.join`, index: i, lanes: shown.map(laneOf), lines: [full("a")] });
   });
 
   // The rail starts at the first row's node and stops at the last row's.
   const first = rows[0];
   const last = rows[rows.length - 1];
   if (first) first.lines = first.lines.map((l) => (l.lane === "a" ? { ...l, top: false } : l));
-  if (last && last.type !== "join") last.lines = last.lines.map((l) => (l.lane === "a" ? { ...l, bottom: false } : l));
+  if (last && last.type === "stop") last.lines = last.lines.map((l) => (l.lane === (last.lane || "a") ? { ...l, bottom: false } : l));
   return rows;
 }

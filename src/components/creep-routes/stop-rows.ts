@@ -3,18 +3,18 @@ import type { StopInput } from "@/lib/creep-routes/submission";
 import type { StopRowData } from "./StopRow";
 import * as editorRows from "@/lib/creep-routes/editor-rows.mjs";
 
-/** A fresh editor row; `patch` sets the camp, the place or the fork. */
+/** A fresh editor row; `patch` sets the camp, the place or the split. */
 export const newRow = editorRows.newRow as (patch?: Partial<StopRowData>) => StopRowData;
 
 /** An editor row as a submitted stop: the shape of the form's `stopsJson`, the map's route and `deriveRoute`'s input. */
 export function rowToStop(s: StopRowData): StopInput {
-  if (s.fork?.kind === "fork") {
+  if (s.split) {
+    const { mode, arms } = s.split;
     return {
       campId: null,
-      fork: { arms: s.fork.arms.map((arm) => ({ label: arm.label.trim(), stops: arm.stops.map(rowToStop), ...(arm.ends ? { ends: true } : {}) })) },
+      split: { mode, arms: arms.map((arm) => ({ ...(mode !== "and" ? { label: arm.label.trim() } : {}), stops: arm.stops.map(rowToStop) })) },
     };
   }
-  if (s.fork) return { campId: null, parallel: { arms: s.fork.arms.map((arm) => ({ stops: arm.stops.map(rowToStop) })) } };
   return {
     campId: s.campId,
     action: s.action || undefined,
@@ -30,19 +30,13 @@ export function rowToStop(s: StopRowData): StopInput {
 
 type ExchangeStop = ExchangeCreepRoute["stops"][number];
 
-/** An imported (`#route=`) stop as an editor row, node arms included. */
-export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork" | "parallel">): StopRowData {
-  const node = "fork" in s && s.fork ? { kind: "fork" as const, arms: s.fork.arms } : "parallel" in s && s.parallel ? { kind: "parallel" as const, arms: s.parallel.arms } : null;
-  if (node) {
+/** An imported (`#route=`) stop as an editor row, split ways included. */
+export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRowData {
+  if ("split" in s && s.split) {
     return newRow({
-      fork: {
-        kind: node.kind,
-        arms: node.arms.map((arm) => ({
-          id: Date.now() + Math.random(),
-          label: "label" in arm ? arm.label : "",
-          stops: arm.stops.map(stopToRow),
-          ends: "ends" in arm ? arm.ends : undefined,
-        })),
+      split: {
+        mode: s.split.mode,
+        arms: s.split.arms.map((arm) => ({ id: Date.now() + Math.random(), label: arm.label ?? "", stops: arm.stops.map(stopToRow) })),
       },
     });
   }
@@ -62,13 +56,13 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork" | "paralle
 /** Adds a camp stop, or removes it when the list already has it (the map's click toggle). */
 export const toggleCamp = editorRows.toggleCamp as (rows: StopRowData[], campId: string) => StopRowData[];
 
-/** A map click with no way active: removes the camp from the fork way that holds it, else toggles it at the top level. */
+/** A map click with no way active: removes the camp from the split way that holds it, else toggles it at the top level. */
 export const toggleCampAnywhere = editorRows.toggleCampAnywhere as (rows: StopRowData[], campId: string) => StopRowData[];
 
-/** Applies `update` to the stops of arm `arm` of the fork row `forkId`. */
+/** Applies `update` to the stops of arm `arm` of the split row `splitId`. */
 export const updateArm = editorRows.updateArm as (
   rows: StopRowData[],
-  forkId: number,
+  splitId: number,
   arm: number,
   update: (stops: StopRowData[]) => StopRowData[],
 ) => StopRowData[];

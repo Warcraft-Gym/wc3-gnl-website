@@ -4,7 +4,7 @@ import type { RouteStop } from "@/lib/creep-routes/types";
 import { PlaceIcon } from "./PlaceGlyph";
 
 /** Which route marks a route draws, so the legend lists only those: an attack. */
-export function routeLegendMarks(stops: Pick<RouteStop, "fork" | "parallel" | "place">[]) {
+export function routeLegendMarks(stops: Pick<RouteStop, "split" | "place">[]) {
   return {
     attack: (flatStops(stops) as { stop: Pick<RouteStop, "place"> }[]).some(({ stop }) => stop.place?.kind === "attack"),
   };

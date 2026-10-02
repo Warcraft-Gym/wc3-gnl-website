@@ -143,20 +143,16 @@ export type RouteStop = {
   /** Camp and attack stops: false when only the Bring units go, so the stop grants the hero no XP.
    *  Default true; stored only when false. */
   hero?: boolean;
-  /** A fork node (choose one way): `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
-  fork?: Fork;
-  /** A parallel node (all ways at once): `campId` null, no action, no place. */
-  parallel?: Parallel;
+  /** A split node: `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
+  split?: Split;
 };
 
-/** Choose one: 2 or 3 arms, each labelled with the condition the reader picks it by,
- *  1..n stops each, one level deep (an arm stop never holds a node). `ends`: the way stops at
- *  its last stop and does not rejoin the route. */
-export type Fork = { arms: { label: string; stops: RouteStop[]; ends?: boolean }[] };
-
-/** All at once: 2 or 3 arms of 1..n stops, no labels, one level deep. Arm 0 is the hero's
- *  line; arms 1.. run without the hero (derive treats them so whatever their flags say). */
-export type Parallel = { arms: { stops: RouteStop[] }[] };
+/** A route that splits, one level deep, into 2 or 3 arms of 1..n stops (an arm stop never holds a
+ *  split). "and": every way runs at once, no labels; arm 0 is the hero's line and arms 1.. run
+ *  without the hero. "or": the reader chooses one way by its label (required), then the route goes
+ *  on. "xor": the reader chooses one way and it never rejoins, so nothing follows the split. Stops
+ *  after a split are shared by every way: a continuation of only one way belongs inside that way. */
+export type Split = { mode: "and" | "or" | "xor"; arms: { label?: string; stops: RouteStop[] }[] };
 
 /** What happens at a place: `attack` is a numbered stop; build, expand, shop and scout are
  *  waypoints (on the path, no number). */

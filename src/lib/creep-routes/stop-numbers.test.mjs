@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { countStops, findStopKey, flatStops, numberStops, parseKey, stopByKey, stopKeys } from "./stop-numbers.mjs";
 
 const camp = (id) => ({ campId: id });
-const fork = (...arms) => ({ campId: null, fork: { arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
-const parallel = (...arms) => ({ campId: null, parallel: { arms: arms.map((stops) => ({ stops })) } });
+const fork = (...arms) => ({ campId: null, split: { mode: "or", arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
+const parallel = (...arms) => ({ campId: null, split: { mode: "and", arms: arms.map((stops) => ({ stops })) } });
 const labels = (stops) =>
   numberStops(stops).flatMap((n) => [n.label, ...(n.arms ?? []).flatMap((a) => a.stops.map((s) => s.label))]);
 
@@ -14,7 +14,7 @@ test("no fork: 1, 2, 3 with keys 0, 1, 2", () => {
   assert.deepEqual(n.map((s) => s.key), ["0", "1", "2"]);
 });
 
-test("a fork at 0 takes number 1; its arms read 1a and 1b; the next stop is 2", () => {
+test("a split at 0 takes number 1; its arms read 1a and 1b; the next stop is 2", () => {
   assert.deepEqual(labels([fork([camp("c1")], [camp("c2")]), camp("c3")]), ["1", "1a", "1b", "2"]);
 });
 
@@ -39,7 +39,7 @@ test("countStops counts every arm's stops and not the fork node; a whole-route p
   assert.equal(countStops([camp("c1"), camp("c2")]), 2);
   assert.equal(countStops([fork([camp("c1")], [camp("c2")])]), 2);
   assert.equal(countStops([camp("c1"), fork([camp("c2"), camp("c3")], [camp("c4")])]), 4);
-  assert.equal(countStops([{ _type: "creepFork", arms: [{ stops: [{}] }, { stops: [{}, {}] }] }]), 3);
+  assert.equal(countStops([{ _type: "creepSplit", arms: [{ stops: [{}] }, { stops: [{}, {}] }] }]), 3);
 });
 
 test("findStopKey prefers the top level and the walked arm, then any arm", () => {
@@ -66,11 +66,16 @@ test("a parallel node runs the same numbers down every arm; the next stop takes 
   assert.deepEqual(labels(stops), ["1", "2", "2", "3", "2", "4"]);
   assert.deepEqual(stopKeys(stops), ["0", "1", "1.a.0", "1.a.1", "1.b.0", "2"]);
   assert.equal(countStops(stops), 5);
-  assert.equal(countStops([{ _type: "creepParallel", arms: [{ stops: [{}] }, { stops: [{}] }] }]), 2);
+  assert.equal(countStops([{ _type: "creepSplit", arms: [{ stops: [{}] }, { stops: [{}] }] }]), 2);
 });
 
 test("findStopKey takes arm 0 of a parallel node first, whatever the choice", () => {
   const stops = [parallel([camp("c2")], [camp("c2")])];
   assert.equal(findStopKey(stops, "c2", { 0: 1 }), "0.a.0");
   assert.equal(stopByKey(stops, "0.b.0").campId, "c2");
+});
+
+test("an xor split letters its arms like an or split", () => {
+  const xor = { campId: null, split: { mode: "xor", arms: [{ label: "a", stops: [camp("c1"), camp("c2")] }, { label: "b", stops: [camp("c3")] }] } };
+  assert.deepEqual(labels([camp("c0"), xor]), ["1", "2", "2a", "3a", "2b"]);
 });

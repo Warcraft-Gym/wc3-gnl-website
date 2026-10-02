@@ -46,12 +46,14 @@ const stopSchema = z.object({
   hero: z.boolean().optional(),
 });
 
-/** A top-level stop may be a fork node whose arms hold plain stops (one level). */
+/** A top-level stop may be a split whose arms hold plain stops (one level). */
 const topStopSchema = stopSchema.extend({
-  fork: z
-    .object({ arms: z.array(z.object({ label: z.string().default(""), stops: z.array(stopSchema), ends: z.boolean().optional() })) })
+  split: z
+    .object({
+      mode: z.enum(["and", "or", "xor"]),
+      arms: z.array(z.object({ label: z.string().optional(), stops: z.array(stopSchema) })),
+    })
     .optional(),
-  parallel: z.object({ arms: z.array(z.object({ stops: z.array(stopSchema) })) }).optional(),
 });
 
 export const creepRouteExchangeSchema = z.object({

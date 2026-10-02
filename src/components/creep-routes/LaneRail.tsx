@@ -8,7 +8,7 @@ import { isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
 
 /**
- * The lane rail of a route with a fork or parallel node (`route-rows.mjs`): a
+ * The lane rail of a route with a split (`route-rows.mjs`): a
  * 44px column at the left of every row, added in front of today's row. Lane a
  * (the main line) runs at x 14, lane b at 30, lane c at 46; 2px lines in
  * `--wg-line-strong`, at 35% off the chosen way. The row's own node sits on its
@@ -67,36 +67,35 @@ function RailSvg({ children }: { children: React.ReactNode }) {
   );
 }
 
-const LETTERS = ["a", "b", "c"];
-
 /**
- * A node's caption row: no number, no band dot, no chevron. The rail curves lanes b (and c) out of
- * the main line. A fork reads "Choose a way" and carries the tab strip (`role="tablist"`, arrow keys,
- * the hero's level at each way's end); a parallel node reads "At the same time".
+ * A split's caption row: no number, no band dot, no chevron. The rail curves the shown lanes
+ * out of the main line (only the chosen way's lane in "xor"; the others at 35% in "or"). "or" and
+ * "xor" read "Choose a way" and carry the tab strip (`role="tablist"`, arrow keys, the hero's
+ * level at each way's end); "and" reads "At the same time".
  */
 export function SplitRow({
-  kind,
+  mode,
   arms,
   node,
   main,
-  off,
+  lanes,
   stopKey,
   baseId,
   onChoose,
 }: {
-  kind: "fork" | "parallel";
+  mode: "and" | "or" | "xor";
   arms: { label?: string }[];
   node?: DerivedNode;
   main: RailLine;
-  off: boolean;
+  lanes: { lane: string; off: boolean }[];
   stopKey: string;
   baseId: string;
   onChoose: (forkKey: string, arm: number) => void;
 }) {
-  const fork = kind === "fork";
+  const choose = mode !== "and";
   const walked = node?.walked ?? 0;
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const name = fork ? "Choose a way" : "At the same time";
+  const name = choose ? "Choose a way" : "At the same time";
   // Arrow keys move the selection along the tab strip, Home and End to its ends.
   const onTabKey = (e: React.KeyboardEvent, a: number) => {
     const last = arms.length - 1;
@@ -108,24 +107,26 @@ export function SplitRow({
   };
   const from = main.top ? 0 : 20;
   return (
-    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 py-1.5 pl-[60px] pr-4 first:border-t-0 sm:pr-5", off && "opacity-[.45]")}>
+    <li data-split={stopKey} className="relative min-h-8 border-t border-line/40 py-1.5 pl-[60px] pr-4 first:border-t-0 sm:pr-5">
       <RailSvg>
-        <path d={`M14,${from} V40`} vectorEffect="non-scaling-stroke" />
-        {arms.slice(1).map((_, i) => {
-          const a = i + 1;
-          return <path key={a} d={curve(LANE_X[LETTERS[a]], true, from)} opacity={fork && a !== walked ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />;
-        })}
+        {lanes.map((l) =>
+          l.lane === "a" ? (
+            <path key="a" d={`M14,${from} V40`} opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+          ) : (
+            <path key={l.lane} d={curve(LANE_X[l.lane], true, from)} opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+          ),
+        )}
       </RailSvg>
-      {fork
-        ? arms.map((_, a) => (
-            <span key={a} aria-hidden className="absolute bottom-0 text-[9px] font-bold leading-none text-faint" style={{ left: LANE_X[LETTERS[a]] + 3 }}>
-              {LETTERS[a]}
+      {choose
+        ? lanes.map((l) => (
+            <span key={l.lane} aria-hidden className="absolute bottom-0 text-[9px] font-bold leading-none text-faint" style={{ left: LANE_X[l.lane] + 3 }}>
+              {l.lane}
             </span>
           ))
         : null}
       <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
         <span className="text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
-        {fork ? (
+        {choose ? (
           <div role="tablist" aria-label={name} className="flex flex-wrap gap-x-4">
             {arms.map((arm, a) => {
               const chosen = a === walked;
@@ -161,17 +162,18 @@ export function SplitRow({
   );
 }
 
-/** The rail curving the rejoining lanes back into the main line before the first shared stop; no text. */
-export function JoinRow({ rejoin, off }: { rejoin: { lane: string; off: boolean }[]; off: boolean }) {
+/** The rail curving the shown lanes back into the main line before the first shared stop; no text. */
+export function JoinRow({ lanes }: { lanes: { lane: string; off: boolean }[] }) {
   return (
-    <li aria-hidden className={cn("relative h-6 border-t border-line/40 first:border-t-0", off && "opacity-[.45]")}>
+    <li aria-hidden className="relative h-6 border-t border-line/40 first:border-t-0">
       <RailSvg>
-        <path d="M14,0 V40" vectorEffect="non-scaling-stroke" />
-        {rejoin
-          .filter((r) => r.lane !== "a")
-          .map((r) => (
-            <path key={r.lane} d={curve(LANE_X[r.lane], false)} opacity={r.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
-          ))}
+        {lanes.map((l) =>
+          l.lane === "a" ? (
+            <path key="a" d="M14,0 V40" opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+          ) : (
+            <path key={l.lane} d={curve(LANE_X[l.lane], false)} opacity={l.off ? 0.35 : undefined} vectorEffect="non-scaling-stroke" />
+          ),
+        )}
       </RailSvg>
     </li>
   );

@@ -11,15 +11,14 @@
  */
 
 export function toApiStop(stop, origin, iconSrc) {
-  const { units, fork, parallel, ...rest } = stop;
+  const { units, split, ...rest } = stop;
   return {
     ...rest,
     ...(units?.length
       ? { units: units.map((u) => ({ ...u, iconUrl: `${origin}${iconSrc(u.icon)}` })) }
       : {}),
     // A node's arm stops get the same absolute icon URLs.
-    ...(fork ? { fork: withApiArms(fork, origin, iconSrc) } : {}),
-    ...(parallel ? { parallel: withApiArms(parallel, origin, iconSrc) } : {}),
+    ...(split ? { split: withApiArms(split, origin, iconSrc) } : {}),
   };
 }
 

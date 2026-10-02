@@ -102,9 +102,9 @@ export function StopBlock({
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   openCampId: string | null;
   stopBody?: React.ReactNode;
-  /** The lane rail cell (`StopRail`) on a route with a fork or parallel node. */
+  /** The lane rail cell (`StopRail`) on a route with a split. */
   rail?: React.ReactNode;
-  /** Off the chosen way's path, shown after "Expand all": drawn at 45%. */
+  /** A way not chosen in an "or" split: drawn at 45%. */
   dim?: boolean;
   /** The route uses the hero toggle somewhere: Bring lists the hero first wherever he goes. */
   showHero?: boolean;
@@ -115,7 +115,7 @@ export function StopBlock({
   const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
   const placeLabel = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
-  // Hero off: its own flag, or a later arm of a parallel node, which the hero cannot walk.
+  // Hero off: its own flag, or a later way of an "and" split, which the hero cannot walk.
   const absent = stop.hero === false || d.hero === false;
   // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
   const waypoint = isWaypoint(stop) && stop.place ? stop.place.kind : null;

@@ -32,8 +32,8 @@ export type StopRowData = {
   place?: Place;
   /** Camp and attack stops: false when only the Bring units go. */
   hero?: boolean;
-  /** A fork or parallel node (`ForkRow`): its ways, each with its own stop rows; `label` is unused on a parallel node. */
-  fork?: { kind: "fork" | "parallel"; arms: { id: number; label: string; stops: StopRowData[]; ends?: boolean }[] };
+  /** A split (`SplitEditor`): its mode and ways, each with its own stop rows; `label` is unused in "and". */
+  split?: { mode: "and" | "or" | "xor"; arms: { id: number; label: string; stops: StopRowData[] }[] };
 };
 
 const input =
@@ -131,15 +131,15 @@ export function StopRow({
   trace?: DerivedKill[];
   /** The place's name ("their base", "Marketplace"), for a place stop. */
   placeLabel?: string;
-  /** The stop's number from `stop-numbers.mjs` ("3a" in a fork's way); default `index + 1`. */
+  /** The stop's number from `stop-numbers.mjs` ("3a" in a split's way); default `index + 1`. */
   number?: string;
-  /** Derived hero off: its own flag, or a later arm of a parallel node. */
+  /** Derived hero off: its own flag, or a later way of an "and" split. */
   absent?: boolean;
   /** The route's hero icon for the Bring hero entry; the "Any Hero" crown tile when the route names none. */
   heroIcon?: string;
 }) {
   const heroOff = Boolean(absent ?? stop.hero === false);
-  // A later arm of a parallel node: the hero walks arm 0, so this stop cannot take him.
+  // A later way of an "and" split: the hero walks way a, so this stop cannot take him.
   const forcedOff = heroOff && stop.hero !== false;
   function addUnit() {
     if (stop.units.length >= 6) return;

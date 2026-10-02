@@ -11,8 +11,8 @@ import { JoinRow, SplitRow, StopRail, type RailLine } from "./LaneRail";
 /** One row of the flat lane list, see `route-rows.mjs`. */
 type LaneRow =
   | { type: "stop"; key: string; label: string; stop: RouteStop; lane: string; lines: RailLine[]; off: boolean }
-  | { type: "split"; key: string; stop: RouteStop; index: number; kind: "fork" | "parallel"; lines: RailLine[]; off: boolean }
-  | { type: "join"; key: string; rejoin: { lane: string; off: boolean }[]; lines: RailLine[]; off: boolean };
+  | { type: "split"; key: string; stop: RouteStop; index: number; mode: "and" | "or" | "xor"; lanes: { lane: string; off: boolean }[]; lines: RailLine[] }
+  | { type: "join"; key: string; lanes: { lane: string; off: boolean }[] };
 
 /**
  * The route as an ordered list of stops, each a disclosure. Both states are
@@ -22,7 +22,7 @@ type LaneRow =
  * chevron at its right edge only opens or closes it (`onChevron`); the camp
  * label inside it is its own button that pins the camp card. `scrollTo`
  * scrolls a stop into view (a selection from the map). Stops are named by
- * the keys of `stop-numbers.mjs`; on a route with a fork or parallel node every stop is a flat row with the lane rail (`LaneRail`), and the node's
+ * the keys of `stop-numbers.mjs`; on a route with a split every stop is a flat row with the lane rail (`LaneRail`), and the split's
  * arms' stops. Blocks carry `data-stop` (the stop's number, "3a" in an arm);
  * map badges carry `data-stop-marker`.
  */
@@ -63,12 +63,12 @@ export function RouteStepTable({
   only?: number;
   /** Replaces an open stop's body; with `only`, a guide's editable kill order. */
   stopBody?: React.ReactNode;
-  /** Fork key to the chosen arm of each fork; default arm 0. */
+  /** Split key to the chosen way of each "or"/"xor" split; default way a. */
   choice?: Record<string, number>;
-  /** Chooses an arm of a fork from its tab strip. */
+  /** Chooses a way of a split from its tab strip. */
   onChoose?: (forkKey: string, arm: number) => void;
 }) {
-  // The header counts numbered stops: every arm's, not a node's or a waypoint's.
+  // The header counts numbered stops: every way's, not a split's or a waypoint's.
   const count = countStops(route.stops);
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const items = useRef(new Map<string, HTMLLIElement>());
@@ -82,15 +82,13 @@ export function RouteStepTable({
   // Bring lists the hero only on a route that sends him somewhere without the units' company: one hero-off stop.
   const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false), [route.stops]);
   const baseId = useId();
-  // A route with a fork or parallel node is a flat list with the lane rail (`route-rows.mjs`); any other renders as before.
+  // A route with a split is a flat list with the lane rail (`route-rows.mjs`); any other renders as before.
   const lanes = only === undefined && hasLanes(route.stops);
   const rows = useMemo(() => (lanes ? (routeRows(route.stops, choice ?? {}) as LaneRow[]) : []), [lanes, route.stops, choice]);
-  // Rows off the chosen way hide until "Expand all" shows them (at 45%); "Collapse all" hides them again.
-  const [showOff, setShowOff] = useState(false);
   const derivedByKey = (key: string) => {
     const { index, arm, j } = parseKey(key);
     const d = derived.stops[index];
-    return arm === undefined ? d : (d.fork ?? d.parallel)!.arms[arm].stops[j];
+    return arm === undefined ? d : d.split!.arms[arm].stops[j];
   };
   const allOpen = count > 0 && keys.every((k) => open.has(k));
   const itemRef = (key: string) => (el: HTMLLIElement | null) => {
@@ -113,11 +111,7 @@ export function RouteStepTable({
           </div>
           <button
             type="button"
-            onClick={() => {
-              setShowOff(!allOpen);
-              if (allOpen) onCollapseAll();
-              else onExpandAll();
-            }}
+            onClick={allOpen ? onCollapseAll : onExpandAll}
             className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
           >
             {allOpen ? "Collapse all" : "Expand all"}
@@ -128,24 +122,22 @@ export function RouteStepTable({
       {lanes ? (
         <ol>
           {rows.map((row) => {
-            if (row.off && !showOff) return null;
             if (row.type === "split") {
-              const node = derived.stops[row.index].fork ?? derived.stops[row.index].parallel;
               return (
                 <SplitRow
                   key={row.key}
-                  kind={row.kind}
-                  arms={(row.stop.fork?.arms ?? row.stop.parallel?.arms ?? []) as { label?: string }[]}
-                  node={node}
+                  mode={row.mode}
+                  arms={row.stop.split?.arms ?? []}
+                  node={derived.stops[row.index].split}
                   main={row.lines[0]}
-                  off={row.off}
+                  lanes={row.lanes}
                   stopKey={row.key}
                   baseId={baseId}
                   onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
                 />
               );
             }
-            if (row.type === "join") return <JoinRow key={row.key} rejoin={row.rejoin} off={row.off} />;
+            if (row.type === "join") return <JoinRow key={row.key} lanes={row.lanes} />;
             return (
               <StopBlock
                 key={row.key}

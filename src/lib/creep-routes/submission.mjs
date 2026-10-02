@@ -54,7 +54,7 @@ function unitSchema(iconSet) {
   });
 }
 
-function baseStopSchema(iconSet, forkField, parallelField) {
+function baseStopSchema(iconSet, splitField) {
   return z
     .object({
       /** null marks a base action (TP home, buy from a shop, take the
@@ -81,19 +81,17 @@ function baseStopSchema(iconSet, forkField, parallelField) {
       place: placeSchema.optional(),
       /** Camp and attack stops: false when only the Bring units go, so it grants no hero XP. */
       hero: z.boolean().optional(),
-      /** A fork or parallel node at the top level; inside an arm, either is rejected (one level). */
-      fork: forkField,
-      parallel: parallelField,
+      /** A split at the top level; inside an arm it is rejected (one level). */
+      split: splitField,
     })
     .superRefine((stop, ctx) => {
-      const node = stop.fork ? "fork" : stop.parallel ? "parallel" : null;
-      if (node) {
+      if (stop.split) {
         // A node is `campId: null` and its ways; any other field would be dropped from the draft.
         const extra = ["action", "place", "hero", "note", "condition", "units", "kills", "leaveRest"].filter(
           (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
         );
-        if (stop.campId !== null || extra.length || (stop.fork && stop.parallel)) {
-          ctx.addIssue({ code: "custom", message: "A fork holds only its ways", path: [node] });
+        if (stop.campId !== null || extra.length) {
+          ctx.addIssue({ code: "custom", message: "A split holds only its ways", path: ["split"] });
         }
         return;
       }
@@ -112,31 +110,28 @@ function baseStopSchema(iconSet, forkField, parallelField) {
     });
 }
 
-/** A fork's ways: 2 or 3 arms of 1..20 stops, each labelled with its condition. */
-function forkSchema(armStopSchema) {
-  return z.object({
-    arms: z
-      .array(
-        z.object({
-          label: z.string({ error: "Say when to take this way" }).trim().min(1, "Say when to take this way").max(60, "Max 60 characters"),
-          stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
-          /** The way stops at its last stop and does not rejoin the route. */
-          ends: z.boolean().optional(),
-        }),
-      )
-      .min(2, "A fork needs two or three ways")
-      .max(3, "A fork needs two or three ways"),
-  });
-}
-
-/** A parallel node's ways: 2 or 3 arms of 1..20 stops, no labels (each stop's Bring says who goes). */
-function parallelSchema(armStopSchema) {
-  return z.object({
-    arms: z
-      .array(z.object({ stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops") }))
-      .min(2, "Add two or three ways")
-      .max(3, "Add two or three ways"),
-  });
+/** A split's ways: 2 or 3 arms of 1..20 stops. "or" and "xor" label every way with its condition
+ *  (the tab text); "and" takes no labels (each stop's Bring says who goes). */
+function splitSchema(armStopSchema) {
+  return z
+    .object({
+      mode: z.enum(["and", "or", "xor"], { error: "Pick how the ways run" }),
+      arms: z
+        .array(
+          z.object({
+            label: z.string().trim().max(60, "Max 60 characters").optional(),
+            stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
+          }),
+        )
+        .min(2, "A split needs two or three ways")
+        .max(3, "A split needs two or three ways"),
+    })
+    .superRefine((split, ctx) => {
+      if (split.mode === "and") return;
+      split.arms.forEach((arm, a) => {
+        if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this way", path: ["arms", a, "label"] });
+      });
+    });
 }
 
 const placeSchema = z.object({
@@ -173,9 +168,9 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const noNode = z.unknown().optional().refine((v) => v === undefined, "A way cannot hold another fork");
-  const armStopSchema = baseStopSchema(iconSet, noNode, noNode);
-  const stopSchema = baseStopSchema(iconSet, forkSchema(armStopSchema).optional(), parallelSchema(armStopSchema).optional());
+  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A way cannot hold another split");
+  const armStopSchema = baseStopSchema(iconSet, noSplit);
+  const stopSchema = baseStopSchema(iconSet, splitSchema(armStopSchema).optional());
 
   return z
     .object({
@@ -252,7 +247,7 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
             .slice(0, 8),
         ),
       description: z.string().trim().max(6000, "Max 6000 characters").optional(),
-      // Two stops at least, counted with every fork arm's stops (`countStops`): a whole-route pair is one fork.
+      // Two stops at least, counted with every way's stops (`countStops`): a whole-route pair is one split.
       stops: z.array(stopSchema).min(1, "Add at least two stops").max(30, "Max 30 stops"),
       /** Honeypot: a real submitter never fills this (it's visually hidden,
        *  `tabIndex={-1}`). Accepted as *any* string here — rejecting a
@@ -288,8 +283,11 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
       };
       data.stops.forEach((stop, i) => {
         checkStop(stop, ["stops", i]);
-        const node = stop.fork ? "fork" : "parallel";
-        (stop.fork ?? stop.parallel)?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, node, "arms", a, "stops", j])));
+        stop.split?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, "split", "arms", a, "stops", j])));
+        // An "xor" way never rejoins: nothing may follow it.
+        if (stop.split?.mode === "xor" && i < data.stops.length - 1) {
+          ctx.addIssue({ code: "custom", message: "Nothing follows an either/or split", path: ["stops", i, "split"] });
+        }
       });
       const startsCount = startsCountByMap.get(data.map);
       if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
@@ -396,14 +394,15 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
     featured: false,
     publishedAt: new Date().toISOString(),
     stops: valid.stops.map((s) =>
-      s.fork || s.parallel
+      s.split
         ? {
-            _type: s.fork ? "creepFork" : "creepParallel",
+            _type: "creepSplit",
             _key: shortKey(),
-            arms: (s.fork ?? s.parallel).arms.map((arm) => ({
+            mode: s.split.mode,
+            arms: s.split.arms.map((arm) => ({
               _type: "arm",
               _key: shortKey(),
-              ...(s.fork ? { label: arm.label, ...(arm.ends ? { ends: true } : {}) } : {}),
+              ...(s.split.mode !== "and" && arm.label ? { label: arm.label } : {}),
               stops: arm.stops.map(draftStop),
             })),
           }

@@ -22,17 +22,17 @@ export type DerivedStop = {
   left: number;
   /** One entry per kill, in kill order. */
   kills: DerivedKill[];
-  /** Set on an arm stop the hero cannot walk (a later arm of a parallel node): derived without the hero whatever its own flag. */
+  /** Set on an arm stop the hero cannot walk (a later arm of an "and" split): derived without the hero whatever its own flag. */
   hero?: false;
-  /** Arm stops only: which arm of which fork (the fork's top-level key). */
+  /** Arm stops only: which arm of which split (the split's top-level key). */
   armIndex?: number;
   forkKey?: string;
-  /** Node stops only: every arm derived from the hero's state at the node; `walked` is the arm the total follows. */
-  fork?: DerivedNode;
-  parallel?: DerivedNode;
+  /** Split stops only: every arm derived from the hero's state at the split; `walked` is the arm the total follows. */
+  split?: DerivedNode;
 };
 
 export type DerivedNode = {
+  mode: "and" | "or" | "xor";
   walked: number;
   arms: { label?: string; stops: DerivedStop[]; levelAfter: number; xpAfter: number }[];
 };
@@ -62,13 +62,12 @@ export type DerivedRoute = {
 
 type PlainDerivable = Pick<RouteStop, "campId" | "kills" | "leaveRest" | "hero">;
 type DerivableStop = PlainDerivable & {
-  fork?: { arms: { label?: string; stops: PlainDerivable[] }[] };
-  parallel?: { arms: { stops: PlainDerivable[] }[] };
+  split?: { mode: "and" | "or" | "xor"; arms: { label?: string; stops: PlainDerivable[] }[] };
 };
 
 export const deriveRoute = impl.deriveRoute as (
   route: { stops: DerivableStop[] },
   map: CreepMap,
-  /** `choice`: fork key ("2") to the arm the hero walks in an "either" fork; default 0. */
+  /** `choice`: split key ("2") to the arm the hero walks in an "or" split; default 0. */
   opts?: { startLevel?: number; choice?: Record<string, number> },
 ) => DerivedRoute;
