@@ -1,7 +1,7 @@
 /**
  * The route's marks on the map, in viewBox units (`RoutePath`, `CampMarker`). One mark per
  * stop: a stop's node is its badge, a disc with its number inside. A waypoint is a smaller
- * dark disc with its glyph; a camp the route does not use is a small dark dot. Legs run under
+ * dark disc with its glyph; a camp the route does not use is a small dot in its band colour. Legs run under
  * every node and end at its edge. Plain JS so `node --test` runs `map-marks.test.mjs`.
  */
 

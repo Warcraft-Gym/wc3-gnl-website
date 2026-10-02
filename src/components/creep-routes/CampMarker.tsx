@@ -56,7 +56,7 @@ export const CampMarker = memo(function CampMarker({
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
   /** This camp is interactive but NOT one of the route's own stops: a small
-   *  dark dot (half a stop's radius, `--wg-bg`, no halo, no icon), so the
+   *  dot in its band colour (half a stop's radius, no halo, no icon), so the
    *  route's stops stand out as routes get complex. The band stays in the
    *  camp card and the marker's label. */
   secondary?: boolean;
@@ -94,14 +94,14 @@ export const CampMarker = memo(function CampMarker({
   const r = radiusFor(camp.level);
   const fill = BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)";
 
-  // A stop's disc is `RoutePath`'s; a camp the route does not use is a small dark dot with no halo.
+  // A stop's disc is `RoutePath`'s; a camp the route does not use is a small dot in its band colour, no halo.
   // Both keep a hit target as large as the old mark, so hover and click still find the camp.
   const dot = underStop ? (
     <circle {...centreOf(STOP_RADIUS)} r={STOP_RADIUS} fill="transparent" />
   ) : secondary ? (
     <g>
       <circle cx={cx} cy={cy} r={r} fill="transparent" />
-      <circle cx={cx} cy={cy} r={UNUSED_RADIUS} fill="var(--wg-bg)" />
+      <circle cx={cx} cy={cy} r={UNUSED_RADIUS} fill={fill} />
     </g>
   ) : (
     // The "grow when active" effect: a `transform: scale()` on this
