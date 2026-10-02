@@ -32,20 +32,88 @@ export function cornerMark(cx, cy, r = STOP_RADIUS) {
   return { x: cx + d, y: cy - d };
 }
 
-/** A leg from (ax, ay) to (bx, by) cut back by `ra` and `rb` so it ends at both node edges;
- *  null when the nodes touch or overlap. */
-export function trimLeg(ax, ay, bx, by, ra, rb) {
-  const len = Math.hypot(bx - ax, by - ay);
-  if (len <= ra + rb) return null;
-  const ux = (bx - ax) / len;
-  const uy = (by - ay) / len;
-  return { x1: ax + ux * ra, y1: ay + uy * ra, x2: bx - ux * rb, y2: by - uy * rb, ux, uy, len };
-}
-
 /** A node's centre in viewBox units for a spot at image fractions `x`/`y`, pulled inside the
  *  map so a disc of radius `r` (and its outline) never clips at the edge. */
 export function nodeCentre(x, y, iw, ih, r = STOP_RADIUS) {
   const m = r + OUTLINE;
   const clamp = (v, max) => Math.min(Math.max(v, m), max - m);
   return { x: clamp(x * iw, iw), y: clamp(y * ih, ih) };
+}
+
+/** Two legs read as one line when their directions differ by at most this (degrees). */
+export const COLLINEAR_DEG = 6;
+/** How far a leg shifts sideways from a leg on the same line, in viewBox units. */
+export const LEG_GAP = 4;
+
+/** Sideways offsets for legs that would read as one line (straight lines only, no bend: a bend
+ *  would suggest a movement path the model does not hold). Two legs that lie on one line (within
+ *  `COLLINEAR_DEG`, extents overlapping) shift `LEG_GAP` to opposite sides; a leg that passes through
+ *  a stop disc that is not one of its ends shifts that disc's radius + `LEG_GAP` away from it, and a
+ *  leg on its line takes the other side. `legs`: `[{ ax, ay, bx, by }]` (end centres); `discs`:
+ *  `[{ cx, cy, r }]` (every drawn node). Returns one `{ ox, oy }` per leg. */
+export function legOffsets(legs, discs) {
+  const geo = legs.map(({ ax, ay, bx, by }) => {
+    const len = Math.hypot(bx - ax, by - ay) || 1;
+    const ux = (bx - ax) / len;
+    const uy = (by - ay) / len;
+    return { ax, ay, bx, by, len, ux, uy, nx: -uy, ny: ux };
+  });
+  const across = (g, x, y) => (x - g.ax) * g.nx + (y - g.ay) * g.ny;
+  const along = (g, x, y) => (x - g.ax) * g.ux + (y - g.ay) * g.uy;
+  // Pairs on one line: near-parallel, the second leg's ends close to the first's line, extents overlapping.
+  const partner = new Map();
+  const cosMax = Math.cos((COLLINEAR_DEG * Math.PI) / 180);
+  geo.forEach((g, i) =>
+    geo.forEach((h, j) => {
+      if (j <= i || Math.abs(g.ux * h.ux + g.uy * h.uy) < cosMax) return;
+      if (Math.max(Math.abs(across(g, h.ax, h.ay)), Math.abs(across(g, h.bx, h.by))) > 2 * LEG_GAP) return;
+      const [lo, hi] = [along(g, h.ax, h.ay), along(g, h.bx, h.by)].sort((p, q) => p - q);
+      if (Math.min(hi, g.len) - Math.max(lo, 0) > 1) partner.set(i, j).set(j, i);
+    }),
+  );
+  const offsets = geo.map(() => null);
+  // A leg through a disc that is not one of its ends: that disc's radius + the gap, away from the disc.
+  geo.forEach((g, i) => {
+    const block = discs.find((d) => {
+      const t = along(g, d.cx, d.cy);
+      const own = Math.hypot(d.cx - g.ax, d.cy - g.ay) < 1 || Math.hypot(d.cx - g.bx, d.cy - g.by) < 1;
+      return !own && t > 0 && t < g.len && Math.abs(across(g, d.cx, d.cy)) < d.r + OUTLINE / 2;
+    });
+    if (!block) return;
+    const side = across(g, block.cx, block.cy) > 0 ? -1 : 1;
+    const k = side * (block.r + LEG_GAP);
+    offsets[i] = { ox: g.nx * k, oy: g.ny * k };
+    const j = partner.get(i);
+    if (j !== undefined && !offsets[j]) offsets[j] = { ox: -g.nx * side * LEG_GAP, oy: -g.ny * side * LEG_GAP };
+  });
+  // The other pairs on one line: the gap to opposite sides.
+  geo.forEach((g, i) => {
+    const j = partner.get(i);
+    if (offsets[i] || j === undefined) return;
+    offsets[i] = { ox: g.nx * LEG_GAP, oy: g.ny * LEG_GAP };
+    if (!offsets[j]) offsets[j] = { ox: -g.nx * LEG_GAP, oy: -g.ny * LEG_GAP };
+  });
+  return offsets.map((o) => o ?? { ox: 0, oy: 0 });
+}
+
+/** A leg moved sideways by (`ox`, `oy`), still ending at its end discs' edges (`ta`, `tb`: where a leg
+ *  stops short of each): where the moved line meets each disc, or, when it passes beside a disc, that
+ *  disc's edge point on the moved side. Null when the ends touch. */
+export function offsetLeg(ax, ay, bx, by, ta, tb, ox = 0, oy = 0) {
+  const len = Math.hypot(bx - ax, by - ay);
+  if (!len) return null;
+  const ux = (bx - ax) / len;
+  const uy = (by - ay) / len;
+  // Only the part of the offset across this leg moves it (a partner's normal is a few degrees off).
+  const k = ox * ux + oy * uy;
+  ox -= k * ux;
+  oy -= k * uy;
+  const d = Math.hypot(ox, oy);
+  const end = (cx, cy, t, dir) =>
+    d < t ? [cx + ox + dir * ux * Math.sqrt(t * t - d * d), cy + oy + dir * uy * Math.sqrt(t * t - d * d)] : [cx + (ox / d) * t, cy + (oy / d) * t];
+  const [x1, y1] = end(ax, ay, ta, 1);
+  const [x2, y2] = end(bx, by, tb, -1);
+  // The ends must still run forward along the leg.
+  if ((x2 - x1) * ux + (y2 - y1) * uy <= 0) return null;
+  return { x1, y1, x2, y2, ux, uy, len };
 }

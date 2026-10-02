@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import type { CreepMap, Place, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
-import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, cornerMark, labelFit, nodeCentre, nodeTrim, trimLeg } from "@/lib/creep-routes/map-marks.mjs";
+import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, cornerMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
 import { hiddenBadgeKeys, numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -138,16 +138,22 @@ export const RoutePath = memo(function RoutePath({
   });
 
   if (!points.length) return null;
-  if (layer === "nodes") return <Nodes points={points} hidden={hiddenBadgeKeys(stops, choice)} activeStop={activeStop} onStopSelect={onStopSelect} reduced={reduced} />;
+  const hidden = hiddenBadgeKeys(stops, choice);
+  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} onStopSelect={onStopSelect} reduced={reduced} />;
 
-  // One segment per leg, ending at the edge of each node's disc.
-  const segments = legs.flatMap(({ a, b, style }) => {
-    const leg = trimLeg(a.cx, a.cy, b.cx, b.cy, a.trim, b.trim);
+  // One straight segment per leg, ending at the edge of each node's disc. Legs that would read as one
+  // line (collinear, or through another stop's disc) move sideways apart (`legOffsets`).
+  const discs = points.filter((p) => !hidden.has(p.key)).map((p) => ({ cx: p.cx, cy: p.cy, r: p.r }));
+  const offsets = legOffsets(legs.map(({ a, b }) => ({ ax: a.cx, ay: a.cy, bx: b.cx, by: b.cy })), discs);
+  const segments = legs.flatMap(({ a, b, style }, i) => {
+    const leg = offsetLeg(a.cx, a.cy, b.cx, b.cy, a.trim, b.trim, offsets[i].ox, offsets[i].oy);
     if (!leg) return [];
-    const { x1, y1, x2, y2, ux, uy } = leg;
+    const { x1, y1, x2, y2 } = leg;
+    const seg = Math.hypot(x2 - x1, y2 - y1);
+    const ux = (x2 - x1) / seg, uy = (y2 - y1) / seg;
     const attack = b.place?.kind === "attack";
     // A thin leg bows 12% of its length to the right of travel, so it never lies on a main leg.
-    const bow = 0.24 * Math.hypot(x2 - x1, y2 - y1);
+    const bow = 0.24 * seg;
     const qx = (x1 + x2) / 2 - uy * bow, qy = (y1 + y2) / 2 + ux * bow;
     return [{ x1, y1, x2, y2, qx, qy, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack }];
   });
