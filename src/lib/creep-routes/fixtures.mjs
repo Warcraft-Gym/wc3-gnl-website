@@ -267,7 +267,7 @@ export const FIXTURE_ROUTES = [
     publishedAt: "2026-10-02T12:00:00Z",
     updatedAt: "2026-10-02T12:00:00Z",
     description: [
-      "Your main goal in early game is to hit lvl 3 as soon as possible. Scouting the enemy hero and seeing their ability choices will help you inform which creep route is optimal. As you creep towards lvl 3, you need to assess whether you can be aggressive, or whether you must play safer.",
+      "Your main goal in early game is to hit lvl 3 as soon as possible. As you creep towards lvl 3, you need to assess whether you can be aggressive, or whether you must play safely.",
     ],
     stops: [
       {
