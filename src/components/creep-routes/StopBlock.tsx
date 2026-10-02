@@ -11,6 +11,7 @@ import { BAND_LABEL, BandDot } from "./RouteBadges";
 import { HeroMeter } from "./HeroMeter";
 import { KillOrder, KillStrip } from "./KillOrder";
 import { PlaceIcon } from "./PlaceGlyph";
+import { HeroTile } from "./HeroTile";
 import { cn } from "@/lib/utils";
 
 /** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
@@ -21,16 +22,17 @@ function skippedOf(stop: RouteStop, camp: MapCamp) {
 }
 
 /** A stop's expanded body: the kill chain, Bring, condition and note. */
-function StopBody({ stop, d, absent }: { stop: RouteStop; d: DerivedStop; absent: boolean }) {
+function StopBody({ stop, d, absent, hero }: { stop: RouteStop; d: DerivedStop; absent: boolean; hero?: React.ReactNode }) {
   const camp = d.camp;
   return (
     <div className="min-w-0 space-y-3">
       {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} noXp={absent} /> : null}
 
-      {stop.units?.length ? (
+      {stop.units?.length || hero ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="text-[0.75rem] text-muted">Bring</span>
-          {stop.units.map((u, ui) => (
+          {hero}
+          {stop.units?.map((u, ui) => (
             <span key={ui} className="inline-flex items-center gap-1">
               <GameIcon iconKey={u.icon} size={28} />
               {u.count > 1 ? <span className="tnum text-[0.75rem] text-muted">×{u.count}</span> : null}
@@ -80,6 +82,8 @@ export function StopBlock({
   openCampId,
   stopBody,
   nested = false,
+  showHero = false,
+  heroIcon,
   title,
   summaryLabel,
   children,
@@ -103,6 +107,10 @@ export function StopBlock({
   stopBody?: React.ReactNode;
   /** Inside a fork's arm: a tighter left inset. */
   nested?: boolean;
+  /** The route uses the hero toggle somewhere: Bring lists the hero first wherever he goes. */
+  showHero?: boolean;
+  /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
+  heroIcon?: string;
   /** Replaces the summary line's content (a fork's name and way chips). */
   title?: React.ReactNode;
   /** Replaces the summary button's label. */
@@ -221,7 +229,14 @@ export function StopBlock({
       {isOpen ? (
         <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
           <span />
-          {children ?? stopBody ?? <StopBody stop={stop} d={d} absent={absent} />}
+          {children ?? stopBody ?? (
+            <StopBody
+              stop={stop}
+              d={d}
+              absent={absent}
+              hero={showHero && !absent && (camp || stop.place?.kind === "attack") ? <HeroTile heroIcon={heroIcon} /> : undefined}
+            />
+          )}
           <span />
         </div>
       ) : null}

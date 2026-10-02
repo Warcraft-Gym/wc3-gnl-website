@@ -34,6 +34,8 @@ export function ForkBlock({
   onChoose,
   onOpenCard,
   openCampId,
+  showHero,
+  heroIcon,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -54,6 +56,9 @@ export function ForkBlock({
   onChoose: (forkKey: string, arm: number) => void;
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   openCampId: string | null;
+  /** Bring's hero entry, passed to the nested stops (`StopBlock`). */
+  showHero?: boolean;
+  heroIcon?: string;
 }) {
   const fork = Boolean(stop.fork);
   const arms: { label?: string; stops: RouteStop[] }[] = stop.fork?.arms ?? stop.parallel?.arms ?? [];
@@ -98,6 +103,8 @@ export function ForkBlock({
             itemRef={itemRef(key)}
             onOpenCard={onOpenCard}
             openCampId={openCampId}
+            showHero={showHero}
+            heroIcon={heroIcon}
           />
         );
       })}

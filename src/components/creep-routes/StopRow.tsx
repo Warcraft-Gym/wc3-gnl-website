@@ -1,7 +1,7 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Info, Plus, Trash2, User, X } from "lucide-react";
-import { GameIcon } from "@/components/builds/GameIcon";
+import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
+import { HeroTile } from "./HeroTile";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { CampCardTrigger, MapCamp, Place, PlaceKind, StopKill } from "@/lib/creep-routes/types";
@@ -135,7 +135,7 @@ export function StopRow({
   number?: string;
   /** Derived hero off: its own flag, or a later arm of a parallel node. */
   absent?: boolean;
-  /** The route's hero icon for the Bring hero entry; a generic figure when the route names none. */
+  /** The route's hero icon for the Bring hero entry; the "Any Hero" crown tile when the route names none. */
   heroIcon?: string;
 }) {
   const heroOff = Boolean(absent ?? stop.hero === false);
@@ -271,12 +271,8 @@ export function StopRow({
                     forcedOff && "cursor-not-allowed",
                   )}
                 >
-                  {heroIcon ? (
-                    <GameIcon iconKey={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
-                  ) : (
-                    <User aria-hidden size={16} className="mx-1" />
-                  )}
-                  Hero
+                  <HeroTile heroIcon={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
+                  {heroIcon ? "Hero" : "Any Hero"}
                 </button>
               ) : null}
               {stop.units.map((u) => (

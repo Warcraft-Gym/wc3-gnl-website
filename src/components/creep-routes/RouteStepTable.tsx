@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
-import { countStops, numberStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, flatStops, numberStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
 import { ForkBlock } from "./ForkBlock";
@@ -72,6 +72,8 @@ export function RouteStepTable({
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(route.stops), [route.stops]);
   const keys = useMemo(() => stopKeys(route.stops) as string[], [route.stops]);
+  // Bring lists the hero only on a route that sends him somewhere without the units' company: one hero-off stop.
+  const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false), [route.stops]);
   const baseId = useId();
   const allOpen = count > 0 && keys.every((k) => open.has(k));
   const itemRef = (key: string) => (el: HTMLLIElement | null) => {
@@ -129,6 +131,8 @@ export function RouteStepTable({
                 onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
                 onOpenCard={onOpenCard}
                 openCampId={openCampId}
+                showHero={showHero}
+                heroIcon={route.hero}
               />
             );
           }
@@ -152,6 +156,8 @@ export function RouteStepTable({
               onOpenCard={onOpenCard}
               openCampId={openCampId}
               stopBody={stopBody}
+              showHero={showHero}
+              heroIcon={route.hero}
             />
           );
         })}

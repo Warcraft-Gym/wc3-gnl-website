@@ -477,10 +477,13 @@ a base action.
   through. Derive also marks the later arms of a parallel node `hero: false`.
 - **Map.** The leg is a normal leg; the badge carries the first Bring unit's
   icon (10px) at its right edge, so the map says who goes. No legend line.
-- **List.** No level on the right and no "+xp" captions in the chain; Bring
-  lists the units only. Nothing else changes.
-- **Builder.** Bring starts with a "Hero" toggle (the route's hero icon, or a
-  generic figure when the route names none), on by default.
+- **List.** No level on the right and no "+xp" captions in the chain. On a
+  route with at least one hero-off stop, Bring lists the hero first on every
+  camp or attack stop he goes to (the route's hero portrait, or a gold crown
+  tile, "Any Hero", when the route names none); a hero-off stop lists the
+  units only. Routes without one keep Bring as units only.
+- **Builder.** Bring starts with a "Hero" toggle (the route's hero portrait,
+  or the "Any Hero" crown tile when the route names none), on by default.
 
 ### Forks and parallel nodes
 
