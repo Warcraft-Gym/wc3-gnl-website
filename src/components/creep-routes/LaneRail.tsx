@@ -2,10 +2,11 @@
 
 import { useRef } from "react";
 import { ArrowDown, ArrowUp, Plus, Swords, Trash2 } from "lucide-react";
+import type { DropProps } from "./RouteStepTable";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { isWaypoint } from "@/lib/creep-routes/place.mjs";
-import { SPLIT_MODES } from "./stop-rows";
+import { SAME_CAMP_LINE, SPLIT_MODES } from "./stop-rows";
 import { cn } from "@/lib/utils";
 
 /**
@@ -27,6 +28,8 @@ const LINE = "absolute w-0.5 bg-line-strong";
 const DASHED = "absolute w-0 border-l-2 border-dashed border-line-strong";
 const DASH = "4 3";
 const EDIT_ICON = "grid size-7 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
+/** The builder's drop line on a row under a dragged row: gold at its top or bottom edge, a tint inside an empty path. */
+export const DROP = "data-[drop=before]:shadow-[inset_0_2px_0_var(--wg-gold)] data-[drop=after]:shadow-[inset_0_-2px_0_var(--wg-gold)] data-[drop=in]:bg-gold/10";
 
 /** The rail cell of a stop row; the `<li>` it sits in is `relative`. */
 export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
@@ -94,17 +97,23 @@ function RailSvg({ children }: { children: React.ReactNode }) {
 export type SplitEdit = {
   /** The tab shown: the chosen path ("or"/"xor"), the path being edited ("and"). */
   chosen: number;
-  /** The path the next map click goes into, or null for the top level. */
-  activeArm: number | null;
-  onDot: (arm: number) => void;
-  onMode: (mode: "and" | "or" | "xor") => void;
+  /** The caption is selected (a tab was clicked): the next map click adds to the shown path. */
+  selected: boolean;
+  /** "or" is "Choose a path"; or/xor is read from the structure on save. */
+  onMode: (mode: "and" | "or") => void;
+  /** A path's label as typed (the route's own is trimmed). */
+  label: (arm: number) => string;
   onLabel: (arm: number, label: string) => void;
-  /** Unset at three paths. */
+  /** Trims the label once, when its field loses focus. */
+  onLabelBlur: (arm: number) => void;
+  /** Does nothing at three paths. */
   onAddPath?: () => void;
   onMove: (dir: -1 | 1) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
   onRemove: () => void;
+  /** One camp is in every path: a line under the chips, not blocking. */
+  sameCamp?: boolean;
   labelError?: (arm: number) => string | undefined;
 };
 
@@ -119,9 +128,10 @@ export function SplitRow({
   baseId,
   onChoose,
   edit,
+  dnd,
 }: {
   mode: "and" | "or" | "xor";
-  arms: { label?: string }[];
+  arms: { label?: string; stops?: unknown[] }[];
   node?: DerivedNode;
   main: RailLine;
   lanes: { lane: string; off: boolean }[];
@@ -130,6 +140,8 @@ export function SplitRow({
   onChoose: (forkKey: string, arm: number) => void;
   /** The builder: mode chips on the caption row, labels edited in the tabs, "+ Path" as the last tab. */
   edit?: SplitEdit;
+  /** The builder: the caption's drag handle (the whole block moves) and its drop handlers. */
+  dnd?: { handle?: React.ReactNode; props: DropProps };
 }) {
   const choose = mode !== "and" || Boolean(edit);
   const walked = edit ? edit.chosen : (node?.walked ?? 0);
@@ -146,7 +158,12 @@ export function SplitRow({
   };
   const from = main.top ? 0 : 20;
   return (
-    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5")}>
+    <li
+      data-split={stopKey}
+      {...dnd?.props}
+      className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5", DROP, edit?.selected && "bg-gold/10")}
+    >
+      {dnd?.handle ? <span className="absolute left-[44px] top-2.5">{dnd.handle}</span> : null}
       <RailSvg>
         {lanes.map((l) =>
           l.lane === "a" ? (
@@ -175,11 +192,11 @@ export function SplitRow({
                     key={m.id}
                     type="button"
                     role="radio"
-                    aria-checked={mode === m.id}
+                    aria-checked={(m.id === "and") === (mode === "and")}
                     onClick={() => edit.onMode(m.id)}
                     className={cn(
                       "h-7 rounded border border-arcane/40 px-2 text-[0.72rem]",
-                      mode === m.id ? "bg-arcane/10 text-fg" : "text-arcane hover:bg-arcane/5",
+                      (m.id === "and") === (mode === "and") ? "bg-arcane/10 text-fg" : "text-arcane hover:bg-arcane/5",
                     )}
                   >
                     {m.label}
@@ -187,6 +204,7 @@ export function SplitRow({
                 ))}
               </div>
               {mode === "and" ? <p className="order-last basis-full text-[0.7rem] text-faint">Paths at the same time share one XP total; the order of kills is unknown.</p> : null}
+              {edit.sameCamp ? <p className="order-last basis-full text-[0.7rem] text-faint">{SAME_CAMP_LINE}</p> : null}
               <span className="ml-auto flex gap-1">
                 <button type="button" onClick={() => edit.onMove(-1)} disabled={!edit.canMoveUp} aria-label="Move split up" className={EDIT_ICON}>
                   <ArrowUp size={14} />
@@ -215,7 +233,6 @@ export function SplitRow({
               // An "and" block is one XP event: its tabs carry no level.
               const level = node?.arms[a] && mode !== "and" ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
               if (edit) {
-                const active = edit.activeArm === a;
                 // A tab with an input in it: the tab is the div, the input edits the path's label in place.
                 return (
                   <div
@@ -228,26 +245,13 @@ export function SplitRow({
                     onClick={() => onChoose(stopKey, a)}
                     className={cn(tabClass, "items-center")}
                   >
-                    <button
-                      type="button"
-                      aria-pressed={active}
-                      aria-label={`Add stops to path ${a + 1}`}
-                      title="Map clicks add stops to this path"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        edit.onDot(a);
-                        onChoose(stopKey, a);
-                      }}
-                      className="grid size-5 shrink-0 place-items-center rounded-full border border-line hover:border-gold/60"
-                    >
-                      <span className={cn("size-2 rounded-full", active ? "bg-gold" : "bg-transparent")} />
-                    </button>
                     {mode !== "and" ? (
                       <input
                         aria-label={`Path ${a + 1}`}
                         placeholder="When…"
-                        value={arm.label ?? ""}
+                        value={edit.label(a)}
                         onChange={(e) => edit.onLabel(a, e.target.value)}
+                        onBlur={() => edit.onLabelBlur(a)}
                         maxLength={60}
                         className={cn(
                           "h-7 min-w-[7ch] max-w-[24ch] rounded [field-sizing:content] border border-transparent bg-transparent px-1 text-[0.84rem] text-inherit placeholder:text-faint hover:border-line focus:border-gold/60 focus:outline-none",
@@ -257,6 +261,7 @@ export function SplitRow({
                     ) : (
                       <span>Path {a + 1}</span>
                     )}
+                    {!arm.stops?.length ? <span className="text-[0.8rem] text-faint">(empty)</span> : null}
                     {level}
                   </div>
                 );

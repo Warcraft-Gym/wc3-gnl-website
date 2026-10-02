@@ -502,6 +502,10 @@ every path; a continuation of only one path belongs inside that path.
 - **`xor`**: the reader chooses one path and it never rejoins; the schema
   rejects stops after an `xor` split ("Nothing follows an either/or split").
 
+The builder offers two modes, "Choose a path" and "At the same time", and
+saves `or` or `xor` from the structure: stops after the split mean `or`,
+nothing after means `xor` (`savedMode` in `editor-rows.mjs`).
+
 In Sanity the split is a `creepSplit` array member (Studio: "At the same
 time" / "Choose a path, then continue" / "Choose a path"), next to the `stop`
 members (`creepStop`, stored under the name `stop`). A whole-route pair is a
@@ -556,14 +560,10 @@ choose one, no number means a waypoint.
   example has no rail.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.
-- **Builder.** "+ Split" adds a "Choose a path" (`xor`) split with two empty
-  paths. The split row has the mode chips (Choose a path / Choose a path, then
-  continue / At the same time), "When…" labels in the choose modes, a box per
-  path with an "Add stops here" toggle and its own stop list, "Add a path" up to
-  3 and a remove per path. Map clicks go into the active path, or the top level
-  when none is active; a click on a camp a path already holds removes it from
-  that path. A `xor` split that is not the last stop says that nothing may
-  follow it.
+- **Builder.** "+ Split" adds a "Choose a path" split with two empty paths
+  after the selected row. The caption row has two mode chips (Choose a path /
+  At the same time); `or` or `xor` is saved from the structure. See
+  "The slim builder" below for adds, moves, removals and undo.
 
 ### Pictures
 
@@ -1058,9 +1058,20 @@ sees; this section is the mechanics.
   entry, the kill order picker, condition, note, move and remove). A split is
   the reader's caption row and tab strip (`SplitRow` with `edit`): the mode
   chips on the caption row, path labels edited in the tabs, "+ Path" as the
-  last tab, a dot per tab for "the next map click goes here", move and remove
-  at the right; the path's tools (its errors, "Remove path N") sit under the
-  tabs. The header's toolbar has "+ Waypoint" (adds one and arms the next map
+  last tab, move and "Remove split" at the right; the path's tools (its
+  errors, "Remove path") sit under the tabs. Every move has one rule
+  (`editor-rows.mjs`, v2.7): a map click adds after the selected row in its own
+  list, into the shown path when the split's caption (a tab) is selected, else
+  at the end, and a camp already in that list is selected instead; every row
+  has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
+  `moveRowTo`), a split moves as a block and never into a path, and a stop
+  dropped into a path not shown switches to it; the open stop's arrows move it
+  on a keyboard or phone; removing the second-last path turns the split into
+  plain stops (`removePath`); "Remove split" keeps the shown path
+  (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
+  (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
+  outside text fields; typing in one field is one step until it loses focus.
+  Path labels are kept as typed and trimmed once on blur (`setArmLabel`). The header's toolbar has "+ Waypoint" (adds one and arms the next map
   click to put it on a spot) and "+ Split". The section header's "Edit |
   Preview" toggle draws the route page's own section (`CreepMapPlayground`)
   from the draft, read-only; the editor stays mounted under it, so the

@@ -6,7 +6,14 @@ import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/cr
 import { joinXpLabel, routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
-import { JoinRow, LaneLines, SplitRow, StopRail, type RailLine, type SplitEdit } from "./LaneRail";
+import { cn } from "@/lib/utils";
+import { DROP, JoinRow, LaneLines, SplitRow, StopRail, type RailLine, type SplitEdit } from "./LaneRail";
+import type { DropZone } from "./stop-rows";
+
+/** The builder's drop handlers on a row (`RouteEditor`); `data-drop` lights the drop line. */
+export type DropProps = Pick<React.LiHTMLAttributes<HTMLLIElement>, "onDragOver" | "onDrop"> & { "data-drop"?: string };
+/** The builder's drag and drop for one zone: the row's handle and its drop handlers. */
+export type Dnd = (zone: DropZone) => { handle?: React.ReactNode; props: DropProps };
 
 /** One row of the flat lane list, see `route-rows.mjs`. */
 type LaneRow =
@@ -47,6 +54,7 @@ export function RouteStepTable({
   editBody,
   splitEdit,
   pathTools,
+  dnd,
   empty,
 }: {
   route: CreepRoute;
@@ -81,6 +89,8 @@ export function RouteStepTable({
   splitEdit?: (index: number) => SplitEdit | undefined;
   /** The builder: a row of path controls at the top of split `index`'s chosen path. */
   pathTools?: (index: number) => React.ReactNode;
+  /** The builder: drag handles and drop zones (rows, captions, an empty path, the end of the list). */
+  dnd?: Dnd;
   /** Shown in place of the list when the route has no stops. */
   empty?: React.ReactNode;
 }) {
@@ -126,6 +136,7 @@ export function RouteStepTable({
                   baseId={baseId}
                   onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
                   edit={splitEdit?.(row.index)}
+                  dnd={dnd?.({ kind: "caption", index: row.index, arm: choice?.[String(row.index)] ?? 0 })}
                 />
               );
             }
@@ -157,6 +168,7 @@ export function RouteStepTable({
                 showHero={showHero}
                 heroIcon={route.hero}
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
+                dnd={dnd?.({ kind: "row", key: row.key })}
                 entry={block ? { level: block.levelBefore, xp: block.xpBefore } : undefined}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
               />
@@ -167,7 +179,11 @@ export function RouteStepTable({
     const tools = pathTools?.(split.index);
     if (!tools) return null;
     return (
-      <li key={`tools-${split.key}`} className="relative py-2 pl-[60px] pr-4 sm:pr-5">
+      <li
+        key={`tools-${split.key}`}
+        {...dnd?.({ kind: "path", index: split.index, arm: choice?.[String(split.index)] ?? 0 }).props}
+        className={cn("relative py-2 pl-[60px] pr-4 sm:pr-5", DROP)}
+      >
         <LaneLines lanes={split.lanes} />
         {tools}
       </li>
@@ -234,6 +250,8 @@ export function RouteStepTable({
             const row = group as LaneRow;
             return renderRow(row);
           })}
+          {/* The builder's last drop zone: the end of the list. */}
+          {dnd ? <li aria-hidden {...dnd({ kind: "end" }).props} className={cn("h-3", DROP)} /> : null}
         </ol>
       ) : (
       <ol>

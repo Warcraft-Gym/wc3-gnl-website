@@ -1,46 +1,87 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { Plus } from "lucide-react";
+import { useMemo, useRef, useState } from "react";
+import { GripVertical, Plus } from "lucide-react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend, routeLegendMarks } from "./MapLegend";
-import { RouteStepTable } from "./RouteStepTable";
+import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
-import { keyOfRow, moveRow, newRow, newSplitRow, patchRow, placeInList, removeRow, rowAtKey, rowToStop, toggleCamp, toggleCampAnywhere, updateArm } from "./stop-rows";
+import {
+  addTarget,
+  dropTarget,
+  insertAt,
+  keyOfRow,
+  listAt,
+  locate,
+  moveRow,
+  moveRowTo,
+  newRow,
+  newSplitRow,
+  patchRow,
+  placeInList,
+  removePath,
+  removeRow,
+  removeSplit,
+  rowAtKey,
+  rowsToStops,
+  sameCampEveryPath,
+  setArmLabel,
+  type DropZone,
+} from "./stop-rows";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
-import { parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
+import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
-/** The path map clicks go into while it is set: a split row's id and the path's index. */
-type ActiveArm = { splitId: number; arm: number } | null;
-
 const TOOL = "inline-flex h-8 shrink-0 items-center gap-1.5 rounded border px-2.5 text-[0.65rem] font-bold uppercase tracking-wide";
+/** Fields whose typing is one undo step until the field loses focus. */
+const TEXT_FIELDS = new Set(["note", "condition", "action", "units"]);
 
-/** Every row id in the list, paths included. */
-function allIds(rows: StopRowData[]): Set<number> {
-  return new Set(rows.flatMap((r) => [r.id, ...(r.split?.arms.flatMap((a) => a.stops.map((s) => s.id)) ?? [])]));
+/** The drag handle of a row: native HTML drag and drop on a fine pointer; the open stop's arrows are the keyboard and phone path. */
+function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void }) {
+  return (
+    <span
+      aria-hidden
+      draggable
+      title="Drag to move"
+      onDragStart={(e) => {
+        e.dataTransfer.setData("text/plain", "stop");
+        e.dataTransfer.effectAllowed = "move";
+        const li = e.currentTarget.closest("li");
+        if (li) e.dataTransfer.setDragImage(li, 24, 16);
+        onStart();
+      }}
+      onDragEnd={onEnd}
+      className="hidden h-5 w-3.5 cursor-grab place-items-center rounded text-faint hover:text-gold active:cursor-grabbing [@media(pointer:fine)]:grid"
+    >
+      <GripVertical size={14} />
+    </span>
+  );
 }
 
 /**
  * The slim builder, made of the reader's parts: `CreepMap` in edit mode on the
  * left (sticky on desktop, above the list on a phone) and the reader's stop
- * list (`RouteStepTable`) on the right. Every stop is the reader's one-line row;
- * one stop is open at a time, the selected one, shared with the map's pulsing
- * node, and its body is the stop's editor (`StopEditBody`). A split is the
- * reader's caption row and tab strip with the builder's controls (`SplitEdit`):
- * mode chips, labels edited in the tabs, "+ Path" as the last tab, the
- * "next click goes here" dot per path, and the path's tools under the tabs.
- * A map click adds or removes a camp (into the path whose dot is on, else the
- * top level); a start, mine or shop adds a waypoint; "+ Waypoint" adds one and
- * arms the next map click to place it; "+ Split" adds a split.
+ * list (`RouteStepTable`) on the right. One stop is open at a time, the selected
+ * one, shared with the map's pulsing node, and its body is the stop's editor
+ * (`StopEditBody`). A split is the reader's caption row and tab strip with the
+ * builder's controls (`SplitEdit`). Every move has one rule (`editor-rows.mjs`):
+ * a map click adds after the selected row in its own list, into the shown path
+ * when the split's caption (a tab) is selected, else at the end; a camp already
+ * in that list is selected instead. A drag handle on every row moves it (native
+ * drag and drop on desktop; a split moves as a block and never into a path); the
+ * open stop's arrows move it on a keyboard or phone; its trash removes it.
+ * "Remove path" and "Remove split" keep the model whole. Every change but typing
+ * calls `remember` first, so the form can undo it; typing in one field is one
+ * step until the field loses focus.
  */
 export function RouteEditor({
   map,
   stops,
   setStops,
+  remember,
   start,
   onStartChange,
   iconRace,
@@ -54,6 +95,8 @@ export function RouteEditor({
   map: CreepMapType;
   stops: StopRowData[];
   setStops: React.Dispatch<React.SetStateAction<StopRowData[]>>;
+  /** Called before a change with what it does ("remove stop 3"): the form keeps the undo stack. */
+  remember?: (label: string) => void;
   /** Index into `map.starts`: your base. Only a map with more than two starts gets a picker. */
   start: number;
   onStartChange: (start: number) => void;
@@ -67,7 +110,7 @@ export function RouteEditor({
   onHoverLeave?: () => void;
   openCampId?: string | null;
 }) {
-  const routeStops = useMemo(() => stops.map(rowToStop), [stops]);
+  const routeStops = useMemo(() => rowsToStops(stops), [stops]);
   const route = useMemo(() => ({ stops: routeStops, start, hero: heroIcon }) as CreepRoute, [routeStops, start, heroIcon]);
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
@@ -81,11 +124,32 @@ export function RouteEditor({
     [stops, tabs],
   );
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
-  const [activeArm, setActiveArm] = useState<ActiveArm>(null);
-  const armOpen = activeArm !== null && stops.some((r) => r.id === activeArm.splitId && r.split?.arms[activeArm.arm]);
+  const numbers = useMemo(() => numberStops(routeStops, choice), [routeStops, choice]);
   const [pointArmed, setPointArmed] = useState(false);
   // A waypoint just added with "+ Waypoint": the next map click puts it on a spot.
   const [pending, setPending] = useState<number | null>(null);
+  // The text field being typed in: its edits are one undo step until it loses focus.
+  const typing = useRef<string | null>(null);
+  // The row being dragged and the drop zone under the pointer.
+  const [drag, setDrag] = useState<number | null>(null);
+  const [over, setOver] = useState<{ zone: string; after: boolean } | null>(null);
+
+  /** A row's name in an undo label: "stop 3", "waypoint", "split". */
+  const nameOf = (id: number) => {
+    const key = keyOfRow(stops, id);
+    const row = key ? rowAtKey(stops, key) : undefined;
+    if (!key || !row) return "stop";
+    if (row.split) return "split";
+    const { index, arm, j } = parseKey(key);
+    const label = arm === undefined ? numbers[index]?.label : numbers[index]?.arms?.[arm]?.stops[j!]?.label;
+    return label ? `stop ${label}` : "waypoint";
+  };
+  /** Records an undo step for a change; typing in one field (`field`) is one step until it loses focus. */
+  const step = (label: string, field?: string) => {
+    if (field && typing.current === field) return;
+    typing.current = field ?? null;
+    remember?.(label);
+  };
 
   const select = (id: number | null, scroll = false) => {
     setSelectedId(id);
@@ -102,38 +166,39 @@ export function RouteEditor({
     const row = rowAtKey(stops, key);
     select(row && row.id !== selectedId ? row.id : null);
   };
+  // A selected split caption adds into its shown path.
+  const selection = selectedId === null ? null : { id: selectedId, arm: tabs[selectedId] ?? 0 };
 
   // At a cap (`caps.mjs`) the add actions do nothing and the toolbar says so.
   const capLine = addBlocked(stops, "row") ?? addBlocked(stops, "stop");
 
-  /** Applies `update` to the active path's stops, or to the top level; a camp or attack added to
-   *  path 2.. of an "and" split arrives with the hero off. Selects the stop it adds. `kind` is what an
-   *  add adds ("stop" numbered, "row" a waypoint or split): nothing changes when that is past a cap. */
-  const addTo = (update: (rows: StopRowData[]) => StopRowData[], kind: "stop" | "row" = "stop") => {
-    const heroOffArm = armOpen && activeArm!.arm > 0 && stops.some((r) => r.id === activeArm!.splitId && r.split?.mode === "and");
-    const marked = (rows: StopRowData[]) => {
-      const before = new Set(rows.map((r) => r.id));
-      return update(rows).map((r) => (heroOffArm && !before.has(r.id) && (r.campId || r.place?.kind === "attack") ? { ...r, hero: false } : r));
-    };
-    const next = armOpen ? updateArm(stops, activeArm!.splitId, activeArm!.arm, marked) : update(stops);
-    const before = allIds(stops);
-    const added = [...allIds(next)].find((id) => !before.has(id));
-    if (added !== undefined && addBlocked(stops, kind)) return undefined;
-    setStops(next);
-    if (added !== undefined) {
-      setSelectedId(added);
-      if (armOpen) setTabs((t) => ({ ...t, [activeArm!.splitId]: activeArm!.arm }));
-    }
-    return added;
+  /** Adds `row` where an add goes (`addTarget`) and selects it; a camp or attack added to path 2.. of an
+   *  "and" split arrives with the hero off. `kind` is what it adds ("stop" numbered, "row" a waypoint or
+   *  split): nothing happens at a cap. */
+  const add = (row: StopRowData, kind: "stop" | "row", label: string) => {
+    if (addBlocked(stops, kind)) return undefined;
+    const at = addTarget(stops, selection, Boolean(row.split));
+    const split = at.splitId === undefined ? undefined : stops.find((r) => r.id === at.splitId);
+    const heroOff = split?.split?.mode === "and" && (at.arm ?? 0) > 0 && Boolean(row.campId || row.place?.kind === "attack");
+    step(label);
+    setStops(insertAt(stops, at, heroOff ? { ...row, hero: false } : row));
+    setSelectedId(row.id);
+    if (split && at.arm !== undefined) setTabs((t) => ({ ...t, [split.id]: at.arm! }));
+    return row.id;
   };
 
-  const onCampClick = (campId: string) => (armOpen ? addTo((rows) => toggleCamp(rows, campId)) : addTo((rows) => toggleCampAnywhere(rows, campId)));
+  // A camp already in the list the click adds to is selected, not added twice; a stop is removed with its trash.
+  const onCampClick = (campId: string) => {
+    const there = listAt(stops, addTarget(stops, selection)).find((r) => r.campId === campId);
+    if (there) select(there.id, true);
+    else add(newRow({ campId }), "stop", "add stop");
+  };
   const onPlaceSelect = (place: Place) => {
     if (pending !== null && rowAtKey(stops, keyOfRow(stops, pending) ?? "")) {
       setStops((rows) => patchRow(rows, pending, { place }));
       setSelectedId(pending);
     } else {
-      addTo((rows) => [...rows, newRow({ place })], place.kind === "attack" ? "stop" : "row");
+      add(newRow({ place }), place.kind === "attack" ? "stop" : "row", place.kind === "attack" ? "add stop" : "add waypoint");
     }
     setPending(null);
     setPointArmed(false);
@@ -144,17 +209,15 @@ export function RouteEditor({
       setPending(null);
       return;
     }
-    if (addBlocked(stops, "row")) return;
-    const id = addTo((rows) => [...rows, newRow()], "row");
-    setPending(id ?? null);
+    const id = add(newRow(), "row", "add waypoint");
+    if (id === undefined) return;
+    setPending(id);
     setPointArmed(true);
   };
   const addSplit = () => {
-    if (addBlocked(stops, "row")) return;
     const row = newSplitRow();
-    setStops((rows) => [...rows, row]);
-    setActiveArm({ splitId: row.id, arm: 0 });
-    setSelectedId(null);
+    // The new split's caption is selected: the next map clicks fill its first path.
+    if (add(row, "row", "add split") !== undefined) setTabs((t) => ({ ...t, [row.id]: 0 }));
   };
 
   const setSplit = (id: number, split: Partial<NonNullable<StopRowData["split"]>>) =>
@@ -181,12 +244,20 @@ export function RouteEditor({
         camp={row.campId ? campById.get(row.campId) : undefined}
         iconRace={iconRace}
         error={errorAt(key)}
-        onChange={(patch) => setStops((rows) => patchRow(rows, row.id, patch))}
+        onChange={(patch) => {
+          const keys = Object.keys(patch);
+          step(`edit ${nameOf(row.id)}`, keys.length === 1 && TEXT_FIELDS.has(keys[0]) ? `${row.id}.${keys[0]}` : undefined);
+          setStops((rows) => patchRow(rows, row.id, patch));
+        }}
         onRemove={() => {
+          step(`remove ${nameOf(row.id)}`);
           setStops((rows) => removeRow(rows, row.id));
           setSelectedId(null);
         }}
-        onMove={(dir) => setStops((rows) => moveRow(rows, row.id, dir))}
+        onMove={(dir) => {
+          step(`move ${nameOf(row.id)}`);
+          setStops((rows) => moveRow(rows, row.id, dir));
+        }}
         canMoveUp={at > 0}
         canMoveDown={at < length - 1}
         trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
@@ -199,61 +270,127 @@ export function RouteEditor({
   const splitEdit = (index: number) => {
     const row = stops[index];
     if (!row?.split) return undefined;
-    const { arms } = row.split;
+    const { arms, mode } = row.split;
+    const chosen = choice[String(index)] ?? 0;
     const errPath = `stops.${index}.split`;
     return {
-      chosen: choice[String(index)] ?? 0,
-      activeArm: armOpen && activeArm?.splitId === row.id ? activeArm.arm : null,
-      onDot: (arm: number) => setActiveArm((cur) => (cur?.splitId === row.id && cur.arm === arm ? null : { splitId: row.id, arm })),
-      onMode: (mode: "and" | "or" | "xor") => setSplit(row.id, { mode }),
-      onLabel: (arm: number, label: string) => setSplit(row.id, { arms: arms.map((x, i) => (i === arm ? { ...x, label } : x)) }),
-      onAddPath: () => {
-        if (!addBlocked(stops, "path", row)) setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
+      chosen,
+      selected: selectedId === row.id,
+      onMode: (next: "and" | "or") => {
+        if ((next === "and") === (mode === "and")) return;
+        step("change split mode");
+        setSplit(row.id, { mode: next });
       },
-      onMove: (dir: -1 | 1) => setStops((rows) => moveRow(rows, row.id, dir)),
+      label: (arm: number) => arms[arm]?.label ?? "",
+      onLabel: (arm: number, label: string) => {
+        step("edit path label", `${row.id}.label.${arm}`);
+        setStops((rows) => setArmLabel(rows, row.id, arm, label));
+      },
+      onLabelBlur: (arm: number) => setStops((rows) => setArmLabel(rows, row.id, arm, rows.find((r) => r.id === row.id)?.split?.arms[arm]?.label ?? "", true)),
+      onAddPath: () => {
+        if (addBlocked(stops, "path", row)) return;
+        step("add path");
+        setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
+      },
+      onMove: (dir: -1 | 1) => {
+        step("move split");
+        setStops((rows) => moveRow(rows, row.id, dir));
+      },
       canMoveUp: index > 0,
       canMoveDown: index < stops.length - 1,
       onRemove: () => {
-        setStops((rows) => removeRow(rows, row.id));
-        if (activeArm?.splitId === row.id) setActiveArm(null);
+        step("remove split");
+        setStops((rows) => removeSplit(rows, row.id, chosen));
+        setSelectedId(null);
       },
+      sameCamp: sameCampEveryPath(row.split),
       labelError: (arm: number) => fieldError?.(`${errPath}.arms.${arm}.label`),
     };
   };
 
-  // Under the tabs: the shown path's errors, its remove button and, when empty, how to fill it.
+  // Under the tabs: the shown path's errors, how to fill it when empty, the path cap and "Remove path".
   const pathTools = (index: number) => {
     const row = stops[index];
     if (!row?.split) return null;
-    const { mode, arms } = row.split;
     const arm = choice[String(index)] ?? 0;
     const errPath = `stops.${index}.split`;
     const error = fieldError?.(`${errPath}.arms.${arm}.label`) ?? fieldError?.(`${errPath}.arms.${arm}.stops`) ?? fieldError?.(errPath);
-    const notLast = mode === "xor" && index < stops.length - 1;
-    const empty = !arms[arm]?.stops.length;
+    const empty = !row.split.arms[arm]?.stops.length;
     const pathCap = addBlocked(stops, "path", row);
-    if (!error && !notLast && !empty && !pathCap) return null;
     return (
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem]">
-        {empty ? <span className="text-faint">Turn on this path&apos;s dot, then click the map to add its stops.</span> : null}
+        {empty ? <span className="text-faint">This path is empty: click the map to add its stops, or drag a stop here.</span> : null}
         {error ? <span className="text-loss">{error}</span> : null}
         {pathCap ? <span className="text-faint">{pathCap}</span> : null}
-        {notLast ? <span className="text-loss">Nothing follows this split: move the stops after it into a path, or choose &quot;Choose a path, then continue&quot;.</span> : null}
-        {arms.length > 2 ? (
-          <button
-            type="button"
-            onClick={() => {
-              setSplit(row.id, { arms: arms.filter((_, i) => i !== arm) });
-              setTabs((t) => ({ ...t, [row.id]: 0 }));
-              if (activeArm?.splitId === row.id) setActiveArm(null);
-            }}
-            className="ml-auto text-muted hover:text-loss"
-          >
-            Remove path {arm + 1}
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={() => {
+            step(`remove path ${arm + 1}`);
+            setStops((rows) => removePath(rows, row.id, arm));
+            setTabs((t) => ({ ...t, [row.id]: 0 }));
+          }}
+          className="ml-auto text-muted hover:text-loss"
+        >
+          Remove path
+        </button>
       </div>
     );
+  };
+
+  // Drag and drop: the row being dragged, and where it would land (`dropTarget`).
+  const dragged = drag === null ? undefined : (() => {
+    const at = locate(stops, drag);
+    return at ? listAt(stops, at)[at.index] : undefined;
+  })();
+  const zoneId = (zone: DropZone) =>
+    zone.kind === "row" ? `r${zone.key}` : zone.kind === "caption" ? `c${zone.index}` : zone.kind === "path" ? `p${zone.index}.${zone.arm}` : "end";
+  const zoneRow = (zone: DropZone) =>
+    zone.kind === "row" ? rowAtKey(stops, zone.key) : zone.kind === "caption" ? stops[zone.index] : undefined;
+  const dropAt = (zone: DropZone, e: React.DragEvent<HTMLLIElement>) => {
+    const box = e.currentTarget.getBoundingClientRect();
+    const after = e.clientY > box.top + box.height / 2;
+    return { after, at: dropTarget(stops, { ...zone, after } as DropZone, dragged) };
+  };
+  const dnd = (zone: DropZone): { handle?: React.ReactNode; props: DropProps } => {
+    const row = zoneRow(zone);
+    const id = zoneId(zone);
+    const lit = over?.zone === id;
+    return {
+      handle: row ? (
+        <DragHandle
+          onStart={() => setDrag(row.id)}
+          onEnd={() => {
+            setDrag(null);
+            setOver(null);
+          }}
+        />
+      ) : undefined,
+      props: {
+        "data-drop": lit ? (zone.kind === "path" || zone.kind === "end" ? "in" : over.after ? "after" : "before") : undefined,
+        onDragOver: (e) => {
+          if (drag === null) return;
+          const { after, at } = dropAt(zone, e);
+          // No drop zone lights up where the row cannot go (a split inside a path).
+          if (!at) return;
+          e.preventDefault();
+          e.dataTransfer.dropEffect = "move";
+          if (!lit || over.after !== after) setOver({ zone: id, after });
+        },
+        onDrop: (e) => {
+          if (drag === null) return;
+          e.preventDefault();
+          const { at } = dropAt(zone, e);
+          if (at) {
+            step(`move ${nameOf(drag)}`);
+            setStops(moveRowTo(stops, drag, at));
+            // A stop dropped into a path that is not shown switches to it, so the result is visible.
+            if (at.splitId !== undefined && at.arm !== undefined) setTabs((t) => ({ ...t, [at.splitId!]: at.arm! }));
+          }
+          setDrag(null);
+          setOver(null);
+        },
+      },
+    };
   };
 
   const toolbar = (
@@ -301,7 +438,7 @@ export function RouteEditor({
         <p className="mt-2 text-xs text-faint">
           {pointArmed
             ? "Click the map to put the waypoint on a spot."
-            : "Click a camp to add it, again to remove it. Click a base, gold mine or shop to add a waypoint there. Hover a camp to see what is inside; right-click pins the card."}
+            : "Click a camp to add it after the selected stop; a camp already there is selected. Click a base, gold mine or shop to add a waypoint there. Hover a camp to see what is inside; right-click pins the card."}
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -342,13 +479,18 @@ export function RouteEditor({
           openCampId={openCampId}
           choice={choice}
           onChoose={(key, arm) => {
+            // A tab selects its split's caption: the next map click adds to that path.
             const split = stops[Number(key)];
-            if (split) setTabs((t) => ({ ...t, [split.id]: arm }));
+            if (split) {
+              setTabs((t) => ({ ...t, [split.id]: arm }));
+              setSelectedId(split.id);
+            }
           }}
           toolbar={toolbar}
           editBody={editBody}
           splitEdit={splitEdit}
           pathTools={pathTools}
+          dnd={dnd}
           empty={
             <p className="m-4 rounded border border-dashed border-line px-4 py-8 text-center text-sm text-muted">
               Click camps on the map to add stops, or add a waypoint.

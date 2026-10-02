@@ -455,7 +455,7 @@ test("nodes: a node inside an arm, an empty arm and a fork without labels are re
   const nested = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [inner] }, { stops: [{ campId: "c02" }] }])] }));
   assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A path cannot hold another split");
   const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Add at least one stop to this path");
+  assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Path 1 is empty. Add a stop to it or remove it.");
   const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
   assert.equal(flattenErrors(unlabelled.error)["stops.1.split.arms.0.label"], "Say when to take this path");
   const bothOk = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));

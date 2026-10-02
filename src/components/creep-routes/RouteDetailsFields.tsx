@@ -63,6 +63,7 @@ export function RouteDetailsFields({
   onTagsChange,
   errors,
   errorMessage,
+  notes = [],
   pending,
   submissionsOpen,
 }: {
@@ -77,6 +78,8 @@ export function RouteDetailsFields({
   onTagsChange: (tags: string[]) => void;
   errors: Record<string, string>;
   errorMessage?: string;
+  /** The submit check's notes that do not block sending (a split with one camp in every path). */
+  notes?: string[];
   pending: boolean;
   submissionsOpen: boolean;
 }) {
@@ -146,6 +149,11 @@ export function RouteDetailsFields({
         />
       </Field>
 
+      {notes.map((n) => (
+        <p key={n} className="rounded border border-line px-4 py-3 text-sm text-muted">
+          {n}
+        </p>
+      ))}
       {errorMessage ? (
         <p role="alert" className="rounded border border-loss/50 bg-loss/10 px-4 py-3 text-sm text-fg">
           {errorMessage}

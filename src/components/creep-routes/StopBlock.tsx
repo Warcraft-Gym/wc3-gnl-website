@@ -13,6 +13,8 @@ import { KillOrder, KillStrip } from "./KillOrder";
 import { PlaceIcon } from "./PlaceGlyph";
 import { HeroTile } from "./HeroTile";
 import { StopImages } from "./StopImages";
+import { DROP } from "./LaneRail";
+import type { DropProps } from "./RouteStepTable";
 import { cn } from "@/lib/utils";
 
 /** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
@@ -87,6 +89,7 @@ export function StopBlock({
   showHero = false,
   heroIcon,
   entry,
+  dnd,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -114,6 +117,8 @@ export function StopBlock({
   /** A stop inside an "and" block: the hero at the split. The order across paths is unknown, so
    *  the row has no level line, the chain no level-up marks, and the meter shows this level. */
   entry?: { level: number; xp: number };
+  /** The builder: the row's drag handle (left of the number) and its drop handlers. */
+  dnd?: { handle?: React.ReactNode; props: DropProps };
 }) {
   const d = entry ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
@@ -133,7 +138,9 @@ export function StopBlock({
       onMouseEnter={() => onHover(stopKey)}
       onMouseLeave={() => onHover(null)}
       aria-current={isActive ? "step" : undefined}
+      {...dnd?.props}
       className={cn(
+        DROP,
         // With the lane rail, the rail takes 44px in front of the row and the row itself is unchanged.
         rail
           ? `relative border-t border-line/40 pl-[60px] pr-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:pr-5`
@@ -142,6 +149,7 @@ export function StopBlock({
       )}
     >
       {rail}
+      {dnd?.handle ? <span className={cn("absolute left-[44px]", waypoint ? "top-2" : "top-4")}>{dnd.handle}</span> : null}
       {/* Summary line: the select button covers it; the camp button and chevron sit above. */}
       <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
         <button

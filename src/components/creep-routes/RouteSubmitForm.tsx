@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
-import { CheckCircle2, ChevronDown } from "lucide-react";
+import { CheckCircle2, ChevronDown, Undo2 } from "lucide-react";
 import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-routes/submit/actions";
 import { RouteSetup } from "./RouteSetup";
 import { RouteEditor } from "./RouteEditor";
@@ -12,7 +12,7 @@ import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopEditBody";
-import { rowToStop, stopToRow } from "./stop-rows";
+import { SAME_CAMP_LINE, popUndo, pushUndo, rowsToStops, sameCampEveryPath, stopToRow, type UndoEntry } from "./stop-rows";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
@@ -70,6 +70,27 @@ export function RouteSubmitForm({
   const [hero, setHero] = useState("");
   const [buildSlug, setBuildSlug] = useState("");
   const [stops, setStops] = useState<StopRowData[]>([]);
+  // Undo for the stop list (`editor-rows.mjs`): earlier lists with what changed; no redo, gone on leaving the page.
+  const [undo, setUndo] = useState<UndoEntry[]>([]);
+  const remember = (label: string) => setUndo((u) => pushUndo(u, stops, label));
+  const undoLast = () => {
+    const top = popUndo(undo);
+    if (!top) return;
+    setStops(top.entry.rows);
+    setUndo(top.stack);
+  };
+  // Ctrl+Z (Cmd+Z) undoes the last stop-list change when focus is not in a text field.
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.ctrlKey || e.metaKey) || e.shiftKey || e.key.toLowerCase() !== "z") return;
+      if ((e.target as HTMLElement | null)?.closest?.("input, textarea, select, [contenteditable='true']")) return;
+      if (!undo.length) return;
+      e.preventDefault();
+      undoLast();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  });
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
   const [tags, setTags] = useState<string[]>([]);
   const [text, setText] = useState({
@@ -111,6 +132,7 @@ export function RouteSubmitForm({
     setBuildSlug(r.build ?? "");
     setTags(r.tags.slice(0, 8));
     setStops(r.stops.map(stopToRow));
+    setUndo([]);
   };
   // Applies a `#route=` payload on mount, and again on `hashchange` so a
   // link followed while the editor is already open (in-tab hash navigation,
@@ -161,7 +183,9 @@ export function RouteSubmitForm({
   }, []);
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
-  const stopsJson = JSON.stringify(stops.map(rowToStop));
+  const stopsJson = JSON.stringify(rowsToStops(stops));
+  // The submit check's notes that do not block: a split with one camp in every path.
+  const notes = stops.some((r) => sameCampEveryPath(r.split)) ? [SAME_CAMP_LINE] : [];
   // "Edit | Preview": the preview is the route page's own section (map and list) drawn from the draft.
   const [preview, setPreview] = useState(false);
   const draftRoute = useMemo(
@@ -171,7 +195,7 @@ export function RouteSubmitForm({
             slug: "draft", title: text.title, race: (race && race !== "any" ? race : "human") as BuildRace, vsRaces, level,
             map: { slug: map.slug, name: map.name, minimapUrl: map.minimapUrl }, start, hero: hero || undefined,
             summary: text.summary, author: text.author, featured: false, publishedAt: "", updatedAt: "",
-            stops: stops.map(rowToStop),
+            stops: rowsToStops(stops),
           } as CreepRoute)
         : null,
     [map, text.title, text.summary, text.author, race, vsRaces, level, start, hero, stops],
@@ -276,22 +300,35 @@ export function RouteSubmitForm({
             </span>
           </SectionTitle>
           </div>
-          <div role="radiogroup" aria-label="Edit or preview" className="inline-flex overflow-hidden rounded border border-line">
-            {(["Edit", "Preview"] as const).map((label) => {
-              const on = (label === "Preview") === preview;
-              return (
-                <button
-                  key={label}
-                  type="button"
-                  role="radio"
-                  aria-checked={on}
-                  onClick={() => setPreview(label === "Preview")}
-                  className={`h-8 px-3 text-xs ${label === "Preview" ? "border-l border-line" : ""} ${on ? "bg-gold/10 text-fg" : "text-muted hover:text-fg"}`}
-                >
-                  {label}
-                </button>
-              );
-            })}
+          <div className="flex flex-wrap items-center gap-2">
+            {undo.length ? (
+              <button
+                type="button"
+                onClick={undoLast}
+                title="Ctrl+Z"
+                className="inline-flex h-8 items-center gap-1.5 rounded border border-line px-2.5 text-xs text-muted hover:text-fg"
+              >
+                <Undo2 aria-hidden size={14} />
+                Undo: {undo[undo.length - 1].label}
+              </button>
+            ) : null}
+            <div role="radiogroup" aria-label="Edit or preview" className="inline-flex overflow-hidden rounded border border-line">
+              {(["Edit", "Preview"] as const).map((label) => {
+                const on = (label === "Preview") === preview;
+                return (
+                  <button
+                    key={label}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    onClick={() => setPreview(label === "Preview")}
+                    className={`h-8 px-3 text-xs ${label === "Preview" ? "border-l border-line" : ""} ${on ? "bg-gold/10 text-fg" : "text-muted hover:text-fg"}`}
+                  >
+                    {label}
+                  </button>
+                );
+              })}
+            </div>
           </div>
           </div>
           {errors.stops ? <p className="mb-3 mt-3 text-xs text-loss">{errors.stops}</p> : null}
@@ -306,6 +343,7 @@ export function RouteSubmitForm({
               map={map}
               stops={stops}
               setStops={setStops}
+              remember={remember}
               start={start}
               onStartChange={setStart}
               iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}
@@ -340,6 +378,7 @@ export function RouteSubmitForm({
           onTagsChange={setTags}
           errors={errors}
           errorMessage={state.status === "error" ? state.message : undefined}
+          notes={notes}
           pending={pending}
           submissionsOpen={submissionsOpen}
         />

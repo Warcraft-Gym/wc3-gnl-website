@@ -111,7 +111,7 @@ function baseStopSchema(iconSet, splitField) {
     });
 }
 
-/** A split's ways: 2 or 3 arms of 1..20 stops. "or" and "xor" label every way with its condition
+/** A split's ways: 2 or 3 arms of up to 20 stops (an empty one is named). "or" and "xor" label every way with its condition
  *  (the tab text); "and" takes no labels (each stop's Bring says who goes). */
 function splitSchema(armStopSchema) {
   return z
@@ -121,13 +121,17 @@ function splitSchema(armStopSchema) {
         .array(
           z.object({
             label: z.string().trim().max(60, "Max 60 characters").optional(),
-            stops: z.array(armStopSchema).min(1, "Add at least one stop to this path").max(20, "Max 20 stops"),
+            stops: z.array(armStopSchema).max(20, "Max 20 stops"),
           }),
         )
         .min(2, "A split needs two or three paths")
         .max(MAX_PATHS, CAP_OVER.paths),
     })
     .superRefine((split, ctx) => {
+      // The builder leaves a path empty when its last stop moves out; the check names it.
+      split.arms.forEach((arm, a) => {
+        if (!arm.stops.length) ctx.addIssue({ code: "custom", message: `Path ${a + 1} is empty. Add a stop to it or remove it.`, path: ["arms", a, "stops"] });
+      });
       if (split.mode === "and") return;
       split.arms.forEach((arm, a) => {
         if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this path", path: ["arms", a, "label"] });
