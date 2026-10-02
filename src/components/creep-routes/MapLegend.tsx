@@ -12,8 +12,8 @@ export function routeLegendMarks(stops: Pick<RouteStop, "split" | "place">[]) {
 
 /**
  * One line under the map (route page and editor alike) naming the marks a
- * reader has to decode: the three band dots with their level ranges, and the
- * gold-mine icon. The start markers are deliberately not listed — a red and a
+ * reader has to decode: the three band dots with their level ranges. The
+ * gold mine draws the game's own icon and needs no entry. The start markers are deliberately not listed — a red and a
  * blue X either side of a minimap need no caption, and naming them "your base"
  * asserted a side the reader may not be playing. No source attribution here by
  * design (F009-followup-2, user request) — the map icons are Blizzard art
@@ -44,12 +44,6 @@ export function MapLegend({
       <span className="inline-flex items-center gap-1.5">
         <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-hard)" }} />
         Hard &ge; 20
-      </span>
-      <span className="inline-flex items-center gap-1.5">
-        {/* eslint-disable-next-line @next/next/no-img-element -- a small
-            legend glyph, not a real content image; no next/image benefit. */}
-        <img src="/map-icons/gold-mine.png" alt="" aria-hidden width={18} height={15} className="inline-block" />
-        Gold mine
       </span>
       {/* Route marks get an entry only when the route has them. */}
       {attack ? (

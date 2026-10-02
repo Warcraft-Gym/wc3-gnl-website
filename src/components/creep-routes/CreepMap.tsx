@@ -62,7 +62,7 @@ export type CreepMapProps = {
    *  (the editor) keeps walking `route`'s own stops in order, unchanged. */
   walkAllCamps?: boolean;
   /** F012-followup-3: gives a camp that ISN'T one of `route`'s own stops a
-   *  visually secondary marker (a fainter halo ring, see `CampMarker`) —
+   *  visually secondary marker (a grey fill and no halo, see `CampMarker`) —
    *  used once every camp on the page is interactive, so the route's own
    *  stops (already carrying the numbered badge and the path) still read
    *  as the emphasised ones instead of every camp looking identical. Unset

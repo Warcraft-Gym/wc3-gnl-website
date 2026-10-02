@@ -32,7 +32,8 @@ type PathNode = {
   other?: boolean;
 };
 
-type LegStyle = "solid" | "thin";
+/** `thin`: a lane of an "and" split without the hero; `dashed`: a path not taken in "or"/"xor". */
+type LegStyle = "solid" | "thin" | "dashed";
 
 /**
  * The route itself: a polyline through the camp and place stops in order
@@ -89,19 +90,19 @@ export const RoutePath = memo(function RoutePath({
   // before it (or your start marker when there is none), and every way's last
   // stop sends a leg into the first shared stop after the split. The walked way
   // (the chosen one, or way a of "and") draws as usual; the others are thin and
-  // bowed (`thin`); in "or"/"xor" their badges are at 60% too.
+  // bowed, dashed when not taken ("or"/"xor"), and then their badges are at 60% too.
   const points: PathNode[] = [];
   const legs: { a: PathNode; b: PathNode; style: LegStyle }[] = [];
-  let pending: { node: PathNode; thin: boolean }[] = [];
+  let pending: { node: PathNode; style: LegStyle }[] = [];
   stops.forEach((s, i) => {
     const n = numbers[i];
     const split = s.split;
     if (!split) {
       const node = nodeOf(s, n.key, n.label, { absent: s.hero === false });
       if (!node) return;
-      for (const p of pending) legs.push({ a: p.node, b: node, style: p.thin ? "thin" : "solid" });
+      for (const p of pending) legs.push({ a: p.node, b: node, style: p.style });
       points.push(node);
-      pending = [{ node, thin: false }];
+      pending = [{ node, style: "solid" }];
       return;
     }
     const and = split.mode === "and";
@@ -110,9 +111,10 @@ export const RoutePath = memo(function RoutePath({
     const anchor: PathNode | null =
       pending[0]?.node ??
       (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + MARK_HALO } : null);
-    const ends: { node: PathNode; thin: boolean; walked: boolean }[] = [];
+    const ends: { node: PathNode; style: LegStyle; walked: boolean }[] = [];
     split.arms.forEach((arm, a) => {
       const thin = a !== walked;
+      const style: LegStyle = !thin ? "solid" : and ? "thin" : "dashed";
       let p = anchor;
       arm.stops.forEach((as, j) => {
         const node = nodeOf(as, n.arms![a].stops[j].key, n.arms![a].stops[j].label, {
@@ -120,14 +122,14 @@ export const RoutePath = memo(function RoutePath({
           other: !and && thin,
         });
         if (!node) return;
-        if (p) legs.push({ a: p, b: node, style: thin ? "thin" : "solid" });
+        if (p) legs.push({ a: p, b: node, style });
         points.push(node);
         p = node;
       });
-      if (p) ends.push({ node: p, thin, walked: a === walked });
+      if (p) ends.push({ node: p, style, walked: a === walked });
     });
     // The walked way first: a split right after this one starts from it.
-    pending = [...ends.filter((e) => e.walked), ...ends.filter((e) => !e.walked)].map(({ node, thin }) => ({ node, thin }));
+    pending = [...ends.filter((e) => e.walked), ...ends.filter((e) => !e.walked)].map(({ node, style }) => ({ node, style }));
   });
 
   if (!points.length) return null;
@@ -151,17 +153,19 @@ export const RoutePath = memo(function RoutePath({
   const pathOf = (list: typeof segments) =>
     list
       .map((g) =>
-        g.style === "thin"
+        g.style !== "solid"
           ? `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}Q${g.qx.toFixed(1)},${g.qy.toFixed(1)} ${g.x2.toFixed(1)},${g.y2.toFixed(1)}`
           : `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`,
       )
       .join("");
   const d = pathOf(segments.filter((g) => g.style === "solid" && !g.attack));
-  // A leg of a way the hero does not walk: thin (1.25px), bowed, at 60%, no chevron.
+  // A leg of a way the hero does not walk: thin (1.25px), bowed, at 60%, no chevron; dashed when not taken.
   const dOther = pathOf(segments.filter((g) => g.style === "thin" && !g.attack));
+  const dNot = pathOf(segments.filter((g) => g.style === "dashed" && !g.attack));
   // A leg into an attack stop, line and chevron, is the loss red over the same under-stroke.
   const dAttack = pathOf(segments.filter((g) => g.style === "solid" && g.attack));
   const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack));
+  const dNotAttack = pathOf(segments.filter((g) => g.style === "dashed" && g.attack));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
   const badges = points.map((p) => {
@@ -256,6 +260,12 @@ export const RoutePath = memo(function RoutePath({
           <path d={dOther} fill="none" stroke={LINE} strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round" />
         </g>
       ) : null}
+      {dNot ? (
+        <g data-route-other data-route-not-taken opacity={0.6}>
+          <path d={dNot} fill="none" strokeWidth="2.75" {...under} />
+          <path d={dNot} fill="none" stroke={LINE} strokeWidth="1.25" strokeDasharray="4 3" strokeLinejoin="round" />
+        </g>
+      ) : null}
       {dAttack ? (
         <g data-route-attack-leg>
           <path d={dAttack} fill="none" strokeWidth="4" {...under} />
@@ -266,6 +276,12 @@ export const RoutePath = memo(function RoutePath({
         <g data-route-attack-leg opacity={0.6}>
           <path d={dOtherAttack} fill="none" strokeWidth="2.75" {...under} />
           <path d={dOtherAttack} fill="none" stroke={ATTACK} strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round" />
+        </g>
+      ) : null}
+      {dNotAttack ? (
+        <g data-route-attack-leg data-route-not-taken opacity={0.6}>
+          <path d={dNotAttack} fill="none" strokeWidth="2.75" {...under} />
+          <path d={dNotAttack} fill="none" stroke={ATTACK} strokeWidth="1.25" strokeDasharray="4 3" strokeLinejoin="round" />
         </g>
       ) : null}
       {/* A 6px direction chevron at the middle of every leg, same light fill. */}

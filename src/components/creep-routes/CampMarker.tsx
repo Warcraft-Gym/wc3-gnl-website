@@ -55,13 +55,11 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
-  /** F012-followup-3: this camp is interactive but NOT one of the route's
-   *  own stops — fades the outer halo ring (`rgba(255,255,255,.55)` down to
-   *  `.22`) so a route's own camps still read as the emphasised ones (they
-   *  also carry the numbered badge and the path, drawn by `RoutePath`, and
-   *  `pressed`'s `aria-pressed`/", on the route" — this is the marker's own,
-   *  purely visual, third cue). Deliberately subtle: the band colour fill
-   *  itself is untouched, so the camp is still fully readable at a glance. */
+  /** This camp is interactive but NOT one of the route's own stops: one
+   *  neutral grey fill (`--wg-random`) for every band, the dark outline and
+   *  no light halo, so the route's own camps, in their band colours, stand
+   *  out as routes get complex. The band stays in the camp card and the
+   *  marker's label. */
   secondary?: boolean;
   /** Share of the camp's creeps this route kills, when below 1: the band
    *  fill becomes a wedge of that share over a faded full disc. */
@@ -91,7 +89,7 @@ export const CampMarker = memo(function CampMarker({
   const cx = camp.x * imageWidth;
   const cy = camp.y * imageHeight;
   const r = radiusFor(camp.level);
-  const fill = BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)";
+  const fill = secondary ? "var(--wg-random)" : (BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)");
   const partial = killed !== undefined && killed < 1;
   const partialLabel = partial ? ", partly cleared" : "";
 
@@ -130,16 +128,8 @@ export const CampMarker = memo(function CampMarker({
       {/* Liquipedia's hard-band red is only ~3:1 against black on its own
        *  (see globals.css); this light halo — drawn just outside the dark
        *  under-stroke below — keeps every band's mark readable against any
-       *  terrain colour, light or dark. `secondary` fades it (not the band
-       *  fill itself) — see the prop's doc comment above. */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r + 1.5}
-        fill="none"
-        stroke={secondary ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.55)"}
-        strokeWidth="1.5"
-      />
+       *  terrain colour, light or dark. A `secondary` camp has none. */}
+      {secondary ? null : <circle cx={cx} cy={cy} r={r + 1.5} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />}
       <circle
         cx={cx}
         cy={cy}

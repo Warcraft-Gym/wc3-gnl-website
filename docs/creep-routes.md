@@ -526,7 +526,8 @@ choose one, no number means a waypoint.
   shared stop after it. The walked way draws as usual; the other ways' legs
   are thin (1.25px), at 60%, without chevrons and bowed 12% of their length
   to the right of travel (a quadratic curve), so they never lie on a main
-  leg. In `or`/`xor` the other ways' badges are at 60% too. No legend line.
+  leg. In `or`/`xor` the ways not taken are dashed (`4 3`) and their badges
+  are at 60% too; `and` lanes stay solid. No legend line.
 - **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). Every route is
   a flat list (a linear route is one lane through every row): every stop,
   waypoint and attack is one row in route order with a lane ("" main, "a",

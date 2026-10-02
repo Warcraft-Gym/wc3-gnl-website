@@ -69,7 +69,7 @@ const SWORDS = (
   </>
 );
 
-/** Lucide's swords under an attack stop's badge, 12px: a white 1.5px stroke over a dark 3px under-stroke.
+/** Lucide's swords under an attack stop's badge, 12px: the legend's loss red, 1.5px over a dark 3px under-stroke.
  *  Drawn at half scale, so the strokes are twice as wide in the icon's own units. */
 export function SwordsGlyph({ cx, cy }: { cx: number; cy: number }) {
   return (
@@ -77,7 +77,7 @@ export function SwordsGlyph({ cx, cy }: { cx: number; cy: number }) {
       <g stroke="var(--wg-bg)" strokeOpacity={0.7} strokeWidth={6}>
         {SWORDS}
       </g>
-      <g stroke="#fff" strokeWidth={3} style={{ paintOrder: "stroke" }}>
+      <g stroke="var(--wg-loss)" strokeWidth={3} style={{ paintOrder: "stroke" }}>
         {SWORDS}
       </g>
     </g>
