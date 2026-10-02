@@ -1,7 +1,8 @@
 /**
- * The stop list as flat rows for a route with a split (the lane rail,
- * `RouteStepTable`). Every stop is one row in route order between the split's
- * caption row and, when stops follow it, a join row; the stops after a split
+ * The stop list as flat rows with the lane rail (`RouteStepTable`). Every stop
+ * is one row in route order; a linear route is one lane through every row. A
+ * split's stops sit between its caption row and, when stops follow it, a join
+ * row; the stops after a split
  * are shared by every way. Arms interleave a[0], b[0], a[1], b[1], …. An "and"
  * split shows every arm; an "or" split shows every arm and marks the ways not
  * chosen `off` (the list dims them); an "xor" split lists only the chosen way
@@ -14,11 +15,6 @@
  * arm's line stops at its last node.
  */
 import { ARM_LETTERS, armsOf, numberStops, walkedArm } from "./stop-numbers.mjs";
-
-/** True when the route has a split, so the list draws the rail. */
-export function hasLanes(stops) {
-  return stops.some((s) => armsOf(s));
-}
 
 /** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). */
 export function routeRows(stops, choice = {}) {

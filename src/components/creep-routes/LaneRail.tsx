@@ -8,8 +8,8 @@ import { isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
 
 /**
- * The lane rail of a route with a split (`route-rows.mjs`): a
- * 44px column at the left of every row, added in front of today's row. Lane a
+ * The lane rail of every route (`route-rows.mjs`): a 44px column at the left
+ * of every row, added in front of today's row; a linear route has one lane. Lane a
  * (the main line) runs at x 14, lane b at 30, lane c at 46; 2px lines in
  * `--wg-line-strong`, at 35% off the chosen way. The row's own node sits on its
  * lane at the summary line: a small neutral dot for a camp or base action, the

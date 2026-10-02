@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { hasLanes, routeRows } from "./route-rows.mjs";
+import { routeRows } from "./route-rows.mjs";
 
 const camp = (id) => ({ campId: id });
 const choose = (mode) => (...arms) => ({ campId: null, split: { mode, arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
@@ -10,15 +10,16 @@ const and = (...arms) => ({ campId: null, split: { mode: "and", arms: arms.map((
 const shape = (rows) => rows.map((r) => (r.type === "stop" ? `${r.label || "~"}${r.lane ? `:${r.lane}` : ""}${r.off ? "*" : ""}` : r.type));
 const lanes = (row) => row.lines.map((l) => `${l.lane}${l.top ? "^" : ""}${l.bottom ? "v" : ""}${l.off ? "*" : ""}`).join(" ");
 
-test("a linear route has no lanes: one main row per stop", () => {
-  const stops = [camp("c1"), camp("c2"), camp("c3")];
-  assert.equal(hasLanes(stops), false);
-  assert.deepEqual(shape(routeRows(stops)), ["1", "2", "3"]);
+test("a linear route draws one lane through every row, waypoints too", () => {
+  const stops = [camp("c1"), { campId: null, action: "Buy", place: { kind: "shop", at: { shop: "s1" } } }, camp("c2"), camp("c3")];
+  const rows = routeRows(stops);
+  assert.deepEqual(shape(rows), ["1", "~", "2", "3"]);
+  assert.deepEqual(rows.map(lanes), ["av", "a^v", "a^v", "a^"]);
+  assert.ok(rows.every((r) => r.lane === ""));
 });
 
 test("an or split lists every way, dims the ways not chosen and joins before the shared stops", () => {
   const stops = [camp("c1"), or([camp("c2"), camp("c3")], [camp("c4")]), camp("c5")];
-  assert.equal(hasLanes(stops), true);
   assert.deepEqual(shape(routeRows(stops)), ["1", "split", "2a:a", "2b:b*", "3a:a", "join", "4"]);
   const viaB = routeRows(stops, { 1: 1 });
   assert.deepEqual(shape(viaB), ["1", "split", "2a:a*", "2b:b", "3a:a*", "join", "4"]);

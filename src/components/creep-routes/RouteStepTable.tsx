@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
-import { hasLanes, routeRows } from "@/lib/creep-routes/route-rows.mjs";
+import { routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
 import { JoinRow, SplitRow, StopRail, type RailLine } from "./LaneRail";
@@ -22,8 +22,9 @@ type LaneRow =
  * chevron at its right edge only opens or closes it (`onChevron`); the camp
  * label inside it is its own button that pins the camp card. `scrollTo`
  * scrolls a stop into view (a selection from the map). Stops are named by
- * the keys of `stop-numbers.mjs`; on a route with a split every stop is a flat row with the lane rail (`LaneRail`), and the split's
- * arms' stops. Blocks carry `data-stop` (the stop's number, "3a" in an arm);
+ * the keys of `stop-numbers.mjs`; every stop, a split's arms' stops too, is a
+ * flat row with the lane rail (`LaneRail`), except a guide's one stop
+ * (`only`). Blocks carry `data-stop` (the stop's number, "3a" in an arm);
  * map badges carry `data-stop-marker`.
  */
 export function RouteStepTable({
@@ -82,8 +83,8 @@ export function RouteStepTable({
   // Bring lists the hero only on a route that sends him somewhere without the units' company: one hero-off stop.
   const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false), [route.stops]);
   const baseId = useId();
-  // A route with a split is a flat list with the lane rail (`route-rows.mjs`); any other renders as before.
-  const lanes = only === undefined && hasLanes(route.stops);
+  // Every route is a flat list with the lane rail (`route-rows.mjs`); a guide's one stop has none.
+  const lanes = only === undefined;
   const rows = useMemo(() => (lanes ? (routeRows(route.stops, choice ?? {}) as LaneRow[]) : []), [lanes, route.stops, choice]);
   const derivedByKey = (key: string) => {
     const { index, arm, j } = parseKey(key);

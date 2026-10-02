@@ -60,7 +60,7 @@ function StopBody({ stop, d, absent, hero }: { stop: RouteStop; d: DerivedStop; 
 
 /**
  * One stop of the route as a disclosure (`RouteStepTable`), with the lane rail
- * in front of it on a route with a node. The summary line is a button over the whole line that selects
+ * in front of it (none on a guide's one stop). The summary line is a button over the whole line that selects
  * and opens the stop (`onSummary`); the chevron only opens or closes it
  * (`onChevron`); the camp label is its own button that pins the camp card.
  * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a").
@@ -105,7 +105,7 @@ export function StopBlock({
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   openCampId: string | null;
   stopBody?: React.ReactNode;
-  /** The lane rail cell (`StopRail`) on a route with a split. */
+  /** The lane rail cell (`StopRail`); absent on a guide's one stop. */
   rail?: React.ReactNode;
   /** A way not chosen in an "or" split: drawn at 45%. */
   dim?: boolean;

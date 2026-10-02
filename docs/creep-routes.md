@@ -526,8 +526,8 @@ choose one, no number means a waypoint.
   are thin (1.25px), at 60%, without chevrons and bowed 12% of their length
   to the right of travel (a quadratic curve), so they never lie on a main
   leg. In `or`/`xor` the other ways' badges are at 60% too. No legend line.
-- **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). A route with a
-  split is a flat list: every stop, waypoint and attack is one row in route
+- **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). Every route is
+  a flat list (a linear route is one lane through every row): every stop, waypoint and attack is one row in route
   order with a lane ("" main, "a", "b", "c"); a split's ways interleave a[0],
   b[0], a[1], …, between a split row and, when stops follow, a join row. A
   44px rail is added in front of today's row and moves nothing: 2px lines in
@@ -537,8 +537,8 @@ choose one, no number means a waypoint.
   (`and`), or "Choose a way" with the tab strip (`role="tablist"`, arrow keys,
   the hero's level at each way's end). `and` shows every way; `or` shows
   every way and dims the ways not chosen to 45% (their lane lines at 35%);
-  `xor` lists only the chosen way. A route without a split renders exactly as
-  before, with no rail. A map click on a camp picks the top-level stop or the
+  `xor` lists only the chosen way. A guide's one-stop example has no rail.
+  A map click on a camp picks the top-level stop or the
   walked way's (`findStopKey`). HowTo steps follow way a.
 - **Builder.** "+ Split" adds a "Choose a way" (`xor`) split with two empty
   ways. The split row has the mode chips (Choose a way / Choose a way, then
