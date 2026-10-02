@@ -559,12 +559,12 @@ choose one, no number means a waypoint.
 
 `RouteStop.images` is `{ url, width, height, alt, caption? }[]`: screenshots of
 the exact spot, for what the minimap cannot show. A coach adds them in the
-Studio (the stop's "Pictures" field, drag and drop; `alt` is required); the
+Studio (the stop's "Pictures" field, drag and drop, images only; `alt` is required); the
 route projection resolves each to its asset url and size (`STOP_IMAGES` in
 `routes.ts`), in plain stops and in a split's paths. Public submissions take
 no pictures yet (uploads need abuse limits); the submit form says a coach can
 add them after review, and "Suggest an update" does not carry them. The API
-makes fixture urls absolute.
+makes a site-relative url absolute. The dev fixtures carry no pictures.
 
 - **List.** Under the note, a strip of 4:3 thumbnails (two side by side,
   about 200px tall; Sanity urls with `?w=640&h=480&fit=crop&auto=format`),

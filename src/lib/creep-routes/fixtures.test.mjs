@@ -109,11 +109,10 @@ test("every fixture route declares the catalogue mapVersion it was written again
   }
 });
 
-test("every fixture picture is a site file with its size and an alt", async () => {
+test("any fixture picture is a site file with its size and an alt (the fixtures ship none)", async () => {
   const { existsSync } = await import("node:fs");
   const { fileURLToPath } = await import("node:url");
   const images = FIXTURE_ROUTES.flatMap((r) => r.stops.flatMap((s) => [s, ...(s.split?.arms.flatMap((a) => a.stops) ?? [])])).flatMap((s) => s.images ?? []);
-  assert.ok(images.length >= 2);
   for (const img of images) {
     assert.ok(img.alt && img.width > 0 && img.height > 0, img.url);
     assert.ok(existsSync(fileURLToPath(new URL(`../../../public${img.url}`, import.meta.url))), img.url);

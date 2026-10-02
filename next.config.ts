@@ -23,7 +23,7 @@ const SEASONAL_ART_CACHE = "public, max-age=86400, stale-while-revalidate=604800
 
 const STATIC_ART = [
   "wc3-icons", "flags", "achievementIcons", "factions", "map-icons",
-  "logo", "keyart", "graphics", "tools", "overlay", "fixtures",
+  "logo", "keyart", "graphics", "tools", "overlay",
 ];
 const SEASONAL_ART = ["maps", "team-logos"];
 

@@ -195,17 +195,6 @@ export const FIXTURE_ROUTES = [
         action: "Plant the Ancient of War",
         place: { kind: "build", at: { x: 0.5, y: 0.83 } },
         units: [{ icon: "ne-ancient-of-war", count: 1 }],
-        // Hammerfall screenshots standing in for a coach's pictures; the caption makes no map claim.
-        images: [
-          {
-            url: "/fixtures/creep-routes/hammerfall-aow-ingame.jpg",
-            width: 1600,
-            height: 900,
-            alt: "The Ancient of War going down beside the camp, with the minimap",
-            caption: "Plant it on the near side, the camp stays asleep",
-          },
-          { url: "/fixtures/creep-routes/hammerfall-aow-closeup.jpg", width: 1015, height: 838, alt: "Close-up of the finished Ancient of War by the pond" },
-        ],
       },
       { campId: "c15", units: [{ icon: "ne-ancient-of-war", count: 1 }], note: "The Ancient tanks the ogres" },
       { campId: "c07", note: "Keeper takes the turtles" },
