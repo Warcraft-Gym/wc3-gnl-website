@@ -169,7 +169,7 @@ export default async function GuidePage({ params }: Params) {
 
       {related.length ? (
         <Container className="max-w-5xl border-t border-line/60 py-14">
-          <p className="kicker mb-6">More {category?.title} guides</p>
+          <p className="kicker mb-6">More {category?.moreLabel ?? category?.title} guides</p>
           <div className="grid gap-4 sm:grid-cols-3">
             {related.map((g) => (
               <GuideCard key={g.slug} guide={g} />
