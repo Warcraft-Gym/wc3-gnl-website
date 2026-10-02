@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { keyOfRow, moveRow, newRow, patchRow, placeInList, removeRow, rowAtKey, toggleCamp, toggleCampAnywhere } from "./editor-rows.mjs";
+import { SPLIT_MODES, keyOfRow, moveRow, newRow, newSplitRow, patchRow, placeInList, removeRow, rowAtKey, toggleCamp, toggleCampAnywhere } from "./editor-rows.mjs";
 
 const forkRow = (...arms) => newRow({ split: { mode: "or", arms: arms.map((campIds, i) => ({ id: i, label: "", stops: campIds.map((campId) => newRow({ campId })) })) } });
 
@@ -32,4 +32,13 @@ test("rows by key: a path's stop has the stop list's key, and patch, move and re
   assert.deepEqual(moveRow(rows, rows[0].id, 1).map((r) => r.campId), [null, "c1"]);
   assert.deepEqual(removeRow(rows, c4.id)[1].split.arms[0].stops.map((s) => s.campId), ["c2"]);
   assert.deepEqual(placeInList(rows, c4.id), { index: 1, length: 2 });
+});
+
+test("a new split is \"Choose a path\", the first mode chip, with two empty paths", () => {
+  assert.equal(SPLIT_MODES[0].label, "Choose a path");
+  assert.equal(SPLIT_MODES.at(-1).label, "At the same time");
+  const row = newSplitRow();
+  assert.equal(row.split.mode, SPLIT_MODES[0].id);
+  assert.deepEqual(row.split.arms.map((a) => a.stops.length), [0, 0]);
+  assert.notEqual(row.split.arms[0].id, row.split.arms[1].id);
 });

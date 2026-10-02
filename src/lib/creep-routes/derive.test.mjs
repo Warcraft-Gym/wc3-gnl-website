@@ -231,6 +231,26 @@ test("and split: every arm earns xp, arms 1.. carry no hero and add up after arm
   assert.equal(result.stops[1].xpAfter, node.arms[1].xpAfter);
 });
 
+test("and split: one XP event, the block's total and the level after it for the join row", () => {
+  const route = forkRoute("parallel");
+  arms(route)[1].stops = [{ campId: "c2" }];
+  const node = deriveRoute(route, MAP).stops[1].split;
+  // The hero enters at 128 xp, level 1; both paths together pay the block's total.
+  assert.equal(node.levelBefore, 1);
+  assert.equal(node.xpBefore, 128);
+  assert.equal(node.xpGained, node.arms[1].xpAfter - 128);
+  assert.equal(node.levelAfter, deriveRoute(route, MAP).stops[1].heroLevelAfter);
+  assert.ok(node.levelAfter > node.levelBefore);
+  // An empty block pays nothing and keeps the level.
+  const idle = deriveRoute(forkRoute("parallel"), MAP).stops[1].split;
+  assert.equal(idle.xpGained, 306 - 128);
+  arms(route)[0].stops = [];
+  arms(route)[1].stops = [];
+  const none = deriveRoute(route, MAP).stops[1].split;
+  assert.equal(none.xpGained, 0);
+  assert.equal(none.levelAfter, none.levelBefore);
+});
+
 test("the stop after a split continues from the chosen arm's total", () => {
   const route = forkRoute("fork");
   arms(route)[1].stops = [{ campId: null, action: "Harass" }];

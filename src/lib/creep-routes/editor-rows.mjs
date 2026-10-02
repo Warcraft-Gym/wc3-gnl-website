@@ -9,6 +9,18 @@ export function newRow(patch = {}) {
   return { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, ...patch };
 }
 
+/** The split mode chips, in order: "Choose a path" first, the default of a new split. */
+export const SPLIT_MODES = [
+  { id: "xor", label: "Choose a path" },
+  { id: "or", label: "Choose a path, then continue" },
+  { id: "and", label: "At the same time" },
+];
+
+/** A new split row: two empty paths in the first chip's mode. */
+export function newSplitRow() {
+  return newRow({ split: { mode: SPLIT_MODES[0].id, arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) } });
+}
+
 /** Adds a camp stop, or removes it when the list already has it (the map's click toggle). */
 export function toggleCamp(rows, campId) {
   const idx = rows.findIndex((r) => r.campId === campId);

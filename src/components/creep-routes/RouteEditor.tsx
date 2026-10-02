@@ -6,7 +6,7 @@ import { CreepMap } from "./CreepMap";
 import { MapLegend, routeLegendMarks } from "./MapLegend";
 import { RouteStepTable } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
-import { keyOfRow, moveRow, newRow, patchRow, placeInList, removeRow, rowAtKey, rowToStop, toggleCamp, toggleCampAnywhere, updateArm } from "./stop-rows";
+import { keyOfRow, moveRow, newRow, newSplitRow, patchRow, placeInList, removeRow, rowAtKey, rowToStop, toggleCamp, toggleCampAnywhere, updateArm } from "./stop-rows";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Place } from "@/lib/creep-routes/types";
@@ -143,7 +143,7 @@ export function RouteEditor({
     setPointArmed(true);
   };
   const addSplit = () => {
-    const row = newRow({ split: { mode: "xor", arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) } });
+    const row = newSplitRow();
     setStops((rows) => [...rows, row]);
     setActiveArm({ splitId: row.id, arm: 0 });
     setSelectedId(null);
@@ -164,6 +164,8 @@ export function RouteEditor({
     if (!row || row.split) return undefined;
     const { index, arm, j } = parseKey(key);
     const d = arm === undefined ? derived.stops[index] : derived.stops[index]?.split?.arms[arm]?.stops[j!];
+    // An "and" block is one XP event: its chains carry no level-up marks.
+    const inAnd = arm !== undefined && derived.stops[index]?.split?.mode === "and";
     const { index: at, length } = placeInList(stops, row.id);
     return (
       <StopEditBody
@@ -179,7 +181,7 @@ export function RouteEditor({
         onMove={(dir) => setStops((rows) => moveRow(rows, row.id, dir))}
         canMoveUp={at > 0}
         canMoveDown={at < length - 1}
-        trace={d?.kills}
+        trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
         absent={row.hero === false || d?.hero === false}
         heroIcon={heroIcon}
       />

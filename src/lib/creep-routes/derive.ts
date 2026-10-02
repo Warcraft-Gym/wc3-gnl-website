@@ -35,6 +35,12 @@ export type DerivedNode = {
   mode: "and" | "or" | "xor";
   walked: number;
   arms: { label?: string; stops: DerivedStop[]; levelAfter: number; xpAfter: number }[];
+  /** The hero at the split. An open stop inside an "and" block shows this level. */
+  levelBefore: number;
+  xpBefore: number;
+  /** The hero after the split and the XP the block paid: an "and" block's join row. */
+  levelAfter: number;
+  xpGained: number;
 };
 
 export type DerivedKill = {

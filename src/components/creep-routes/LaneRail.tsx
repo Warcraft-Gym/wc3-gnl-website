@@ -5,6 +5,7 @@ import { ArrowDown, ArrowUp, Plus, Swords, Trash2 } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { isWaypoint } from "@/lib/creep-routes/place.mjs";
+import { SPLIT_MODES } from "./stop-rows";
 import { cn } from "@/lib/utils";
 
 /**
@@ -107,11 +108,6 @@ export type SplitEdit = {
   labelError?: (arm: number) => string | undefined;
 };
 
-const MODES = [
-  { id: "xor", label: "Choose a path" },
-  { id: "or", label: "Choose a path, then continue" },
-  { id: "and", label: "At the same time" },
-] as const;
 
 export function SplitRow({
   mode,
@@ -174,7 +170,7 @@ export function SplitRow({
           {edit ? (
             <div className="flex basis-full flex-wrap items-center gap-1.5 pb-2">
               <div role="radiogroup" aria-label="Split mode" className="flex flex-wrap gap-1">
-                {MODES.map((m) => (
+                {SPLIT_MODES.map((m) => (
                   <button
                     key={m.id}
                     type="button"
@@ -190,6 +186,7 @@ export function SplitRow({
                   </button>
                 ))}
               </div>
+              {mode === "and" ? <p className="order-last basis-full text-[0.7rem] text-faint">Paths at the same time share one XP total; the order of kills is unknown.</p> : null}
               <span className="ml-auto flex gap-1">
                 <button type="button" onClick={() => edit.onMove(-1)} disabled={!edit.canMoveUp} aria-label="Move split up" className={EDIT_ICON}>
                   <ArrowUp size={14} />
@@ -215,7 +212,8 @@ export function SplitRow({
                   ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
                   : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
               );
-              const level = node?.arms[a] ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
+              // An "and" block is one XP event: its tabs carry no level.
+              const level = node?.arms[a] && mode !== "and" ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
               if (edit) {
                 const active = edit.activeArm === a;
                 // A tab with an input in it: the tab is the div, the input edits the path's label in place.
@@ -303,10 +301,11 @@ export function SplitRow({
   );
 }
 
-/** The rail curving the shown lanes back into the main line before the first shared stop; no text. */
-export function JoinRow({ lanes }: { lanes: { lane: string; off: boolean }[] }) {
+/** The rail curving the shown lanes back into the main line before the first shared stop. An "and"
+ *  block's join row also carries its one XP line at the right, where a stop row has its level. */
+export function JoinRow({ lanes, xp }: { lanes: { lane: string; off: boolean }[]; xp?: string }) {
   return (
-    <li aria-hidden className="relative h-6 border-t border-line/40 first:border-t-0">
+    <li aria-hidden={xp ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", xp ? "py-1 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
       <RailSvg>
         {lanes.map((l) =>
           l.lane === "a" ? (
@@ -316,6 +315,16 @@ export function JoinRow({ lanes }: { lanes: { lane: string; off: boolean }[] }) 
           ),
         )}
       </RailSvg>
+      {xp ? (
+        <p className="grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
+          <span />
+          <span className="tnum text-right text-[0.8rem] text-muted">
+            <span className="sr-only">After the paths: </span>
+            {xp}
+          </span>
+          <span />
+        </p>
+      ) : null}
     </li>
   );
 }

@@ -35,7 +35,8 @@ function levelForXp(xp) {
  * pays the new, lower factor for the rest of that camp's kills. A
  * stop with `hero: false` earns XP like any other: hero XP is global, the flag only
  * says the hero is not there to fight (one hero assumed). A split (`stop.split`) derives every arm and carries them as
- * `split: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }] }`;
+ * `split: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }], levelBefore, xpBefore,
+ * levelAfter, xpGained }` (the hero at the split, after it, and the XP the block paid);
  * arm stops carry `armIndex` and `forkKey`, and `choice` maps a split key
  * ("2") to the arm the hero walks in an "or" split (default 0). */
 export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
@@ -53,8 +54,9 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
     }
     // A split: in "or"/"xor" every arm is derived from the state at the split and only
     // the walked arm (`choice[forkKey]`) feeds the running total. In "and" every arm
-    // feeds it; arms 1.. run without the hero whatever their own flags say.
-    // ponytail: "and" arms add up in list order (a, then b); the model has no time.
+    // feeds it; arms 1.. run without the hero whatever their own flags say. An "and"
+    // block is one XP event: the reader shows only its total and the level after it.
+    // ponytail: order across paths is unknown; list order (a, then b) is the approximation.
     const forkKey = String(i);
     const walked = parallel ? 0 : Math.min(Math.max(0, choice[forkKey] ?? 0), rawArms.length - 1);
     const startLevelAt = level;
@@ -87,7 +89,7 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
       band: null,
       left: 0,
       kills: [],
-      split: { mode: stop.split.mode, walked, arms },
+      split: { mode: stop.split.mode, walked, arms, levelBefore: startLevelAt, xpBefore: startXpAt, levelAfter: level, xpGained: xp - startXpAt },
     };
   });
 

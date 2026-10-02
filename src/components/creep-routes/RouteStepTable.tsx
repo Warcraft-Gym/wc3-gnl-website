@@ -3,16 +3,16 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
-import { routeRows } from "@/lib/creep-routes/route-rows.mjs";
+import { joinXpLabel, routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
 import { JoinRow, LaneLines, SplitRow, StopRail, type RailLine, type SplitEdit } from "./LaneRail";
 
 /** One row of the flat lane list, see `route-rows.mjs`. */
 type LaneRow =
-  | { type: "stop"; key: string; label: string; stop: RouteStop; lane: string; lines: RailLine[]; panel?: string }
+  | { type: "stop"; key: string; label: string; stop: RouteStop; lane: string; lines: RailLine[]; node?: number; panel?: string; block?: string }
   | { type: "split"; key: string; stop: RouteStop; index: number; mode: "and" | "or" | "xor"; lanes: { lane: string; off: boolean }[]; lines: RailLine[] }
-  | { type: "join"; key: string; lanes: { lane: string; off: boolean }[] };
+  | { type: "join"; key: string; index: number; mode: "and" | "or" | "xor"; lanes: { lane: string; off: boolean }[] };
 
 /**
  * The route as an ordered list of stops, each a disclosure. Both states are
@@ -129,7 +129,12 @@ export function RouteStepTable({
                 />
               );
             }
-            if (row.type === "join") return <JoinRow key={row.key} lanes={row.lanes} />;
+            if (row.type === "join") {
+              const node = derived.stops[row.index].split;
+              return <JoinRow key={row.key} lanes={row.lanes} xp={row.mode === "and" && node ? joinXpLabel(node) : undefined} />;
+            }
+            // Inside an "and" block the order across paths is unknown: the stop shows the level at the split.
+            const block = row.block !== undefined && row.node !== undefined ? derived.stops[row.node].split : undefined;
             return (
               <StopBlock
                 key={row.key}
@@ -152,6 +157,7 @@ export function RouteStepTable({
                 showHero={showHero}
                 heroIcon={route.hero}
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
+                entry={block ? { level: block.levelBefore, xp: block.xpBefore } : undefined}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
               />
             );
@@ -212,9 +218,21 @@ export function RouteStepTable({
                 </li>
               );
             }
+            // An "and" block: its paths' rows in one item, framed in gold when the hero levels during it.
+            if (group.type === "block") {
+              const node = derived.stops[group.split.index].split;
+              const leveled = Boolean(node && node.levelAfter > node.levelBefore);
+              return [
+                renderRow(group.split),
+                toolsRow(group.split),
+                <li key={`block-${group.split.key}`} className="relative">
+                  <ol>{group.rows.map(renderRow)}</ol>
+                  {leveled ? <span aria-hidden className="pointer-events-none absolute inset-0 rounded border-2 border-gold" /> : null}
+                </li>,
+              ];
+            }
             const row = group as LaneRow;
-            // An "and" split has no panel: its tools row follows the caption row.
-            return row.type === "split" && row.mode === "and" ? [renderRow(row), toolsRow(row)] : renderRow(row);
+            return renderRow(row);
           })}
         </ol>
       ) : (
@@ -254,14 +272,16 @@ export function RouteStepTable({
   );
 }
 
-/** Rows in order; each "or"/"xor" split row is followed by its tab panel, the chosen path's rows (maybe none). */
-type PanelGroup = { type: "panel"; split: LaneRow & { type: "split" }; rows: LaneRow[] };
+/** Rows in order; each "or"/"xor" split row is followed by its tab panel, the chosen path's rows (maybe none);
+ *  an "and" split row and its paths' rows become one block. */
+type PanelGroup = { type: "panel" | "block"; split: LaneRow & { type: "split" }; rows: LaneRow[] };
 
 function groupPanels(rows: LaneRow[]): (LaneRow | PanelGroup)[] {
   const out: (LaneRow | PanelGroup)[] = [];
   for (const row of rows) {
     const last = out[out.length - 1];
-    if (row.type === "stop" && row.panel && last?.type === "panel") last.rows.push(row);
+    if (row.type === "stop" && (row.panel || row.block) && (last?.type === "panel" || last?.type === "block")) last.rows.push(row);
+    else if (row.type === "split" && row.mode === "and") out.push({ type: "block", split: row, rows: [] });
     else out.push(row);
     if (row.type === "split" && row.mode !== "and") out.push({ type: "panel", split: row, rows: [] });
   }

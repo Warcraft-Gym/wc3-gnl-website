@@ -53,6 +53,11 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
   });
 }
 
+/** The split mode chips in order; the first is a new split's mode. */
+export const SPLIT_MODES = editorRows.SPLIT_MODES as { id: "and" | "or" | "xor"; label: string }[];
+/** A new split row: two empty paths, "Choose a path". */
+export const newSplitRow = editorRows.newSplitRow as () => StopRowData;
+
 /** Adds a camp stop, or removes it when the list already has it (the map's click toggle). */
 export const toggleCamp = editorRows.toggleCamp as (rows: StopRowData[], campId: string) => StopRowData[];
 

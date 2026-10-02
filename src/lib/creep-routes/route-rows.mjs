@@ -7,8 +7,10 @@
  * every path. An "or" or "xor" split lists only the chosen path; the paths not
  * taken are `off`: a dashed lane with no rows, from the split row to the join
  * row ("or"), or a stub that ends in the split row (nothing follows "xor").
- * The chosen path's rows carry `panel`, the split's key (the tab panel). Plain
- * JS so `node --test` runs `route-rows.test.mjs` with no loader.
+ * The chosen path's rows carry `panel`, the split's key (the tab panel). An
+ * "and" split is one XP event: its rows carry `block` (the split's key) and it
+ * always ends in a join row, which shows the block's XP. Plain JS so
+ * `node --test` runs `route-rows.test.mjs` with no loader.
  *
  * Each row carries `lines`, the rail's lane lines through it: lane "a" is the
  * main line (x 14), "b" and "c" the other arms. `top`/`bottom` say whether the
@@ -34,7 +36,8 @@ export function routeRows(stops, choice = {}) {
     }
     const mode = stop.split.mode;
     const walked = walkedArm(stop, n.key, choice);
-    const follows = i < stops.length - 1;
+    // An "and" block always ends in its join row (the block's XP line), even when nothing follows.
+    const follows = i < stops.length - 1 || mode === "and";
     // The paths the list shows: every arm of an "and" split, only the chosen one otherwise.
     const shown = mode === "and" ? arms.map((_, a) => a) : [walked];
     const off = (a) => !shown.includes(a);
@@ -50,12 +53,12 @@ export function routeRows(stops, choice = {}) {
           return (shown.indexOf(b) > k || follows) ? [full(ARM_LETTERS[b], off(b))] : [];
         });
         const key = n.arms[a].stops[j].key;
-        rows.push({ type: "stop", key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...(mode === "and" ? {} : { panel: n.key }) });
+        rows.push({ type: "stop", key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...(mode === "and" ? { block: n.key } : { panel: n.key }) });
       });
     });
 
     // The join row curves the lanes back into the main line before the first shared stop.
-    if (follows) rows.push({ type: "join", key: `${n.key}.join`, index: i, lanes, lines: [full("a")] });
+    if (follows) rows.push({ type: "join", key: `${n.key}.join`, index: i, mode, lanes, lines: [full("a")] });
   });
 
   // The rail starts at the first row's node and stops at the last row's.
@@ -64,4 +67,9 @@ export function routeRows(stops, choice = {}) {
   if (first) first.lines = first.lines.map((l) => (l.lane === "a" ? { ...l, top: false } : l));
   if (last && last.type === "stop") last.lines = last.lines.map((l) => (l.lane === (last.lane || "a") ? { ...l, bottom: false } : l));
   return rows;
+}
+
+/** An "and" block's join row: the level after the block and the XP it paid, "Lv 3 · +250 xp". */
+export function joinXpLabel(node) {
+  return `Lv ${node.levelAfter} · +${node.xpGained} xp`;
 }

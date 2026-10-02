@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { routeRows } from "./route-rows.mjs";
+import { joinXpLabel, routeRows } from "./route-rows.mjs";
 
 const camp = (id) => ({ campId: id });
 const choose = (mode) => (...arms) => ({ campId: null, split: { mode, arms: arms.map((stops, i) => ({ label: `path ${i}`, stops })) } });
@@ -61,12 +61,14 @@ test("an and split lists every arm with the same numbers and joins before the sh
   assert.equal(lanes(rows[4]), "a^v b^v");
 });
 
-test("with nothing after the split each path's line stops at its last node and there is no join", () => {
+test("an and block is one XP event: its rows carry block, and it ends in a join row even with nothing after", () => {
   const rows = routeRows([camp("c1"), and([camp("c2"), camp("c3")], [camp("c4")])]);
-  assert.deepEqual(shape(rows), ["1", "split", "2:a", "3:a", "2:b"]);
+  assert.deepEqual(shape(rows), ["1", "split", "2:a", "3:a", "2:b", "join"]);
+  assert.deepEqual(rows.filter((r) => r.block).map((r) => r.label), ["2", "3", "2"]);
+  assert.ok(rows.every((r) => !r.panel));
+  assert.equal(rows[5].mode, "and");
   assert.equal(lanes(rows[2]), "a^v b^v");
-  assert.equal(lanes(rows[3]), "a^ b^v");
-  assert.equal(lanes(rows[4]), "b^");
+  assert.equal(lanes(rows[4]), "a^v b^v");
 });
 
 test("the rail starts at the first row's node and stops at the last", () => {
@@ -74,4 +76,9 @@ test("the rail starts at the first row's node and stops at the last", () => {
   assert.deepEqual(shape(rows), ["1", "split", "2a:a", "join", "3", "4"]);
   assert.equal(lanes(rows[0]), "av");
   assert.equal(lanes(rows[5]), "a^");
+});
+
+test("an and block's join row reads the level after the block and its XP total", () => {
+  assert.equal(joinXpLabel({ levelBefore: 2, levelAfter: 3, xpBefore: 260, xpGained: 250 }), "Lv 3 · +250 xp");
+  assert.equal(joinXpLabel({ levelBefore: 1, levelAfter: 1, xpBefore: 0, xpGained: 0 }), "Lv 1 · +0 xp");
 });
