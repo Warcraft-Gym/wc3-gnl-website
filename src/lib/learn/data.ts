@@ -272,7 +272,7 @@ export const GUIDES: Guide[] = [
       bullet("A gold frame marks the kill that levels the hero. If the level comes inside a group, its box turns gold."),
       bullet("A blue frame marks a creep that drops an item, a red frame one that drops a Power Up. Tap it to see what it can drop."),
       bullet("A grey, dashed creep is skipped: the route leaves it alive."),
-      bullet("Bring lists the units to take to the camp."),
+      bullet("The \"Bring\" row shows which units to take to this camp."),
       bullet("The note holds the author's tips. Read it before you pull."),
       p("Try it: change the kill order of the same stop and watch the hero meter."),
       { _type: "killOrderDemo", _key: "kill-order-demo", ...CREEP_ROUTE_DEMO },
