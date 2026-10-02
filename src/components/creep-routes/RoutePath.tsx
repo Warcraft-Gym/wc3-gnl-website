@@ -2,31 +2,32 @@ import { memo, useMemo } from "react";
 import type { CreepMap, Place, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
-import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
+import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, cornerMark, labelFit, nodeCentre, nodeTrim, trimLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
 import { hiddenBadgeKeys, numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
-import { radiusFor } from "./CampMarker";
-import { placeRadius, PlaceRing, SwordsGlyph } from "./PlaceGlyph";
+import { useReducedMotion } from "@/lib/useReducedMotion";
+import { BAND_TOKEN } from "./RouteBadges";
+import { placeRadius, SwordsGlyph, WaypointGlyph } from "./PlaceGlyph";
 
-/** Outer edge of a camp mark past its radius: the 1.5px halo ring at r + 1.5. */
-const MARK_HALO = 2.25;
-/** Light neutral for the path and its chevrons: edges stay quieter than the gold stop badges. */
+/** Light neutral for the path and its chevrons: edges stay quieter than the stop discs. */
 const LINE = "rgba(255,255,255,.85)";
 /** The leg into an attack stop: the loss red, so the arrow itself says attack. */
 const ATTACK = "var(--wg-loss)";
 
-/** A stop with a spot on the map; `x`/`y` are image fractions. `place` and its mark radius `r` only for a place stop;
- *  `absent` is a stop the hero does not go to. */
+/** A stop with a spot on the map, centre `cx`/`cy` in viewBox units; `r` is its disc, `trim` where a leg
+ *  stops short. `place` only for a place stop; `absent` is a stop the hero does not go to. */
 type PathNode = {
   key: string;
   label: string;
   stop: RouteStop;
-  x: number;
-  y: number;
+  cx: number;
+  cy: number;
+  r: number;
   trim: number;
+  /** The disc's fill: the camp's band, the loss red for an attack, the ground for a waypoint. */
+  fill: string;
   place?: Place;
-  r?: number;
-  /** A place that is not an attack: on the path, no badge. */
+  /** A place that is not an attack: a dark disc with its glyph, no number. */
   waypoint?: boolean;
   absent?: boolean;
 };
@@ -35,15 +36,15 @@ type PathNode = {
 type LegStyle = "solid" | "thin";
 
 /**
- * The route itself: a polyline through the camp and place stops in order
- * (a base action with no place is skipped here and shown only in the stop
- * list) with a numbered badge at each camp and attack stop; a waypoint is on
- * the line with its own glyph and no badge. Numbers come from
- * `stop-numbers.mjs`, so they always match the stop list's numbers even
- * when a non-camp stop sits between two camps or a split divides the route.
- * `React.memo`d and its own `campById` lookup `useMemo`d — see the F009
- * review, code-b.md items 3/5: this only re-renders on a real prop change
- * now, not on every unrelated hover in the parent `CreepMap`.
+ * The route itself, in two layers that `CreepMap` paints apart: `legs` under every mark, a
+ * polyline through the camp and place stops in order (a base action with no place is skipped
+ * here and shown only in the stop list), each leg ending at its nodes' edges; and `nodes` over
+ * the camps, one mark per stop. A stop's node is its badge: a disc in the camp's band colour
+ * with its number in dark text and a 1.5px white outline; an attack is a disc in the loss red
+ * with the red swords at its top-right; a waypoint is a smaller dark disc with its kind's glyph
+ * in white and no number. Numbers come from `stop-numbers.mjs`, so they always match the stop
+ * list's. A camp stop's disc lets clicks through to its `CampMarker` below. `React.memo`d and
+ * its own `campById` lookup `useMemo`d — see the F009 review, code-b.md items 3/5.
  */
 export const RoutePath = memo(function RoutePath({
   map,
@@ -52,44 +53,47 @@ export const RoutePath = memo(function RoutePath({
   youStart = 0,
   onStopSelect,
   choice,
-  attackLayer = false,
+  layer,
 }: {
   map: CreepMap;
   stops: RouteStop[];
   /** The selected stop's key (`stop-numbers.mjs`: "0", "2.a.0"). */
   activeStop?: string | null;
-  /** Index into `map.starts` of your own base; sizes a start place's ring, anchors a split at stop 1. */
+  /** Index into `map.starts` of your own base: anchors a split at stop 1. */
   youStart?: number;
-  /** Selects a stop from its badge: a place stop or an arm stop (a camp stop also selects through its marker). */
+  /** Selects an attack stop from its disc (a camp stop selects through its camp marker). */
   onStopSelect?: (key: string) => void;
   /** Split key to the chosen way of each "or"/"xor" split; default way a. */
   choice?: Record<string, number>;
-  /** Draw only the attack badges: `CreepMap` paints this second copy over the camps. */
-  attackLayer?: boolean;
+  /** `legs` under the camps, `nodes` (the stop discs) over them: `CreepMap` paints the two apart. */
+  layer: "legs" | "nodes";
 }) {
+  const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
   const numbers = useMemo(() => numberStops(stops), [stops]);
 
-  // A stop's spot on the map: a camp, or a place (`place.mjs`). `trim` is
-  // the mark's radius plus its halo, where a leg stops short.
+  // A stop's spot on the map: a camp, or a place (`place.mjs`), pulled inside the map so its disc never clips.
   const nodeOf = (s: RouteStop, key: string, label: string, style: Partial<PathNode> = {}): PathNode | null => {
     if (s.campId) {
       const camp = campById.get(s.campId);
-      return camp ? { key, label, stop: s, x: camp.x, y: camp.y, trim: radiusFor(camp.level) + MARK_HALO, ...style } : null;
+      if (!camp) return null;
+      const c = nodeCentre(camp.x, camp.y, iw, ih);
+      return { key, label, stop: s, cx: c.x, cy: c.y, r: STOP_RADIUS, trim: nodeTrim(STOP_RADIUS), fill: BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)", ...style };
     }
     const at = s.place ? placePoint(map, s.place) : null;
     if (!s.place || !at) return null;
-    const you = map.starts[youStart];
-    const r = placeRadius(s.place, iw, "start" in s.place.at && !!you && String(you.player) === s.place.at.start);
-    return { key, label, stop: s, x: at.x, y: at.y, trim: r + MARK_HALO, place: s.place, r, waypoint: isWaypoint(s), ...style };
+    const waypoint = isWaypoint(s);
+    const r = waypoint ? WAYPOINT_RADIUS : STOP_RADIUS;
+    const c = nodeCentre(at.x, at.y, iw, ih, r);
+    return { key, label, stop: s, cx: c.x, cy: c.y, r, trim: nodeTrim(r), fill: waypoint ? "var(--wg-bg)" : ATTACK, place: s.place, waypoint, ...style };
   };
 
   // Legs run between consecutive nodes. A split's ways all start at the node
   // before it (or your start marker when there is none), and every way's last
   // stop sends a leg into the first shared stop after the split. The walked way
   // (the chosen one, or path a of "and") draws as usual. The map draws only the active
-  // path: in "or"/"xor" the paths not chosen have no legs and no badges; in "and" the
+  // path: in "or"/"xor" the paths not chosen have no legs and no discs; in "and" the
   // other paths are thin and bowed.
   const points: PathNode[] = [];
   const legs: { a: PathNode; b: PathNode; style: LegStyle }[] = [];
@@ -110,7 +114,7 @@ export const RoutePath = memo(function RoutePath({
     const you = map.starts[youStart];
     const anchor: PathNode | null =
       pending[0]?.node ??
-      (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + MARK_HALO } : null);
+      (you ? { key: "start", label: "", stop: s, cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" } : null);
     const ends: { node: PathNode; style: LegStyle; walked: boolean }[] = [];
     split.arms.forEach((arm, a) => {
       const thin = a !== walked;
@@ -133,20 +137,16 @@ export const RoutePath = memo(function RoutePath({
   });
 
   if (!points.length) return null;
+  if (layer === "nodes") return <Nodes points={points} hidden={hiddenBadgeKeys(stops, choice)} activeStop={activeStop} onStopSelect={onStopSelect} reduced={reduced} />;
 
-  // One segment per leg, trimmed to the edge of each mark (its radius
-  // plus the halo ring) so the line never runs under a mark or its badge.
+  // One segment per leg, ending at the edge of each node's disc.
   const segments = legs.flatMap(({ a, b, style }) => {
-    const ax = a.x * iw, ay = a.y * ih, bx = b.x * iw, by = b.y * ih;
-    const len = Math.hypot(bx - ax, by - ay);
-    const ra = a.trim;
-    const rb = b.trim;
-    if (len <= ra + rb) return [];
-    const ux = (bx - ax) / len, uy = (by - ay) / len;
-    const x1 = ax + ux * ra, y1 = ay + uy * ra, x2 = bx - ux * rb, y2 = by - uy * rb;
+    const leg = trimLeg(a.cx, a.cy, b.cx, b.cy, a.trim, b.trim);
+    if (!leg) return [];
+    const { x1, y1, x2, y2, ux, uy } = leg;
     const attack = b.place?.kind === "attack";
     // A thin leg bows 12% of its length to the right of travel, so it never lies on a main leg.
-    const bow = 0.24 * (len - ra - rb);
+    const bow = 0.24 * Math.hypot(x2 - x1, y2 - y1);
     const qx = (x1 + x2) / 2 - uy * bow, qy = (y1 + y2) / 2 + ux * bow;
     return [{ x1, y1, x2, y2, qx, qy, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack }];
   });
@@ -166,88 +166,8 @@ export const RoutePath = memo(function RoutePath({
   const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
-  // A camp a split visits on two drawn paths keeps one badge, the active path's.
-  const hidden = hiddenBadgeKeys(stops, choice);
-  const badges = points.map((p) => {
-    // A waypoint is on the path but takes no badge: its glyph or ring is its mark. An attack's
-    // badge draws in the layer above the camps (`attackLayer`), so a camp by the target never hides it.
-    if (p.waypoint || hidden.has(p.key) || (p.place?.kind === "attack") !== attackLayer) return null;
-    // Badge floats just above the camp mark, in the same units as the
-    // viewBox so it reads the same on a 256x256 map and a 256x192 one —
-    // and flips below, rather than clipping, for a camp near the top
-    // edge. See `badge-position.mjs`.
-    const badge = badgePosition(p.x, p.y, iw, ih);
-    const cx = badge.x;
-    const badgeY = badge.y;
-    const isActive = activeStop === p.key;
-    const isArm = p.key.includes(".");
-    // ponytail: a badge selects by pointer only; the stop list is the keyboard path to a place or arm stop.
-    const select = (p.place || isArm) && onStopSelect ? () => onStopSelect(p.key) : undefined;
-    // An attack's badge is ringed in the loss red instead of gold, swords under it.
-    const ring = p.place?.kind === "attack" ? "var(--wg-loss)" : "var(--wg-gold)";
-    // Hero off: the first Bring unit's icon butts the badge's right edge, so the map says who goes.
-    const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
-    // A lettered arm badge ("3a") is a pill wide enough for its label; the 8px type stays.
-    const pill = /[a-z]/.test(p.label) ? 6 + p.label.length * 5 : 0;
-    return (
-      <g key={p.key} data-stop-marker={p.label} onClick={select} className={select ? "cursor-pointer" : undefined}>
-        {/* Same rule as `CampMarker`: grow via `transform: scale()` on
-         *  a wrapper, not a CSS transition of `r` (compositor-only
-         *  motion — DESIGN.md, F009 review code-b.md item 2). 7.5/6 =
-         *  1.25, so `scale-125` reproduces the old active radius
-         *  exactly. */}
-        <g
-          style={{ transformBox: "fill-box" }}
-          className={cn(
-            "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
-            isActive ? "scale-125" : "scale-100",
-          )}
-        >
-          {pill ? (
-            <rect
-              x={cx - pill / 2}
-              y={badgeY - 6}
-              width={pill}
-              height={12}
-              rx={6}
-              fill="var(--wg-bg)"
-              stroke={ring}
-              strokeWidth={isActive ? 2.2 : 1.4}
-              style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
-            />
-          ) : (
-            <circle
-              cx={cx}
-              cy={badgeY}
-              r={6}
-              fill="var(--wg-bg)"
-              stroke={ring}
-              strokeWidth={isActive ? 2.2 : 1.4}
-              style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
-            />
-          )}
-          <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
-            {p.label}
-          </text>
-          {p.place?.kind === "attack" ? <SwordsGlyph cx={cx} cy={badgeY + 9.5} /> : null}
-          {unitIcon ? (
-            <image
-              data-unit-icon
-              href={gameIconSrc(unitIcon)}
-              x={cx + Math.max(6, pill / 2)}
-              y={badgeY - 5}
-              width={10}
-              height={10}
-            />
-          ) : null}
-        </g>
-      </g>
-    );
-  });
-  if (attackLayer) return <g data-route-attacks>{badges}</g>;
-
   return (
-    <g>
+    <g data-route-legs>
       {/* A 2px light line over a 4px ground-colour under-stroke, so it reads
           over any terrain on the minimap. */}
       <path d={d} fill="none" strokeWidth="4" {...under} />
@@ -283,10 +203,95 @@ export const RoutePath = memo(function RoutePath({
           {...under}
         />
       ))}
-      {points.map((p) =>
-        p.place && p.r !== undefined ? <PlaceRing key={`ring-${p.key}`} place={p.place} cx={p.x * iw} cy={p.y * ih} r={p.r} /> : null,
-      )}
-      {badges}
     </g>
   );
 });
+
+/** The stop discs, over the camps: waypoints first, then the stops, the selected one last so its ring is on top. */
+function Nodes({
+  points,
+  hidden,
+  activeStop,
+  onStopSelect,
+  reduced,
+}: {
+  points: PathNode[];
+  hidden: Set<string>;
+  activeStop?: string | null;
+  onStopSelect?: (key: string) => void;
+  reduced: boolean;
+}) {
+  // A camp a split's drawn paths visit twice keeps one disc, the active path's.
+  const shown = points.filter((p) => !hidden.has(p.key));
+  const rank = (p: PathNode) => (p.key === activeStop ? 2 : p.waypoint ? 0 : 1);
+  return (
+    <g data-route-nodes>
+      {[...shown].sort((a, b) => rank(a) - rank(b)).map((p) => {
+        const isActive = activeStop === p.key;
+        const attack = p.place?.kind === "attack";
+        // A camp stop's disc lets clicks through to its camp marker; an attack disc selects its stop.
+        // ponytail: a disc selects by pointer only; the stop list is the keyboard path to an attack.
+        const select = attack && onStopSelect ? () => onStopSelect(p.key) : undefined;
+        // Hero off: the first Bring unit's icon at the disc's top-right (top-left on an attack, whose swords are there).
+        const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
+        const corner = cornerMark(p.cx, p.cy, p.r);
+        const unitAt = attack ? { x: 2 * p.cx - corner.x, y: corner.y } : corner;
+        return (
+          <g
+            key={p.key}
+            data-stop-marker={p.waypoint ? undefined : p.label}
+            data-waypoint={p.waypoint ? p.place?.kind : undefined}
+            onClick={select}
+            pointerEvents={select ? undefined : "none"}
+            className={select ? "cursor-pointer" : undefined}
+          >
+            {/* Grow via `transform: scale()` on a wrapper, never a transition of `r`
+             *  (compositor-only motion — DESIGN.md, F009 review code-b.md item 2). */}
+            <g
+              style={{ transformBox: "fill-box" }}
+              className={cn(
+                "origin-center transition-transform duration-[var(--wg-dur-fast)] ease-[var(--wg-ease)] motion-reduce:transition-none",
+                isActive ? "scale-125" : "scale-100",
+              )}
+            >
+              {isActive ? (
+                <circle cx={p.cx} cy={p.cy} r={p.r + 4} fill="none" stroke={p.fill} strokeOpacity="0.55" strokeWidth="2">
+                  {/* SMIL cannot be paused by CSS: omitted outright under reduced motion; the ring stays, static. */}
+                  {!reduced ? <animate attributeName="r" values={`${p.r + 3};${p.r + 7};${p.r + 3}`} dur="1.4s" repeatCount="indefinite" /> : null}
+                </circle>
+              ) : null}
+              <circle
+                cx={p.cx}
+                cy={p.cy}
+                r={p.r}
+                fill={p.fill}
+                stroke="#fff"
+                strokeWidth={OUTLINE}
+                style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
+              />
+              {p.waypoint && p.place ? (
+                <WaypointGlyph kind={p.place.kind} cx={p.cx} cy={p.cy} size={p.r * 1.2} />
+              ) : (
+                <text
+                  x={p.cx}
+                  y={p.cy}
+                  textAnchor="middle"
+                  dominantBaseline="central"
+                  textLength={labelFit(p.label)}
+                  lengthAdjust={labelFit(p.label) ? "spacingAndGlyphs" : undefined}
+                  fill="var(--wg-bg)"
+                  fontSize={LABEL_SIZE}
+                  className="tnum select-none font-bold"
+                >
+                  {p.label}
+                </text>
+              )}
+              {attack ? <SwordsGlyph cx={corner.x} cy={corner.y} /> : null}
+              {unitIcon ? <image data-unit-icon href={gameIconSrc(unitIcon)} x={unitAt.x - 5} y={unitAt.y - 5} width={10} height={10} /> : null}
+            </g>
+          </g>
+        );
+      })}
+    </g>
+  );
+}

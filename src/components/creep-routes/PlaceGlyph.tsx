@@ -1,5 +1,5 @@
 import type { Place, PlaceKind } from "@/lib/creep-routes/types";
-import { Swords } from "lucide-react";
+import { Eye, Hammer, Pickaxe, ShoppingBag, Swords, type LucideIcon } from "lucide-react";
 import { atKind } from "@/lib/creep-routes/place.mjs";
 
 /** The mark a place sits on, as a radius in viewBox units: the start X, the gold-mine and
@@ -10,49 +10,6 @@ export function placeRadius(place: Place, iw: number, isYou = false) {
   if (spot === "mine") return 8 * (iw / 256);
   if (spot === "shop") return 7 * (iw / 256);
   return 3;
-}
-
-const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinecap: "round", strokeLinejoin: "round" } as const;
-
-/**
- * A place's mark on the path. A start, mine or shop gets the on-route ring a camp stop's mark
- * gets (1.5px white at 55%): that ring is the whole mark of an expand or shop waypoint and of
- * an attack's target. A build or scout waypoint also draws its 6px white outline glyph on the
- * spot (a diamond; a circle with a dot); at a free point that glyph is the only mark.
- */
-export function PlaceRing({ place, cx, cy, r }: { place: Place; cx: number; cy: number; r: number }) {
-  const onIcon = atKind(place.at) !== "point";
-  const glyph = place.kind === "build" || place.kind === "scout";
-  return (
-    <g data-place={place.kind} pointerEvents="none">
-      {onIcon ? <circle cx={cx} cy={cy} r={r + 1.5} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" /> : null}
-      {glyph ? <WaypointShape kind={place.kind} cx={cx} cy={cy} size={6} /> : null}
-    </g>
-  );
-}
-
-/** A build diamond or a scout ring with a dot, white 1.2px outline over a dark under-stroke. */
-function WaypointShape({ kind, cx, cy, size }: { kind: PlaceKind; cx: number; cy: number; size: number }) {
-  const h = size / 2;
-  const shape =
-    kind === "build" ? (
-      <path d={diamond(cx, cy, size)} />
-    ) : (
-      <>
-        <circle cx={cx} cy={cy} r={h} />
-        <circle cx={cx} cy={cy} r={0.6} fill="#fff" />
-      </>
-    );
-  return (
-    <>
-      <g fill="none" strokeWidth="2.6" {...under}>
-        {shape}
-      </g>
-      <g fill="none" stroke="#fff" strokeWidth="1.2">
-        {shape}
-      </g>
-    </>
-  );
 }
 
 /** Lucide's `Swords` (lucide-react icons/swords), its 24-unit drawing. */
@@ -69,37 +26,33 @@ const SWORDS = (
   </>
 );
 
-/** Lucide's swords under an attack stop's badge, 12px: the legend's loss red, 1.5px over a dark 3px under-stroke.
- *  Drawn at half scale, so the strokes are twice as wide in the icon's own units. */
-export function SwordsGlyph({ cx, cy }: { cx: number; cy: number }) {
+/** Lucide's swords as the small mark at an attack disc's top-right (`size` viewBox units, 8 by default): the
+ *  legend's loss red over a dark under-stroke. Drawn scaled down, so the strokes are wider in the icon's own units. */
+export function SwordsGlyph({ cx, cy, size = 8 }: { cx: number; cy: number; size?: number }) {
+  const k = size / 24;
   return (
-    <g aria-hidden pointerEvents="none" transform={`translate(${cx - 6},${cy - 6}) scale(0.5)`} fill="none" strokeLinecap="round" strokeLinejoin="round">
-      <g stroke="var(--wg-bg)" strokeOpacity={0.7} strokeWidth={6}>
+    <g aria-hidden pointerEvents="none" transform={`translate(${cx - size / 2},${cy - size / 2}) scale(${k})`} fill="none" strokeLinecap="round" strokeLinejoin="round">
+      <g stroke="var(--wg-bg)" strokeOpacity={0.8} strokeWidth={2.8 / k}>
         {SWORDS}
       </g>
-      <g stroke="var(--wg-loss)" strokeWidth={3} style={{ paintOrder: "stroke" }}>
+      <g stroke="var(--wg-loss)" strokeWidth={1.3 / k}>
         {SWORDS}
       </g>
     </g>
   );
 }
 
-/** The kind's glyph at text size for the stop list, the builder and the legend: lucide's swords
- *  for an attack, a diamond for build, a ring with a dot for scout, a ring for expand and shop. */
+/** One lucide glyph per place kind, the same in the stop list, the map's waypoint disc and the legend. */
+const PLACE_GLYPHS: Record<PlaceKind, LucideIcon> = { attack: Swords, build: Hammer, expand: Pickaxe, shop: ShoppingBag, scout: Eye };
+
+/** The kind's glyph at text size for the stop list, the builder and the legend. */
 export function PlaceIcon({ kind, className }: { kind: PlaceKind; className?: string }) {
-  if (kind === "attack") return <Swords aria-hidden size={12} strokeWidth={2} className={className} />;
-  return (
-    <svg aria-hidden viewBox="0 0 12 12" width={12} height={12} className={className}>
-      <g fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round">
-        {kind === "build" ? <path d={diamond(6, 6, 8)} /> : null}
-        {kind === "scout" || kind === "expand" || kind === "shop" ? <circle cx={6} cy={6} r={3.5} /> : null}
-        {kind === "scout" ? <circle cx={6} cy={6} r={0.7} fill="currentColor" /> : null}
-      </g>
-    </svg>
-  );
+  const Glyph = PLACE_GLYPHS[kind];
+  return <Glyph aria-hidden size={12} strokeWidth={2} className={className} />;
 }
 
-function diamond(cx: number, cy: number, size = 6) {
-  const h = size / 2;
-  return `M${cx},${cy - h}L${cx + h},${cy}L${cx},${cy + h}L${cx - h},${cy}Z`;
+/** A waypoint's glyph inside its dark map disc: the list row's lucide glyph in white, `size` viewBox units wide. */
+export function WaypointGlyph({ kind, cx, cy, size }: { kind: PlaceKind; cx: number; cy: number; size: number }) {
+  const Glyph = PLACE_GLYPHS[kind];
+  return <Glyph aria-hidden x={cx - size / 2} y={cy - size / 2} width={size} height={size} stroke="#fff" strokeWidth={2.5} pointerEvents="none" />;
 }

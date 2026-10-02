@@ -1,6 +1,5 @@
 "use client";
 
-import { killedXpShare, validKills } from "@/lib/creep-routes/kills.mjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { preload } from "react-dom";
 import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, Place, RouteStop } from "@/lib/creep-routes/types";
@@ -125,7 +124,8 @@ function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih
 }
 
 /** Gold mine, drawn with Liquipedia's own icon (`/map-icons/gold-mine.png`,
- *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map.
+ *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map. Map
+ *  structure: mines and shops draw at 70% so they never compete with the stops.
  *  `<image>`'s default `preserveAspectRatio` ("xMidYMid meet") fits the
  *  icon inside the box without distorting it, so a fixed square box works
  *  for every icon regardless of its own aspect ratio. */
@@ -145,6 +145,7 @@ function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number })
       width={w}
       height={h}
       aria-label="Gold mine"
+      opacity={0.7}
       style={{ pointerEvents: "none" }}
     >
       <title>Gold mine</title>
@@ -175,6 +176,7 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
       width={w}
       height={h}
       aria-label={icon.label}
+      opacity={0.7}
       style={{ pointerEvents: "none" }}
     >
       <title>{icon.label}</title>
@@ -430,7 +432,7 @@ export function CreepMap({
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
           {route ? (
-            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} />
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} layer="legs" />
           ) : null}
           {map.starts.map((s, i) => (
             <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
@@ -445,7 +447,7 @@ export function CreepMap({
                 camp={camp}
                 imageWidth={iw}
                 imageHeight={ih}
-                active={activeStop != null && campKey.get(camp.id) === activeStop}
+                active={!onRoute && activeStop != null && campKey.get(camp.id) === activeStop}
                 highlighted={highlightCamps?.has(camp.id) ?? false}
                 pressed={onRoute}
                 onCampSelect={isInteractive ? handleCampClick : undefined}
@@ -453,7 +455,7 @@ export function CreepMap({
                 cardOpen={openCampId === camp.id}
                 asGroup={groupMarkers}
                 secondary={deemphasizeOffRoute && !onRoute}
-                killed={killedShare(camp, allStops.map(({ stop }) => stop), camp.id)}
+                underStop={onRoute}
               />
             );
           })}
@@ -468,8 +470,9 @@ export function CreepMap({
           {map.shops.map((s) => (
             <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
           ))}
-          {route && allStops.some(({ stop }) => stop.place?.kind === "attack") ? (
-            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} attackLayer />
+          {/* The stop discs over everything else: a stop's node is its badge. */}
+          {route ? (
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} layer="nodes" />
           ) : null}
           {onPlaceSelect && pointArmed ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed /> : null}
         </svg>
@@ -484,11 +487,4 @@ export function CreepMap({
       </p>
     </div>
   );
-}
-
-/** Share of a camp's base creep XP the route takes when a stop on it has a
- *  kill order, else undefined (full clear or not on the route). */
-function killedShare(camp: MapCamp, stops: RouteStop[] | undefined, campId: string) {
-  const stop = stops?.find((s) => s.campId === campId && s.leaveRest && validKills(camp, s.kills).length);
-  return stop ? killedXpShare(camp, stop.kills, true) : undefined;
 }
