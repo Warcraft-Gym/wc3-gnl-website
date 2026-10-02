@@ -12,11 +12,14 @@ function formatDate(iso: string) {
   return new Intl.DateTimeFormat("en-GB", { day: "numeric", month: "short" }).format(new Date(iso));
 }
 
-/** Left-edge accent by difficulty, a quieter signal than another chip. */
+/** Left-edge accent by difficulty, a quieter signal than another chip. Same
+ *  green/amber/red `--color-difficulty-*` scale `DifficultyBadge` uses —
+ *  `win`/`arcane` are both blue, which used to collide with a win/loss read
+ *  elsewhere on the row (F009). */
 const ACCENT: Record<BuildDifficulty, string> = {
-  beginner: "before:bg-win",
-  intermediate: "before:bg-arcane",
-  advanced: "before:bg-gold",
+  beginner: "before:bg-difficulty-beginner",
+  intermediate: "before:bg-difficulty-intermediate",
+  advanced: "before:bg-difficulty-advanced",
 };
 
 /** One build in the list: race crest · title + summary · meta column. */

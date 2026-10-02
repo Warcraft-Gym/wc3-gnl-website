@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useId, useRef, useState } from "react";
+import { useActionState, useCallback, useEffect, useId, useRef, useState } from "react";
 import { ArrowDown, ArrowRight, ArrowUp, CheckCircle2, ChevronDown, Eye, Pencil, Plus, ShieldCheck, Trash2 } from "lucide-react";
 import { submitBuild, type SubmitState } from "@/app/(site)/learn/builds/submit/actions";
 import { IconPicker } from "./IconPicker";
@@ -68,7 +68,32 @@ function SectionTitle({ n, children }: { n: number; children: React.ReactNode })
 
 const initial: SubmitState = { status: "idle" };
 
+/**
+ * "Submit another" (F009) used to `<ButtonLink>` back to this same page,
+ * which the App Router treats as a soft nav and never remounts — the
+ * success panel just sat there forever. The fix remounts
+ * `BuildSubmitFormInner` under a fresh `key` (the only correct way to also
+ * reset `useActionState`, which has no imperative reset of its own) rather
+ * than a hard reload. `BuildSubmitForm` takes no props, so a fresh mount
+ * here is exactly a first visit to `/learn/builds/submit` — except the
+ * import hash, cleared before the remount so it is not re-applied (the
+ * trap F009's spec calls out: a `#build=` payload re-filling the build
+ * that was just submitted).
+ */
 export function BuildSubmitForm() {
+  const [resetKey, setResetKey] = useState(0);
+  const handleSubmitAnother = useCallback(() => {
+    if (window.location.hash) {
+      history.replaceState(null, "", window.location.pathname + window.location.search);
+    }
+    setResetKey((k) => k + 1);
+  }, []);
+  // `resetKey > 0` only after a real "Submit another" click, never on the
+  // page's first mount — see `RouteSubmitForm`'s matching comment.
+  return <BuildSubmitFormInner key={resetKey} autoFocus={resetKey > 0} onSubmitAnother={handleSubmitAnother} />;
+}
+
+function BuildSubmitFormInner({ autoFocus, onSubmitAnother }: { autoFocus: boolean; onSubmitAnother: () => void }) {
   const [state, formAction, pending] = useActionState(submitBuild, initial);
   const [race, setRace] = useState<CrestOption | "">("");
   const [vsRaces, setVsRaces] = useState<BuildRace[]>([]);
@@ -105,6 +130,17 @@ export function BuildSubmitForm() {
     el?.focus();
     focusRow.current = null;
   }, [steps.length, formId]);
+
+  // After "Submit another" remounts this component fresh (`autoFocus`),
+  // move focus to the top of the form and scroll it there, so keyboard and
+  // screen-reader users land somewhere sensible instead of wherever the
+  // success panel happened to be. Never on a plain first visit.
+  const formRef = useRef<HTMLFormElement>(null);
+  useEffect(() => {
+    if (!autoFocus) return;
+    formRef.current?.focus();
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, [autoFocus]);
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const stepsJson = JSON.stringify(
@@ -218,16 +254,16 @@ export function BuildSubmitForm() {
         </p>
         <div className="mt-8 flex flex-wrap justify-center gap-3">
           <ButtonLink href="/learn/builds">Back to builds</ButtonLink>
-          <ButtonLink href="/learn/builds/submit" variant="outline">
+          <Button type="button" variant="outline" onClick={onSubmitAnother}>
             Submit another
-          </ButtonLink>
+          </Button>
         </div>
       </div>
     );
   }
 
   return (
-    <form action={formAction}>
+    <form ref={formRef} action={formAction} tabIndex={-1}>
       {/* Honeypot + hidden state */}
       <div className="hidden" aria-hidden>
         <label>

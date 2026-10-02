@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { BAND_TOKEN } from "./RouteBadges";
 
 /**
  * One line under the map (route page and editor alike) naming the marks a
@@ -17,15 +18,15 @@ export function MapLegend({ className }: { className?: string }) {
   return (
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
       <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-easy)" }} />
+        <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: BAND_TOKEN.easy }} />
         Easy &le; Lv 9
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-medium)" }} />
+        <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: BAND_TOKEN.medium }} />
         Medium Lv 10&ndash;19
       </span>
       <span className="inline-flex items-center gap-1.5">
-        <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-hard)" }} />
+        <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: BAND_TOKEN.hard }} />
         Hard &ge; Lv 20
       </span>
     </p>

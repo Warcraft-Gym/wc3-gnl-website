@@ -66,8 +66,11 @@
   --wg-difficulty-intermediate: #d0a838;
   --wg-difficulty-advanced: #DE6E52;
 
-  --wg-camp-easy: #68c040;
-  --wg-camp-medium: #d0a838;
+  /* One scale: easy and medium are the difficulty scale's first two steps. Hard keeps
+     Liquipedia's red: the advanced step is --wg-loss, the attack disc's red, and a hard
+     camp must not read as an attack. */
+  --wg-camp-easy: var(--wg-difficulty-beginner);
+  --wg-camp-medium: var(--wg-difficulty-intermediate);
   --wg-camp-hard: #b01818;
 
   /* --- Type --- */

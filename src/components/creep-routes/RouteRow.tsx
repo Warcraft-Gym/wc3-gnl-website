@@ -18,10 +18,10 @@ function formatDate(iso: string) {
 }
 
 /** Left-edge accent by level, the same quieter signal `BuildRow` uses for
- *  difficulty. */
+ *  difficulty — and the same difficulty colour scale, not win/gold. */
 const ACCENT: Record<RouteLevel, string> = {
-  beginner: "before:bg-win",
-  standard: "before:bg-gold",
+  beginner: "before:bg-difficulty-beginner",
+  standard: "before:bg-difficulty-intermediate",
 };
 
 /** One route in the list: the **map thumbnail** leads (F009-followup-3, user
