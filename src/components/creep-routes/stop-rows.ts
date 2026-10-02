@@ -9,7 +9,10 @@ export const newRow = editorRows.newRow as (patch?: Partial<StopRowData>) => Sto
 /** An editor row as a submitted stop: the shape of the form's `stopsJson`, the map's route and `deriveRoute`'s input. */
 export function rowToStop(s: StopRowData): StopInput {
   if (s.fork?.kind === "fork") {
-    return { campId: null, fork: { arms: s.fork.arms.map((arm) => ({ label: arm.label.trim(), stops: arm.stops.map(rowToStop) })) } };
+    return {
+      campId: null,
+      fork: { arms: s.fork.arms.map((arm) => ({ label: arm.label.trim(), stops: arm.stops.map(rowToStop), ...(arm.ends ? { ends: true } : {}) })) },
+    };
   }
   if (s.fork) return { campId: null, parallel: { arms: s.fork.arms.map((arm) => ({ stops: arm.stops.map(rowToStop) })) } };
   return {
@@ -34,7 +37,12 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork" | "paralle
     return newRow({
       fork: {
         kind: node.kind,
-        arms: node.arms.map((arm) => ({ id: Date.now() + Math.random(), label: "label" in arm ? arm.label : "", stops: arm.stops.map(stopToRow) })),
+        arms: node.arms.map((arm) => ({
+          id: Date.now() + Math.random(),
+          label: "label" in arm ? arm.label : "",
+          stops: arm.stops.map(stopToRow),
+          ends: "ends" in arm ? arm.ends : undefined,
+        })),
       },
     });
   }

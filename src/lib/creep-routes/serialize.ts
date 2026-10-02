@@ -31,7 +31,7 @@ export type ApiRouteStop = {
   /** Camp and attack stops: false when only the Bring units go (no hero XP). */
   hero?: boolean;
   /** A fork node (choose one); see `stop-numbers.mjs` for how its arms number. */
-  fork?: { arms: { label: string; stops: ApiRouteStop[] }[] };
+  fork?: { arms: { label: string; stops: ApiRouteStop[]; ends?: boolean }[] };
   /** A parallel node (all at once). */
   parallel?: { arms: { stops: ApiRouteStop[] }[] };
 };

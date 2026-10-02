@@ -2,10 +2,17 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
-import { countStops, flatStops, numberStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { hasLanes, routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
-import { ForkBlock } from "./ForkBlock";
+import { JoinRow, SplitRow, StopRail, type RailLine } from "./LaneRail";
+
+/** One row of the flat lane list, see `route-rows.mjs`. */
+type LaneRow =
+  | { type: "stop"; key: string; label: string; stop: RouteStop; lane: string; lines: RailLine[]; off: boolean }
+  | { type: "split"; key: string; stop: RouteStop; index: number; kind: "fork" | "parallel"; lines: RailLine[]; off: boolean }
+  | { type: "join"; key: string; rejoin: { lane: string; off: boolean }[]; lines: RailLine[]; off: boolean };
 
 /**
  * The route as an ordered list of stops, each a disclosure. Both states are
@@ -15,7 +22,7 @@ import { ForkBlock } from "./ForkBlock";
  * chevron at its right edge only opens or closes it (`onChevron`); the camp
  * label inside it is its own button that pins the camp card. `scrollTo`
  * scrolls a stop into view (a selection from the map). Stops are named by
- * the keys of `stop-numbers.mjs`; a fork or parallel node is a `ForkBlock` that nests its
+ * the keys of `stop-numbers.mjs`; on a route with a fork or parallel node every stop is a flat row with the lane rail (`LaneRail`), and the node's
  * arms' stops. Blocks carry `data-stop` (the stop's number, "3a" in an arm);
  * map badges carry `data-stop-marker`.
  */
@@ -75,6 +82,16 @@ export function RouteStepTable({
   // Bring lists the hero only on a route that sends him somewhere without the units' company: one hero-off stop.
   const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false), [route.stops]);
   const baseId = useId();
+  // A route with a fork or parallel node is a flat list with the lane rail (`route-rows.mjs`); any other renders as before.
+  const lanes = only === undefined && hasLanes(route.stops);
+  const rows = useMemo(() => (lanes ? (routeRows(route.stops, choice ?? {}) as LaneRow[]) : []), [lanes, route.stops, choice]);
+  // Rows off the chosen way hide until "Expand all" shows them (at 45%); "Collapse all" hides them again.
+  const [showOff, setShowOff] = useState(false);
+  const derivedByKey = (key: string) => {
+    const { index, arm, j } = parseKey(key);
+    const d = derived.stops[index];
+    return arm === undefined ? d : (d.fork ?? d.parallel)!.arms[arm].stops[j];
+  };
   const allOpen = count > 0 && keys.every((k) => open.has(k));
   const itemRef = (key: string) => (el: HTMLLIElement | null) => {
     if (el) items.current.set(key, el);
@@ -96,7 +113,11 @@ export function RouteStepTable({
           </div>
           <button
             type="button"
-            onClick={allOpen ? onCollapseAll : onExpandAll}
+            onClick={() => {
+              setShowOff(!allOpen);
+              if (allOpen) onCollapseAll();
+              else onExpandAll();
+            }}
             className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
           >
             {allOpen ? "Collapse all" : "Expand all"}
@@ -104,38 +125,60 @@ export function RouteStepTable({
         </div>
       ) : null}
 
-      <ol>
-        {route.stops.map((stop: RouteStop, i) => {
-          if (only !== undefined && i !== only) return null;
-          const d = derived.stops[i];
-          const { key, label, arms } = numbers[i];
-          if ((stop.fork || stop.parallel) && (d.fork || d.parallel) && arms) {
+      {lanes ? (
+        <ol>
+          {rows.map((row) => {
+            if (row.off && !showOff) return null;
+            if (row.type === "split") {
+              const node = derived.stops[row.index].fork ?? derived.stops[row.index].parallel;
+              return (
+                <SplitRow
+                  key={row.key}
+                  kind={row.kind}
+                  arms={(row.stop.fork?.arms ?? row.stop.parallel?.arms ?? []) as { label?: string }[]}
+                  node={node}
+                  main={row.lines[0]}
+                  off={row.off}
+                  stopKey={row.key}
+                  baseId={baseId}
+                  onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
+                />
+              );
+            }
+            if (row.type === "join") return <JoinRow key={row.key} rejoin={row.rejoin} off={row.off} />;
             return (
-              <ForkBlock
-                key={key}
-                stop={stop}
-                d={d}
-                number={label}
-                armNumbers={arms}
-                stopKey={key}
+              <StopBlock
+                key={row.key}
+                stop={row.stop}
+                d={derivedByKey(row.key)}
+                number={row.label}
+                stopKey={row.key}
                 map={map}
                 youStart={route.start ?? 0}
-                selected={selected}
-                open={open}
-                hover={hoverKey}
-                baseId={baseId}
+                isActive={row.key === selected}
+                isOpen={open.has(row.key)}
+                isHover={row.key === hoverKey}
+                bodyId={`${baseId}-stop-${row.key}`}
                 onSummary={onSummary}
                 onChevron={onChevron}
                 onHover={setHoverKey}
-                itemRef={itemRef}
-                onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
+                itemRef={itemRef(row.key)}
                 onOpenCard={onOpenCard}
                 openCampId={openCampId}
                 showHero={showHero}
                 heroIcon={route.hero}
+                rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
+                dim={row.off}
               />
             );
-          }
+          })}
+        </ol>
+      ) : (
+      <ol>
+        {route.stops.map((stop: RouteStop, i) => {
+          if (only !== undefined && i !== only) return null;
+          const d = derived.stops[i];
+          const { key, label } = numbers[i];
           return (
             <StopBlock
               key={key}
@@ -162,6 +205,7 @@ export function RouteStepTable({
           );
         })}
       </ol>
+      )}
     </div>
   );
 }

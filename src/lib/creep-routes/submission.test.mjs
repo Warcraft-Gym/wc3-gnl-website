@@ -434,7 +434,7 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
         { campId: "c01" },
         forkStop("either", [
           { label: "No one at their natural", stops: [{ campId: "c02", hero: false }] },
-          { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } } }] },
+          { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } } }], ends: true },
         ]),
       ],
     }),
@@ -446,6 +446,8 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
   assert.equal(fork.arms[0].stops[0]._type, "stop");
   assert.equal(fork.arms[0].stops[0].hero, false);
   assert.deepEqual(fork.arms[1].stops[0].place, { kind: "attack", at: { start: "1" } });
+  assert.equal(fork.arms[1].ends, true);
+  assert.equal("ends" in fork.arms[0], false);
 });
 
 test("nodes: a node inside an arm, an empty arm and a fork without labels are rejected", () => {

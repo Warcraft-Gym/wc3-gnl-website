@@ -478,6 +478,12 @@ export const creepFork = defineType({
               validation: (rule) => rule.required().max(60),
             }),
             defineField({
+              name: "ends",
+              title: "Ends here",
+              type: "boolean",
+              description: "On: the route stops at this way's last stop and does not come back to the stops after the fork.",
+            }),
+            defineField({
               name: "stops",
               type: "array",
               validation: (rule) => rule.required().min(1),

@@ -85,34 +85,37 @@ export const RoutePath = memo(function RoutePath({
     return { key, label, stop: s, x: at.x, y: at.y, trim: r + MARK_HALO, place: s.place, r, waypoint: isWaypoint(s), ...style };
   };
 
-  // Legs run between consecutive nodes. A fork's arms all start at the node
-  // before it (or your start marker when there is none); the route goes on
-  // from the end of the arm the hero walks.
+  // Legs run between consecutive nodes. A node's arms all start at the node
+  // before it (or your start marker when there is none); every arm that does
+  // not end sends a leg into the first shared stop after the node. Off the
+  // chosen way (a fork's other arms, and everything after a chosen way that
+  // ends) is drawn at 60% without chevrons; a parallel node dims nothing.
   const points: PathNode[] = [];
   const legs: { a: PathNode; b: PathNode; style: LegStyle }[] = [];
-  let prev: PathNode | null = null;
+  let pending: { node: PathNode; off: boolean }[] = [];
+  let offAfter = false;
   stops.forEach((s, i) => {
     const n = numbers[i];
     const nodeArms = s.fork?.arms ?? s.parallel?.arms;
     if (!nodeArms) {
-      const node = nodeOf(s, n.key, n.label, { absent: s.hero === false });
+      const node = nodeOf(s, n.key, n.label, { absent: s.hero === false, ...(offAfter ? { other: true } : {}) });
       if (!node) return;
-      if (prev) legs.push({ a: prev, b: node, style: "solid" });
+      for (const p of pending) legs.push({ a: p.node, b: node, style: p.off || offAfter ? "other" : "solid" });
       points.push(node);
-      prev = node;
+      pending = [{ node, off: false }];
       return;
     }
-    // A parallel node runs every arm at once; a fork's unchosen arms are drawn at 60%.
     const both = Boolean(s.parallel);
     const walked = walkedArm(s, n.key, choice);
     const you = map.starts[youStart];
     const anchor: PathNode | null =
-      prev ?? (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + MARK_HALO } : null);
-    let walkedEnd: PathNode | null = null;
+      pending[0]?.node ??
+      (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + MARK_HALO } : null);
+    const ends: { node: PathNode; off: boolean; walked: boolean }[] = [];
     nodeArms.forEach((arm, a) => {
+      const other = offAfter || (!both && a !== walked);
       let p = anchor;
       arm.stops.forEach((as, j) => {
-        const other = !both && a !== walked;
         const node = nodeOf(as, n.arms![a].stops[j].key, n.arms![a].stops[j].label, {
           absent: as.hero === false || (both && a > 0),
           other,
@@ -122,9 +125,11 @@ export const RoutePath = memo(function RoutePath({
         points.push(node);
         p = node;
       });
-      if (a === walked && p !== anchor) walkedEnd = p;
+      if (!(s.fork && "ends" in arm && arm.ends) && p) ends.push({ node: p, off: other, walked: a === walked });
     });
-    prev = walkedEnd ?? prev;
+    if (s.fork && "ends" in nodeArms[walked] && nodeArms[walked].ends) offAfter = true;
+    // The walked arm first: a node right after this one starts from it.
+    pending = [...ends.filter((e) => e.walked), ...ends.filter((e) => !e.walked)].map(({ node, off }) => ({ node, off }));
   });
 
   if (!points.length) return null;

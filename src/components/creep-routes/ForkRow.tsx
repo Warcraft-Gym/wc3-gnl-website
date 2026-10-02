@@ -15,7 +15,8 @@ import { cn } from "@/lib/utils";
  * 3 ways stacked, each with its own stop list (`StopEditor` at depth 1, which
  * adds no nodes). The dot on a way is a toggle, "Add stops here": camps and
  * places clicked on the map go into it; in a parallel node's ways 2.. they
- * arrive with the hero off (`RouteEditor`).
+ * arrive with the hero off (`RouteEditor`). A fork's way can be marked "Ends
+ * here": the route stops at its last stop.
  */
 export function ForkRow({
   row,
@@ -131,6 +132,17 @@ export function ForkRow({
                 ) : (
                   <p className="min-w-0 flex-1 text-xs text-muted">Way {a + 1}</p>
                 )}
+                {fork ? (
+                  <label className="inline-flex shrink-0 cursor-pointer items-center gap-1.5 text-[0.7rem] text-muted hover:text-fg">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(arm.ends)}
+                      onChange={(e) => setFork({ arms: arms.map((x, i) => (i === a ? { ...x, ends: e.target.checked || undefined } : x)) })}
+                      className="size-3.5 accent-[var(--wg-gold)]"
+                    />
+                    Ends here
+                  </label>
+                ) : null}
                 {arms.length > 2 ? (
                   <button type="button" onClick={() => removeArm(a)} aria-label={`Remove way ${a + 1}`} className="grid size-9 shrink-0 place-items-center text-faint hover:text-loss">
                     <X size={16} />

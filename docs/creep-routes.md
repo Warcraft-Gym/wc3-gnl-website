@@ -491,8 +491,9 @@ Two node types, each its own entry in `stops` with `campId: null` and no
 action, place or other field, one level deep (an arm stop never holds a
 node), 2 or 3 arms of 1..n stops:
 
-- **Fork** `{ fork: { arms: [{ label, stops }] } }`: choose one way. Every
-  label is required: it is the condition the reader picks the way by.
+- **Fork** `{ fork: { arms: [{ label, stops, ends? }] } }`: choose one way.
+  Every label is required: it is the condition the reader picks the way by.
+  `ends: true` means the route stops at that way's last stop.
 - **Parallel** `{ parallel: { arms: [{ stops }] } }`: all ways at once, no
   labels. Arm 0 is the hero's line; the builder sets `hero: false` on each
   camp or attack it adds to arms 1.., and derive treats those arms as
@@ -521,21 +522,33 @@ choose one, no number means a waypoint.
   node at stop 1. Fork: the chosen arm is drawn as usual; the other arms are
   the same solid line at 60% with no chevrons and 60% pill badges ("3a"); a
   click on one of those badges chooses that way. Parallel: every arm is drawn
-  in full, with the same numbers on its badges. The path goes on from the end
-  of the walked arm. No legend line for either.
-- **List.** A fork reads "Choose a way". Open, it shows a tab strip
-  (`role="tablist"`, arrow keys, Home and End): one tab per arm, its label
-  then the hero's level at its end muted; the selected tab in `--wg-text`
-  with a 2px gold underline (the site nav's selected style), the others
-  muted. The panel nests the selected arm's stops under a 2px arcane rule;
-  the map follows the tab, and the choice is page state, not URL state. A
-  parallel node reads "At the same time"; open, its arms sit side by side
-  from 640px up and stack on a phone, each a nested list with the same
-  numbers; each stop's Bring says who goes. A map click on a camp picks the
-  top-level stop or the walked arm's (`findStopKey`). HowTo steps follow arm 0.
+  in full, with the same numbers on its badges. Every arm that does not end
+  sends a leg into the first shared stop. No legend line for either.
+- **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). A route with a
+  fork or parallel node is a flat list: every stop, waypoint and attack is one
+  row in route order with a lane ("" main, "a", "b", "c"); a node's arms
+  interleave a[0], b[0], a[1], b[1], … between a split row and a join row. A
+  44px rail is added in front of today's row and moves nothing: 2px lines in
+  `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's lane
+  a small neutral 6px dot, the diamond for a waypoint or a red-ringed Swords
+  node for an attack. The split row is a slim caption, "Choose a way" with the
+  tab strip (`role="tablist"`, arrow keys, the hero's level at each way's end)
+  or "At the same time"; the rail curves the other lanes out of the main line,
+  with the arm letters at their tops for a fork. The join row (24px, no text)
+  curves the rejoining lanes back in, only when a lane other than a rejoins.
+  A way with `ends: true` stops its lane at its last node. Choosing a way
+  turns off the other arms' rows and, when the chosen way ends, every row
+  after the node: hidden in the list, shown at 45% after "Expand all"
+  ("Collapse all" hides them again), their rail lines at 35%. A parallel node
+  dims nothing. A route without a node renders exactly as before, with no
+  rail. A map click on a camp picks the top-level stop or the walked arm's
+  (`findStopKey`). HowTo steps follow arm 0.
+- **Map after a node.** Every arm that does not end sends a leg into the first
+  shared stop after the node; the off set draws at 60% without chevrons.
 - **Builder.** "+ Fork" and "+ At the same time" add a node with two empty
   ways. A fork's ways have "When…" label inputs; a parallel node's have none.
-  Each way has an "Add stops here" toggle: map clicks go into the active way,
+  A fork's way has an "Ends here" checkbox (`ends: true`). Each way has an
+  "Add stops here" toggle: map clicks go into the active way,
   or the top level when none is active; a click on a camp that a way already
   holds removes it from that way. "Add a way" up to 3 and a remove per way.
 

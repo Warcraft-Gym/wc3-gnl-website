@@ -150,8 +150,9 @@ export type RouteStop = {
 };
 
 /** Choose one: 2 or 3 arms, each labelled with the condition the reader picks it by,
- *  1..n stops each, one level deep (an arm stop never holds a node). */
-export type Fork = { arms: { label: string; stops: RouteStop[] }[] };
+ *  1..n stops each, one level deep (an arm stop never holds a node). `ends`: the way stops at
+ *  its last stop and does not rejoin the route. */
+export type Fork = { arms: { label: string; stops: RouteStop[]; ends?: boolean }[] };
 
 /** All at once: 2 or 3 arms of 1..n stops, no labels, one level deep. Arm 0 is the hero's
  *  line; arms 1.. run without the hero (derive treats them so whatever their flags say). */

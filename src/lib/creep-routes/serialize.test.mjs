@@ -160,7 +160,7 @@ test("round trip of a route with a waypoint, a stop without the hero, a fork and
         fork: {
           arms: [
             { label: "No one at their natural", stops: [{ campId: "c02", units: [{ icon: "hu-archmage", count: 1 }] }] },
-            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "0" } } }] },
+            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "0" } } }], ends: true },
           ],
         },
       },
@@ -182,6 +182,8 @@ test("round trip of a route with a waypoint, a stop without the hero, a fork and
   assert.deepEqual(back[2].fork.arms.map((a) => a.label), ["No one at their natural", "They are at their natural"]);
   assert.deepEqual(back[2].fork.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
   assert.equal(back[2].fork.arms[0].stops[0].campId, "c02");
+  assert.equal(back[2].fork.arms[1].ends, true);
+  assert.equal(api.stops[2].fork.arms[1].ends, true);
   assert.equal(back[3].parallel.arms[1].stops[0].hero, false);
   assert.equal("label" in back[3].parallel.arms[0], false);
 });

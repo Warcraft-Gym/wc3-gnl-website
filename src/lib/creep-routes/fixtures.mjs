@@ -202,11 +202,19 @@ export const FIXTURE_ROUTES = [
         campId: null,
         fork: {
           arms: [
-            { label: "No one at their natural", stops: [{ campId: "c08", note: "Take their natural's turtles" }] },
-            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "3" } } }] },
+            {
+              label: "No one at their natural",
+              stops: [{ campId: "c08", note: "Take their natural's turtles" }, { campId: "c04" }],
+            },
+            {
+              label: "They are at their natural",
+              stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "3" } } }],
+              ends: true,
+            },
           ],
         },
       },
+      { campId: "c01" },
     ],
   },
   {
@@ -235,6 +243,7 @@ export const FIXTURE_ROUTES = [
           ],
         },
       },
+      { campId: "c05", note: "Both groups meet at the gnolls" },
     ],
   },
 ];

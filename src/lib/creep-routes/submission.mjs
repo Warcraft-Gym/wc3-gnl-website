@@ -120,6 +120,8 @@ function forkSchema(armStopSchema) {
         z.object({
           label: z.string({ error: "Say when to take this way" }).trim().min(1, "Say when to take this way").max(60, "Max 60 characters"),
           stops: z.array(armStopSchema).min(1, "Add at least one stop to this way").max(20, "Max 20 stops"),
+          /** The way stops at its last stop and does not rejoin the route. */
+          ends: z.boolean().optional(),
         }),
       )
       .min(2, "A fork needs two or three ways")
@@ -401,7 +403,7 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
             arms: (s.fork ?? s.parallel).arms.map((arm) => ({
               _type: "arm",
               _key: shortKey(),
-              ...(s.fork ? { label: arm.label } : {}),
+              ...(s.fork ? { label: arm.label, ...(arm.ends ? { ends: true } : {}) } : {}),
               stops: arm.stops.map(draftStop),
             })),
           }

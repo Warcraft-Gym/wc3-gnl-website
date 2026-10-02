@@ -72,10 +72,13 @@ function normalizeRoute(doc: RawRoute): CreepRoute | null {
 function fromSanityStop(stop: RouteStop | SanityNode): RouteStop {
   if (!("_type" in stop) || (stop._type !== "creepFork" && stop._type !== "creepParallel")) return stop as RouteStop;
   if (stop._type === "creepParallel") return { campId: null, parallel: { arms: (stop.arms ?? []).map((arm) => ({ stops: arm.stops ?? [] })) } };
-  return { campId: null, fork: { arms: (stop.arms ?? []).map((arm) => ({ label: arm.label ?? "", stops: arm.stops ?? [] })) } };
+  return {
+    campId: null,
+    fork: { arms: (stop.arms ?? []).map((arm) => ({ label: arm.label ?? "", stops: arm.stops ?? [], ...(arm.ends ? { ends: true } : {}) })) },
+  };
 }
 
-type SanityNode = { _type: "creepFork" | "creepParallel"; arms?: { label?: string | null; stops?: RouteStop[] }[] };
+type SanityNode = { _type: "creepFork" | "creepParallel"; arms?: { label?: string | null; stops?: RouteStop[]; ends?: boolean | null }[] };
 
 function byUpdatedDesc(a: CreepRoute, b: CreepRoute) {
   return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();

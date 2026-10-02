@@ -56,12 +56,11 @@ function StopBody({ stop, d, absent, hero }: { stop: RouteStop; d: DerivedStop; 
 }
 
 /**
- * One stop of the route as a disclosure (`RouteStepTable`, and nested inside a
- * fork's arm). The summary line is a button over the whole line that selects
+ * One stop of the route as a disclosure (`RouteStepTable`), with the lane rail
+ * in front of it on a route with a node. The summary line is a button over the whole line that selects
  * and opens the stop (`onSummary`); the chevron only opens or closes it
  * (`onChevron`); the camp label is its own button that pins the camp card.
- * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a"). A fork
- * (`ForkBlock`) passes its own `title`, `summaryLabel` and body (`children`).
+ * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a").
  */
 export function StopBlock({
   stop,
@@ -81,12 +80,10 @@ export function StopBlock({
   onOpenCard,
   openCampId,
   stopBody,
-  nested = false,
+  rail,
+  dim = false,
   showHero = false,
   heroIcon,
-  title,
-  summaryLabel,
-  children,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -105,18 +102,14 @@ export function StopBlock({
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   openCampId: string | null;
   stopBody?: React.ReactNode;
-  /** Inside a fork's arm: a tighter left inset. */
-  nested?: boolean;
+  /** The lane rail cell (`StopRail`) on a route with a fork or parallel node. */
+  rail?: React.ReactNode;
+  /** Off the chosen way's path, shown after "Expand all": drawn at 45%. */
+  dim?: boolean;
   /** The route uses the hero toggle somewhere: Bring lists the hero first wherever he goes. */
   showHero?: boolean;
   /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
   heroIcon?: string;
-  /** Replaces the summary line's content (a fork's name and way chips). */
-  title?: React.ReactNode;
-  /** Replaces the summary button's label. */
-  summaryLabel?: string;
-  /** Replaces the open body (a fork's ways). */
-  children?: React.ReactNode;
 }) {
   const camp = d.camp;
   const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
@@ -135,12 +128,15 @@ export function StopBlock({
       onMouseLeave={() => onHover(null)}
       aria-current={isActive ? "step" : undefined}
       className={cn(
-        nested
-          ? `border-t border-line/40 ${waypoint ? "py-2" : "py-3"} pl-3 transition-colors first:border-t-0`
+        // With the lane rail, the rail takes 44px in front of the row and the row itself is unchanged.
+        rail
+          ? `relative border-t border-line/40 pl-[60px] pr-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:pr-5`
           : `border-t border-line/40 px-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:px-5`,
+        dim && "opacity-[.45]",
         (isActive || isHover) && "bg-gold/10",
       )}
     >
+      {rail}
       {/* Summary line: the select button covers it; the camp button and chevron sit above. */}
       <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
         <button
@@ -148,7 +144,7 @@ export function StopBlock({
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={summaryLabel ?? (waypoint ? `${label}, ${waypoint}` : camp && absent ? `Stop ${number}, ${label}` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`)}
+          aria-label={waypoint ? `${label}, ${waypoint}` : camp && absent ? `Stop ${number}, ${label}` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -159,58 +155,54 @@ export function StopBlock({
           )}
         </span>
         <div className="pointer-events-none relative min-w-0">
-          {title ?? (
-            <>
-              <div
-                className={cn(
-                  "flex gap-3",
-                  isOpen ? "flex-col sm:flex-row sm:items-start sm:justify-between sm:gap-4" : "items-start justify-between",
-                  // In a fork's narrower way the level line moves under the name instead of squeezing it.
-                  nested && "flex-wrap",
-                )}
+          <div
+            className={cn(
+              "flex gap-3",
+              isOpen ? "flex-col sm:flex-row sm:items-start sm:justify-between sm:gap-4" : "items-start justify-between",
+              // Beside the lane rail on a phone the level line moves under the name instead of squeezing it.
+              rail && "flex-wrap",
+            )}
+          >
+            {camp ? (
+              <button
+                type="button"
+                onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
+                aria-haspopup="dialog"
+                aria-expanded={camp.id === openCampId}
+                className="pointer-events-auto min-w-0 rounded pt-0.5 text-left text-sm hover:[&_.camp-name]:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:flex sm:flex-wrap sm:items-center sm:gap-x-2"
               >
-                {camp ? (
-                  <button
-                    type="button"
-                    onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
-                    aria-haspopup="dialog"
-                    aria-expanded={camp.id === openCampId}
-                    className="pointer-events-auto min-w-0 rounded pt-0.5 text-left text-sm hover:[&_.camp-name]:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:flex sm:flex-wrap sm:items-center sm:gap-x-2"
-                  >
-                    <span className="inline-flex items-start gap-1.5">
-                      <BandDot className="mt-1.5" band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
-                      <span className="camp-name font-medium text-fg">{label}</span>
-                    </span>
-                    <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
-                      <span>
-                        {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
-                      </span>
-                      <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
-                    </span>
-                  </button>
-                ) : stop.place ? (
-                  <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
-                    <PlaceIcon kind={stop.place.kind} className={cn("shrink-0 self-center", waypoint ? "text-fg" : "text-loss")} />
-                    <span className="font-medium text-fg">{label}</span>
-                    {waypoint ? <span className="text-muted">{waypoint}</span> : where ? <span className="text-muted">{where}</span> : null}
-                  </p>
-                ) : (
-                  <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
-                )}
-                {camp && isOpen && !absent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
-                {camp && !isOpen && !absent ? (
-                  <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
-                    Lv {d.heroLevelAfter} · {d.xpAfter} xp
+                <span className="inline-flex items-start gap-1.5">
+                  <BandDot className="mt-1.5" band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
+                  <span className="camp-name font-medium text-fg">{label}</span>
+                </span>
+                <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
+                  <span>
+                    {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
                   </span>
-                ) : null}
-              </div>
-              {camp && !isOpen ? (
-                <div className="mt-2">
-                  <KillStrip kills={d.kills} skipped={skippedOf(stop, camp)} />
-                </div>
-              ) : null}
-            </>
-          )}
+                  <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
+                </span>
+              </button>
+            ) : stop.place ? (
+              <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
+                <PlaceIcon kind={stop.place.kind} className={cn("shrink-0 self-center", waypoint ? "text-fg" : "text-loss")} />
+                <span className="font-medium text-fg">{label}</span>
+                {waypoint ? <span className="text-muted">{waypoint}</span> : where ? <span className="text-muted">{where}</span> : null}
+              </p>
+            ) : (
+              <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
+            )}
+            {camp && isOpen && !absent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+            {camp && !isOpen && !absent ? (
+              <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
+                Lv {d.heroLevelAfter} · {d.xpAfter} xp
+              </span>
+            ) : null}
+          </div>
+          {camp && !isOpen ? (
+            <div className="mt-2">
+              <KillStrip kills={d.kills} skipped={skippedOf(stop, camp)} />
+            </div>
+          ) : null}
         </div>
         <button
           type="button"
@@ -229,7 +221,7 @@ export function StopBlock({
       {isOpen ? (
         <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
           <span />
-          {children ?? stopBody ?? (
+          {stopBody ?? (
             <StopBody
               stop={stop}
               d={d}
