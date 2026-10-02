@@ -3,7 +3,8 @@
 import { ArrowDown, ArrowUp, Info, Plus, Trash2, X } from "lucide-react";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";
-import type { CampCardTrigger, MapCamp, Place, StopKill } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, MapCamp, Place, PlaceKind, StopKill } from "@/lib/creep-routes/types";
+import { PLACE_KINDS } from "@/lib/creep-routes/place.mjs";
 import { creepsLeft, killedXpShare } from "@/lib/creep-routes/kills.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
@@ -152,9 +153,22 @@ export function StopRow({
         {/* Camp / place / base action */}
         <div className="min-w-0">
           {stop.place ? (
-            <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">
-              <PlaceIcon place={stop.place} className="shrink-0 text-fg" />
+            <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 pl-3 pr-1 text-sm">
+              <PlaceIcon kind={stop.place.kind} className={cn("shrink-0", stop.place.kind === "attack" ? "text-loss" : "text-fg")} />
               <span className="truncate font-bold text-fg first-letter:uppercase">{placeLabel}</span>
+              {/* The click picked a kind; any of them can be changed here. */}
+              <select
+                aria-label="Kind"
+                value={stop.place.kind}
+                onChange={(e) => stop.place && onChange({ place: { ...stop.place, kind: e.target.value as PlaceKind } })}
+                className="ml-auto h-8 shrink-0 rounded border border-line bg-surface/60 px-1.5 text-xs text-fg focus:border-gold/60 focus:outline-none"
+              >
+                {(PLACE_KINDS as PlaceKind[]).map((k) => (
+                  <option key={k} value={k}>
+                    {k}
+                  </option>
+                ))}
+              </select>
             </div>
           ) : stop.campId ? (
             <div className="flex h-10 items-center gap-2 rounded border border-line/70 bg-surface/40 px-3 text-sm">

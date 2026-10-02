@@ -1,4 +1,5 @@
-import type { CreepMap, Place } from "@/lib/creep-routes/types";
+import type { CreepMap, Place, PlaceAt } from "@/lib/creep-routes/types";
+import { atKind, kindForClick } from "@/lib/creep-routes/place.mjs";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { placeRadius } from "./PlaceGlyph";
 
@@ -34,23 +35,26 @@ export function PlaceTargets({
         onClick={(e) => {
           const box = (e.currentTarget.ownerSVGElement ?? e.currentTarget).getBoundingClientRect();
           const at = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
-          onPlaceSelect({ kind: "point", x: at((e.clientX - box.left) / box.width), y: at((e.clientY - box.top) / box.height) });
+          onPlaceSelect({ kind: "build", at: { x: at((e.clientX - box.left) / box.width), y: at((e.clientY - box.top) / box.height) } });
         }}
       />
     );
   }
-  const targets: { key: string; place: Place; x: number; y: number; label: string }[] = [
-    ...map.starts.map((s, i) => ({
-      key: `start-${s.player}`,
-      place: { kind: "start", id: String(s.player) } as Place,
-      x: s.x,
-      y: s.y,
-      label: i === youStart ? "your base" : "their base",
-    })),
-    ...map.mines.map((m, i) => ({ key: `mine-${i}`, place: { kind: "mine", id: String(i) } as Place, x: m.x, y: m.y, label: "a gold mine" })),
+  // A click picks the kind (`kindForClick`): their start an attack, yours a build spot, a mine an expansion, a shop a visit.
+  const youPlayer = String(map.starts[youStart]?.player ?? "");
+  const target = (key: string, at: PlaceAt, x: number, y: number, label: string) => ({
+    key,
+    place: { kind: kindForClick(at, youPlayer), at } as Place,
+    x,
+    y,
+    label,
+  });
+  const targets = [
+    ...map.starts.map((s, i) => target(`start-${s.player}`, { start: String(s.player) }, s.x, s.y, i === youStart ? "your base" : "their base")),
+    ...map.mines.map((m, i) => target(`mine-${i}`, { mine: String(i) }, m.x, m.y, "a gold mine")),
     ...map.shops.flatMap((s) => {
       const icon = neutralIconFor(s.id);
-      return icon ? [{ key: `shop-${s.id}`, place: { kind: "shop", id: s.id } as Place, x: s.x, y: s.y, label: icon.label }] : [];
+      return icon ? [target(`shop-${s.id}`, { shop: s.id }, s.x, s.y, icon.label)] : [];
     }),
   ];
   return (
@@ -58,7 +62,7 @@ export function PlaceTargets({
       {targets.map((t) => (
         <circle
           key={t.key}
-          data-place-target={t.place.kind}
+          data-place-target={atKind(t.place.at)}
           cx={t.x * iw}
           cy={t.y * ih}
           r={placeRadius(t.place, iw, t.label === "your base") + 1.5}

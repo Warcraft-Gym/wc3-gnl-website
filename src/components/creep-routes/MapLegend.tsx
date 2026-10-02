@@ -1,16 +1,18 @@
 import { cn } from "@/lib/utils";
 import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { RouteStop } from "@/lib/creep-routes/types";
+import { PlaceIcon } from "./PlaceGlyph";
 
 /** Which route marks a route draws, so the legend lists only those: a leg without the hero
  *  (a `heroAbsent` stop, or an arm after the first of a "both" fork) and a dashed other way
  *  (an "either" fork). */
-export function routeLegendMarks(stops: Pick<RouteStop, "heroAbsent" | "fork">[]) {
+export function routeLegendMarks(stops: Pick<RouteStop, "heroAbsent" | "fork" | "place">[]) {
   return {
     heroAbsent:
       (flatStops(stops) as { stop: Pick<RouteStop, "heroAbsent"> }[]).some(({ stop }) => stop.heroAbsent) ||
       stops.some((s) => s.fork?.mode === "both"),
     anotherWay: stops.some((s) => s.fork?.mode === "either"),
+    attack: (flatStops(stops) as { stop: Pick<RouteStop, "place"> }[]).some(({ stop }) => stop.place?.kind === "attack"),
   };
 }
 
@@ -31,11 +33,14 @@ export function MapLegend({
   className,
   heroAbsent = false,
   anotherWay = false,
+  attack = false,
 }: {
   className?: string;
   heroAbsent?: boolean;
   /** The route has an "either" fork: its unchosen arms draw dashed. */
   anotherWay?: boolean;
+  /** The route has an attack stop: red swords. */
+  attack?: boolean;
 }) {
   return (
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
@@ -68,6 +73,12 @@ export function MapLegend({
         <span className="inline-flex items-center gap-1.5">
           <LegendLine opacity={0.55} dash="4 3" />
           Another way
+        </span>
+      ) : null}
+      {attack ? (
+        <span className="inline-flex items-center gap-1.5">
+          <PlaceIcon kind="attack" className="text-loss" />
+          Attack
         </span>
       ) : null}
     </p>

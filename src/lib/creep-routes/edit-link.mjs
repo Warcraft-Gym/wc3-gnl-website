@@ -11,6 +11,7 @@
  * The hash never reaches the server, so the payload size only has to suit a
  * browser; a long route with notes is a few kilobytes.
  */
+import { atKind } from "./place.mjs";
 import { EXCHANGE_FORMAT, IMPORT_HASH_KEY, encodeForHash } from "./exchange-codec.mjs";
 
 /** Portable Text (or a plain string array) back to the plain text the submit
@@ -87,7 +88,9 @@ function exchangeStop(s) {
 
 /** A place without Sanity's null fields, so the exchange schema accepts it. */
 function exchangePlace(p) {
-  return p.kind === "point" ? { kind: "point", x: p.x, y: p.y } : { kind: p.kind, id: p.id };
+  const at = p.at ?? {};
+  const spot = atKind(at);
+  return { kind: p.kind, at: spot === "point" ? { x: at.x, y: at.y } : { [spot]: at[spot] } };
 }
 
 /** `/learn/creep-routes/submit#route=<payload>` for this route, or

@@ -51,3 +51,11 @@ test("findStopKey prefers the top level and the walked arm, then any arm", () =>
   assert.equal(stopByKey(stops, "1.b.0").campId, "c2");
   assert.equal(stopByKey(stops, "2").campId, "c3");
 });
+
+test("a waypoint takes no number and does not count; an attack does", () => {
+  const wp = { campId: null, action: "Plant", place: { kind: "build", at: { x: 0.1, y: 0.1 } } };
+  const attack = { campId: null, action: "Harass", place: { kind: "attack", at: { start: "3" } } };
+  const stops = [wp, camp("c1"), fork([camp("c2"), wp], [attack]), camp("c3")];
+  assert.deepEqual(labels(stops), ["", "1", "2", "2a", "", "2b", "3"]);
+  assert.equal(countStops(stops), 4);
+});

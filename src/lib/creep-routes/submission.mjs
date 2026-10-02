@@ -133,12 +133,15 @@ function forkSchema(armStopSchema) {
     });
 }
 
-const placeSchema = z.discriminatedUnion("kind", [
-  z.object({ kind: z.literal("start"), id: z.string().trim().min(1).max(20) }),
-  z.object({ kind: z.literal("mine"), id: z.string().trim().min(1).max(20) }),
-  z.object({ kind: z.literal("shop"), id: z.string().trim().min(1).max(40) }),
-  z.object({ kind: z.literal("point"), x: z.number().min(0).max(1), y: z.number().min(0).max(1) }),
-]);
+const placeSchema = z.object({
+  kind: z.enum(["attack", "build", "expand", "shop", "scout"], { error: "Pick what happens here" }),
+  at: z.union([
+    z.object({ start: z.string().trim().min(1).max(20) }).strict(),
+    z.object({ mine: z.string().trim().min(1).max(20) }).strict(),
+    z.object({ shop: z.string().trim().min(1).max(40) }).strict(),
+    z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) }).strict(),
+  ]),
+});
 
 /**
  * Builds the zod schema for one submission against a live catalogue:

@@ -428,28 +428,37 @@ data layer share:
   day/night cycle it drove — see the user decision at the top of that
   feature's spec).
 
-### Place stops
+### Place stops: attacks and waypoints
 
 A stop can happen at a place instead of a camp: `RouteStop.place` is
-`{ kind: "start" | "mine" | "shop", id }` or `{ kind: "point", x, y }`.
-`start` ids are `String(player)` of `map.starts[]`, `mine` ids are the index
-into `map.mines[]`, `shop` ids are `map.shops[].id`, and a point is an image
-fraction (0..1) like a camp's `x`/`y`. A place stop has `campId: null` and an
-`action` that names it ("Harass their base", "Buy circlet"); the submission
-schema rejects a place on a camp stop, a place without an action, and a
-start, mine or shop id the map does not have (`place.mjs`'s `placeProblem`).
+`{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop` or
+`scout`. `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
+`{ mine }` (the index into `map.mines[]`), `{ shop }` (`map.shops[].id`) or
+`{ x, y }` (an image fraction 0..1, like a camp's). A place stop has
+`campId: null` and an `action` that names it ("Harass their base", "Plant the
+Ancient of War"); the submission schema rejects a place on a camp stop, a place
+without an action, and a start, mine or shop the map does not have
+(`place.mjs`'s `placeProblem`).
+
+An `attack` is a numbered stop. The other four kinds are waypoints: on the
+path, no number, not counted in "N stops" (`stop-numbers.mjs`).
 
 - **Derive.** Unchanged: a place stop is a non-camp stop and passes through.
-- **Map.** The path runs to the place like a camp; the badge sits above it and
-  the place's mark gets the camp stop's 1.5px white on-route ring. A start
-  gets crossed swords beside its badge, a point a 5px white diamond; a mine
-  or shop draws no glyph, since the map already shows its icon.
-- **List.** Number, glyph, the action in medium weight, then the place name
-  muted ("their base", "your base", "a gold mine", the shop's name, "on the
-  map") unless the action already names it; no level on the right. The body shows Bring, condition and note.
-- **Builder.** A click on a start, mine or shop adds a place stop; "Point"
-  arms one click anywhere on the map. A start, mine or shop under a camp's
-  button takes no mouse click; Tab reaches it.
+- **Map.** The path runs through every place. An attack gets a numbered badge
+  ringed in `--wg-loss` with white swords under it, and its target mark gets
+  the on-route ring. A waypoint has no badge: build is a 6px white square on
+  the spot, scout a 6px circle with a dot, expand and shop the on-route ring
+  on the mine's or shop's own icon. The legend lists "Attack" (red swords)
+  only when the route has one.
+- **List.** An attack reads its number, red swords, the action, then the place
+  name muted unless the action already says it, and no level. A waypoint is a
+  slim row with no number: glyph, action, the kind word muted, and Bring and
+  note when it has them; its summary only opens and closes it.
+- **Builder.** A click on their start adds an attack, on your start a build
+  waypoint, on a mine an expand waypoint, on a shop a shop waypoint; "Point"
+  arms one click anywhere on the map for a build waypoint. The row has a kind
+  select. A start, mine or shop under a camp's button takes no mouse click;
+  Tab reaches it.
 - **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
   Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
   Appearance under Neutral, from the art the site already has. `count` on an

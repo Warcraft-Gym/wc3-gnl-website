@@ -11,11 +11,6 @@ const RACES = [
   { title: "Undead", value: "undead" },
 ];
 
-/** The `kind` of a place object, for its fields' hidden/required rules. */
-function placeKind(parent: unknown) {
-  return (parent as { kind?: string } | undefined)?.kind;
-}
-
 const LEVELS = [
   { title: "Beginner", value: "beginner" },
   { title: "Standard", value: "standard" },
@@ -413,35 +408,33 @@ export const creepStop = defineType({
     defineField({
       name: "place",
       type: "object",
-      description: "Optional. A stop at a start, gold mine, shop or point on the map instead of a camp. Leave the camp id empty and name what happens in Action.",
+      description: "Optional. An attack or a waypoint instead of a camp. Leave the camp id empty and name what happens in Action. An attack takes a stop number; build, expand, shop and scout are waypoints on the path with no number.",
       fields: [
         defineField({
           name: "kind",
           type: "string",
-          options: { list: ["start", "mine", "shop", "point"] },
+          options: { list: ["attack", "build", "expand", "shop", "scout"] },
           validation: (rule) => rule.required(),
         }),
         defineField({
-          name: "id",
-          type: "string",
-          description: "Start: the player number. Mine: its index on the map (0 is the first). Shop: its id on the map.",
-          hidden: ({ parent }) => !placeKind(parent) || placeKind(parent) === "point",
+          name: "at",
+          type: "object",
+          description: "Fill exactly one: a start (player number), a gold mine (its index, 0 is the first), a shop (its id on the map), or a point (x and y).",
           validation: (rule) =>
-            rule.custom((v, ctx) => (placeKind(ctx.parent) && placeKind(ctx.parent) !== "point" && !v ? "Required for a start, mine or shop" : true)),
-        }),
-        defineField({
-          name: "x",
-          type: "number",
-          description: "0 is the left edge, 1 the right.",
-          hidden: ({ parent }) => placeKind(parent) !== "point",
-          validation: (rule) => rule.min(0).max(1).custom((v, ctx) => (placeKind(ctx.parent) === "point" && v === undefined ? "Required for a point" : true)),
-        }),
-        defineField({
-          name: "y",
-          type: "number",
-          description: "0 is the top edge, 1 the bottom.",
-          hidden: ({ parent }) => placeKind(parent) !== "point",
-          validation: (rule) => rule.min(0).max(1).custom((v, ctx) => (placeKind(ctx.parent) === "point" && v === undefined ? "Required for a point" : true)),
+            rule.required().custom((at) => {
+              const v = (at ?? {}) as { start?: string; mine?: string; shop?: string; x?: number; y?: number };
+              const spots = [v.start, v.mine, v.shop].filter(Boolean).length + (v.x !== undefined || v.y !== undefined ? 1 : 0);
+              if (spots !== 1) return "Fill exactly one spot";
+              if ((v.x !== undefined) !== (v.y !== undefined)) return "A point needs x and y";
+              return true;
+            }),
+          fields: [
+            defineField({ name: "start", type: "string", description: "The player number of a start." }),
+            defineField({ name: "mine", type: "string", description: "The gold mine's index on the map, 0 is the first." }),
+            defineField({ name: "shop", type: "string", description: "The shop's id on the map." }),
+            defineField({ name: "x", type: "number", description: "A point: 0 is the left edge, 1 the right.", validation: (rule) => rule.min(0).max(1) }),
+            defineField({ name: "y", type: "number", description: "A point: 0 is the top edge, 1 the bottom.", validation: (rule) => rule.min(0).max(1) }),
+          ],
         }),
       ],
     }),
@@ -449,7 +442,7 @@ export const creepStop = defineType({
   preview: {
     select: { campId: "campId", action: "action", note: "note", place: "place.kind" },
     prepare: ({ campId, action, note, place }) => ({
-      title: campId ? `Camp ${campId}` : place ? `Place: ${action || place}` : action || "(stop)",
+      title: campId ? `Camp ${campId}` : place ? `${place === "attack" ? "Attack" : "Waypoint"}: ${action || place}` : action || "(stop)",
       subtitle: note,
     }),
   },

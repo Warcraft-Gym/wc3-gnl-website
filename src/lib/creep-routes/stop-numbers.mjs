@@ -2,10 +2,13 @@
  * Stop numbers and keys for a route with forks (`RouteStop.fork`, one level
  * deep). Stops before a fork number as before; the fork node takes the next
  * number N; arm stops read N a, N+1 a, … and N b, N+1 b, …; the stop after
- * the fork takes N + the longest arm's length. Keys are strings: "0", "1", …
+ * the fork takes N + the longest arm's length. A waypoint (`place.mjs`) takes no
+ * number and no length. Keys are strings: "0", "1", …
  * at the top level and "2.a.0" for the first stop of fork 2's arm a. Plain
  * JS so `node --test` runs `stop-numbers.test.mjs` with no loader.
  */
+
+import { isWaypoint } from "./place.mjs";
 
 export const ARM_LETTERS = ["a", "b", "c"];
 
@@ -16,16 +19,21 @@ export function numberStops(stops) {
   let n = 1;
   return stops.map((stop, i) => {
     const key = String(i);
+    // A waypoint (a place that is not an attack) takes no number.
+    if (isWaypoint(stop)) return { key, label: "" };
     const label = String(n);
     if (!stop.fork) {
       n += 1;
       return { key, label };
     }
-    const arms = stop.fork.arms.map((arm, a) => ({
-      letter: ARM_LETTERS[a],
-      stops: arm.stops.map((_, j) => ({ key: armKey(i, a, j), label: `${n + j}${ARM_LETTERS[a]}` })),
-    }));
-    n += Math.max(1, ...stop.fork.arms.map((arm) => arm.stops.length));
+    const arms = stop.fork.arms.map((arm, a) => {
+      let j = 0;
+      return {
+        letter: ARM_LETTERS[a],
+        stops: arm.stops.map((s, k) => ({ key: armKey(i, a, k), label: isWaypoint(s) ? "" : `${n + j++}${ARM_LETTERS[a]}` })),
+      };
+    });
+    n += Math.max(1, ...stop.fork.arms.map((arm) => arm.stops.filter((s) => !isWaypoint(s)).length));
     return { key, label, arms };
   });
 }
@@ -56,13 +64,14 @@ export function stopKeys(stops) {
   return flatStops(stops).map((s) => s.key);
 }
 
-/** How many real stops a route has: every non-fork stop plus every arm's stops. Takes a
+/** How many numbered stops a route has: every stop but a waypoint, a fork's arms' stops included. Takes a
  *  Sanity `creepFork` array member (`arms` on the item) as well as a fork node (`fork.arms`).
  *  @param {{ fork?: { arms: { stops?: unknown[] }[] }, _type?: string, arms?: { stops?: unknown[] }[] }[]} stops */
 export function countStops(stops) {
   return (stops ?? []).reduce((n, s) => {
     const arms = s.fork?.arms ?? (s._type === "creepFork" ? s.arms ?? [] : null);
-    return n + (arms ? arms.reduce((m, arm) => m + (arm.stops?.length ?? 0), 0) : 1);
+    if (arms) return n + arms.reduce((m, arm) => m + (arm.stops ?? []).filter((x) => !isWaypoint(x)).length, 0);
+    return n + (isWaypoint(s) ? 0 : 1);
   }, 0);
 }
 

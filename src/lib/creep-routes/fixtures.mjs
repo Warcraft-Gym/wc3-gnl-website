@@ -192,18 +192,19 @@ export const FIXTURE_ROUTES = [
     stops: [
       {
         campId: null,
-        action: "Plant the Ancient of War by the ogres",
-        place: { kind: "point", x: 0.47, y: 0.86 },
+        action: "Plant the Ancient of War",
+        place: { kind: "build", at: { x: 0.5, y: 0.83 } },
         units: [{ icon: "ne-ancient-of-war", count: 1 }],
       },
-      { campId: "c07", note: "Keeper takes the turtles while the Ancient tanks" },
+      { campId: "c15", units: [{ icon: "ne-ancient-of-war", count: 1 }], note: "The Ancient tanks the ogres" },
+      { campId: "c07", note: "Keeper takes the turtles" },
       {
         campId: null,
         fork: {
           mode: "either",
           arms: [
             { label: "No one at their natural", stops: [{ campId: "c08", note: "Take their natural's turtles" }] },
-            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "start", id: "3" } }] },
+            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "3" } } }] },
           ],
         },
       },

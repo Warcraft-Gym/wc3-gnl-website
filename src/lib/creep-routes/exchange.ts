@@ -33,10 +33,15 @@ const stopSchema = z.object({
   kills: z.array(z.object({ row: z.number(), n: z.number(), set: z.number().optional() })).optional(),
   leaveRest: z.boolean().optional(),
   place: z
-    .discriminatedUnion("kind", [
-      z.object({ kind: z.enum(["start", "mine", "shop"]), id: z.string() }),
-      z.object({ kind: z.literal("point"), x: z.number(), y: z.number() }),
-    ])
+    .object({
+      kind: z.enum(["attack", "build", "expand", "shop", "scout"]),
+      at: z.union([
+        z.object({ start: z.string() }),
+        z.object({ mine: z.string() }),
+        z.object({ shop: z.string() }),
+        z.object({ x: z.number(), y: z.number() }),
+      ]),
+    })
     .optional(),
   heroAbsent: z.boolean().optional(),
 });

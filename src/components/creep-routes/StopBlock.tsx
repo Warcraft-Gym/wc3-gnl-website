@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { DerivedStop } from "@/lib/creep-routes/derive";
 import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { actionNamesPlace, placeName } from "@/lib/creep-routes/place.mjs";
+import { actionNamesPlace, isWaypoint, placeName } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BAND_LABEL, BandDot } from "./RouteBadges";
@@ -116,17 +116,20 @@ export function StopBlock({
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
   // An arm of a "both" fork past the first runs without the hero whatever its own flag says.
   const absent = Boolean(stop.heroAbsent || d.heroAbsent);
+  // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
+  const waypoint = isWaypoint(stop) && stop.place ? stop.place.kind : null;
   return (
     <li
       ref={itemRef}
-      data-stop={number}
+      data-stop={number || undefined}
+      data-waypoint={waypoint ?? undefined}
       onMouseEnter={() => onHover(stopKey)}
       onMouseLeave={() => onHover(null)}
       aria-current={isActive ? "step" : undefined}
       className={cn(
         nested
-          ? "border-t border-line/40 py-3 pl-3 transition-colors first:border-t-0"
-          : "border-t border-line/40 px-4 py-4 transition-colors first:border-t-0 sm:px-5",
+          ? `border-t border-line/40 ${waypoint ? "py-2" : "py-3"} pl-3 transition-colors first:border-t-0`
+          : `border-t border-line/40 px-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:px-5`,
         (isActive || isHover) && "bg-gold/10",
       )}
     >
@@ -134,10 +137,10 @@ export function StopBlock({
       <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
         <button
           type="button"
-          onClick={() => onSummary(stopKey)}
+          onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={summaryLabel ?? (camp && absent ? `Stop ${number}, ${label}, without the hero` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`)}
+          aria-label={summaryLabel ?? (waypoint ? `${label}, ${waypoint}` : camp && absent ? `Stop ${number}, ${label}, without the hero` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`)}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -180,9 +183,9 @@ export function StopBlock({
                   </button>
                 ) : stop.place ? (
                   <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
-                    <PlaceIcon place={stop.place} className="shrink-0 self-center text-fg" />
+                    <PlaceIcon kind={stop.place.kind} className={cn("shrink-0 self-center", waypoint ? "text-fg" : "text-loss")} />
                     <span className="font-medium text-fg">{label}</span>
-                    {where ? <span className="text-muted">{where}</span> : null}
+                    {waypoint ? <span className="text-muted">{waypoint}</span> : where ? <span className="text-muted">{where}</span> : null}
                   </p>
                 ) : (
                   <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>

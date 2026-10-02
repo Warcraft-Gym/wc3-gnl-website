@@ -3,7 +3,7 @@ import type { CreepMap, Place, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
 import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
-import { placePoint } from "@/lib/creep-routes/place.mjs";
+import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
 import { numberStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { radiusFor } from "./CampMarker";
 import { placeRadius, PlaceRing, SwordsGlyph } from "./PlaceGlyph";
@@ -24,6 +24,8 @@ type PathNode = {
   trim: number;
   place?: Place;
   r?: number;
+  /** A place that is not an attack: on the path, no badge. */
+  waypoint?: boolean;
   absent?: boolean;
   other?: boolean;
 };
@@ -33,7 +35,8 @@ type LegStyle = "solid" | "absent" | "other";
 /**
  * The route itself: a polyline through the camp and place stops in order
  * (a base action with no place is skipped here and shown only in the stop
- * list) with a numbered badge at each of them. Numbers come from
+ * list) with a numbered badge at each camp and attack stop; a waypoint is on
+ * the line with its own glyph and no badge. Numbers come from
  * `stop-numbers.mjs`, so they always match the stop list's numbers even
  * when a non-camp stop sits between two camps or a fork splits the route.
  * `React.memo`d and its own `campById` lookup `useMemo`d — see the F009
@@ -72,8 +75,9 @@ export const RoutePath = memo(function RoutePath({
     }
     const at = s.place ? placePoint(map, s.place) : null;
     if (!s.place || !at) return null;
-    const r = placeRadius(s.place, iw, s.place.kind === "start" && map.starts[youStart] && String(map.starts[youStart].player) === s.place.id);
-    return { key, label, stop: s, x: at.x, y: at.y, trim: r + MARK_HALO, place: s.place, r, ...style };
+    const you = map.starts[youStart];
+    const r = placeRadius(s.place, iw, "start" in s.place.at && !!you && String(you.player) === s.place.at.start);
+    return { key, label, stop: s, x: at.x, y: at.y, trim: r + MARK_HALO, place: s.place, r, waypoint: isWaypoint(s), ...style };
   };
 
   // Legs run between consecutive nodes. A fork's arms all start at the node
@@ -96,7 +100,7 @@ export const RoutePath = memo(function RoutePath({
     const walked = both ? 0 : Math.min(choice?.[n.key] ?? 0, s.fork.arms.length - 1);
     const you = map.starts[youStart];
     const anchor: PathNode | null =
-      prev ?? (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "start", id: "" }, iw, true) + MARK_HALO } : null);
+      prev ?? (you ? { key: "start", label: "", stop: s, x: you.x, y: you.y, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + MARK_HALO } : null);
     let walkedEnd: PathNode | null = null;
     s.fork.arms.forEach((arm, a) => {
       let p = anchor;
@@ -174,6 +178,8 @@ export const RoutePath = memo(function RoutePath({
         p.place && p.r !== undefined ? <PlaceRing key={`ring-${p.key}`} place={p.place} cx={p.x * iw} cy={p.y * ih} r={p.r} /> : null,
       )}
       {points.map((p) => {
+        // A waypoint is on the path but takes no badge: its glyph or ring is its mark.
+        if (p.waypoint) return null;
         // Badge floats just above the camp mark, in the same units as the
         // viewBox so it reads the same on a 256x256 map and a 256x192 one —
         // and flips below, rather than clipping, for a camp near the top
@@ -185,6 +191,8 @@ export const RoutePath = memo(function RoutePath({
         const isArm = p.key.includes(".");
         // ponytail: a badge selects by pointer only; the stop list is the keyboard path to a place or arm stop.
         const select = (p.place || isArm) && onStopSelect ? () => onStopSelect(p.key) : undefined;
+        // An attack's badge is ringed in the loss red instead of gold, swords under it.
+        const ring = p.place?.kind === "attack" ? "var(--wg-loss)" : "var(--wg-gold)";
         // Without the hero: the first Bring unit's icon butts the badge's right edge; with none, the badge fades.
         const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
         const fade = p.other ? 0.6 : p.absent && !unitIcon ? 0.55 : undefined;
@@ -213,7 +221,7 @@ export const RoutePath = memo(function RoutePath({
                   height={12}
                   rx={6}
                   fill="var(--wg-bg)"
-                  stroke="var(--wg-gold)"
+                  stroke={ring}
                   strokeWidth={isActive ? 2.2 : 1.4}
                   style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
                 />
@@ -223,7 +231,7 @@ export const RoutePath = memo(function RoutePath({
                   cy={badgeY}
                   r={6}
                   fill="var(--wg-bg)"
-                  stroke="var(--wg-gold)"
+                  stroke={ring}
                   strokeWidth={isActive ? 2.2 : 1.4}
                   style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
                 />
@@ -231,13 +239,12 @@ export const RoutePath = memo(function RoutePath({
               <text x={cx} y={badgeY + 3} textAnchor="middle" className="tnum select-none fill-gold text-[8px] font-bold">
                 {p.label}
               </text>
-              {p.place?.kind === "start" ? <SwordsGlyph cx={cx + Math.max(6, pill / 2) + 4.5} cy={badgeY} /> : null}
-              {/* Past the swords when a start place has both (a way after the first of an "At the same time" fork). */}
+              {p.place?.kind === "attack" ? <SwordsGlyph cx={cx} cy={badgeY + 9.5} /> : null}
               {unitIcon ? (
                 <image
                   data-unit-icon
                   href={gameIconSrc(unitIcon)}
-                  x={cx + Math.max(6, pill / 2) + (p.place?.kind === "start" ? 8 : 0)}
+                  x={cx + Math.max(6, pill / 2)}
                   y={badgeY - 5}
                   width={10}
                   height={10}

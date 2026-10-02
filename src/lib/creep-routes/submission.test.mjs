@@ -390,23 +390,24 @@ const placeMaps = [{ slug: "autumn-leaves", campIds: ["c01", "c02"], startIds: [
 
 test("place: needs campId null and an action, and lands on the draft", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
-  const ok = s.safeParse(payload({ stops: [{ campId: null, action: "Buy circlet", place: { kind: "shop", id: "nmrk-6" } }, { campId: "c01" }] }));
+  // A shop visit is a waypoint and takes no number, so two camps still make the two stops.
+  const ok = s.safeParse(payload({ stops: [{ campId: null, action: "Buy circlet", place: { kind: "shop", at: { shop: "nmrk-6" } } }, { campId: "c01" }, { campId: "c02" }] }));
   assert.equal(ok.success, true);
-  assert.deepEqual(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[0].place, { kind: "shop", id: "nmrk-6" });
+  assert.deepEqual(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[0].place, { kind: "shop", at: { shop: "nmrk-6" } });
 
-  const noAction = s.safeParse(payload({ stops: [{ campId: null, place: { kind: "start", id: "1" } }, { campId: "c01" }] }));
+  const noAction = s.safeParse(payload({ stops: [{ campId: null, place: { kind: "attack", at: { start: "1" } } }, { campId: "c01" }] }));
   assert.equal(flattenErrors(noAction.error)["stops.0.action"], "Say what happens here");
-  const onCamp = s.safeParse(payload({ stops: [{ campId: "c01", action: "Harass", place: { kind: "start", id: "1" } }, { campId: "c02" }] }));
+  const onCamp = s.safeParse(payload({ stops: [{ campId: "c01", action: "Harass", place: { kind: "attack", at: { start: "1" } } }, { campId: "c02" }] }));
   assert.equal(flattenErrors(onCamp.error)["stops.0.place"], "A place stop has no camp");
 });
 
 test("place: an id the map does not have is rejected; a point must sit inside the map", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
-  const shop = s.safeParse(payload({ stops: [{ campId: null, action: "Buy", place: { kind: "shop", id: "ngme-1" } }, { campId: "c01" }] }));
+  const shop = s.safeParse(payload({ stops: [{ campId: null, action: "Buy", place: { kind: "shop", at: { shop: "ngme-1" } } }, { campId: "c01" }] }));
   assert.equal(flattenErrors(shop.error)["stops.0.place"], 'Unknown shop "ngme-1" on this map');
-  const mine = s.safeParse(payload({ stops: [{ campId: null, action: "Expand", place: { kind: "mine", id: "2" } }, { campId: "c01" }] }));
+  const mine = s.safeParse(payload({ stops: [{ campId: null, action: "Expand", place: { kind: "expand", at: { mine: "2" } } }, { campId: "c01" }] }));
   assert.match(flattenErrors(mine.error)["stops.0.place"], /Unknown gold mine/);
-  const point = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "point", x: 1.2, y: 0.5 } }, { campId: "c01" }] }));
+  const point = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "build", at: { x: 1.2, y: 0.5 } } }, { campId: "c01" }] }));
   assert.equal(point.success, false);
 });
 
@@ -415,7 +416,7 @@ test("heroAbsent: kept on a camp stop, rejected on a place or base-action stop",
   const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, { campId: "c02", heroAbsent: true }] }));
   assert.equal(ok.success, true);
   assert.equal(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1].heroAbsent, true);
-  const onPlace = s.safeParse(payload({ stops: [{ campId: null, action: "Harass", place: { kind: "start", id: "1" }, heroAbsent: true }, { campId: "c01" }] }));
+  const onPlace = s.safeParse(payload({ stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } }, heroAbsent: true }, { campId: "c01" }] }));
   assert.equal(flattenErrors(onPlace.error)["stops.0.heroAbsent"], "Only a camp stop can be without the hero");
 });
 
@@ -429,7 +430,7 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
         { campId: "c01" },
         forkStop("either", [
           { label: "No one at their natural", stops: [{ campId: "c02", heroAbsent: true }] },
-          { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "start", id: "1" } }] },
+          { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } } }] },
         ]),
       ],
     }),
@@ -441,7 +442,7 @@ test("fork: a valid either fork lands on the draft as a creepFork with arms of s
   assert.equal(fork.arms[0].label, "No one at their natural");
   assert.equal(fork.arms[0].stops[0]._type, "stop");
   assert.equal(fork.arms[0].stops[0].heroAbsent, true);
-  assert.deepEqual(fork.arms[1].stops[0].place, { kind: "start", id: "1" });
+  assert.deepEqual(fork.arms[1].stops[0].place, { kind: "attack", at: { start: "1" } });
 });
 
 test("fork: a fork inside an arm, an empty arm and either without labels are rejected", () => {

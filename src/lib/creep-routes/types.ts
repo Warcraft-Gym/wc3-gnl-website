@@ -129,7 +129,7 @@ export type CreepMap = {
 export type RouteStop = {
   campId: string | null;
   action?: string;
-  /** A stop at a start, mine, shop or free point instead of a camp; needs `campId: null` and `action`. See `place.mjs`. */
+  /** An attack or a waypoint at a start, mine, shop or free point instead of a camp; needs `campId: null` and `action`. See `place.mjs`. */
   place?: Place;
   units?: { icon: string; count: number }[];
   note?: string;
@@ -154,14 +154,15 @@ export type Fork = {
   arms: { label?: string; stops: RouteStop[] }[];
 };
 
-/** Where a place stop happens: `start` is `String(player)` of `CreepMap.starts[]`,
- *  `mine` is `String(index)` into `CreepMap.mines[]`, `shop` is `CreepMap.shops[].id`,
- *  `point` is an image fraction 0..1, the same units as camps. */
-export type Place =
-  | { kind: "start"; id: string }
-  | { kind: "mine"; id: string }
-  | { kind: "shop"; id: string }
-  | { kind: "point"; x: number; y: number };
+/** What happens at a place: `attack` is a numbered stop; build, expand, shop and scout are
+ *  waypoints (on the path, no number). */
+export type PlaceKind = "attack" | "build" | "expand" | "shop" | "scout";
+
+/** The spot: `start` is `String(player)` of `CreepMap.starts[]`, `mine` is `String(index)` into
+ *  `CreepMap.mines[]`, `shop` is `CreepMap.shops[].id`, `x`/`y` an image fraction 0..1 like a camp's. */
+export type PlaceAt = { start: string } | { mine: string } | { shop: string } | { x: number; y: number };
+
+export type Place = { kind: PlaceKind; at: PlaceAt };
 
 /** `set`: consecutive entries with the same value form one set unit (kills in any order). */
 export type StopKill = { row: number; n: number; set?: number };

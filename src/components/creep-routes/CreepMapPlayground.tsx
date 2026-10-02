@@ -2,7 +2,7 @@
 
 import { Fragment, useCallback, useEffect, useReducer, useState } from "react";
 import { initialStopView, stopViewReducer } from "@/lib/creep-routes/stop-view.mjs";
-import { findStopKey, parseKey, stopByKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { findStopKey, numberStops, parseKey, stopByKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend, routeLegendMarks } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
@@ -69,7 +69,7 @@ export function CreepMapPlayground({
       ? { selected: null, open: new Set([String(only)]) }
       : startClosed
         ? { selected: null, open: new Set<string>() }
-        : initialStopView(count, "0"),
+        : initialStopView(count, numberStops(route.stops).find((n) => n.label)?.key ?? "0"),
   ) as [{ selected: string | null; open: Set<string> }, React.Dispatch<Record<string, unknown>>];
   const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
   // The arm the reader follows in each "either" fork: page state, not URL state.
