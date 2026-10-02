@@ -1,4 +1,18 @@
 import { cn } from "@/lib/utils";
+import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import type { RouteStop } from "@/lib/creep-routes/types";
+
+/** Which route marks a route draws, so the legend lists only those: a leg without the hero
+ *  (a `heroAbsent` stop, or an arm after the first of a "both" fork) and a dashed other way
+ *  (an "either" fork). */
+export function routeLegendMarks(stops: Pick<RouteStop, "heroAbsent" | "fork">[]) {
+  return {
+    heroAbsent:
+      (flatStops(stops) as { stop: Pick<RouteStop, "heroAbsent"> }[]).some(({ stop }) => stop.heroAbsent) ||
+      stops.some((s) => s.fork?.mode === "both"),
+    anotherWay: stops.some((s) => s.fork?.mode === "either"),
+  };
+}
 
 /**
  * One line under the map (route page and editor alike) naming the marks a

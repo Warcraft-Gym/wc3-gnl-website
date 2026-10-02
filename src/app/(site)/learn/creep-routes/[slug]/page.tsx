@@ -124,7 +124,8 @@ export default async function CreepRoutePage({ params }: Params) {
     );
   }
 
-  const howToSteps = route.stops.map((s) => {
+  // A fork contributes the stops of the way the page shows first (arm 0) in its place.
+  const howToSteps = route.stops.flatMap((s) => (s.fork ? (s.fork.arms[0]?.stops ?? []) : [s])).map((s) => {
     const camp = s.campId ? map.camps.find((c) => c.id === s.campId) : undefined;
     const name = camp ? campLabel(camp) : (s.action ?? "Base action");
     return {

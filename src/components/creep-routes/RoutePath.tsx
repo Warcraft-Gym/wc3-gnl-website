@@ -232,7 +232,17 @@ export const RoutePath = memo(function RoutePath({
                 {p.label}
               </text>
               {p.place?.kind === "start" ? <SwordsGlyph cx={cx + Math.max(6, pill / 2) + 4.5} cy={badgeY} /> : null}
-              {unitIcon ? <image data-unit-icon href={gameIconSrc(unitIcon)} x={cx + Math.max(6, pill / 2)} y={badgeY - 5} width={10} height={10} /> : null}
+              {/* Past the swords when a start place has both (a way after the first of an "At the same time" fork). */}
+              {unitIcon ? (
+                <image
+                  data-unit-icon
+                  href={gameIconSrc(unitIcon)}
+                  x={cx + Math.max(6, pill / 2) + (p.place?.kind === "start" ? 8 : 0)}
+                  y={badgeY - 5}
+                  width={10}
+                  height={10}
+                />
+              ) : null}
             </g>
           </g>
         );

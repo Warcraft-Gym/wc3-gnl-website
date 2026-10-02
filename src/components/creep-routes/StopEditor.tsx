@@ -56,7 +56,7 @@ export function StopEditor({
   derivedStops?: DerivedStop[];
   /** Where this list's field errors live: "stops", or "stops.2.fork.arms.0.stops" in a way. */
   errorPath?: string;
-  /** The way map clicks go into, and its setter (a fork row's radio dot). */
+  /** The way map clicks go into, and its setter (a fork row's "Add stops here" toggle). */
   activeArm?: ActiveArm;
   onActiveArm?: (arm: ActiveArm) => void;
 }) {
@@ -211,6 +211,7 @@ export function StopEditor({
               onOpenCard={onOpenCard}
               cardOpen={Boolean(s.campId) && s.campId === openCampId}
               trace={derived.stops[i]?.kills}
+              absent={Boolean(s.heroAbsent || derived.stops[i]?.heroAbsent)}
               placeLabel={s.place ? placeName(map, s.place, start) : undefined}
             />
           ))}

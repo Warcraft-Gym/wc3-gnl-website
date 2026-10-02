@@ -69,6 +69,7 @@ export function toApiRoute(route, map, origin, iconSrc, deriveRouteFn) {
     sourceUrl: route.sourceUrl,
     build: route.build,
     derived: {
+      // ponytail: a fork's derived arms are not in the API; its entry carries the walked arm's end level/xp only.
       stops: derived.stops.map((s) => ({
         heroLevelAfter: s.heroLevelAfter,
         xpAfter: s.xpAfter,

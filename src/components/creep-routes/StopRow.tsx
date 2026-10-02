@@ -100,6 +100,7 @@ export function StopRow({
   trace,
   placeLabel,
   number,
+  absent,
 }: {
   index: number;
   stop: StopRowData;
@@ -129,6 +130,8 @@ export function StopRow({
   placeLabel?: string;
   /** The stop's number from `stop-numbers.mjs` ("3a" in a fork's way); default `index + 1`. */
   number?: string;
+  /** Derived without the hero: its own flag, or a way after the first of an "At the same time" fork. */
+  absent?: boolean;
 }) {
   function addUnit() {
     if (stop.units.length >= 6) return;
@@ -281,7 +284,7 @@ export function StopRow({
               trace={trace ?? []}
               error={error?.("kills")}
               onChange={onChange}
-              noXp={stop.heroAbsent}
+              noXp={absent ?? stop.heroAbsent}
             />
           ) : null}
 

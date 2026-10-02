@@ -458,3 +458,19 @@ test("fork: a fork inside an arm, an empty arm and either without labels are rej
   const badCamp = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "zz" }] }, { stops: [{ campId: "c02" }] }])] }));
   assert.match(flattenErrors(badCamp.error)["stops.1.fork.arms.0.stops.0.campId"], /Unknown camp/);
 });
+
+test("a whole-route pair (one fork at index 0 and nothing else) counts as two stops", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const pair = s.safeParse(payload({ stops: [forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(pair.success, true);
+  const lone = s.safeParse(payload({ stops: [{ campId: "c01" }] }));
+  assert.equal(flattenErrors(lone.error).stops, "Add at least two stops");
+});
+
+test("a fork node carrying any field besides its ways is rejected, not silently dropped", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  for (const extra of [{ heroAbsent: true }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
+    const r = s.safeParse(payload({ stops: [{ campId: "c01" }, { ...forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]), ...extra }] }));
+    assert.equal(flattenErrors(r.error)["stops.1.fork"], "A fork holds only its ways", JSON.stringify(extra));
+  }
+});

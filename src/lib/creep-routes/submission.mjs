@@ -3,6 +3,7 @@ import { isEmbeddable } from "../video-embed.mjs";
 import { isKnownPatch } from "../patches.mjs";
 import { killsProblem } from "./kills.mjs";
 import { placeProblem } from "./place.mjs";
+import { countStops } from "./stop-numbers.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -85,8 +86,12 @@ function baseStopSchema(iconSet, forkField) {
     })
     .superRefine((stop, ctx) => {
       if (stop.fork) {
-        if (stop.campId !== null || stop.action || stop.place) {
-          ctx.addIssue({ code: "custom", message: "A fork has no camp, action or place", path: ["fork"] });
+        // A fork node is `campId: null` and its ways; any other field would be dropped from the draft.
+        const extra = ["action", "place", "heroAbsent", "note", "condition", "units", "kills", "leaveRest"].filter(
+          (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
+        );
+        if (stop.campId !== null || extra.length) {
+          ctx.addIssue({ code: "custom", message: "A fork holds only its ways", path: ["fork"] });
         }
         return;
       }
@@ -240,7 +245,8 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
             .slice(0, 8),
         ),
       description: z.string().trim().max(6000, "Max 6000 characters").optional(),
-      stops: z.array(stopSchema).min(2, "Add at least two stops").max(30, "Max 30 stops"),
+      // Two stops at least, counted with every fork arm's stops (`countStops`): a whole-route pair is one fork.
+      stops: z.array(stopSchema).min(1, "Add at least two stops").max(30, "Max 30 stops"),
       /** Honeypot: a real submitter never fills this (it's visually hidden,
        *  `tabIndex={-1}`). Accepted as *any* string here — rejecting a
        *  nonempty value at the schema level (the old `z.string().max(0)`)
@@ -255,6 +261,7 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
       startedAt: z.coerce.number().optional(),
     })
     .superRefine((data, ctx) => {
+      if (countStops(data.stops) < 2) ctx.addIssue({ code: "custom", message: "Add at least two stops", path: ["stops"] });
       const campIds = campsByMap.get(data.map);
       const checkStop = (stop, path) => {
         if (stop.campId && campIds && !campIds.has(stop.campId)) {

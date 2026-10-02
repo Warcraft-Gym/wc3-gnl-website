@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
-import { numberStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, numberStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
 import { ForkBlock } from "./ForkBlock";
@@ -61,7 +61,8 @@ export function RouteStepTable({
   /** Chooses an arm of an "either" fork from its open block. */
   onChoose?: (forkKey: string, arm: number) => void;
 }) {
-  const count = route.stops.length;
+  // The header counts every arm's stops; a fork node is not a stop of its own.
+  const count = countStops(route.stops);
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const items = useRef(new Map<string, HTMLLIElement>());
   useEffect(() => {

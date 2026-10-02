@@ -2,6 +2,7 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "../../lib/creep-routes/submission.mjs";
 import { PATCH_OPTIONS } from "../../lib/patches.mjs";
+import { countStops } from "../../lib/creep-routes/stop-numbers.mjs";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -242,7 +243,8 @@ export const creepRoute = defineType({
       // real map preview inside the Studio stays backlog).
       description:
         "A reviewing coach can't see camp ids on a map here. To check what a camp id actually is, open /learn/creep-routes/submit?map=<slug> on the site (swap <slug> for this route's map).",
-      validation: (rule) => rule.required().min(2),
+      // Two stops at least, counted with every fork way's stops: a whole-route pair is one fork.
+      validation: (rule) => rule.required().custom((stops) => countStops((stops ?? []) as never[]) >= 2 || "Add at least two stops"),
       // `name: "stop"` keeps `_type: "stop"` on every stored stop, so existing documents stay valid.
       of: [
         defineArrayMember({ type: "creepStop", name: "stop" }),

@@ -506,13 +506,18 @@ at index 0. In Sanity the stop is a `creepFork` array member next to the
   legend shows "Another way" only when the route has an "either" fork.
 - **List.** The fork is a stop block: "Choose a way" or "At the same time",
   its arm labels as chips when collapsed. Open, "either" shows one button per
-  arm (label, then the hero's level at that arm's end) and the chosen arm's
-  stops nested under a 2px arcane rule; "both" lists every arm with its label.
-  The choice is page state, not URL state.
+  arm (`aria-pressed` buttons in a labelled group: label, then the hero's
+  level at that arm's end) and the chosen arm's stops nested under a 2px
+  arcane rule; "both" lists every arm with its label. The choice is page
+  state, not URL state. A map click on a camp picks the top-level stop or the
+  walked arm's first (`findStopKey`). The header, the list row, the share
+  image and the HowTo steps count every arm's stop (`countStops`); the HowTo
+  steps follow arm 0. A whole-route pair (one fork and nothing else) is valid.
 - **Builder.** "+ Fork" adds a "Choose a way" fork with two empty ways. The
-  fork row has the mode chips, a box per way (a radio dot, a label input, its
-  own stop list), "Add a way" up to 3 and a remove per way. Map clicks go into
-  the active way, or the top level when none is active.
+  fork row has the mode chips, a box per way (an "Add stops here" toggle, a
+  label input, its own stop list), "Add a way" up to 3 and a remove per way.
+  Map clicks go into the active way, or the top level when none is active; a
+  click on a camp that a way already holds removes it from that way.
 
 ### Kill order
 

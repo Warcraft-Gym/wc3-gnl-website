@@ -9,7 +9,7 @@ import { RoutePath } from "./RoutePath";
 import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, findStopKey, flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { cn } from "@/lib/utils";
 
 /** `(hover: none)` covers touch and other coarse pointers — the F012a
@@ -248,6 +248,11 @@ export function CreepMap({
   // Every stop, fork arms included, with its key: a camp's marker is on the
   // route, active and partly cleared through any of them.
   const allStops = useMemo(() => (route ? (flatStops(route.stops) as { key: string; stop: RouteStop }[]) : []), [route]);
+  // The one stop a camp's marker stands for (the first visit, or the walked arm's): only that one rings it.
+  const campKey = useMemo(
+    () => new Map(map.camps.map((c) => [c.id, route ? findStopKey(route.stops, c.id, choice) : null])),
+    [map.camps, route, choice],
+  );
 
   // Keyboard walk order: every camp on the map when `walkAllCamps` (the
   // route page, F012-followup-3 — every camp is interactive there now, so
@@ -399,7 +404,7 @@ export function CreepMap({
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
     opponentStartCount === 1 ? "" : "s"
-  }${route ? `, ${route.stops.length} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
+  }${route ? `, ${countStops(route.stops)} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
 
   return (
     <div ref={box} className={cn("panel relative overflow-hidden p-3", className)}>
@@ -431,7 +436,7 @@ export function CreepMap({
           ))}
           {onPlaceSelect ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed={false} /> : null}
           {map.camps.map((camp) => {
-            const keys = allStops.filter(({ stop }) => stop.campId === camp.id).map(({ key }) => key);
+            const onRoute = allStops.some(({ stop }) => stop.campId === camp.id);
             const isInteractive = isCampInteractive(camp.id);
             return (
               <CampMarker
@@ -439,14 +444,14 @@ export function CreepMap({
                 camp={camp}
                 imageWidth={iw}
                 imageHeight={ih}
-                active={activeStop != null && keys.includes(activeStop)}
+                active={activeStop != null && campKey.get(camp.id) === activeStop}
                 highlighted={highlightCamps?.has(camp.id) ?? false}
-                pressed={keys.length > 0}
+                pressed={onRoute}
                 onCampSelect={isInteractive ? handleCampClick : undefined}
                 onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
                 cardOpen={openCampId === camp.id}
                 asGroup={groupMarkers}
-                secondary={deemphasizeOffRoute && keys.length === 0}
+                secondary={deemphasizeOffRoute && !onRoute}
                 killed={killedShare(camp, allStops.map(({ stop }) => stop), camp.id)}
               />
             );

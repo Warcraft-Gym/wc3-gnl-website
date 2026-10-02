@@ -1,11 +1,10 @@
 import type { ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
 import type { StopInput } from "@/lib/creep-routes/submission";
 import type { StopRowData } from "./StopRow";
+import * as editorRows from "@/lib/creep-routes/editor-rows.mjs";
 
 /** A fresh editor row; `patch` sets the camp, the place or the fork. */
-export function newRow(patch: Partial<StopRowData> = {}): StopRowData {
-  return { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, ...patch };
-}
+export const newRow = editorRows.newRow as (patch?: Partial<StopRowData>) => StopRowData;
 
 /** An editor row as a submitted stop: the shape of the form's `stopsJson`, the map's route and `deriveRoute`'s input. */
 export function rowToStop(s: StopRowData): StopInput {
@@ -51,16 +50,15 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "fork">): StopRow
 }
 
 /** Adds a camp stop, or removes it when the list already has it (the map's click toggle). */
-export function toggleCamp(rows: StopRowData[], campId: string): StopRowData[] {
-  const idx = rows.findIndex((r) => r.campId === campId);
-  return idx !== -1 ? rows.filter((_, i) => i !== idx) : [...rows, newRow({ campId })];
-}
+export const toggleCamp = editorRows.toggleCamp as (rows: StopRowData[], campId: string) => StopRowData[];
+
+/** A map click with no way active: removes the camp from the fork way that holds it, else toggles it at the top level. */
+export const toggleCampAnywhere = editorRows.toggleCampAnywhere as (rows: StopRowData[], campId: string) => StopRowData[];
 
 /** Applies `update` to the stops of arm `arm` of the fork row `forkId`. */
-export function updateArm(rows: StopRowData[], forkId: number, arm: number, update: (stops: StopRowData[]) => StopRowData[]): StopRowData[] {
-  return rows.map((r) =>
-    r.id === forkId && r.fork
-      ? { ...r, fork: { ...r.fork, arms: r.fork.arms.map((a, i) => (i === arm ? { ...a, stops: update(a.stops) } : a)) } }
-      : r,
-  );
-}
+export const updateArm = editorRows.updateArm as (
+  rows: StopRowData[],
+  forkId: number,
+  arm: number,
+  update: (stops: StopRowData[]) => StopRowData[],
+) => StopRowData[];

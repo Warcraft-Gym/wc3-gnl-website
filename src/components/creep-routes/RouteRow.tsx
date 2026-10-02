@@ -6,6 +6,7 @@ import { TagChip, VsRaces } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { BUILD_RACES } from "@/lib/builds/types";
 import type { CreepRoute, RouteLevel } from "@/lib/creep-routes/types";
+import { countStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { cn } from "@/lib/utils";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { getGameIcon } from "@/lib/builds/icons";
@@ -35,6 +36,8 @@ export function RouteRow({ route }: { route: CreepRoute }) {
   // manifest does not know — the block is skipped rather than showing a chip
   // with nothing in it.
   const heroIcon = getGameIcon(route.hero);
+  // A fork's ways count stop by stop, the fork itself not at all.
+  const stopCount = countStops(route.stops);
   return (
     <li>
       <Link
@@ -104,7 +107,7 @@ export function RouteRow({ route }: { route: CreepRoute }) {
               </>
             ) : null}
             <span className="text-faint">·</span>
-            <span>{route.stops.length} stops</span>
+            <span>{stopCount} stops</span>
             <span className="text-faint">·</span>
             <span>by {route.author}</span>
             {/* Whether a route comes with a video or a cited source is worth
@@ -133,7 +136,7 @@ export function RouteRow({ route }: { route: CreepRoute }) {
         <div className="col-span-2 flex items-center justify-between gap-3 border-t border-line/50 pt-2 text-xs text-faint sm:col-span-1 sm:flex-col sm:items-end sm:justify-center sm:gap-1.5 sm:border-0 sm:pt-0">
           <LevelBadge level={route.level} />
           <span className="tnum whitespace-nowrap">
-            {formatDate(route.updatedAt)} · {route.stops.length} stop{route.stops.length === 1 ? "" : "s"}
+            {formatDate(route.updatedAt)} · {stopCount} stop{stopCount === 1 ? "" : "s"}
           </span>
         </div>
       </Link>

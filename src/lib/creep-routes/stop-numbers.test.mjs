@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { flatStops, numberStops, parseKey, stopKeys } from "./stop-numbers.mjs";
+import { countStops, findStopKey, flatStops, numberStops, parseKey, stopByKey, stopKeys } from "./stop-numbers.mjs";
 
 const camp = (id) => ({ campId: id });
 const fork = (...arms) => ({ campId: null, fork: { mode: "either", arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
@@ -32,4 +32,22 @@ test("a 3-arm fork letters a, b, c", () => {
 test("parseKey reads top-level and arm keys", () => {
   assert.deepEqual(parseKey("3"), { index: 3 });
   assert.deepEqual(parseKey("2.b.1"), { index: 2, arm: 1, j: 1 });
+});
+
+test("countStops counts every arm's stops and not the fork node; a whole-route pair counts 2", () => {
+  assert.equal(countStops([camp("c1"), camp("c2")]), 2);
+  assert.equal(countStops([fork([camp("c1")], [camp("c2")])]), 2);
+  assert.equal(countStops([camp("c1"), fork([camp("c2"), camp("c3")], [camp("c4")])]), 4);
+  assert.equal(countStops([{ _type: "creepFork", arms: [{ stops: [{}] }, { stops: [{}, {}] }] }]), 3);
+});
+
+test("findStopKey prefers the top level and the walked arm, then any arm", () => {
+  const stops = [camp("c1"), fork([camp("c2")], [camp("c2")]), camp("c3")];
+  assert.equal(findStopKey(stops, "c1"), "0");
+  assert.equal(findStopKey(stops, "c2"), "1.a.0");
+  assert.equal(findStopKey(stops, "c2", { 1: 1 }), "1.b.0");
+  assert.equal(findStopKey([fork([camp("c1")], [camp("c2")])], "c2"), "0.b.0");
+  assert.equal(findStopKey(stops, "zz"), null);
+  assert.equal(stopByKey(stops, "1.b.0").campId, "c2");
+  assert.equal(stopByKey(stops, "2").campId, "c3");
 });

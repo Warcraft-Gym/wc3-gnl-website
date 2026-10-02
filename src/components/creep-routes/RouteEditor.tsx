@@ -2,12 +2,11 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { CreepMap } from "./CreepMap";
-import { MapLegend } from "./MapLegend";
+import { MapLegend, routeLegendMarks } from "./MapLegend";
 import { StopEditor, type ActiveArm } from "./StopEditor";
 import { newRow, rowToStop, toggleCamp, updateArm } from "./stop-rows";
 import type { StopRowData } from "./StopRow";
-import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, Place, RouteStop } from "@/lib/creep-routes/types";
-import { flatStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
@@ -62,7 +61,7 @@ export function RouteEditor({
   // alone drives the polyline and the numbered badges.
   const routeForMap = useMemo(() => ({ stops: stops.map(rowToStop), start }), [stops, start]);
 
-  // The fork way map clicks go into (its radio dot); none means the top level.
+  // The fork way map clicks go into (its "Add stops here" toggle); none means the top level.
   const [activeArm, setActiveArm] = useState<ActiveArm>(null);
   const armOpen = activeArm !== null && stops.some((r) => r.id === activeArm.forkId && r.fork && r.fork.arms[activeArm.arm]);
   const addTo = useCallback(
@@ -84,7 +83,6 @@ export function RouteEditor({
     },
     [addTo],
   );
-  const allStops = flatStops(routeForMap.stops) as { stop: RouteStop }[];
 
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
@@ -100,10 +98,7 @@ export function RouteEditor({
           onPlaceSelect={onPlaceSelect}
           pointArmed={pointArmed}
         />
-        <MapLegend
-          heroAbsent={allStops.some(({ stop }) => stop.heroAbsent) || stops.some((s) => s.fork?.mode === "both")}
-          anotherWay={stops.some((s) => s.fork?.mode === "either")}
-        />
+        <MapLegend {...routeLegendMarks(routeForMap.stops)} />
         <p className="mt-2 text-xs text-faint">
           Hover a camp to see what&apos;s inside; click to add it as the next stop; right-click or
           the ⓘ pins the card. Click a base, gold mine or shop to add a stop there.

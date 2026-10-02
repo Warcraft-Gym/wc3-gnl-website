@@ -55,3 +55,43 @@ export function flatStops(stops) {
 export function stopKeys(stops) {
   return flatStops(stops).map((s) => s.key);
 }
+
+/** How many real stops a route has: every non-fork stop plus every arm's stops. Takes a
+ *  Sanity `creepFork` array member (`arms` on the item) as well as a fork node (`fork.arms`).
+ *  @param {{ fork?: { arms: { stops?: unknown[] }[] }, _type?: string, arms?: { stops?: unknown[] }[] }[]} stops */
+export function countStops(stops) {
+  return (stops ?? []).reduce((n, s) => {
+    const arms = s.fork?.arms ?? (s._type === "creepFork" ? s.arms ?? [] : null);
+    return n + (arms ? arms.reduce((m, arm) => m + (arm.stops?.length ?? 0), 0) : 1);
+  }, 0);
+}
+
+/** The key of the stop a map click on `campId` means: the top level and the walked arm of
+ *  each fork (the chosen one in "either", arm 0 in "both") first, then any other arm.
+ *  @returns {string | null} */
+export function findStopKey(stops, campId, choice = {}) {
+  const numbers = numberStops(stops);
+  let fallback = null;
+  for (let i = 0; i < stops.length; i++) {
+    const s = stops[i];
+    if (!s.fork) {
+      if (s.campId === campId) return numbers[i].key;
+      continue;
+    }
+    const walked = s.fork.mode === "both" ? 0 : (choice[numbers[i].key] ?? 0);
+    for (let a = 0; a < s.fork.arms.length; a++) {
+      const j = s.fork.arms[a].stops.findIndex((x) => x.campId === campId);
+      if (j === -1) continue;
+      const key = numbers[i].arms[a].stops[j].key;
+      if (a === walked) return key;
+      fallback ??= key;
+    }
+  }
+  return fallback;
+}
+
+/** The stop a key names, or undefined. */
+export function stopByKey(stops, key) {
+  const { index, arm, j } = parseKey(key);
+  return arm === undefined ? stops[index] : stops[index]?.fork?.arms[arm]?.stops[j];
+}

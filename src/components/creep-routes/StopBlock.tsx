@@ -58,7 +58,8 @@ function StopBody({ stop, d, absent }: { stop: RouteStop; d: DerivedStop; absent
  * fork's arm). The summary line is a button over the whole line that selects
  * and opens the stop (`onSummary`); the chevron only opens or closes it
  * (`onChevron`); the camp label is its own button that pins the camp card.
- * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a").
+ * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a"). A fork
+ * (`ForkBlock`) passes its own `title`, `summaryLabel` and body (`children`).
  */
 export function StopBlock({
   stop,
@@ -79,6 +80,9 @@ export function StopBlock({
   openCampId,
   stopBody,
   nested = false,
+  title,
+  summaryLabel,
+  children,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -99,6 +103,12 @@ export function StopBlock({
   stopBody?: React.ReactNode;
   /** Inside a fork's arm: a tighter left inset. */
   nested?: boolean;
+  /** Replaces the summary line's content (a fork's name and way chips). */
+  title?: React.ReactNode;
+  /** Replaces the summary button's label. */
+  summaryLabel?: string;
+  /** Replaces the open body (a fork's ways). */
+  children?: React.ReactNode;
 }) {
   const camp = d.camp;
   const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
@@ -127,7 +137,7 @@ export function StopBlock({
           onClick={() => onSummary(stopKey)}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={camp && absent ? `Stop ${number}, ${label}, without the hero` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
+          aria-label={summaryLabel ?? (camp && absent ? `Stop ${number}, ${label}, without the hero` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`)}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -138,53 +148,59 @@ export function StopBlock({
           )}
         </span>
         <div className="pointer-events-none relative min-w-0">
-          <div
-            className={cn(
-              "flex gap-3",
-              isOpen ? "flex-col sm:flex-row sm:items-start sm:justify-between sm:gap-4" : "items-start justify-between",
-            )}
-          >
-            {camp ? (
-              <button
-                type="button"
-                onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
-                aria-haspopup="dialog"
-                aria-expanded={camp.id === openCampId}
-                className="pointer-events-auto min-w-0 rounded pt-0.5 text-left text-sm hover:[&_.camp-name]:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:flex sm:flex-wrap sm:items-center sm:gap-x-2"
+          {title ?? (
+            <>
+              <div
+                className={cn(
+                  "flex gap-3",
+                  isOpen ? "flex-col sm:flex-row sm:items-start sm:justify-between sm:gap-4" : "items-start justify-between",
+                  // In a fork's narrower way the level line moves under the name instead of squeezing it.
+                  nested && "flex-wrap",
+                )}
               >
-                <span className="inline-flex items-start gap-1.5">
-                  <BandDot className="mt-1.5" band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
-                  <span className="camp-name font-medium text-fg">{label}</span>
-                </span>
-                <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
-                  <span>
-                    {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
-                    {absent ? " · without the hero" : null}
+                {camp ? (
+                  <button
+                    type="button"
+                    onClick={(e) => onOpenCard?.(camp, e.currentTarget)}
+                    aria-haspopup="dialog"
+                    aria-expanded={camp.id === openCampId}
+                    className="pointer-events-auto min-w-0 rounded pt-0.5 text-left text-sm hover:[&_.camp-name]:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold sm:flex sm:flex-wrap sm:items-center sm:gap-x-2"
+                  >
+                    <span className="inline-flex items-start gap-1.5">
+                      <BandDot className="mt-1.5" band={d.band} killed={d.left > 0 ? killedXpShare(camp, stop.kills, stop.leaveRest) : undefined} />
+                      <span className="camp-name font-medium text-fg">{label}</span>
+                    </span>
+                    <span className={cn("items-center gap-1.5 pl-3.5 text-muted sm:flex sm:pl-0", isOpen ? "flex" : "hidden")}>
+                      <span>
+                        {BAND_LABEL[camp.band] ?? camp.band} · Lv {camp.level}
+                        {absent ? " · without the hero" : null}
+                      </span>
+                      <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
+                    </span>
+                  </button>
+                ) : stop.place ? (
+                  <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
+                    <PlaceIcon place={stop.place} className="shrink-0 self-center text-fg" />
+                    <span className="font-medium text-fg">{label}</span>
+                    {where ? <span className="text-muted">{where}</span> : null}
+                  </p>
+                ) : (
+                  <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
+                )}
+                {camp && isOpen && !absent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+                {camp && !isOpen && !absent ? (
+                  <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
+                    Lv {d.heroLevelAfter} · {d.xpAfter} xp
                   </span>
-                  <ChevronRight aria-hidden size={14} className="shrink-0 text-faint" />
-                </span>
-              </button>
-            ) : stop.place ? (
-              <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
-                <PlaceIcon place={stop.place} className="shrink-0 self-center text-fg" />
-                <span className="font-medium text-fg">{label}</span>
-                {where ? <span className="text-muted">{where}</span> : null}
-              </p>
-            ) : (
-              <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
-            )}
-            {camp && isOpen && !absent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
-            {camp && !isOpen && !absent ? (
-              <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
-                Lv {d.heroLevelAfter} · {d.xpAfter} xp
-              </span>
-            ) : null}
-          </div>
-          {camp && !isOpen ? (
-            <div className="mt-2">
-              <KillStrip kills={d.kills} skipped={skippedOf(stop, camp)} />
-            </div>
-          ) : null}
+                ) : null}
+              </div>
+              {camp && !isOpen ? (
+                <div className="mt-2">
+                  <KillStrip kills={d.kills} skipped={skippedOf(stop, camp)} />
+                </div>
+              ) : null}
+            </>
+          )}
         </div>
         <button
           type="button"
@@ -203,7 +219,7 @@ export function StopBlock({
       {isOpen ? (
         <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
           <span />
-          {stopBody ?? <StopBody stop={stop} d={d} absent={absent} />}
+          {children ?? stopBody ?? <StopBody stop={stop} d={d} absent={absent} />}
           <span />
         </div>
       ) : null}

@@ -17,8 +17,8 @@ const MODES = [
 /**
  * A fork in the route being authored: its mode ("Choose a way" / "At the same
  * time"), then 2 or 3 ways stacked, each with a label and its own stop list
- * (`StopEditor` at depth 1, which has no "+ Fork"). The radio dot on a way
- * makes it active: camps and places clicked on the map go into it.
+ * (`StopEditor` at depth 1, which has no "+ Fork"). The dot on a way is a
+ * toggle, "Add stops here": camps and places clicked on the map go into it.
  */
 export function ForkRow({
   row,
@@ -80,13 +80,12 @@ export function ForkRow({
     <li className="relative rounded border border-arcane/40 bg-bg/40 p-3">
       <div className="grid grid-cols-[1.5rem_minmax(0,1fr)] items-start gap-x-3 gap-y-2 sm:grid-cols-[1.5rem_minmax(0,1fr)_auto]">
         <span className="tnum pt-2.5 text-center text-xs text-faint">{number}</span>
-        <div role="radiogroup" aria-label="Fork" className="flex flex-wrap gap-1.5 pt-1">
+        <div role="group" aria-label="Fork mode" className="flex flex-wrap gap-1.5 pt-1">
           {MODES.map((m) => (
             <button
               key={m.id}
               type="button"
-              role="radio"
-              aria-checked={mode === m.id}
+              aria-pressed={mode === m.id}
               onClick={() => setFork({ mode: m.id })}
               className={cn(
                 "h-8 rounded border border-arcane/40 px-2.5 text-[0.75rem]",
@@ -124,9 +123,8 @@ export function ForkRow({
               <div className="mb-2 flex items-center gap-2">
                 <button
                   type="button"
-                  role="radio"
-                  aria-checked={active}
-                  aria-label={`Add map clicks to way ${a + 1}`}
+                  aria-pressed={active}
+                  aria-label="Add stops here"
                   title="Map clicks add stops to this way"
                   onClick={() => onActiveArm?.(active ? null : { forkId: row.id, arm: a })}
                   className="grid size-6 shrink-0 place-items-center rounded-full border border-line hover:border-gold/60"

@@ -11,7 +11,7 @@ import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopRow";
-import { rowToStop, stopToRow, toggleCamp } from "./stop-rows";
+import { rowToStop, stopToRow, toggleCampAnywhere } from "./stop-rows";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
@@ -114,7 +114,7 @@ export function RouteSubmitForm({
   // hardening, so this class of bug can't recur even if a future caller
   // forgets to memoize its own `onCampSelect`.
   const onCampSelect = useCallback((campId: string) => {
-    setStops((rows) => toggleCamp(rows, campId));
+    setStops((rows) => toggleCampAnywhere(rows, campId));
   }, []);
 
   // #route= deep link from a future overlay/replay importer.
