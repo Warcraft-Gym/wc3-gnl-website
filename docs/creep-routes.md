@@ -1042,13 +1042,25 @@ sees; this section is the mechanics.
   is what makes "author a route for this matchup" a shareable link — the
   list page's empty state now uses it (see "Pages" above), and it's the
   seam a future "add the missing route" prompt elsewhere could reuse.
-- **`RouteSubmitForm` → `RouteSetup` + `RouteEditor` (`CreepMap` in edit
-  mode + `StopEditor` → `StopRow`)** is the component tree, split so no
-  file runs long: `RouteSetup` is the map/race/opponent(s)/level/hero/
-  companion-build row, `RouteEditor` is a thin layout wrapper (map left,
-  `StopEditor` right), `StopEditor` owns the stop list's mutations (add a
-  camp stop, add a base action, reorder, remove) and the live `deriveRoute`
-  readout, `StopRow` is one stop.
+- **`RouteSubmitForm` → `RouteSetup` + `RouteEditor`** is the component
+  tree. `RouteSetup` is the map/race/opponent(s)/level/hero/companion-build
+  row. `RouteEditor` is the slim builder, made of the reader's parts:
+  `CreepMap` in edit mode (sticky on the left on desktop, above the list on a
+  phone) and the reader's `RouteStepTable` on the right. Every stop is the
+  reader's one-line `StopBlock` row (a waypoint its slim row); one stop is
+  open at a time, the selected one, shared with the map's pulsing node, and
+  its body is `StopEditBody` (place kind and action, Bring with the hero
+  entry, the kill order picker, condition, note, move and remove). A split is
+  the reader's caption row and tab strip (`SplitRow` with `edit`): the mode
+  chips on the caption row, path labels edited in the tabs, "+ Path" as the
+  last tab, a dot per tab for "the next map click goes here", move and remove
+  at the right; the path's tools (its errors, "Remove path N") sit under the
+  tabs. The header's toolbar has "+ Waypoint" (adds one and arms the next map
+  click to put it on a spot) and "+ Split". The section header's "Edit |
+  Preview" toggle draws the route page's own section (`CreepMapPlayground`)
+  from the draft, read-only; the editor stays mounted under it, so the
+  selection is kept. Row edits by key live in `editor-rows.mjs`
+  (`keyOfRow`, `rowAtKey`, `patchRow`, `moveRow`, `removeRow`).
 - **The "Your spawn" picker.** `RouteEditor` renders a small radio picker
   under the map, but only when `map.starts.length > 2` (Turtle Rock,
   Twisted Meadows) — every other map's two starts leave nothing to pick
@@ -1065,16 +1077,14 @@ sees; this section is the mechanics.
   is already spoken for (`onCampSelect`, above) and stays exactly that, so
   *pinning* the card there is a **right-click** (`onContextMenu`,
   `e.preventDefault()` so the browser's own context menu never appears)
-  instead — see `CampMarker`'s doc comment. Every stop row also carries an
-  ⓘ button (`StopRow`, replacing the old `campComposition` summary line)
-  that pins the same card without needing the map at all — stop rows have
-  no hover behaviour of their own. All three call into the same
+  instead — see `CampMarker`'s doc comment. Every camp stop's row also pins
+  the same card from its camp name (the reader's `StopBlock` button), without
+  needing the map at all. All three call into the same
   `useCampCard()` instance, threaded `RouteSubmitForm` → `RouteEditor` →
   (`CreepMap`'s `onCampCardPin`/`onCampCardHoverEnter`/`onCampCardHoverLeave`
-  / `StopEditor` → `StopRow`'s `onOpenCard`) — one state, one card,
+  / `RouteStepTable` → `StopBlock`'s `onOpenCard`) — one state, one card,
   regardless of which of the triggers opened it. The hint line under the
-  map (`RouteEditor`) reads "Hover a camp to see what's inside; click to
-  add it as the next stop; right-click or the ⓘ pins the card."
+  map (`RouteEditor`) says what a click does.
 - **`src/lib/creep-routes/submission.mjs` + `submission.ts`.** Same split
   as `fixtures.mjs`/`fixtures.ts`: the `.mjs` file is the pure, plain-JS
   implementation `submission.test.mjs` checks directly with `node --test`

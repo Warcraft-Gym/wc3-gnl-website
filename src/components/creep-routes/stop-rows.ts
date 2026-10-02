@@ -1,6 +1,6 @@
 import type { ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
 import type { StopInput } from "@/lib/creep-routes/submission";
-import type { StopRowData } from "./StopRow";
+import type { StopRowData } from "./StopEditBody";
 import * as editorRows from "@/lib/creep-routes/editor-rows.mjs";
 
 /** A fresh editor row; `patch` sets the camp, the place or the split. */
@@ -66,3 +66,16 @@ export const updateArm = editorRows.updateArm as (
   arm: number,
   update: (stops: StopRowData[]) => StopRowData[],
 ) => StopRowData[];
+
+/** The stop-list key of row `id` ("2", "2.a.0"), or null. */
+export const keyOfRow = editorRows.keyOfRow as (rows: StopRowData[], id: number) => string | null;
+/** The row at a stop-list key. */
+export const rowAtKey = editorRows.rowAtKey as (rows: StopRowData[], key: string) => StopRowData | undefined;
+/** Merges `patch` into row `id`, at the top level or in a path. */
+export const patchRow = editorRows.patchRow as (rows: StopRowData[], id: number, patch: Partial<StopRowData>) => StopRowData[];
+/** Removes row `id`, at the top level or in a path. */
+export const removeRow = editorRows.removeRow as (rows: StopRowData[], id: number) => StopRowData[];
+/** Moves row `id` one place inside its own list. */
+export const moveRow = editorRows.moveRow as (rows: StopRowData[], id: number, dir: -1 | 1) => StopRowData[];
+/** Where row `id` sits in its own list. */
+export const placeInList = editorRows.placeInList as (rows: StopRowData[], id: number) => { index: number; length: number };

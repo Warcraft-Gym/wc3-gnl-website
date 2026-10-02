@@ -6,7 +6,7 @@ import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/cr
 import { routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
-import { JoinRow, SplitRow, StopRail, type RailLine } from "./LaneRail";
+import { JoinRow, LaneLines, SplitRow, StopRail, type RailLine, type SplitEdit } from "./LaneRail";
 
 /** One row of the flat lane list, see `route-rows.mjs`. */
 type LaneRow =
@@ -43,6 +43,11 @@ export function RouteStepTable({
   stopBody,
   choice,
   onChoose,
+  toolbar,
+  editBody,
+  splitEdit,
+  pathTools,
+  empty,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -68,6 +73,16 @@ export function RouteStepTable({
   choice?: Record<string, number>;
   /** Chooses a way of a split from its tab strip. */
   onChoose?: (forkKey: string, arm: number) => void;
+  /** The builder (`RouteEditor`): replaces "Expand all" in the header. */
+  toolbar?: React.ReactNode;
+  /** The builder: the open stop's body, by key (the stop's editor). */
+  editBody?: (key: string) => React.ReactNode;
+  /** The builder: the controls on split `index`'s caption row. */
+  splitEdit?: (index: number) => SplitEdit | undefined;
+  /** The builder: a row of path controls at the top of split `index`'s chosen path. */
+  pathTools?: (index: number) => React.ReactNode;
+  /** Shown in place of the list when the route has no stops. */
+  empty?: React.ReactNode;
 }) {
   // The header counts numbered stops: every way's, not a split's or a waypoint's.
   const count = countStops(route.stops);
@@ -110,6 +125,7 @@ export function RouteStepTable({
                   stopKey={row.key}
                   baseId={baseId}
                   onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
+                  edit={splitEdit?.(row.index)}
                 />
               );
             }
@@ -136,14 +152,26 @@ export function RouteStepTable({
                 showHero={showHero}
                 heroIcon={route.hero}
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
+                stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
               />
             );
           };
+  // The builder's path controls under a split's caption row, with the split's lanes running past.
+  const toolsRow = (split: LaneRow & { type: "split" }) => {
+    const tools = pathTools?.(split.index);
+    if (!tools) return null;
+    return (
+      <li key={`tools-${split.key}`} className="relative py-2 pl-[60px] pr-4 sm:pr-5">
+        <LaneLines lanes={split.lanes} />
+        {tools}
+      </li>
+    );
+  };
 
   return (
     <div className="panel">
       {only === undefined ? (
-        <div className="flex items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
+        <div className="flex flex-wrap items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:flex-nowrap sm:px-5">
           <div>
             <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
               Route{" "}
@@ -153,29 +181,40 @@ export function RouteStepTable({
             </h2>
             <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
           </div>
-          <button
-            type="button"
-            onClick={allOpen ? onCollapseAll : onExpandAll}
-            className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
-          >
-            {allOpen ? "Collapse all" : "Expand all"}
-          </button>
+          {toolbar ?? (
+            <button
+              type="button"
+              onClick={allOpen ? onCollapseAll : onExpandAll}
+              className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
+            >
+              {allOpen ? "Collapse all" : "Expand all"}
+            </button>
+          )}
         </div>
       ) : null}
 
-      {lanes ? (
+      {lanes && !route.stops.length && empty ? (
+        empty
+      ) : lanes ? (
         <ol>
           {groupPanels(rows).map((group) => {
             // The chosen path of an "or"/"xor" split: one tab panel holding its rows.
-            if (Array.isArray(group)) {
-              const panel = group[0].panel!;
+            if (group.type === "panel") {
+              const split = group.split;
+              const tools = toolsRow(split);
+              if (!group.rows.length && !tools) return null;
               return (
-                <li key={`panel-${panel}`} role="tabpanel" id={`${baseId}-panel-${panel}`} aria-labelledby={`${baseId}-tab-${panel}-${derived.stops[Number(panel)].split?.walked ?? 0}`}>
-                  <ol>{group.map(renderRow)}</ol>
+                <li key={`panel-${split.key}`} role="tabpanel" id={`${baseId}-panel-${split.key}`} aria-labelledby={`${baseId}-tab-${split.key}-${derived.stops[split.index].split?.walked ?? 0}`}>
+                  <ol>
+                    {tools}
+                    {group.rows.map(renderRow)}
+                  </ol>
                 </li>
               );
             }
-            return renderRow(group);
+            const row = group as LaneRow;
+            // An "and" split has no panel: its tools row follows the caption row.
+            return row.type === "split" && row.mode === "and" ? [renderRow(row), toolsRow(row)] : renderRow(row);
           })}
         </ol>
       ) : (
@@ -215,14 +254,16 @@ export function RouteStepTable({
   );
 }
 
-/** Rows in order, with each run of rows from one tab panel gathered into an array. */
-function groupPanels(rows: LaneRow[]): (LaneRow | (LaneRow & { type: "stop" })[])[] {
-  const out: (LaneRow | (LaneRow & { type: "stop" })[])[] = [];
+/** Rows in order; each "or"/"xor" split row is followed by its tab panel, the chosen path's rows (maybe none). */
+type PanelGroup = { type: "panel"; split: LaneRow & { type: "split" }; rows: LaneRow[] };
+
+function groupPanels(rows: LaneRow[]): (LaneRow | PanelGroup)[] {
+  const out: (LaneRow | PanelGroup)[] = [];
   for (const row of rows) {
     const last = out[out.length - 1];
-    if (row.type !== "stop" || !row.panel) out.push(row);
-    else if (Array.isArray(last) && last[0].panel === row.panel) last.push(row);
-    else out.push([row]);
+    if (row.type === "stop" && row.panel && last?.type === "panel") last.rows.push(row);
+    else out.push(row);
+    if (row.type === "split" && row.mode !== "and") out.push({ type: "panel", split: row, rows: [] });
   }
   return out;
 }

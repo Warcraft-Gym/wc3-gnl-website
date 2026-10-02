@@ -1,22 +1,23 @@
 "use client";
 
-import { useActionState, useCallback, useEffect, useRef, useState } from "react";
+import { useActionState, useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import { CheckCircle2, ChevronDown } from "lucide-react";
 import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-routes/submit/actions";
 import { RouteSetup } from "./RouteSetup";
 import { RouteEditor } from "./RouteEditor";
+import { CreepMapPlayground } from "./CreepMapPlayground";
 import { RouteDetailsFields } from "./RouteDetailsFields";
 import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
-import type { StopRowData } from "./StopRow";
-import { rowToStop, stopToRow, toggleCampAnywhere } from "./stop-rows";
+import type { StopRowData } from "./StopEditBody";
+import { rowToStop, stopToRow } from "./stop-rows";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
-import type { CreepMap, RouteLevel } from "@/lib/creep-routes/types";
+import type { CreepMap, CreepRoute, RouteLevel } from "@/lib/creep-routes/types";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
 import { normalizePatch } from "@/lib/patches.mjs";
 
@@ -87,34 +88,6 @@ export function RouteSubmitForm({
   useEffect(() => {
     const id = window.setTimeout(() => setStartedAt(Date.now()), 0);
     return () => window.clearTimeout(id);
-  }, []);
-
-  // A camp is on the route at most once via the click path: clicking a camp
-  // that isn't on the route yet appends a stop; clicking a camp that's
-  // already there removes that stop (toggle) instead of adding a duplicate.
-  // Base-action stops (`campId: null`) are never touched by this — only
-  // camp clicks go through here. Prefilled/imported routes may still carry
-  // a repeated campId (older data, the schema allows it); this only guards
-  // the click path, so a duplicate from prefill removes just the one match.
-  //
-  // `useCallback` (F012b, root-cause fix): a fresh function identity on
-  // every render used to cascade into `CreepMap`'s `isCampInteractive`
-  // (memoized on `[onCampSelect, interactiveCampIds]`), which fed the
-  // arrow-key-walk "behaves like hover" effect's own dependency array. That
-  // effect re-ran on *every* render — not just real walk-index transitions
-  // — and since there's no active walk in the editor it always took the
-  // "walk cleared" branch and called `onCampCardHoverLeave()` unconditionally.
-  // The moment `hoverEnter`'s 120ms timer opened the card (`openCampId`
-  // flowing back down through props), that re-render re-fired the effect,
-  // which called `hoverLeave` immediately, whose own 180ms timer then closed
-  // the card that had *just* opened — the card flashed open and silently
-  // closed before a human dwelling ~1s ever saw it. `CreepMapPlayground`
-  // (route page) never hit this because its own `onMarkerSelect` was already
-  // `useCallback`d. See `CreepMap`'s walk effect below for the matching
-  // hardening, so this class of bug can't recur even if a future caller
-  // forgets to memoize its own `onCampSelect`.
-  const onCampSelect = useCallback((campId: string) => {
-    setStops((rows) => toggleCampAnywhere(rows, campId));
   }, []);
 
   // #route= deep link from a future overlay/replay importer.
@@ -189,6 +162,20 @@ export function RouteSubmitForm({
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const stopsJson = JSON.stringify(stops.map(rowToStop));
+  // "Edit | Preview": the preview is the route page's own section (map and list) drawn from the draft.
+  const [preview, setPreview] = useState(false);
+  const draftRoute = useMemo(
+    () =>
+      map
+        ? ({
+            slug: "draft", title: text.title, race: (race && race !== "any" ? race : "human") as BuildRace, vsRaces, level,
+            map: { slug: map.slug, name: map.name, minimapUrl: map.minimapUrl }, start, hero: hero || undefined,
+            summary: text.summary, author: text.author, featured: false, publishedAt: "", updatedAt: "",
+            stops: stops.map(rowToStop),
+          } as CreepRoute)
+        : null,
+    [map, text.title, text.summary, text.author, race, vsRaces, level, start, hero, stops],
+  );
 
   if (state.status === "ok") {
     return (
@@ -274,6 +261,8 @@ export function RouteSubmitForm({
            *  Thumbnail grown from 22px to 40px (F009-followup-3, item 4) —
            *  race crests elsewhere in the editor are unchanged, only the
            *  map's own thumbnails grew. */}
+          <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="min-w-0 max-w-full">
           <SectionTitle n={2}>
             <span className="inline-flex min-w-0 items-center gap-2.5">
               <Image
@@ -286,13 +275,37 @@ export function RouteSubmitForm({
               <span className="truncate">Stops on {map.name}</span>
             </span>
           </SectionTitle>
+          </div>
+          <div role="radiogroup" aria-label="Edit or preview" className="inline-flex overflow-hidden rounded border border-line">
+            {(["Edit", "Preview"] as const).map((label) => {
+              const on = (label === "Preview") === preview;
+              return (
+                <button
+                  key={label}
+                  type="button"
+                  role="radio"
+                  aria-checked={on}
+                  onClick={() => setPreview(label === "Preview")}
+                  className={`h-8 px-3 text-xs ${label === "Preview" ? "border-l border-line" : ""} ${on ? "bg-gold/10 text-fg" : "text-muted hover:text-fg"}`}
+                >
+                  {label}
+                </button>
+              );
+            })}
+          </div>
+          </div>
           {errors.stops ? <p className="mb-3 mt-3 text-xs text-loss">{errors.stops}</p> : null}
-          <div className="mt-4">
+          {/* The editor stays mounted under the preview, so its selection survives the round trip. */}
+          {preview && draftRoute ? (
+            <div className="mt-4">
+              <CreepMapPlayground key={stopsJson} map={map} route={draftRoute} />
+            </div>
+          ) : null}
+          <div className="mt-4" hidden={preview}>
             <RouteEditor
               map={map}
               stops={stops}
               setStops={setStops}
-              onCampSelect={onCampSelect}
               start={start}
               onStartChange={setStart}
               iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef } from "react";
-import { Swords } from "lucide-react";
+import { ArrowDown, ArrowUp, Plus, Swords, Trash2 } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { isWaypoint } from "@/lib/creep-routes/place.mjs";
@@ -25,6 +25,7 @@ const LINE = "absolute w-0.5 bg-line-strong";
 /** A path not taken: the same lane, dashed. */
 const DASHED = "absolute w-0 border-l-2 border-dashed border-line-strong";
 const DASH = "4 3";
+const EDIT_ICON = "grid size-7 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
 
 /** The rail cell of a stop row; the `<li>` it sits in is `relative`. */
 export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
@@ -55,6 +56,17 @@ export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: strin
   );
 }
 
+/** Lane lines straight through a row with no node of its own (the builder's path controls). */
+export function LaneLines({ lanes }: { lanes: { lane: string; off: boolean }[] }) {
+  return (
+    <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-11">
+      {lanes.map((l) => (
+        <span key={l.lane} className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: 0, bottom: 0 }} />
+      ))}
+    </span>
+  );
+}
+
 /** A curve from the main line (x 14) out to a lane, or back in, in a 44x40 box stretched to the row. */
 function curve(x: number, out: boolean, from = 0) {
   return out ? `M14,${from} C14,${from + (40 - from) * 0.55} ${x},${40 - (40 - from) * 0.55} ${x},40` : `M${x},0 C${x},22 14,18 14,40`;
@@ -77,6 +89,30 @@ function RailSvg({ children }: { children: React.ReactNode }) {
  * chosen tab is open at the bottom onto its path's rows, the `tabpanel` below; the others are
  * recessed. "and" reads "At the same time".
  */
+/** The builder's controls on a split's caption row (`RouteEditor`). */
+export type SplitEdit = {
+  /** The tab shown: the chosen path ("or"/"xor"), the path being edited ("and"). */
+  chosen: number;
+  /** The path the next map click goes into, or null for the top level. */
+  activeArm: number | null;
+  onDot: (arm: number) => void;
+  onMode: (mode: "and" | "or" | "xor") => void;
+  onLabel: (arm: number, label: string) => void;
+  /** Unset at three paths. */
+  onAddPath?: () => void;
+  onMove: (dir: -1 | 1) => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  onRemove: () => void;
+  labelError?: (arm: number) => string | undefined;
+};
+
+const MODES = [
+  { id: "xor", label: "Choose a path" },
+  { id: "or", label: "Choose a path, then continue" },
+  { id: "and", label: "At the same time" },
+] as const;
+
 export function SplitRow({
   mode,
   arms,
@@ -86,6 +122,7 @@ export function SplitRow({
   stopKey,
   baseId,
   onChoose,
+  edit,
 }: {
   mode: "and" | "or" | "xor";
   arms: { label?: string }[];
@@ -95,11 +132,13 @@ export function SplitRow({
   stopKey: string;
   baseId: string;
   onChoose: (forkKey: string, arm: number) => void;
+  /** The builder: mode chips on the caption row, labels edited in the tabs, "+ Path" as the last tab. */
+  edit?: SplitEdit;
 }) {
-  const choose = mode !== "and";
-  const walked = node?.walked ?? 0;
+  const choose = mode !== "and" || Boolean(edit);
+  const walked = edit ? edit.chosen : (node?.walked ?? 0);
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const name = choose ? "Choose a path" : "At the same time";
+  const name = mode !== "and" ? "Choose a path" : "At the same time";
   // Arrow keys move the selection along the tab strip, Home and End to its ends.
   const onTabKey = (e: React.KeyboardEvent, a: number) => {
     const last = arms.length - 1;
@@ -132,10 +171,98 @@ export function SplitRow({
         // Browser tabs: the strip's base line runs under the caption, the recessed tabs and the
         // filler; the chosen tab has no bottom edge, so it opens into its path's rows below.
         <div className="flex min-w-0 flex-wrap items-end">
-          <span className="basis-full pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint sm:basis-auto sm:border-b sm:border-line-strong sm:pr-3">{name}</span>
-          <div role="tablist" aria-label={name} className="flex min-w-0 items-end">
+          {edit ? (
+            <div className="flex basis-full flex-wrap items-center gap-1.5 pb-2">
+              <div role="radiogroup" aria-label="Split mode" className="flex flex-wrap gap-1">
+                {MODES.map((m) => (
+                  <button
+                    key={m.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={mode === m.id}
+                    onClick={() => edit.onMode(m.id)}
+                    className={cn(
+                      "h-7 rounded border border-arcane/40 px-2 text-[0.72rem]",
+                      mode === m.id ? "bg-arcane/10 text-fg" : "text-arcane hover:bg-arcane/5",
+                    )}
+                  >
+                    {m.label}
+                  </button>
+                ))}
+              </div>
+              <span className="ml-auto flex gap-1">
+                <button type="button" onClick={() => edit.onMove(-1)} disabled={!edit.canMoveUp} aria-label="Move split up" className={EDIT_ICON}>
+                  <ArrowUp size={14} />
+                </button>
+                <button type="button" onClick={() => edit.onMove(1)} disabled={!edit.canMoveDown} aria-label="Move split down" className={EDIT_ICON}>
+                  <ArrowDown size={14} />
+                </button>
+                <button type="button" onClick={edit.onRemove} aria-label="Remove split" className={cn(EDIT_ICON, "hover:border-loss/60 hover:text-loss")}>
+                  <Trash2 size={14} />
+                </button>
+              </span>
+            </div>
+          ) : (
+            <span className="basis-full pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint sm:basis-auto sm:border-b sm:border-line-strong sm:pr-3">{name}</span>
+          )}
+          <div role="tablist" aria-label={name} className="flex min-w-0 flex-wrap items-end">
             {arms.map((arm, a) => {
               const chosen = a === walked;
+              const tabClass = cn(
+                "inline-flex min-w-0 items-baseline gap-1.5 rounded-t border px-3 text-left text-[0.84rem] transition-colors",
+                "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold",
+                chosen
+                  ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
+                  : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
+              );
+              const level = node?.arms[a] ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
+              if (edit) {
+                const active = edit.activeArm === a;
+                // A tab with an input in it: the tab is the div, the input edits the path's label in place.
+                return (
+                  <div
+                    key={a}
+                    id={`${baseId}-tab-${stopKey}-${a}`}
+                    role="tab"
+                    aria-selected={chosen}
+                    aria-controls={chosen ? `${baseId}-panel-${stopKey}` : undefined}
+                    tabIndex={chosen ? 0 : -1}
+                    onClick={() => onChoose(stopKey, a)}
+                    className={cn(tabClass, "items-center")}
+                  >
+                    <button
+                      type="button"
+                      aria-pressed={active}
+                      aria-label={`Add stops to path ${a + 1}`}
+                      title="Map clicks add stops to this path"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        edit.onDot(a);
+                        onChoose(stopKey, a);
+                      }}
+                      className="grid size-5 shrink-0 place-items-center rounded-full border border-line hover:border-gold/60"
+                    >
+                      <span className={cn("size-2 rounded-full", active ? "bg-gold" : "bg-transparent")} />
+                    </button>
+                    {mode !== "and" ? (
+                      <input
+                        aria-label={`Path ${a + 1}`}
+                        placeholder="When…"
+                        value={arm.label ?? ""}
+                        onChange={(e) => edit.onLabel(a, e.target.value)}
+                        maxLength={60}
+                        className={cn(
+                          "h-7 min-w-[7ch] max-w-[24ch] rounded [field-sizing:content] border border-transparent bg-transparent px-1 text-[0.84rem] text-inherit placeholder:text-faint hover:border-line focus:border-gold/60 focus:outline-none",
+                          edit.labelError?.(a) && "border-loss",
+                        )}
+                      />
+                    ) : (
+                      <span>Path {a + 1}</span>
+                    )}
+                    {level}
+                  </div>
+                );
+              }
               return (
                 <button
                   key={a}
@@ -150,19 +277,22 @@ export function SplitRow({
                   tabIndex={chosen ? 0 : -1}
                   onClick={() => onChoose(stopKey, a)}
                   onKeyDown={(e) => onTabKey(e, a)}
-                  className={cn(
-                    "inline-flex min-w-0 items-baseline gap-1.5 rounded-t border px-3 text-left text-[0.84rem] transition-colors",
-                    "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold",
-                    chosen
-                      ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
-                      : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
-                  )}
+                  className={tabClass}
                 >
                   <span>{arm.label}</span>
-                  {node?.arms[a] ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null}
+                  {level}
                 </button>
               );
             })}
+            {edit?.onAddPath ? (
+              <button
+                type="button"
+                onClick={edit.onAddPath}
+                className="inline-flex items-center gap-1 rounded-t border border-transparent border-b-line-strong px-2.5 pb-1 pt-1 text-[0.78rem] text-muted hover:text-gold"
+              >
+                <Plus size={14} /> Path
+              </button>
+            ) : null}
           </div>
           <span aria-hidden className="min-w-2 flex-1 self-stretch border-b border-line-strong" />
         </div>

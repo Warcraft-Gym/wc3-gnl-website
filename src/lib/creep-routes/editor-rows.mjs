@@ -33,3 +33,64 @@ export function toggleCampAnywhere(rows, campId) {
   }
   return toggleCamp(rows, campId);
 }
+
+/** The stop-list key (`stop-numbers.mjs`: "2", "2.a.0") of the row `id`, top level or in a split's path; null when absent. */
+export function keyOfRow(rows, id) {
+  for (const [i, r] of rows.entries()) {
+    if (r.id === id) return String(i);
+    for (const [a, arm] of (r.split?.arms ?? []).entries()) {
+      const j = arm.stops.findIndex((s) => s.id === id);
+      if (j !== -1) return `${i}.${"abc"[a]}.${j}`;
+    }
+  }
+  return null;
+}
+
+/** The row at a stop-list key, or undefined. */
+export function rowAtKey(rows, key) {
+  const [i, letter, j] = String(key).split(".");
+  const row = rows[Number(i)];
+  return letter === undefined ? row : row?.split?.arms["abc".indexOf(letter)]?.stops[Number(j)];
+}
+
+/** Applies `update` to the list (top level or a path's stops) that holds row `id`. */
+function inListOf(rows, id, update) {
+  if (rows.some((r) => r.id === id)) return update(rows);
+  return rows.map((r) =>
+    r.split && r.split.arms.some((a) => a.stops.some((s) => s.id === id))
+      ? { ...r, split: { ...r.split, arms: r.split.arms.map((a) => (a.stops.some((s) => s.id === id) ? { ...a, stops: update(a.stops) } : a)) } }
+      : r,
+  );
+}
+
+/** Merges `patch` into row `id`, wherever it is. */
+export function patchRow(rows, id, patch) {
+  return inListOf(rows, id, (list) => list.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+}
+
+/** Removes row `id`, wherever it is. */
+export function removeRow(rows, id) {
+  return inListOf(rows, id, (list) => list.filter((r) => r.id !== id));
+}
+
+/** Moves row `id` one place up (-1) or down (1) inside its own list. */
+export function moveRow(rows, id, dir) {
+  return inListOf(rows, id, (list) => {
+    const i = list.findIndex((r) => r.id === id);
+    const j = i + dir;
+    if (j < 0 || j >= list.length) return list;
+    const copy = [...list];
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+    return copy;
+  });
+}
+
+/** Where row `id` sits in its own list: `{ index, length }`. */
+export function placeInList(rows, id) {
+  let out = { index: -1, length: 0 };
+  inListOf(rows, id, (list) => {
+    out = { index: list.findIndex((r) => r.id === id), length: list.length };
+    return list;
+  });
+  return out;
+}
