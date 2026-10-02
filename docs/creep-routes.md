@@ -446,7 +446,7 @@ start, mine or shop id the map does not have (`place.mjs`'s `placeProblem`).
   or shop draws no glyph, since the map already shows its icon.
 - **List.** Number, glyph, the action in medium weight, then the place name
   muted ("their base", "your base", "a gold mine", the shop's name, "on the
-  map"); no level on the right. The body shows Bring, condition and note.
+  map") unless the action already names it; no level on the right. The body shows Bring, condition and note.
 - **Builder.** A click on a start, mine or shop adds a place stop; "Point"
   arms one click anywhere on the map. A start, mine or shop under a camp's
   button takes no mouse click; Tab reaches it.

@@ -10,6 +10,11 @@ const RACES = [
   { title: "Undead", value: "undead" },
 ];
 
+/** The `kind` of a place object, for its fields' hidden/required rules. */
+function placeKind(parent: unknown) {
+  return (parent as { kind?: string } | undefined)?.kind;
+}
+
 const LEVELS = [
   { title: "Beginner", value: "beginner" },
   { title: "Standard", value: "standard" },
@@ -417,10 +422,25 @@ export const creepStop = defineType({
         defineField({
           name: "id",
           type: "string",
-          description: "Start: the player number. Mine: its index on the map (0 is the first). Shop: its id on the map. Empty for a point.",
+          description: "Start: the player number. Mine: its index on the map (0 is the first). Shop: its id on the map.",
+          hidden: ({ parent }) => !placeKind(parent) || placeKind(parent) === "point",
+          validation: (rule) =>
+            rule.custom((v, ctx) => (placeKind(ctx.parent) && placeKind(ctx.parent) !== "point" && !v ? "Required for a start, mine or shop" : true)),
         }),
-        defineField({ name: "x", type: "number", description: "Point only: 0 is the left edge, 1 the right.", validation: (rule) => rule.min(0).max(1) }),
-        defineField({ name: "y", type: "number", description: "Point only: 0 is the top edge, 1 the bottom.", validation: (rule) => rule.min(0).max(1) }),
+        defineField({
+          name: "x",
+          type: "number",
+          description: "0 is the left edge, 1 the right.",
+          hidden: ({ parent }) => placeKind(parent) !== "point",
+          validation: (rule) => rule.min(0).max(1).custom((v, ctx) => (placeKind(ctx.parent) === "point" && v === undefined ? "Required for a point" : true)),
+        }),
+        defineField({
+          name: "y",
+          type: "number",
+          description: "0 is the top edge, 1 the bottom.",
+          hidden: ({ parent }) => placeKind(parent) !== "point",
+          validation: (rule) => rule.min(0).max(1).custom((v, ctx) => (placeKind(ctx.parent) === "point" && v === undefined ? "Required for a point" : true)),
+        }),
       ],
     }),
   ],

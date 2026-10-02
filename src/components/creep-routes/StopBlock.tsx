@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight } from "lucide-react";
 import type { DerivedStop } from "@/lib/creep-routes/derive";
 import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { placeName } from "@/lib/creep-routes/place.mjs";
+import { actionNamesPlace, placeName } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BAND_LABEL, BandDot } from "./RouteBadges";
@@ -102,7 +102,8 @@ export function StopBlock({
 }) {
   const camp = d.camp;
   const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
-  const where = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
+  const placeLabel = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
+  const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
   // An arm of a "both" fork past the first runs without the hero whatever its own flag says.
   const absent = Boolean(stop.heroAbsent || d.heroAbsent);
   return (
@@ -167,7 +168,7 @@ export function StopBlock({
               <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
                 <PlaceIcon place={stop.place} className="shrink-0 self-center text-fg" />
                 <span className="font-medium text-fg">{label}</span>
-                <span className="text-muted">{where}</span>
+                {where ? <span className="text-muted">{where}</span> : null}
               </p>
             ) : (
               <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { placeIds, placeName, placePoint, placeProblem } from "./place.mjs";
+import { actionNamesPlace, placeIds, placeName, placePoint, placeProblem } from "./place.mjs";
 
 const map = {
   starts: [{ player: 1, x: 0.7, y: 0.9 }, { player: 3, x: 0.3, y: 0.1 }],
@@ -33,4 +33,15 @@ test("placeProblem names an id the map does not have and passes a point", () => 
   assert.match(placeProblem({ kind: "shop", id: "ngme-0" }, ids), /Unknown shop/);
   assert.equal(placeProblem({ kind: "point", x: 0.5, y: 0.5 }, ids), null);
   assert.equal(placeProblem({ kind: "shop", id: "anything" }, {}), null);
+});
+
+test("a point without x and y has no spot on the map", () => {
+  assert.equal(placePoint(map, { kind: "point" }), null);
+  assert.equal(placePoint(map, { kind: "point", x: 0.5, y: null }), null);
+});
+
+test("actionNamesPlace: the list drops the place name when the action already says it", () => {
+  assert.equal(actionNamesPlace("Harass their base", "their base"), true);
+  assert.equal(actionNamesPlace("Buy at the MARKETPLACE", "Marketplace"), true);
+  assert.equal(actionNamesPlace("Buy circlet", "Marketplace"), false);
 });

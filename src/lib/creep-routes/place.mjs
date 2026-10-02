@@ -11,7 +11,7 @@ export const PLACE_KINDS = ["start", "mine", "shop", "point"];
 /** The place's position as image fractions (0..1), or null when its id is not on the map. */
 export function placePoint(map, place) {
   if (!place) return null;
-  if (place.kind === "point") return { x: place.x, y: place.y };
+  if (place.kind === "point") return Number.isFinite(place.x) && Number.isFinite(place.y) ? { x: place.x, y: place.y } : null;
   if (place.kind === "start") return map.starts.find((s) => String(s.player) === place.id) ?? null;
   if (place.kind === "mine") return map.mines[Number(place.id)] ?? null;
   if (place.kind === "shop") return map.shops.find((s) => s.id === place.id) ?? null;
@@ -44,4 +44,10 @@ export function placeProblem(place, { startIds, mineCount, shopIds } = {}) {
 /** The ids `placeProblem` checks against, read off a `CreepMap`. */
 export function placeIds(map) {
   return { startIds: map.starts.map((s) => String(s.player)), mineCount: map.mines.length, shopIds: map.shops.map((s) => s.id) };
+}
+
+/** True when the action text already names the place ("Harass their base" at their base),
+ *  so the list does not repeat it. Case-insensitive. */
+export function actionNamesPlace(action, name) {
+  return Boolean(action && name) && action.toLowerCase().includes(name.toLowerCase());
 }
