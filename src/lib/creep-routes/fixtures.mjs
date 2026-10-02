@@ -259,44 +259,48 @@ export const FIXTURE_ROUTES = [
     map: { slug: "autumn-leaves", name: "Autumn Leaves v2" },
     start: 1,
     hero: "ud-death-knight",
-    summary: "This is based on Happy vs Soin game. You can use this creep route if blademaster tries to snipe items early and gives you a bit of space.",
+    summary: "This is based on Happy vs Soin game. You can use this creep route if Blademaster tries to snipe items early and gives you a bit of space.",
     author: "veS",
     patch: "2.0.3",
     mapVersion: "2.0",
     featured: false,
     publishedAt: "2026-10-02T12:00:00Z",
     updatedAt: "2026-10-02T12:00:00Z",
+    description: [
+      "Your main goal in early game is to hit lvl 3 as soon as possible. Scouting the enemy hero and seeing their ability choices will help you inform which creep route is optimal. As you creep towards lvl 3, you need to assess whether you can be aggressive, or whether you must play safer.",
+    ],
     stops: [
       {
         campId: null,
         // ponytail: the two camp orders are really xor, but the level-3 choice follows both and a
-        // split cannot sit inside a way, so this stays "or" with the "Reaching level 3" xor shared after.
+        // split cannot sit inside a path, so this stays "or" with the level-3 split shared after.
         split: {
           mode: "or",
           arms: [
             {
-              label: "Standard order",
+              label: "Standard",
               stops: [
                 {
                   campId: "c06",
                   units: [{ icon: "ud-ghoul", count: 2 }],
                   kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }],
-                  note: "Standard opening camp in almost all scenarios vs ORC. Bring 2 ghouls if you expect orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
+                  note: "Standard opening camp in almost all scenarios vs Orc. Bring 2 ghouls if you expect Orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
                 },
                 {
                   campId: "c08",
                   units: [{ icon: "ud-ghoul", count: 5 }],
                   kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }],
-                  condition: "Not against Far Seer or Headhunters",
-                  note: "You need to bring at least 5 ghouls, but you will be able to buy circlet + dust.",
+                  condition: "Do not attempt if you face a build with strong early presence, e.g. Far Seer/Headhunters",
+                  note: "You may go for this camp if you face solo Blademaster with Wind Walk. You need to bring at least 5 ghouls, but you will be able to buy Circlet and Dust for Wind Walk.",
                 },
               ],
             },
             {
-              label: "Mirror Image build",
+              label: "vs. Mirror Image Blademaster",
               stops: [
-                { campId: "c08", note: "Do not start with this camp, if you face mirror image build. In that case, start with gold mine/shop." },
-                { campId: "c06" },
+                { campId: "c08", units: [{ icon: "ud-ghoul", count: 5 }], kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }] },
+                // ponytail: no units on the second camp; the ghouls are already with the hero.
+                { campId: "c06", kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }] },
               ],
             },
           ],
@@ -304,28 +308,28 @@ export const FIXTURE_ROUTES = [
       },
       {
         campId: null,
-        // ponytail: no split caption ("Reaching level 3"); the way labels carry it.
+        // ponytail: no split caption ("Reaching level 3"); the path labels carry it.
         split: {
           mode: "xor",
           arms: [
             {
-              label: "Safer",
+              label: "Safe",
               stops: [
                 {
                   campId: "c03",
                   units: [{ icon: "rodofnecromancy", count: 1 }],
                   kills: [{ row: 1, n: 2 }],
-                  note: "Going for this camp is a safer option, because it's closer to your base. After creeping the shop, bring additional rod of necromancy. Kill two trolls first, then finish with the magi.",
+                  note: "Going for this camp is a safer option, because it's closer to your base. After creeping the shop, bring additional Rod of Necromancy. Kill two trolls first, then finish with the magi.",
                 },
               ],
             },
             {
-              label: "Risky, passive Orc",
+              label: "Risky; vs a passive Orc",
               stops: [
                 {
                   campId: "c04",
                   kills: [{ row: 1, n: 2 }],
-                  note: "Sometimes your orc opponent will be very passive. In this case, if you had a smooth early game and you feel confident, you can go for this camp. This will ensure you hit level 3 and that you will deprive him of important camp.",
+                  note: "Sometimes your Orc opponent will be very passive. In this case, if you had a smooth early game and you feel confident, you can go for this camp. This will ensure you hit level 3 and that you will deprive him of important camp.",
                 },
                 {
                   campId: null,
@@ -384,9 +388,9 @@ export const FIXTURE_ROUTES = [
               stops: [
                 {
                   campId: null,
-                  action: "Buy boots and dust",
+                  action: "Buy Boots and Dust",
                   place: { kind: "shop", at: { shop: "ngme-0" } },
-                  note: "Go there only to buy boots (for your Naga) and dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight.",
+                  note: "Go there only to buy Boots (for your Naga) and Dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight.",
                 },
               ],
             },
@@ -406,7 +410,7 @@ export const FIXTURE_ROUTES = [
         campId: "c03",
         condition: "Only if Elf placed his AoW on his green ogre camp.",
         kills: [{ row: 3, n: 1 }],
-        note: "In mid-game your goal is to stop Elf from creeping a big camp with his Ancient, that now has moved towards it. In most cases he will move towards the marketplace, as it gives a lot of XP and a good consumable. Your goal here is to a) stop elf from creeping this b) if possible, do it yourself. Whoever gets this camp in mid-game, achieves a big advantage.",
+        note: "In mid-game your goal is to stop Elf from creeping a big camp with his Ancient, that now has moved towards it. In most cases he will move towards the marketplace, as it gives a lot of XP and a good consumable. Your goal here is to a) stop Elf from creeping this b) if possible, do it yourself. Whoever gets this camp in mid-game, achieves a big advantage.",
       },
     ],
   },
