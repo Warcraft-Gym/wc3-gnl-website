@@ -374,32 +374,9 @@ export const FIXTURE_ROUTES = [
         note: "Meanwhile, scout Night Elf and check if his Ancient of War is moving towards the marketplace.",
       },
       {
-        campId: null,
-        // ponytail: no split caption ("The shop camp"); the way labels carry it.
-        split: {
-          mode: "or",
-          arms: [
-            {
-              label: "Buy only",
-              stops: [
-                {
-                  campId: "c05",
-                  leaveRest: true,
-                  note: "Go there only to buy boots (for your Naga) and dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight.",
-                },
-              ],
-            },
-            {
-              label: "Greedy",
-              stops: [
-                {
-                  campId: "c05",
-                  note: "You CAN creep this, if you feel greedy, but you will lose HP on your ghouls and will be unable to contest NE in mid-game",
-                },
-              ],
-            },
-          ],
-        },
+        campId: "c05",
+        leaveRest: true,
+        note: "Go there only to buy boots (for your Naga) and dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs Naga fight. You CAN creep this, if you feel greedy, but you will lose HP on your ghouls and will be unable to contest NE in mid-game",
       },
       {
         campId: "c03",
