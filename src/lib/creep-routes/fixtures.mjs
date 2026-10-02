@@ -381,8 +381,8 @@ export const FIXTURE_ROUTES = [
       },
       {
         campId: "c05",
-        condition: "Creep only if greedy",
-        note: "Buy Boots (for your Naga) and Dust (to reveal their archers during a night) here either way. Your goal here is to prepare for mid-game and the Naga vs. Naga fight. You CAN creep this, if you feel greedy, but you will lose HP on your ghouls and will be unable to contest NE in mid-game.",
+        condition: "You CAN creep this, if you feel greedy, but you will lose HP on your ghouls and will be unable to contest NE in mid-game",
+        note: "Go there only to buy Boots (for your Naga) and Dust (to reveal their archers during a night). Your goal here is to prepare for mid-game and the Naga vs. Naga fight.",
       },
       {
         campId: "c03",
