@@ -3,6 +3,7 @@ import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "../../lib/creep-routes/submission.mjs";
 import { PATCH_OPTIONS } from "../../lib/patches.mjs";
 import { countStops } from "../../lib/creep-routes/stop-numbers.mjs";
+import { CAP_OVER, MAX_PATHS, MAX_ROWS, MAX_STOPS, rowCount } from "../../lib/creep-routes/caps.mjs";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -239,7 +240,12 @@ export const creepRoute = defineType({
       description:
         "A reviewing coach can't see camp ids on a map here. To check what a camp id actually is, open /learn/creep-routes/submit?map=<slug> on the site (swap <slug> for this route's map).",
       // Two stops at least, counted with every fork way's stops: a whole-route pair is one fork.
-      validation: (rule) => rule.required().custom((stops) => countStops((stops ?? []) as never[]) >= 2 || "Add at least two stops"),
+      // The caps (12 numbered stops, 20 rows; `caps.mjs`) are warnings here: a coach may go past them.
+      validation: (rule) => [
+        rule.required().custom((stops) => countStops((stops ?? []) as never[]) >= 2 || "Add at least two stops"),
+        rule.custom((stops) => countStops((stops ?? []) as never[]) <= MAX_STOPS || CAP_OVER.stops).warning(),
+        rule.custom((stops) => rowCount((stops ?? []) as never[]) <= MAX_ROWS || CAP_OVER.rows).warning(),
+      ],
       // `name: "stop"` keeps `_type: "stop"` on every stored stop, so existing documents stay valid.
       of: [
         defineArrayMember({ type: "creepStop", name: "stop" }),
@@ -495,7 +501,7 @@ export const creepSplit = defineType({
       name: "arms",
       title: "Paths",
       type: "array",
-      validation: (rule) => rule.required().min(2).max(3),
+      validation: (rule) => [rule.required().min(2), rule.max(MAX_PATHS).warning(CAP_OVER.paths)],
       of: [
         defineArrayMember({
           type: "object",

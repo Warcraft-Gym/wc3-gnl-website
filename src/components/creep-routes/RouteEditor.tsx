@@ -8,6 +8,7 @@ import { RouteStepTable } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
 import { keyOfRow, moveRow, newRow, newSplitRow, patchRow, placeInList, removeRow, rowAtKey, rowToStop, toggleCamp, toggleCampAnywhere, updateArm } from "./stop-rows";
 import { deriveRoute } from "@/lib/creep-routes/derive";
+import { addBlocked } from "@/lib/creep-routes/caps.mjs";
 import { parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
@@ -102,9 +103,13 @@ export function RouteEditor({
     select(row && row.id !== selectedId ? row.id : null);
   };
 
+  // At a cap (`caps.mjs`) the add actions do nothing and the toolbar says so.
+  const capLine = addBlocked(stops, "row") ?? addBlocked(stops, "stop");
+
   /** Applies `update` to the active path's stops, or to the top level; a camp or attack added to
-   *  path 2.. of an "and" split arrives with the hero off. Selects the stop it adds. */
-  const addTo = (update: (rows: StopRowData[]) => StopRowData[]) => {
+   *  path 2.. of an "and" split arrives with the hero off. Selects the stop it adds. `kind` is what an
+   *  add adds ("stop" numbered, "row" a waypoint or split): nothing changes when that is past a cap. */
+  const addTo = (update: (rows: StopRowData[]) => StopRowData[], kind: "stop" | "row" = "stop") => {
     const heroOffArm = armOpen && activeArm!.arm > 0 && stops.some((r) => r.id === activeArm!.splitId && r.split?.mode === "and");
     const marked = (rows: StopRowData[]) => {
       const before = new Set(rows.map((r) => r.id));
@@ -113,6 +118,7 @@ export function RouteEditor({
     const next = armOpen ? updateArm(stops, activeArm!.splitId, activeArm!.arm, marked) : update(stops);
     const before = allIds(stops);
     const added = [...allIds(next)].find((id) => !before.has(id));
+    if (added !== undefined && addBlocked(stops, kind)) return undefined;
     setStops(next);
     if (added !== undefined) {
       setSelectedId(added);
@@ -127,7 +133,7 @@ export function RouteEditor({
       setStops((rows) => patchRow(rows, pending, { place }));
       setSelectedId(pending);
     } else {
-      addTo((rows) => [...rows, newRow({ place })]);
+      addTo((rows) => [...rows, newRow({ place })], place.kind === "attack" ? "stop" : "row");
     }
     setPending(null);
     setPointArmed(false);
@@ -138,11 +144,13 @@ export function RouteEditor({
       setPending(null);
       return;
     }
-    const id = addTo((rows) => [...rows, newRow()]);
+    if (addBlocked(stops, "row")) return;
+    const id = addTo((rows) => [...rows, newRow()], "row");
     setPending(id ?? null);
     setPointArmed(true);
   };
   const addSplit = () => {
+    if (addBlocked(stops, "row")) return;
     const row = newSplitRow();
     setStops((rows) => [...rows, row]);
     setActiveArm({ splitId: row.id, arm: 0 });
@@ -199,7 +207,9 @@ export function RouteEditor({
       onDot: (arm: number) => setActiveArm((cur) => (cur?.splitId === row.id && cur.arm === arm ? null : { splitId: row.id, arm })),
       onMode: (mode: "and" | "or" | "xor") => setSplit(row.id, { mode }),
       onLabel: (arm: number, label: string) => setSplit(row.id, { arms: arms.map((x, i) => (i === arm ? { ...x, label } : x)) }),
-      onAddPath: arms.length < 3 ? () => setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] }) : undefined,
+      onAddPath: () => {
+        if (!addBlocked(stops, "path", row)) setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
+      },
       onMove: (dir: -1 | 1) => setStops((rows) => moveRow(rows, row.id, dir)),
       canMoveUp: index > 0,
       canMoveDown: index < stops.length - 1,
@@ -221,11 +231,13 @@ export function RouteEditor({
     const error = fieldError?.(`${errPath}.arms.${arm}.label`) ?? fieldError?.(`${errPath}.arms.${arm}.stops`) ?? fieldError?.(errPath);
     const notLast = mode === "xor" && index < stops.length - 1;
     const empty = !arms[arm]?.stops.length;
-    if (!error && !notLast && !empty && arms.length < 3) return null;
+    const pathCap = addBlocked(stops, "path", row);
+    if (!error && !notLast && !empty && !pathCap) return null;
     return (
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem]">
         {empty ? <span className="text-faint">Turn on this path&apos;s dot, then click the map to add its stops.</span> : null}
         {error ? <span className="text-loss">{error}</span> : null}
+        {pathCap ? <span className="text-faint">{pathCap}</span> : null}
         {notLast ? <span className="text-loss">Nothing follows this split: move the stops after it into a path, or choose &quot;Choose a path, then continue&quot;.</span> : null}
         {arms.length > 2 ? (
           <button
@@ -245,19 +257,23 @@ export function RouteEditor({
   };
 
   const toolbar = (
-    <div className="flex shrink-0 gap-1.5">
-      <button
-        type="button"
-        onClick={addWaypoint}
-        aria-pressed={pointArmed}
-        title="Add a waypoint; the next map click puts it on a spot"
-        className={cn(TOOL, pointArmed ? "border-gold bg-gold/15 text-fg" : "border-gold/50 text-gold hover:bg-gold/10")}
-      >
-        <Plus size={14} /> Waypoint
-      </button>
-      <button type="button" onClick={addSplit} className={cn(TOOL, "border-gold/50 text-gold hover:bg-gold/10")}>
-        <Plus size={14} /> Split
-      </button>
+    <div className="flex shrink-0 flex-col items-end gap-1.5">
+      <div className="flex gap-1.5">
+        <button
+          type="button"
+          onClick={addWaypoint}
+          aria-pressed={pointArmed}
+          aria-disabled={!pointArmed && Boolean(addBlocked(stops, "row"))}
+          title="Add a waypoint; the next map click puts it on a spot"
+          className={cn(TOOL, pointArmed ? "border-gold bg-gold/15 text-fg" : "border-gold/50 text-gold hover:bg-gold/10", "aria-disabled:opacity-40")}
+        >
+          <Plus size={14} /> Waypoint
+        </button>
+        <button type="button" onClick={addSplit} aria-disabled={Boolean(addBlocked(stops, "row"))} className={cn(TOOL, "border-gold/50 text-gold hover:bg-gold/10 aria-disabled:opacity-40")}>
+          <Plus size={14} /> Split
+        </button>
+      </div>
+      {capLine ? <p className="max-w-[34ch] text-right text-[0.7rem] text-faint">{capLine}</p> : null}
     </div>
   );
 

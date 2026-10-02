@@ -498,3 +498,17 @@ test("xor split: accepted as the last stop, rejected with stops after it", () =>
   const after = s.safeParse(payload({ stops: [{ campId: "c01" }, xor, { campId: "c02" }] }));
   assert.equal(flattenErrors(after.error)["stops.1.split"], "Nothing follows an either/or split");
 });
+
+test("caps: the submit check repeats the builder's cap lines past 12 stops, 20 rows or 3 paths", () => {
+  const s = schema();
+  const camps = (n) => Array.from({ length: n }, (_, i) => ({ campId: i % 2 ? "c02" : "c01" }));
+  assert.equal(s.safeParse(payload({ stops: camps(12) })).success, true);
+  const thirteen = s.safeParse(payload({ stops: camps(13) }));
+  assert.equal(flattenErrors(thirteen.error).stops, "This route is over the cap of 12 numbered stops. Ask on Discord if you need more.");
+  const scout = { campId: null, action: "Scout", place: { kind: "scout", at: { x: 0.5, y: 0.5 } } };
+  const rows = s.safeParse(payload({ stops: [...camps(10), ...Array.from({ length: 11 }, () => scout)] }));
+  assert.equal(flattenErrors(rows.error).stops, "This route is over the cap of 20 rows. Ask on Discord if you need more.");
+  const four = forkStop("both", [1, 2, 3, 4].map(() => ({ stops: [{ campId: "c01" }] })));
+  const paths = s.safeParse(payload({ stops: [{ campId: "c01" }, four] }));
+  assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "This split is over the cap of 3 paths. Ask on Discord if you need more.");
+});

@@ -4,6 +4,7 @@ import { isKnownPatch } from "../patches.mjs";
 import { killsProblem } from "./kills.mjs";
 import { placeProblem } from "./place.mjs";
 import { countStops } from "./stop-numbers.mjs";
+import { CAP_OVER, MAX_PATHS, capProblems } from "./caps.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -124,7 +125,7 @@ function splitSchema(armStopSchema) {
           }),
         )
         .min(2, "A split needs two or three paths")
-        .max(3, "A split needs two or three paths"),
+        .max(MAX_PATHS, CAP_OVER.paths),
     })
     .superRefine((split, ctx) => {
       if (split.mode === "and") return;
@@ -264,6 +265,10 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
     })
     .superRefine((data, ctx) => {
       if (countStops(data.stops) < 2) ctx.addIssue({ code: "custom", message: "Add at least two stops", path: ["stops"] });
+      // The caps (`caps.mjs`): the builder stops at them; an imported route past one is told here.
+      for (const { path, message } of capProblems(data.stops)) {
+        if (!path.length) ctx.addIssue({ code: "custom", message, path: ["stops"] });
+      }
       const campIds = campsByMap.get(data.map);
       const checkStop = (stop, path) => {
         if (stop.campId && campIds && !campIds.has(stop.campId)) {
