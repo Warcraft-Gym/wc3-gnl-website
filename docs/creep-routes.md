@@ -571,11 +571,15 @@ no pictures yet (uploads need abuse limits); the submit form says a coach can
 add them after review, and "Suggest an update" does not carry them. The API
 makes a site-relative url absolute. The dev fixtures carry no pictures.
 
-- **List.** Under the note, a strip of 4:3 thumbnails (two side by side,
-  about 200px tall; Sanity urls with `?w=640&h=480&fit=crop&auto=format`),
-  each a button named by its alt. A click opens a native `<dialog>` lightbox
-  with the full picture (`?w=1600&auto=format`, at most 92vw by 88vh), its
-  caption, and previous / next when there is more than one; Escape or the
+- **List.** Under the note, a strip of 4:3 thumbnails, 200×150 on desktop
+  (wrapping) and 160×120 on a phone, where the strip scrolls sideways with
+  scroll-snap instead of shrinking them. The URLs come from the Sanity image
+  pipeline (`@sanity/image-url`, `stop-image-url.mjs`: width, height, fit
+  crop, auto format; the project and dataset read from the asset url), with a
+  `srcset` of both sizes at 1x and 2x, `sizes`, `loading="lazy"` and
+  `decoding="async"`; each is a button named by its alt. A click opens a
+  native `<dialog>` lightbox with the full picture (a `srcset` of 800, 1200
+  and 1600 wide, `sizes="92vw"`, at most 92vw by 88vh), its caption, and previous / next when there is more than one; Escape or the
   backdrop closes it and focus returns to the thumbnail. A collapsed stop
   with pictures shows lucide's `Image` and the count at the right.
 
