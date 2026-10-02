@@ -74,6 +74,8 @@ export function RouteStepTable({
   scrollTo = null,
   onOpenCard,
   openCampId = null,
+  only,
+  stopBody,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -91,6 +93,10 @@ export function RouteStepTable({
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   /** The camp the card is showing, for the camp button's `aria-expanded`. */
   openCampId?: string | null;
+  /** Show only this stop and no header (a guide's one-stop example); XP still runs over the whole route. */
+  only?: number;
+  /** Replaces an open stop's body; with `only`, a guide's editable kill order. */
+  stopBody?: React.ReactNode;
 }) {
   const count = route.stops.length;
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
@@ -105,27 +111,30 @@ export function RouteStepTable({
 
   return (
     <div className="panel">
-      <div className="flex items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
-        <div>
-          <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
-            Route{" "}
-            <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
-              · {count} stops
-            </span>
-          </h2>
-          <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
+      {only === undefined ? (
+        <div className="flex items-start justify-between gap-3 border-b border-line/60 px-4 py-3 sm:px-5">
+          <div>
+            <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
+              Route{" "}
+              <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
+                · {count} stops
+              </span>
+            </h2>
+            <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
+          </div>
+          <button
+            type="button"
+            onClick={allOpen ? onCollapseAll : onExpandAll}
+            className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
+          >
+            {allOpen ? "Collapse all" : "Expand all"}
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={allOpen ? onCollapseAll : onExpandAll}
-          className="inline-flex h-8 shrink-0 items-center rounded border border-gold/50 px-2.5 text-[0.65rem] font-bold uppercase tracking-wide text-gold hover:bg-gold/10"
-        >
-          {allOpen ? "Collapse all" : "Expand all"}
-        </button>
-      </div>
+      ) : null}
 
       <ol>
         {route.stops.map((stop, i) => {
+          if (only !== undefined && i !== only) return null;
           const d = derived.stops[i];
           const camp = d.camp;
           const isActive = i === selected;
@@ -223,7 +232,7 @@ export function RouteStepTable({
               {isOpen ? (
                 <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
                   <span />
-                  <StopBody stop={stop} d={d} />
+                  {stopBody ?? <StopBody stop={stop} d={d} />}
                   <span />
                 </div>
               ) : null}

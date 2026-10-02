@@ -75,13 +75,11 @@ interface RawLeague {
 
 /**
  * The GNL event a page reads. Every league page takes an optional season
- * number (`?season=17`); without one it shows the newest finished season.
- * A running season could be shown the same way. The intended end state is a
- * landing page that switches on the season's phase (signups open, commenced,
- * complete); that logic is deferred until it is the focus.
+ * number (`?season=17`); without one it shows the newest running or finished
+ * season.
  */
 async function fetchSeasonRaw(seasonNumber?: number): Promise<RawSeason> {
-  const seasons = await fetchCompletedSeasonsRaw();
+  const seasons = await fetchShownSeasonsRaw();
   if (seasonNumber == null) return pickActiveSeason(seasons);
   const hit = seasons.find((s) => mapSeason(s).number === seasonNumber);
   // Pages resolve the season with getSeason() first and 404 on a miss, so
@@ -90,8 +88,11 @@ async function fetchSeasonRaw(seasonNumber?: number): Promise<RawSeason> {
   return hit;
 }
 
-/** Every published, finished GNL event. */
-async function fetchCompletedSeasonsRaw(): Promise<RawSeason[]> {
+/** Phases a season shows in: its teams are drafted and a series has started, or it is closed. */
+const SHOWN_PHASES = new Set(["running", "finished"]);
+
+/** Every published GNL event that is running or finished. */
+async function fetchShownSeasonsRaw(): Promise<RawSeason[]> {
   // The backend edge caches both reads an hour, so a shorter timer only rewrites the cache
   const leagues = await apiGet<RawLeague[]>("/leagues", { revalidate: 3600 });
   const league = leagues.find((row) => row.kind === "gnl");
@@ -100,16 +101,16 @@ async function fetchCompletedSeasonsRaw(): Promise<RawSeason[]> {
     revalidate: 3600,
     query: { league_id: league.id, published: "true" },
   });
-  const completed = events.filter((event) => event.phase === "finished");
-  if (!completed.length) throw new Error("The GNL has no completed event.");
-  return completed;
+  const shown = events.filter((event) => SHOWN_PHASES.has(event.phase ?? ""));
+  if (!shown.length) throw new Error("The GNL has no running or finished event.");
+  return shown;
 }
 
 /** Every published season, newest first. Falls back to the fixture season. */
 export async function getSeasons(): Promise<Season[]> {
   const { data } = await withFallback(
     async () =>
-      (await fetchCompletedSeasonsRaw())
+      (await fetchShownSeasonsRaw())
         .map(mapSeason)
         .sort((a, b) => Date.parse(b.startDate ?? "") - Date.parse(a.startDate ?? "") || b.id - a.id),
     () => [FIXTURE_SEASON],
@@ -223,7 +224,7 @@ export async function getTeamPage(
 ): Promise<TeamPageData | undefined> {
   const { data } = await withFallback(
     async () => {
-      const raws = await fetchCompletedSeasonsRaw();
+      const raws = await fetchShownSeasonsRaw();
       // One call lists every team of the league with the seasons it entered.
       const leagueTeams = await apiGet<RawTeam[]>(`/leagues/${raws[0].league_id}/teams`);
       const entered = new Set(
@@ -285,10 +286,10 @@ function fixtureTeamPage(slug: string, seasonNumber?: number): TeamPageData | nu
   };
 }
 
-/** Every completed season, newest first, with its teams' rosters and captains. */
+/** Every running or finished season, newest first, with its teams' rosters and captains. */
 // ponytail: one teams read per season, for old name links only; the backend has no name or tag-name search of past rosters.
 async function fetchSeasonRosters(): Promise<{ season: RawSeason; teams: RawTeam[] }[]> {
-  const seasons = (await fetchCompletedSeasonsRaw()).sort(
+  const seasons = (await fetchShownSeasonsRaw()).sort(
     (a, b) => (Date.parse(b.start_date ?? "") || 0) - (Date.parse(a.start_date ?? "") || 0) || b.id - a.id,
   );
   const teams = await Promise.all(seasons.map((season) => apiGet<RawTeam[]>(`/events/${season.id}/teams`)));
@@ -324,7 +325,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
     async () => {
       const hour = { revalidate: 3600 };
       const [seasons, user, seats, career] = await Promise.all([
-        fetchCompletedSeasonsRaw(),
+        fetchShownSeasonsRaw(),
         apiGet<RawUser>(`/users/${userId}`, hour).catch(notFound(null)),
         apiGet<RawUserSeason[]>(`/users/${userId}/seasons`, hour),
         apiGet<RawCareerStat>(`/stats/career/${userId}`, hour).catch(notFound(null)),

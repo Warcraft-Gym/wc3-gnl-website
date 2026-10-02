@@ -8,7 +8,28 @@ import { embedUrl } from "@/lib/video-embed.mjs";
 import { displayWidth, imageDimensions, isIconSized } from "@/lib/sanity-image-size.mjs";
 import { groupIconLabelPairs } from "@/lib/icon-grid.mjs";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
+import Link from "next/link";
+import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrderDemo";
+import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
+import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
+import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
+import { GuideRouteCard, GuideRouteList } from "@/components/learn/GuideRouteList";
+import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
+
+type GuideRouteValue = { map: string; stops: RouteStop[] };
+
+/** A guide's example route on a bundled catalogue map (no Sanity read). The
+ *  map is cut to the route's own camps unless `fullMap`: only the map piece
+ *  draws the other camps, and each block sends its own copy to the browser. */
+function guideRoute({ map, stops }: GuideRouteValue, fullMap: boolean) {
+  const found = FIXTURE_MAPS.find((m) => m.slug === map);
+  if (!found) return null;
+  const onRoute = found.camps.filter((c) => stops.some((s) => s.campId === c.id));
+  // The playground and the map read only `stops` and `start` from a route.
+  const route = { stops, map: { slug: found.slug, name: found.name } } as unknown as CreepRoute;
+  return { map: fullMap ? found : { ...found, camps: onRoute }, route };
+}
 
 /**
  * Renderer for Sanity Portable Text bodies (guides, posts). Handles images,
@@ -49,6 +70,43 @@ const components: PortableTextComponents = {
         </figure>
       );
     },
+    // A route on a catalogue map, one route page piece at a time (the map,
+    // the closed stop list, one open stop), and one stop with an editable
+    // kill order.
+    creepRoutePart: ({ value }) => {
+      const v = value as GuideRouteValue & { part: "map" | "stops" | "stop"; stop?: number; source: string; author: string };
+      const g = guideRoute(v, v.part === "map");
+      if (!g) return null;
+      return (
+        <figure className="my-6 text-base leading-normal">
+          <div className={v.part === "map" ? "max-w-lg" : undefined}>
+            <CreepMapPlayground
+              map={g.map}
+              route={g.route}
+              show={v.part === "map" ? "map" : "stops"}
+              only={v.part === "stop" ? v.stop : undefined}
+              startClosed={v.part === "stops"}
+            />
+          </div>
+          {v.part === "map" ? (
+            <figcaption className="mt-2 text-sm text-faint">
+              <Link href={`/learn/creep-routes/${v.source}`} className="hover:text-gold">
+                Route by {v.author}
+              </Link>
+            </figcaption>
+          ) : null}
+        </figure>
+      );
+    },
+    killOrderDemo: ({ value }) => {
+      const v = value as GuideRouteValue & { zoom: { stop: number; caption: string; presets: KillOrderPreset[] } };
+      const g = guideRoute(v, false);
+      return g ? <KillOrderDemo map={g.map} route={g.route} stop={v.zoom.stop} caption={v.zoom.caption} presets={v.zoom.presets} /> : null;
+    },
+    // A guide's example route as a row, the route list's top rows, and its submit panel.
+    creepRouteCard: ({ value }) => <GuideRouteCard slug={(value as { slug: string }).slug} />,
+    creepRouteList: () => <GuideRouteList />,
+    submitRouteCta: () => <SubmitRouteCta className="my-10" />,
     iconGrid: ({ value }) => {
       const items = (value as { items?: { _key: string; image: { alt?: string }; label: string }[] })?.items ?? [];
       if (!items.length) return null;

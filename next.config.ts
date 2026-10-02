@@ -36,6 +36,7 @@ const nextConfig: NextConfig = {
       // Hand-written rules first: first match wins, so these override any
       // legacy entry with the same source.
       { source: "/standings", destination: "/gnl/standings", permanent: true },
+      { source: "/learn/guide/reading-creep-camps-and-drops", destination: "/learn/guide/understanding-creep-routes", permanent: true },
       { source: "/schedule", destination: "/gnl/schedule", permanent: true },
       { source: "/teams", destination: "/gnl/teams", permanent: true },
       { source: "/teams/:slug", destination: "/gnl/teams/:slug", permanent: true },

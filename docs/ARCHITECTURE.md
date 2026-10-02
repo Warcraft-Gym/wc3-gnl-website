@@ -40,14 +40,14 @@ Every GNL page starts from the same selection:
 
 1. `GET /leagues` and select the row whose `kind` is `gnl`.
 2. `GET /events?league_id={id}&published=true`.
-3. Keep events whose common event phase is `finished`.
+3. Keep events whose common event phase is `running` or `finished`.
 4. Select the season asked for, else the newest by `start_date`, with the id
    as the fallback order.
 
-Step 3 is a choice for the current phase, not a rule. A running season could be
-shown the same way, and the intended end state is a landing page that switches
-on the season's phase: signups open, commenced, or complete. That switch is
-deferred until it is the focus.
+Step 3 hides a season in setup: unpublished (`draft`), `signups_open`,
+`checkin` and `seeded`. A drafted season reads `finished` only once an admin
+closes it, so a past season nobody closed reads `running`. A landing page that
+switches on the season's phase is deferred until it is the focus.
 
 **Past seasons.** Every loader takes an optional season number and every
 league page reads it from `?season=N` (`src/lib/api/season-params.ts`). The

@@ -8,7 +8,7 @@ import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_BUILDS_CHANNEL_URL } from "@/lib/links";
 import { PortableBody } from "@/components/sanity/PortableBody";
-import { CreepMapPlayground } from "./CreepMapPlayground";
+import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
 import { Matchup, TagChip } from "@/components/builds/BuildBadges";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
