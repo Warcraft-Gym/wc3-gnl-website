@@ -140,7 +140,7 @@ export type RouteStop = {
   /** "Skip the rest": true skips the creeps `kills` does not list; false
    *  (default) kills them after the list, in catalogue order. */
   leaveRest?: boolean;
-  /** Camp and attack stops: false when only the Bring units go, so the stop grants the hero no XP.
+  /** Camp and attack stops: false when only the Bring units go; the hero still earns their XP (XP is global).
    *  Default true; stored only when false. */
   hero?: boolean;
   /** Pictures of the spot the minimap cannot show; a coach adds them in the Studio. */

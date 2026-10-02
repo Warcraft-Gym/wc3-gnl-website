@@ -418,7 +418,7 @@ export const creepStop = defineType({
       name: "hero",
       title: "Hero goes",
       type: "boolean",
-      description: "Empty or on: the hero goes with the units in Bring. Off: only the units go, and the hero gets no XP here.",
+      description: "Empty or on: the hero goes with the units in Bring. Off: only the units go; the hero still gets their XP.",
       hidden: ({ parent }) => {
         const p = parent as { campId?: string; place?: { kind?: string } } | undefined;
         return !p?.campId && p?.place?.kind !== "attack";

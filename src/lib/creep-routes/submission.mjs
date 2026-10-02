@@ -79,7 +79,7 @@ function baseStopSchema(iconSet, splitField) {
       leaveRest: z.boolean().optional(),
       /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
       place: placeSchema.optional(),
-      /** Camp and attack stops: false when only the Bring units go, so it grants no hero XP. */
+      /** Camp and attack stops: false when only the Bring units go; the hero still earns their XP. */
       hero: z.boolean().optional(),
       /** A split at the top level; inside an arm it is rejected (one level). */
       split: splitField,

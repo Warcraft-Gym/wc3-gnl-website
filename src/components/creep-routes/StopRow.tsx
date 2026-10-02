@@ -312,7 +312,6 @@ export function StopRow({
               trace={trace ?? []}
               error={error?.("kills")}
               onChange={onChange}
-              noXp={heroOff}
             />
           ) : null}
 

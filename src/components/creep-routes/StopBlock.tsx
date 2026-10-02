@@ -23,11 +23,11 @@ function skippedOf(stop: RouteStop, camp: MapCamp) {
 }
 
 /** A stop's expanded body: the kill chain, Bring, condition, note and pictures. */
-function StopBody({ stop, d, absent, hero }: { stop: RouteStop; d: DerivedStop; absent: boolean; hero?: React.ReactNode }) {
+function StopBody({ stop, d, hero }: { stop: RouteStop; d: DerivedStop; hero?: React.ReactNode }) {
   const camp = d.camp;
   return (
     <div className="min-w-0 space-y-3">
-      {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} noXp={absent} /> : null}
+      {camp ? <KillOrder camp={camp} kills={d.kills} skipped={skippedOf(stop, camp)} /> : null}
 
       {stop.units?.length || hero ? (
         <div className="flex flex-wrap items-center gap-2">
@@ -148,7 +148,7 @@ export function StopBlock({
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={waypoint ? `${label}, ${waypoint}` : camp && absent ? `Stop ${number}, ${label}` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
+          aria-label={waypoint ? `${label}, ${waypoint}` : camp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -195,8 +195,8 @@ export function StopBlock({
             ) : (
               <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
             )}
-            {camp && isOpen && !absent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
-            {camp && !isOpen && !absent ? (
+            {camp && isOpen ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+            {camp && !isOpen ? (
               <span className={cn("tnum shrink-0 pt-0.5 text-[0.8rem] text-muted", pictures && "ml-auto")}>
                 Lv {d.heroLevelAfter} · {d.xpAfter} xp
               </span>
@@ -235,7 +235,6 @@ export function StopBlock({
             <StopBody
               stop={stop}
               d={d}
-              absent={absent}
               hero={showHero && !absent && (camp || stop.place?.kind === "attack") ? <HeroTile heroIcon={heroIcon} /> : undefined}
             />
           )}

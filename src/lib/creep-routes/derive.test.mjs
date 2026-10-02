@@ -175,18 +175,14 @@ test("derived kills carry their unit and whether it is a set; a leading set keep
   ]);
 });
 
-test("a stop without the hero (hero: false) grants no hero xp: its kills carry xp 0 and level and xp pass through", () => {
+test("a stop without the hero (hero: false) earns hero xp like any other: xp is global", () => {
+  const withHero = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2" }] }, MAP);
   const result = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2", hero: false }] }, MAP);
   const absent = result.stops[1];
-  assert.equal(absent.heroLevelAfter, 1);
-  assert.equal(absent.xpAfter, 128);
-  assert.ok(absent.kills.length > 0);
-  for (const k of absent.kills) {
-    assert.equal(k.xp, 0);
-    assert.equal(k.levelAfter, 1);
-    assert.equal(k.leveledUp, false);
-  }
-  assert.equal(result.finalXp, 128);
+  assert.ok(absent.kills.length > 0 && absent.kills.every((k) => k.xp > 0));
+  assert.deepEqual(absent.kills.map((k) => k.xp), withHero.stops[1].kills.map((k) => k.xp));
+  assert.equal(absent.xpAfter, withHero.stops[1].xpAfter);
+  assert.equal(result.finalXp, withHero.finalXp);
 });
 
 // A fork (choose one) or a parallel node (all at once) after c1, then c2.
@@ -218,15 +214,19 @@ test("or split: the hero walks the chosen arm; the other arm is derived but feed
   assert.ok(second.stops[1].xpAfter < first.stops[1].xpAfter);
 });
 
-test("and split: arm 0 walks with the hero, arms 1.. are derived without the hero whatever their flags", () => {
+test("and split: every arm earns xp, arms 1.. carry no hero and add up after arm 0", () => {
   const route = forkRoute("parallel");
   arms(route)[1].stops = [{ campId: "c2", hero: true }];
-  const node = deriveRoute(route, MAP, { choice: { 1: 1 } }).stops[1].split;
+  const result = deriveRoute(route, MAP, { choice: { 1: 1 } });
+  const node = result.stops[1].split;
   assert.equal(node.walked, 0);
   assert.equal(node.arms[1].stops[0].hero, false);
-  assert.ok(node.arms[1].stops[0].kills.every((k) => k.xp === 0));
-  assert.equal(node.arms[1].xpAfter, 128);
+  assert.ok(node.arms[1].stops[0].kills.every((k) => k.xp > 0));
   assert.equal(node.arms[0].xpAfter, 306);
+  // Way b runs on from way a's total, and the stop after the split from way b's.
+  const bGain = node.arms[1].stops[0].kills.reduce((n, k) => n + k.xp, 0);
+  assert.equal(node.arms[1].xpAfter, 306 + bGain);
+  assert.equal(result.stops[1].xpAfter, node.arms[1].xpAfter);
 });
 
 test("the stop after a split continues from the chosen arm's total", () => {

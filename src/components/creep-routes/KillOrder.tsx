@@ -97,12 +97,9 @@ export function KillOrder({
   onAdd,
   onJoin,
   onSplit,
-  noXp = false,
 }: {
   camp: MapCamp;
   kills: DerivedKill[];
-  /** A stop without the hero: no "+xp" captions (it pays the hero nothing). */
-  noXp?: boolean;
   /** One entry per creep not killed, drawn ghosted after the kills. */
   skipped?: { creep: MapCampCreep; row: number }[];
   /** Builder: remove the listed kill at this index. */
@@ -147,7 +144,7 @@ export function KillOrder({
               {badged ? badge(step, "-left-1 -top-1.5") : null}
             </>
           );
-          const caption = noXp ? null : (
+          const caption = (
             <>
               <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{k.xp}</span>
               {k.leveledUp ? <LevelTag level={k.levelAfter} className="w-9 sm:w-10" /> : null}
@@ -183,7 +180,7 @@ export function KillOrder({
                   {caption}
                   <span className="sr-only">
                     {badged ? `${step}. ` : ""}
-                    {noXp ? k.creep.name : <>{k.creep.name}, +{k.xp} xp</>}{k.leveledUp ? `, level ${k.levelAfter} reached` : ""}
+                    {k.creep.name}, +{k.xp} xp{k.leveledUp ? `, level ${k.levelAfter} reached` : ""}
                   </span>
                 </>
               )}
@@ -230,7 +227,7 @@ export function KillOrder({
               {/* The badge sits on the outline's corner, 3px + 1px outside the icons. */}
               {badged ? badge(step, "-left-2 -top-2.5") : null}
             </div>
-            {noXp ? null : <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{setXp}</span>}
+            <span aria-hidden className={cn(CAPTION, "tnum text-muted")}>+{setXp}</span>
             {setLevel ? <LevelTag level={setLevel} className="w-full" /> : null}
             {onSplit && listed ? (
               <button type="button" onClick={() => onSplit(u.members[0].index)} aria-label="Split this set" className={edit}>
@@ -238,7 +235,7 @@ export function KillOrder({
               </button>
             ) : null}
             <span className="sr-only">
-              {badged ? `${step}. ` : ""}In any order: {u.members.map((m) => m.kill.creep.name).join(", ")}{noXp ? null : <>, +{setXp} xp</>}
+              {badged ? `${step}. ` : ""}In any order: {u.members.map((m) => m.kill.creep.name).join(", ")}, +{setXp} xp
               {setLevel ? `, level ${setLevel} reached` : ""}
             </span>
           </li>

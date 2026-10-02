@@ -28,7 +28,7 @@ export type ApiRouteStop = {
   leaveRest?: boolean;
   /** A start, mine, shop or free point instead of a camp. */
   place?: Place;
-  /** Camp and attack stops: false when only the Bring units go (no hero XP). */
+  /** Camp and attack stops: false when only the Bring units go. */
   hero?: boolean;
   /** Pictures of the spot, absolute urls with their size, alt and caption. */
   images?: { url: string; width: number; height: number; alt: string; caption?: string }[];

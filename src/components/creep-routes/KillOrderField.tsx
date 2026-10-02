@@ -24,7 +24,6 @@ export function KillOrderField({
   trace,
   error,
   onChange,
-  noXp = false,
 }: {
   camp: MapCamp;
   kills: StopKill[];
@@ -33,8 +32,6 @@ export function KillOrderField({
   trace: DerivedKill[];
   error?: string;
   onChange: (patch: { kills?: StopKill[]; leaveRest?: boolean }) => void;
-  /** A stop without the hero: no "+xp" captions. */
-  noXp?: boolean;
 }) {
   const counts = camp.creeps.map((c) => c.count);
   const valid = validKills(camp, kills) as StopKill[];
@@ -48,7 +45,6 @@ export function KillOrderField({
       <KillOrder
         camp={camp}
         kills={trace}
-        noXp={noXp}
         onRemove={(i) => {
           const next = removeKillAt(valid, i);
           // An empty list means the whole camp, so "Skip the rest" goes with it.

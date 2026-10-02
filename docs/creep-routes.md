@@ -472,12 +472,12 @@ when `false`: only the Bring units go (an Ancient of War walking ahead, militia
 finishing a camp). The submission schema rejects `hero: false` on a waypoint or
 a base action.
 
-- **Derive.** A stop with `hero: false` has kills with `xp: 0`, `levelAfter` =
-  the current level and `leveledUp: false`; `heroLevelAfter`/`xpAfter` pass
-  through. Derive also marks the later ways of an `and` split `hero: false`.
+- **Derive.** A stop with `hero: false` earns hero XP like any other stop
+  (see "XP model": XP is global). Derive also marks the later ways of an
+  `and` split `hero: false`.
 - **Map.** The leg is a normal leg; the badge carries the first Bring unit's
   icon (10px) at its right edge, so the map says who goes. No legend line.
-- **List.** No level on the right and no "+xp" captions in the chain. On a
+- **List.** The level, xp and "+xp" captions show as on any stop. On a
   route with at least one hero-off stop, Bring lists the hero first on every
   camp or attack stop he goes to (the route's hero portrait, or a gold crown
   tile, "Any Hero", when the route names none); a hero-off stop lists the
@@ -517,8 +517,9 @@ choose one, no number means a waypoint.
   (`countStops`), every way's included.
 - **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
   split key to the chosen way (default a). Every way is derived from the
-  hero's state at the split; only the walked way (the chosen one, or way a of
-  `and`) feeds the running total. A derived split carries
+  hero's state at the split and only the walked (chosen) way feeds the
+  running total; in `and` every way feeds it, in list order (way b runs on
+  from way a's total). A derived split carries
   `split: { mode, walked, arms }`, each way's stop `armIndex` and `forkKey`.
 - **Map.** Every way starts at the node before the split (your start marker
   for a split at stop 1) and every way's last stop sends a leg into the first
@@ -733,6 +734,12 @@ kill — a two-hero player earns half as much xp per hero as a one-hero
 player creeping the same camp. This calculator models a single hero and does not
 discount for a second/third hero; a heroes-count toggle that divides the
 per-kill grant accordingly is backlog, not shipped.
+
+**XP is global.** A hero earns the XP of every kill his player makes, with
+or without him there, so a stop with `hero: false` (units only) and the
+ways of an `and` split that run without the hero add their kills' XP to the
+running level and xp like any other stop; the factor still reads the hero's
+current level per kill. The flag only says the hero is not there to fight.
 
 ## Review flow
 
