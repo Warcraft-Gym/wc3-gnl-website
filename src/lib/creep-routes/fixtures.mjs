@@ -414,40 +414,10 @@ export const FIXTURE_ROUTES = [
         },
       },
       {
-        campId: null,
-        // ponytail: no split caption ("His Ancient of War"); the way labels carry it.
-        split: {
-          mode: "xor",
-          arms: [
-            {
-              label: "Went to the marketplace",
-              stops: [
-                {
-                  campId: null,
-                  action: "Stop his Ancient creeping the marketplace",
-                  // ponytail: an attack cannot stand on a camp; a free point on c03 stands in for it.
-                  place: { kind: "attack", at: { x: 0.499, y: 0.243 } },
-                  note: "In mid-game your goal is to stop Elf from creeping a big camp with his Ancient, that now has moved towards it. In most cases he will move towards the marketplace, as it gives a lot of XP and a good consumable.",
-                },
-                {
-                  campId: "c03",
-                  kills: [{ row: 3, n: 1 }],
-                  note: "When creeping, kill blue ogre first. Whoever gets this camp in mid-game, achieves a big advantage.",
-                },
-              ],
-            },
-            {
-              label: "Stayed on his green ogre camp",
-              stops: [
-                {
-                  campId: "c03",
-                  kills: [{ row: 3, n: 1 }],
-                  note: "When creeping, kill blue ogre first. Whoever gets this camp in mid-game, achieves a big advantage.",
-                },
-              ],
-            },
-          ],
-        },
+        campId: "c03",
+        condition: "Only if his Ancient of War went to the marketplace",
+        kills: [{ row: 3, n: 1 }],
+        note: "In mid-game your goal is to stop Elf from creeping a big camp with his Ancient, that now has moved towards it. In most cases he will move towards the marketplace, as it gives a lot of XP and a good consumable. Your goal here is to a) stop elf from creeping this b) if possible, do it yourself. Whoever gets this camp in mid-game, achieves a big advantage.",
       },
     ],
   },
