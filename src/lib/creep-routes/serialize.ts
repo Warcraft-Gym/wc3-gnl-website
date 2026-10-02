@@ -30,6 +30,8 @@ export type ApiRouteStop = {
   place?: Place;
   /** Camp and attack stops: false when only the Bring units go (no hero XP). */
   hero?: boolean;
+  /** Pictures of the spot, absolute urls with their size, alt and caption. */
+  images?: { url: string; width: number; height: number; alt: string; caption?: string }[];
   /** A split; see `stop-numbers.mjs` for how its arms number. */
   split?: { mode: "and" | "or" | "xor"; arms: { label?: string; stops: ApiRouteStop[] }[] };
 };

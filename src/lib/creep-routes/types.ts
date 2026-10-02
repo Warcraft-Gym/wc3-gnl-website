@@ -143,6 +143,8 @@ export type RouteStop = {
   /** Camp and attack stops: false when only the Bring units go, so the stop grants the hero no XP.
    *  Default true; stored only when false. */
   hero?: boolean;
+  /** Pictures of the spot the minimap cannot show; a coach adds them in the Studio. */
+  images?: StopImage[];
   /** A split node: `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
   split?: Split;
 };
@@ -153,6 +155,9 @@ export type RouteStop = {
  *  on. "xor": the reader chooses one way and it never rejoins, so nothing follows the split. Stops
  *  after a split are shared by every way: a continuation of only one way belongs inside that way. */
 export type Split = { mode: "and" | "or" | "xor"; arms: { label?: string; stops: RouteStop[] }[] };
+
+/** A picture on a stop: a Sanity image url (resized with `?w=`) or a plain fixture url. */
+export type StopImage = { url: string; width: number; height: number; alt: string; caption?: string };
 
 /** What happens at a place: `attack` is a numbered stop; build, expand, shop and scout are
  *  waypoints (on the path, no number). */

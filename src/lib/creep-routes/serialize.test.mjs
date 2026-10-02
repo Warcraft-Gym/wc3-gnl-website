@@ -149,11 +149,20 @@ test("toApiStop carries a kill set unchanged", () => {
   assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
 });
 
-test("round trip of a route with a waypoint, a stop without the hero, an or split and an and split", () => {
+test("round trip of a route with a waypoint with pictures, a stop without the hero, an or split and an and split", () => {
   const full = {
     ...route,
     stops: [
-      { campId: null, action: "Plant the Ancient", place: { kind: "build", at: { x: 0.4, y: 0.6 } }, units: [{ icon: "ne-ancient-of-war", count: 1 }] },
+      {
+        campId: null,
+        action: "Plant the Ancient",
+        place: { kind: "build", at: { x: 0.4, y: 0.6 } },
+        units: [{ icon: "ne-ancient-of-war", count: 1 }],
+        images: [
+          { url: "/fixtures/creep-routes/a.jpg", width: 1600, height: 900, alt: "The spot", caption: "Near side" },
+          { url: "https://cdn.sanity.io/images/p/d/b.jpg", width: 1015, height: 838, alt: "Close-up" },
+        ],
+      },
       { campId: "c01", hero: false, units: [{ icon: "hu-militia", count: 4 }] },
       {
         campId: null,
@@ -170,6 +179,11 @@ test("round trip of a route with a waypoint, a stop without the hero, an or spli
   };
   const api = toApiRoute(full, map, "https://site.example", iconSrc, deriveRoute);
   assert.deepEqual(api.stops[0].place, { kind: "build", at: { x: 0.4, y: 0.6 } });
+  assert.deepEqual(api.stops[0].images, [
+    { url: "https://site.example/fixtures/creep-routes/a.jpg", width: 1600, height: 900, alt: "The spot", caption: "Near side" },
+    { url: "https://cdn.sanity.io/images/p/d/b.jpg", width: 1015, height: 838, alt: "Close-up" },
+  ]);
+  assert.equal("images" in api.stops[1], false);
   assert.equal(api.stops[1].hero, false);
   assert.equal(api.stops[3].split.arms[1].stops[0].units[0].iconUrl, "https://site.example/icons/hu-militia.png");
   assert.equal(api.stops[2].split.arms[0].stops[0].units[0].iconUrl, "https://site.example/icons/hu-archmage.png");

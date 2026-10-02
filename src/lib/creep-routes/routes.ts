@@ -30,6 +30,10 @@ type RawRoute = Omit<CreepRoute, "map"> & {
 // `minimapUrl` rides along on `map->` (not a second read) so every route
 // surface can show the map's thumbnail without re-fetching the full
 // `CreepMap` catalogue (F009-followup-2).
+// A stop's pictures resolve to their asset url and size, in plain stops and in a node's arms.
+const STOP_IMAGES = `defined(images) => { "images": images[]{ "url": asset->url, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height, alt, caption } }`;
+const STOPS_PROJECTION = `"stops": stops[]{ ..., ${STOP_IMAGES}, defined(arms) => { "arms": arms[]{ ..., defined(stops) => { "stops": stops[]{ ..., ${STOP_IMAGES} } } } } }`;
+
 const LIST_PROJECTION = `{
   "slug": slug.current,
   title, race, level, patch, mapVersion, start,
@@ -41,7 +45,7 @@ const LIST_PROJECTION = `{
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
-  stops
+  ${STOPS_PROJECTION}
 }`;
 
 const DETAIL_PROJECTION = `{
@@ -55,7 +59,7 @@ const DETAIL_PROJECTION = `{
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
-  stops,
+  ${STOPS_PROJECTION},
   description
 }`;
 

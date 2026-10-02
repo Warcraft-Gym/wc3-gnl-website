@@ -399,6 +399,22 @@ export const creepStop = defineType({
       hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
     }),
     defineField({
+      name: "images",
+      title: "Pictures",
+      type: "array",
+      description: "Optional. Screenshots of the exact spot, for what the minimap cannot show. Drop images here.",
+      of: [
+        defineArrayMember({
+          type: "image",
+          options: { hotspot: true },
+          fields: [
+            defineField({ name: "alt", type: "string", description: "What the picture shows, for readers who cannot see it.", validation: (rule) => rule.required() }),
+            defineField({ name: "caption", type: "string", description: "Optional. Shown under the picture when it is open." }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
       name: "hero",
       title: "Hero goes",
       type: "boolean",

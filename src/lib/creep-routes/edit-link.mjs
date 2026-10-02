@@ -72,6 +72,7 @@ export function toExchangeRoute(route) {
 }
 
 /** One camp, place or base-action stop without Sanity's keys and nulls. */
+// ponytail: pictures stay with the coach; a resubmitted route arrives without them until a coach copies them over.
 function exchangeStop(s) {
   return {
     campId: s.campId ?? null,

@@ -11,9 +11,11 @@
  */
 
 export function toApiStop(stop, origin, iconSrc) {
-  const { units, split, ...rest } = stop;
+  const { units, split, images, ...rest } = stop;
   return {
     ...rest,
+    // A fixture picture's url is site-relative; the API hands out absolute ones.
+    ...(images?.length ? { images: images.map((img) => ({ ...img, url: img.url.startsWith("http") ? img.url : `${origin}${img.url}` })) } : {}),
     ...(units?.length
       ? { units: units.map((u) => ({ ...u, iconUrl: `${origin}${iconSrc(u.icon)}` })) }
       : {}),

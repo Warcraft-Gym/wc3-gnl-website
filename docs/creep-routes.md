@@ -549,6 +549,25 @@ choose one, no number means a waypoint.
   that way. A `xor` split that is not the last stop says that nothing may
   follow it.
 
+### Pictures
+
+`RouteStop.images` is `{ url, width, height, alt, caption? }[]`: screenshots of
+the exact spot, for what the minimap cannot show. A coach adds them in the
+Studio (the stop's "Pictures" field, drag and drop; `alt` is required); the
+route projection resolves each to its asset url and size (`STOP_IMAGES` in
+`routes.ts`), in plain stops and in a split's ways. Public submissions take
+no pictures yet (uploads need abuse limits); the submit form says a coach can
+add them after review, and "Suggest an update" does not carry them. The API
+makes fixture urls absolute.
+
+- **List.** Under the note, a strip of 4:3 thumbnails (two side by side,
+  about 200px tall; Sanity urls with `?w=640&h=480&fit=crop&auto=format`),
+  each a button named by its alt. A click opens a native `<dialog>` lightbox
+  with the full picture (`?w=1600&auto=format`, at most 92vw by 88vh), its
+  caption, and previous / next when there is more than one; Escape or the
+  backdrop closes it and focus returns to the thumbnail. A collapsed stop
+  with pictures shows lucide's `Image` and the count at the right.
+
 ### Kill order
 
 A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is

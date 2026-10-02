@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Image as ImageIcon } from "lucide-react";
 import type { DerivedStop } from "@/lib/creep-routes/derive";
 import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
@@ -12,6 +12,7 @@ import { HeroMeter } from "./HeroMeter";
 import { KillOrder, KillStrip } from "./KillOrder";
 import { PlaceIcon } from "./PlaceGlyph";
 import { HeroTile } from "./HeroTile";
+import { StopImages } from "./StopImages";
 import { cn } from "@/lib/utils";
 
 /** The chain's inputs for a stop: its kills and, with `leaveRest`, the skipped creeps. */
@@ -21,7 +22,7 @@ function skippedOf(stop: RouteStop, camp: MapCamp) {
     : [];
 }
 
-/** A stop's expanded body: the kill chain, Bring, condition and note. */
+/** A stop's expanded body: the kill chain, Bring, condition, note and pictures. */
 function StopBody({ stop, d, absent, hero }: { stop: RouteStop; d: DerivedStop; absent: boolean; hero?: React.ReactNode }) {
   const camp = d.camp;
   return (
@@ -51,6 +52,8 @@ function StopBody({ stop, d, absent, hero }: { stop: RouteStop; d: DerivedStop; 
       ) : null}
 
       {stop.note ? <p className="max-w-[60ch] text-sm leading-relaxed text-muted">{stop.note}</p> : null}
+
+      {stop.images?.length ? <StopImages images={stop.images} /> : null}
     </div>
   );
 }
@@ -115,6 +118,7 @@ export function StopBlock({
   const label = camp ? campLabel(camp) : stop.action || stop.campId || "-";
   const placeLabel = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
+  const pictures = stop.images?.length ?? 0;
   // Hero off: its own flag, or a later way of an "and" split, which the hero cannot walk.
   const absent = stop.hero === false || d.hero === false;
   // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
@@ -193,8 +197,14 @@ export function StopBlock({
             )}
             {camp && isOpen && !absent ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
             {camp && !isOpen && !absent ? (
-              <span className="tnum shrink-0 pt-0.5 text-[0.8rem] text-muted">
+              <span className={cn("tnum shrink-0 pt-0.5 text-[0.8rem] text-muted", pictures && "ml-auto")}>
                 Lv {d.heroLevelAfter} · {d.xpAfter} xp
+              </span>
+            ) : null}
+            {pictures && !isOpen ? (
+              <span className="inline-flex shrink-0 items-center gap-1 pt-0.5 text-[0.8rem] text-muted" aria-label={`${pictures} pictures`}>
+                <ImageIcon aria-hidden size={14} />
+                {pictures}
               </span>
             ) : null}
           </div>

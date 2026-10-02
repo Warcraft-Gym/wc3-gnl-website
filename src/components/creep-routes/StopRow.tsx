@@ -302,6 +302,8 @@ export function StopRow({
             </div>
           </div>
 
+          <p className="text-[0.65rem] text-faint">Pictures can be added by a coach in the Studio after review</p>
+
           {camp ? (
             <KillOrderField
               camp={camp}
