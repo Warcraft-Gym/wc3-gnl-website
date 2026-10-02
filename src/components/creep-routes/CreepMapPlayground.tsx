@@ -49,6 +49,7 @@ export function CreepMapPlayground({
   only,
   startClosed = false,
   stopBody,
+  initialChoice,
 }: {
   map: CreepMapType;
   route: CreepRoute;
@@ -62,6 +63,8 @@ export function CreepMapPlayground({
   startClosed?: boolean;
   /** Replaces the open stop's body (`RouteStepTable`). */
   stopBody?: React.ReactNode;
+  /** The path each "or"/"xor" split shows first, by split key (a guide showing path b). */
+  initialChoice?: Record<string, number>;
 }) {
   // Stops are named by their `stop-numbers.mjs` keys ("0", "2.a.0").
   const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, (count: number) =>
@@ -73,7 +76,7 @@ export function CreepMapPlayground({
   ) as [{ selected: string | null; open: Set<string> }, React.Dispatch<Record<string, unknown>>];
   const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
   // The way the reader follows in each "or"/"xor" split: page state, not URL state.
-  const [choice, setChoice] = useState<Record<string, number>>({});
+  const [choice, setChoice] = useState<Record<string, number>>(initialChoice ?? {});
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
   // Escape clears the selection, unless a card or popover is open (it closes that instead).

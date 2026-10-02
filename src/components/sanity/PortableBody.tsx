@@ -13,6 +13,7 @@ import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrde
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
 import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
+import { GuideRoutePart } from "@/components/learn/GuideRoutePart";
 import { GuideRouteCard, GuideRouteList } from "@/components/learn/GuideRouteList";
 import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
@@ -74,6 +75,9 @@ const components: PortableTextComponents = {
     // the closed stop list, one open stop), and one stop with an editable
     // kill order.
     creepRoutePart: ({ value }) => {
+      // A live route by slug (`slugs`): nothing when it is not there.
+      const live = value as { slugs?: string[]; part: "map" | "stops"; choice?: Record<string, number> };
+      if (live.slugs) return <GuideRoutePart slugs={live.slugs} part={live.part} choice={live.choice} />;
       const v = value as GuideRouteValue & { part: "map" | "stops" | "stop"; stop?: number; source: string; author: string };
       const g = guideRoute(v, v.part === "map");
       if (!g) return null;
