@@ -1,9 +1,14 @@
 import "server-only";
+import * as impl from "./overlay-release.mjs";
 
 /**
  * Latest desktop overlay release, read from the public GitHub Releases API
  * (no token needed at this volume). Releases are tagged `overlay-v<semver>`,
  * so the newest such tag wins even if other kinds of release appear later.
+ * Drafts and pre-releases are both skipped, so a beta published ahead of the
+ * stable release it belongs to never shows here. Selection logic lives in
+ * `overlay-release.mjs`, which has no `server-only` import so `node --test`
+ * can exercise it directly.
  * Cached for ten minutes; on any failure the section still renders with a link
  * to the releases page.
  */
@@ -26,8 +31,14 @@ type GhRelease = {
   html_url: string;
   published_at: string;
   draft: boolean;
+  prerelease: boolean;
   assets: { name: string; browser_download_url: string }[];
 };
+
+const selectOverlayRelease = impl.selectOverlayRelease as (
+  releases: GhRelease[],
+  repo: string,
+) => OverlayRelease | null;
 
 export async function getOverlayRelease(): Promise<OverlayRelease | null> {
   try {
@@ -37,21 +48,7 @@ export async function getOverlayRelease(): Promise<OverlayRelease | null> {
     });
     if (!res.ok) return null;
     const releases = (await res.json()) as GhRelease[];
-    const latest = releases.find((r) => !r.draft && r.tag_name.startsWith("overlay-v"));
-    if (!latest) return null;
-    const names = new Set(latest.assets.map((a) => a.name));
-    const asset = (stable: string, test: (name: string) => boolean) =>
-      names.has(stable)
-        ? `https://github.com/${REPO}/releases/latest/download/${stable}`
-        : latest.assets.find((a) => test(a.name))?.browser_download_url;
-    return {
-      version: latest.tag_name.replace(/^overlay-v/, ""),
-      url: latest.html_url,
-      publishedAt: latest.published_at,
-      windowsInstaller: asset("Warcraft-3-Gym-Overlay-Setup.exe", (n) => n.endsWith("-setup.exe")),
-      windowsPortable: asset("Warcraft-3-Gym-Overlay-Portable.exe", (n) => n.endsWith("_portable.exe")),
-      macDmg: asset("Warcraft-3-Gym-Overlay.dmg", (n) => n.endsWith(".dmg")),
-    };
+    return selectOverlayRelease(releases, REPO);
   } catch {
     return null;
   }
