@@ -35,15 +35,15 @@ export function MapLegend({
     <p className={cn("mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted", className)}>
       <span className="inline-flex items-center gap-1.5">
         <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-easy)" }} />
-        Easy &le; 9
+        Easy &le; Lv 9
       </span>
       <span className="inline-flex items-center gap-1.5">
         <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-medium)" }} />
-        Medium 10&ndash;19
+        Medium Lv 10&ndash;19
       </span>
       <span className="inline-flex items-center gap-1.5">
         <span aria-hidden className="inline-block size-2.5 rounded-full" style={{ background: "var(--wg-camp-hard)" }} />
-        Hard &ge; 20
+        Hard &ge; Lv 20
       </span>
       {/* Route marks get an entry only when the route has them. */}
       {attack ? (

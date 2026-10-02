@@ -78,6 +78,21 @@ export function shownStops(stops, choice = {}) {
   });
 }
 
+/** The keys whose map badge is not drawn: a camp that a split's drawn paths visit more than
+ *  once keeps one badge, the active path's stop (in "and", the first path that has it). */
+export function hiddenBadgeKeys(stops, choice = {}) {
+  const seen = new Map();
+  const hidden = new Set();
+  for (const { key, stop } of shownStops(stops, choice)) {
+    const [index, letter] = String(key).split(".");
+    if (letter === undefined || !stop.campId) continue;
+    const id = `${index}:${stop.campId}`;
+    if (seen.has(id)) hidden.add(key);
+    else seen.set(id, key);
+  }
+  return hidden;
+}
+
 /** Every key, in reading order (the stop list's "Expand all"). */
 export function stopKeys(stops) {
   return flatStops(stops).map((s) => s.key);

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { countStops, findStopKey, flatStops, numberStops, parseKey, shownStops, stopByKey, stopKeys } from "./stop-numbers.mjs";
+import { countStops, findStopKey, flatStops, numberStops, hiddenBadgeKeys, parseKey, shownStops, stopByKey, stopKeys } from "./stop-numbers.mjs";
 
 const camp = (id) => ({ campId: id });
 const fork = (...arms) => ({ campId: null, split: { mode: "or", arms: arms.map((stops, i) => ({ label: `way ${i}`, stops })) } });
@@ -87,4 +87,17 @@ test("shownStops: the map leaves out the paths not chosen in or/xor, keeps every
   assert.deepEqual(ids(shownStops([c("s"), split("or"), c("t")])), ["s", null, "a1", "t"]);
   assert.deepEqual(ids(shownStops([c("s"), split("xor")], { 1: 1 })), ["s", null, "b1", "b2"]);
   assert.deepEqual(ids(shownStops([split("and")], { 0: 1 })), [null, "a1", "b1", "b2"]);
+});
+
+test("hiddenBadgeKeys: a camp on two paths keeps the active path's badge (the first path in and)", () => {
+  const c = (id) => ({ campId: id });
+  const both = (mode) => [c("s"), { campId: null, split: { mode, arms: [{ label: "x", stops: [c("c05")] }, { label: "y", stops: [c("c05"), c("c09")] }] } }];
+  // or: only the chosen path is drawn, so its own stop keeps the badge.
+  assert.deepEqual([...hiddenBadgeKeys(both("or"))], []);
+  assert.deepEqual([...hiddenBadgeKeys(both("or"), { 1: 1 })], []);
+  const shown = (mode, choice) => shownStops(both(mode), choice).filter(({ key }) => !hiddenBadgeKeys(both(mode), choice).has(key)).map(({ label }) => label);
+  assert.deepEqual(shown("or"), ["1", "2", "2a"]);
+  assert.deepEqual(shown("or", { 1: 1 }), ["1", "2", "2b", "3b"]);
+  // and: every path is drawn, the first path that has the camp keeps the badge.
+  assert.deepEqual([...hiddenBadgeKeys(both("and"))], ["1.b.0"]);
 });

@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
 import { badgePosition } from "@/lib/creep-routes/badge-position.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
-import { numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
+import { hiddenBadgeKeys, numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
 import { radiusFor } from "./CampMarker";
 import { placeRadius, PlaceRing, SwordsGlyph } from "./PlaceGlyph";
 
@@ -166,10 +166,12 @@ export const RoutePath = memo(function RoutePath({
   const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack));
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
+  // A camp a split visits on two drawn paths keeps one badge, the active path's.
+  const hidden = hiddenBadgeKeys(stops, choice);
   const badges = points.map((p) => {
     // A waypoint is on the path but takes no badge: its glyph or ring is its mark. An attack's
     // badge draws in the layer above the camps (`attackLayer`), so a camp by the target never hides it.
-    if (p.waypoint || (p.place?.kind === "attack") !== attackLayer) return null;
+    if (p.waypoint || hidden.has(p.key) || (p.place?.kind === "attack") !== attackLayer) return null;
     // Badge floats just above the camp mark, in the same units as the
     // viewBox so it reads the same on a 256x256 map and a 256x192 one —
     // and flips below, rather than clipping, for a camp near the top
