@@ -284,7 +284,7 @@ export const FIXTURE_ROUTES = [
                   campId: "c06",
                   units: [{ icon: "ud-ghoul", count: 2 }],
                   kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }],
-                  note: "Standard opening camp in almost all scenarios vs. Orc. Bring 2 ghouls if you expect Orc to be creeping himself. Bring 3 ghouls if you expect to be harassed.",
+                  note: "Standard opening camp in almost all scenarios vs. Orc. Bring 2 ghouls if you expect Orc to be creeping themselves. Bring 3 ghouls if you expect to be harassed.",
                 },
                 {
                   campId: "c08",
@@ -329,13 +329,13 @@ export const FIXTURE_ROUTES = [
                 {
                   campId: "c04",
                   kills: [{ row: 1, n: 2 }],
-                  note: "Sometimes your Orc opponent will be very passive. In this case, if you had a smooth early game and you feel confident, you can go for this camp. This will ensure you hit level 3 and that you will deprive him of important camp.",
+                  note: "Sometimes your Orc opponent will be very passive. In this case, if you had a smooth early game and you feel confident, you can go for this camp. This will ensure you hit level 3 and that you will deprive them of important camp.",
                 },
                 {
                   campId: null,
-                  action: "Push his burrows and T2 buildings",
+                  action: "Push their burrows and T2 buildings",
                   place: { kind: "attack", at: { start: "0" } },
-                  note: "If you manage to clear this camp as well, you can use this momentum and go for his burrows/t2 buildings.",
+                  note: "If you manage to clear this camp as well, you can use this momentum and go for their burrows/t2 buildings.",
                 },
               ],
             },
@@ -373,11 +373,11 @@ export const FIXTURE_ROUTES = [
       },
       {
         campId: null,
-        action: "Scout where his Ancient of War goes",
+        action: "Scout where their Ancient of War goes",
         place: { kind: "scout", at: { start: "1" } },
         // A lone unit scouts (veS does not say which): no line on the hero's way.
         hero: false,
-        note: "Meanwhile, scout Night Elf and check if his Ancient of War is moving towards the marketplace.",
+        note: "Meanwhile, scout Night Elf and check if their Ancient of War is moving towards the marketplace.",
       },
       {
         campId: null,
@@ -392,7 +392,7 @@ export const FIXTURE_ROUTES = [
                   campId: null,
                   action: "Buy Boots and Dust",
                   place: { kind: "shop", at: { shop: "ngme-0" } },
-                  note: "Go there only to buy Boots (for your Naga) and Dust (to reveal his archers during a night). Your goal here is to prepare for mid-game and Naga vs. Naga fight.",
+                  note: "Go there only to buy Boots (for your Naga) and Dust (to reveal their archers during a night). Your goal here is to prepare for mid-game and Naga vs. Naga fight.",
                 },
               ],
             },
@@ -410,9 +410,9 @@ export const FIXTURE_ROUTES = [
       },
       {
         campId: "c03",
-        condition: "Only if Elf placed his AoW on his green ogre camp.",
+        condition: "Only if Elf placed their AoW on their green ogre camp.",
         kills: [{ row: 3, n: 1 }],
-        note: "In mid-game your goal is to stop Elf from creeping a big camp with his Ancient, that now has moved towards it. In most cases he will move towards the marketplace, as it gives a lot of XP and a good consumable. Your goal here is to a) stop Elf from creeping this b) if possible, do it yourself. Whoever gets this camp in mid-game, achieves a big advantage.",
+        note: "In mid-game your goal is to stop Elf from creeping a big camp with their Ancient, that now has moved towards it. In most cases they will move towards the marketplace, as it gives a lot of XP and a good consumable. Your goal here is to a) stop Elf from creeping this b) if possible, do it yourself. Whoever gets this camp in mid-game, achieves a big advantage.",
       },
     ],
   },
