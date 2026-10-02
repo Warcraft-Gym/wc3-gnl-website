@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  ui5: npm:@sanity/ui@5.0.0-alpha.12
+
 importers:
 
   .:
@@ -2469,8 +2472,8 @@ packages:
       react-dom: ^19.2
       styled-components: ^6.1
 
-  '@sanity/ui@5.0.0-alpha.13':
-    resolution: {integrity: sha512-fNY0opYv7ERQSsSvV7WwuOM+EQ7yDwb9yjQfbeYqwscvOFObhR99h4goSlzY0a5vtSohKu8NLQXCoFCcjUWXwA==}
+  '@sanity/ui@5.0.0-alpha.12':
+    resolution: {integrity: sha512-IFeFl9tRSN93GlNdrLVSb0MFMq+TjIpR5kwqWHT3VbJK4mP3vmJqcbJDQ2jHqYN/lUerTZX1GVyHPyMoqSYeTA==}
     engines: {node: '>=20.19 <22 || >=22.12'}
     hasBin: true
     peerDependencies:
@@ -9234,7 +9237,7 @@ snapshots:
       styled-components: 6.5.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       use-effect-event: 2.0.3(react@19.2.8)
 
-  '@sanity/ui@5.0.0-alpha.13(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@sanity/ui@5.0.0-alpha.12(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
       '@sanity-labs/design-tokens': 0.0.2-alpha.5
       '@sanity/icons': 5.2.1(react@19.2.8)
@@ -12655,7 +12658,7 @@ snapshots:
       speakingurl: 14.0.1
       styled-components: 6.5.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       swr: 2.5.1(react@19.2.8)
-      ui5: '@sanity/ui@5.0.0-alpha.13(react-dom@19.2.8(react@19.2.8))(react@19.2.8)'
+      ui5: '@sanity/ui@5.0.0-alpha.12(react-dom@19.2.8(react@19.2.8))(react@19.2.8)'
       urlpattern-polyfill: 10.1.0
       use-device-pixel-ratio: 1.1.2(react@19.2.8)
       use-effect-event: 2.0.3(react@19.2.8)
