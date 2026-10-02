@@ -112,7 +112,7 @@ export type SplitEdit = {
   canMoveUp: boolean;
   canMoveDown: boolean;
   onRemove: () => void;
-  /** One camp is in every path: a line under the chips, not blocking. */
+  /** Every path is the same camps in the same order: a line under the chips, not blocking. */
   sameCamp?: boolean;
   labelError?: (arm: number) => string | undefined;
 };

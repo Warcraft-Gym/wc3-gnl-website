@@ -24,7 +24,7 @@ import {
   removeSplit,
   rowAtKey,
   rowsToStops,
-  sameCampEveryPath,
+  sameCampSequence,
   setArmLabel,
   type DropZone,
 } from "./stop-rows";
@@ -303,7 +303,7 @@ export function RouteEditor({
         setStops((rows) => removeSplit(rows, row.id, chosen));
         setSelectedId(null);
       },
-      sameCamp: sameCampEveryPath(row.split),
+      sameCamp: sameCampSequence(row.split),
       labelError: (arm: number) => fieldError?.(`${errPath}.arms.${arm}.label`),
     };
   };

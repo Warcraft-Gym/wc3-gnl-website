@@ -201,13 +201,14 @@ export function removeSplit(rows, splitId, keep = 0) {
   return [...rows.slice(0, i), ...(rows[i].split.arms[keep]?.stops ?? []), ...rows.slice(i + 1)];
 }
 
-/** The line under a split's chips (and in the submit check, not blocking) when one camp is in every path. */
+/** The line under a split's chips (and in the submit check, not blocking) when every path is the same camps. */
 export const SAME_CAMP_LINE = "A split is for different places. For another action at one camp, use one stop and say so in the note.";
 
-/** True when one camp is a stop in every path of `split`. */
-export function sameCampEveryPath(split) {
-  const sets = (split?.arms ?? []).map((a) => new Set(a.stops.map((s) => s.campId).filter(Boolean)));
-  return sets.length > 1 && [...sets[0]].some((id) => sets.every((set) => set.has(id)));
+/** True when every path of `split` visits the same camps in the same order (waypoints aside): a split
+ *  for another action at one place. The same camps in another order are a real choice. */
+export function sameCampSequence(split) {
+  const seqs = (split?.arms ?? []).map((a) => a.stops.map((s) => s.campId).filter(Boolean).join(","));
+  return seqs.length > 1 && seqs[0] !== "" && seqs.every((q) => q === seqs[0]);
 }
 
 /** Sets path `arm`'s label as typed, never trimmed while typing ("Contest " keeps its space for

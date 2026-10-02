@@ -87,10 +87,10 @@ export const dropTarget = editorRows.dropTarget as (rows: StopRowData[], zone: D
 export const removePath = editorRows.removePath as (rows: StopRowData[], splitId: number, arm: number) => StopRowData[];
 /** Removes a split, keeping path `keep`'s stops in the main line. */
 export const removeSplit = editorRows.removeSplit as (rows: StopRowData[], splitId: number, keep?: number) => StopRowData[];
-/** The line shown when one camp is in every path of a split. */
+/** The line shown when every path of a split is the same camps in the same order. */
 export const SAME_CAMP_LINE = editorRows.SAME_CAMP_LINE as string;
-/** True when one camp is a stop in every path. */
-export const sameCampEveryPath = editorRows.sameCampEveryPath as (split: StopRowData["split"] | undefined) => boolean;
+/** True when every path visits the same camps in the same order. */
+export const sameCampSequence = editorRows.sameCampSequence as (split: StopRowData["split"] | undefined) => boolean;
 /** Sets a path label as typed; `commit` trims it (on blur). */
 export const setArmLabel = editorRows.setArmLabel as (rows: StopRowData[], splitId: number, arm: number, label: string, commit?: boolean) => StopRowData[];
 /** One undo entry: the stop list before a change and what changed. */

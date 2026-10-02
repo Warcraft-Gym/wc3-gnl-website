@@ -20,7 +20,7 @@ import {
   removeRow,
   removeSplit,
   rowAtKey,
-  sameCampEveryPath,
+  sameCampSequence,
   savedMode,
   setArmLabel,
   withSavedModes,
@@ -137,10 +137,14 @@ test("remove a path: the second-last path turns the split into plain stops; remo
   assert.deepEqual(locate(rows, rows[1].split.arms[1].stops[0].id), { splitId: rows[1].id, arm: 1, index: 0 });
 });
 
-test("same camp in every path: allowed, with one line", () => {
-  assert.equal(sameCampEveryPath(forkRow(["c5"], ["c5", "c6"]).split), true);
-  assert.equal(sameCampEveryPath(forkRow(["c5"], ["c6"]).split), false);
-  assert.equal(sameCampEveryPath(forkRow(["c5"], []).split), false);
+test("same camps in every path, same order: allowed, with one line; another order is a real choice", () => {
+  assert.equal(sameCampSequence(forkRow(["c05"], ["c05"]).split), true);
+  assert.equal(sameCampSequence(forkRow(["c06", "c08"], ["c06", "c08"], ["c06", "c08"]).split), true);
+  // Autumn Leaves: the same two camps in another order must not warn.
+  assert.equal(sameCampSequence(forkRow(["c06", "c08"], ["c08", "c06"]).split), false);
+  assert.equal(sameCampSequence(forkRow(["c5"], ["c5", "c6"]).split), false);
+  assert.equal(sameCampSequence(forkRow(["c5"], []).split), false);
+  assert.equal(sameCampSequence(forkRow([], []).split), false);
   assert.match(SAME_CAMP_LINE, /^A split is for different places\./);
 });
 

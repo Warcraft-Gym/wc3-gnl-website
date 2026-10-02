@@ -2,7 +2,7 @@ import { memo, useMemo } from "react";
 import type { CreepMap, Place, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
-import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, cornerMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
+import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, UNIT_ICON, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
 import { hiddenBadgeKeys, numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
 import { useReducedMotion } from "@/lib/useReducedMotion";
@@ -239,10 +239,10 @@ function Nodes({
         // A camp stop's disc lets clicks through to its camp marker; an attack disc selects its stop.
         // ponytail: a disc selects by pointer only; the stop list is the keyboard path to an attack.
         const select = attack && onStopSelect ? () => onStopSelect(p.key) : undefined;
-        // Hero off: the first Bring unit's icon at the disc's top-right (top-left on an attack, whose swords are there).
+        // Hero off: the first Bring unit's icon on the disc's lower-left edge, clear of the number.
         const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
         const corner = cornerMark(p.cx, p.cy, p.r);
-        const unitAt = attack ? { x: 2 * p.cx - corner.x, y: corner.y } : corner;
+        const unitAt = heroOffMark(p.cx, p.cy, p.r);
         return (
           <g
             key={p.key}
@@ -294,7 +294,7 @@ function Nodes({
                 </text>
               )}
               {attack ? <SwordsGlyph cx={corner.x} cy={corner.y} /> : null}
-              {unitIcon ? <image data-unit-icon href={gameIconSrc(unitIcon)} x={unitAt.x - 5} y={unitAt.y - 5} width={10} height={10} /> : null}
+              {unitIcon ? <image data-unit-icon href={gameIconSrc(unitIcon)} x={unitAt.x - UNIT_ICON / 2} y={unitAt.y - UNIT_ICON / 2} width={UNIT_ICON} height={UNIT_ICON} /> : null}
             </g>
           </g>
         );

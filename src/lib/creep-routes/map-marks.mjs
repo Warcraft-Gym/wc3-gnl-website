@@ -32,6 +32,15 @@ export function cornerMark(cx, cy, r = STOP_RADIUS) {
   return { x: cx + d, y: cy - d };
 }
 
+/** The size of the hero-off unit icon on a disc, in viewBox units. */
+export const UNIT_ICON = 10;
+
+/** The centre of the hero-off unit icon: on the disc's lower-left edge, wholly below the number
+ *  (a label is at most `2 * STOP_RADIUS - 3` wide and about 7 tall), so the number stays readable. */
+export function heroOffMark(cx, cy, r = STOP_RADIUS) {
+  return { x: cx - 0.75 * r, y: cy + r + 1 };
+}
+
 /** A node's centre in viewBox units for a spot at image fractions `x`/`y`, pulled inside the
  *  map so a disc of radius `r` (and its outline) never clips at the edge. */
 export function nodeCentre(x, y, iw, ih, r = STOP_RADIUS) {

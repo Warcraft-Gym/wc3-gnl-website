@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { LEG_GAP, OUTLINE, STOP_RADIUS, UNUSED_RADIUS, WAYPOINT_RADIUS, cornerMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "./map-marks.mjs";
+import { LABEL_SIZE, LEG_GAP, OUTLINE, STOP_RADIUS, UNIT_ICON, UNUSED_RADIUS, WAYPOINT_RADIUS, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "./map-marks.mjs";
 import autumn from "./maps/autumn-leaves.json" with { type: "json" };
 
 test("one mark per stop: a waypoint is about 80% of a stop, an unused camp about half", () => {
@@ -67,6 +67,17 @@ test("the attack swords and the hero-off unit sit at the disc's top-right", () =
   const { x, y } = cornerMark(50, 50);
   assert.ok(x > 50 && y < 50);
   assert.ok(Math.abs(Math.hypot(x - 50, y - 50) - STOP_RADIUS) < 1e-9);
+});
+
+test("the hero-off unit icon sits on the disc's lower-left edge, clear of the number", () => {
+  const { x, y } = heroOffMark(50, 50);
+  const icon = { left: x - UNIT_ICON / 2, right: x + UNIT_ICON / 2, top: y - UNIT_ICON / 2, bottom: y + UNIT_ICON / 2 };
+  // The widest label ("12a", squeezed) and the font's cap height around the disc's centre.
+  const label = { left: 50 - labelFit("12a") / 2, right: 50 + labelFit("12a") / 2, top: 50 - LABEL_SIZE * 0.36, bottom: 50 + LABEL_SIZE * 0.36 };
+  const overlaps = icon.left < label.right && icon.right > label.left && icon.top < label.bottom && icon.bottom > label.top;
+  assert.equal(overlaps, false);
+  // On the disc's edge: part of the icon over the disc, its centre to the lower left.
+  assert.ok(x < 50 && y > 50 && icon.top < 50 + STOP_RADIUS);
 });
 
 test("a long label is squeezed inside the disc; short ones keep their width", () => {

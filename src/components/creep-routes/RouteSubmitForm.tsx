@@ -12,7 +12,7 @@ import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopEditBody";
-import { SAME_CAMP_LINE, popUndo, pushUndo, rowsToStops, sameCampEveryPath, stopToRow, type UndoEntry } from "./stop-rows";
+import { SAME_CAMP_LINE, popUndo, pushUndo, rowsToStops, sameCampSequence, stopToRow, type UndoEntry } from "./stop-rows";
 import { ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
@@ -184,8 +184,8 @@ export function RouteSubmitForm({
 
   const errors = state.status === "error" ? state.fields ?? {} : {};
   const stopsJson = JSON.stringify(rowsToStops(stops));
-  // The submit check's notes that do not block: a split with one camp in every path.
-  const notes = stops.some((r) => sameCampEveryPath(r.split)) ? [SAME_CAMP_LINE] : [];
+  // The submit check's notes that do not block: a split whose paths are the same camps in the same order.
+  const notes = stops.some((r) => sameCampSequence(r.split)) ? [SAME_CAMP_LINE] : [];
   // "Edit | Preview": the preview is the route page's own section (map and list) drawn from the draft.
   const [preview, setPreview] = useState(false);
   const draftRoute = useMemo(

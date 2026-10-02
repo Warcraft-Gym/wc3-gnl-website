@@ -78,7 +78,7 @@ export function RouteDetailsFields({
   onTagsChange: (tags: string[]) => void;
   errors: Record<string, string>;
   errorMessage?: string;
-  /** The submit check's notes that do not block sending (a split with one camp in every path). */
+  /** The submit check's notes that do not block sending (a split whose paths are the same camps in the same order). */
   notes?: string[];
   pending: boolean;
   submissionsOpen: boolean;
