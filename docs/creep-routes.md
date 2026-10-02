@@ -527,10 +527,11 @@ choose one, no number means a waypoint.
   to the right of travel (a quadratic curve), so they never lie on a main
   leg. In `or`/`xor` the other ways' badges are at 60% too. No legend line.
 - **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). Every route is
-  a flat list (a linear route is one lane through every row): every stop, waypoint and attack is one row in route
-  order with a lane ("" main, "a", "b", "c"); a split's ways interleave a[0],
-  b[0], a[1], …, between a split row and, when stops follow, a join row. A
-  44px rail is added in front of today's row and moves nothing: 2px lines in
+  a flat list (a linear route is one lane through every row): every stop,
+  waypoint and attack is one row in route order with a lane ("" main, "a",
+  "b", "c"); a split's ways follow as blocks, way a's stops, then way b's,
+  then c's (a later way's lane runs down past the earlier blocks), between a
+  split row and, when stops follow, a join row. A 44px rail is added in front of today's row and moves nothing: 2px lines in
   `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
   lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
   node for an attack. The split row is a slim caption: "At the same time"

@@ -20,10 +20,19 @@ test("a linear route draws one lane through every row, waypoints too", () => {
 
 test("an or split lists every way, dims the ways not chosen and joins before the shared stops", () => {
   const stops = [camp("c1"), or([camp("c2"), camp("c3")], [camp("c4")]), camp("c5")];
-  assert.deepEqual(shape(routeRows(stops)), ["1", "split", "2a:a", "2b:b*", "3a:a", "join", "4"]);
+  assert.deepEqual(shape(routeRows(stops)), ["1", "split", "2a:a", "3a:a", "2b:b*", "join", "4"]);
   const viaB = routeRows(stops, { 1: 1 });
-  assert.deepEqual(shape(viaB), ["1", "split", "2a:a*", "2b:b", "3a:a*", "join", "4"]);
-  assert.equal(lanes(viaB[3]), "a^v* b^v");
+  assert.deepEqual(shape(viaB), ["1", "split", "2a:a*", "3a:a*", "2b:b", "join", "4"]);
+  assert.equal(lanes(viaB[4]), "a^v* b^v");
+});
+
+test("each way's stops are one block: way a's, then way b's, then way c's, then the join", () => {
+  const rows = routeRows([or([camp("c1"), camp("c2")], [camp("c3")], [camp("c4"), camp("c5")]), camp("c6")]);
+  assert.deepEqual(shape(rows), ["split", "1a:a", "2a:a", "1b:b*", "1c:c*", "2c:c*", "join", "3"]);
+  // Lanes b and c run down past way a's block; lane a runs on past the later blocks to the join.
+  assert.equal(lanes(rows[1]), "a^v b^v* c^v*");
+  assert.equal(lanes(rows[3]), "a^v b^v* c^v*");
+  assert.equal(lanes(rows[5]), "a^v b^v* c^v*");
 });
 
 test("an xor split lists only the chosen way and nothing follows it", () => {
@@ -39,7 +48,7 @@ test("a split at index 0 opens the list with its split row", () => {
   assert.deepEqual(shape(routeRows([xor([camp("c1")], [camp("c2")])], { 0: 1 })), ["split", "1b:b"]);
 });
 
-test("an and split interleaves every arm with the same numbers and joins before the shared stop", () => {
+test("an and split lists every arm with the same numbers and joins before the shared stop", () => {
   const rows = routeRows([camp("c1"), and([camp("c2")], [camp("c3"), camp("c4")]), camp("c5")], { 1: 1 });
   assert.deepEqual(shape(rows), ["1", "split", "2:a", "2:b", "3:b", "join", "4"]);
   assert.deepEqual(rows[1].lanes.map((l) => l.lane), ["a", "b"]);
@@ -48,10 +57,10 @@ test("an and split interleaves every arm with the same numbers and joins before 
 
 test("with nothing after the split each way's line stops at its last node and there is no join", () => {
   const rows = routeRows([camp("c1"), and([camp("c2"), camp("c3")], [camp("c4")])]);
-  assert.deepEqual(shape(rows), ["1", "split", "2:a", "2:b", "3:a"]);
+  assert.deepEqual(shape(rows), ["1", "split", "2:a", "3:a", "2:b"]);
   assert.equal(lanes(rows[2]), "a^v b^v");
-  assert.equal(lanes(rows[3]), "a^v b^");
-  assert.equal(lanes(rows[4]), "a^");
+  assert.equal(lanes(rows[3]), "a^ b^v");
+  assert.equal(lanes(rows[4]), "b^");
 });
 
 test("the rail starts at the first row's node and stops at the last", () => {
