@@ -1,3 +1,6 @@
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver
+
+overrides:
+  'ui5': npm:@sanity/ui@5.0.0-alpha.12

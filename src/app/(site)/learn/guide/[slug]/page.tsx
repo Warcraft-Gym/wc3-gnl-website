@@ -26,10 +26,12 @@ const RACE_ART: Partial<Record<string, string>> = {
 
 type Params = { params: Promise<{ slug: string }> };
 
+// Same green/amber/red `--color-difficulty-*` scale `DifficultyBadge`
+// (`BuildBadges.tsx`) uses — `win`/`arcane` are both blue (F009).
 const LEVEL_TONE = {
-  beginner: "border-win/50 text-win",
-  intermediate: "border-arcane/50 text-arcane",
-  advanced: "border-gold/50 text-gold",
+  beginner: "border-difficulty-beginner/50 text-difficulty-beginner",
+  intermediate: "border-difficulty-intermediate/50 text-difficulty-intermediate",
+  advanced: "border-difficulty-advanced/50 text-difficulty-advanced",
 } as const;
 
 export async function generateStaticParams() {

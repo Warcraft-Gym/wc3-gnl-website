@@ -5,10 +5,14 @@ import { Surface } from "@/components/ui/Surface";
 import { urlFor } from "@/sanity/image";
 import { cn } from "@/lib/utils";
 
+// Same three-tier scale as build difficulty and the guide page's own
+// badge (`GuideLevel` shares `beginner`/`intermediate`/`advanced` with
+// `BuildDifficulty`): green/amber/red `--color-difficulty-*`, not
+// `win`/`arcane` (both blue) — found by grep while fixing F009.
 const LEVEL_TONE: Record<GuideLevel, string> = {
-  beginner: "border-win/50 text-win",
-  intermediate: "border-arcane/50 text-arcane",
-  advanced: "border-gold/50 text-gold",
+  beginner: "border-difficulty-beginner/50 text-difficulty-beginner",
+  intermediate: "border-difficulty-intermediate/50 text-difficulty-intermediate",
+  advanced: "border-difficulty-advanced/50 text-difficulty-advanced",
 };
 
 export function GuideCard({ guide }: { guide: Guide }) {

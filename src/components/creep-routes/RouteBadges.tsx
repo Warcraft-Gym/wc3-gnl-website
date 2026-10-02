@@ -39,12 +39,14 @@ export function BandDot({ band, killed, className }: { band?: string | null; kil
 }
 
 const LEVEL_TONE: Record<RouteLevel, string> = {
-  beginner: "border-win/50 text-win",
-  standard: "border-gold/50 text-gold",
+  beginner: "border-difficulty-beginner/50 text-difficulty-beginner",
+  standard: "border-difficulty-intermediate/50 text-difficulty-intermediate",
 };
 
-/** "Standard" / "Beginner", the same visual language as `DifficultyBadge`
- *  in build orders. */
+/** "Standard" / "Beginner", the same visual language — and the same
+ *  difficulty colour scale — as `DifficultyBadge` in build orders: a route
+ *  level is not a win/loss or gold accent, it is a difficulty, so it reads
+ *  on the beginner/intermediate steps of that scale. */
 export function LevelBadge({ level }: { level: RouteLevel }) {
   return (
     <span
