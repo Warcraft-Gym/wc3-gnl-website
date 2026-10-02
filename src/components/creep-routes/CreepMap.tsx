@@ -123,9 +123,15 @@ function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih
   );
 }
 
+/** A dark backdrop disc behind a neutral building icon (map structure), a little wider than the icon,
+ *  so it reads on any terrain; `--wg-bg` at 55%, the stop discs still paint above it. */
+function backdropRadius(iconWidth: number) {
+  return iconWidth / 2 + 1.5;
+}
+
 /** Gold mine, drawn with Liquipedia's own icon (`/map-icons/gold-mine.png`,
  *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map. Map
- *  structure: mines and shops draw at 70% so they never compete with the stops.
+ *  structure: mines and shops draw at 90% on a dark backdrop disc, under the stop discs.
  *  `<image>`'s default `preserveAspectRatio` ("xMidYMid meet") fits the
  *  icon inside the box without distorting it, so a fixed square box works
  *  for every icon regardless of its own aspect ratio. */
@@ -137,19 +143,21 @@ function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number })
   const w = MINE_ICON_WIDTH * (iw / 256);
   const h = w * (53 / 64);
   return (
-    <image
-      data-mine=""
-      href="/map-icons/gold-mine.png"
-      x={cx - w / 2}
-      y={cy - h / 2}
-      width={w}
-      height={h}
-      aria-label="Gold mine"
-      opacity={0.7}
-      style={{ pointerEvents: "none" }}
-    >
-      <title>Gold mine</title>
-    </image>
+    <g pointerEvents="none">
+      <circle cx={cx} cy={cy} r={backdropRadius(w)} fill="var(--wg-bg)" fillOpacity={0.55} />
+      <image
+        data-mine=""
+        href="/map-icons/gold-mine.png"
+        x={cx - w / 2}
+        y={cy - h / 2}
+        width={w}
+        height={h}
+        aria-label="Gold mine"
+        opacity={0.9}
+      >
+        <title>Gold mine</title>
+      </image>
+    </g>
   );
 }
 
@@ -168,19 +176,21 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
   const w = SHOP_ICON_WIDTH * (iw / 256);
   const h = w;
   return (
-    <image
-      data-shop={shop.id}
-      href={`/map-icons/${icon.icon}.png`}
-      x={cx - w / 2}
-      y={cy - h / 2}
-      width={w}
-      height={h}
-      aria-label={icon.label}
-      opacity={0.7}
-      style={{ pointerEvents: "none" }}
-    >
-      <title>{icon.label}</title>
-    </image>
+    <g pointerEvents="none">
+      <circle cx={cx} cy={cy} r={backdropRadius(w)} fill="var(--wg-bg)" fillOpacity={0.55} />
+      <image
+        data-shop={shop.id}
+        href={`/map-icons/${icon.icon}.png`}
+        x={cx - w / 2}
+        y={cy - h / 2}
+        width={w}
+        height={h}
+        aria-label={icon.label}
+        opacity={0.9}
+      >
+        <title>{icon.label}</title>
+      </image>
+    </g>
   );
 }
 
