@@ -5,6 +5,7 @@
 // directory disagree.
 
 import autumnLeaves from "./autumn-leaves.json" with { type: "json" };
+import concealedHill from "./concealed-hill.json" with { type: "json" };
 import echoIsles from "./echo-isles.json" with { type: "json" };
 import fadingAutumn from "./fading-autumn.json" with { type: "json" };
 import hammerfall from "./hammerfall.json" with { type: "json" };
@@ -19,6 +20,7 @@ import twistedMeadows from "./twisted-meadows.json" with { type: "json" };
 
 export const RAW_MAPS = {
   "autumn-leaves": autumnLeaves,
+  "concealed-hill": concealedHill,
   "echo-isles": echoIsles,
   "fading-autumn": fadingAutumn,
   "hammerfall": hammerfall,

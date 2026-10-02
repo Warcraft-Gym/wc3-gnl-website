@@ -447,6 +447,13 @@
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNRedDragon"
   },
+  "nrdr": {
+    "name": "Red Drake",
+    "level": 6,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNRedDragon"
+  },
   "nrel": {
     "name": "Reef Elemental",
     "level": 2,
@@ -460,6 +467,13 @@
     "sleeps": false,
     "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
     "icon": "BTNBandit"
+  },
+  "nsc2": {
+    "name": "Spider Crab Limbripper",
+    "level": 3,
+    "sleeps": true,
+    "source": "https://raw.githubusercontent.com/sumneko/w3x2lni/master/data/enUS-1.27.1/mpq/Custom_V1/Units/unitbalance.slk",
+    "icon": "BTNSpiderCrab"
   },
   "nsc3": {
     "name": "Spider Crab Behemoth",
