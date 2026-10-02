@@ -4,7 +4,8 @@ import { cn } from "@/lib/utils";
 import { gameIconSrc } from "@/lib/builds/icons";
 import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, UNIT_ICON, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
-import { hiddenBadgeKeys, numberStops, walkedArm } from "@/lib/creep-routes/stop-numbers.mjs";
+import { hiddenBadgeKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { routeLegs } from "@/lib/creep-routes/route-legs.mjs";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { BAND_TOKEN } from "./RouteBadges";
 import { placeRadius, SwordsGlyph, WaypointGlyph } from "./PlaceGlyph";
@@ -72,7 +73,6 @@ export const RoutePath = memo(function RoutePath({
   const { width: iw, height: ih } = map.image;
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
   // Numbers follow the chosen path of each "or"/"xor" split, like the list's.
-  const numbers = useMemo(() => numberStops(stops, choice), [stops, choice]);
 
   // A stop's spot on the map: a camp, or a place (`place.mjs`), pulled inside the map so its disc never clips.
   const nodeOf = (s: RouteStop, key: string, label: string, style: Partial<PathNode> = {}): PathNode | null => {
@@ -90,51 +90,18 @@ export const RoutePath = memo(function RoutePath({
     return { key, label, stop: s, cx: c.x, cy: c.y, r, trim: nodeTrim(r), fill: waypoint ? "var(--wg-bg)" : ATTACK, place: s.place, waypoint, ...style };
   };
 
-  // Legs run between consecutive nodes. A split's ways all start at the node
-  // before it (or your start marker when there is none), and every way's last
-  // stop sends a leg into the first shared stop after the split. The walked way
-  // (the chosen one, or path a of "and") draws as usual. The map draws only the active
-  // path: in "or"/"xor" the paths not chosen have no legs and no discs; in "and" the
-  // other paths are thin and bowed.
-  const points: PathNode[] = [];
-  const legs: { a: PathNode; b: PathNode; style: LegStyle }[] = [];
-  let pending: { node: PathNode; style: LegStyle }[] = [];
-  stops.forEach((s, i) => {
-    const n = numbers[i];
-    const split = s.split;
-    if (!split) {
-      const node = nodeOf(s, n.key, n.label, { absent: s.hero === false });
-      if (!node) return;
-      for (const p of pending) legs.push({ a: p.node, b: node, style: p.style });
-      points.push(node);
-      pending = [{ node, style: "solid" }];
-      return;
-    }
-    const and = split.mode === "and";
-    const walked = walkedArm(s, n.key, choice);
-    const you = map.starts[youStart];
-    const anchor: PathNode | null =
-      pending[0]?.node ??
-      (you ? { key: "start", label: "", stop: s, cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" } : null);
-    const ends: { node: PathNode; style: LegStyle; walked: boolean }[] = [];
-    split.arms.forEach((arm, a) => {
-      const thin = a !== walked;
-      if (thin && !and) return;
-      const style: LegStyle = thin ? "thin" : "solid";
-      let p = anchor;
-      arm.stops.forEach((as, j) => {
-        const node = nodeOf(as, n.arms![a].stops[j].key, n.arms![a].stops[j].label, {
-          absent: as.hero === false || (and && a > 0),
-        });
-        if (!node) return;
-        if (p) legs.push({ a: p, b: node, style });
-        points.push(node);
-        p = node;
-      });
-      if (p) ends.push({ node: p, style, walked: a === walked });
-    });
-    // The walked way first: a split right after this one starts from it.
-    pending = [...ends.filter((e) => e.walked), ...ends.filter((e) => !e.walked)].map(({ node, style }) => ({ node, style }));
+  // Which stops are drawn and which legs join them (`route-legs.mjs`): the chosen path of an
+  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed), and no leg into
+  // or out of a waypoint done by another unit.
+  const you = map.starts[youStart];
+  const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")));
+  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent }) ?? []);
+  const byKey = new Map<string, PathNode>(points.map((p) => [p.key, p]));
+  if (you) byKey.set("start", { key: "start", label: "", stop: stops[0], cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" });
+  const legs = plan.legs.flatMap(({ a, b, style }) => {
+    const from = byKey.get(a);
+    const to = byKey.get(b);
+    return from && to ? [{ a: from, b: to, style: style as LegStyle }] : [];
   });
 
   if (!points.length) return null;

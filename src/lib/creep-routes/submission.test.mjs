@@ -411,7 +411,7 @@ test("place: an id the map does not have is rejected; a point must sit inside th
   assert.equal(point.success, false);
 });
 
-test("hero: false is kept on a camp or attack stop and rejected on a waypoint or base action", () => {
+test("hero: false is kept on a camp, attack or waypoint stop and rejected on a base action", () => {
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, { campId: "c02", hero: false }, { campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } }, hero: false }] }));
   assert.equal(ok.success, true);
@@ -419,8 +419,12 @@ test("hero: false is kept on a camp or attack stop and rejected on a waypoint or
   assert.equal(draft.stops[1].hero, false);
   assert.equal(draft.stops[2].hero, false);
   assert.equal(draft.stops[0].hero, undefined);
-  const onWaypoint = s.safeParse(payload({ stops: [{ campId: null, action: "Plant", place: { kind: "build", at: { x: 0.2, y: 0.2 } }, hero: false }, { campId: "c01" }, { campId: "c02" }] }));
-  assert.equal(flattenErrors(onWaypoint.error)["stops.0.hero"], "Only a camp or attack stop can go without the hero");
+  // A waypoint done by another unit (a lone scout).
+  const onWaypoint = s.safeParse(payload({ stops: [{ campId: null, action: "Scout", place: { kind: "scout", at: { x: 0.2, y: 0.2 } }, hero: false }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.equal(onWaypoint.success, true);
+  assert.equal(toCreepRouteDraft(onWaypoint.data, "creepMap-autumn-leaves").stops[0].hero, false);
+  const onAction = s.safeParse(payload({ stops: [{ campId: null, action: "TP home", hero: false }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.equal(flattenErrors(onAction.error)["stops.0.hero"], "Only a camp, attack or waypoint stop can go without the hero");
 });
 
 // "either" builds an "or" split (choose one), "both" an "and" split (all at once).

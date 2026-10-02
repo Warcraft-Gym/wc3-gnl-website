@@ -80,7 +80,8 @@ function baseStopSchema(iconSet, splitField) {
       leaveRest: z.boolean().optional(),
       /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
       place: placeSchema.optional(),
-      /** Camp and attack stops: false when only the Bring units go; the hero still earns their XP. */
+      /** Camp and place stops: false when only the Bring units go (the hero still earns their XP); a
+       *  waypoint done by another unit (a lone Wisp scouting) has no legs on the map. */
       hero: z.boolean().optional(),
       /** A split at the top level; inside an arm it is rejected (one level). */
       split: splitField,
@@ -96,8 +97,8 @@ function baseStopSchema(iconSet, splitField) {
         }
         return;
       }
-      if (stop.hero === false && stop.campId === null && stop.place?.kind !== "attack") {
-        ctx.addIssue({ code: "custom", message: "Only a camp or attack stop can go without the hero", path: ["hero"] });
+      if (stop.hero === false && stop.campId === null && !stop.place) {
+        ctx.addIssue({ code: "custom", message: "Only a camp, attack or waypoint stop can go without the hero", path: ["hero"] });
       }
       if (stop.place && stop.campId !== null) {
         ctx.addIssue({ code: "custom", message: "A place stop has no camp", path: ["place"] });
@@ -438,6 +439,6 @@ function draftStop(s) {
       : undefined,
     leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
     place: s.place ? { ...s.place } : undefined,
-    hero: s.hero === false && (s.campId || s.place?.kind === "attack") ? false : undefined,
+    hero: s.hero === false && (s.campId || s.place) ? false : undefined,
   };
 }

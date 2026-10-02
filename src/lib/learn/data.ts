@@ -283,7 +283,7 @@ export const GUIDES: Guide[] = [
       p("Some routes split where the right play depends on the game. \"Choose a path\" shows each path as a tab: its stops read 3a, 4a or 3b, and the numbers run along the path you chose."),
       { _type: "creepRoutePart", _key: "split-stops", part: "stops", slugs: ["early-creep-route-vs-solo-blademaster-windwalk-b1c6", "undead-ves-autumn-leaves"] },
       block("Waypoints", "h2"),
-      p("A waypoint is a stop with no number: a glyph for build, expand, shop or scout."),
+      p("A waypoint is a stop with no number: a glyph for build, expand, shop or scout. A waypoint done by another unit, such as a lone scout, has no line to it."),
       { _type: "creepRoutePart", _key: "waypoint-map", part: "map", slugs: ["standard-early-creep-route-vs-dh-naga-0479", "undead-ves-echo-isles"] },
       block("Attacks", "h2"),
       p("An attack is a numbered red disc with swords, and the leg into it is red."),

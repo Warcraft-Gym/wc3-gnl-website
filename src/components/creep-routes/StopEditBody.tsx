@@ -172,8 +172,9 @@ export function StopEditBody({
         <div>
           <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
           <div className="flex flex-wrap items-center gap-1.5">
-            {/* The hero is the first entry on a camp or attack stop: on by default, off = only the units go. */}
-            {stop.campId || stop.place?.kind === "attack" ? (
+            {/* The hero is the first entry on a camp or place stop: on by default, off = only the units go
+             *  (a waypoint done by another unit has no line on the map). */}
+            {stop.campId || stop.place ? (
               <button
                 type="button"
                 aria-pressed={!heroOff}

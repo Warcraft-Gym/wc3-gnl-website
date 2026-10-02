@@ -204,6 +204,14 @@ export function StopBlock({
                 <PlaceIcon kind={stop.place.kind} className={cn("shrink-0 self-center", waypoint ? "text-fg" : "text-loss")} />
                 <span className="font-medium text-fg">{label}</span>
                 {waypoint ? <span className="text-muted">{waypoint}</span> : where ? <span className="text-muted">{where}</span> : null}
+                {/* A waypoint done by another unit: that unit's icon, or a short muted word when none is given. */}
+                {waypoint && stop.hero === false ? (
+                  stop.units?.[0] ? (
+                    <GameIcon iconKey={stop.units[0].icon} size={20} className="self-center" />
+                  ) : (
+                    <span className="text-faint">· another unit</span>
+                  )
+                ) : null}
               </p>
             ) : (
               <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>

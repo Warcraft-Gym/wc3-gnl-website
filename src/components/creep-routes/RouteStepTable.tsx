@@ -4,6 +4,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { joinXpLabel, routeRows } from "@/lib/creep-routes/route-rows.mjs";
+import { isWaypoint } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
 import { cn } from "@/lib/utils";
@@ -105,8 +106,9 @@ export function RouteStepTable({
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(route.stops, choice ?? {}), [route.stops, choice]);
   const keys = useMemo(() => stopKeys(route.stops) as string[], [route.stops]);
-  // Bring lists the hero only on a route that sends him somewhere without the units' company: one hero-off stop.
-  const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false), [route.stops]);
+  // Bring lists the hero only on a route that sends units somewhere without him: one hero-off camp or
+  // attack stop (a waypoint done by another unit, a lone scout, does not count).
+  const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false && !isWaypoint(stop)), [route.stops]);
   const baseId = useId();
   // Every route is a flat list with the lane rail (`route-rows.mjs`); a guide's one stop has none.
   const lanes = only === undefined;
