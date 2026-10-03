@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Apple, ChevronDown, Download, FileInput, Keyboard, Layers } from "lucide-react";
+import { Apple, ChevronDown, Download, FileInput, Keyboard, Layers, Swords, UserRound } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
@@ -14,8 +14,8 @@ export const metadata: Metadata = pageMetadata({
   path: "/tools/overlay",
   title: "Build order overlay",
   description:
-    "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",
-  shareDescription: "Float any build order over the game, with a play-along clock and global shortcuts.",
+    "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, scouts your W3Champions opponent when a 1v1 starts, and shows your own strengths and weaknesses. Private builds, replay import, global shortcuts. Windows and macOS, beta.",
+  shareDescription: "Float any build order over the game, scout your W3Champions opponent and see what to work on.",
   images: [{ url: "/og/overlay.jpg", width: 1200, height: 630 }],
 });
 
@@ -37,15 +37,31 @@ const POINTS = [
   },
 ];
 
+/** What 0.6 added: the opponent card and your profile, from public W3Champions data. */
+const SCOUTING = [
+  {
+    Icon: Swords,
+    title: "Know who you are facing",
+    body: "Set your BattleTag once. When a W3Champions 1v1 starts, the opponent window opens with a few tags to act on (wins fights, weak on this map, always opens Demon Hunter), your win chance, their form, their record against your race and on this map, their usual heroes and how they play.",
+  },
+  {
+    Icon: UserRound,
+    title: "Know your own game",
+    body: "The Profile tab turns your last two seasons into strengths and things to work on: matchups, best and worst maps, form, how you do in short and long games, your heroes and play style. Pick any race you play, Random included.",
+  },
+];
+
 const STEPS = [
   "Install the app and open it. The picker window lists every build on the site.",
   "Pick a build and click Show overlay, or press the toggle shortcut. The panel floats on top of the game.",
   "Run Warcraft III in windowed or borderless mode. Exclusive fullscreen hides every other window, including the overlay.",
   "At the match's 0:00, press play. The current step highlights as the clock runs; use next and previous if it drifts.",
+  "Optional: add your W3Champions BattleTag in Settings to get the opponent card in your 1v1s and your own Profile.",
 ];
 
 const SHORTCUTS = [
-  ["Toggle overlay", "Ctrl+Shift+O", "⌘⇧O"],
+  ["Toggle build order", "Ctrl+Shift+B", "⌘⇧B"],
+  ["Toggle opponent card", "Ctrl+Shift+O", "⌘⇧O"],
   ["Play / pause clock", "Ctrl+Shift+P", "⌘⇧P"],
   ["Reset clock", "Ctrl+Shift+R", "⌘⇧R"],
   ["Next step", "Ctrl+Shift+]", "⌘⇧]"],
@@ -81,7 +97,7 @@ export default async function OverlayPage() {
       <PageHeader
         kicker="Tools · Beta"
         title="Build order overlay"
-        lead="Stop alt-tabbing to check a build. This little app keeps the steps, food counts and clock on top of the game. Beta: expect rough edges, and tell us about them."
+        lead="Stop alt-tabbing to check a build. This little app keeps the steps, food counts and clock on top of the game, scouts your W3Champions opponent, and shows what to work on. Beta: expect rough edges, and tell us about them."
       >
         {release?.windowsInstaller ? (
           <ButtonLink href={release.windowsInstaller} size="md">
@@ -127,9 +143,9 @@ export default async function OverlayPage() {
           {/* Phones stack the picker under the game shot; wider screens tuck it over the corner */}
           <Image
             src="/overlay/picker.webp"
-            alt="The overlay's build picker window: race filters, search and the list of builds with a Use in game button on each."
+            alt="The overlay's picker window: Builds, Profile and Settings tabs, the selected build with its first steps, race filters, search and the list of builds."
             width={1920}
-            height={1280}
+            height={1290}
             sizes="(max-width: 640px) 100vw, 24rem"
             className="mt-4 h-auto w-full rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:absolute sm:-bottom-16 sm:right-[-3%] sm:mt-0 sm:w-[24rem]"
           />
@@ -147,6 +163,48 @@ export default async function OverlayPage() {
             </li>
           ))}
         </ul>
+
+        <section aria-labelledby="scouting-heading" className="mt-16">
+          <p className="kicker">New in 0.6</p>
+          <h2 id="scouting-heading" className="mt-2 font-display text-xl font-bold uppercase tracking-[0.06em] text-fg sm:text-2xl">
+            Scout the opponent, then your own game
+          </h2>
+          <div className="mt-6 grid items-start gap-8 lg:grid-cols-[18rem_1fr]">
+            <figure className="mx-auto w-full max-w-[18rem] lg:row-span-2">
+              <Image
+                src="/overlay/opponent-card.webp"
+                alt="The opponent window during a W3Champions 1v1: tags such as Wins fights and Weak on Hammerfall, a 42% win chance, recent form, records against your race and on the map, record by game length, first heroes and play style."
+                width={720}
+                height={1394}
+                sizes="18rem"
+                className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
+              />
+              <figcaption className="mt-2 text-xs text-faint">The opponent window, opened by itself when the game starts.</figcaption>
+            </figure>
+            <ul className="grid gap-4 sm:grid-cols-2">
+              {SCOUTING.map(({ Icon, title, body }) => (
+                <li key={title} className="panel p-5">
+                  <Icon size={20} className="text-arcane" />
+                  <p className="mt-2 font-display text-[0.8rem] font-bold uppercase tracking-[0.08em] text-fg">{title}</p>
+                  <p className="mt-1 text-sm text-muted">{body}</p>
+                </li>
+              ))}
+            </ul>
+            <figure>
+              <Image
+                src="/overlay/profile.webp"
+                alt="The Profile tab: MMR line, strengths such as Strong vs Human and Strong early, things to work on such as Weak on Hammerfall and Fades late, matchups, best and worst maps and recent form."
+                width={1920}
+                height={1009}
+                sizes="(max-width: 1024px) 100vw, 48rem"
+                className="h-auto w-full rounded border border-line shadow-[0_24px_60px_-20px_rgba(0,0,0,.9)]"
+              />
+              <figcaption className="mt-2 text-xs text-faint">
+                The Profile tab. Everything comes from public W3Champions data; only W3Champions 1v1 games are detected.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
 
         <div className="mt-14 grid gap-10 lg:grid-cols-[1.2fr_1fr]">
           <section>
@@ -196,7 +254,7 @@ export default async function OverlayPage() {
                 ))}
               </tbody>
             </table>
-            <p className="mt-3 text-xs text-faint">Every combo can be changed in the app&apos;s Settings.</p>
+            <p className="mt-3 text-xs text-faint">Every combo can be changed in the app&apos;s Settings tab.</p>
           </More>
 
           <More title="Your own private builds">
@@ -214,7 +272,7 @@ export default async function OverlayPage() {
 
           <More title="Make a build from a replay or a W3Champions match">
             <p>
-              Import replay (top bar) reads a <span className="font-mono text-xs text-fg">.w3g</span> file and lists both players; pick the one you were. Import up to trims how much of the game becomes steps (eight minutes by default), and you can leave upgrades and items out. Open in editor lands the draft in the build editor to tidy up. From W3Champions does the same from a match link: the replay is fetched from their public API, nothing is uploaded.
+              Import replay (in the header of the Builds tab) reads a <span className="font-mono text-xs text-fg">.w3g</span> file and lists both players; pick the one you were. Import up to trims how much of the game becomes steps (eight minutes by default), and you can leave upgrades and items out. Open in editor lands the draft in the build editor to tidy up. From W3Champions does the same from a match link: the replay is fetched from their public API, nothing is uploaded.
             </p>
             <p className="mt-3">
               Windows keeps replays in Documents\Warcraft III\BattleNet\&lt;account&gt;\Replays; on macOS they are in ~/Library/Application Support/Blizzard/Warcraft III, with the last game at Replay/LastReplay.w3g.
