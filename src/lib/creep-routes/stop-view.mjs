@@ -9,33 +9,42 @@
  * - `chevron`: toggles that stop open or closed; selection unchanged.
  * - `expandAll` / `collapseAll`: every stop open / none; selection unchanged.
  * - `deselect` (Escape): nothing selected; open unchanged.
+ *
+ * A stop is named by `action.key` (the string keys of `stop-numbers.mjs`,
+ * "0", "2.a.0") or, as before, by `action.index`. `node` and `summary` also
+ * open the keys in `action.also` (the fork that holds an arm stop), and
+ * `expandAll` opens `action.keys` when given, else indexes 0..count-1.
  */
 
-/** Start state: the first stop selected and open. */
-export function initialStopView(count) {
-  return count > 0 ? { selected: 0, open: new Set([0]) } : { selected: null, open: new Set() };
+/** Start state: the first stop selected and open. `first` is its id (index 0, or the key "0").
+ *  @param {number} count
+ *  @param {number | string} [first] */
+export function initialStopView(count, first = 0) {
+  return count > 0 ? { selected: first, open: new Set([first]) } : { selected: null, open: new Set() };
 }
 
-function withOpen(open, index) {
-  return open.has(index) ? open : new Set(open).add(index);
+function withOpen(open, ids) {
+  return ids.every((id) => open.has(id)) ? open : new Set([...open, ...ids]);
 }
 
 export function stopViewReducer(state, action) {
+  const id = action.key ?? action.index;
+  const also = action.also ?? [];
   switch (action.type) {
     case "node":
-      if (state.selected === action.index) return { ...state, selected: null };
-      return { selected: action.index, open: withOpen(state.open, action.index) };
+      if (state.selected === id) return { ...state, selected: null };
+      return { selected: id, open: withOpen(state.open, [...also, id]) };
     case "summary":
-      if (state.selected === action.index && state.open.has(action.index)) return state;
-      return { selected: action.index, open: withOpen(state.open, action.index) };
+      if (state.selected === id && state.open.has(id) && also.every((a) => state.open.has(a))) return state;
+      return { selected: id, open: withOpen(state.open, [...also, id]) };
     case "chevron": {
       const open = new Set(state.open);
-      if (open.has(action.index)) open.delete(action.index);
-      else open.add(action.index);
+      if (open.has(id)) open.delete(id);
+      else open.add(id);
       return { ...state, open };
     }
     case "expandAll":
-      return { ...state, open: new Set(Array.from({ length: action.count }, (_, i) => i)) };
+      return { ...state, open: new Set(action.keys ?? Array.from({ length: action.count }, (_, i) => i)) };
     case "collapseAll":
       return { ...state, open: new Set() };
     case "deselect":

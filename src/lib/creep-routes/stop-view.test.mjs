@@ -66,3 +66,32 @@ test("deselect clears the selection and keeps open stops", () => {
   assert.equal(s.selected, null);
   assert.deepEqual(open(s), [0]);
 });
+
+test("keys: string keys select, open and toggle like indexes", () => {
+  let s = initialStopView(3, "0");
+  assert.equal(s.selected, "0");
+  s = reduce(s, { type: "node", key: "1" });
+  assert.equal(s.selected, "1");
+  assert.deepEqual([...s.open].sort(), ["0", "1"]);
+  s = reduce(s, { type: "chevron", key: "0" });
+  assert.deepEqual([...s.open], ["1"]);
+  s = reduce(s, { type: "node", key: "1" });
+  assert.equal(s.selected, null);
+});
+
+test("keys: selecting an arm stop also opens its fork; expandAll opens every key given", () => {
+  let s = reduce(initialStopView(3, "0"), { type: "node", key: "2.b.0", also: ["2"] });
+  assert.equal(s.selected, "2.b.0");
+  assert.deepEqual([...s.open].sort(), ["0", "2", "2.b.0"]);
+  s = reduce({ ...s, open: new Set(["2.b.0"]) }, { type: "summary", key: "2.b.0", also: ["2"] });
+  assert.deepEqual([...s.open].sort(), ["2", "2.b.0"]);
+  s = reduce(s, { type: "expandAll", keys: ["0", "1", "2", "2.a.0", "2.b.0"] });
+  assert.equal(s.open.size, 5);
+});
+
+test("keys: a parallel node's arm stops share numbers but not keys, so each opens on its own", () => {
+  let s = reduce(initialStopView(2, "0"), { type: "summary", key: "1.a.0", also: ["1"] });
+  s = reduce(s, { type: "chevron", key: "1.b.0" });
+  assert.deepEqual([...s.open].sort(), ["0", "1", "1.a.0", "1.b.0"]);
+  assert.equal(s.selected, "1.a.0");
+});

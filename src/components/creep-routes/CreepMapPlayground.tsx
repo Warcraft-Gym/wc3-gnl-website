@@ -2,12 +2,13 @@
 
 import { Fragment, useCallback, useEffect, useReducer, useState } from "react";
 import { initialStopView, stopViewReducer } from "@/lib/creep-routes/stop-view.mjs";
+import { findStopKey, numberStops, parseKey, stopByKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { CreepMap } from "@/components/creep-routes/CreepMap";
 import { MapLegend } from "@/components/creep-routes/MapLegend";
 import { RouteStepTable } from "@/components/creep-routes/RouteStepTable";
 import { CampCard } from "@/components/creep-routes/CampCard";
 import { useCampCard } from "@/components/creep-routes/useCampCard";
-import type { CreepMap as CreepMapType, CreepRoute } from "@/lib/creep-routes/types";
+import type { CreepMap as CreepMapType, CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -48,6 +49,7 @@ export function CreepMapPlayground({
   only,
   startClosed = false,
   stopBody,
+  initialChoice,
 }: {
   map: CreepMapType;
   route: CreepRoute;
@@ -61,15 +63,20 @@ export function CreepMapPlayground({
   startClosed?: boolean;
   /** Replaces the open stop's body (`RouteStepTable`). */
   stopBody?: React.ReactNode;
+  /** The path each "or"/"xor" split shows first, by split key (a guide showing path b). */
+  initialChoice?: Record<string, number>;
 }) {
+  // Stops are named by their `stop-numbers.mjs` keys ("0", "2.a.0").
   const [view, dispatch] = useReducer(stopViewReducer, route.stops.length, (count: number) =>
     only !== undefined
-      ? { selected: null, open: new Set([only]) }
+      ? { selected: null, open: new Set([String(only)]) }
       : startClosed
-        ? { selected: null, open: new Set<number>() }
-        : initialStopView(count),
-  );
-  const [scrollTo, setScrollTo] = useState<{ index: number } | null>(null);
+        ? { selected: null, open: new Set<string>() }
+        : initialStopView(count, numberStops(route.stops).find((n) => n.label)?.key ?? "0"),
+  ) as [{ selected: string | null; open: Set<string> }, React.Dispatch<Record<string, unknown>>];
+  const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
+  // The way the reader follows in each "or"/"xor" split: page state, not URL state.
+  const [choice, setChoice] = useState<Record<string, number>>(initialChoice ?? {});
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
   // Escape clears the selection, unless a card or popover is open (it closes that instead).
@@ -86,14 +93,26 @@ export function CreepMapPlayground({
   // the route's own stops (every camp is clickable now, F012-followup-3)
   // finds no matching stop — `findIndex` returns -1 — and this is a no-op:
   // no stop is selected, nothing crashes.
-  const onMarkerSelect = useCallback(
-    (campId: string) => {
-      const idx = route.stops.findIndex((s) => s.campId === campId);
-      if (idx === -1) return;
-      dispatch({ type: "node", index: idx });
-      setScrollTo({ index: idx });
+  // An arm stop of an "or"/"xor" split also chooses its way.
+  const onStopSelect = useCallback(
+    (key: string) => {
+      const { index, arm } = parseKey(key);
+      const also = arm === undefined ? [] : [String(index)];
+      if (arm !== undefined && route.stops[index]?.split && route.stops[index].split!.mode !== "and") {
+        setChoice((c) => (c[String(index)] === arm ? c : { ...c, [String(index)]: arm }));
+      }
+      dispatch({ type: "node", key, also });
+      setScrollTo({ key });
     },
     [route.stops],
+  );
+  // The top level and the walked arm first, so a camp in two arms keeps the chosen one.
+  const onMarkerSelect = useCallback(
+    (campId: string) => {
+      const key = findStopKey(route.stops, campId, choice);
+      if (key) onStopSelect(key);
+    },
+    [route.stops, choice, onStopSelect],
   );
 
   const mapColumn = (
@@ -110,6 +129,8 @@ export function CreepMapPlayground({
         onCampCardHoverEnter={hoverEnter}
         onCampCardHoverLeave={hoverLeave}
         openCampId={openCampId}
+        onStopSelect={onStopSelect}
+        choice={choice}
       />
       <MapLegend />
     </>
@@ -121,15 +142,17 @@ export function CreepMapPlayground({
         map={map}
         selected={view.selected}
         open={view.open}
-        onSummary={(index) => dispatch({ type: "summary", index })}
-        onChevron={(index) => dispatch({ type: "chevron", index })}
-        onExpandAll={() => dispatch({ type: "expandAll", count: route.stops.length })}
+        onSummary={(key) => dispatch({ type: "summary", key, also: key.includes(".") ? [String(parseKey(key).index)] : [] })}
+        onChevron={(key) => dispatch({ type: "chevron", key })}
+        onExpandAll={() => dispatch({ type: "expandAll", keys: stopKeys(route.stops) })}
         onCollapseAll={() => dispatch({ type: "collapseAll" })}
         scrollTo={scrollTo}
         onOpenCard={pin}
         openCampId={openCampId}
         only={only}
         stopBody={stopBody}
+        choice={choice}
+        onChoose={(forkKey, arm) => setChoice((c) => ({ ...c, [forkKey]: arm }))}
       />
       {/* Anything the page wants directly under the stops — the Discord
           card. It belongs *in* this column rather than in a band below the
@@ -140,6 +163,9 @@ export function CreepMapPlayground({
       <Fragment key="aside">{aside}</Fragment>
     </>
   );
+
+  const cardKey = card ? findStopKey(route.stops, card.camp.id, choice) : null;
+  const cardStop: RouteStop | undefined = cardKey ? stopByKey(route.stops, cardKey) : undefined;
 
   return (
     <div className={cn(!show && "grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-start lg:gap-8")}>
@@ -152,8 +178,8 @@ export function CreepMapPlayground({
       {card ? (
         <CampCard
           camp={card.camp}
-          kills={route.stops.find((s) => s.campId === card.camp.id)?.kills}
-          leaveRest={route.stops.find((s) => s.campId === card.camp.id)?.leaveRest}
+          kills={cardStop?.kills}
+          leaveRest={cardStop?.leaveRest}
           anchorEl={card.trigger}
           pinned={card.pinned}
           onClose={close}

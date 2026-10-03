@@ -174,3 +174,96 @@ test("derived kills carry their unit and whether it is a set; a leading set keep
     ["a", 1, true, false],
   ]);
 });
+
+test("a stop without the hero (hero: false) earns hero xp like any other: xp is global", () => {
+  const withHero = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2" }] }, MAP);
+  const result = deriveRoute({ stops: [{ campId: "c1" }, { campId: "c2", hero: false }] }, MAP);
+  const absent = result.stops[1];
+  assert.ok(absent.kills.length > 0 && absent.kills.every((k) => k.xp > 0));
+  assert.deepEqual(absent.kills.map((k) => k.xp), withHero.stops[1].kills.map((k) => k.xp));
+  assert.equal(absent.xpAfter, withHero.stops[1].xpAfter);
+  assert.equal(result.finalXp, withHero.finalXp);
+});
+
+// A fork (choose one) or a parallel node (all at once) after c1, then c2.
+const forkRoute = (kind) => ({
+  stops: [
+    { campId: "c1" },
+    kind === "fork"
+      ? { campId: null, split: { mode: "or", arms: [{ label: "A", stops: [{ campId: "c2" }] }, { label: "B", stops: [] }] } }
+      : { campId: null, split: { mode: "and", arms: [{ stops: [{ campId: "c2" }] }, { stops: [] }] } },
+    { campId: "c2" },
+  ],
+});
+const arms = (route) => route.stops[1].split.arms;
+
+test("or split: the hero walks the chosen arm; the other arm is derived but feeds no total", () => {
+  const route = forkRoute("fork");
+  arms(route)[1].stops = [{ campId: "c1" }];
+  const first = deriveRoute(route, MAP);
+  const fork = first.stops[1].split;
+  assert.equal(fork.walked, 0);
+  assert.equal(fork.arms[0].xpAfter, 306);
+  assert.equal(fork.arms[1].stops[0].armIndex, 1);
+  assert.equal(fork.arms[1].stops[0].forkKey, "1");
+  assert.equal(first.stops[1].xpAfter, 306);
+
+  const second = deriveRoute(route, MAP, { choice: { 1: 1 } });
+  assert.equal(second.stops[1].split.walked, 1);
+  assert.equal(second.stops[1].xpAfter, second.stops[1].split.arms[1].xpAfter);
+  assert.ok(second.stops[1].xpAfter < first.stops[1].xpAfter);
+});
+
+test("and split: every arm earns xp, arms 1.. carry no hero and add up after arm 0", () => {
+  const route = forkRoute("parallel");
+  arms(route)[1].stops = [{ campId: "c2", hero: true }];
+  const result = deriveRoute(route, MAP, { choice: { 1: 1 } });
+  const node = result.stops[1].split;
+  assert.equal(node.walked, 0);
+  assert.equal(node.arms[1].stops[0].hero, false);
+  assert.ok(node.arms[1].stops[0].kills.every((k) => k.xp > 0));
+  assert.equal(node.arms[0].xpAfter, 306);
+  // Way b runs on from way a's total, and the stop after the split from way b's.
+  const bGain = node.arms[1].stops[0].kills.reduce((n, k) => n + k.xp, 0);
+  assert.equal(node.arms[1].xpAfter, 306 + bGain);
+  assert.equal(result.stops[1].xpAfter, node.arms[1].xpAfter);
+});
+
+test("and split: one XP event, the block's total and the level after it for the join row", () => {
+  const route = forkRoute("parallel");
+  arms(route)[1].stops = [{ campId: "c2" }];
+  const node = deriveRoute(route, MAP).stops[1].split;
+  // The hero enters at 128 xp, level 1; both paths together pay the block's total.
+  assert.equal(node.levelBefore, 1);
+  assert.equal(node.xpBefore, 128);
+  assert.equal(node.xpGained, node.arms[1].xpAfter - 128);
+  assert.equal(node.levelAfter, deriveRoute(route, MAP).stops[1].heroLevelAfter);
+  assert.ok(node.levelAfter > node.levelBefore);
+  // An empty block pays nothing and keeps the level.
+  const idle = deriveRoute(forkRoute("parallel"), MAP).stops[1].split;
+  assert.equal(idle.xpGained, 306 - 128);
+  arms(route)[0].stops = [];
+  arms(route)[1].stops = [];
+  const none = deriveRoute(route, MAP).stops[1].split;
+  assert.equal(none.xpGained, 0);
+  assert.equal(none.levelAfter, none.levelBefore);
+});
+
+test("the stop after a split continues from the chosen arm's total", () => {
+  const route = forkRoute("fork");
+  arms(route)[1].stops = [{ campId: null, action: "Harass" }];
+  const viaA = deriveRoute(route, MAP);
+  const viaB = deriveRoute(route, MAP, { choice: { 1: 1 } });
+  assert.equal(viaB.stops[1].xpAfter, 128);
+  // The hero arrives at level 1 via B, level 2 via A: B's first kill pays the higher factor.
+  assert.ok(viaB.stops[2].kills[0].xp > viaA.stops[2].kills[0].xp);
+  assert.ok(viaB.finalXp > 128 && viaB.finalXp < viaA.finalXp);
+});
+
+test("a camp stop always kills something: no kill order is the whole camp, leaveRest or not", () => {
+  const whole = deriveRoute({ stops: [{ campId: "c2", kills: [] }] }, MAP).stops[0];
+  const leave = deriveRoute({ stops: [{ campId: "c2", kills: [], leaveRest: true }] }, MAP).stops[0];
+  assert.equal(leave.left, 0);
+  assert.equal(leave.kills.length, MAP.camps.find((c) => c.id === "c2").creeps.reduce((n, c) => n + c.count, 0));
+  assert.equal(leave.xpAfter, whole.xpAfter);
+});

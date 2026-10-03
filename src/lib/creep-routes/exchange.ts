@@ -25,6 +25,10 @@ const unitSchema = z.object({
 });
 
 const stopSchema = z.object({
+  /** The published stop's `_key` on a "Suggest an update" link: the server copies that stop's pictures. */
+  key: z.string().optional(),
+  /** How many pictures the published stop has, shown in the builder; the server never reads it. */
+  pictures: z.number().optional(),
   campId: z.string().nullable().default(null),
   action: z.string().optional(),
   units: z.array(unitSchema).optional(),
@@ -32,6 +36,28 @@ const stopSchema = z.object({
   condition: z.string().optional(),
   kills: z.array(z.object({ row: z.number(), n: z.number(), set: z.number().optional() })).optional(),
   leaveRest: z.boolean().optional(),
+  place: z
+    .object({
+      kind: z.enum(["attack", "build", "expand", "shop", "scout"]),
+      at: z.union([
+        z.object({ start: z.string() }),
+        z.object({ mine: z.string() }),
+        z.object({ shop: z.string() }),
+        z.object({ x: z.number(), y: z.number() }),
+      ]),
+    })
+    .optional(),
+  hero: z.boolean().optional(),
+});
+
+/** A top-level stop may be a split whose arms hold plain stops (one level). */
+const topStopSchema = stopSchema.extend({
+  split: z
+    .object({
+      mode: z.enum(["and", "or", "xor"]),
+      arms: z.array(z.object({ label: z.string().optional(), stops: z.array(stopSchema) })),
+    })
+    .optional(),
 });
 
 export const creepRouteExchangeSchema = z.object({
@@ -68,7 +94,7 @@ export const creepRouteExchangeSchema = z.object({
    *  already naming what it replaces. A plain import (replay, overlay) omits
    *  it, because that is a new route rather than an edit. */
   supersedes: z.string().optional(),
-  stops: z.array(stopSchema).min(1),
+  stops: z.array(topStopSchema).min(1),
   description: z.string().optional(),
 });
 

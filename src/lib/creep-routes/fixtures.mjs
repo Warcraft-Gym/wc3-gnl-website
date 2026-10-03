@@ -21,6 +21,7 @@
 // is how Northern Isles once shipped missing from every map select.
 import { killsProblem } from "./kills.mjs";
 import { RAW_MAPS } from "./maps/index.mjs";
+import { placeIds, placeProblem } from "./place.mjs";
 
 const MAP_SLUGS = Object.keys(RAW_MAPS);
 
@@ -173,6 +174,224 @@ export const FIXTURE_ROUTES = [
       { campId: "c16", kills: [{ row: 0, n: 1 }], leaveRest: true, note: "Take the item and go home to Watch Tower" },
     ],
   },
+  {
+    slug: "nightelf-aow-turtle-rock",
+    title: "Test route: AoW at the ogre camp, then creep or harass",
+    race: "nightelf",
+    vsRaces: [],
+    level: "standard",
+    map: { slug: "turtle-rock", name: "Turtle Rock v2" },
+    hero: "ne-keeper-of-the-grove",
+    summary: "A made-up route to test splits and waypoints. Not for play.",
+    author: "Gym coaches",
+    patch: "2.0.3",
+    mapVersion: "2.0",
+    featured: false,
+    publishedAt: "2026-10-02T10:00:00Z",
+    updatedAt: "2026-10-02T10:00:00Z",
+    stops: [
+      {
+        campId: null,
+        action: "Plant the Ancient of War",
+        place: { kind: "build", at: { x: 0.5, y: 0.83 } },
+        units: [{ icon: "ne-ancient-of-war", count: 1 }],
+      },
+      { campId: "c15", units: [{ icon: "ne-ancient-of-war", count: 1 }], note: "The Ancient tanks the ogres" },
+      { campId: "c07", note: "Keeper takes the turtles" },
+      {
+        campId: null,
+        // Either/or: each way goes on to its own end, nothing follows the split.
+        split: {
+          mode: "xor",
+          arms: [
+            {
+              label: "No one at their natural",
+              stops: [{ campId: "c08", note: "Take their natural's turtles" }, { campId: "c04" }, { campId: "c01" }],
+            },
+            {
+              label: "They are at their natural",
+              stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "3" } } }],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: "human-no-expansion-tidehunters",
+    title: "Test route: no expansion",
+    race: "human",
+    vsRaces: [],
+    level: "standard",
+    map: { slug: "tidehunters", name: "Tidehunters" },
+    hero: "hu-archmage",
+    summary: "A made-up route to test splits and waypoints. Not for play.",
+    author: "Gym coaches",
+    patch: "2.0.3",
+    mapVersion: "1.2",
+    featured: false,
+    publishedAt: "2026-10-02T11:00:00Z",
+    updatedAt: "2026-10-02T11:00:00Z",
+    stops: [
+      { campId: "c11", units: [{ icon: "hu-militia", count: 5 }], note: "Call to Arms, clear the marketplace camp together" },
+      {
+        campId: null,
+        split: {
+          mode: "and",
+          arms: [
+            { stops: [{ campId: "c04", units: [{ icon: "hu-footman", count: 3 }], note: "The hero and the army take the turtles" }] },
+            { stops: [{ campId: "c19", hero: false, units: [{ icon: "hu-militia", count: 4 }], note: "The militia finish the sea giant camp" }] },
+          ],
+        },
+      },
+      { campId: "c05", note: "Both groups meet at the gnolls" },
+    ],
+  },
+  // veS's two Death Knight routes from Sanity production (read only), rebuilt with splits. His
+  // notes are his own words, trimmed to the part that belongs to each stop; actions and way labels
+  // are ours. `start: 1`: his first camps sit by player 1's base (the live documents leave it unset).
+  {
+    slug: "undead-ves-autumn-leaves",
+    title: "Early creep route vs. solo Blademaster Wind Walk",
+    race: "undead",
+    vsRaces: ["orc"],
+    level: "standard",
+    map: { slug: "autumn-leaves", name: "Autumn Leaves v2" },
+    start: 1,
+    hero: "ud-death-knight",
+    summary: "This is based on Happy vs. Soin game. You can use this creep route if Blademaster tries to snipe items early and gives you a bit of space.",
+    author: "veS",
+    patch: "2.0.3",
+    mapVersion: "2.0",
+    featured: false,
+    publishedAt: "2026-10-02T12:00:00Z",
+    updatedAt: "2026-10-02T12:00:00Z",
+    description: [
+      "Your main goal in early game is to hit lvl 3 as soon as possible. As you creep towards lvl 3, you need to assess whether you can be aggressive, or whether you must play safely.",
+    ],
+    stops: [
+      {
+        campId: null,
+        // ponytail: the two camp orders are really xor, but the level-3 choice follows both and a
+        // split cannot sit inside a path, so this stays "or" with the level-3 split shared after.
+        split: {
+          mode: "or",
+          arms: [
+            {
+              label: "Standard",
+              stops: [
+                {
+                  campId: "c06",
+                  units: [{ icon: "ud-ghoul", count: 2 }],
+                  kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }],
+                  note: "Standard opening camp in almost all scenarios vs. Orc. Bring 2 ghouls if you expect Orc to be creeping themselves. Bring 3 ghouls if you expect to be harassed.",
+                },
+                {
+                  campId: "c08",
+                  units: [{ icon: "ud-ghoul", count: 5 }],
+                  kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }],
+                  condition: "Do not attempt if you face a build with strong early presence, e.g. Far Seer/Headhunters",
+                  note: "You may go for this camp if you face solo Blademaster with Wind Walk. You need to bring at least 5 ghouls, but you will be able to buy Circlet and Dust for Wind Walk.",
+                },
+              ],
+            },
+            {
+              label: "vs. Mirror Image Blademaster",
+              stops: [
+                { campId: "c08", units: [{ icon: "ud-ghoul", count: 5 }], kills: [{ row: 1, n: 1 }, { row: 2, n: 1 }] },
+                // ponytail: no units on the second camp; the ghouls are already with the hero.
+                { campId: "c06", kills: [{ row: 1, n: 1 }, { row: 0, n: 1 }] },
+              ],
+            },
+          ],
+        },
+      },
+      {
+        campId: null,
+        // ponytail: no split caption ("Reaching level 3"); the path labels carry it.
+        split: {
+          mode: "xor",
+          arms: [
+            {
+              label: "Safe",
+              stops: [
+                {
+                  campId: "c03",
+                  units: [{ icon: "rodofnecromancy", count: 1 }],
+                  kills: [{ row: 1, n: 2 }],
+                  note: "Going for this camp is a safer option, because it's closer to your base. After creeping the shop, bring additional Rod of Necromancy. Kill two trolls first, then finish with the magi.",
+                },
+              ],
+            },
+            {
+              label: "Risky; vs. a passive Orc",
+              stops: [
+                {
+                  campId: "c04",
+                  kills: [{ row: 1, n: 2 }],
+                  note: "Sometimes your Orc opponent will be very passive. In this case, if you had a smooth early game and you feel confident, you can go for this camp. This will ensure you hit level 3 and that you will deprive them of important camp.",
+                },
+                {
+                  campId: null,
+                  action: "Push their burrows and T2 buildings",
+                  place: { kind: "attack", at: { start: "0" } },
+                  note: "If you manage to clear this camp as well, you can use this momentum and go for their burrows/t2 buildings.",
+                },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  },
+  {
+    slug: "undead-ves-echo-isles",
+    title: "Early creep route vs. Demon Hunter and Naga",
+    race: "undead",
+    vsRaces: ["nightelf"],
+    level: "standard",
+    map: { slug: "echo-isles", name: "Echo Isles v2" },
+    start: 1,
+    hero: "ud-death-knight",
+    summary: "Principles of this creep route can be applied on other maps as well. This guide is based on Happy vs. Life replay analysis.",
+    author: "veS",
+    patch: "2.0.3",
+    mapVersion: "2.2",
+    featured: false,
+    publishedAt: "2026-10-02T12:00:00Z",
+    updatedAt: "2026-10-02T12:00:00Z",
+    stops: [
+      {
+        campId: "c11",
+        condition: "Only on 1 base",
+        note: "Standard first camp if you play to stay on 1 base. If you go for Naga 2nd, bring 2 ghouls here.",
+      },
+      {
+        campId: "c02",
+        units: [{ icon: "ud-ghoul", count: 6 }],
+        note: "This is the quickest and the most efficient lvl 2 creep route on this map. Bring 6 ghouls total to this camp.",
+      },
+      {
+        campId: null,
+        action: "Scout where their Ancient of War goes",
+        place: { kind: "scout", at: { start: "1" } },
+        // A lone unit scouts (veS does not say which): in the list, not on the map.
+        hero: false,
+        note: "Meanwhile, scout Night Elf and check if their Ancient of War is moving towards the marketplace.",
+      },
+      {
+        campId: "c05",
+        condition: "You CAN creep this, if you feel greedy, but you will lose HP on your ghouls and will be unable to contest NE in mid-game",
+        note: "Go there only to buy Boots (for your Naga) and Dust (to reveal their archers during a night). Your goal here is to prepare for mid-game and the Naga vs. Naga fight.",
+      },
+      {
+        campId: "c03",
+        condition: "Only if Elf placed their AoW on their green ogre camp.",
+        kills: [{ row: 3, n: 1 }],
+        note: "In mid-game your goal is to stop Elf from creeping a big camp with their Ancient, that now has moved towards it. In most cases they will move towards the marketplace, as it gives a lot of XP and a good consumable. Your goal here is to a) stop Elf from creeping this b) if possible, do it yourself. Whoever gets this camp in mid-game, achieves a big advantage.",
+      },
+    ],
+  },
 ];
 
 // Sanity check the seed data at import time (this file is also `node --test`ed
@@ -185,12 +404,14 @@ for (const route of FIXTURE_ROUTES) {
   const map = MAP_BY_SLUG.get(route.map.slug);
   if (!map) throw new Error(`fixture route ${route.slug} references unknown map ${route.map.slug}`);
   route.map.minimapUrl = map.minimapUrl;
-  for (const stop of route.stops) {
+  for (const stop of route.stops.flatMap((s) => [s, ...(s.split?.arms.flatMap((arm) => arm.stops) ?? [])])) {
     const camp = stop.campId && map.camps.find((c) => c.id === stop.campId);
     if (stop.campId && !camp) {
       throw new Error(`fixture route ${route.slug} references unknown camp ${stop.campId} on ${map.slug}`);
     }
     const problem = camp && stop.kills && killsProblem(stop.kills, camp.creeps.map((c) => c.count));
     if (problem) throw new Error(`fixture route ${route.slug} stop ${stop.campId}: ${problem}`);
+    const placeIssue = stop.place && placeProblem(stop.place, placeIds(map));
+    if (placeIssue) throw new Error(`fixture route ${route.slug}: ${placeIssue}`);
   }
 }

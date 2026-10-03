@@ -11,13 +11,21 @@
  */
 
 export function toApiStop(stop, origin, iconSrc) {
-  const { units, ...rest } = stop;
+  const { units, split, images, ...rest } = stop;
   return {
     ...rest,
+    // A fixture picture's url is site-relative; the API hands out absolute ones. A picture with no file is dropped.
+    ...(images?.length ? { images: images.filter((img) => img.url).map((img) => ({ ...img, url: img.url.startsWith("http") ? img.url : `${origin}${img.url}` })) } : {}),
     ...(units?.length
       ? { units: units.map((u) => ({ ...u, iconUrl: `${origin}${iconSrc(u.icon)}` })) }
       : {}),
+    // A node's arm stops get the same absolute icon URLs.
+    ...(split ? { split: withApiArms(split, origin, iconSrc) } : {}),
   };
+}
+
+function withApiArms(node, origin, iconSrc) {
+  return { ...node, arms: node.arms.map((arm) => ({ ...arm, stops: arm.stops.map((s) => toApiStop(s, origin, iconSrc)) })) };
 }
 
 export function absoluteMinimapUrl(map, origin) {
@@ -65,6 +73,7 @@ export function toApiRoute(route, map, origin, iconSrc, deriveRouteFn) {
     sourceUrl: route.sourceUrl,
     build: route.build,
     derived: {
+      // ponytail: a node's derived arms are not in the API; its entry carries the walked arm's end level/xp only.
       stops: derived.stops.map((s) => ({
         heroLevelAfter: s.heroLevelAfter,
         xpAfter: s.xpAfter,

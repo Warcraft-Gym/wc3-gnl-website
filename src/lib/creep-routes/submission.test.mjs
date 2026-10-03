@@ -385,3 +385,159 @@ test("kill sets: kept on the draft, and a split set is rejected", () => {
   assert.equal(bad.success, false);
   assert.match(flattenErrors(bad.error)["stops.0.kills"], /next to each other/);
 });
+
+const placeMaps = [{ slug: "autumn-leaves", campIds: ["c01", "c02"], startIds: ["0", "1"], mineCount: 2, shopIds: ["nmrk-6"] }];
+
+test("place: needs campId null and an action, and lands on the draft", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  // A shop visit is a waypoint and takes no number, so two camps still make the two stops.
+  const ok = s.safeParse(payload({ stops: [{ campId: null, action: "Buy circlet", place: { kind: "shop", at: { shop: "nmrk-6" } } }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.equal(ok.success, true);
+  assert.deepEqual(toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[0].place, { kind: "shop", at: { shop: "nmrk-6" } });
+
+  const noAction = s.safeParse(payload({ stops: [{ campId: null, place: { kind: "attack", at: { start: "1" } } }, { campId: "c01" }] }));
+  assert.equal(flattenErrors(noAction.error)["stops.0.action"], "Say what happens here");
+  const onCamp = s.safeParse(payload({ stops: [{ campId: "c01", action: "Harass", place: { kind: "attack", at: { start: "1" } } }, { campId: "c02" }] }));
+  assert.equal(flattenErrors(onCamp.error)["stops.0.place"], "A place stop has no camp");
+});
+
+test("place: an id the map does not have is rejected; a point must sit inside the map", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const shop = s.safeParse(payload({ stops: [{ campId: null, action: "Buy", place: { kind: "shop", at: { shop: "ngme-1" } } }, { campId: "c01" }] }));
+  assert.equal(flattenErrors(shop.error)["stops.0.place"], 'Unknown shop "ngme-1" on this map');
+  const mine = s.safeParse(payload({ stops: [{ campId: null, action: "Expand", place: { kind: "expand", at: { mine: "2" } } }, { campId: "c01" }] }));
+  assert.match(flattenErrors(mine.error)["stops.0.place"], /Unknown gold mine/);
+  const point = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "build", at: { x: 1.2, y: 0.5 } } }, { campId: "c01" }] }));
+  assert.equal(point.success, false);
+});
+
+test("hero: false is kept on a camp, attack or waypoint stop and rejected on a base action", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, { campId: "c02", hero: false }, { campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } }, hero: false }] }));
+  assert.equal(ok.success, true);
+  const draft = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves");
+  assert.equal(draft.stops[1].hero, false);
+  assert.equal(draft.stops[2].hero, false);
+  assert.equal(draft.stops[0].hero, undefined);
+  // A waypoint done by another unit (a lone scout).
+  const onWaypoint = s.safeParse(payload({ stops: [{ campId: null, action: "Scout", place: { kind: "scout", at: { x: 0.2, y: 0.2 } }, hero: false }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.equal(onWaypoint.success, true);
+  assert.equal(toCreepRouteDraft(onWaypoint.data, "creepMap-autumn-leaves").stops[0].hero, false);
+  const onAction = s.safeParse(payload({ stops: [{ campId: null, action: "TP home", hero: false }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.equal(flattenErrors(onAction.error)["stops.0.hero"], "Only a camp, attack or waypoint stop can go without the hero");
+});
+
+// "either" builds an "or" split (choose one), "both" an "and" split (all at once).
+const forkStop = (mode, arms) => ({ campId: null, split: { mode: mode === "either" ? "or" : "and", arms } });
+
+test("or split: a valid split lands on the draft as a creepSplit with arms of stops", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(
+    payload({
+      stops: [
+        { campId: "c01" },
+        forkStop("either", [
+          { label: "No one at their natural", stops: [{ campId: "c02", hero: false }] },
+          { label: "They are at their natural", stops: [{ campId: null, action: "Harass", place: { kind: "attack", at: { start: "1" } } }] },
+        ]),
+      ],
+    }),
+  );
+  assert.equal(ok.success, true);
+  const fork = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1];
+  assert.equal(fork._type, "creepSplit");
+  assert.equal(fork.arms[0].label, "No one at their natural");
+  assert.equal(fork.arms[0].stops[0]._type, "stop");
+  assert.equal(fork.arms[0].stops[0].hero, false);
+  assert.deepEqual(fork.arms[1].stops[0].place, { kind: "attack", at: { start: "1" } });
+  assert.equal(fork.mode, "or");
+});
+
+test("nodes: a node inside an arm, an empty arm and a fork without labels are rejected", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const inner = forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]);
+  const nested = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [inner] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A path cannot hold another split");
+  const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Path 1 is empty. Add a stop to it or remove it.");
+  const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
+  assert.equal(flattenErrors(unlabelled.error)["stops.1.split.arms.0.label"], "Say when to take this path");
+  const bothOk = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(bothOk.success, true);
+  const badCamp = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "zz" }] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.match(flattenErrors(badCamp.error)["stops.1.split.arms.0.stops.0.campId"], /Unknown camp/);
+});
+
+test("a whole-route pair (one fork at index 0 and nothing else) counts as two stops", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const pair = s.safeParse(payload({ stops: [forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
+  assert.equal(pair.success, true);
+  const lone = s.safeParse(payload({ stops: [{ campId: "c01" }] }));
+  assert.equal(flattenErrors(lone.error).stops, "Add at least two stops");
+});
+
+test("a fork node carrying any field besides its ways is rejected, not silently dropped", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  for (const extra of [{ hero: false }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
+    const r = s.safeParse(payload({ stops: [{ campId: "c01" }, { ...forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]), ...extra }] }));
+    assert.equal(flattenErrors(r.error)["stops.1.split"], "A split holds only its paths", JSON.stringify(extra));
+  }
+});
+
+test("and split: a valid node lands on the draft as a creepSplit without labels", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const ok = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c02" }] }, { stops: [{ campId: "c01", hero: false }] }])] }));
+  assert.equal(ok.success, true);
+  const node = toCreepRouteDraft(ok.data, "creepMap-autumn-leaves").stops[1];
+  assert.equal(node._type, "creepSplit");
+  assert.equal(node.mode, "and");
+  assert.equal("label" in node.arms[0], false);
+  assert.equal(node.arms[1].stops[0].hero, false);
+});
+
+test("xor split: accepted as the last stop, rejected with stops after it", () => {
+  const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
+  const xor = { campId: null, split: { mode: "xor", arms: [{ label: "A", stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }] } };
+  assert.equal(s.safeParse(payload({ stops: [{ campId: "c01" }, xor] })).success, true);
+  const after = s.safeParse(payload({ stops: [{ campId: "c01" }, xor, { campId: "c02" }] }));
+  assert.equal(flattenErrors(after.error)["stops.1.split"], "Nothing follows an either/or split");
+});
+
+test("caps: the submit check repeats the builder's cap lines past 12 stops, 20 rows or 3 paths", () => {
+  const s = schema();
+  const camps = (n) => Array.from({ length: n }, (_, i) => ({ campId: i % 2 ? "c02" : "c01" }));
+  assert.equal(s.safeParse(payload({ stops: camps(12) })).success, true);
+  const thirteen = s.safeParse(payload({ stops: camps(13) }));
+  assert.equal(flattenErrors(thirteen.error).stops, "This route is over the cap of 12 numbered stops. Ask on Discord if you need more.");
+  const scout = { campId: null, action: "Scout", place: { kind: "scout", at: { x: 0.5, y: 0.5 } } };
+  const rows = s.safeParse(payload({ stops: [...camps(10), ...Array.from({ length: 11 }, () => scout)] }));
+  assert.equal(flattenErrors(rows.error).stops, "This route is over the cap of 20 rows. Ask on Discord if you need more.");
+  const four = forkStop("both", [1, 2, 3, 4].map(() => ({ stops: [{ campId: "c01" }] })));
+  const paths = s.safeParse(payload({ stops: [{ campId: "c01" }, four] }));
+  assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "This split is over the cap of 3 paths. Ask on Discord if you need more.");
+});
+
+test("key: a Sanity-shaped stop key is kept, a malformed one is rejected, pictures from the browser are dropped", () => {
+  const split = { mode: "and", arms: [{ stops: [{ campId: "c02", key: "s2" }] }, { stops: [{ campId: "c03" }] }] };
+  const ok = schema().safeParse(payload({ stops: [{ campId: "c01", key: "a1B2-c3_d4" }, { campId: null, split }] }));
+  assert.equal(ok.success, true);
+  assert.equal(ok.data.stops[0].key, "a1B2-c3_d4");
+  assert.equal(ok.data.stops[1].split.arms[0].stops[0].key, "s2");
+  for (const key of ["bad key", "s1.x", "", "k".repeat(65), 7]) {
+    const bad = schema().safeParse(payload({ stops: [{ campId: "c01", key }, { campId: "c02" }] }));
+    assert.equal(bad.success, false, `accepted ${JSON.stringify(key)}`);
+    assert.ok(flattenErrors(bad.error)["stops.0.key"]);
+  }
+  const forged = schema().safeParse(payload({ stops: [{ campId: "c01", images: [{ asset: { _ref: "image-x" } }] }, { campId: "c02" }] }));
+  assert.equal(forged.data.stops[0].images, undefined);
+});
+
+test("the draft carries the pictures the server copied, under a fresh key", () => {
+  const ok = schema().safeParse(payload({ stops: [{ campId: "c01", key: "s1" }, { campId: "c02" }] }));
+  const images = [{ _type: "image", _key: "i1", asset: { _type: "reference", _ref: "image-a" } }];
+  const draft = toCreepRouteDraft({ ...ok.data, stops: [{ ...ok.data.stops[0], images }, ok.data.stops[1]] }, "creepMap-autumn-leaves");
+  assert.deepEqual(draft.stops[0].images, images);
+  assert.notEqual(draft.stops[0]._key, "s1");
+  assert.equal(draft.stops[0].key, undefined);
+  assert.equal(draft.stops[1].images, undefined);
+});

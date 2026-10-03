@@ -1,7 +1,7 @@
 import { gameIconSrc } from "@/lib/builds/icons";
 import * as impl from "./serialize.mjs";
 import { deriveRoute } from "./derive";
-import type { CreepMap, CreepRoute } from "./types";
+import type { CreepMap, CreepRoute, Place } from "./types";
 
 /**
  * Typed façade over `serialize.mjs`'s pure DTO-mapping implementation —
@@ -26,6 +26,14 @@ export type ApiRouteStop = {
   kills?: { row: number; n: number; set?: number }[];
   /** True skips the creeps `kills` does not list ("Skip the rest"). */
   leaveRest?: boolean;
+  /** A start, mine, shop or free point instead of a camp. */
+  place?: Place;
+  /** Camp and attack stops: false when only the Bring units go. */
+  hero?: boolean;
+  /** Pictures of the spot, absolute urls with their size, alt and caption. */
+  images?: { url: string; width: number; height: number; alt: string; caption?: string }[];
+  /** A split; see `stop-numbers.mjs` for how its arms number. */
+  split?: { mode: "and" | "or" | "xor"; arms: { label?: string; stops: ApiRouteStop[] }[] };
 };
 
 /** List DTO — see `toApiRouteListItem`'s own doc comment (in `serialize.mjs`)

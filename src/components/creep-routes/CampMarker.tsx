@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
-import { wedgePath } from "@/lib/creep-routes/kills.mjs";
+import { STOP_RADIUS, UNUSED_RADIUS, nodeCentre } from "@/lib/creep-routes/map-marks.mjs";
 import { BAND_TOKEN } from "./RouteBadges";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -35,19 +35,22 @@ export function radiusFor(level: number) {
  */
 export const CampMarker = memo(function CampMarker({
   camp,
+  at,
   imageWidth,
   imageHeight,
   active,
   highlighted,
   pressed,
   secondary,
-  killed,
+  underStop,
   onCampSelect,
   asGroup,
   onCampCardOpen,
   cardOpen,
 }: {
   camp: MapCamp;
+  /** Where the mark sits in viewBox units when not on the camp itself: a camp guarding a building draws at the icon's edge. */
+  at?: { x: number; y: number };
   imageWidth: number;
   imageHeight: number;
   active?: boolean;
@@ -55,17 +58,14 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
-  /** F012-followup-3: this camp is interactive but NOT one of the route's
-   *  own stops — fades the outer halo ring (`rgba(255,255,255,.55)` down to
-   *  `.22`) so a route's own camps still read as the emphasised ones (they
-   *  also carry the numbered badge and the path, drawn by `RoutePath`, and
-   *  `pressed`'s `aria-pressed`/", on the route" — this is the marker's own,
-   *  purely visual, third cue). Deliberately subtle: the band colour fill
-   *  itself is untouched, so the camp is still fully readable at a glance. */
+  /** This camp is interactive but NOT one of the route's own stops: a small
+   *  dot in its band colour (half a stop's radius, no halo, no icon), so the
+   *  route's stops stand out as routes get complex. The band stays in the
+   *  camp card and the marker's label. */
   secondary?: boolean;
-  /** Share of the camp's creeps this route kills, when below 1: the band
-   *  fill becomes a wedge of that share over a faded full disc. */
-  killed?: number;
+  /** The camp is a stop of the drawn route: `RoutePath` paints its disc (the badge) over this
+   *  marker, so the marker draws only its click and hover target, the size of that disc. */
+  underStop?: boolean;
   onCampSelect?: (campId: string) => void;
   /** See the component doc comment: renders the `<g>` itself as the click
    *  target instead of adding a nested `<button>`. */
@@ -88,14 +88,25 @@ export const CampMarker = memo(function CampMarker({
   cardOpen?: boolean;
 }) {
   const reduced = useReducedMotion();
-  const cx = camp.x * imageWidth;
-  const cy = camp.y * imageHeight;
+  const cx = at?.x ?? camp.x * imageWidth;
+  const cy = at?.y ?? camp.y * imageHeight;
+  const centreOf = (radius: number) => {
+    const c = nodeCentre(cx / imageWidth, cy / imageHeight, imageWidth, imageHeight, radius);
+    return { cx: c.x, cy: c.y };
+  };
   const r = radiusFor(camp.level);
   const fill = BAND_TOKEN[camp.band] ?? "var(--wg-text-faint)";
-  const partial = killed !== undefined && killed < 1;
-  const partialLabel = partial ? ", partly cleared" : "";
 
-  const dot = (
+  // A stop's disc is `RoutePath`'s; a camp the route does not use is a small dot in its band colour, no halo.
+  // Both keep a hit target as large as the old mark, so hover and click still find the camp.
+  const dot = underStop ? (
+    <circle {...centreOf(STOP_RADIUS)} r={STOP_RADIUS} fill="transparent" />
+  ) : secondary ? (
+    <g>
+      <circle cx={cx} cy={cy} r={r} fill="transparent" />
+      <circle cx={cx} cy={cy} r={UNUSED_RADIUS} fill={fill} />
+    </g>
+  ) : (
     // The "grow when active" effect: a `transform: scale()` on this
     // wrapper, not a CSS transition of the circles' own `r` attribute
     // (the previous approach) — `r` is geometry, so transitioning it
@@ -116,40 +127,23 @@ export const CampMarker = memo(function CampMarker({
     >
       {active ? (
         <circle cx={cx} cy={cy} r={r + 4} fill="none" stroke={fill} strokeOpacity="0.55" strokeWidth="2">
-          {/* The pulsing ring is SMIL, which no CSS transition/class can
-           *  pause — it must be omitted outright under reduced motion
-           *  (DESIGN.md's motion rule; see the F009 review, code-b.md
-           *  item 2's second bullet). The ring itself still renders,
-           *  static, so "this stop is active" stays visible with no
-           *  motion. */}
-          {!reduced ? (
-            <animate attributeName="r" values={`${r + 3};${r + 7};${r + 3}`} dur="1.4s" repeatCount="indefinite" />
-          ) : null}
+          {/* SMIL cannot be paused by CSS: omitted outright under reduced motion; the ring stays, static. */}
+          {!reduced ? <animate attributeName="r" values={`${r + 3};${r + 7};${r + 3}`} dur="1.4s" repeatCount="indefinite" /> : null}
         </circle>
       ) : null}
       {/* Liquipedia's hard-band red is only ~3:1 against black on its own
        *  (see globals.css); this light halo — drawn just outside the dark
        *  under-stroke below — keeps every band's mark readable against any
-       *  terrain colour, light or dark. `secondary` fades it (not the band
-       *  fill itself) — see the prop's doc comment above. */}
-      <circle
-        cx={cx}
-        cy={cy}
-        r={r + 1.5}
-        fill="none"
-        stroke={secondary ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.55)"}
-        strokeWidth="1.5"
-      />
+       *  terrain colour, light or dark. */}
+      <circle cx={cx} cy={cy} r={r + 1.5} fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.5" />
       <circle
         cx={cx}
         cy={cy}
         r={r}
         fill={fill}
-        fillOpacity={partial ? 0.3 : 1}
         stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
         strokeWidth={highlighted ? 2 : 1.5}
       />
-      {partial ? <path d={wedgePath(cx, cy, r - 0.75, killed)} fill={fill} /> : null}
     </g>
   );
 
@@ -164,7 +158,7 @@ export const CampMarker = memo(function CampMarker({
         data-camp={camp.id}
         role="button"
         tabIndex={0}
-        aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}${partialLabel}`}
+        aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
         aria-pressed={pressed ?? false}
         aria-expanded={cardOpen ?? false}
         onClick={(e) => {
@@ -190,11 +184,12 @@ export const CampMarker = memo(function CampMarker({
     // marker's (unscaled) bounding box. Left click still only toggles the
     // stop (unchanged) — a right click opens the camp card instead, so the
     // click-to-author flow never gains a second meaning for its one click.
-    const size = (r + 4) * 2;
+    const size = (underStop ? STOP_RADIUS : r + 4) * 2;
+    const at = underStop ? centreOf(STOP_RADIUS) : { cx, cy };
     return (
       <g data-camp={camp.id}>
         {dot}
-        <foreignObject x={cx - size / 2} y={cy - size / 2} width={size} height={size}>
+        <foreignObject x={at.cx - size / 2} y={at.cy - size / 2} width={size} height={size}>
           <button
             type="button"
             data-camp={camp.id}
@@ -204,7 +199,7 @@ export const CampMarker = memo(function CampMarker({
               e.preventDefault();
               onCampCardOpen(camp.id, e.currentTarget);
             }}
-            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}${partialLabel}`}
+            aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
             aria-pressed={pressed ?? false}
             aria-expanded={cardOpen ?? false}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}

@@ -88,8 +88,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
+    // `data-scroll-behavior="smooth"`: Next 16 sets `scroll-behavior: auto` while it navigates, so a new
+    // page starts at its top instead of smooth-scrolling there with its sticky map and stop list sliding.
     <html
       lang="en"
+      data-scroll-behavior="smooth"
       className={`${display.variable} ${sans.variable} ${mono.variable} h-full antialiased`}
     >
       <body className="min-h-full">

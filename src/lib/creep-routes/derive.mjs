@@ -32,38 +32,96 @@ function levelForXp(xp) {
  * the hero's *current* level on every single kill, not fixed once per camp
  * — Blizzard's `HeroFactorXP` table applies per kill (see
  * docs/creep-routes.md's "XP model"), so a hero that levels up mid-camp
- * pays the new, lower factor for the rest of that camp's kills. */
-export function deriveRoute(route, map, { startLevel = 1 } = {}) {
+ * pays the new, lower factor for the rest of that camp's kills. A
+ * stop with `hero: false` earns XP like any other: hero XP is global, the flag only
+ * says the hero is not there to fight (one hero assumed). A split (`stop.split`) derives every arm and carries them as
+ * `split: { mode, walked, arms: [{ label, stops, levelAfter, xpAfter }], levelBefore, xpBefore,
+ * levelAfter, xpGained }` (the hero at the split, after it, and the XP the block paid);
+ * arm stops carry `armIndex` and `forkKey`, and `choice` maps a split key
+ * ("2") to the arm the hero walks in an "or" split (default 0). */
+export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
   let level = startLevel;
   let xp = heroXpForLevel(startLevel);
 
-  const stops = route.stops.map((stop) => {
-    const camp = stop.campId ? findCamp(map, stop.campId) : null;
-    const kills = [];
-    if (camp) {
-      for (const { row, ordered, unit, inSet } of killUnits(camp, stop.kills, stop.leaveRest)) {
-        const creep = camp.creeps[row];
-        const factor = creepXpFactor(level);
-        // Floor each creep's grant, same rounding as xp.mjs's
-        // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
-        const gain = Math.floor(creepXp(creep.level) * factor);
-        xp += gain;
-        const levelAfter = levelForXp(xp);
-        kills.push({ creep, row, ordered, unit, inSet, xp: gain, levelAfter, leveledUp: levelAfter > level });
-        level = levelAfter;
+  const stops = route.stops.map((stop, i) => {
+    const parallel = stop.split?.mode === "and";
+    const rawArms = stop.split?.arms;
+    if (!rawArms) {
+      const d = deriveStop(stop, map, level, xp, false);
+      level = d.heroLevelAfter;
+      xp = d.xpAfter;
+      return d;
+    }
+    // A split: in "or"/"xor" every arm is derived from the state at the split and only
+    // the walked arm (`choice[forkKey]`) feeds the running total. In "and" every arm
+    // feeds it; arms 1.. run without the hero whatever their own flags say. An "and"
+    // block is one XP event: the reader shows only its total and the level after it.
+    // ponytail: order across paths is unknown; list order (a, then b) is the approximation.
+    const forkKey = String(i);
+    const walked = parallel ? 0 : Math.min(Math.max(0, choice[forkKey] ?? 0), rawArms.length - 1);
+    const startLevelAt = level;
+    const startXpAt = xp;
+    const arms = rawArms.map((arm, armIndex) => {
+      let armLevel = parallel ? level : startLevelAt;
+      let armXp = parallel ? xp : startXpAt;
+      const armStops = arm.stops.map((s) => {
+        const d = deriveStop(s, map, armLevel, armXp, parallel && armIndex > 0);
+        armLevel = d.heroLevelAfter;
+        armXp = d.xpAfter;
+        return { ...d, armIndex, forkKey };
+      });
+      if (parallel) {
+        level = armLevel;
+        xp = armXp;
       }
+      return { label: arm.label, stops: armStops, levelAfter: armLevel, xpAfter: armXp };
+    });
+    if (!parallel && arms[walked]) {
+      level = arms[walked].levelAfter;
+      xp = arms[walked].xpAfter;
     }
     return {
-      campId: stop.campId ?? null,
-      camp,
+      campId: null,
+      camp: null,
       heroLevelAfter: level,
       xpAfter: xp,
-      campLevel: camp ? camp.level : null,
-      band: camp ? camp.band : null,
-      left: camp ? creepsLeft(camp, stop.kills, stop.leaveRest) : 0,
-      kills,
+      campLevel: null,
+      band: null,
+      left: 0,
+      kills: [],
+      split: { mode: stop.split.mode, walked, arms, levelBefore: startLevelAt, xpBefore: startXpAt, levelAfter: level, xpGained: xp - startXpAt },
     };
   });
 
   return { stops, finalLevel: level, finalXp: xp };
+}
+
+/** One plain stop from the hero's `level`/`xp`; `absent` marks a stop of an "and" way without the hero. */
+function deriveStop(stop, map, level, xp, absent) {
+  const camp = stop.campId ? findCamp(map, stop.campId) : null;
+  const kills = [];
+  if (camp) {
+    for (const { row, ordered, unit, inSet } of killUnits(camp, stop.kills, stop.leaveRest)) {
+      const creep = camp.creeps[row];
+      const factor = creepXpFactor(level);
+      // Floor each creep's grant, same rounding as xp.mjs's
+      // `heroLevelAfter` — see docs/creep-routes.md's "XP model".
+      const gain = Math.floor(creepXp(creep.level) * factor);
+      xp += gain;
+      const levelAfter = levelForXp(xp);
+      kills.push({ creep, row, ordered, unit, inSet, xp: gain, levelAfter, leveledUp: levelAfter > level });
+      level = levelAfter;
+    }
+  }
+  return {
+    campId: stop.campId ?? null,
+    camp,
+    heroLevelAfter: level,
+    xpAfter: xp,
+    campLevel: camp ? camp.level : null,
+    band: camp ? camp.band : null,
+    left: camp ? creepsLeft(camp, stop.kills, stop.leaveRest) : 0,
+    kills,
+    ...(absent ? { hero: false } : {}),
+  };
 }

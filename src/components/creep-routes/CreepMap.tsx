@@ -1,13 +1,15 @@
 "use client";
 
-import { killedXpShare, validKills } from "@/lib/creep-routes/kills.mjs";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { preload } from "react-dom";
-import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, RouteStop } from "@/lib/creep-routes/types";
+import type { CampCardTrigger, CreepMap as CreepMapType, MapCamp, MapMine, MapShop, MapStart, Place, RouteStop } from "@/lib/creep-routes/types";
 import { CampMarker } from "./CampMarker";
 import { RoutePath } from "./RoutePath";
+import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
+import { countStops, findStopKey, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import { backdropRadius, campSpot } from "@/lib/creep-routes/map-marks.mjs";
 import { cn } from "@/lib/utils";
 
 /** `(hover: none)` covers touch and other coarse pointers — the F012a
@@ -24,10 +26,10 @@ function canHoverCard() {
 export type CreepMapProps = {
   map: CreepMapType;
   route?: { stops: RouteStop[]; start?: number };
-  /** 0-based index into `route.stops`; enlarges/glows that stop's marker
-   *  when it's a camp stop. Lifted by the page so the map and the step
-   *  table's hover/focus/click stay in sync. */
-  activeStop?: number | null;
+  /** The selected stop's key (`stop-numbers.mjs`: "0", "2.a.0"); enlarges/glows
+   *  that stop's marker when it's a camp stop. Lifted by the page so the map and
+   *  the step table's hover/focus/click stay in sync. */
+  activeStop?: string | null;
   /** Renders camps as real `<button>`s (via `foreignObject`) — the
    *  editor's add/remove-a-stop click, and the read-only route page's
    *  select-a-stop click (F009). */
@@ -60,7 +62,7 @@ export type CreepMapProps = {
    *  (the editor) keeps walking `route`'s own stops in order, unchanged. */
   walkAllCamps?: boolean;
   /** F012-followup-3: gives a camp that ISN'T one of `route`'s own stops a
-   *  visually secondary marker (a fainter halo ring, see `CampMarker`) —
+   *  visually secondary marker (a grey fill and no halo, see `CampMarker`) —
    *  used once every camp on the page is interactive, so the route's own
    *  stops (already carrying the numbered badge and the path) still read
    *  as the emphasised ones instead of every camp looking identical. Unset
@@ -87,6 +89,14 @@ export type CreepMapProps = {
   /** The camp id the card is currently showing (pinned or not), or null —
    *  every trigger sets its own `aria-expanded` from this (C-025). */
   openCampId?: string | null;
+  /** Selects a place or arm stop from its badge on the route page (camp stops select through their marker). */
+  onStopSelect?: (key: string) => void;
+  /** Fork key to the chosen arm of each "either" fork (`CreepMapPlayground`); default arm 0. */
+  choice?: Record<string, number>;
+  /** Editor: starts, mines and shops become click targets that add a place stop. */
+  onPlaceSelect?: (place: Place) => void;
+  /** Editor: the next click anywhere on the map adds a `point` place stop. */
+  pointArmed?: boolean;
   className?: string;
 };
 
@@ -115,7 +125,8 @@ function StartMarker({ start, iw, ih, isYou }: { start: MapStart; iw: number; ih
 }
 
 /** Gold mine, drawn with Liquipedia's own icon (`/map-icons/gold-mine.png`,
- *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map.
+ *  64x53) — ~16px wide at this 256-viewBox scale, scales with the map. Map
+ *  structure: mines and shops draw at 90% on a dark backdrop disc, under the stop discs.
  *  `<image>`'s default `preserveAspectRatio` ("xMidYMid meet") fits the
  *  icon inside the box without distorting it, so a fixed square box works
  *  for every icon regardless of its own aspect ratio. */
@@ -127,18 +138,21 @@ function MineMarker({ mine, iw, ih }: { mine: MapMine; iw: number; ih: number })
   const w = MINE_ICON_WIDTH * (iw / 256);
   const h = w * (53 / 64);
   return (
-    <image
-      data-mine=""
-      href="/map-icons/gold-mine.png"
-      x={cx - w / 2}
-      y={cy - h / 2}
-      width={w}
-      height={h}
-      aria-label="Gold mine"
-      style={{ pointerEvents: "none" }}
-    >
-      <title>Gold mine</title>
-    </image>
+    <g pointerEvents="none">
+      <circle cx={cx} cy={cy} r={backdropRadius(w)} fill="var(--wg-bg)" fillOpacity={0.55} />
+      <image
+        data-mine=""
+        href="/map-icons/gold-mine.png"
+        x={cx - w / 2}
+        y={cy - h / 2}
+        width={w}
+        height={h}
+        aria-label="Gold mine"
+        opacity={0.9}
+      >
+        <title>Gold mine</title>
+      </image>
+    </g>
   );
 }
 
@@ -157,18 +171,21 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
   const w = SHOP_ICON_WIDTH * (iw / 256);
   const h = w;
   return (
-    <image
-      data-shop={shop.id}
-      href={`/map-icons/${icon.icon}.png`}
-      x={cx - w / 2}
-      y={cy - h / 2}
-      width={w}
-      height={h}
-      aria-label={icon.label}
-      style={{ pointerEvents: "none" }}
-    >
-      <title>{icon.label}</title>
-    </image>
+    <g pointerEvents="none">
+      <circle cx={cx} cy={cy} r={backdropRadius(w)} fill="var(--wg-bg)" fillOpacity={0.55} />
+      <image
+        data-shop={shop.id}
+        href={`/map-icons/${icon.icon}.png`}
+        x={cx - w / 2}
+        y={cy - h / 2}
+        width={w}
+        height={h}
+        aria-label={icon.label}
+        opacity={0.9}
+      >
+        <title>{icon.label}</title>
+      </image>
+    </g>
   );
 }
 
@@ -212,6 +229,10 @@ export function CreepMap({
   onCampCardHoverEnter,
   onCampCardHoverLeave,
   openCampId = null,
+  onStopSelect,
+  choice,
+  onPlaceSelect,
+  pointArmed = false,
   className,
 }: CreepMapProps) {
   // The SVG <image> is fetched only once the parser reaches the map, so the
@@ -231,6 +252,24 @@ export function CreepMap({
   const { width: iw, height: ih } = map.image;
 
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
+  // Where each camp's mark sits: on the camp, or at the upper-right edge of the building icon it
+  // guards (a gold mine, a shop), so both read (`campSpot`).
+  const campAt = useMemo(() => {
+    const buildings = [
+      ...map.mines.map((m) => ({ x: m.x * iw, y: m.y * ih, r: backdropRadius(MINE_ICON_WIDTH * (iw / 256)) })),
+      ...map.shops.filter((s) => neutralIconFor(s.id)).map((s) => ({ x: s.x * iw, y: s.y * ih, r: backdropRadius(SHOP_ICON_WIDTH * (iw / 256)) })),
+    ];
+    return new Map(map.camps.map((c) => [c.id, campSpot(c.x * iw, c.y * ih, buildings)]));
+  }, [map, iw, ih]);
+  // Every stop the map draws, with its key (the paths not chosen in an "or"/"xor" split are
+  // left out, so their camps draw as unused): a camp's marker is on the route, active and
+  // partly cleared through any of them.
+  const allStops = useMemo(() => (route ? (shownStops(route.stops, choice) as { key: string; stop: RouteStop }[]) : []), [route, choice]);
+  // The one stop a camp's marker stands for (the first visit, or the walked arm's): only that one rings it.
+  const campKey = useMemo(
+    () => new Map(map.camps.map((c) => [c.id, route ? findStopKey(route.stops, c.id, choice) : null])),
+    [map.camps, route, choice],
+  );
 
   // Keyboard walk order: every camp on the map when `walkAllCamps` (the
   // route page, F012-followup-3 — every camp is interactive there now, so
@@ -239,9 +278,9 @@ export function CreepMap({
   // this — its walk order is unaffected by this feature).
   const walkCampIds = useMemo(() => {
     if (walkAllCamps) return map.camps.map((c) => c.id);
-    if (route) return route.stops.map((s) => s.campId).filter((id): id is string => !!id);
+    if (route) return allStops.map(({ stop }) => stop.campId).filter((id): id is string => !!id);
     return map.camps.map((c) => c.id);
-  }, [walkAllCamps, route, map.camps]);
+  }, [walkAllCamps, route, allStops, map.camps]);
 
   const walkCampId = walkIndex != null ? (walkCampIds[walkIndex] ?? null) : null;
   const detailCampId = hoverCamp ?? walkCampId;
@@ -382,7 +421,7 @@ export function CreepMap({
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
     opponentStartCount === 1 ? "" : "s"
-  }${route ? `, ${route.stops.length} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
+  }${route ? `, ${countStops(route.stops, choice ?? {})} route stops` : ""}. Arrow keys walk the camps, escape clears the readout.`;
 
   return (
     <div ref={box} className={cn("panel relative overflow-hidden p-3", className)}>
@@ -406,42 +445,48 @@ export function CreepMap({
           className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
-          {route ? <RoutePath map={map} stops={route.stops} activeStop={activeStop} /> : null}
+          {route ? (
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} editing={Boolean(onPlaceSelect)} layer="legs" />
+          ) : null}
           {map.starts.map((s, i) => (
             <StartMarker key={i} start={s} iw={iw} ih={ih} isYou={i === youStartIndex} />
           ))}
-          {map.camps.map((camp) => {
-            const stopIndex = route?.stops.findIndex((s) => s.campId === camp.id) ?? -1;
-            const isInteractive = isCampInteractive(camp.id);
-            return (
-              <CampMarker
-                key={camp.id}
-                camp={camp}
-                imageWidth={iw}
-                imageHeight={ih}
-                active={activeStop != null && stopIndex === activeStop}
-                highlighted={highlightCamps?.has(camp.id) ?? false}
-                pressed={stopIndex !== -1}
-                onCampSelect={isInteractive ? handleCampClick : undefined}
-                onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
-                cardOpen={openCampId === camp.id}
-                asGroup={groupMarkers}
-                secondary={deemphasizeOffRoute && stopIndex === -1}
-                killed={killedShare(camp, route?.stops, camp.id)}
-              />
-            );
-          })}
-          {/* Mines and shops draw last, over the camps: a gold mine is
-              often guarded by (and normalised very close to, sometimes
-              almost on top of) the camp that sits on it — see the F008
-              handoff — so the icon needs to win the paint order to stay
-              visible, not disappear under the camp's own, larger circle. */}
+          {onPlaceSelect ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed={false} /> : null}
+          {/* Mines and shops are map structure under the camp marks; a camp that guards one draws its
+              mark at the icon's edge (`campAt`), so both read. */}
           {map.mines.map((m, i) => (
             <MineMarker key={i} mine={m} iw={iw} ih={ih} />
           ))}
           {map.shops.map((s) => (
             <NeutralMarker key={s.id} shop={s} iw={iw} ih={ih} />
           ))}
+          {map.camps.map((camp) => {
+            const onRoute = allStops.some(({ stop }) => stop.campId === camp.id);
+            const isInteractive = isCampInteractive(camp.id);
+            return (
+              <CampMarker
+                key={camp.id}
+                camp={camp}
+                at={campAt.get(camp.id)}
+                imageWidth={iw}
+                imageHeight={ih}
+                active={!onRoute && activeStop != null && campKey.get(camp.id) === activeStop}
+                highlighted={highlightCamps?.has(camp.id) ?? false}
+                pressed={onRoute}
+                onCampSelect={isInteractive ? handleCampClick : undefined}
+                onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
+                cardOpen={openCampId === camp.id}
+                asGroup={groupMarkers}
+                secondary={deemphasizeOffRoute && !onRoute}
+                underStop={onRoute}
+              />
+            );
+          })}
+          {/* The stop discs over everything else: a stop's node is its badge. */}
+          {route ? (
+            <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} editing={Boolean(onPlaceSelect)} layer="nodes" />
+          ) : null}
+          {onPlaceSelect && pointArmed ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed /> : null}
         </svg>
       </div>
 
@@ -454,11 +499,4 @@ export function CreepMap({
       </p>
     </div>
   );
-}
-
-/** Share of a camp's base creep XP the route takes when a stop on it has a
- *  kill order, else undefined (full clear or not on the route). */
-function killedShare(camp: MapCamp, stops: RouteStop[] | undefined, campId: string) {
-  const stop = stops?.find((s) => s.campId === campId && s.leaveRest && validKills(camp, s.kills).length);
-  return stop ? killedXpShare(camp, stop.kills, true) : undefined;
 }

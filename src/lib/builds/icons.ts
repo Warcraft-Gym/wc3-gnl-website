@@ -179,6 +179,12 @@ export const GAME_ICONS: GameIcon[] = [
   X("nt-gold", "Gold", "misc"),
   X("nt-lumber", "Lumber", "misc"),
   X("nt-scroll-of-town-portal", "Scroll of Town Portal", "misc"),
+  // Items a creep route brings; the art is the generated set's, named as the shop sells it.
+  X("rodofnecromancy", "Rod of Necromancy", "misc"),
+  X("sacrificialdagger", "Ritual Dagger", "misc"),
+  X("sacrificialskull", "Sacrificial Skull", "misc"),
+  X("healingsalve", "Healing Salve", "misc"),
+  X("dustofappearance", "Dust of Appearance", "misc"),
   X("nt-upgrade", "Upgrade", "upgrade"),
   X("nt-attack", "Attack / push", "misc"),
   X("nt-scout", "Scout", "misc"),
@@ -193,7 +199,8 @@ export const GAME_ICONS: GameIcon[] = [
  * scripts/icons-sync.mjs. A curated entry always wins, since it carries the
  * name players use and the race the picker groups by.
  */
-export const ALL_ICONS: GameIcon[] = [...GAME_ICONS, ...GENERATED_ICONS];
+const CURATED_KEYS = new Set(GAME_ICONS.map((i) => i.key));
+export const ALL_ICONS: GameIcon[] = [...GAME_ICONS, ...GENERATED_ICONS.filter((i) => !CURATED_KEYS.has(i.key))];
 
 const BY_KEY = new Map(ALL_ICONS.map((i) => [i.key, i]));
 

@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getCreepRouteBySlug } from "@/lib/creep-routes/routes";
 import { ROUTE_LEVELS } from "@/lib/creep-routes/types";
+import { countStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { vsLabel } from "@/lib/builds/types";
 import { OgCard, OG_CONTENT_TYPE, OG_RACE_COLOUR, OG_SIZE, ogFonts } from "@/lib/og";
 import { RACES } from "@/lib/utils";
@@ -30,7 +31,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
         subtitle={route ? `${RACES[route.race].label} vs ${vsLabel(route.vsRaces)}` : undefined}
         accent={route ? OG_RACE_COLOUR[route.race] : undefined}
         facts={[
-          ...(route ? [{ label: "Stops", value: String(route.stops.length), tone: "gold" as const }] : []),
+          ...(route ? [{ label: "Stops", value: String(countStops(route.stops)), tone: "gold" as const }] : []),
           ...(level ? [{ label: "Level", value: level }] : []),
           ...(route?.author ? [{ label: "By", value: route.author }] : []),
         ]}

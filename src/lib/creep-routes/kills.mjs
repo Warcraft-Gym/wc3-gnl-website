@@ -10,7 +10,8 @@
  * without `set` is one single unit per kill. The stop's `leaveRest` says
  * what happens to the creeps the list does not name: false (default) kills
  * them after it as one trailing set, in catalogue order; true leaves them
- * alive.
+ * alive. An empty list is the whole camp, `leaveRest` or not: a camp stop
+ * always kills something; everything else is a waypoint.
  */
 import { creepXp } from "./xp.mjs";
 

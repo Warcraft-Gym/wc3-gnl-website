@@ -11,6 +11,7 @@
  * The hash never reaches the server, so the payload size only has to suit a
  * browser; a long route with notes is a few kilobytes.
  */
+import { atKind } from "./place.mjs";
 import { EXCHANGE_FORMAT, IMPORT_HASH_KEY, encodeForHash } from "./exchange-codec.mjs";
 
 /** Portable Text (or a plain string array) back to the plain text the submit
@@ -55,17 +56,43 @@ export function toExchangeRoute(route) {
     sourceUrl: route.sourceUrl || undefined,
     videoUrl: route.videoUrl || undefined,
     supersedes: route.slug,
-    stops: (route.stops ?? []).map((s) => ({
-      campId: s.campId ?? null,
-      action: s.action || undefined,
-      units: s.units?.length ? s.units.map((u) => ({ icon: u.icon, count: u.count })) : undefined,
-      note: s.note || undefined,
-      condition: s.condition || undefined,
-      kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
-      leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
-    })),
+    stops: (route.stops ?? []).map((s) =>
+      s.split
+        ? {
+            campId: null,
+            split: {
+              mode: s.split.mode,
+              arms: s.split.arms.map((arm) => ({ ...(arm.label ? { label: arm.label } : {}), stops: (arm.stops ?? []).map(exchangeStop) })),
+            },
+          }
+        : exchangeStop(s),
+    ),
     description: descriptionToText(route.description) || undefined,
   };
+}
+
+/** One camp, place or base-action stop without Sanity's nulls. It keeps its `_key` as `key`, so the server copies its pictures; the link carries only their count. */
+function exchangeStop(s) {
+  return {
+    key: s._key || undefined,
+    pictures: s.images?.length || undefined,
+    campId: s.campId ?? null,
+    action: s.action || undefined,
+    units: s.units?.length ? s.units.map((u) => ({ icon: u.icon, count: u.count })) : undefined,
+    note: s.note || undefined,
+    condition: s.condition || undefined,
+    kills: s.kills?.length ? s.kills.map((k) => ({ row: k.row, n: k.n, ...(Number.isInteger(k.set) ? { set: k.set } : {}) })) : undefined,
+    leaveRest: s.kills?.length && s.leaveRest ? true : undefined,
+    place: s.place ? exchangePlace(s.place) : undefined,
+    hero: s.hero === false && (s.campId || s.place) ? false : undefined,
+  };
+}
+
+/** A place without Sanity's null fields, so the exchange schema accepts it. */
+function exchangePlace(p) {
+  const at = p.at ?? {};
+  const spot = atKind(at);
+  return { kind: p.kind, at: spot === "point" ? { x: at.x, y: at.y } : { [spot]: at[spot] } };
 }
 
 /** `/learn/creep-routes/submit#route=<payload>` for this route, or

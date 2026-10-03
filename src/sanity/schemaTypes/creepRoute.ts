@@ -2,6 +2,9 @@ import { defineArrayMember, defineField, defineType } from "sanity";
 import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "../../lib/creep-routes/submission.mjs";
 import { PATCH_OPTIONS } from "../../lib/patches.mjs";
+import { countStops } from "../../lib/creep-routes/stop-numbers.mjs";
+import { CAP_OVER, MAX_IMAGE_BYTES, MAX_PATHS, MAX_ROWS, MAX_STOP_IMAGES, MAX_STOPS, rowCount } from "../../lib/creep-routes/caps.mjs";
+import { apiVersion } from "../env";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -237,97 +240,22 @@ export const creepRoute = defineType({
       // real map preview inside the Studio stays backlog).
       description:
         "A reviewing coach can't see camp ids on a map here. To check what a camp id actually is, open /learn/creep-routes/submit?map=<slug> on the site (swap <slug> for this route's map).",
-      validation: (rule) => rule.required().min(2),
-      of: [
-        defineArrayMember({
-          type: "object",
-          name: "stop",
-          fields: [
-            defineField({
-              name: "campId",
-              title: "Camp id",
-              type: "string",
-              description: "The camp's id on the linked map (e.g. c01). Leave empty for a base action.",
-            }),
-            defineField({
-              name: "action",
-              type: "string",
-              description: "Base action when there's no campId, e.g. \"TP home\".",
-              validation: (rule) => rule.max(60),
-            }),
-            defineField({
-              name: "units",
-              type: "array",
-              description: "What the player brings to this stop (not the camp's contents).",
-              of: [
-                defineArrayMember({
-                  type: "object",
-                  name: "unit",
-                  fields: [
-                    defineField({ name: "icon", type: "string", options: { list: GAME_ICON_OPTIONS } }),
-                    defineField({ name: "count", type: "number", validation: (rule) => rule.min(1).integer() }),
-                  ],
-                }),
-              ],
-            }),
-            defineField({
-              name: "note",
-              // `text`, not `string`: notes are prose and reviewers need a
-              // textarea, same as the public editor gives authors.
-              type: "text",
-              rows: 3,
-              description: "What to do at this camp and why.",
-              validation: (rule) => rule.max(STOP_NOTE_MAX),
-            }),
-            defineField({
-              name: "condition",
-              type: "string",
-              description: "Conditional guidance for this stop, shown exactly as written, e.g. \"Only if both wolves are alive\".",
-              validation: (rule) => rule.max(STOP_CONDITION_MAX),
-            }),
-            defineField({
-              name: "kills",
-              title: "Kill order",
-              type: "array",
-              description: "Creeps to kill first, in order. Row is the creep's position in the camp's list (0 is the first). Empty means the whole camp. The rest of the camp dies after these unless Skip the rest is on.",
-              of: [
-                defineArrayMember({
-                  type: "object",
-                  name: "kill",
-                  fields: [
-                    defineField({ name: "row", type: "number", validation: (rule) => rule.required().min(0).integer() }),
-                    defineField({ name: "n", title: "Count", type: "number", validation: (rule) => rule.required().min(1).integer() }),
-                    defineField({
-                      name: "set",
-                      title: "Set",
-                      type: "number",
-                      description: "Optional. Consecutive entries with the same number are one set, killed in any order.",
-                      validation: (rule) => rule.min(0).integer(),
-                    }),
-                  ],
-                  preview: {
-                    select: { row: "row", n: "n", set: "set" },
-                    prepare: ({ row, n, set }) => ({ title: `Row ${row} ×${n}${set === undefined ? "" : ` (set ${set})`}` }),
-                  },
-                }),
-              ],
-            }),
-            defineField({
-              name: "leaveRest",
-              title: "Skip the rest",
-              type: "boolean",
-              description: "On: creeps not in the kill order are skipped. Off: they die after it, in catalogue order.",
-              hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
-            }),
-          ],
-          preview: {
-            select: { campId: "campId", action: "action", note: "note" },
-            prepare: ({ campId, action, note }) => ({
-              title: campId ? `Camp ${campId}` : action || "(stop)",
-              subtitle: note,
-            }),
-          },
+      // Two stops at least, counted with every fork way's stops: a whole-route pair is one fork.
+      // The caps (12 numbered stops, 20 rows; `caps.mjs`) are warnings here: a coach may go past them.
+      validation: (rule) => [
+        rule.required().custom((stops) => countStops((stops ?? []) as never[]) >= 2 || "Add at least two stops"),
+        rule.custom((stops) => countStops((stops ?? []) as never[]) <= MAX_STOPS || CAP_OVER.stops).warning(),
+        rule.custom((stops) => rowCount((stops ?? []) as never[]) <= MAX_ROWS || CAP_OVER.rows).warning(),
+        // As the submit check: an "xor" split never rejoins, so it is the last stop.
+        rule.custom((stops) => {
+          const list = (stops ?? []) as { _type?: string; mode?: string }[];
+          return list.every((s, i) => !(s._type === "creepSplit" && s.mode === "xor") || i === list.length - 1) || "Nothing follows an either/or split";
         }),
+      ],
+      // `name: "stop"` keeps `_type: "stop"` on every stored stop, so existing documents stay valid.
+      of: [
+        defineArrayMember({ type: "creepStop", name: "stop" }),
+        defineArrayMember({ type: "creepSplit" }),
       ],
     }),
 
@@ -392,6 +320,242 @@ export const creepRoute = defineType({
     prepare: ({ title, race, vsRaces, author }) => ({
       title,
       subtitle: `${race ?? "?"} vs ${(vsRaces as string[] | undefined)?.length ? (vsRaces as string[]).join(" / ") : "any"} · ${author ?? ""}`,
+    }),
+  },
+});
+
+/**
+ * One stop: a camp (by id), a place (a start, mine, shop or point) or a base
+ * action. A named type so a split's ways (`creepSplit`) can hold the same stops;
+ * stored under the array member name "stop", as before.
+ */
+export const creepStop = defineType({
+  name: "creepStop",
+  title: "Stop",
+  type: "object",
+  fields: [
+    defineField({
+      name: "campId",
+      title: "Camp id",
+      type: "string",
+      description: "The camp's id on the linked map (e.g. c01). Leave empty for a base action.",
+    }),
+    defineField({
+      name: "action",
+      type: "string",
+      description: "Base action when there's no campId, e.g. \"TP home\". On a place stop, what happens there.",
+      validation: (rule) => rule.max(60),
+    }),
+    defineField({
+      name: "units",
+      type: "array",
+      description: "What the player brings to this stop (not the camp's contents).",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "unit",
+          fields: [
+            defineField({ name: "icon", type: "string", options: { list: GAME_ICON_OPTIONS } }),
+            defineField({ name: "count", type: "number", validation: (rule) => rule.min(1).integer() }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
+      name: "note",
+      // `text`, not `string`: notes are prose and reviewers need a
+      // textarea, same as the public editor gives authors.
+      type: "text",
+      rows: 3,
+      description: "What to do at this camp and why.",
+      validation: (rule) => rule.max(STOP_NOTE_MAX),
+    }),
+    defineField({
+      name: "condition",
+      type: "string",
+      description: "Conditional guidance for this stop, shown exactly as written, e.g. \"Only if both wolves are alive\".",
+      validation: (rule) => rule.max(STOP_CONDITION_MAX),
+    }),
+    defineField({
+      name: "kills",
+      title: "Kill order",
+      type: "array",
+      description: "Creeps to kill first, in order. Row is the creep's position in the camp's list (0 is the first). Empty means the whole camp. The rest of the camp dies after these unless Skip the rest is on.",
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "kill",
+          fields: [
+            defineField({ name: "row", type: "number", validation: (rule) => rule.required().min(0).integer() }),
+            defineField({ name: "n", title: "Count", type: "number", validation: (rule) => rule.required().min(1).integer() }),
+            defineField({
+              name: "set",
+              title: "Set",
+              type: "number",
+              description: "Optional. Consecutive entries with the same number are one set, killed in any order.",
+              validation: (rule) => rule.min(0).integer(),
+            }),
+          ],
+          preview: {
+            select: { row: "row", n: "n", set: "set" },
+            prepare: ({ row, n, set }) => ({ title: `Row ${row} ×${n}${set === undefined ? "" : ` (set ${set})`}` }),
+          },
+        }),
+      ],
+    }),
+    defineField({
+      name: "leaveRest",
+      title: "Skip the rest",
+      type: "boolean",
+      description: "On: creeps not in the kill order are skipped. Off: they die after it, in catalogue order.",
+      hidden: ({ parent }) => !(parent as { kills?: unknown[] } | undefined)?.kills?.length,
+    }),
+    defineField({
+      name: "images",
+      title: "Pictures",
+      type: "array",
+      description: "Optional. Screenshots of the exact spot, for what the minimap cannot show. Drop images here: at most 3, each a JPEG, PNG or WebP of 5 MB or less.",
+      validation: (rule) => rule.max(MAX_STOP_IMAGES).error(CAP_OVER.images),
+      of: [
+        defineArrayMember({
+          type: "image",
+          options: { hotspot: true, accept: "image/jpeg,image/png,image/webp" },
+          validation: (rule) => [
+            rule.assetRequired().error("Add the picture file, or remove the picture"),
+            // The asset's size in bytes, read from the dataset the Studio edits.
+            rule.custom(async (image, context) => {
+              const ref = (image as { asset?: { _ref?: string } } | undefined)?.asset?._ref;
+              if (!ref) return true;
+              // A lookup that fails (Studio offline) passes: the check runs again on the next edit.
+              const size = await context.getClient({ apiVersion }).fetch<number | null>("*[_id == $ref][0].size", { ref }).catch(() => null);
+              return !size || size <= MAX_IMAGE_BYTES || CAP_OVER.imageBytes;
+            }),
+          ],
+          fields: [
+            defineField({ name: "alt", type: "string", description: "What the picture shows, for readers who cannot see it.", validation: (rule) => rule.required() }),
+            defineField({ name: "caption", type: "string", description: "Optional. Shown under the picture when it is open." }),
+          ],
+        }),
+      ],
+    }),
+    defineField({
+      name: "hero",
+      title: "Hero goes",
+      type: "boolean",
+      description: "Empty or on: the hero goes with the units in Bring. Off: only the units go; the hero still gets their XP. A waypoint done by another unit (a lone scout) is in the list but not on the map.",
+      hidden: ({ parent }) => {
+        const p = parent as { campId?: string; place?: { kind?: string } } | undefined;
+        return !p?.campId && !p?.place;
+      },
+    }),
+    defineField({
+      name: "place",
+      type: "object",
+      description: "Optional. An attack or a waypoint instead of a camp. Leave the camp id empty and name what happens in Action. An attack takes a stop number; build, expand, shop and scout are waypoints on the path with no number.",
+      fields: [
+        defineField({
+          name: "kind",
+          type: "string",
+          options: { list: ["attack", "build", "expand", "shop", "scout"] },
+          validation: (rule) => rule.required(),
+        }),
+        defineField({
+          name: "at",
+          type: "object",
+          description: "Fill exactly one: a start (player number), a gold mine (its index, 0 is the first), a shop (its id on the map), or a point (x and y).",
+          validation: (rule) =>
+            rule.required().custom((at) => {
+              const v = (at ?? {}) as { start?: string; mine?: string; shop?: string; x?: number; y?: number };
+              const spots = [v.start, v.mine, v.shop].filter(Boolean).length + (v.x !== undefined || v.y !== undefined ? 1 : 0);
+              if (spots !== 1) return "Fill exactly one spot";
+              if ((v.x !== undefined) !== (v.y !== undefined)) return "A point needs x and y";
+              return true;
+            }),
+          fields: [
+            defineField({ name: "start", type: "string", description: "The player number of a start." }),
+            defineField({ name: "mine", type: "string", description: "The gold mine's index on the map, 0 is the first." }),
+            defineField({ name: "shop", type: "string", description: "The shop's id on the map." }),
+            defineField({ name: "x", type: "number", description: "A point: 0 is the left edge, 1 the right.", validation: (rule) => rule.min(0).max(1) }),
+            defineField({ name: "y", type: "number", description: "A point: 0 is the top edge, 1 the bottom.", validation: (rule) => rule.min(0).max(1) }),
+          ],
+        }),
+      ],
+    }),
+  ],
+  preview: {
+    select: { campId: "campId", action: "action", note: "note", place: "place.kind" },
+    prepare: ({ campId, action, note, place }) => ({
+      title: campId ? `Camp ${campId}` : place ? `${place === "attack" ? "Attack" : "Waypoint"}: ${action || place}` : action || "(stop)",
+      subtitle: note,
+    }),
+  },
+});
+
+/**
+ * A split in the route, one level deep: 2 or 3 ways of 1..n stops; a stop inside a
+ * way is never a split. "and": every way at once, then the shared stops. "or": the
+ * reader chooses one way by its label, then the shared stops. "xor": the reader
+ * chooses one way and it never rejoins, so nothing follows the split.
+ */
+export const creepSplit = defineType({
+  name: "creepSplit",
+  title: "Split",
+  type: "object",
+  // As the submit check: the reader chooses an "or" / "xor" path by its label.
+  validation: (rule) =>
+    rule.custom((split) => {
+      const v = (split ?? {}) as { mode?: string; arms?: { label?: string }[] };
+      return v.mode === "and" || (v.arms ?? []).every((arm) => arm.label?.trim()) || "Say when to take this path";
+    }),
+  fields: [
+    defineField({
+      name: "mode",
+      type: "string",
+      options: {
+        list: [
+          { title: "At the same time", value: "and" },
+          { title: "Choose a path, then continue", value: "or" },
+          { title: "Choose a path", value: "xor" },
+        ],
+      },
+      initialValue: "xor",
+      validation: (rule) => rule.required(),
+    }),
+    defineField({
+      name: "arms",
+      title: "Paths",
+      type: "array",
+      validation: (rule) => [rule.required().min(2), rule.max(MAX_PATHS).warning(CAP_OVER.paths)],
+      of: [
+        defineArrayMember({
+          type: "object",
+          name: "arm",
+          fields: [
+            defineField({
+              name: "label",
+              type: "string",
+              description: "When to take this path, e.g. \"They are at their natural\". Required when the reader chooses a path.",
+              validation: (rule) => rule.max(60),
+            }),
+            defineField({
+              name: "stops",
+              type: "array",
+              validation: (rule) => rule.required().min(1),
+              of: [defineArrayMember({ type: "creepStop", name: "stop" })],
+            }),
+          ],
+          preview: {
+            select: { label: "label", stops: "stops" },
+            prepare: ({ label, stops }) => ({ title: label || "(path)", subtitle: `${(stops as unknown[] | undefined)?.length ?? 0} stops` }),
+          },
+        }),
+      ],
+    }),
+  ],
+  preview: {
+    select: { mode: "mode", arms: "arms" },
+    prepare: ({ mode, arms }) => ({
+      title: `${mode === "and" ? "At the same time" : "Choose a path"}: ${(arms as unknown[] | undefined)?.length ?? 0} paths`,
     }),
   },
 });

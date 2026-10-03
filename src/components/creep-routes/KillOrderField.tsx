@@ -55,7 +55,7 @@ export function KillOrderField({
         skipped={leaving ? rest : []}
         onAdd={(row) => onChange({ kills: addKill(kills, row, counts) })}
       />
-      {kills.length ? (
+      {rows.length ? (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
           {rest.length ? (
             <div role="radiogroup" aria-label="The rest of the camp" className="inline-flex overflow-hidden rounded border border-line">

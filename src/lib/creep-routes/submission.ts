@@ -1,5 +1,6 @@
 import type { ZodError, ZodType } from "zod";
 import * as impl from "./submission.mjs";
+import type { Place } from "./types";
 
 /**
  * Typed façade over `submission.mjs`'s pure, plain-JS implementation —
@@ -14,6 +15,10 @@ import * as impl from "./submission.mjs";
 export type FieldErrors = Record<string, string>;
 
 export type StopInput = {
+  /** The `_key` of the stop this one updates, from a "Suggest an update" link. */
+  key?: string;
+  /** Pictures the server copies from the superseded route (`keepImages`); never from the browser. */
+  images?: unknown[];
   campId: string | null;
   action?: string;
   units?: { icon: string; count: number }[];
@@ -21,6 +26,10 @@ export type StopInput = {
   condition?: string;
   kills?: { row: number; n: number; set?: number }[];
   leaveRest?: boolean;
+  place?: Place;
+  hero?: boolean;
+  /** A split; its arms' stops never hold a split. */
+  split?: { mode: "and" | "or" | "xor"; arms: { label?: string; stops: StopInput[] }[] };
 };
 
 /** The parsed, transformed output of the schema `createSubmissionSchema`
@@ -63,6 +72,10 @@ export type SubmissionCatalogue = {
     startsCount?: number;
     /** Camp id → each creep row's count, for the kill-order check. */
     creepCounts?: Record<string, number[]>;
+    /** `String(player)` per start, the mine count and the shop ids, for the place check. */
+    startIds?: string[];
+    mineCount?: number;
+    shopIds?: string[];
   }[];
   iconKeys: string[];
   buildSlugs?: string[];

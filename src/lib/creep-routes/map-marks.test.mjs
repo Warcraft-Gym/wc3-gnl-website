@@ -1,0 +1,130 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { LABEL_SIZE, LEG_GAP, OUTLINE, STOP_RADIUS, UNIT_ICON, UNUSED_RADIUS, WAYPOINT_RADIUS, backdropRadius, campSpot, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "./map-marks.mjs";
+import autumn from "./maps/autumn-leaves.json" with { type: "json" };
+import echo from "./maps/echo-isles.json" with { type: "json" };
+import turtle from "./maps/turtle-rock.json" with { type: "json" };
+
+test("one mark per stop: a waypoint is about 80% of a stop, an unused camp about half", () => {
+  assert.ok(Math.abs(WAYPOINT_RADIUS / STOP_RADIUS - 0.8) < 0.05);
+  assert.equal(UNUSED_RADIUS, STOP_RADIUS / 2);
+});
+
+test("a leg ends at both node edges, not at their centres", () => {
+  const ra = nodeTrim(STOP_RADIUS);
+  const rb = nodeTrim(WAYPOINT_RADIUS);
+  const leg = offsetLeg(0, 0, 100, 0, ra, rb);
+  assert.equal(leg.x1, STOP_RADIUS + OUTLINE / 2);
+  assert.equal(leg.x2, 100 - WAYPOINT_RADIUS - OUTLINE / 2);
+  assert.equal(leg.y1, 0);
+  // Nodes that touch draw no leg.
+  assert.equal(offsetLeg(0, 0, 10, 0, ra, rb), null);
+});
+
+// Autumn Leaves path b: your start (player 1) to 1b (c08) runs through 2b (c06), and 1b back to 2b retraces it.
+test("legs on one line move apart: Autumn Leaves path b no longer reads as one arrow", () => {
+  const { width: iw, height: ih } = autumn.image;
+  const you = autumn.starts[1];
+  const camp = (id) => autumn.camps.find((c) => c.id === id);
+  const c08 = nodeCentre(camp("c08").x, camp("c08").y, iw, ih);
+  const c06 = nodeCentre(camp("c06").x, camp("c06").y, iw, ih);
+  const start = { x: you.x * iw, y: you.y * ih, trim: 7 * 1.15 + 1 };
+  const trim = nodeTrim(STOP_RADIUS);
+  const legs = [
+    { ax: start.x, ay: start.y, bx: c08.x, by: c08.y, ta: start.trim, tb: trim },
+    { ax: c08.x, ay: c08.y, bx: c06.x, by: c06.y, ta: trim, tb: trim },
+  ];
+  const discs = [c08, c06].map((c) => ({ cx: c.x, cy: c.y, r: STOP_RADIUS }));
+  const toLine = (s, x, y) => Math.abs((x - s.x1) * (s.y2 - s.y1) - (y - s.y1) * (s.x2 - s.x1)) / Math.hypot(s.x2 - s.x1, s.y2 - s.y1);
+  const toSegment = (s, x, y) => {
+    const dx = s.x2 - s.x1, dy = s.y2 - s.y1;
+    const t = Math.max(0, Math.min(1, ((x - s.x1) * dx + (y - s.y1) * dy) / (dx * dx + dy * dy)));
+    return Math.hypot(x - (s.x1 + t * dx), y - (s.y1 + t * dy));
+  };
+  const draw = (offsets) => legs.map((l, i) => offsetLeg(l.ax, l.ay, l.bx, l.by, l.ta, l.tb, offsets[i].ox, offsets[i].oy));
+  // As drawn before: one line, and the first leg crosses the 2b disc.
+  const [before1, before2] = draw(legs.map(() => ({ ox: 0, oy: 0 })));
+  assert.ok(toLine(before1, (before2.x1 + before2.x2) / 2, (before2.y1 + before2.y2) / 2) < 3);
+  assert.ok(toSegment(before1, c06.x, c06.y) < STOP_RADIUS);
+  // Moved apart: the second leg 4 to one side, the first leg clear of the 2b disc on the other.
+  const offsets = legOffsets(legs, discs);
+  assert.ok(Math.abs(Math.hypot(offsets[1].ox, offsets[1].oy) - LEG_GAP) < 1e-9);
+  const [after1, after2] = draw(offsets);
+  assert.ok(toLine(after1, (after2.x1 + after2.x2) / 2, (after2.y1 + after2.y2) / 2) > 2 * LEG_GAP);
+  assert.ok(toSegment(after1, c06.x, c06.y) >= STOP_RADIUS + OUTLINE / 2);
+  // Both still straight and ending at the node edges.
+  const at = (x, y, cx, cy) => Math.hypot(x - cx, y - cy);
+  assert.ok(Math.abs(at(after1.x1, after1.y1, start.x, start.y) - start.trim) < 1e-9);
+  assert.ok(Math.abs(at(after1.x2, after1.y2, c08.x, c08.y) - trim) < 1e-9);
+  assert.ok(Math.abs(at(after2.x1, after2.y1, c08.x, c08.y) - trim) < 1e-9);
+  assert.ok(Math.abs(at(after2.x2, after2.y2, c06.x, c06.y) - trim) < 1e-9);
+});
+
+test("legs that are not on one line keep their place", () => {
+  const legs = [{ ax: 0, ay: 0, bx: 100, by: 0 }, { ax: 100, ay: 0, bx: 100, by: 100 }];
+  assert.deepEqual(legOffsets(legs, [{ cx: 0, cy: 0, r: 8 }, { cx: 100, cy: 0, r: 8 }, { cx: 100, cy: 100, r: 8 }]), [{ ox: 0, oy: 0 }, { ox: 0, oy: 0 }]);
+});
+
+test("the attack swords and the hero-off unit sit at the disc's top-right", () => {
+  const { x, y } = cornerMark(50, 50);
+  assert.ok(x > 50 && y < 50);
+  assert.ok(Math.abs(Math.hypot(x - 50, y - 50) - STOP_RADIUS) < 1e-9);
+});
+
+test("the hero-off unit icon sits on the disc's lower-left edge, clear of the number", () => {
+  const { x, y } = heroOffMark(50, 50);
+  const icon = { left: x - UNIT_ICON / 2, right: x + UNIT_ICON / 2, top: y - UNIT_ICON / 2, bottom: y + UNIT_ICON / 2 };
+  // The widest label ("12a", squeezed) and the font's cap height around the disc's centre.
+  const label = { left: 50 - labelFit("12a") / 2, right: 50 + labelFit("12a") / 2, top: 50 - LABEL_SIZE * 0.36, bottom: 50 + LABEL_SIZE * 0.36 };
+  const overlaps = icon.left < label.right && icon.right > label.left && icon.top < label.bottom && icon.bottom > label.top;
+  assert.equal(overlaps, false);
+  // On the disc's edge: part of the icon over the disc, its centre to the lower left.
+  assert.ok(x < 50 && y > 50 && icon.top < 50 + STOP_RADIUS);
+});
+
+test("a long label is squeezed inside the disc; short ones keep their width", () => {
+  assert.equal(labelFit("4a"), undefined);
+  assert.equal(labelFit("12"), undefined);
+  assert.ok(labelFit("12a") < 2 * STOP_RADIUS);
+});
+
+test("a camp at the map's edge keeps its whole disc inside the map", () => {
+  // Echo Isles' top camp sits about 10px from the edge.
+  const top = nodeCentre(0.5, 10 / 192, 256, 192);
+  assert.equal(top.y, 10);
+  const edge = nodeCentre(0, 0, 256, 192);
+  assert.equal(edge.x, STOP_RADIUS + OUTLINE);
+  assert.equal(edge.y, STOP_RADIUS + OUTLINE);
+  assert.equal(nodeCentre(1, 1, 256, 192).y, 192 - STOP_RADIUS - OUTLINE);
+});
+
+// A camp that guards a building (a gold mine, a shop) draws its mark on the icon's backdrop edge, so both read.
+const buildings = (map) => {
+  const { width: iw, height: ih } = map.image;
+  return [
+    ...map.mines.map((m) => ({ x: m.x * iw, y: m.y * ih, r: backdropRadius(16 * (iw / 256)), what: "mine" })),
+    ...map.shops.map((s) => ({ x: s.x * iw, y: s.y * ih, r: backdropRadius(14 * (iw / 256)), what: s.id })),
+  ];
+};
+const spotOf = (map, id) => {
+  const c = map.camps.find((k) => k.id === id);
+  return { camp: { x: c.x * map.image.width, y: c.y * map.image.height }, at: campSpot(c.x * map.image.width, c.y * map.image.height, buildings(map)) };
+};
+
+test("a camp on a building draws at the backdrop's upper-right edge: Echo Isles' shop camp c05 and a mine camp", () => {
+  for (const [id, what] of [["c05", "ngme-0"], ["c07", "mine"]]) {
+    const { camp, at } = spotOf(echo, id);
+    const b = buildings(echo).find((d) => Math.hypot(camp.x - d.x, camp.y - d.y) < d.r);
+    assert.ok(b.what === what || b.what.startsWith(what), `${id} guards ${what}`);
+    assert.ok(Math.abs(Math.hypot(at.x - b.x, at.y - b.y) - b.r) < 1e-9, `${id} sits on the backdrop's edge`);
+    assert.ok(at.x > b.x && at.y < b.y, `${id} sits at the upper right`);
+  }
+});
+
+test("Turtle Rock: a goblin merchant's camp moves to its edge; a camp away from buildings stays put", () => {
+  const { camp, at } = spotOf(turtle, "c09");
+  assert.notDeepEqual(at, camp);
+  const free = turtle.camps.find((c) => !buildings(turtle).some((d) => Math.hypot(c.x * 256 - d.x, c.y * 256 - d.y) < d.r));
+  const plain = spotOf(turtle, free.id);
+  assert.deepEqual(plain.at, plain.camp);
+});

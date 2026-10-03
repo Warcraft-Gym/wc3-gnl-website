@@ -129,6 +129,8 @@ export type CreepMap = {
 export type RouteStop = {
   campId: string | null;
   action?: string;
+  /** An attack or a waypoint at a start, mine, shop or free point instead of a camp; needs `campId: null` and `action`. See `place.mjs`. */
+  place?: Place;
   units?: { icon: string; count: number }[];
   note?: string;
   condition?: string;
@@ -138,7 +140,34 @@ export type RouteStop = {
   /** "Skip the rest": true skips the creeps `kills` does not list; false
    *  (default) kills them after the list, in catalogue order. */
   leaveRest?: boolean;
+  /** Camp and place stops: false when only the Bring units go; the hero still earns their XP (XP is global).
+   *  A waypoint with `hero: false` is done by another unit: in the list, not on the reader's map. Default true; stored only when false. */
+  hero?: boolean;
+  /** Pictures of the spot the minimap cannot show; a coach adds them in the Studio. */
+  images?: StopImage[];
+  /** A split node: `campId` null, no action, no place. See `stop-numbers.mjs` for its numbers. */
+  split?: Split;
 };
+
+/** A route that splits, one level deep, into 2 or 3 arms of 1..n stops (an arm stop never holds a
+ *  split). "and": every way runs at once, no labels; arm 0 is the hero's line and arms 1.. run
+ *  without the hero. "or": the reader chooses one way by its label (required), then the route goes
+ *  on. "xor": the reader chooses one way and it never rejoins, so nothing follows the split. Stops
+ *  after a split are shared by every way: a continuation of only one way belongs inside that way. */
+export type Split = { mode: "and" | "or" | "xor"; arms: { label?: string; stops: RouteStop[] }[] };
+
+/** A picture on a stop: a Sanity image url (resized with `?w=`) or a plain fixture url. */
+export type StopImage = { url: string; width: number; height: number; alt: string; caption?: string };
+
+/** What happens at a place: `attack` is a numbered stop; build, expand, shop and scout are
+ *  waypoints (on the path, no number). */
+export type PlaceKind = "attack" | "build" | "expand" | "shop" | "scout";
+
+/** The spot: `start` is `String(player)` of `CreepMap.starts[]`, `mine` is `String(index)` into
+ *  `CreepMap.mines[]`, `shop` is `CreepMap.shops[].id`, `x`/`y` an image fraction 0..1 like a camp's. */
+export type PlaceAt = { start: string } | { mine: string } | { shop: string } | { x: number; y: number };
+
+export type Place = { kind: PlaceKind; at: PlaceAt };
 
 /** `set`: consecutive entries with the same value form one set unit (kills in any order). */
 export type StopKill = { row: number; n: number; set?: number };

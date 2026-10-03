@@ -1,7 +1,8 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { FIXTURE_ROUTES } from "./fixtures";
-import type { CreepRoute } from "./types";
+import { MAX_STOP_IMAGES } from "./caps.mjs";
+import type { CreepRoute, RouteStop } from "./types";
 import { filterCreepRoutes, type CreepRouteFilter } from "./filter";
 import { sanityCache } from "@/lib/content/cache";
 
@@ -30,6 +31,11 @@ type RawRoute = Omit<CreepRoute, "map"> & {
 // `minimapUrl` rides along on `map->` (not a second read) so every route
 // surface can show the map's thumbnail without re-fetching the full
 // `CreepMap` catalogue (F009-followup-2).
+// A stop's pictures resolve to their asset url and size, in plain stops and in a node's arms; a picture with no file
+// is left out, and a stop shows its first MAX_STOP_IMAGES.
+const STOP_IMAGES = `defined(images) => { "images": images[defined(asset)][0...${MAX_STOP_IMAGES}]{ "url": asset->url, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height, alt, caption } }`;
+const STOPS_PROJECTION = `"stops": stops[]{ ..., ${STOP_IMAGES}, defined(arms) => { "arms": arms[]{ ..., defined(stops) => { "stops": stops[]{ ..., ${STOP_IMAGES} } } } } }`;
+
 const LIST_PROJECTION = `{
   "slug": slug.current,
   title, race, level, patch, mapVersion, start,
@@ -41,7 +47,7 @@ const LIST_PROJECTION = `{
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
-  stops
+  ${STOPS_PROJECTION}
 }`;
 
 const DETAIL_PROJECTION = `{
@@ -55,7 +61,7 @@ const DETAIL_PROJECTION = `{
   "featured": coalesce(featured, false),
   publishedAt,
   "updatedAt": _updatedAt,
-  stops,
+  ${STOPS_PROJECTION},
   description
 }`;
 
@@ -64,8 +70,19 @@ const DETAIL_PROJECTION = `{
  *  is dropped rather than shown broken; `null` signals that to the caller. */
 function normalizeRoute(doc: RawRoute): CreepRoute | null {
   if (!doc.map) return null;
-  return { ...doc, map: doc.map };
+  return { ...doc, map: doc.map, stops: (doc.stops ?? []).map(fromSanityStop) };
 }
+
+/** A Sanity `creepSplit` array member becomes a split (`campId: null` and `split`); every other stop passes through. */
+function fromSanityStop(stop: RouteStop | SanitySplit): RouteStop {
+  if (!("_type" in stop) || stop._type !== "creepSplit") return stop as RouteStop;
+  return {
+    campId: null,
+    split: { mode: stop.mode, arms: (stop.arms ?? []).map((arm) => ({ ...(arm.label ? { label: arm.label } : {}), stops: arm.stops ?? [] })) },
+  };
+}
+
+type SanitySplit = { _type: "creepSplit"; mode: "and" | "or" | "xor"; arms?: { label?: string | null; stops?: RouteStop[] }[] };
 
 function byUpdatedDesc(a: CreepRoute, b: CreepRoute) {
   return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();

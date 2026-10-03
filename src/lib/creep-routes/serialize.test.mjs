@@ -2,6 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { toApiMap, toApiMapListItem, toApiRoute, toApiRouteListItem, toApiStop } from "./serialize.mjs";
 import { deriveRoute } from "./derive.mjs";
+import { toExchangeRoute } from "./edit-link.mjs";
 
 const iconSrc = (icon) => `/icons/${icon}.png`;
 
@@ -137,6 +138,11 @@ test("toApiMap: exposes each camp's drops and each creep's icon (F011)", () => {
   ]);
 });
 
+test("toApiStop drops a picture with no file (url null) instead of throwing", () => {
+  const stop = toApiStop({ campId: "c1", images: [{ url: null, alt: "No file" }, { url: "/a.jpg", width: 1, height: 1, alt: "A" }] }, "https://site.example", iconSrc);
+  assert.deepEqual(stop.images, [{ url: "https://site.example/a.jpg", width: 1, height: 1, alt: "A" }]);
+});
+
 test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
   const stop = toApiStop(route.stops[1], "https://site.example", iconSrc);
   assert.deepEqual(stop.kills, [{ row: 0, n: 1 }]);
@@ -146,4 +152,57 @@ test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
 test("toApiStop carries a kill set unchanged", () => {
   const stop = toApiStop({ campId: "c01", kills: [{ row: 0, n: 1, set: 0 }] }, "https://site.example", iconSrc);
   assert.deepEqual(stop.kills, [{ row: 0, n: 1, set: 0 }]);
+});
+
+test("round trip of a route with a waypoint with pictures, a stop without the hero, an or split and an and split", () => {
+  const full = {
+    ...route,
+    stops: [
+      {
+        campId: null,
+        action: "Plant the Ancient",
+        place: { kind: "build", at: { x: 0.4, y: 0.6 } },
+        units: [{ icon: "ne-ancient-of-war", count: 1 }],
+        images: [
+          { url: "/fixtures/creep-routes/a.jpg", width: 1600, height: 900, alt: "The spot", caption: "Near side" },
+          { url: "https://cdn.sanity.io/images/p/d/b.jpg", width: 1015, height: 838, alt: "Close-up" },
+        ],
+      },
+      { campId: "c01", hero: false, units: [{ icon: "hu-militia", count: 4 }] },
+      {
+        campId: null,
+        split: {
+          mode: "or",
+          arms: [
+            { label: "No one at their natural", stops: [{ campId: "c02", units: [{ icon: "hu-archmage", count: 1 }] }] },
+            { label: "They are at their natural", stops: [{ campId: null, action: "Harass their base", place: { kind: "attack", at: { start: "0" } } }] },
+          ],
+        },
+      },
+      { campId: null, split: { mode: "and", arms: [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02", hero: false, units: [{ icon: "hu-militia", count: 2 }] }] }] } },
+    ],
+  };
+  const api = toApiRoute(full, map, "https://site.example", iconSrc, deriveRoute);
+  assert.deepEqual(api.stops[0].place, { kind: "build", at: { x: 0.4, y: 0.6 } });
+  assert.deepEqual(api.stops[0].images, [
+    { url: "https://site.example/fixtures/creep-routes/a.jpg", width: 1600, height: 900, alt: "The spot", caption: "Near side" },
+    { url: "https://cdn.sanity.io/images/p/d/b.jpg", width: 1015, height: 838, alt: "Close-up" },
+  ]);
+  assert.equal("images" in api.stops[1], false);
+  assert.equal(api.stops[1].hero, false);
+  assert.equal(api.stops[3].split.arms[1].stops[0].units[0].iconUrl, "https://site.example/icons/hu-militia.png");
+  assert.equal(api.stops[2].split.arms[0].stops[0].units[0].iconUrl, "https://site.example/icons/hu-archmage.png");
+  assert.deepEqual(api.stops[2].split.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
+  assert.equal(api.derived.stops.length, 4);
+
+  // The "Suggest an update" payload carries all three back to the editor unchanged.
+  const back = toExchangeRoute(full).stops;
+  assert.deepEqual(back[0].place, full.stops[0].place);
+  assert.equal(back[1].hero, false);
+  assert.deepEqual(back[2].split.arms.map((a) => a.label), ["No one at their natural", "They are at their natural"]);
+  assert.deepEqual(back[2].split.arms[1].stops[0].place, { kind: "attack", at: { start: "0" } });
+  assert.equal(back[2].split.arms[0].stops[0].campId, "c02");
+  assert.equal(back[2].split.mode, "or");
+  assert.equal(back[3].split.arms[1].stops[0].hero, false);
+  assert.equal("label" in back[3].split.arms[0], false);
 });

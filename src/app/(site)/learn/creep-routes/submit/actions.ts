@@ -7,9 +7,13 @@ import {
   flattenErrors,
   stopsJsonTooLarge,
   type FieldErrors,
+  type StopInput,
 } from "@/lib/creep-routes/submission";
+import { keepImages } from "@/lib/creep-routes/keep-images.mjs";
+import { sanityClient } from "@/lib/content/sanity";
 import { canAcceptSubmissions, createCreepRouteDraft } from "@/lib/creep-routes/submit";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
+import { placeIds } from "@/lib/creep-routes/place.mjs";
 import { getBuilds } from "@/lib/builds/builds";
 import { GAME_ICON_OPTIONS } from "@/lib/builds/icons";
 
@@ -65,6 +69,7 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
       campIds: m.camps.map((c) => c.id),
       startsCount: m.starts.length,
       creepCounts: Object.fromEntries(m.camps.map((c) => [c.id, c.creeps.map((k) => k.count)])),
+      ...placeIds(m),
     })),
     iconKeys: GAME_ICON_OPTIONS.map((o) => o.value),
     buildSlugs: builds.map((b) => b.slug),
@@ -120,8 +125,21 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
     return { status: "error", message: "You just sent one, wait a minute before submitting another route." };
   }
 
+  // A resubmitted route keeps its pictures: copied here from the route it replaces, never from the browser.
+  let kept: StopInput[] = data.stops;
+  if (data.supersedes) {
+    try {
+      const old = await sanityClient()?.fetch<unknown[] | null>(`*[_type == "creepRoute" && slug.current == $slug][0].stops`, {
+        slug: data.supersedes,
+      });
+      kept = keepImages(kept, old) as StopInput[];
+    } catch (err) {
+      console.error("[creep-routes] picture lookup failed; the update arrives without pictures", err);
+    }
+  }
+
   try {
-    const { slug } = await createCreepRouteDraft(data);
+    const { slug } = await createCreepRouteDraft({ ...data, stops: kept });
     return { status: "ok", slug };
   } catch (err) {
     console.error("[creep-routes] draft creation failed", err);

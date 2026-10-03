@@ -428,6 +428,174 @@ data layer share:
   day/night cycle it drove — see the user decision at the top of that
   feature's spec).
 
+### Place stops: attacks and waypoints
+
+A camp stop always kills something; everything else is a waypoint.
+
+A stop can happen at a place instead of a camp: `RouteStop.place` is
+`{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop` or
+`scout`. `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
+`{ mine }` (the index into `map.mines[]`), `{ shop }` (`map.shops[].id`) or
+`{ x, y }` (an image fraction 0..1, like a camp's). A place stop has
+`campId: null` and an `action` that names it ("Harass their base", "Plant the
+Ancient of War"); the submission schema rejects a place on a camp stop, a place
+without an action, and a start, mine or shop the map does not have
+(`place.mjs`'s `placeProblem`).
+
+An `attack` is a numbered stop. The other four kinds are waypoints: on the
+path, no number, not counted in "N stops" (`stop-numbers.mjs`).
+
+- **Derive.** Unchanged: a place stop is a non-camp stop and passes through.
+- **Map.** The path runs through every place. An attack gets a numbered badge
+  ringed in `--wg-loss` with lucide's `Swords` (white) under it, the leg into
+  it (line and chevron) is `--wg-loss`, and its target mark gets the
+  on-route ring. A waypoint has no badge: build is a 6px white diamond on
+  the spot, scout a 6px circle with a dot, expand and shop the on-route ring
+  on the mine's or shop's own icon. The legend lists the three bands only;
+  an attack's red disc and swords and its row's label say what it is.
+- **List.** An attack reads its number, red swords, the action, then the place
+  name muted unless the action already says it, and no level. A waypoint is a
+  slim row with no number: glyph, action, the kind word muted, and Bring and
+  note when it has them; its summary only opens and closes it.
+- **Builder.** A click on their start adds an attack, on your start a build
+  waypoint, on a mine an expand waypoint, on a shop a shop waypoint; "Point"
+  arms one click anywhere on the map for a build waypoint. The row has a kind
+  select. A start, mine or shop under a camp's button takes no mouse click;
+  Tab reaches it.
+- **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
+  Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
+  Appearance under Neutral, from the art the site already has. `count` on an
+  item means charges.
+
+### The hero in Bring
+
+`RouteStop.hero` on a camp or attack stop is `true` by default and stored only
+when `false`: only the Bring units go (an Ancient of War walking ahead, militia
+finishing a camp). The submission schema rejects `hero: false` on a waypoint or
+a base action.
+
+- **Derive.** A stop with `hero: false` earns hero XP like any other stop
+  (see "XP model": XP is global). Derive also marks the later paths of an
+  `and` split `hero: false`.
+- **Map.** The leg is a normal leg; the badge carries the first Bring unit's
+  icon (10px) at its right edge, so the map says who goes. No legend line.
+- **List.** The level, xp and "+xp" captions show as on any stop. On a
+  route with at least one hero-off stop, Bring lists the hero first on every
+  camp or attack stop he goes to (the route's hero portrait, or a gold crown
+  tile, "Any Hero", when the route names none); a hero-off stop lists the
+  units only. Routes without one keep Bring as units only.
+- **Builder.** Bring starts with a "Hero" toggle (the route's hero portrait,
+  or the "Any Hero" crown tile when the route names none), on by default.
+
+### Splits
+
+A split is its own entry in `stops`: `{ campId: null, split: { mode, arms } }`
+with no action, place or other field, one level deep (an arm stop never
+holds a split), 2 or 3 arms of 1..n stops. Stops after a split are shared by
+every path; a continuation of only one path belongs inside that path.
+
+- **`and`**: every path runs at once, no labels. Path a is the hero's line; the
+  builder sets `hero: false` on each camp or attack it adds to paths b.., and
+  derive runs those paths without the hero whatever their flags say.
+- **`or`**: the reader chooses one path by its label (required), then the
+  route goes on with the shared stops.
+- **`xor`**: the reader chooses one path and it never rejoins; the schema
+  rejects stops after an `xor` split ("Nothing follows an either/or split").
+
+The Studio repeats both checks as errors with the same words: an `or` or
+`xor` path with no label ("Say when to take this path") and a stop after an
+`xor` split.
+
+The builder offers two modes, "Choose a path" and "At the same time", and
+saves `or` or `xor` from the structure: stops after the split mean `or`,
+nothing after means `xor` (`savedMode` in `editor-rows.mjs`).
+
+In Sanity the split is a `creepSplit` array member (Studio: "At the same
+time" / "Choose a path, then continue" / "Choose a path"), next to the `stop`
+members (`creepStop`, stored under the name `stop`). A whole-route pair is a
+split at index 0. `condition` stays a single stop's.
+
+One meaning per mark: the same number means at the same time, letters mean
+choose one, no number means a waypoint.
+
+- **Numbers and keys** (`stop-numbers.mjs`, v2.7). Waypoints never take a
+  number and never count. Stops before a split number as before; the split
+  takes the next number N. `or`/`xor` paths read N a, N+1 a … and N b …, and
+  the numbers run along the chosen path: the stop after the split goes on from
+  the chosen path's last number with no gap (1, 2, 3a, 4a, 5; or 1, 2, 3b, 4),
+  so switching the tab renumbers the list and the map together. `and` paths all
+  read N, N+1 …, and the stop after the split takes N + the longest path's
+  numbered stops. Keys are "0", "1", … at the top level and "2.a.0" in a path
+  and never change with the choice; the stop view, the scroll target and a
+  disc click use the key, `data-stop` the number. "N stops" in the route
+  header counts the numbered stops of the chosen paths (`countStops(stops,
+  choice)`, every `and` path included); the route card, the share image, the
+  "at least two stops" check and the JSON API use the first path. The cap of
+  12 numbered stops reads every split along its longest path (`longestCount`).
+- **Derive.** `deriveRoute(route, map, { choice })`, where `choice` maps a
+  split key to the chosen path (default a). Every path is derived from the
+  hero's state at the split and only the walked (chosen) path feeds the
+  running total; in `and` every path feeds it, in list order (path b runs on
+  from path a's total). A derived split carries
+  `split: { mode, walked, arms }`, each path's stop `armIndex` and `forkKey`.
+- **Map.** The map draws only the active path. Every drawn path starts at
+  the node before the split (your start marker for a split at stop 1) and its
+  last stop sends a leg into the first shared stop after it. In `or`/`xor` the
+  paths not chosen have no legs and no badges, and their camps draw as unused
+  (`shownStops` in `stop-numbers.mjs`); the shared stops stay. In `and` every
+  path is drawn: the hero's as usual, the others thin (1.25px), at 60%,
+  without chevrons and bowed 12% of their length to the right of travel (a
+  quadratic curve), so they never lie on a main leg. No legend line.
+- **List: the lane rail** (`route-rows.mjs`, `LaneRail.tsx`). Every route is
+  a flat list (a linear route is one lane through every row): every stop,
+  waypoint and attack is one row in route order with a lane ("" main, "a",
+  "b", "c"); a split's paths follow as blocks, path a's stops, then path b's,
+  then c's (a later path's lane runs down past the earlier blocks), between a
+  split row and, when stops follow, a join row. A 44px rail is added in front of today's row and moves nothing: 2px lines in
+  `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
+  lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
+  node for an attack. The split row is a slim caption: "At the same time"
+  (`and`), or "Choose a path" with browser tabs (`role="tablist"`, arrow
+  keys, the hero's level at each path's end; the chosen tab is open at the
+  bottom onto its path's rows, a `tabpanel`; the others are recessed). `and`
+  shows every path. `or` and `xor` show only the chosen path: a path not taken
+  has no rows, only a dashed lane, from the split row to the join row in
+  `or`, a stub that ends in the split row in `xor`. A guide's one-stop
+  example has no rail.
+  A map click on a camp picks the top-level stop or the
+  walked path's (`findStopKey`). HowTo steps follow path a.
+- **Builder.** "+ Split" adds a "Choose a path" split with two empty paths
+  after the selected row. The caption row has two mode chips (Choose a path /
+  At the same time); `or` or `xor` is saved from the structure. See
+  "The slim builder" below for adds, moves, removals and undo.
+
+### Pictures
+
+`RouteStop.images` is `{ url, width, height, alt, caption? }[]`: screenshots of
+the exact spot, for what the minimap cannot show. A coach adds them in the
+Studio (the stop's "Pictures" field, drag and drop; `alt` is required); the
+route projection resolves each to its asset url and size (`STOP_IMAGES` in
+`routes.ts`), in plain stops and in a split's paths. The Studio takes at most
+`MAX_STOP_IMAGES` (3) pictures per stop, JPEG, PNG or WebP only, each with a
+file of at most `MAX_IMAGE_BYTES` (5 MB; `caps.mjs`). The projection drops a
+picture with no file and keeps the first 3. Public submissions take
+no pictures yet (uploads need abuse limits); the open stop says a coach can
+add them after review, or, on "Suggest an update", how many it keeps (see
+"Editing a submitted route"). The API
+makes a site-relative url absolute. The dev fixtures carry no pictures.
+
+- **List.** Under the note, a strip of 4:3 thumbnails, 200×150 on desktop
+  (wrapping) and 160×120 on a phone, where the strip scrolls sideways with
+  scroll-snap instead of shrinking them. The URLs come from the Sanity image
+  pipeline (`@sanity/image-url`, `stop-image-url.mjs`: width, height, fit
+  crop, auto format; the project and dataset read from the asset url), with a
+  `srcset` of both sizes at 1x and 2x, `sizes`, `loading="lazy"` and
+  `decoding="async"`; each is a button named by its alt. A click opens a
+  native `<dialog>` lightbox with the full picture (a `srcset` of 800, 1200
+  and 1600 wide, `sizes="92vw"`, at most 92vw by 88vh), its caption, and previous / next when there is more than one; Escape or the
+  backdrop closes it and focus returns to the thumbnail. A collapsed stop
+  with pictures shows lucide's `Image` and the count at the right.
+
 ### Kill order
 
 A camp stop may carry `kills: { row, n }[]`, the ordered prefix: `row` is
@@ -436,7 +604,8 @@ kill. Empty or missing means the whole camp, which is every route written
 before this field. The optional boolean `leaveRest` (default false; "Skip
 the rest" in the builder and the Studio) says what happens to the creeps
 the list does not name: false kills them after it, in catalogue order; true
-skips them. Three cases it covers:
+skips them. With no kill order the whole camp dies, `leaveRest` or not. Three
+cases it covers:
 
 - Kill one creep and skip the rest, e.g. take the item Ogre Warrior of Last Refuge
   c16: `kills: [{ row: 0, n: 1 }], leaveRest: true`.
@@ -592,6 +761,12 @@ kill — a two-hero player earns half as much xp per hero as a one-hero
 player creeping the same camp. This calculator models a single hero and does not
 discount for a second/third hero; a heroes-count toggle that divides the
 per-kill grant accordingly is backlog, not shipped.
+
+**XP is global.** A hero earns the XP of every kill his player makes, with
+or without him there, so a stop with `hero: false` (units only) and the
+paths of an `and` split that run without the hero add their kills' XP to the
+running level and xp like any other stop; the factor still reads the hero's
+current level per kill. The flag only says the hero is not there to fight.
 
 ## Review flow
 
@@ -758,7 +933,10 @@ the dynamic `[category]` segment for that exact path). The guide
 `/learn/guide/understanding-creep-routes` (the old
 `/learn/guide/reading-creep-camps-and-drops` redirects there, `next.config.ts`); it embeds the route page's map, stop list and one open stop (`creepRoutePart` blocks: `CreepMapPlayground` with `show`, `only` or `startClosed`) and
 a playable kill order (`killOrderDemo` block in
-`PortableBody`, data in `src/lib/learn/creep-route-demo.mjs`).
+`PortableBody`, data in `src/lib/learn/creep-route-demo.mjs`). A live route
+block (`slugs`, `GuideRoutePart`) takes the first slug whose route has the
+section's feature (`needs`: split, and, waypoint or attack; `route-has.mjs`)
+and renders nothing when no route has it.
 `src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
 every other category) and every published route slug.
 
@@ -880,13 +1058,41 @@ sees; this section is the mechanics.
   is what makes "author a route for this matchup" a shareable link — the
   list page's empty state now uses it (see "Pages" above), and it's the
   seam a future "add the missing route" prompt elsewhere could reuse.
-- **`RouteSubmitForm` → `RouteSetup` + `RouteEditor` (`CreepMap` in edit
-  mode + `StopEditor` → `StopRow`)** is the component tree, split so no
-  file runs long: `RouteSetup` is the map/race/opponent(s)/level/hero/
-  companion-build row, `RouteEditor` is a thin layout wrapper (map left,
-  `StopEditor` right), `StopEditor` owns the stop list's mutations (add a
-  camp stop, add a base action, reorder, remove) and the live `deriveRoute`
-  readout, `StopRow` is one stop.
+- **`RouteSubmitForm` → `RouteSetup` + `RouteEditor`** is the component
+  tree. `RouteSetup` is the map/race/opponent(s)/level/hero/companion-build
+  row. `RouteEditor` is the slim builder, made of the reader's parts:
+  `CreepMap` in edit mode (sticky on the left on desktop, above the list on a
+  phone) and the reader's `RouteStepTable` on the right. Every stop is the
+  reader's one-line `StopBlock` row (a waypoint its slim row); one stop is
+  open at a time, the selected one, shared with the map's pulsing node, and
+  its body is `StopEditBody` (place kind and action, Bring with the hero
+  entry, the kill order picker, condition, note, move and remove). A split is
+  the reader's caption row and tab strip (`SplitRow` with `edit`): the mode
+  chips on the caption row, path labels edited in the tabs, "+ Path" as the
+  last tab, move and "Remove split" at the right; the path's tools (its
+  errors, "Remove path") sit under the tabs. Every move has one rule
+  (`editor-rows.mjs`, v2.7): a map click adds after the selected row in its own
+  list, into the shown path when the split's caption (a tab) is selected, else
+  at the end, and a camp already in that list is selected instead; every row
+  has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
+  `moveRowTo`), a split moves as a block and never into a path, and a stop
+  dropped into a path not shown switches to it; the open stop's arrows make the
+  same moves on a keyboard or phone (`stepTarget`, then `moveRowTo`): up from a
+  path's first stop lands just above the split, down from its last stop just
+  below it, and a main-list stop that meets a split enters its shown path at the
+  near end (path 1 in "At the same time", where every path shows); an arrow
+  that crosses a split's edge says so in its name ("Move into path 2", "Move out
+  of the split"), and focus stays on the moved stop's arrow; removing the second-last path turns the split into
+  plain stops (`removePath`); "Remove split" keeps the shown path
+  (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
+  (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
+  outside text fields; typing in one field is one step until it loses focus.
+  Path labels are kept as typed and trimmed once on blur (`setArmLabel`). The header's toolbar has "+ Waypoint" (adds one and arms the next map
+  click to put it on a spot) and "+ Split". The section header's "Edit |
+  Preview" toggle draws the route page's own section (`CreepMapPlayground`)
+  from the draft, read-only; the editor stays mounted under it, so the
+  selection is kept. Row edits by key live in `editor-rows.mjs`
+  (`keyOfRow`, `rowAtKey`, `patchRow`, `moveRow`, `removeRow`).
 - **The "Your spawn" picker.** `RouteEditor` renders a small radio picker
   under the map, but only when `map.starts.length > 2` (Turtle Rock,
   Twisted Meadows) — every other map's two starts leave nothing to pick
@@ -903,16 +1109,14 @@ sees; this section is the mechanics.
   is already spoken for (`onCampSelect`, above) and stays exactly that, so
   *pinning* the card there is a **right-click** (`onContextMenu`,
   `e.preventDefault()` so the browser's own context menu never appears)
-  instead — see `CampMarker`'s doc comment. Every stop row also carries an
-  ⓘ button (`StopRow`, replacing the old `campComposition` summary line)
-  that pins the same card without needing the map at all — stop rows have
-  no hover behaviour of their own. All three call into the same
+  instead — see `CampMarker`'s doc comment. Every camp stop's row also pins
+  the same card from its camp name (the reader's `StopBlock` button), without
+  needing the map at all. All three call into the same
   `useCampCard()` instance, threaded `RouteSubmitForm` → `RouteEditor` →
   (`CreepMap`'s `onCampCardPin`/`onCampCardHoverEnter`/`onCampCardHoverLeave`
-  / `StopEditor` → `StopRow`'s `onOpenCard`) — one state, one card,
+  / `RouteStepTable` → `StopBlock`'s `onOpenCard`) — one state, one card,
   regardless of which of the triggers opened it. The hint line under the
-  map (`RouteEditor`) reads "Hover a camp to see what's inside; click to
-  add it as the next stop; right-click or the ⓘ pins the card."
+  map (`RouteEditor`) says what a click does.
 - **`src/lib/creep-routes/submission.mjs` + `submission.ts`.** Same split
   as `fixtures.mjs`/`fixtures.ts`: the `.mjs` file is the pure, plain-JS
   implementation `submission.test.mjs` checks directly with `node --test`
@@ -1278,10 +1482,21 @@ built server-side, so it sits in the HTML rather than waiting on hydration.
 the link exactly as the form does: the encoder lives with the page and the
 decoder with the form, and nothing but agreement on the payload binds them.
 
+Each stop in the link keeps its Sanity `_key` as `key` and its picture count
+as `pictures`; the open stop in the builder says "2 pictures stay with this
+stop". The browser never sends a picture. The submission schema accepts `key`
+only in the shape of a Sanity key and drops anything else the browser adds.
+When the submission names a route it replaces, the server action reads that
+route's stops (a split's path stops too) and copies `images` onto each new stop
+whose `key` names an old stop (`keepImages`, `keep-images.mjs`). A new stop or
+an unknown key gets no pictures; a removed stop takes its pictures with it. A
+failed read loses the pictures, not the submission.
+
 What happens then:
 
 1. The new submission arrives `pending`, like any other, with a `supersedes`
-   reference to the old document resolved server-side from the slug.
+   reference to the old document resolved server-side from the slug, and the
+   pictures of every stop it kept.
 2. A coach reviews it. Approving the replacement is the moment to set the old
    route's **Review** to **Archived** — a third `reviewStatus` alongside
    Pending and Approved, which hides a document from the site without

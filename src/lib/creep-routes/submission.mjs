@@ -2,6 +2,9 @@ import { z } from "zod";
 import { isEmbeddable } from "../video-embed.mjs";
 import { isKnownPatch } from "../patches.mjs";
 import { killsProblem } from "./kills.mjs";
+import { placeProblem } from "./place.mjs";
+import { countStops } from "./stop-numbers.mjs";
+import { CAP_OVER, MAX_PATHS, capProblems } from "./caps.mjs";
 
 /**
  * Validation + draft-shaping for public creep-route submissions. Plain JS
@@ -29,6 +32,8 @@ export const STOP_NOTE_MAX = 600;
 export const STOP_CONDITION_MAX = 120;
 
 const RACE_IDS = ["human", "orc", "nightelf", "undead"];
+/** A Sanity array `_key`: letters, digits, `_` and `-`. */
+const STOP_KEY = /^[A-Za-z0-9_-]{1,64}$/;
 const ROUTE_LEVEL_IDS = ["standard", "beginner"];
 
 /** Field-level messages keyed by path ("title", "stops.2.action"). */
@@ -52,13 +57,15 @@ function unitSchema(iconSet) {
   });
 }
 
-function baseStopSchema(iconSet) {
+function baseStopSchema(iconSet, splitField) {
   return z
     .object({
       /** null marks a base action (TP home, buy from a shop, take the
        *  expansion); a camp stop names the camp id instead. Camp contents
        *  are never authored here, only looked up by id against the map. */
       campId: z.string().trim().min(1).nullable(),
+      /** The `_key` of the published stop this one updates; the server copies that stop's pictures. */
+      key: z.string().regex(STOP_KEY, "Invalid stop key").optional(),
       action: z.string().trim().max(60, "Max 60 characters").optional(),
       units: z.array(unitSchema(iconSet)).max(6, "Up to 6").optional(),
       note: z.string().trim().max(STOP_NOTE_MAX, `Max ${STOP_NOTE_MAX} characters`).optional(),
@@ -75,12 +82,77 @@ function baseStopSchema(iconSet) {
         .optional(),
       /** True skips the creeps `kills` does not list ("Skip the rest"). */
       leaveRest: z.boolean().optional(),
+      /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
+      place: placeSchema.optional(),
+      /** Camp and place stops: false when only the Bring units go (the hero still earns their XP); a
+       *  waypoint done by another unit (a lone Wisp scouting) is in the list, not on the map. */
+      hero: z.boolean().optional(),
+      /** A split at the top level; inside an arm it is rejected (one level). */
+      split: splitField,
     })
-    .refine((stop) => stop.campId !== null || Boolean(stop.action), {
-      message: 'Name the base action, e.g. "TP home"',
-      path: ["action"],
+    .superRefine((stop, ctx) => {
+      if (stop.split) {
+        // A node is `campId: null` and its ways; any other field would be dropped from the draft.
+        const extra = ["action", "place", "hero", "note", "condition", "units", "kills", "leaveRest"].filter(
+          (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
+        );
+        if (stop.campId !== null || extra.length) {
+          ctx.addIssue({ code: "custom", message: "A split holds only its paths", path: ["split"] });
+        }
+        return;
+      }
+      if (stop.hero === false && stop.campId === null && !stop.place) {
+        ctx.addIssue({ code: "custom", message: "Only a camp, attack or waypoint stop can go without the hero", path: ["hero"] });
+      }
+      if (stop.place && stop.campId !== null) {
+        ctx.addIssue({ code: "custom", message: "A place stop has no camp", path: ["place"] });
+      } else if (stop.campId === null && !stop.action) {
+        ctx.addIssue({
+          code: "custom",
+          message: stop.place ? "Say what happens here" : 'Name the base action, e.g. "TP home"',
+          path: ["action"],
+        });
+      }
     });
 }
+
+/** A split's ways: 2 or 3 arms of up to 20 stops (an empty one is named). "or" and "xor" label every way with its condition
+ *  (the tab text); "and" takes no labels (each stop's Bring says who goes). */
+function splitSchema(armStopSchema) {
+  return z
+    .object({
+      mode: z.enum(["and", "or", "xor"], { error: "Pick how the paths run" }),
+      arms: z
+        .array(
+          z.object({
+            label: z.string().trim().max(60, "Max 60 characters").optional(),
+            stops: z.array(armStopSchema).max(20, "Max 20 stops"),
+          }),
+        )
+        .min(2, "A split needs two or three paths")
+        .max(MAX_PATHS, CAP_OVER.paths),
+    })
+    .superRefine((split, ctx) => {
+      // The builder leaves a path empty when its last stop moves out; the check names it.
+      split.arms.forEach((arm, a) => {
+        if (!arm.stops.length) ctx.addIssue({ code: "custom", message: `Path ${a + 1} is empty. Add a stop to it or remove it.`, path: ["arms", a, "stops"] });
+      });
+      if (split.mode === "and") return;
+      split.arms.forEach((arm, a) => {
+        if (!arm.label) ctx.addIssue({ code: "custom", message: "Say when to take this path", path: ["arms", a, "label"] });
+      });
+    });
+}
+
+const placeSchema = z.object({
+  kind: z.enum(["attack", "build", "expand", "shop", "scout"], { error: "Pick what happens here" }),
+  at: z.union([
+    z.object({ start: z.string().trim().min(1).max(20) }).strict(),
+    z.object({ mine: z.string().trim().min(1).max(20) }).strict(),
+    z.object({ shop: z.string().trim().min(1).max(40) }).strict(),
+    z.object({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) }).strict(),
+  ]),
+});
 
 /**
  * Builds the zod schema for one submission against a live catalogue:
@@ -102,9 +174,13 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   // care about the start-index bound, like a handful of pre-existing
   // tests, can omit it); the check below only runs when it's known.
   const startsCountByMap = new Map(maps.map((m) => [m.slug, m.startsCount]));
+  // `startIds`, `mineCount`, `shopIds` are optional too; `placeProblem` skips an unknown list.
+  const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const stopSchema = baseStopSchema(iconSet);
+  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A path cannot hold another split");
+  const armStopSchema = baseStopSchema(iconSet, noSplit);
+  const stopSchema = baseStopSchema(iconSet, splitSchema(armStopSchema).optional());
 
   return z
     .object({
@@ -181,7 +257,8 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
             .slice(0, 8),
         ),
       description: z.string().trim().max(6000, "Max 6000 characters").optional(),
-      stops: z.array(stopSchema).min(2, "Add at least two stops").max(30, "Max 30 stops"),
+      // Two stops at least, counted with every way's stops (`countStops`): a whole-route pair is one split.
+      stops: z.array(stopSchema).min(1, "Add at least two stops").max(30, "Max 30 stops"),
       /** Honeypot: a real submitter never fills this (it's visually hidden,
        *  `tabIndex={-1}`). Accepted as *any* string here — rejecting a
        *  nonempty value at the schema level (the old `z.string().max(0)`)
@@ -196,20 +273,35 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
       startedAt: z.coerce.number().optional(),
     })
     .superRefine((data, ctx) => {
+      if (countStops(data.stops) < 2) ctx.addIssue({ code: "custom", message: "Add at least two stops", path: ["stops"] });
+      // The caps (`caps.mjs`): the builder stops at them; an imported route past one is told here.
+      for (const { path, message } of capProblems(data.stops)) {
+        if (!path.length) ctx.addIssue({ code: "custom", message, path: ["stops"] });
+      }
       const campIds = campsByMap.get(data.map);
-      data.stops.forEach((stop, i) => {
+      const checkStop = (stop, path) => {
         if (stop.campId && campIds && !campIds.has(stop.campId)) {
           ctx.addIssue({
             code: "custom",
             message: `Unknown camp "${stop.campId}" on this map`,
-            path: ["stops", i, "campId"],
+            path: [...path, "campId"],
           });
         }
         const counts = stop.campId && creepCountsByMap.get(data.map)?.[stop.campId];
         const problem = stop.kills?.length
           ? stop.campId ? counts && killsProblem(stop.kills, counts) : "A base action has no creeps"
           : null;
-        if (problem) ctx.addIssue({ code: "custom", message: problem, path: ["stops", i, "kills"] });
+        if (problem) ctx.addIssue({ code: "custom", message: problem, path: [...path, "kills"] });
+        const placeIssue = stop.place && placeProblem(stop.place, placeIdsByMap.get(data.map));
+        if (placeIssue) ctx.addIssue({ code: "custom", message: placeIssue, path: [...path, "place"] });
+      };
+      data.stops.forEach((stop, i) => {
+        checkStop(stop, ["stops", i]);
+        stop.split?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, "split", "arms", a, "stops", j])));
+        // An "xor" way never rejoins: nothing may follow it.
+        if (stop.split?.mode === "xor" && i < data.stops.length - 1) {
+          ctx.addIssue({ code: "custom", message: "Nothing follows an either/or split", path: ["stops", i, "split"] });
+        }
       });
       const startsCount = startsCountByMap.get(data.map);
       if (data.start !== undefined && startsCount !== undefined && data.start >= startsCount) {
@@ -315,21 +407,43 @@ export function toCreepRouteDraft(valid, mapDocId, buildDocId, supersedesDocId) 
     tags: valid.tags,
     featured: false,
     publishedAt: new Date().toISOString(),
-    stops: valid.stops.map((s) => ({
-      _type: "stop",
-      _key: shortKey(),
-      campId: s.campId || undefined,
-      action: s.action || undefined,
-      units: s.units && s.units.length
-        ? s.units.map((u) => ({ _type: "unit", _key: shortKey(), icon: u.icon, count: u.count }))
-        : undefined,
-      note: s.note || undefined,
-      condition: s.condition || undefined,
-      kills: s.campId && s.kills?.length
-        ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
-        : undefined,
-      leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
-    })),
+    stops: valid.stops.map((s) =>
+      s.split
+        ? {
+            _type: "creepSplit",
+            _key: shortKey(),
+            mode: s.split.mode,
+            arms: s.split.arms.map((arm) => ({
+              _type: "arm",
+              _key: shortKey(),
+              ...(s.split.mode !== "and" && arm.label ? { label: arm.label } : {}),
+              stops: arm.stops.map(draftStop),
+            })),
+          }
+        : draftStop(s),
+    ),
     description: toPortableText(valid.description),
+  };
+}
+
+/** One camp, place or base-action stop as a Sanity `stop` array member. */
+function draftStop(s) {
+  return {
+    _type: "stop",
+    _key: shortKey(),
+    campId: s.campId || undefined,
+    action: s.action || undefined,
+    units: s.units && s.units.length
+      ? s.units.map((u) => ({ _type: "unit", _key: shortKey(), icon: u.icon, count: u.count }))
+      : undefined,
+    note: s.note || undefined,
+    condition: s.condition || undefined,
+    kills: s.campId && s.kills?.length
+      ? s.kills.map((k) => ({ _type: "kill", _key: shortKey(), row: k.row, n: k.n, ...(k.set !== undefined ? { set: k.set } : {}) }))
+      : undefined,
+    leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
+    place: s.place ? { ...s.place } : undefined,
+    hero: s.hero === false && (s.campId || s.place) ? false : undefined,
+    images: s.images?.length ? s.images : undefined,
   };
 }
