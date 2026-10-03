@@ -17,4 +17,10 @@ describe("GuideRoutePart: a guide's live route part", () => {
     expect(el).not.toBeNull();
     expect(JSON.stringify(el?.props.children[1].props.children.props.href)).toContain("undead-ves-autumn-leaves");
   });
+
+  it("with `needs`, skips a route that lacks the feature, and renders nothing when none has it", async () => {
+    const el = await GuideRoutePart({ slugs: ["human-archmage-autumn-leaves", "undead-ves-autumn-leaves"], part: "stops", needs: "split" });
+    expect(JSON.stringify(el?.props.children[1].props.children.props.href)).toContain("undead-ves-autumn-leaves");
+    expect(await GuideRoutePart({ slugs: ["human-archmage-autumn-leaves"], part: "stops", needs: "attack" })).toBeNull();
+  });
 });

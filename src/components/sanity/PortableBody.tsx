@@ -76,8 +76,8 @@ const components: PortableTextComponents = {
     // kill order.
     creepRoutePart: ({ value }) => {
       // A live route by slug (`slugs`): nothing when it is not there.
-      const live = value as { slugs?: string[]; part: "map" | "stops"; choice?: Record<string, number> };
-      if (live.slugs) return <GuideRoutePart slugs={live.slugs} part={live.part} choice={live.choice} />;
+      const live = value as { slugs?: string[]; part: "map" | "stops"; choice?: Record<string, number>; needs?: "split" | "and" | "waypoint" | "attack" };
+      if (live.slugs) return <GuideRoutePart slugs={live.slugs} part={live.part} choice={live.choice} needs={live.needs} />;
       const v = value as GuideRouteValue & { part: "map" | "stops" | "stop"; stop?: number; source: string; author: string };
       const g = guideRoute(v, v.part === "map");
       if (!g) return null;
