@@ -138,6 +138,11 @@ test("toApiMap: exposes each camp's drops and each creep's icon (F011)", () => {
   ]);
 });
 
+test("toApiStop drops a picture with no file (url null) instead of throwing", () => {
+  const stop = toApiStop({ campId: "c1", images: [{ url: null, alt: "No file" }, { url: "/a.jpg", width: 1, height: 1, alt: "A" }] }, "https://site.example", iconSrc);
+  assert.deepEqual(stop.images, [{ url: "https://site.example/a.jpg", width: 1, height: 1, alt: "A" }]);
+});
+
 test("toApiStop carries a stop's kills and leaveRest unchanged", () => {
   const stop = toApiStop(route.stops[1], "https://site.example", iconSrc);
   assert.deepEqual(stop.kills, [{ row: 0, n: 1 }]);

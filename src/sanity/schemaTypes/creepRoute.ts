@@ -413,6 +413,7 @@ export const creepStop = defineType({
         defineArrayMember({
           type: "image",
           options: { hotspot: true, accept: "image/*" },
+          validation: (rule) => rule.assetRequired().error("Add the picture file, or remove the picture"),
           fields: [
             defineField({ name: "alt", type: "string", description: "What the picture shows, for readers who cannot see it.", validation: (rule) => rule.required() }),
             defineField({ name: "caption", type: "string", description: "Optional. Shown under the picture when it is open." }),
