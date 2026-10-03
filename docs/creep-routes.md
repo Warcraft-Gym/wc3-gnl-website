@@ -571,7 +571,10 @@ choose one, no number means a waypoint.
 the exact spot, for what the minimap cannot show. A coach adds them in the
 Studio (the stop's "Pictures" field, drag and drop, images only; `alt` is required); the
 route projection resolves each to its asset url and size (`STOP_IMAGES` in
-`routes.ts`), in plain stops and in a split's paths. Public submissions take
+`routes.ts`), in plain stops and in a split's paths. The Studio takes at most
+`MAX_STOP_IMAGES` (3) pictures per stop, JPEG, PNG or WebP only, each with a
+file of at most `MAX_IMAGE_BYTES` (5 MB; `caps.mjs`). The projection drops a
+picture with no file and keeps the first 3. Public submissions take
 no pictures yet (uploads need abuse limits); the submit form says a coach can
 add them after review, and "Suggest an update" does not carry them. The API
 makes a site-relative url absolute. The dev fixtures carry no pictures.

@@ -3,7 +3,8 @@ import { GAME_ICON_OPTIONS } from "../../lib/builds/icons";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "../../lib/creep-routes/submission.mjs";
 import { PATCH_OPTIONS } from "../../lib/patches.mjs";
 import { countStops } from "../../lib/creep-routes/stop-numbers.mjs";
-import { CAP_OVER, MAX_PATHS, MAX_ROWS, MAX_STOPS, rowCount } from "../../lib/creep-routes/caps.mjs";
+import { CAP_OVER, MAX_IMAGE_BYTES, MAX_PATHS, MAX_ROWS, MAX_STOP_IMAGES, MAX_STOPS, rowCount } from "../../lib/creep-routes/caps.mjs";
+import { apiVersion } from "../env";
 
 const RACES = [
   { title: "Human", value: "human" },
@@ -413,12 +414,22 @@ export const creepStop = defineType({
       name: "images",
       title: "Pictures",
       type: "array",
-      description: "Optional. Screenshots of the exact spot, for what the minimap cannot show. Drop images here.",
+      description: "Optional. Screenshots of the exact spot, for what the minimap cannot show. Drop images here: at most 3, each a JPEG, PNG or WebP of 5 MB or less.",
+      validation: (rule) => rule.max(MAX_STOP_IMAGES).error(CAP_OVER.images),
       of: [
         defineArrayMember({
           type: "image",
-          options: { hotspot: true, accept: "image/*" },
-          validation: (rule) => rule.assetRequired().error("Add the picture file, or remove the picture"),
+          options: { hotspot: true, accept: "image/jpeg,image/png,image/webp" },
+          validation: (rule) => [
+            rule.assetRequired().error("Add the picture file, or remove the picture"),
+            // The asset's size in bytes, read from the dataset the Studio edits.
+            rule.custom(async (image, context) => {
+              const ref = (image as { asset?: { _ref?: string } } | undefined)?.asset?._ref;
+              if (!ref) return true;
+              const size = await context.getClient({ apiVersion }).fetch<number | null>("*[_id == $ref][0].size", { ref });
+              return !size || size <= MAX_IMAGE_BYTES || CAP_OVER.imageBytes;
+            }),
+          ],
           fields: [
             defineField({ name: "alt", type: "string", description: "What the picture shows, for readers who cannot see it.", validation: (rule) => rule.required() }),
             defineField({ name: "caption", type: "string", description: "Optional. Shown under the picture when it is open." }),

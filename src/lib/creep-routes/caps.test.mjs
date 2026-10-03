@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { CAP_AT, CAP_OVER, MAX_PATHS, MAX_ROWS, MAX_STOPS, addBlocked, capProblems, rowCount } from "./caps.mjs";
+import { CAP_AT, CAP_OVER, MAX_IMAGE_BYTES, MAX_PATHS, MAX_ROWS, MAX_STOP_IMAGES, MAX_STOPS, addBlocked, capProblems, rowCount } from "./caps.mjs";
 
 const camp = (i) => ({ campId: `c${i}` });
 const waypoint = () => ({ campId: null, action: "Scout", place: { kind: "scout", at: { start: "1" } } });
@@ -12,6 +12,12 @@ test("the caps are 3 paths, 12 numbered stops and 20 rows", () => {
   assert.equal(CAP_AT.stops, "This route is at the cap of 12 numbered stops. Ask on Discord if you need more.");
   assert.equal(CAP_AT.rows, "This route is at the cap of 20 rows. Ask on Discord if you need more.");
   assert.equal(CAP_AT.paths, "This split is at the cap of 3 paths. Ask on Discord if you need more.");
+});
+
+test("a stop takes 3 pictures of 5 MB at most; the lines give the limits", () => {
+  assert.deepEqual([MAX_STOP_IMAGES, MAX_IMAGE_BYTES], [3, 5_242_880]);
+  assert.equal(CAP_OVER.images, "This stop is over the cap of 3 pictures. Ask on Discord if you need more.");
+  assert.equal(CAP_OVER.imageBytes, "This picture is over the cap of 5 MB. Save the screenshot as JPEG and upload it again.");
 });
 
 test("a row is a stop, a waypoint or a split, a path's stops included; Sanity's creepSplit counts too", () => {

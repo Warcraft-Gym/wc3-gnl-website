@@ -1,6 +1,7 @@
 import "server-only";
 import { isSanityConfigured, sanityClient } from "@/lib/content/sanity";
 import { FIXTURE_ROUTES } from "./fixtures";
+import { MAX_STOP_IMAGES } from "./caps.mjs";
 import type { CreepRoute, RouteStop } from "./types";
 import { filterCreepRoutes, type CreepRouteFilter } from "./filter";
 import { sanityCache } from "@/lib/content/cache";
@@ -30,8 +31,9 @@ type RawRoute = Omit<CreepRoute, "map"> & {
 // `minimapUrl` rides along on `map->` (not a second read) so every route
 // surface can show the map's thumbnail without re-fetching the full
 // `CreepMap` catalogue (F009-followup-2).
-// A stop's pictures resolve to their asset url and size, in plain stops and in a node's arms; a picture with no file is left out.
-const STOP_IMAGES = `defined(images) => { "images": images[defined(asset)]{ "url": asset->url, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height, alt, caption } }`;
+// A stop's pictures resolve to their asset url and size, in plain stops and in a node's arms; a picture with no file
+// is left out, and a stop shows its first MAX_STOP_IMAGES.
+const STOP_IMAGES = `defined(images) => { "images": images[defined(asset)][0...${MAX_STOP_IMAGES}]{ "url": asset->url, "width": asset->metadata.dimensions.width, "height": asset->metadata.dimensions.height, alt, caption } }`;
 const STOPS_PROJECTION = `"stops": stops[]{ ..., ${STOP_IMAGES}, defined(arms) => { "arms": arms[]{ ..., defined(stops) => { "stops": stops[]{ ..., ${STOP_IMAGES} } } } } }`;
 
 const LIST_PROJECTION = `{

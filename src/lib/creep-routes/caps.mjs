@@ -4,13 +4,16 @@
  * list: a stop, a waypoint or a split, a path's stops included. The builder's add actions do nothing at a cap and say so (`addBlocked`); the submit
  * check and the Studio (as warnings) repeat it past a cap (`capProblems`). Takes the route's
  * split nodes (`split.arms`), the builder's rows (same shape) and Sanity's `creepSplit` members
- * (`arms` on the item). Plain JS so `node --test` runs `caps.test.mjs`.
+ * (`arms` on the item). A stop takes at most 3 pictures of at most 5 MB each (the Studio's checks;
+ * the reader shows the first 3). Plain JS so `node --test` runs `caps.test.mjs`.
  */
 import { longestCount } from "./stop-numbers.mjs";
 
 export const MAX_PATHS = 3;
 export const MAX_STOPS = 12;
 export const MAX_ROWS = 20;
+export const MAX_STOP_IMAGES = 3;
+export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 const ASK = "Ask on Discord if you need more.";
 
@@ -26,6 +29,8 @@ export const CAP_OVER = {
   stops: `This route is over the cap of ${MAX_STOPS} numbered stops. ${ASK}`,
   rows: `This route is over the cap of ${MAX_ROWS} rows. ${ASK}`,
   paths: `This split is over the cap of ${MAX_PATHS} paths. ${ASK}`,
+  images: `This stop is over the cap of ${MAX_STOP_IMAGES} pictures. ${ASK}`,
+  imageBytes: `This picture is over the cap of ${MAX_IMAGE_BYTES / 1024 / 1024} MB. Save the screenshot as JPEG and upload it again.`,
 };
 
 const armsOf = (s) => s?.split?.arms ?? (s?._type === "creepSplit" ? (s.arms ?? []) : null);
