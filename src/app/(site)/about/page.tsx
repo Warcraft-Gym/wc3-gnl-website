@@ -8,13 +8,14 @@ import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL } from "@/lib/links";
 import { getDiscordCommunity } from "@/lib/discord";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About the Gym",
   description:
     "Warcraft 3 Gym is a Discord community founded in 2017 where players of every skill level come together to learn Warcraft III, get better and have fun.",
-  alternates: { canonical: "/about" },
-};
+  path: "/about",
+});
 
 const PILLARS = [
   {

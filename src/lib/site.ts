@@ -31,7 +31,7 @@ export const SITE_URL = (
   (process.env.NODE_ENV === "production" ? (vercelProductionUrl ?? PRODUCTION_URL) : "http://localhost:3000")
 ).replace(/\/$/, "");
 
-export const SITE_NAME = "Warcraft 3 Gym";
+export { SITE_NAME } from "./site-identity.mjs";
 export const SITE_TAGLINE = "Learn Warcraft III and compete in the GNL";
 export const SITE_DESCRIPTION =
   "Free Warcraft III guides and build orders for every race, a friendly Discord with coaching, and the Gym Newbie League: a community team league with weekly best-of-three series.";

@@ -8,18 +8,16 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/tools/overlay" },
+export const metadata: Metadata = pageMetadata({
+  path: "/tools/overlay",
   title: "Build order overlay",
   description:
     "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",
-  openGraph: {
-    title: "Build order overlay · Warcraft 3 Gym",
-    description: "Float any build order over the game, with a play-along clock and global shortcuts.",
-    images: [{ url: "/overlay/in-game.webp", width: 1920, height: 1080 }],
-  },
-};
+  shareDescription: "Float any build order over the game, with a play-along clock and global shortcuts.",
+  images: [{ url: "/og/overlay.jpg", width: 1200, height: 630 }],
+});
 
 const POINTS = [
   {

@@ -9,13 +9,15 @@ import { getBuilds } from "@/lib/builds/builds";
 import { canAcceptSubmissions } from "@/lib/creep-routes/submit";
 import { BUILD_RACES, type BuildRace } from "@/lib/builds/types";
 import { ROUTE_LEVELS, type RouteLevel } from "@/lib/creep-routes/types";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Submit a creep route",
   description:
     "Click camps on the map to build a Warcraft III creep route and share it. A coach reviews it and publishes it with your name on it.",
+  path: "/learn/creep-routes/submit",
   robots: { index: false },
-};
+});
 
 // `?map=&race=&vs=&level=` prefills the setup row — a "start a route for
 // this matchup" link (e.g. the list page's "Be the first to add one" empty

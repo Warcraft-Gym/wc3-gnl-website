@@ -14,13 +14,14 @@ import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES, getCategory, type LearnCategory } from "@/lib/learn/data";
 import { getLatestGuides } from "@/lib/learn/guides";
 import { learnArt } from "@/lib/learn/art";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Learn Warcraft III: guides for every race",
   description:
     "Free Warcraft III guides: Human, Orc, Night Elf and Undead strategy, creep routes, game mechanics and build orders for new and returning players.",
-  alternates: { canonical: "/learn" },
-};
+  path: "/learn",
+});
 
 export default async function LearnPage() {
   const newPlayers = getCategory("new-players")!;

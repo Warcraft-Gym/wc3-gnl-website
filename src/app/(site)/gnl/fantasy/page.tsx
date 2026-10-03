@@ -11,6 +11,7 @@ import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getFantasy, getSeason, getSeasons } from "@/lib/api/gnl";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 import { DASHBOARD_URL } from "@/lib/links";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -18,12 +19,12 @@ type Props = { searchParams: Promise<SeasonSearchParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const season = await getSeason(parseSeasonParam((await searchParams).season));
-  return {
+  return pageMetadata({
     title: season ? `${season.shortName} Fantasy League` : "Fantasy League",
     description:
       "Draft a fantasy team, place bets on series, and climb the fantasy standings.",
-    alternates: { canonical: "/gnl/fantasy" },
-  };
+    path: "/gnl/fantasy",
+  });
 }
 
 const STEPS = [

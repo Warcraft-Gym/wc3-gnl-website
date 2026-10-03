@@ -10,6 +10,7 @@ import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getSeason, getSeasons, getWeeks, getWeekFixtures } from "@/lib/api/gnl";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 import { WeekSummary } from "@/components/league/WeekSummary";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 // Reads ?season=, so it renders per request like the other league pages.
 export const dynamic = "force-dynamic";
@@ -22,11 +23,11 @@ type Params = {
 export async function generateMetadata({ params, searchParams }: Params): Promise<Metadata> {
   const [{ week }, query] = await Promise.all([params, searchParams]);
   const season = await getSeason(parseSeasonParam(query.season));
-  return {
+  return pageMetadata({
     title: `${season?.shortName ?? "GNL"} schedule, week ${week}`,
     description: `Gym Newbie League fixtures and results for week ${week}${season ? ` of ${season.shortName}` : ""}: every series, map score and player matchup.`,
-    alternates: { canonical: `/gnl/schedule/${week}` },
-  };
+    path: `/gnl/schedule/${week}`,
+  });
 }
 
 export default async function ScheduleWeekPage({ params, searchParams }: Params) {

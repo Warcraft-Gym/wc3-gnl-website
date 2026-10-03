@@ -3,12 +3,13 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { PostCard } from "@/components/blog/PostCard";
 import { getPosts } from "@/lib/content";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "News",
   description: "News, season recaps and announcements from the Warcraft 3 Gym community.",
-  alternates: { canonical: "/blog" },
-};
+  path: "/blog",
+});
 
 export default async function BlogPage() {
   const { posts } = await getPosts();

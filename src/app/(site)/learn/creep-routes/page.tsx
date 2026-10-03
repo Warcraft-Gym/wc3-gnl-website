@@ -17,6 +17,7 @@ import { getCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { ROUTE_LEVELS, type CreepRoute, type RouteLevel } from "@/lib/creep-routes/types";
 import { BUILD_RACES, type BuildRace, type BuildVsRace } from "@/lib/builds/types";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 /** Buckets an already-sorted route list by map, groups ordered
  *  alphabetically by map name (the list's default, filter-free view has no
@@ -34,18 +35,15 @@ function groupRoutesByMap(routes: CreepRoute[]) {
   return [...groups.values()].sort((a, b) => a.map.name.localeCompare(b.map.name));
 }
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Warcraft III creep routes",
   description:
     "Warcraft III creep routes for every race and map: which camps to clear, and in what order. Written by Gym coaches and the community.",
   // Filters live in the query string; the list is one page to search engines.
-  alternates: { canonical: "/learn/creep-routes" },
-  openGraph: {
-    title: "Warcraft III creep routes · Warcraft 3 Gym",
-    description: "Creep routes for every race and map. Submit your own.",
-    images: [{ url: "/graphics/creep-routes-1.webp", width: 1600, height: 900 }],
-  },
-};
+  path: "/learn/creep-routes",
+  shareDescription: "Creep routes for every race and map. Submit your own.",
+  images: [{ url: "/og/creep-routes.jpg", width: 1200, height: 630 }],
+});
 
 type Search = {
   race?: string;

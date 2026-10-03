@@ -7,6 +7,7 @@ import { DataSourceNote } from "@/components/DataSourceNote";
 import { PastSeasonNote } from "@/components/league/PastSeasonNote";
 import { getSeason, getSeasons, getStandings } from "@/lib/api/gnl";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -14,11 +15,11 @@ type Props = { searchParams: Promise<SeasonSearchParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const season = await getSeason(parseSeasonParam((await searchParams).season));
-  return {
+  return pageMetadata({
     title: season ? `${season.shortName} standings` : "GNL standings",
     description: `The Gym Newbie League team ladder${season ? ` for ${season.shortName}` : ""}: wins, losses, map differential and points.`,
-    alternates: { canonical: "/gnl/standings" },
-  };
+    path: "/gnl/standings",
+  });
 }
 
 export default async function StandingsPage({ searchParams }: Props) {

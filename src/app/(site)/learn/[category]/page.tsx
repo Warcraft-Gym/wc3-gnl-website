@@ -15,6 +15,7 @@ import { filterBuilds, getBuilds } from "@/lib/builds/builds";
 import { BuildRow } from "@/components/builds/BuildRow";
 import { ButtonLink } from "@/components/ui/Button";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 type Params = { params: Promise<{ category: string }> };
 
@@ -32,20 +33,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const cat = getCategory(category);
   if (!cat) return { title: "Learn" };
   const title = cat.kind === "race" ? `${cat.title} guides and build orders` : `${cat.title} guides`;
-  return {
+  // No `opengraph-image` route of its own: pageMetadata supplies the site card.
+  return pageMetadata({
     title,
     description: `${cat.blurb} Free Warcraft III ${cat.title} guides from the Gym coaches.`,
-    alternates: { canonical: `/learn/${cat.id}` },
-    openGraph: {
-      title: `${title} · Warcraft 3 Gym`,
-      description: cat.blurb,
-      url: `/learn/${cat.id}`,
-      // Declaring `openGraph` at all replaces the root object, and this
-      // segment has no `opengraph-image` route of its own — so without this
-      // line these pages ship no share image whatsoever.
-      images: [{ url: "/opengraph-image.jpg", width: 1200, height: 630 }],
-    },
-  };
+    path: `/learn/${cat.id}`,
+    shareDescription: cat.blurb,
+  });
 }
 
 export default async function LearnCategoryPage({ params }: Params) {
