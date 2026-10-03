@@ -18,6 +18,7 @@ import { parseSeasonParam as parseSeason, withSeason, type SeasonSearchParams } 
 import { cn, RACES, type Race } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, sportsTeamJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 // Reads ?season= and the live backend, so it renders per request like the
 // other league pages.
@@ -35,12 +36,14 @@ export async function generateMetadata({ params, searchParams }: Params): Promis
   const data = await getTeamPage(slug, parseSeason(season));
   if (!data) return { title: "Team" };
   const { team } = data;
-  return {
+  return pageMetadata({
     title: `${team.name}, ${data.season.shortName} team`,
     description: `${team.name} in the Gym Newbie League ${data.season.shortName}: roster, captains, standing, fixtures and series.`,
     // One canonical per team: the newest season's page.
-    alternates: { canonical: `/gnl/teams/${team.slug}` },
-  };
+    path: `/gnl/teams/${team.slug}`,
+    // The share image is the generated card in opengraph-image.tsx.
+    ownCard: true,
+  });
 }
 
 /** One headline figure with its label; the scope sits in the section kicker. */

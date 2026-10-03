@@ -14,13 +14,14 @@ import { currentKings } from "@/lib/koth/current-kings";
 import { bracketArt } from "@/lib/koth/bracket-art";
 import { formatNextEvent, isPast } from "@/lib/koth/next-event";
 import { LocalEventTime } from "@/components/koth/LocalEventTime";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "King of the Hill",
   description:
     "The Gym's casual weekly King of the Hill: best-of-one, winner stays on, three MMR brackets. When the next one runs, who holds each crown, and how to join.",
-  alternates: { canonical: "/king-of-the-hill" },
-};
+  path: "/king-of-the-hill",
+});
 
 /** A bulleted list, used for the built-in copy when the CMS has none. The CMS
  *  version of the same section comes through `PortableBody` instead. */

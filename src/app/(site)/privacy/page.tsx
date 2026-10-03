@@ -4,13 +4,14 @@ import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { DISCORD_URL, GITHUB_ISSUES_URL } from "@/lib/links";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Privacy",
   description:
     "What the Warcraft 3 Gym site collects and why: page analytics you can decline, build orders you submit, and league data from public sources. No accounts, no advertising.",
-  alternates: { canonical: "/privacy" },
-};
+  path: "/privacy",
+});
 
 const SECTIONS = [
   {

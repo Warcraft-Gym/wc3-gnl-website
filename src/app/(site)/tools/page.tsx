@@ -11,13 +11,14 @@ import { urlFor } from "@/sanity/image";
 import type { LucideIcon } from "lucide-react";
 import { Wrench } from "lucide-react";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Tools",
   description:
     "Community-made Warcraft III tools: the W3Champions ladder, replay parsers, build order overlays, streaming tools, creep route and hotkey trainers.",
-  alternates: { canonical: "/tools" },
-};
+  path: "/tools",
+});
 
 type CardProps = {
   href: string;

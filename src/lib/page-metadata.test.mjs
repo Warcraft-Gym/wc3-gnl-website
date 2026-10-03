@@ -76,3 +76,57 @@ test("a page declaring openGraph also gives it an image, or has its own card rou
   }
   assert.deepEqual(bad, [], `these declare openGraph with no image and no card route:\n  ${bad.join("\n  ")}`);
 });
+
+test("every page builds its metadata with pageMetadata, so link previews carry its own title and url", () => {
+  // Next merges `openGraph` and `twitter` per key, so a page that sets only
+  // `title` and `description` keeps the home page's og:title and an og:url of
+  // the site root, and Facebook, LinkedIn and WhatsApp show the home page card.
+  const bare = [];
+  for (const { route, file } of all) {
+    if (EXEMPT.has(route)) continue;
+    const src = readFileSync(file, "utf8");
+    if (!/\bpageMetadata\(/.test(src) || /openGraph:\s*\{/.test(src)) bare.push(route);
+  }
+  assert.deepEqual(bare, [], `these set metadata without pageMetadata:\n  ${bare.join("\n  ")}`);
+});
+
+test("ownCard is passed exactly where the route has its own opengraph-image", () => {
+  // ownCard leaves `images` out so the route's card supplies og:image. Without
+  // it, the site card hides the route's card; with it on a route that has no
+  // card, the page ships no share image at all.
+  const wrong = [];
+  for (const { route, file } of all) {
+    if (EXEMPT.has(route)) continue;
+    const src = readFileSync(file, "utf8");
+    const saysOwnCard = /ownCard:\s*true/.test(src);
+    const ownCard = readdirSync(dirname(file)).some((f) => f.startsWith("opengraph-image"));
+    if (saysOwnCard !== ownCard) wrong.push(`${route} (ownCard: ${saysOwnCard}, card route: ${ownCard})`);
+  }
+  assert.deepEqual(wrong, [], wrong.join("\n  "));
+});
+
+test("there is no twitter-image file: it would win over every route's own card on X", () => {
+  const files = [];
+  const walk = (dir) => {
+    for (const entry of readdirSync(dir)) {
+      const full = join(dir, entry);
+      if (statSync(full).isDirectory()) walk(full);
+      else if (entry.startsWith("twitter-image")) files.push(full.slice(APP.length));
+    }
+  };
+  walk(APP);
+  assert.deepEqual(files, []);
+});
+
+test("share images are JPG or PNG: Discord, Facebook, LinkedIn and WhatsApp handle webp previews poorly", () => {
+  // /learn/builds shared a 1600x900 webp and Discord showed only a blurred
+  // placeholder. Share cards live in public/og/ at 1200x630.
+  const webp = [];
+  for (const { route, file } of all) {
+    const src = readFileSync(file, "utf8");
+    for (const m of src.matchAll(/images:\s*\[\s*\{\s*url:\s*"([^"]+)"/g)) {
+      if (!/\.(jpe?g|png)$/i.test(m[1])) webp.push(`${route}: ${m[1]}`);
+    }
+  }
+  assert.deepEqual(webp, [], `these pages share a non-JPG/PNG preview image:\n  ${webp.join("\n  ")}`);
+});

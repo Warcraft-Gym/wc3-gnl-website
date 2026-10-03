@@ -15,6 +15,7 @@ import { getLadder, getSeason, getSeasons } from "@/lib/api/gnl";
 import { record, signed } from "@/lib/figures.mjs";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 import { GNL_LADDER_LIVE } from "@/lib/flags";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 export const dynamic = "force-dynamic";
 
@@ -22,12 +23,12 @@ type Props = { searchParams: Promise<SeasonSearchParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
   const season = await getSeason(parseSeasonParam((await searchParams).season));
-  return {
+  return pageMetadata({
     title: season ? `${season.shortName} ladder challenge` : "GNL ladder challenge",
     description:
       `The Gym Newbie League ladder challenge${season ? ` in ${season.shortName}` : ""}: W3Champions games played during the season earn points and achievements for your team.`,
-    alternates: { canonical: "/gnl/ladder" },
-  };
+    path: "/gnl/ladder",
+  });
 }
 
 const fmt = new Intl.NumberFormat("en-US");

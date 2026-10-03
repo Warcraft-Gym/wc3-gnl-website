@@ -15,6 +15,7 @@ import { BuildRow } from "@/components/builds/BuildRow";
 import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 /** The faction art for the four race categories; topics get the shared scene. */
 const RACE_ART: Partial<Record<string, string>> = {
@@ -48,21 +49,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     ? urlFor(guide.coverImage).width(1200).height(630).fit("crop").auto("format").url()
     : undefined;
   const description = metaDescription(guide.excerpt);
-  return {
+  return pageMetadata({
     title: category ? `${guide.title} (${category.title} guide)` : guide.title,
-    description: description,
-    alternates: { canonical: `/learn/guide/${guide.slug}` },
-    openGraph: {
-      type: "article",
-      title: guide.title,
-      description: description,
-      url: `/learn/guide/${guide.slug}`,
-      publishedTime: guide.publishedAt,
-      section: category?.title,
-      ...(image ? { images: [{ url: image, width: 1200, height: 630 }] } : {}),
-    },
-    twitter: { card: "summary_large_image", title: guide.title, description: description },
-  };
+    description,
+    path: `/learn/guide/${guide.slug}`,
+    article: { publishedTime: guide.publishedAt, section: category?.title },
+    // The cover image when the guide has one, the site card otherwise.
+    images: image ? [{ url: image, width: 1200, height: 630 }] : undefined,
+  });
 }
 
 export default async function GuidePage({ params }: Params) {

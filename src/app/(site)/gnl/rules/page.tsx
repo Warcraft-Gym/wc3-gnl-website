@@ -4,12 +4,13 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { Surface } from "@/components/ui/Surface";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { FALLBACK_RULES, getGnlRules } from "@/lib/gnl/rules";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "GNL rules and format",
   description: "How a Gym Newbie League season works: sign-ups, the draft, weekly best-of-three series, points and playoffs.",
-  alternates: { canonical: "/gnl/rules" },
-};
+  path: "/gnl/rules",
+});
 
 
 /** Same wording as the date on a creep route: a plain, unambiguous day. */

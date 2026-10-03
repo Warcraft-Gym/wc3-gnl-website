@@ -8,18 +8,16 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { OVERLAY_RELEASES_URL, getOverlayRelease } from "@/lib/overlay";
 import { OVERLAY_BETA_LIVE } from "@/lib/flags";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/tools/overlay" },
+export const metadata: Metadata = pageMetadata({
+  path: "/tools/overlay",
   title: "Build order overlay",
   description:
     "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",
-  openGraph: {
-    title: "Build order overlay · Warcraft 3 Gym",
-    description: "Float any build order over the game, with a play-along clock and global shortcuts.",
-    images: [{ url: "/overlay/in-game.webp", width: 1920, height: 1080 }],
-  },
-};
+  shareDescription: "Float any build order over the game, with a play-along clock and global shortcuts.",
+  images: [{ url: "/og/overlay.jpg", width: 1200, height: 630 }],
+});
 
 const POINTS = [
   {
@@ -47,7 +45,7 @@ const STEPS = [
 ];
 
 const SHORTCUTS = [
-  ["Toggle overlay", "Ctrl+Shift+O", "⌘⇧O"],
+  ["Toggle build order", "Ctrl+Shift+B", "⌘⇧B"],
   ["Play / pause clock", "Ctrl+Shift+P", "⌘⇧P"],
   ["Reset clock", "Ctrl+Shift+R", "⌘⇧R"],
   ["Next step", "Ctrl+Shift+]", "⌘⇧]"],
@@ -129,9 +127,9 @@ export default async function OverlayPage() {
           {/* Phones stack the picker under the game shot; wider screens tuck it over the corner */}
           <Image
             src="/overlay/picker.webp"
-            alt="The overlay's build picker window: race filters, search and the list of builds with a Use in game button on each."
+            alt="The overlay's build picker window: the selected build with its first steps, race filters, search and the list of builds with a Use button on each."
             width={1920}
-            height={1280}
+            height={1290}
             sizes="(max-width: 640px) 100vw, 24rem"
             className="mt-4 h-auto w-full rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:absolute sm:-bottom-16 sm:right-[-3%] sm:mt-0 sm:w-[24rem]"
           />
@@ -198,7 +196,7 @@ export default async function OverlayPage() {
                 ))}
               </tbody>
             </table>
-            <p className="mt-3 text-xs text-faint">Every combo can be changed in the app&apos;s Settings.</p>
+            <p className="mt-3 text-xs text-faint">Every combo can be changed in the app&apos;s Settings tab.</p>
           </More>
 
           <More title="Your own private builds">
@@ -216,7 +214,7 @@ export default async function OverlayPage() {
 
           <More title="Make a build from a replay or a W3Champions match">
             <p>
-              Import replay (top bar) reads a <span className="font-mono text-xs text-fg">.w3g</span> file and lists both players; pick the one you were. Import up to trims how much of the game becomes steps (eight minutes by default), and you can leave upgrades and items out. Open in editor lands the draft in the build editor to tidy up. From W3Champions does the same from a match link: the replay is fetched from their public API, nothing is uploaded.
+              Import replay (in the header of the Builds tab) reads a <span className="font-mono text-xs text-fg">.w3g</span> file and lists both players; pick the one you were. Import up to trims how much of the game becomes steps (eight minutes by default), and you can leave upgrades and items out. Open in editor lands the draft in the build editor to tidy up. From W3Champions does the same from a match link: the replay is fetched from their public API, nothing is uploaded.
             </p>
             <p className="mt-3">
               Windows keeps replays in Documents\Warcraft III\BattleNet\&lt;account&gt;\Replays; on macOS they are in ~/Library/Application Support/Blizzard/Warcraft III, with the last game at Replay/LastReplay.w3g.

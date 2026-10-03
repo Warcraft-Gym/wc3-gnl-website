@@ -24,6 +24,7 @@ import { breadcrumbJsonLd, howToJsonLd } from "@/lib/seo";
 import { CREEP_ROUTES_LIVE } from "@/lib/flags";
 import { getRoutesForBuild } from "@/lib/creep-routes/routes";
 import { RouteRow } from "@/components/creep-routes/RouteRow";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -40,22 +41,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const vs = build.vsRaces.length ? ` vs ${vsLabel(build.vsRaces)}` : "";
   const title = `${build.title}: ${race}${vs} build order`;
   const description = metaDescription(build.summary);
-  return {
+  return pageMetadata({
     title,
     description,
-    alternates: { canonical: `/learn/builds/${build.slug}` },
-    openGraph: {
-      title,
-      description,
-      type: "article",
-      url: `/learn/builds/${build.slug}`,
-      publishedTime: build.publishedAt,
-      modifiedTime: build.updatedAt,
-      authors: [build.author],
-      // The share image is the generated card in opengraph-image.tsx.
-    },
-    twitter: { card: "summary_large_image", title, description },
-  };
+    path: `/learn/builds/${build.slug}`,
+    article: { publishedTime: build.publishedAt, modifiedTime: build.updatedAt, authors: [build.author] },
+    // The share image is the generated card in opengraph-image.tsx.
+    ownCard: true,
+  });
 }
 
 function formatDate(iso: string) {

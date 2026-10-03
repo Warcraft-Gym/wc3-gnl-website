@@ -8,13 +8,14 @@ import { ButtonLink } from "@/components/ui/Button";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL } from "@/lib/links";
 import { ABOUT as about } from "@/lib/content/about";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About the GNL",
   description:
     "The Gym Newbie League is a team league with solo matches, created by the Gym Discord community for new and veteran players alike. Skill level doesn't matter.",
-  alternates: { canonical: "/gnl/about" },
-};
+  path: "/gnl/about",
+});
 
 const BENEFIT_ICONS = [Swords, GraduationCap, Users2];
 
