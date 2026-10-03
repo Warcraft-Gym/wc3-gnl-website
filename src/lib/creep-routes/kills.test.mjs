@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { addKill, campKills, creepsLeft, flatKillItems, flatKills, joinWithPrevious, killRows, killStepsByRow, killUnits, killedXpShare, killsProblem, mergeKills, removeKillAt, splitSet, unorderedCreeps, validKills, wedgePath } from "./kills.mjs";
+import { addKill, campKills, creepsLeft, flatKillItems, flatKills, joinWithPrevious, killRows, killStepsByRow, killUnits, killedXpShare, killsProblem, mergeKills, removeKillAt, splitSet, unorderedCreeps, validKills, halfPath } from "./kills.mjs";
 
 // Shaped like Last Refuge c04: two Forest Troll rows split by item drop.
 const CAMP = {
@@ -60,8 +60,8 @@ test("addKill merges a repeat of the last row and stops at the row's count", () 
   assert.equal(addKill(kills, 2, COUNTS), kills);
 });
 
-test("wedgePath draws a half circle for one half, from 12 o'clock", () => {
-  assert.equal(wedgePath(10, 10, 5, 0.5), "M10 10L10 5A5 5 0 0 1 10.00 15.00Z");
+test("halfPath cuts the upper-left half on the diagonal", () => {
+  assert.equal(halfPath(10, 10, 5), "M13.54 6.46A5 5 0 0 0 6.46 13.54Z");
 });
 
 test("unorderedCreeps lists each creep not in the kill list, one per creep", () => {

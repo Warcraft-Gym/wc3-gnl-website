@@ -1,6 +1,6 @@
 import { memo } from "react";
 import type { CampCardTrigger, MapCamp } from "@/lib/creep-routes/types";
-import { wedgePath } from "@/lib/creep-routes/kills.mjs";
+import { halfPath } from "@/lib/creep-routes/kills.mjs";
 import { BAND_TOKEN } from "./RouteBadges";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -55,16 +55,11 @@ export const CampMarker = memo(function CampMarker({
   /** Whether the camp already has a stop on the route being edited (F005's
    *  editor) or read (F009's route page); exposed as `aria-pressed`. */
   pressed?: boolean;
-  /** F012-followup-3: this camp is interactive but NOT one of the route's
-   *  own stops — fades the outer halo ring (`rgba(255,255,255,.55)` down to
-   *  `.22`) so a route's own camps still read as the emphasised ones (they
-   *  also carry the numbered badge and the path, drawn by `RoutePath`, and
-   *  `pressed`'s `aria-pressed`/", on the route" — this is the marker's own,
-   *  purely visual, third cue). Deliberately subtle: the band colour fill
-   *  itself is untouched, so the camp is still fully readable at a glance. */
+  /** Not one of the route's stops: the band fill at 75% with a thin dashed
+   *  halo, no thicker than a stop's border. */
   secondary?: boolean;
   /** Share of the camp's creeps this route kills, when below 1: the band
-   *  fill becomes a wedge of that share over a faded full disc. */
+   *  fill becomes a solid diagonal half over a faded full disc. */
   killed?: number;
   onCampSelect?: (campId: string) => void;
   /** See the component doc comment: renders the `<g>` itself as the click
@@ -130,26 +125,26 @@ export const CampMarker = memo(function CampMarker({
       {/* Liquipedia's hard-band red is only ~3:1 against black on its own
        *  (see globals.css); this light halo — drawn just outside the dark
        *  under-stroke below — keeps every band's mark readable against any
-       *  terrain colour, light or dark. `secondary` fades it (not the band
-       *  fill itself) — see the prop's doc comment above. */}
+       *  terrain colour, light or dark. `secondary` dashes it. */}
       <circle
         cx={cx}
         cy={cy}
         r={r + 1.5}
         fill="none"
-        stroke={secondary ? "rgba(255,255,255,.22)" : "rgba(255,255,255,.55)"}
-        strokeWidth="1.5"
+        stroke="rgba(255,255,255,.55)"
+        strokeWidth={secondary ? 1 : 1.5}
+        strokeDasharray={secondary ? "2 1.5" : undefined}
       />
       <circle
         cx={cx}
         cy={cy}
         r={r}
         fill={fill}
-        fillOpacity={partial ? 0.3 : 1}
+        fillOpacity={partial ? 0.6 : secondary ? 0.75 : 1}
         stroke={highlighted ? "var(--wg-gold)" : "var(--wg-bg)"}
-        strokeWidth={highlighted ? 2 : 1.5}
+        strokeWidth={highlighted ? 2 : secondary ? 1 : 1.5}
       />
-      {partial ? <path d={wedgePath(cx, cy, r - 0.75, killed)} fill={fill} /> : null}
+      {partial ? <path d={halfPath(cx, cy, r - 0.75)} fill={fill} /> : null}
     </g>
   );
 
