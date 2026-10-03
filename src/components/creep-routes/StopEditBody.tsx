@@ -132,7 +132,7 @@ export function StopEditBody({
   function removeUnit(id: number) {
     onChange({ units: stop.units.filter((u) => u.id !== id) });
   }
-  const iconButton = "grid size-9 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
+  const iconButton = "grid size-9 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
 
   return (
     <div className="min-w-0 space-y-3">
