@@ -245,6 +245,11 @@ export const creepRoute = defineType({
         rule.required().custom((stops) => countStops((stops ?? []) as never[]) >= 2 || "Add at least two stops"),
         rule.custom((stops) => countStops((stops ?? []) as never[]) <= MAX_STOPS || CAP_OVER.stops).warning(),
         rule.custom((stops) => rowCount((stops ?? []) as never[]) <= MAX_ROWS || CAP_OVER.rows).warning(),
+        // As the submit check: an "xor" split never rejoins, so it is the last stop.
+        rule.custom((stops) => {
+          const list = (stops ?? []) as { _type?: string; mode?: string }[];
+          return list.every((s, i) => !(s._type === "creepSplit" && s.mode === "xor") || i === list.length - 1) || "Nothing follows an either/or split";
+        }),
       ],
       // `name: "stop"` keeps `_type: "stop"` on every stored stop, so existing documents stay valid.
       of: [
@@ -484,6 +489,12 @@ export const creepSplit = defineType({
   name: "creepSplit",
   title: "Split",
   type: "object",
+  // As the submit check: the reader chooses an "or" / "xor" path by its label.
+  validation: (rule) =>
+    rule.custom((split) => {
+      const v = (split ?? {}) as { mode?: string; arms?: { label?: string }[] };
+      return v.mode === "and" || (v.arms ?? []).every((arm) => arm.label?.trim()) || "Say when to take this path";
+    }),
   fields: [
     defineField({
       name: "mode",
