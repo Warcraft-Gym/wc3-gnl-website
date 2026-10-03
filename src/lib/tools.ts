@@ -36,7 +36,7 @@ export const GYM_TOOLS: Tool[] = [
     Icon: MonitorPlay,
     title: "Build order overlay",
     badge: "Beta",
-    body: "A desktop app that floats a build order over Warcraft III while you play, scouts your W3Champions opponent when a 1v1 starts and shows your own strengths and weaknesses. Keeps your private builds and turns a replay or a W3Champions match into one.",
+    body: "A desktop app that floats a build order over Warcraft III while you play, with a clock and global shortcuts. Keeps your private builds and turns a replay or a W3Champions match into one.",
   },
 ];
 
