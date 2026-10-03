@@ -42,7 +42,7 @@ export const metadata: Metadata = pageMetadata({
   // Filters live in the query string; the list is one page to search engines.
   path: "/learn/creep-routes",
   shareDescription: "Creep routes for every race and map. Submit your own.",
-  images: [{ url: "/graphics/creep-routes-1.webp", width: 1600, height: 900 }],
+  images: [{ url: "/og/creep-routes.jpg", width: 1200, height: 630 }],
 });
 
 type Search = {

@@ -16,7 +16,7 @@ export const metadata: Metadata = pageMetadata({
   description:
     "A desktop app that shows a Warcraft 3 Gym build order on top of Warcraft III while you play, with a clock and global shortcuts. Keep private builds and import them from a replay or a W3Champions match. Windows and macOS, beta.",
   shareDescription: "Float any build order over the game, with a play-along clock and global shortcuts.",
-  images: [{ url: "/overlay/in-game.webp", width: 1920, height: 1080 }],
+  images: [{ url: "/og/overlay.jpg", width: 1200, height: 630 }],
 });
 
 const POINTS = [

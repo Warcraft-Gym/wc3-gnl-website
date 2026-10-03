@@ -117,3 +117,16 @@ test("there is no twitter-image file: it would win over every route's own card o
   walk(APP);
   assert.deepEqual(files, []);
 });
+
+test("share images are JPG or PNG: Discord, Facebook, LinkedIn and WhatsApp handle webp previews poorly", () => {
+  // /learn/builds shared a 1600x900 webp and Discord showed only a blurred
+  // placeholder. Share cards live in public/og/ at 1200x630.
+  const webp = [];
+  for (const { route, file } of all) {
+    const src = readFileSync(file, "utf8");
+    for (const m of src.matchAll(/images:\s*\[\s*\{\s*url:\s*"([^"]+)"/g)) {
+      if (!/\.(jpe?g|png)$/i.test(m[1])) webp.push(`${route}: ${m[1]}`);
+    }
+  }
+  assert.deepEqual(webp, [], `these pages share a non-JPG/PNG preview image:\n  ${webp.join("\n  ")}`);
+});

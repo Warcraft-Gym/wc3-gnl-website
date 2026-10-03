@@ -25,7 +25,7 @@ export const metadata: Metadata = pageMetadata({
   // Filters live in the query string; the list is one page to search engines.
   path: "/learn/builds",
   shareDescription: "Build orders for every race and matchup, with a play-along clock. Submit your own.",
-  images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
+  images: [{ url: "/og/builds.jpg", width: 1200, height: 630 }],
 });
 
 type Search = {
