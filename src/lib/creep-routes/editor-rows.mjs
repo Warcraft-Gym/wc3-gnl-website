@@ -158,6 +158,39 @@ export function moveRowTo(rows, id, at) {
   return insertAt(removeRow(rows, id), { ...at, index }, row);
 }
 
+/** Where an arrow moves row `id` (-1 up, 1 down), for `moveRowTo`, so arrows and drag share one rule:
+ *  one place in its own list; from a path's first stop up (last stop down) to just above (below) its
+ *  split; from the main list onto a split, into its shown path (`shown`: tab by split id; path a in
+ *  "and", where every path shows) at the near end. A split swaps with its neighbour as one block.
+ *  Null at either end of the route. */
+export function stepTarget(rows, id, dir, shown = {}) {
+  const from = locate(rows, id);
+  if (!from) return null;
+  const list = listAt(rows, from);
+  const j = from.index + dir;
+  if (from.splitId !== undefined) {
+    if (j >= 0 && j < list.length) return { ...from, index: dir < 0 ? j : j + 1 };
+    const s = rows.findIndex((r) => r.id === from.splitId);
+    return { index: dir < 0 ? s : s + 1 };
+  }
+  const next = rows[j];
+  if (!next) return null;
+  if (next.split && !list[from.index].split) {
+    const arm = next.split.mode === "and" ? 0 : Math.min(shown[next.id] ?? 0, next.split.arms.length - 1);
+    return { splitId: next.id, arm, index: dir < 0 ? next.split.arms[arm].stops.length : 0 };
+  }
+  return { index: dir < 0 ? j : j + 1 };
+}
+
+/** The arrow's accessible name: what the move does when it crosses a split's edge, else "Move up" or "Move down". */
+export function stepName(rows, id, dir, shown = {}) {
+  const from = locate(rows, id);
+  const to = stepTarget(rows, id, dir, shown);
+  if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the split";
+  if (from && to && from.splitId === undefined && to.splitId !== undefined) return `Move into path ${to.arm + 1}`;
+  return dir < 0 ? "Move up" : "Move down";
+}
+
 /** Where a drop lands, from the zone under the pointer: a stop row (`row`, its key "3" or "2.a.1")
  *  before or `after` it; a split's `caption` (its index, `arm` the shown path) before the split, or
  *  after it into the shown path (a dragged split goes after the whole block instead); an empty

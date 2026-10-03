@@ -131,3 +131,24 @@ describe("RouteSubmitForm: the submit check opens the stop it names", () => {
     expect(container.querySelector('li[data-stop="2"]')).toHaveAttribute("aria-current", "step");
   });
 });
+
+describe("RouteSubmitForm: the arrows move a stop into and out of a split", () => {
+  it("names the crossing move and keeps focus on the moved stop's arrow", async () => {
+    const [a, b, c] = maps[0].camps;
+    const split = { mode: "or", arms: [{ label: "Fast", stops: [{ campId: b.id }] }, { label: "Safe", stops: [{ campId: c.id }] }] };
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: null, split }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelector('li[data-stop="1"]')).toBeInTheDocument());
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Move into path 1" }));
+    await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move down"));
+    expect(screen.getByRole("button", { name: "Move out of the split" })).toBeEnabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Move out of the split" }));
+    // Back first: up is disabled, so focus lands on the other arrow.
+    await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move into path 1"));
+    expect(screen.getByRole("button", { name: /^Undo: move stop/ })).toBeInTheDocument();
+  });
+});

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GripVertical, Plus } from "lucide-react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
@@ -18,7 +18,6 @@ import {
   newRow,
   newSplitRow,
   patchRow,
-  placeInList,
   removePath,
   removeRow,
   removeSplit,
@@ -27,7 +26,9 @@ import {
   sameCampSequence,
   setArmLabel,
   type DropZone,
+  type ListPlace,
 } from "./stop-rows";
+import { stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
@@ -72,7 +73,8 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * when the split's caption (a tab) is selected, else at the end; a camp already
  * in that list is selected instead. A drag handle on every row moves it (native
  * drag and drop on desktop; a split moves as a block and never into a path); the
- * open stop's arrows move it on a keyboard or phone; its trash removes it.
+ * open stop's arrows make the same moves on a keyboard or phone (`stepTarget`),
+ * into and out of a split's paths too; its trash removes it.
  * "Remove path" and "Remove split" keep the model whole. Every change but typing
  * calls `remember` first, so the form can undo it; typing in one field is one
  * step until the field loses focus.
@@ -136,6 +138,16 @@ export function RouteEditor({
   // The row being dragged and the drop zone under the pointer.
   const [drag, setDrag] = useState<number | null>(null);
   const [over, setOver] = useState<{ zone: string; after: boolean } | null>(null);
+  // After an arrow move, focus goes back to the moved stop's arrow: its body remounts at the new place.
+  const refocus = useRef<-1 | 1 | null>(null);
+  const listRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const dir = refocus.current;
+    if (dir === null) return;
+    refocus.current = null;
+    const arrows = [...(listRef.current?.querySelectorAll<HTMLButtonElement>("[data-move]:not(:disabled)") ?? [])];
+    (arrows.find((b) => b.dataset.move === String(dir)) ?? arrows[0])?.focus();
+  }, [stops]);
 
   /** A row's name in an undo label: "stop 3", "waypoint", "split". */
   const nameOf = (id: number) => {
@@ -254,7 +266,7 @@ export function RouteEditor({
     const d = arm === undefined ? derived.stops[index] : derived.stops[index]?.split?.arms[arm]?.stops[j!];
     // An "and" block is one XP event: its chains carry no level-up marks.
     const inAnd = arm !== undefined && derived.stops[index]?.split?.mode === "and";
-    const { index: at, length } = placeInList(stops, row.id);
+    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir, tabs) as ListPlace | null;
     return (
       <StopEditBody
         stop={row}
@@ -272,11 +284,17 @@ export function RouteEditor({
           setSelectedId(null);
         }}
         onMove={(dir) => {
+          const at = target(dir);
+          if (!at) return;
           step(`move ${nameOf(row.id)}`);
-          setStops((rows) => moveRow(rows, row.id, dir));
+          setStops(moveRowTo(stops, row.id, at));
+          if (at.splitId !== undefined && at.arm !== undefined) setTabs((t) => ({ ...t, [at.splitId!]: at.arm! }));
+          refocus.current = dir;
         }}
-        canMoveUp={at > 0}
-        canMoveDown={at < length - 1}
+        canMoveUp={target(-1) !== null}
+        canMoveDown={target(1) !== null}
+        upLabel={stepName(stops, row.id, -1, tabs)}
+        downLabel={stepName(stops, row.id, 1, tabs)}
         trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
         absent={row.hero === false || d?.hero === false}
         heroIcon={heroIcon}
@@ -481,7 +499,7 @@ export function RouteEditor({
           </div>
         ) : null}
       </div>
-      <div className="min-w-0">
+      <div ref={listRef} className="min-w-0">
         <RouteStepTable
           route={route}
           map={map}

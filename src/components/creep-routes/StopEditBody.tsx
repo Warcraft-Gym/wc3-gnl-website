@@ -89,6 +89,8 @@ export function StopEditBody({
   onMove,
   canMoveUp,
   canMoveDown,
+  upLabel = "Move up",
+  downLabel = "Move down",
   trace,
   absent,
   heroIcon,
@@ -103,6 +105,9 @@ export function StopEditBody({
   onMove: (dir: -1 | 1) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
+  /** The arrows' names, which say when a move enters or leaves a split ("Move into path 2"). */
+  upLabel?: string;
+  downLabel?: string;
   /** This stop's `deriveRoute` kill trace, for the kill order chain. */
   trace?: DerivedKill[];
   /** Derived hero off: its own flag, or a later path of an "and" split. */
@@ -241,10 +246,10 @@ export function StopEditBody({
 
       <div className="flex items-center gap-1">
         <p className="mr-auto text-[0.65rem] text-faint">A coach can add pictures in the Studio after review</p>
-        <button type="button" onClick={() => onMove(-1)} disabled={!canMoveUp} aria-label="Move up" className={iconButton}>
+        <button type="button" onClick={() => onMove(-1)} disabled={!canMoveUp} aria-label={upLabel} title={upLabel} data-move="-1" className={iconButton}>
           <ArrowUp size={16} />
         </button>
-        <button type="button" onClick={() => onMove(1)} disabled={!canMoveDown} aria-label="Move down" className={iconButton}>
+        <button type="button" onClick={() => onMove(1)} disabled={!canMoveDown} aria-label={downLabel} title={downLabel} data-move="1" className={iconButton}>
           <ArrowDown size={16} />
         </button>
         <button type="button" onClick={onRemove} aria-label="Remove stop" className={cn(iconButton, "hover:border-loss/60 hover:text-loss")}>
