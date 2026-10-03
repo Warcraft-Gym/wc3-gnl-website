@@ -245,3 +245,28 @@ test("a legacy free-text patch survives 'Suggest an update' as a real option", a
   assert.equal(prefilled, "2.0");
   assert.equal(isKnownPatch(prefilled), true, "so resubmitting it does not fail validation");
 });
+
+test("each stop keeps its Sanity key and its picture count, never a picture", () => {
+  const img = { url: "https://cdn.sanity.io/images/p/d/abc-200x150.png", width: 200, height: 150, alt: "Spot" };
+  const route = {
+    slug: "x",
+    title: "T",
+    map: { slug: "autumn-leaves" },
+    race: "human",
+    summary: "s",
+    author: "a",
+    stops: [
+      { _key: "s1", campId: "c01", images: [img, img] },
+      { _key: "n1", _type: "creepSplit", split: { mode: "or", arms: [{ label: "Fast", stops: [{ _key: "s2", campId: "c02", images: [img] }] }, { label: "Safe", stops: [{ campId: "c03" }] }] } },
+    ],
+  };
+  const [first, node] = decodeHref(routeEditHref(route)).route.stops;
+  assert.equal(first.key, "s1");
+  assert.equal(first.pictures, 2);
+  assert.equal(node.key, undefined);
+  assert.equal(node.split.arms[0].stops[0].key, "s2");
+  assert.equal(node.split.arms[0].stops[0].pictures, 1);
+  assert.equal(node.split.arms[1].stops[0].key, undefined);
+  assert.equal(node.split.arms[1].stops[0].pictures, undefined);
+  assert.ok(!JSON.stringify(first).includes("cdn.sanity.io"));
+});

@@ -71,10 +71,11 @@ export function toExchangeRoute(route) {
   };
 }
 
-/** One camp, place or base-action stop without Sanity's keys and nulls. */
-// ponytail: pictures stay with the coach; a resubmitted route arrives without them until a coach copies them over.
+/** One camp, place or base-action stop without Sanity's nulls. It keeps its `_key` as `key`, so the server copies its pictures; the link carries only their count. */
 function exchangeStop(s) {
   return {
+    key: s._key || undefined,
+    pictures: s.images?.length || undefined,
     campId: s.campId ?? null,
     action: s.action || undefined,
     units: s.units?.length ? s.units.map((u) => ({ icon: u.icon, count: u.count })) : undefined,

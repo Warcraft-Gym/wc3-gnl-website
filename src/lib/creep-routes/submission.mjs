@@ -32,6 +32,8 @@ export const STOP_NOTE_MAX = 600;
 export const STOP_CONDITION_MAX = 120;
 
 const RACE_IDS = ["human", "orc", "nightelf", "undead"];
+/** A Sanity array `_key`: letters, digits, `_` and `-`. */
+const STOP_KEY = /^[A-Za-z0-9_-]{1,64}$/;
 const ROUTE_LEVEL_IDS = ["standard", "beginner"];
 
 /** Field-level messages keyed by path ("title", "stops.2.action"). */
@@ -62,6 +64,8 @@ function baseStopSchema(iconSet, splitField) {
        *  expansion); a camp stop names the camp id instead. Camp contents
        *  are never authored here, only looked up by id against the map. */
       campId: z.string().trim().min(1).nullable(),
+      /** The `_key` of the published stop this one updates; the server copies that stop's pictures. */
+      key: z.string().regex(STOP_KEY, "Invalid stop key").optional(),
       action: z.string().trim().max(60, "Max 60 characters").optional(),
       units: z.array(unitSchema(iconSet)).max(6, "Up to 6").optional(),
       note: z.string().trim().max(STOP_NOTE_MAX, `Max ${STOP_NOTE_MAX} characters`).optional(),
@@ -440,5 +444,6 @@ function draftStop(s) {
     leaveRest: s.campId && s.kills?.length && s.leaveRest ? true : undefined,
     place: s.place ? { ...s.place } : undefined,
     hero: s.hero === false && (s.campId || s.place) ? false : undefined,
+    images: s.images?.length ? s.images : undefined,
   };
 }

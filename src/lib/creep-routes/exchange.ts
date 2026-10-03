@@ -25,6 +25,10 @@ const unitSchema = z.object({
 });
 
 const stopSchema = z.object({
+  /** The published stop's `_key` on a "Suggest an update" link: the server copies that stop's pictures. */
+  key: z.string().optional(),
+  /** How many pictures the published stop has, shown in the builder; the server never reads it. */
+  pictures: z.number().optional(),
   campId: z.string().nullable().default(null),
   action: z.string().optional(),
   units: z.array(unitSchema).optional(),

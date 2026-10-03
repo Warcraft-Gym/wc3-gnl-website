@@ -580,7 +580,8 @@ route projection resolves each to its asset url and size (`STOP_IMAGES` in
 file of at most `MAX_IMAGE_BYTES` (5 MB; `caps.mjs`). The projection drops a
 picture with no file and keeps the first 3. Public submissions take
 no pictures yet (uploads need abuse limits); the submit form says a coach can
-add them after review, and "Suggest an update" does not carry them. The API
+add them after review, and "Suggest an update" keeps them (see "Editing a
+submitted route"). The API
 makes a site-relative url absolute. The dev fixtures carry no pictures.
 
 - **List.** Under the note, a strip of 4:3 thumbnails, 200×150 on desktop
@@ -1481,10 +1482,21 @@ built server-side, so it sits in the HTML rather than waiting on hydration.
 the link exactly as the form does: the encoder lives with the page and the
 decoder with the form, and nothing but agreement on the payload binds them.
 
+Each stop in the link keeps its Sanity `_key` as `key` and its picture count
+as `pictures`; the open stop in the builder says "2 pictures stay with this
+stop". The browser never sends a picture. The submission schema accepts `key`
+only in the shape of a Sanity key and drops anything else the browser adds.
+When the submission names a route it replaces, the server action reads that
+route's stops (a split's path stops too) and copies `images` onto each new stop
+whose `key` names an old stop (`keepImages`, `keep-images.mjs`). A new stop or
+an unknown key gets no pictures; a removed stop takes its pictures with it. A
+failed read loses the pictures, not the submission.
+
 What happens then:
 
 1. The new submission arrives `pending`, like any other, with a `supersedes`
-   reference to the old document resolved server-side from the slug.
+   reference to the old document resolved server-side from the slug, and the
+   pictures of every stop it kept.
 2. A coach reviews it. Approving the replacement is the moment to set the old
    route's **Review** to **Archived** — a third `reviewStatus` alongside
    Pending and Approved, which hides a document from the site without

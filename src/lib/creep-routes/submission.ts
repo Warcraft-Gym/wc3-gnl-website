@@ -15,6 +15,10 @@ import type { Place } from "./types";
 export type FieldErrors = Record<string, string>;
 
 export type StopInput = {
+  /** The `_key` of the stop this one updates, from a "Suggest an update" link. */
+  key?: string;
+  /** Pictures the server copies from the superseded route (`keepImages`); never from the browser. */
+  images?: unknown[];
   campId: string | null;
   action?: string;
   units?: { icon: string; count: number }[];

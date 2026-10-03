@@ -516,3 +516,28 @@ test("caps: the submit check repeats the builder's cap lines past 12 stops, 20 r
   const paths = s.safeParse(payload({ stops: [{ campId: "c01" }, four] }));
   assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "This split is over the cap of 3 paths. Ask on Discord if you need more.");
 });
+
+test("key: a Sanity-shaped stop key is kept, a malformed one is rejected, pictures from the browser are dropped", () => {
+  const split = { mode: "and", arms: [{ stops: [{ campId: "c02", key: "s2" }] }, { stops: [{ campId: "c03" }] }] };
+  const ok = schema().safeParse(payload({ stops: [{ campId: "c01", key: "a1B2-c3_d4" }, { campId: null, split }] }));
+  assert.equal(ok.success, true);
+  assert.equal(ok.data.stops[0].key, "a1B2-c3_d4");
+  assert.equal(ok.data.stops[1].split.arms[0].stops[0].key, "s2");
+  for (const key of ["bad key", "s1.x", "", "k".repeat(65), 7]) {
+    const bad = schema().safeParse(payload({ stops: [{ campId: "c01", key }, { campId: "c02" }] }));
+    assert.equal(bad.success, false, `accepted ${JSON.stringify(key)}`);
+    assert.ok(flattenErrors(bad.error)["stops.0.key"]);
+  }
+  const forged = schema().safeParse(payload({ stops: [{ campId: "c01", images: [{ asset: { _ref: "image-x" } }] }, { campId: "c02" }] }));
+  assert.equal(forged.data.stops[0].images, undefined);
+});
+
+test("the draft carries the pictures the server copied, under a fresh key", () => {
+  const ok = schema().safeParse(payload({ stops: [{ campId: "c01", key: "s1" }, { campId: "c02" }] }));
+  const images = [{ _type: "image", _key: "i1", asset: { _type: "reference", _ref: "image-a" } }];
+  const draft = toCreepRouteDraft({ ...ok.data, stops: [{ ...ok.data.stops[0], images }, ok.data.stops[1]] }, "creepMap-autumn-leaves");
+  assert.deepEqual(draft.stops[0].images, images);
+  assert.notEqual(draft.stops[0]._key, "s1");
+  assert.equal(draft.stops[0].key, undefined);
+  assert.equal(draft.stops[1].images, undefined);
+});

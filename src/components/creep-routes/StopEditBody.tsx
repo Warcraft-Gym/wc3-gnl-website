@@ -14,6 +14,10 @@ import { cn } from "@/lib/utils";
 export type UnitRow = { id: number; icon: string; count: string };
 export type StopRowData = {
   id: number;
+  /** The published stop's `_key` on an update: the server copies that stop's pictures. */
+  key?: string;
+  /** How many pictures the published stop has; they stay with the stop. */
+  pictures?: number;
   /** null is a base action; `action` names it. */
   campId: string | null;
   action: string;
@@ -245,7 +249,11 @@ export function StopEditBody({
       <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} />
 
       <div className="flex items-center gap-1">
-        <p className="mr-auto text-[0.65rem] text-faint">A coach can add pictures in the Studio after review</p>
+        <p className="mr-auto text-[0.65rem] text-faint">
+          {stop.pictures
+            ? `${stop.pictures} ${stop.pictures === 1 ? "picture stays" : "pictures stay"} with this stop`
+            : "A coach can add pictures in the Studio after review"}
+        </p>
         <button type="button" onClick={() => onMove(-1)} disabled={!canMoveUp} aria-label={upLabel} title={upLabel} data-move="-1" className={iconButton}>
           <ArrowUp size={16} />
         </button>
