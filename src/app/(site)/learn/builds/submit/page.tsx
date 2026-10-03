@@ -2,13 +2,14 @@ import type { Metadata } from "next";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { BuildSubmitForm } from "@/components/builds/BuildSubmitForm";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
-  alternates: { canonical: "/learn/builds/submit" },
+export const metadata: Metadata = pageMetadata({
+  path: "/learn/builds/submit",
   title: "Submit a build order",
   description: "Share a Warcraft III build order with the Gym. A coach reviews it and publishes it with your name on it.",
   robots: { index: false },
-};
+});
 
 export default function SubmitBuildPage() {
   return (

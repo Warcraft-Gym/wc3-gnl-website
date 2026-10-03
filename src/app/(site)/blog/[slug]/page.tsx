@@ -11,6 +11,7 @@ import { Container } from "@/components/ui/Container";
 import { PortableBody } from "@/components/sanity/PortableBody";
 import { PostCard } from "@/components/blog/PostCard";
 import { getPosts, getPostBySlug } from "@/lib/content";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 const CATEGORY_LABEL = {
   news: "News",
@@ -31,21 +32,14 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const post = await getPostBySlug(slug);
   if (!post) return { title: "Post not found" };
   const description = metaDescription(post.excerpt);
-  return {
+  return pageMetadata({
     title: post.title,
-    description: description,
-    alternates: { canonical: `/blog/${post.slug}` },
-    openGraph: {
-      title: post.title,
-      description: description,
-      type: "article",
-      url: `/blog/${post.slug}`,
-      publishedTime: post.publishedAt,
-      authors: [post.author],
-      images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
-    },
-    twitter: { card: "summary_large_image", title: post.title, description: description },
-  };
+    description,
+    path: `/blog/${post.slug}`,
+    article: { publishedTime: post.publishedAt, authors: [post.author] },
+    // The cover image when the post has one, the site card otherwise.
+    images: post.coverImageUrl ? [{ url: post.coverImageUrl }] : undefined,
+  });
 }
 
 export default async function PostPage({ params }: Params) {

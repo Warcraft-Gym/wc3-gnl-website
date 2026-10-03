@@ -11,6 +11,7 @@ import type { StandingRow } from "@/lib/api/types";
 import { record } from "@/lib/figures.mjs";
 import { cn } from "@/lib/utils";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 type Props = { searchParams: Promise<SeasonSearchParams> };
 
@@ -21,17 +22,17 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   const { champions } = await getChampions();
   const shown = selectSeason(champions, parseSeasonParam((await searchParams).season));
   if (!shown) {
-    return { title: "GNL champions", description: ALL_DESCRIPTION, alternates: { canonical: "/gnl/champions" } };
+    return pageMetadata({ title: "GNL champions", description: ALL_DESCRIPTION, path: "/gnl/champions" });
   }
   // No param is the newest season, the same convention the rest of the league
   // pages follow — so the newest season's canonical is the bare path, not a
   // second URL showing identical content.
   const isLatest = shown.season.number === champions[0]?.season.number;
-  return {
+  return pageMetadata({
     title: `${shown.season.shortName} champions`,
     description: `${shown.champion.team.name} won ${shown.season.shortName} of the Gym Newbie League. The final podium, with records and the write-up from the day.`,
-    alternates: { canonical: isLatest ? "/gnl/champions" : `/gnl/champions?season=${shown.season.number}` },
-  };
+    path: isLatest ? "/gnl/champions" : `/gnl/champions?season=${shown.season.number}`,
+  });
 }
 
 /** The season to show: the one asked for, or the newest. An unknown or

@@ -16,19 +16,17 @@ import {
   type BuildRace,
   type BuildVsRace,
 } from "@/lib/builds/types";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Warcraft III build orders",
   description:
     "Warcraft III build orders for every race and matchup, with food counts, timings and a play-along clock. Written by Gym coaches and the community.",
   // Filters live in the query string; the list is one page to search engines.
-  alternates: { canonical: "/learn/builds" },
-  openGraph: {
-    title: "Warcraft III build orders · Warcraft 3 Gym",
-    description: "Build orders for every race and matchup, with a play-along clock. Submit your own.",
-    images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
-  },
-};
+  path: "/learn/builds",
+  shareDescription: "Build orders for every race and matchup, with a play-along clock. Submit your own.",
+  images: [{ url: "/keyart/feature-undead-city.webp", width: 1600, height: 900 }],
+});
 
 type Search = {
   race?: string;

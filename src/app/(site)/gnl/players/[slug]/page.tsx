@@ -22,6 +22,7 @@ import { cn, RACES } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, profilePageJsonLd } from "@/lib/seo";
 import type { MatchStatus, PlayerSeries } from "@/lib/api/types";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 type Params = { params: Promise<{ slug: string }> };
 
@@ -48,11 +49,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { profile, path } = await loadProfile(slug);
   const { player, team } = profile;
   const about = [player.race ? RACES[player.race].label : null, team?.name].filter(Boolean).join(", ");
-  return {
+  return pageMetadata({
     title: `${player.name}, GNL player`,
     description: `${player.name}${about ? ` (${about})` : ""} in the Gym Newbie League: record and series in every season, W3Champions MMR and career stats.`,
-    alternates: { canonical: path },
-  };
+    path,
+    // The share image is the generated card in opengraph-image.tsx.
+    ownCard: true,
+  });
 }
 
 /** One headline number in the masthead block. */

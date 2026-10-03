@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/ui/PageHeader";
 import { GuideCard } from "@/components/learn/GuideCard";
 import { LEARN_CATEGORIES } from "@/lib/learn/data";
 import { getGuides } from "@/lib/learn/guides";
+import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 /**
  * Every guide on the site, in one page.
@@ -22,12 +23,12 @@ import { getGuides } from "@/lib/learn/guides";
  * segment wins over `[category]`, so `/learn/guides` never resolves as a
  * category slug.
  */
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "All Warcraft III guides",
   description:
     "Every guide on Warcraft 3 Gym: Human, Orc, Night Elf and Undead strategy, creep routes, game mechanics and guides for new players.",
-  alternates: { canonical: "/learn/guides" },
-};
+  path: "/learn/guides",
+});
 
 export default async function AllGuidesPage() {
   const guides = await getGuides();

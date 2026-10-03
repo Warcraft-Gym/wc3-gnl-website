@@ -9,6 +9,7 @@ import { GA_ENABLED } from "@/lib/analytics";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { organizationJsonLd, websiteJsonLd } from "@/lib/seo";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/site";
+import { OPEN_GRAPH_DEFAULTS, TWITTER_DEFAULTS } from "@/lib/share-metadata.mjs";
 
 // Cinzel is the closest open face to Friz Quadrata (the Warcraft display
 // type); Lato is what the official site uses for body copy.
@@ -56,17 +57,18 @@ export const metadata: Metadata = {
     "Night Elf",
     "Undead",
   ],
+  // The home page's own preview. Every other page replaces these objects
+  // through pageMetadata (src/lib/share-metadata.mjs), which keeps the same
+  // defaults. No twitter image: Next copies og:image into twitter:image, so X
+  // shows the same card as everyone else.
   openGraph: {
-    type: "website",
-    siteName: SITE_NAME,
-    locale: "en_US",
+    ...OPEN_GRAPH_DEFAULTS,
     title: `${SITE_NAME}: ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
     url: "/",
   },
   twitter: {
-    card: "summary_large_image",
-    site: "@wc3gym",
+    ...TWITTER_DEFAULTS,
     title: `${SITE_NAME}: ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
   },
