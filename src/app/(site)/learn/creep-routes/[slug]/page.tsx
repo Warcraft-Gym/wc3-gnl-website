@@ -275,7 +275,7 @@ export default async function CreepRoutePage({ params }: Params) {
         <div className="rivets relative z-10" aria-hidden />
       </div>
 
-      {/* "About this route" opens the page (v2.9, Daniel): a full-width band
+      {/* "About this route" opens the page: a full-width band
           between the banner and the map + stop list, so a reader gets the
           route's goal before its stops. Same heading and text as before; no
           empty-state placeholder (F009-followup-4): the band, heading
