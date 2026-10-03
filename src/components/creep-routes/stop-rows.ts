@@ -16,6 +16,7 @@ export function rowToStop(s: StopRowData): StopInput {
     };
   }
   return {
+    key: s.key,
     campId: s.campId,
     action: s.action || undefined,
     units: s.units.filter((u) => u.icon).map((u) => ({ icon: u.icon, count: Number(u.count) || 1 })),
@@ -41,6 +42,8 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
     });
   }
   return newRow({
+    key: s.key,
+    pictures: s.pictures,
     campId: s.campId,
     action: s.action ?? "",
     units: (s.units ?? []).map((u) => ({ id: Date.now() + Math.random(), icon: u.icon, count: String(u.count) })),

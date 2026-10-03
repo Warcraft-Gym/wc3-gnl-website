@@ -4,6 +4,7 @@ import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/re
 import { RouteSubmitForm } from "./RouteSubmitForm";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { EXCHANGE_FORMAT, IMPORT_HASH_KEY, encodeForHash } from "@/lib/creep-routes/exchange-codec.mjs";
+import { routeEditHref } from "@/lib/creep-routes/edit-link.mjs";
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...rest }: { href: string; children: React.ReactNode }) => (
@@ -150,5 +151,25 @@ describe("RouteSubmitForm: the arrows move a stop into and out of a split", () =
     // Back first: up is disabled, so focus lands on the other arrow.
     await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move into path 1"));
     expect(screen.getByRole("button", { name: /^Undo: move stop/ })).toBeInTheDocument();
+  });
+});
+
+describe("RouteSubmitForm: a stop keeps its key from the edit link to the submit", () => {
+  it("shows the pictures line and submits each stop's key, in a path too", async () => {
+    const [a, b, c] = maps[0].camps;
+    const split = { mode: "xor", arms: [{ label: "Fast", stops: [{ _key: "k2", campId: b.id }] }, { label: "Safe", stops: [{ campId: c.id }] }] };
+    const route = { title: "Old route", slug: "old-route", map: { slug: maps[0].slug }, stops: [{ _key: "k1", campId: a.id, images: [{}, {}] }, { split }] };
+    window.location.hash = routeEditHref(route)!.split("#")[1];
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-4" });
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelector('li[data-stop="1"]')).toBeInTheDocument());
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    expect(await screen.findByText("2 pictures stay with this stop")).toBeInTheDocument();
+
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
+    expect(stops[0].key).toBe("k1");
+    expect(stops[1].split.arms[0].stops[0].key).toBe("k2");
   });
 });
