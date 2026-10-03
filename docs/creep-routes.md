@@ -573,15 +573,15 @@ choose one, no number means a waypoint.
 
 `RouteStop.images` is `{ url, width, height, alt, caption? }[]`: screenshots of
 the exact spot, for what the minimap cannot show. A coach adds them in the
-Studio (the stop's "Pictures" field, drag and drop, images only; `alt` is required); the
+Studio (the stop's "Pictures" field, drag and drop; `alt` is required); the
 route projection resolves each to its asset url and size (`STOP_IMAGES` in
 `routes.ts`), in plain stops and in a split's paths. The Studio takes at most
 `MAX_STOP_IMAGES` (3) pictures per stop, JPEG, PNG or WebP only, each with a
 file of at most `MAX_IMAGE_BYTES` (5 MB; `caps.mjs`). The projection drops a
 picture with no file and keeps the first 3. Public submissions take
-no pictures yet (uploads need abuse limits); the submit form says a coach can
-add them after review, and "Suggest an update" keeps them (see "Editing a
-submitted route"). The API
+no pictures yet (uploads need abuse limits); the open stop says a coach can
+add them after review, or, on "Suggest an update", how many it keeps (see
+"Editing a submitted route"). The API
 makes a site-relative url absolute. The dev fixtures carry no pictures.
 
 - **List.** Under the note, a strip of 4:3 thumbnails, 200×150 on desktop
