@@ -502,6 +502,10 @@ every path; a continuation of only one path belongs inside that path.
 - **`xor`**: the reader chooses one path and it never rejoins; the schema
   rejects stops after an `xor` split ("Nothing follows an either/or split").
 
+The Studio repeats both checks as errors with the same words: an `or` or
+`xor` path with no label ("Say when to take this path") and a stop after an
+`xor` split.
+
 The builder offers two modes, "Choose a path" and "At the same time", and
 saves `or` or `xor` from the structure: stops after the split mean `or`,
 nothing after means `xor` (`savedMode` in `editor-rows.mjs`).
@@ -928,7 +932,10 @@ the dynamic `[category]` segment for that exact path). The guide
 `/learn/guide/understanding-creep-routes` (the old
 `/learn/guide/reading-creep-camps-and-drops` redirects there, `next.config.ts`); it embeds the route page's map, stop list and one open stop (`creepRoutePart` blocks: `CreepMapPlayground` with `show`, `only` or `startClosed`) and
 a playable kill order (`killOrderDemo` block in
-`PortableBody`, data in `src/lib/learn/creep-route-demo.mjs`).
+`PortableBody`, data in `src/lib/learn/creep-route-demo.mjs`). A live route
+block (`slugs`, `GuideRoutePart`) takes the first slug whose route has the
+section's feature (`needs`: split, and, waypoint or attack; `route-has.mjs`)
+and renders nothing when no route has it.
 `src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
 every other category) and every published route slug.
 
