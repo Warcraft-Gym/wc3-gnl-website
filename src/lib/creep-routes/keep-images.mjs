@@ -3,6 +3,7 @@
  * "Suggest an update" link names the published stop it updates (`key`, that stop's `_key`),
  * and the server copies that stop's `images` from the route the submission replaces.
  */
+import { MAX_STOP_IMAGES } from "./caps.mjs";
 
 /** `stops` (parsed submission stops) with `images` copied from `oldStops` (the replaced route's raw
  *  Sanity stops, splits' paths included). A stop gets pictures only when its `key` names an old stop
@@ -11,7 +12,9 @@ export function keepImages(stops, oldStops) {
   const byKey = new Map();
   for (const s of oldStops ?? []) {
     for (const t of [s, ...(s.arms ?? []).flatMap((a) => a.stops ?? [])]) {
-      if (t?._key && t.images?.length) byKey.set(t._key, t.images);
+      // The same pictures the reader shows: the ones with a file, up to the cap.
+      const images = (t?.images ?? []).filter((i) => i?.asset?._ref).slice(0, MAX_STOP_IMAGES);
+      if (t?._key && images.length) byKey.set(t._key, images);
     }
   }
   const keep = (s) => {

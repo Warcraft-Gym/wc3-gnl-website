@@ -24,6 +24,12 @@ test("a stop that names an old stop's key gets its pictures; a new stop gets non
   assert.equal(out[1].images, undefined);
 });
 
+test("only pictures with a file are copied, and at most the cap of 3", () => {
+  const five = [pic("image-a"), { _type: "image", _key: "k-none", alt: "no file" }, pic("image-c"), pic("image-d"), pic("image-e")];
+  const out = keepImages([{ key: "s1", campId: "c1" }], [{ _type: "stop", _key: "s1", campId: "c1", images: five }]);
+  assert.deepEqual(out[0].images.map((i) => i.asset._ref), ["image-a", "image-c", "image-d"]);
+});
+
 test("an unknown key, or a key whose stop has no pictures, gets none", () => {
   const out = keepImages([{ key: "zzz", campId: "c1" }, { key: "s2", campId: "c2" }, { key: "n1", campId: "c5" }], old);
   assert.deepEqual(out.map((s) => s.images), [undefined, undefined, undefined]);

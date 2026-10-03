@@ -426,7 +426,8 @@ export const creepStop = defineType({
             rule.custom(async (image, context) => {
               const ref = (image as { asset?: { _ref?: string } } | undefined)?.asset?._ref;
               if (!ref) return true;
-              const size = await context.getClient({ apiVersion }).fetch<number | null>("*[_id == $ref][0].size", { ref });
+              // A lookup that fails (Studio offline) passes: the check runs again on the next edit.
+              const size = await context.getClient({ apiVersion }).fetch<number | null>("*[_id == $ref][0].size", { ref }).catch(() => null);
               return !size || size <= MAX_IMAGE_BYTES || CAP_OVER.imageBytes;
             }),
           ],
