@@ -12,7 +12,7 @@ import { SectionTitle } from "./SectionTitle";
 import { CampCard } from "./CampCard";
 import { useCampCard } from "./useCampCard";
 import type { StopRowData } from "./StopEditBody";
-import { SAME_CAMP_LINE, popUndo, pushUndo, rowsToStops, sameCampSequence, stopToRow, type UndoEntry } from "./stop-rows";
+import { SAME_CAMP_LINE, popUndo, pushUndo, rowsToStops, sameCampSequence, stopToRow, type Selection, type UndoEntry } from "./stop-rows";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import type { CrestOption } from "@/components/builds/RaceCrestPicker";
 import type { IconRace } from "@/lib/builds/icons";
@@ -105,12 +105,15 @@ function RouteSubmitFormInner({
   const [stops, setStops] = useState<StopRowData[]>([]);
   // Undo for the stop list (`editor-rows.mjs`): earlier lists with what changed; no redo, gone on leaving the page.
   const [undo, setUndo] = useState<UndoEntry[]>([]);
-  const remember = (label: string) => setUndo((u) => pushUndo(u, stops, label));
+  const remember = (label: string, sel: Selection | null) => setUndo((u) => pushUndo(u, stops, label, sel));
+  // The last undo's entry, a new object each time: the builder puts back its selection when the selected row is gone.
+  const [undone, setUndone] = useState<UndoEntry | null>(null);
   const undoLast = () => {
     const top = popUndo(undo);
     if (!top) return;
     setStops(top.entry.rows);
     setUndo(top.stack);
+    setUndone(top.entry);
   };
   // Ctrl+Z (Cmd+Z) undoes the last stop-list change when focus is not in a text field.
   useEffect(() => {
@@ -393,6 +396,7 @@ function RouteSubmitFormInner({
               stops={stops}
               setStops={setStops}
               remember={remember}
+              undone={undone}
               start={start}
               onStartChange={setStart}
               iconRace={(race && race !== "any" ? (race as IconRace) : undefined)}

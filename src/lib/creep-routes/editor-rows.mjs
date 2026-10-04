@@ -297,9 +297,10 @@ export function setArmLabel(rows, splitId, arm, label, commit = false) {
 /** Undo: the stop list is one value, so undo is a stack of earlier lists with what changed; no redo. */
 export const UNDO_CAP = 50;
 
-/** The stack with `rows` (the list before a change) and its `label` on top, at most `UNDO_CAP` deep. */
-export function pushUndo(stack, rows, label) {
-  return [...stack, { rows, label }].slice(-UNDO_CAP);
+/** The stack with `rows` (the list before a change), its `label` and the builder's selection then (`sel`)
+ *  on top, at most `UNDO_CAP` deep. */
+export function pushUndo(stack, rows, label, sel = null) {
+  return [...stack, { rows, label, sel }].slice(-UNDO_CAP);
 }
 
 /** The top entry and the stack without it; null when there is nothing to undo. */

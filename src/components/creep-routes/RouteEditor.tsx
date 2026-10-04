@@ -31,7 +31,9 @@ import {
   setArmLabel,
   type DropZone,
   type ListPlace,
+  type Selection,
   type SplitSetup,
+  type UndoEntry,
 } from "./stop-rows";
 import { stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
@@ -94,6 +96,7 @@ export function RouteEditor({
   stops,
   setStops,
   remember,
+  undone,
   start,
   onStartChange,
   iconRace,
@@ -108,8 +111,10 @@ export function RouteEditor({
   map: CreepMapType;
   stops: StopRowData[];
   setStops: React.Dispatch<React.SetStateAction<StopRowData[]>>;
-  /** Called before a change with what it does ("remove stop 3"): the form keeps the undo stack. */
-  remember?: (label: string) => void;
+  /** Called before a change with what it does ("remove stop 3") and the selection then: the form keeps the undo stack. */
+  remember?: (label: string, sel: Selection | null) => void;
+  /** The entry the form's last undo put back, a new object per undo. */
+  undone?: UndoEntry | null;
   /** Index into `map.starts`: your base. Only a map with more than two starts gets a picker. */
   start: number;
   onStartChange: (start: number) => void;
@@ -130,7 +135,7 @@ export function RouteEditor({
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
   // The selected row; on a split, `after` puts the next-stop row right after it ("Continue the route here").
-  const [sel, setSel] = useState<{ id: number; after?: boolean } | null>(null);
+  const [sel, setSel] = useState<Selection | null>(null);
   const selectedId = sel?.id ?? null;
   const setSelectedId = (id: number | null) => setSel(id === null ? null : { id });
   const selectedKey = selectedId === null ? null : keyOfRow(stops, selectedId);
@@ -159,11 +164,12 @@ export function RouteEditor({
   });
   // Bring and the condition of a camp stop stay open once opened, by row id, so they survive a move.
   const [opened, setOpened] = useState<Record<string, true>>({});
-  // Escape closes the split form and stops waiting for a waypoint's spot.
+  // Escape in the editor closes the split form and stops waiting for a waypoint's spot; an Escape a
+  // popover already took (`defaultPrevented`) or one outside the editor does not.
   useEffect(() => {
     if (!setup && !pointArmed) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key !== "Escape") return;
+      if (e.key !== "Escape" || e.defaultPrevented || !rootRef.current?.contains(e.target as Node)) return;
       focusTo.current = setup ? '[data-focus="split"]' : WAYPOINT;
       setSetup(null);
       setPointArmed(false);
@@ -202,8 +208,19 @@ export function RouteEditor({
   const step = (label: string, field?: string) => {
     if (field && typing.current === field) return;
     typing.current = field ?? null;
-    remember?.(label);
+    remember?.(label, sel);
   };
+  // After an undo the selected row may be gone (undo of "add split"): the selection, and with it the
+  // next-stop row, goes back to where it was before that action. Adjusted during render, like the errors below.
+  const [seenUndo, setSeenUndo] = useState(undone);
+  if (undone !== seenUndo) {
+    setSeenUndo(undone);
+    if (sel && !locate(stops, sel.id)) setSel(undone?.sel ?? null);
+    if (pending !== null && !locate(stops, pending)) {
+      setPending(null);
+      setPointArmed(false);
+    }
+  }
 
   /** Selects a row (the next-stop row moves after it); closes the split form and an armed waypoint. */
   const select = (id: number | null, scroll = false, after = false) => {

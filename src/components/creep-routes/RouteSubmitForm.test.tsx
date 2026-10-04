@@ -206,6 +206,23 @@ describe("RouteSubmitForm: the next-stop row and the split form", () => {
     fireEvent.click(screen.getByRole("button", { name: "Path B is empty. Add its stops" }));
     expect(screen.getByText("Adds stop 3b to path B (Risky).")).toBeInTheDocument();
   });
+
+  it("puts the next-stop row back where it was when an undo takes the split away", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    fireEvent.click(await screen.findByRole("button", { name: "Split here" }));
+    fireEvent.click(screen.getByText("Both at the same time"));
+    fireEvent.click(screen.getByRole("button", { name: "Start path 1" }));
+    expect(container.querySelector("li[data-split]")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Undo: add split/ }));
+    expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    expect(screen.getByText("Adds stop 2 after stop 1.")).toBeInTheDocument();
+  });
 });
 
 describe("RouteSubmitForm: the split form's third path", () => {

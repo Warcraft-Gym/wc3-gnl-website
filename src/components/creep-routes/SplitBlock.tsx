@@ -103,8 +103,14 @@ export function SplitCaption({ stopKey, mode, main, lanes, edit, dnd }: { stopKe
 /** Where the letter disc sits: the middle of the name field (8px padding + half of 32px). */
 const HEAD_Y = 24;
 
-/** A path's heading row: its letter on its lane, its name (a field in a pick-one split), how many stops it has. */
-export function PathHead({ mode, arm, here, count, empty, lines, lane, edit, dnd }: { mode: string; arm: number; here: boolean; count: number; empty: boolean; lines: RailLine[]; lane: string; edit: SplitEdit; dnd?: Dnd }) {
+/** What a path holds: "2 stops", "1 stop · 1 waypoint", "1 waypoint", "empty". */
+const held = (count: number, waypoints: number) =>
+  [count ? `${count} ${count === 1 ? "stop" : "stops"}` : "", waypoints ? `${waypoints} ${waypoints === 1 ? "waypoint" : "waypoints"}` : ""]
+    .filter(Boolean)
+    .join(" · ") || "empty";
+
+/** A path's heading row: its letter on its lane, its name (a field in a pick-one split), what it holds. */
+export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit, dnd }: { mode: string; arm: number; here: boolean; count: number; waypoints: number; lines: RailLine[]; lane: string; edit: SplitEdit; dnd?: Dnd }) {
   const name = pathName(mode, arm);
   const error = edit.pathError(arm);
   return (
@@ -139,7 +145,7 @@ export function PathHead({ mode, arm, here, count, empty, lines, lane, edit, dnd
             )}
           />
         )}
-        <span className="tnum shrink-0 text-[0.8rem] text-muted">{empty ? "empty" : `${count} ${count === 1 ? "stop" : "stops"}`}</span>
+        <span className="tnum shrink-0 text-[0.8rem] text-muted">{held(count, waypoints)}</span>
         <button
           type="button"
           onClick={() => edit.onRemovePath(arm)}

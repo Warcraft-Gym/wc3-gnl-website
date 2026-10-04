@@ -56,8 +56,6 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
   });
 }
 
-/** The split mode chips in order, "Choose a path" first (a new split's mode). */
-export const SPLIT_MODES = editorRows.SPLIT_MODES as { id: "and" | "or"; label: string }[];
 /** A new split row: empty paths with these labels (two by default), "Choose a path" by default. */
 export const newSplitRow = editorRows.newSplitRow as (mode?: "and" | "or", labels?: string[]) => StopRowData;
 /** The split form before "Start path A": the mode and the paths' names. */
@@ -110,9 +108,11 @@ export const SAME_CAMP_LINE = editorRows.SAME_CAMP_LINE as string;
 export const sameCampSequence = editorRows.sameCampSequence as (split: StopRowData["split"] | undefined) => boolean;
 /** Sets a path label as typed; `commit` trims it (on blur). */
 export const setArmLabel = editorRows.setArmLabel as (rows: StopRowData[], splitId: number, arm: number, label: string, commit?: boolean) => StopRowData[];
-/** One undo entry: the stop list before a change and what changed. */
-export type UndoEntry = { rows: StopRowData[]; label: string };
-export const pushUndo = editorRows.pushUndo as (stack: UndoEntry[], rows: StopRowData[], label: string) => UndoEntry[];
+/** The builder's selected row; on a split, `after` puts the next-stop row right after it. */
+export type Selection = { id: number; after?: boolean };
+/** One undo entry: the stop list before a change, what changed and the selection then. */
+export type UndoEntry = { rows: StopRowData[]; label: string; sel: Selection | null };
+export const pushUndo = editorRows.pushUndo as (stack: UndoEntry[], rows: StopRowData[], label: string, sel?: Selection | null) => UndoEntry[];
 export const popUndo = editorRows.popUndo as (stack: UndoEntry[]) => { entry: UndoEntry; stack: UndoEntry[] } | null;
 
 /** Applies `update` to the stops of arm `arm` of the split row `splitId`. */

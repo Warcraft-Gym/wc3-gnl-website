@@ -77,7 +77,7 @@ function NoteField({ value, onChange, camp }: { value: string; onChange: (v: str
   );
 }
 
-const iconButton = "grid size-7 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
+const iconButton = "grid size-9 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
 const addButton =
   "inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2.5 text-xs text-muted hover:border-gold/50 hover:text-gold";
 
@@ -102,13 +102,13 @@ export function StopTools({
   return (
     <span className="relative flex flex-col gap-1 sm:-my-1 sm:flex-row">
       <button type="button" onClick={() => onMove(-1)} disabled={!canMoveUp} aria-label={upLabel} title={upLabel} data-move="-1" className={iconButton}>
-        <ArrowUp size={15} />
+        <ArrowUp size={16} />
       </button>
       <button type="button" onClick={() => onMove(1)} disabled={!canMoveDown} aria-label={downLabel} title={downLabel} data-move="1" className={iconButton}>
-        <ArrowDown size={15} />
+        <ArrowDown size={16} />
       </button>
       <button type="button" onClick={onRemove} aria-label="Remove stop" title="Remove stop" className={cn(iconButton, "hover:border-loss/60 hover:text-loss")}>
-        <Trash2 size={15} />
+        <Trash2 size={16} />
       </button>
     </span>
   );

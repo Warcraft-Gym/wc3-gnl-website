@@ -120,8 +120,9 @@ export function builderRows(stops, choice = {}, slot = null) {
       const here = isSlot(i, a);
       if (a > 0) rows.push({ type: "sep", key: `${n.key}.sep.${a}`, mode, group, marks: [] });
       const from = rows.length;
-      const count = arm.stops.filter((s) => !isWaypoint(s)).length;
-      rows.push({ type: "head", key: `${n.key}.head.${a}`, index: i, arm: a, lane, mode, here, count, empty: !arm.stops.length, group, marks: [ids[a]] });
+      const waypoints = arm.stops.filter(isWaypoint).length;
+      const count = arm.stops.length - waypoints;
+      rows.push({ type: "head", key: `${n.key}.head.${a}`, index: i, arm: a, lane, mode, here, count, waypoints, group, marks: [ids[a]] });
       const entries = [...arm.stops];
       if (here) entries.splice(slot.j, 0, null);
       let j = 0;

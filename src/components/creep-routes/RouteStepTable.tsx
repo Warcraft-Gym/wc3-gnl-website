@@ -28,7 +28,7 @@ type Lanes = { lane: string; off: boolean }[];
 type BuilderRow =
   | ((LaneRow & { type: "stop" | "split" }) & { group?: string })
   | { type: "slot"; key: string; label: string; lane: string; lines: RailLine[]; group?: string }
-  | { type: "head"; key: string; index: number; arm: number; lane: string; mode: string; here: boolean; count: number; empty: boolean; lines: RailLine[]; group: string }
+  | { type: "head"; key: string; index: number; arm: number; lane: string; mode: string; here: boolean; count: number; waypoints: number; lines: RailLine[]; group: string }
   | { type: "sep"; key: string; mode: string; lines: RailLine[]; group: string }
   | { type: "add"; key: string; index: number; arm: number; mode: string; length: number; lines: RailLine[]; group: string }
   | { type: "more"; key: string; index: number; lines: RailLine[]; group?: undefined }
@@ -226,7 +226,7 @@ export function RouteStepTable({
           arm={row.arm}
           here={row.here}
           count={row.count}
-          empty={row.empty}
+          waypoints={row.waypoints}
           lines={row.lines}
           lane={row.lane}
           edit={edit}

@@ -122,7 +122,7 @@ test("builder: every path is a block, a heading, its stops, then an add row; or 
   const rows = builderRows(stops, {}, { index: 3, label: "4" });
   // The stop after the split goes on from the chosen path, a by default.
   assert.deepEqual(kinds(rows), ["1", "split", "head", "2a", "add", "sep", "head", "2b", "3b", "add", "more", "after", "3", "[4]"]);
-  assert.deepEqual(rows.filter((r) => r.type === "head").map((r) => [r.count, r.empty]), [[1, false], [2, false]]);
+  assert.deepEqual(rows.filter((r) => r.type === "head").map((r) => [r.count, r.waypoints]), [[1, 0], [2, 0]]);
   // Lane b curves out at the split, runs past block a and joins at the after row; lane a runs through.
   assert.equal(rail(rows[3]), "al^v b^v");
   assert.equal(rail(rows[11]), "a^v b^");

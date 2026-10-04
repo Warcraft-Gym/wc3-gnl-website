@@ -296,6 +296,9 @@ test("undo: a stack of earlier lists with labels, capped at 50, no redo", () => 
   assert.equal(top.entry.rows, b);
   assert.equal(popUndo(top.stack).entry.rows, a);
   assert.equal(popUndo([]), null);
+  // An entry keeps the builder's selection before the change, null by default.
+  assert.equal(top.entry.sel, null);
+  assert.deepEqual(pushUndo([], a, "add split", { id: 7 })[0].sel, { id: 7 });
   for (let i = 0; i < 60; i++) stack = pushUndo(stack, a, `edit ${i}`);
   assert.equal(stack.length, UNDO_CAP);
   assert.equal(stack[0].label, "edit 10");
