@@ -446,6 +446,12 @@
               "importNote": "2 ordered · 1 cancelled"
             },
             {
+              "time": "4:11",
+              "supply": "31",
+              "instruction": "Build Haunted Gold Mine",
+              "icon": "ud-haunted-mine"
+            },
+            {
               "time": "4:12",
               "supply": "31",
               "instruction": "Train Acolyte",
@@ -463,6 +469,12 @@
               "supply": "35",
               "instruction": "Build Nerubian Tower",
               "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "5:33",
+              "supply": "35",
+              "instruction": "Cancel Haunted Gold Mine",
+              "icon": "ud-haunted-mine"
             },
             {
               "time": "5:39",
@@ -529,7 +541,7 @@
                 "ordered": 2,
                 "cancelled": 1
               },
-              "20": {
+              "21": {
                 "ordered": 4,
                 "cancelled": 1
               }
@@ -982,6 +994,12 @@
               "importNote": "2 ordered · 1 cancelled"
             },
             {
+              "time": "4:11",
+              "supply": "31",
+              "instruction": "Build Haunted Gold Mine",
+              "icon": "ud-haunted-mine"
+            },
+            {
               "time": "4:12",
               "supply": "31",
               "instruction": "Train Acolyte",
@@ -999,6 +1017,12 @@
               "supply": "35",
               "instruction": "Build Nerubian Tower",
               "icon": "ud-nerubian-tower"
+            },
+            {
+              "time": "5:33",
+              "supply": "35",
+              "instruction": "Cancel Haunted Gold Mine",
+              "icon": "ud-haunted-mine"
             },
             {
               "time": "5:39",
@@ -1065,7 +1089,7 @@
                 "ordered": 2,
                 "cancelled": 1
               },
-              "20": {
+              "21": {
                 "ordered": 4,
                 "cancelled": 1
               }

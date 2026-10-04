@@ -302,6 +302,19 @@ export const SUPPORT_BUILD_TIME_S: Record<string, number> = {
   hatw: 50,
   otwt: 30,
   owtw: 40,
+  hctw: 65, // https://warcraft.wiki.gg/wiki/Cannon_Tower_(Warcraft_III)
+  // Shops and tech buildings (verified 2026-10-04, warcraft.wiki.gg). A
+  // missing id here made an Esc on it cancel some other pending building.
+  hvlt: 60, // https://warcraft.wiki.gg/wiki/Arcane_Vault_(Warcraft_III)
+  ovln: 60, // https://warcraft.wiki.gg/wiki/Voodoo_Lounge
+  eden: 60, // https://warcraft.wiki.gg/wiki/Ancient_of_Wonders
+  utom: 60, // https://warcraft.wiki.gg/wiki/Tomb_of_Relics
+  hlum: 60, // https://warcraft.wiki.gg/wiki/Lumber_Mill_(Warcraft_III)
+  hbla: 70, // https://warcraft.wiki.gg/wiki/Blacksmith_(Warcraft_III)
+  ofor: 70, // https://warcraft.wiki.gg/wiki/War_Mill
+  edob: 60, // https://warcraft.wiki.gg/wiki/Hunter%27s_Hall_(Warcraft_III)
+  etrp: 55, // https://warcraft.wiki.gg/wiki/Ancient_Protector_(Warcraft_III)
+  ugrv: 80, // https://warcraft.wiki.gg/wiki/Graveyard_(Warcraft_III)
 };
 
 /** `BUILD_TIME_S` (producer buildings) plus `SUPPORT_BUILD_TIME_S`

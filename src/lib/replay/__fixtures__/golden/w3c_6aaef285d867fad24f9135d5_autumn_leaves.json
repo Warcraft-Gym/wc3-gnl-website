@@ -300,6 +300,18 @@
               "icon": "ne-wisp"
             },
             {
+              "time": "2:44",
+              "supply": "27",
+              "instruction": "Build Tree of Life",
+              "icon": "ne-tree-of-life"
+            },
+            {
+              "time": "3:05",
+              "supply": "27",
+              "instruction": "Cancel Tree of Life",
+              "icon": "ne-tree-of-life"
+            },
+            {
               "time": "3:06",
               "supply": "27",
               "instruction": "Build Tree of Ages",
@@ -411,7 +423,7 @@
           ],
           "meta": {
             "cancelled": {
-              "30": {
+              "32": {
                 "ordered": 2,
                 "cancelled": 1
               }
@@ -718,6 +730,18 @@
               "icon": "ne-wisp"
             },
             {
+              "time": "2:44",
+              "supply": "27",
+              "instruction": "Build Tree of Life",
+              "icon": "ne-tree-of-life"
+            },
+            {
+              "time": "3:05",
+              "supply": "27",
+              "instruction": "Cancel Tree of Life",
+              "icon": "ne-tree-of-life"
+            },
+            {
               "time": "3:06",
               "supply": "27",
               "instruction": "Build Tree of Ages",
@@ -829,7 +853,7 @@
           ],
           "meta": {
             "cancelled": {
-              "30": {
+              "32": {
                 "ordered": 2,
                 "cancelled": 1
               }
