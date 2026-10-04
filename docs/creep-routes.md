@@ -587,7 +587,9 @@ choose one, no number means a waypoint.
   compact result holds `+XP` beside the hero's level and XP bar after all
   paths. A gold border around this small result means the hero levels during
   the split. No path gets a gold outline because either path can contain
-  the level-up kill. A path such as harass or shopping may add no XP.
+  the level-up kill. The path stops have no individual hero meters, even when
+  opened; each one still opens for its own kills, Bring and note. A path such
+  as harass or shopping may add no XP.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.
 - **Builder.** "Split here" in the next-stop row opens a short form (pick one

@@ -160,8 +160,7 @@ export function RouteStepTable({
               const node = derived.stops[row.index].split;
               return <JoinRow key={row.key} lanes={row.lanes} node={row.mode === "and" ? node : undefined} />;
             }
-            // Inside an "and" block the order across paths is unknown: the stop shows the level at the split.
-            const block = row.block !== undefined && row.node !== undefined ? derived.stops[row.node].split : undefined;
+            // Every "and" path shares one level and XP result at the join, in every disclosure state.
             return (
               <StopBlock
                 key={row.key}
@@ -186,7 +185,7 @@ export function RouteStepTable({
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
                 lane={row.lane}
                 dnd={dnd?.({ kind: "row", key: row.key })}
-                entry={block ? { level: block.levelBefore, xp: block.xpBefore } : undefined}
+                sharedXp={row.block !== undefined}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
                 tools={stopTools && open.has(row.key) ? stopTools(row.key) : undefined}
               />

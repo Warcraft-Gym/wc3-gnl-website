@@ -89,7 +89,7 @@ export function StopBlock({
   lane = "a",
   showHero = false,
   heroIcon,
-  entry,
+  sharedXp = false,
   dnd,
   tools,
 }: {
@@ -118,15 +118,14 @@ export function StopBlock({
   showHero?: boolean;
   /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
   heroIcon?: string;
-  /** A stop inside an "and" block: the hero at the split. The order across paths is unknown, so
-   *  the row has no level line, the chain no level-up marks, and the meter shows this level. */
-  entry?: { level: number; xp: number };
+  /** A stop inside an "and" block: its path shares one XP result at the join. */
+  sharedXp?: boolean;
   /** The builder: the row's drag handle (left of the number) and its drop handlers. */
   dnd?: { handle?: React.ReactNode; props: DropProps };
   /** The builder: move and remove (`StopTools`), on the open stop's summary line before the chevron. */
   tools?: React.ReactNode;
 }) {
-  const d = entry ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
+  const d = sharedXp ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
   const pin = isPin(stop);
   // A step the author has not named yet (the builder) reads as new, never as a bare dash.
@@ -177,7 +176,7 @@ export function StopBlock({
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={waypoint ? `${pin ? "Meanwhile, " : ""}${label}${where ? `, ${where}` : ""}` : camp && !entry ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
+          aria-label={waypoint ? `${pin ? "Meanwhile, " : ""}${label}${where ? `, ${where}` : ""}` : camp && !sharedXp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -230,8 +229,8 @@ export function StopBlock({
             ) : (
               <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
             )}
-            {camp && isOpen ? <HeroMeter level={entry?.level ?? d.heroLevelAfter} xp={entry?.xp ?? d.xpAfter} /> : null}
-            {camp && !isOpen && !entry ? (
+            {camp && isOpen && !sharedXp ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+            {camp && !isOpen && !sharedXp ? (
               <span className={cn("tnum shrink-0 pt-0.5 text-[0.8rem] text-muted", pictures && "ml-auto")}>
                 Lv {d.heroLevelAfter} · {d.xpAfter} xp
               </span>
