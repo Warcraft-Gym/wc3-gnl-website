@@ -149,7 +149,7 @@ export function SplitRow({
     tabs.current[next]?.focus();
   };
   return (
-    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : mode === "and" ? "py-2" : "py-1.5")}>
+    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5")}>
       <ForkRail main={main} lanes={lanes} />
       {choose
         ? lanes.map((l) => (
@@ -199,7 +199,7 @@ export function SplitRow({
         </div>
       ) : (
         <div className="flex min-w-0 items-start justify-between gap-2">
-          <span className="pt-1 text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
+          <span className="pt-0.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
           {mode === "and" && node ? <SplitXpSummary node={node} /> : null}
         </div>
       )}

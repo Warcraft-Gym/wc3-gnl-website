@@ -118,7 +118,7 @@ export function StopBlock({
   showHero?: boolean;
   /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
   heroIcon?: string;
-  /** A stop inside an "and" block: its path shares one XP result at the join. */
+  /** A stop inside an "and" block: no level of its own, the split heading shows the shared one. */
   sharedXp?: boolean;
   /** The builder: the row's drag handle (left of the number) and its drop handlers. */
   dnd?: { handle?: React.ReactNode; props: DropProps };

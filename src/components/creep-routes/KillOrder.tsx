@@ -66,7 +66,7 @@ function groupUnits(kills: DerivedKill[]) {
 }
 
 /** The "Lv N" tag under a kill's (or a group's) caption. */
-function LevelTag({ level, className }: { level: number; className?: string }) {
+export function LevelTag({ level, className }: { level: number; className?: string }) {
   return (
     <span aria-hidden className={cn(TAG, "tnum static mt-0.5 h-4 rounded-sm text-[0.65rem]", className)}>
       Lv {level}

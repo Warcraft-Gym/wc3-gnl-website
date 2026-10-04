@@ -312,7 +312,7 @@ export function RouteStepTable({
                 </li>
               );
             }
-            // An "and" block: all paths are listed, followed by their shared XP result.
+            // An "and" block: its paths' rows in one item; the split row above carries their shared XP.
             if (group.type === "block") {
               return [
                 renderRow(group.split),

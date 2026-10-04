@@ -8,18 +8,18 @@ const result = (levelBefore: number, levelAfter: number, xpBefore: number, xpGai
 });
 
 describe("XP shared by simultaneous paths", () => {
-  it("shows one level-up result after the paths, without marking a particular path", () => {
+  it("marks the level with the gold tag when the paths level the hero", () => {
     const html = renderToStaticMarkup(<SplitXpSummary node={result(2, 3, 480, 249)} />);
-    expect(html).toContain("+249 XP");
-    expect(html).not.toContain("About");
-    expect(html).toContain("Level up");
-    expect(html).toContain("Lv 3");
+    expect(html).toContain("+249 xp");
+    expect(html).toContain("Level up: Lv 3");
+    expect(html).toContain("text-gold");
   });
 
-  it("still shows the shared total when the paths do not level the hero", () => {
+  it("shows plain text when the paths do not level the hero", () => {
     const html = renderToStaticMarkup(<SplitXpSummary node={result(2, 2, 300, 87)} />);
-    expect(html).toContain("+87 XP");
+    expect(html).toContain("+87 xp");
     expect(html).toContain("Lv 2");
     expect(html).not.toContain("Level up");
+    expect(html).not.toContain("text-gold");
   });
 });

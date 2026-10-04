@@ -96,7 +96,7 @@ test("the first stop after an or split keeps its number in the list and on the m
   }
 });
 
-test("an and block's join row still shows the grouped total", () => {
+test("an and block's join row points at a split with a grouped total", () => {
   const map = { camps: ["c1", "c2", "c3"].map((id) => ({ id, level: 4, xp: 80, band: "easy", creeps: [{ id: "x", name: "X", level: 2, count: 2 }] })) };
   const stops = [camp("c1"), and([camp("c2")], [camp("c3")]), camp("c1")];
   const rows = routeRows(stops);
