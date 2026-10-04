@@ -11,6 +11,7 @@ import type { MapCamp, Place, PlaceKind, StopKill } from "@/lib/creep-routes/typ
 import { isPin } from "@/lib/creep-routes/place.mjs";
 import type { DerivedKill } from "@/lib/creep-routes/derive";
 import { STOP_NOTE_MAX, STOP_CONDITION_MAX } from "@/lib/creep-routes/submission.mjs";
+import { newId } from "@/lib/creep-routes/editor-rows.mjs";
 import { KillOrderField } from "./KillOrderField";
 import { cn } from "@/lib/utils";
 
@@ -200,7 +201,7 @@ export function StopEditBody({
   };
   function addUnit() {
     if (stop.units.length >= 6) return;
-    bringChange({ units: [...stop.units, { id: Date.now() + Math.random(), icon: "", count: "1" }] });
+    bringChange({ units: [...stop.units, { id: newId(), icon: "", count: "1" }] });
   }
   function updateUnit(id: number, patch: Partial<UnitRow>) {
     bringChange({ units: stop.units.map((u) => (u.id === id ? { ...u, ...patch } : u)) });

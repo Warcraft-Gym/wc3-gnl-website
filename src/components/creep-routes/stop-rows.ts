@@ -37,7 +37,7 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
     return newRow({
       split: {
         mode: s.split.mode,
-        arms: s.split.arms.map((arm) => ({ id: Date.now() + Math.random(), label: arm.label ?? "", stops: arm.stops.map(stopToRow) })),
+        arms: s.split.arms.map((arm) => ({ id: editorRows.newId(), label: arm.label ?? "", stops: arm.stops.map(stopToRow) })),
       },
     });
   }
@@ -46,7 +46,7 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
     pictures: s.pictures,
     campId: s.campId,
     action: s.action ?? "",
-    units: (s.units ?? []).map((u) => ({ id: Date.now() + Math.random(), icon: u.icon, count: String(u.count) })),
+    units: (s.units ?? []).map((u) => ({ id: editorRows.newId(), icon: u.icon, count: String(u.count) })),
     note: s.note ?? "",
     condition: s.condition ?? "",
     kills: s.kills ?? [],

@@ -345,3 +345,8 @@ test("add after a split (\"Continue the route here\"), and a drop at a place ins
   assert.deepEqual(dropTarget(rows, { kind: "path", index: 1, arm: 0, at: 2 }, rows[0]), { splitId: rows[1].id, arm: 0, index: 2 });
   assert.deepEqual(dropTarget(rows, { kind: "path", index: 1, arm: 1 }, rows[0]), { splitId: rows[1].id, arm: 1, index: 0 });
 });
+
+test("rows made in the same millisecond get different ids", () => {
+  const ids = new Set(Array.from({ length: 1000 }, () => newRow().id));
+  assert.equal(ids.size, 1000);
+});
