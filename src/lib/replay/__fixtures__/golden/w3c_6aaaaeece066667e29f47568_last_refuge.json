@@ -169,13 +169,13 @@
               "time": "5:09",
               "supply": "38",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "5:09",
               "supply": "38",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "5:24",
@@ -464,13 +464,13 @@
               "time": "5:19",
               "supply": "44",
               "instruction": "Research Improved Bows",
-              "icon": "nt-upgrade"
+              "icon": "improvedbows"
             },
             {
               "time": "5:24",
               "supply": "44",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "5:32",
@@ -506,7 +506,7 @@
               "time": "7:07",
               "supply": "54",
               "instruction": "Research Strength of the Moon",
-              "icon": "nt-upgrade"
+              "icon": "strengthofthemoon"
             },
             {
               "time": "7:39",
@@ -693,13 +693,13 @@
               "time": "5:09",
               "supply": "42",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "5:09",
               "supply": "42",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "5:24",
@@ -978,13 +978,13 @@
               "time": "5:19",
               "supply": "44",
               "instruction": "Research Improved Bows",
-              "icon": "nt-upgrade"
+              "icon": "improvedbows"
             },
             {
               "time": "5:24",
               "supply": "44",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "5:32",
@@ -1020,7 +1020,7 @@
               "time": "7:07",
               "supply": "54",
               "instruction": "Research Strength of the Moon",
-              "icon": "nt-upgrade"
+              "icon": "strengthofthemoon"
             },
             {
               "time": "7:39",
