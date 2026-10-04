@@ -385,26 +385,24 @@ describe("extractBuild — Esc/Cancel-button cancels, the user's case (F001, C-8
   );
 
   it(
-    "Shallow Grave, React: the ~4:10 ghoul group loses one order; 'Build Haunted Gold Mine' at ~4:11 is absent; supply is non-decreasing for both players",
+    "Shallow Grave, React: the ~4:10 ghoul group loses one order; 'Build Haunted Gold Mine' at ~4:11 is followed by 'Cancel Haunted Gold Mine' at ~5:33; supply is non-decreasing for both players",
     async () => {
       const summary = await parseReplay(loadFixture("w3c_6a87c0c1f214d632276e68be_shallow_grave.w3g"));
       const reactId = summary.players.find((p) => p.name === "React#21633")!.id;
       const draft = extractBuild(summary, reactId, { cutoffMs: 480_000 });
       const blind = extractBuild(summary, reactId, { cutoffMs: 480_000, applyCancels: false });
 
-      // The Haunted Gold Mine order at ~4:11 (before the ~5:34 cancel) never
-      // shows up as a step; the *later*, uncancelled one (~6:06, per the
-      // oracle) still does.
+      // The Haunted Gold Mine started at ~4:11 and cancelled at ~5:33 shows
+      // as both steps; the *later*, uncancelled one (~6:06, per the oracle)
+      // is a plain Build step.
       const goldMines = draft.steps.filter((s) => s.instruction === "Build Haunted Gold Mine");
-      expect(goldMines).toHaveLength(1);
-      expect(clockToMs(goldMines[0]!.time)).toBeGreaterThan(300_000); // well after 4:11
+      expect(goldMines.map((s) => s.time)).toEqual(["4:11", "6:06"]);
+      const cancels = draft.steps.filter((s) => s.instruction === "Cancel Haunted Gold Mine");
+      expect(cancels.map((s) => s.time)).toEqual(["5:33"]);
+      expect(cancels[0]!.icon).toBe(goldMines[0]!.icon);
 
-      // The cancel-blind extraction (pre-fix behaviour) shows the ~4:11
-      // attempt too — proving the fix actually removed a real step, not
-      // that it was never there.
-      expect(blind.steps.some((s) => s.instruction === "Build Haunted Gold Mine" && clockToMs(s.time) < 300_000)).toBe(
-        true,
-      );
+      // The cancel-blind extraction (pre-F001 behaviour) has no Cancel step.
+      expect(blind.steps.some((s) => s.instruction.startsWith("Cancel "))).toBe(false);
 
       const ghoulStep = draft.steps.find((s) => clockToMs(s.time) >= 240_000 && clockToMs(s.time) < 260_000 && s.instruction.includes("Ghoul"));
       expect(ghoulStep?.importNote).toMatch(/cancelled/);
@@ -721,4 +719,21 @@ describe("extractBuild — Random players (a Computer opponent, or an undetected
     expect(draft.race).toBe("");
     expect(draft.vsRaces).toEqual(["orc"]);
   });
+});
+
+describe("extractBuild — the Night Elf shop trick", () => {
+  it("Last Refuge, Jens: Build Ancient of Wonders → Train Wisp → Cancel Ancient of Wonders; the earlier Moon Well stays", async () => {
+    const summary = await parseReplay(loadFixture("w3c_6aaaaeece066667e29f47568_last_refuge.w3g"));
+    const jensId = summary.players.find((p) => p.name === "Jens#11592")!.id;
+    const steps = extractBuild(summary, jensId).steps.map((s) => `${s.time} ${s.instruction}`);
+
+    const shop = steps.indexOf("1:56 Build Ancient of Wonders");
+    expect(steps.slice(shop, shop + 3)).toEqual([
+      "1:56 Build Ancient of Wonders",
+      "1:57 Train Wisp",
+      "1:57 Cancel Ancient of Wonders",
+    ]);
+    // Before the shop had a build time, the Esc matched this Moon Well instead.
+    expect(steps).toContain("1:35 Build Moon Well");
+  }, 15_000);
 });
