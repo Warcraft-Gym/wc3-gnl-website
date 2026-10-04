@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { RouteSubmitForm } from "./RouteSubmitForm";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { EXCHANGE_FORMAT, IMPORT_HASH_KEY, encodeForHash } from "@/lib/creep-routes/exchange-codec.mjs";
@@ -143,13 +143,13 @@ describe("RouteSubmitForm: the arrows move a stop into and out of a split", () =
     await waitFor(() => expect(container.querySelector('li[data-stop="1"]')).toBeInTheDocument());
     fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
 
-    fireEvent.click(await screen.findByRole("button", { name: "Move into path 1" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Move into path A" }));
     await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move down"));
     expect(screen.getByRole("button", { name: "Move out of the split" })).toBeEnabled();
 
     fireEvent.click(screen.getByRole("button", { name: "Move out of the split" }));
     // Back first: up is disabled, so focus lands on the other arrow.
-    await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move into path 1"));
+    await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move into path A"));
     expect(screen.getByRole("button", { name: /^Undo: move stop/ })).toBeInTheDocument();
   });
 });
@@ -171,5 +171,272 @@ describe("RouteSubmitForm: a stop keeps its key from the edit link to the submit
     const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
     expect(stops[0].key).toBe("k1");
     expect(stops[1].split.arms[0].stops[0].key).toBe("k2");
+  });
+});
+
+describe("RouteSubmitForm: the next-stop row and the split form", () => {
+  it("asks before it splits, then puts the next stop in path A; a camp stop opens slim", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    expect(screen.getByText("Adds stop 3 at the end.")).toBeInTheDocument();
+
+    // A camp stop opens with the kill order and the note; Bring and the condition wait behind add buttons.
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    expect(await screen.findByText("Adds stop 2 after stop 1.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Condition")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Condition" }));
+    expect(screen.getByLabelText("Condition")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add at the end instead" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Split here" }));
+    expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    expect(screen.getByText("Split after stop 2")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Kind of split" })).toBeInTheDocument();
+    expect(screen.queryByText("Readers pick a tab by this name.")).not.toBeInTheDocument();
+    const start = screen.getByRole("button", { name: "Start path A" });
+    fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
+    expect(start).toBeDisabled();
+    fireEvent.change(screen.getByPlaceholderText("e.g. Risky"), { target: { value: "Risky" } });
+    expect(start).toBeEnabled();
+    fireEvent.click(start);
+
+    expect(container.querySelector("li[data-split]")).toBeInTheDocument();
+    expect(screen.getByText("Adds stop 3a to path A (Safe).")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: add split/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Path B is empty. Add its stops" }));
+    expect(screen.getByText("Adds stop 3b to path B (Risky).")).toBeInTheDocument();
+  });
+
+  it("puts the next-stop row back where it was when an undo takes the split away", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    fireEvent.click(await screen.findByRole("button", { name: "Split here" }));
+    fireEvent.click(screen.getByRole("radio", { name: "At the same time" }));
+    expect(screen.getByText("Path 1 is the hero's.")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Start path 1" }));
+    expect(container.querySelector("li[data-split]")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Undo: add split/ }));
+    expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    expect(screen.getByText("Adds stop 2 after stop 1.")).toBeInTheDocument();
+  });
+});
+
+describe("RouteSubmitForm: the split form's third path", () => {
+  it("can be removed again, and Start is judged on the names left", async () => {
+    renderForm();
+    fireEvent.click(await screen.findByRole("button", { name: "Split here" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
+    fireEvent.change(screen.getByPlaceholderText("e.g. Risky"), { target: { value: "Risky" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add a third path" }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByPlaceholderText("e.g. vs. Mirror Image")));
+    expect(screen.getByRole("button", { name: "Start path A" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove path C" }));
+    expect(screen.queryByPlaceholderText("e.g. vs. Mirror Image")).not.toBeInTheDocument();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Add a third path" })));
+    expect(screen.getByRole("button", { name: "Start path A" })).toBeEnabled();
+  });
+});
+
+describe("RouteSubmitForm: Remove split and remove path say what stays", () => {
+  const [a, b, c] = maps[0].camps;
+  const load = async () => {
+    const split = { mode: "or", arms: [{ label: "Fast", stops: [{ campId: b.id }] }, { label: "Safe", stops: [{ campId: c.id }] }] };
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: null, split }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-5" });
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelector("li[data-split]")).toBeInTheDocument());
+    return view;
+  };
+  const submitted = async (container: HTMLElement) => {
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    return JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson"))).map((s: { campId: string | null; split?: unknown }) => s.split ? "split" : s.campId);
+  };
+
+  it("the caption's trash keeps path A, even while path B holds the next stop", async () => {
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path B" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove split, keep path A" }));
+    expect(screen.getByRole("button", { name: /^Undo: remove split/ })).toBeInTheDocument();
+    expect(await submitted(container)).toEqual([a.id, b.id]);
+  });
+
+  it("a path heading's x removes one of two paths, and the other path's stops take the split's place", async () => {
+    const { container } = await load();
+    expect(screen.getByRole("button", { name: "Remove path B" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Remove path A" }));
+    expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: remove path A/ })).toBeInTheDocument();
+    expect(await submitted(container)).toEqual([a.id, c.id]);
+  });
+});
+
+describe("RouteSubmitForm: focus never drops to the page", () => {
+  it("lands on Split here after Cancel, and on the next-stop row after Start, Continue the route here and a remove", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    const waypoint = () => screen.getByRole("button", { name: "Waypoint" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Split here" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Split here" })));
+
+    fireEvent.click(screen.getByRole("button", { name: "Split here" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
+    fireEvent.change(screen.getByPlaceholderText("e.g. Risky"), { target: { value: "Risky" } });
+    fireEvent.click(screen.getByRole("button", { name: "Start path A" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.getByText("Adds stop 3a to path A (Safe).")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue the route here" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.getByText("Adds stop 3 at the end.")).toBeInTheDocument();
+
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    fireEvent.click(await screen.findByRole("button", { name: "Remove stop" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+  });
+});
+
+describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
+  const [a, b] = maps[0].camps;
+  const their = String(maps[0].starts[1].player);
+  const load = async (more: object[] = [], numbered = 2) => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }, ...more] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelectorAll("li[data-stop]").length).toBe(numbered));
+    return view;
+  };
+  const waypoint = () => screen.getByRole("button", { name: "Waypoint" });
+  const theirBase = () => screen.getByRole("button", { name: "Add a stop at their base" });
+  // The hero's Bring entry is the one toggle in Bring.
+  const heroEntry = () => document.querySelector("[data-bring] button[aria-pressed]");
+  const pressed = (name: string) => within(screen.getByRole("group", { name: "Waypoint" })).getByRole("button", { name }).getAttribute("aria-pressed");
+
+  it("Waypoint asks first: three choices in the row, Cancel and Escape close it, focus comes back", async () => {
+    await load();
+    fireEvent.click(waypoint());
+    expect(screen.getByText("Waypoint after stop 2")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^On the route/ })).toHaveTextContent("The line goes through it.");
+    expect(screen.getByRole("button", { name: /^A pin/ })).toHaveTextContent("Marks a spot. The line skips it.");
+    expect(screen.getByRole("button", { name: /^No place/ })).toHaveTextContent("An action, e.g. TP home.");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /^On the route/ })));
+    expect(screen.getByText("Choose the kind of waypoint first.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    fireEvent.click(waypoint());
+    fireEvent.keyDown(screen.getByRole("button", { name: /^A pin/ }), { key: "Escape" });
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.queryByText("Waypoint after stop 2")).not.toBeInTheDocument();
+  });
+
+  it("keeps No place unavailable when the numbered stop cap is full", async () => {
+    await load(maps[0].camps.slice(2, 12).map((camp) => ({ campId: camp.id })), 12);
+    fireEvent.click(waypoint());
+    expect(screen.getByRole("button", { name: /^No place/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^A pin/ })).toBeEnabled();
+    expect(screen.getByText(/cap of 12 numbered stops/)).toBeInTheDocument();
+  });
+
+  it("No place adds an action row and focuses its text; A pin arms the map and adds a pin there", async () => {
+    const { container } = await load();
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: /^No place/ }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What happens" })));
+    expect(screen.getByText("New action")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: add action/ })).toBeInTheDocument();
+
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: /^A pin/ }));
+    expect(screen.getByText("Click the spot to pin")).toBeInTheDocument();
+    expect(screen.getByText("Any spot. The line skips it.")).toBeInTheDocument();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Cancel" })));
+    fireEvent.click(theirBase());
+    const pin = container.querySelector("li[data-pin]")!;
+    expect(within(pin as HTMLElement).getByText("Meanwhile")).toBeInTheDocument();
+    expect(within(pin as HTMLElement).getByText("New pin")).toBeInTheDocument();
+    expect(within(pin as HTMLElement).getByText("their base")).toBeInTheDocument();
+    // A pin at their base scouts; it is never an attack.
+    expect(pressed("Pin")).toBe("true");
+    expect(screen.getByRole("button", { name: "Scout" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("button", { name: "Attack" })).not.toBeInTheDocument();
+  });
+
+  it("the switch: pin to route, to No place and back, each one undo step; no Hero entry on a waypoint", async () => {
+    const { container } = await load([{ campId: null, action: "Scout", place: { kind: "scout", at: { start: their } }, hero: false }]);
+    fireEvent.click(container.querySelector("li[data-waypoint] button")!);
+    expect(pressed("Pin")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Bring units" }));
+    expect(document.querySelector("[data-bring]")).toBeInTheDocument();
+    expect(heroEntry()).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "On the route" }));
+    expect(pressed("On the route")).toBe("true");
+    expect(container.querySelector("li[data-pin]")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: edit waypoint/ })).toBeInTheDocument();
+    expect(heroEntry()).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "No place" }));
+    expect(pressed("No place")).toBe("true");
+    expect(screen.queryByRole("button", { name: "Scout" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "What happens" })).toHaveValue("Scout");
+
+    fireEvent.click(screen.getByRole("button", { name: "Pin" }));
+    expect(screen.getByText("Click the spot to pin")).toBeInTheDocument();
+    fireEvent.click(theirBase());
+    expect(pressed("Pin")).toBe("true");
+    expect(container.querySelector("li[data-pin]")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
+    expect(pressed("No place")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
+    expect(pressed("On the route")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
+    expect(pressed("Pin")).toBe("true");
+  });
+
+  it("an attack switched to Pin scouts", async () => {
+    const { container } = await load([{ campId: null, action: "Harass", place: { kind: "attack", at: { start: their } } }], 3);
+    fireEvent.click(container.querySelector('li[data-stop="3"] button')!);
+    expect(pressed("On the route")).toBe("true");
+    // An attack keeps the hero's Bring entry.
+    fireEvent.click(screen.getByRole("button", { name: "Bring units" }));
+    expect(heroEntry()).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Attack" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Pin" }));
+    expect(pressed("Pin")).toBe("true");
+    expect(screen.getByRole("button", { name: "Scout" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("button", { name: "Attack" })).not.toBeInTheDocument();
+  });
+
+  it("a pin submits the same stop object as today's hero-off waypoint", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-5" });
+    const old = { campId: null, action: "Scout their base", place: { kind: "scout", at: { start: their } }, hero: false };
+    const { container } = await load([old]);
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: /^A pin/ }));
+    fireEvent.click(theirBase());
+    fireEvent.change(screen.getByRole("textbox", { name: "What happens" }), { target: { value: "Scout their base" } });
+
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
+    expect(JSON.stringify(stops[3])).toBe(JSON.stringify(stops[2]));
+    expect(stops[3]).toMatchObject(old);
   });
 });

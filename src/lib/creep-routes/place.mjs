@@ -14,6 +14,13 @@ export function isWaypoint(stop) {
   return Boolean(stop?.place) && stop.place.kind !== "attack";
 }
 
+/** True for a pin: a waypoint that marks a place that matters at that moment; the line skips it.
+ *  Read pins only through this. ponytail: a pin is stored as `hero: false`, the field's name from
+ *  its history; rename it when the schema next changes. */
+export function isPin(stop) {
+  return isWaypoint(stop) && stop.hero === false;
+}
+
 /** The place's position as image fractions (0..1), or null when `at` is not on the map. */
 export function placePoint(map, place) {
   const at = place?.at;
@@ -35,6 +42,13 @@ export function placeName(map, place, youStart = 0) {
   if (at.mine != null) return "a gold mine";
   if (at.shop != null) return neutralIconFor(at.shop)?.label ?? "shop";
   return "on the map";
+}
+
+/** The grey text after a place row's action: the named place (`placeName`) of a start, mine or shop.
+ *  A waypoint at a free point and a step with no place have none; an attack there keeps "on the map". */
+export function placeWhere(map, place, youStart = 0) {
+  if (!place || (place.kind !== "attack" && atKind(place.at) === "point")) return "";
+  return placeName(map, place, youStart);
 }
 
 /** Why `place` cannot stand on a map described by `{ startIds, mineCount, shopIds }`, or null.

@@ -1,12 +1,10 @@
 "use client";
 
 import { useRef } from "react";
-import { ArrowDown, ArrowUp, Plus, Swords, Trash2 } from "lucide-react";
-import type { DropProps } from "./RouteStepTable";
+import { Swords } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import type { RouteStop } from "@/lib/creep-routes/types";
-import { isWaypoint } from "@/lib/creep-routes/place.mjs";
-import { SAME_CAMP_LINE, SPLIT_MODES } from "./stop-rows";
+import { isPin, isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
 
 /**
@@ -15,35 +13,65 @@ import { cn } from "@/lib/utils";
  * (the main line) runs at x 14, lane b at 30, lane c at 46; 2px lines in
  * `--wg-line-strong`, dashed for a path not taken. The row's own node sits on its
  * lane at the summary line: a small neutral dot for a camp or base action, the
- * diamond for a waypoint, a red-ringed Swords node for an attack.
+ * diamond for a waypoint, a red-ringed Swords node for an attack; a pin's node is off
+ * the lane, a short dashed tick out to a dashed diamond. In the
+ * builder (`builderRows`) a path's own lane is lit over its block: gold where
+ * the next stop goes, light elsewhere.
  */
 
-export type RailLine = { lane: string; top: boolean; bottom: boolean; off: boolean };
+/** A lane through a row: `top`/`bottom` draw it above and below the node; "gold" and "light" light it (the builder). */
+export type RailLine = { lane: string; top: boolean | "gold" | "light"; bottom: boolean | "gold" | "light"; off: boolean };
 
-const LANE_X: Record<string, number> = { "": 14, a: 14, b: 30, c: 46 };
+export const LANE_X: Record<string, number> = { "": 14, a: 14, b: 30, c: 46 };
 /** Where the node sits: the middle of the summary line (16px row padding + half a line); 8px padding for a waypoint. */
 const nodeY = (waypoint: boolean) => (waypoint ? 18 : 26);
 const LINE = "absolute w-0.5 bg-line-strong";
 /** A path not taken: the same lane, dashed. */
 const DASHED = "absolute w-0 border-l-2 border-dashed border-line-strong";
 const DASH = "4 3";
-const EDIT_ICON = "grid size-7 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
+const LIT = { gold: "absolute w-0.5 bg-gold", light: "absolute w-0.5 bg-muted" };
+const lineClass = (l: RailLine, end: RailLine["top"]) => (l.off ? DASHED : typeof end === "string" ? LIT[end] : LINE);
 /** The builder's drop line on a row under a dragged row: gold at its top or bottom edge, a tint inside an empty path. */
 export const DROP = "data-[drop=before]:shadow-[inset_0_2px_0_var(--wg-gold)] data-[drop=after]:shadow-[inset_0_-2px_0_var(--wg-gold)] data-[drop=in]:bg-gold/10";
 
-/** The rail cell of a stop row; the `<li>` it sits in is `relative`. */
-export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
-  const waypoint = isWaypoint(stop);
-  const y = nodeY(waypoint);
-  const x = LANE_X[lane] ?? 14;
+/** A rail cell: the lane lines through a row, broken at `y` where the row's `node` sits on its `lane`. The `<li>` it sits in is `relative`. */
+export function RailCell({ lines, lane = "a", y = 0, node }: { lines: RailLine[]; lane?: string; y?: number; node?: (x: number) => React.ReactNode }) {
   return (
     <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-11">
       {lines.map((l) => (
         <span key={l.lane}>
-          {l.top ? <span className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: 0, height: y }} /> : null}
-          {l.bottom ? <span className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: y, bottom: 0 }} /> : null}
+          {l.top ? <span className={lineClass(l, l.top)} style={{ left: LANE_X[l.lane] - 1, top: 0, height: y }} /> : null}
+          {l.bottom ? <span className={lineClass(l, l.bottom)} style={{ left: LANE_X[l.lane] - 1, top: y, bottom: 0 }} /> : null}
         </span>
       ))}
+      {node?.(LANE_X[lane] ?? 14)}
+    </span>
+  );
+}
+
+/** The builder's next-stop row on the rail: a dashed gold ring on its lane, level with the row's dashed number. */
+export const SLOT_Y = 35;
+export function SlotRail({ lines, lane }: { lines: RailLine[]; lane: string }) {
+  return (
+    <RailCell
+      lines={lines}
+      lane={lane}
+      y={SLOT_Y}
+      node={(x) => <span className="absolute size-3 rounded-full border-[1.5px] border-dashed border-gold bg-bg" style={{ left: x - 6, top: SLOT_Y - 6 }} />}
+    />
+  );
+}
+
+/** The rail cell of a stop row. */
+export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
+  const waypoint = isWaypoint(stop);
+  const y = nodeY(waypoint);
+  return <RailCell lines={lines} lane={lane} y={y} node={(x) => <StopNode stop={stop} waypoint={waypoint} x={x} y={y} />} />;
+}
+
+function StopNode({ stop, waypoint, x, y }: { stop: RouteStop; waypoint: boolean; x: number; y: number }) {
+  return (
+    <>
       {stop.place?.kind === "attack" ? (
         <span
           className="absolute grid size-3.5 place-items-center rounded-full border-2 border-loss bg-bg text-loss"
@@ -51,32 +79,26 @@ export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: strin
         >
           <Swords size={8} strokeWidth={3} />
         </span>
+      ) : isPin(stop) ? (
+        <svg className="absolute overflow-visible" style={{ left: x, top: y - 6 }} width={34} height={12}>
+          <line x1={0} y1={6} x2={20} y2={6} stroke="rgba(255,255,255,.55)" strokeWidth={1.5} strokeDasharray="2 2" />
+          <rect x={21} y={2} width={8} height={8} transform="rotate(45 25 6)" fill="var(--wg-bg)" stroke="rgba(255,255,255,.85)" strokeWidth={1.5} strokeDasharray="2 1.5" />
+        </svg>
       ) : waypoint ? (
         <span className="absolute size-2 rotate-45 rounded-[1px] border-2 border-white/85 bg-bg" style={{ left: x - 4, top: y - 4 }} />
       ) : (
         <span className="absolute size-1.5 rounded-full bg-line-strong" style={{ left: x - 3, top: y - 3 }} />
       )}
-    </span>
-  );
-}
-
-/** Lane lines straight through a row with no node of its own (the builder's path controls). */
-export function LaneLines({ lanes }: { lanes: { lane: string; off: boolean }[] }) {
-  return (
-    <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-11">
-      {lanes.map((l) => (
-        <span key={l.lane} className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: 0, bottom: 0 }} />
-      ))}
-    </span>
+    </>
   );
 }
 
 /** A curve from the main line (x 14) out to a lane, or back in, in a 44x40 box stretched to the row. */
-function curve(x: number, out: boolean, from = 0) {
+export function curve(x: number, out: boolean, from = 0) {
   return out ? `M14,${from} C14,${from + (40 - from) * 0.55} ${x},${40 - (40 - from) * 0.55} ${x},40` : `M${x},0 C${x},22 14,18 14,40`;
 }
 
-function RailSvg({ children }: { children: React.ReactNode }) {
+export function RailSvg({ children }: { children: React.ReactNode }) {
   return (
     <svg aria-hidden viewBox="0 0 44 40" preserveAspectRatio="none" className="pointer-events-none absolute inset-y-0 left-0 h-full w-11 overflow-visible">
       <g fill="none" stroke="var(--wg-line-strong)" strokeWidth={2}>
@@ -91,33 +113,8 @@ function RailSvg({ children }: { children: React.ReactNode }) {
  * the main line, a path not taken dashed. "or" and "xor" read "Choose a path" and carry the tab
  * strip as browser tabs (`role="tablist"`, arrow keys, the hero's level at each path's end): the
  * chosen tab is open at the bottom onto its path's rows, the `tabpanel` below; the others are
- * recessed. "and" reads "At the same time".
+ * recessed. "and" reads "At the same time". The builder draws its own caption (`SplitCaption`).
  */
-/** The builder's controls on a split's caption row (`RouteEditor`). */
-export type SplitEdit = {
-  /** The tab shown: the chosen path ("or"/"xor"), the path being edited ("and"). */
-  chosen: number;
-  /** The caption is selected (a tab was clicked): the next map click adds to the shown path. */
-  selected: boolean;
-  /** "or" is "Choose a path"; or/xor is read from the structure on save. */
-  onMode: (mode: "and" | "or") => void;
-  /** A path's label as typed (the route's own is trimmed). */
-  label: (arm: number) => string;
-  onLabel: (arm: number, label: string) => void;
-  /** Trims the label once, when its field loses focus. */
-  onLabelBlur: (arm: number) => void;
-  /** Does nothing at three paths. */
-  onAddPath?: () => void;
-  onMove: (dir: -1 | 1) => void;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
-  onRemove: () => void;
-  /** Every path is the same camps in the same order: a line under the chips, not blocking. */
-  sameCamp?: boolean;
-  labelError?: (arm: number) => string | undefined;
-};
-
-
 export function SplitRow({
   mode,
   arms,
@@ -127,8 +124,6 @@ export function SplitRow({
   stopKey,
   baseId,
   onChoose,
-  edit,
-  dnd,
 }: {
   mode: "and" | "or" | "xor";
   arms: { label?: string; stops?: unknown[] }[];
@@ -138,13 +133,9 @@ export function SplitRow({
   stopKey: string;
   baseId: string;
   onChoose: (forkKey: string, arm: number) => void;
-  /** The builder: mode chips on the caption row, labels edited in the tabs, "+ Path" as the last tab. */
-  edit?: SplitEdit;
-  /** The builder: the caption's drag handle (the whole block moves) and its drop handlers. */
-  dnd?: { handle?: React.ReactNode; props: DropProps };
 }) {
-  const choose = mode !== "and" || Boolean(edit);
-  const walked = edit ? edit.chosen : (node?.walked ?? 0);
+  const choose = mode !== "and";
+  const walked = node?.walked ?? 0;
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
   const name = mode !== "and" ? "Choose a path" : "At the same time";
   // Arrow keys move the selection along the tab strip, Home and End to its ends.
@@ -156,23 +147,9 @@ export function SplitRow({
     onChoose(stopKey, next);
     tabs.current[next]?.focus();
   };
-  const from = main.top ? 0 : 20;
   return (
-    <li
-      data-split={stopKey}
-      {...dnd?.props}
-      className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5", DROP, edit?.selected && "bg-gold/10")}
-    >
-      {dnd?.handle ? <span className="absolute left-[44px] top-2.5">{dnd.handle}</span> : null}
-      <RailSvg>
-        {lanes.map((l) =>
-          l.lane === "a" ? (
-            <path key="a" d={`M14,${from} V40`} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
-          ) : (
-            <path key={l.lane} d={curve(LANE_X[l.lane], true, from)} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
-          ),
-        )}
-      </RailSvg>
+    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5")}>
+      <ForkRail main={main} lanes={lanes} />
       {choose
         ? lanes.map((l) => (
             <span key={l.lane} aria-hidden className="absolute bottom-0 text-[9px] font-bold leading-none text-faint" style={{ left: LANE_X[l.lane] + 3 }}>
@@ -184,88 +161,11 @@ export function SplitRow({
         // Browser tabs: the strip's base line runs under the caption, the recessed tabs and the
         // filler; the chosen tab has no bottom edge, so it opens into its path's rows below.
         <div className="flex min-w-0 flex-wrap items-end">
-          {edit ? (
-            <div className="flex basis-full flex-wrap items-center gap-1.5 pb-2">
-              <div role="radiogroup" aria-label="Split mode" className="flex flex-wrap gap-1">
-                {SPLIT_MODES.map((m) => (
-                  <button
-                    key={m.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={(m.id === "and") === (mode === "and")}
-                    onClick={() => edit.onMode(m.id)}
-                    className={cn(
-                      "h-7 rounded border border-arcane/40 px-2 text-[0.72rem]",
-                      (m.id === "and") === (mode === "and") ? "bg-arcane/10 text-fg" : "text-arcane hover:bg-arcane/5",
-                    )}
-                  >
-                    {m.label}
-                  </button>
-                ))}
-              </div>
-              {mode === "and" ? <p className="order-last basis-full text-[0.7rem] text-faint">Paths at the same time share one XP total; the order of kills is unknown.</p> : null}
-              {edit.sameCamp ? <p className="order-last basis-full text-[0.7rem] text-faint">{SAME_CAMP_LINE}</p> : null}
-              <span className="ml-auto flex gap-1">
-                <button type="button" onClick={() => edit.onMove(-1)} disabled={!edit.canMoveUp} aria-label="Move split up" className={EDIT_ICON}>
-                  <ArrowUp size={14} />
-                </button>
-                <button type="button" onClick={() => edit.onMove(1)} disabled={!edit.canMoveDown} aria-label="Move split down" className={EDIT_ICON}>
-                  <ArrowDown size={14} />
-                </button>
-                <button type="button" onClick={edit.onRemove} aria-label="Remove split" className={cn(EDIT_ICON, "hover:border-loss/60 hover:text-loss")}>
-                  <Trash2 size={14} />
-                </button>
-              </span>
-            </div>
-          ) : (
-            <span className="basis-full pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint sm:basis-auto sm:border-b sm:border-line-strong sm:pr-3">{name}</span>
-          )}
+          <span className="basis-full pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint sm:basis-auto sm:border-b sm:border-line-strong sm:pr-3">{name}</span>
           <div role="tablist" aria-label={name} className="flex min-w-0 flex-wrap items-end">
             {arms.map((arm, a) => {
               const chosen = a === walked;
-              const tabClass = cn(
-                "inline-flex min-w-0 items-baseline gap-1.5 rounded-t border px-3 text-left text-[0.84rem] transition-colors",
-                "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold",
-                chosen
-                  ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
-                  : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
-              );
-              // An "and" block is one XP event: its tabs carry no level.
-              const level = node?.arms[a] && mode !== "and" ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
-              if (edit) {
-                // A tab with an input in it: the tab is the div, the input edits the path's label in place.
-                return (
-                  <div
-                    key={a}
-                    id={`${baseId}-tab-${stopKey}-${a}`}
-                    role="tab"
-                    aria-selected={chosen}
-                    aria-controls={chosen ? `${baseId}-panel-${stopKey}` : undefined}
-                    tabIndex={chosen ? 0 : -1}
-                    onClick={() => onChoose(stopKey, a)}
-                    className={cn(tabClass, "items-center")}
-                  >
-                    {mode !== "and" ? (
-                      <input
-                        aria-label={`Path ${a + 1}`}
-                        placeholder="When…"
-                        value={edit.label(a)}
-                        onChange={(e) => edit.onLabel(a, e.target.value)}
-                        onBlur={() => edit.onLabelBlur(a)}
-                        maxLength={60}
-                        className={cn(
-                          "h-7 min-w-[7ch] max-w-[24ch] rounded [field-sizing:content] border border-transparent bg-transparent px-1 text-[0.84rem] text-inherit placeholder:text-faint hover:border-line focus:border-gold/60 focus:outline-none",
-                          edit.labelError?.(a) && "border-loss",
-                        )}
-                      />
-                    ) : (
-                      <span>Path {a + 1}</span>
-                    )}
-                    {!arm.stops?.length ? <span className="text-[0.8rem] text-faint">(empty)</span> : null}
-                    {level}
-                  </div>
-                );
-              }
+              const level = node?.arms[a] ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
               return (
                 <button
                   key={a}
@@ -280,22 +180,19 @@ export function SplitRow({
                   tabIndex={chosen ? 0 : -1}
                   onClick={() => onChoose(stopKey, a)}
                   onKeyDown={(e) => onTabKey(e, a)}
-                  className={tabClass}
+                  className={cn(
+                    "inline-flex min-w-0 items-baseline gap-1.5 rounded-t border px-3 text-left text-[0.84rem] transition-colors",
+                    "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold",
+                    chosen
+                      ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
+                      : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
+                  )}
                 >
                   <span>{arm.label}</span>
                   {level}
                 </button>
               );
             })}
-            {edit?.onAddPath ? (
-              <button
-                type="button"
-                onClick={edit.onAddPath}
-                className="inline-flex items-center gap-1 rounded-t border border-transparent border-b-line-strong px-2.5 pb-1 pt-1 text-[0.78rem] text-muted hover:text-gold"
-              >
-                <Plus size={14} /> Path
-              </button>
-            ) : null}
           </div>
           <span aria-hidden className="min-w-2 flex-1 self-stretch border-b border-line-strong" />
         </div>
@@ -306,20 +203,28 @@ export function SplitRow({
   );
 }
 
+/** A split's fork on the rail: lane a straight on (from the row's middle when the split opens the list), the other lanes curving out of it. */
+export function ForkRail({ main, lanes }: { main?: RailLine; lanes: { lane: string; off: boolean }[] }) {
+  const from = main?.top ? 0 : 20;
+  return (
+    <RailSvg>
+      {lanes.map((l) =>
+        l.lane === "a" ? (
+          <path key="a" d={`M14,${from} V40`} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
+        ) : (
+          <path key={l.lane} d={curve(LANE_X[l.lane], true, from)} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
+        ),
+      )}
+    </RailSvg>
+  );
+}
+
 /** The rail curving the shown lanes back into the main line before the first shared stop. An "and"
  *  block's join row also carries its one XP line at the right, where a stop row has its level. */
 export function JoinRow({ lanes, xp }: { lanes: { lane: string; off: boolean }[]; xp?: string }) {
   return (
     <li aria-hidden={xp ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", xp ? "py-1 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
-      <RailSvg>
-        {lanes.map((l) =>
-          l.lane === "a" ? (
-            <path key="a" d="M14,0 V40" strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
-          ) : (
-            <path key={l.lane} d={curve(LANE_X[l.lane], false)} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
-          ),
-        )}
-      </RailSvg>
+      <JoinRail lanes={lanes} />
       {xp ? (
         <p className="grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
           <span />
@@ -331,5 +236,20 @@ export function JoinRow({ lanes, xp }: { lanes: { lane: string; off: boolean }[]
         </p>
       ) : null}
     </li>
+  );
+}
+
+/** A split's join on the rail: lane a straight through, the other lanes curving back into it. */
+export function JoinRail({ lanes }: { lanes: { lane: string; off: boolean }[] }) {
+  return (
+    <RailSvg>
+      {lanes.map((l) =>
+        l.lane === "a" ? (
+          <path key="a" d="M14,0 V40" strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
+        ) : (
+          <path key={l.lane} d={curve(LANE_X[l.lane], false)} strokeDasharray={l.off ? DASH : undefined} vectorEffect="non-scaling-stroke" />
+        ),
+      )}
+    </RailSvg>
   );
 }

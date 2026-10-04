@@ -56,10 +56,12 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
   });
 }
 
-/** The split mode chips in order, "Choose a path" first (a new split's mode). */
-export const SPLIT_MODES = editorRows.SPLIT_MODES as { id: "and" | "or"; label: string }[];
-/** A new split row: two empty paths, "Choose a path". */
-export const newSplitRow = editorRows.newSplitRow as () => StopRowData;
+/** A new split row: empty paths with these labels (two by default), "Choose a path" by default. */
+export const newSplitRow = editorRows.newSplitRow as (mode?: "and" | "or", labels?: string[]) => StopRowData;
+/** The split form before "Start path A": the mode and the paths' names. */
+export type SplitSetup = { mode: "and" | "or"; names: string[] };
+/** Start is enabled once every path of a pick-one split has a name. */
+export const canStartSplit = editorRows.canStartSplit as (setup: SplitSetup) => boolean;
 
 /** The editor rows as submitted stops, each split's or/xor read from the structure (stops after it: or). */
 export function rowsToStops(rows: StopRowData[]): StopInput[] {
@@ -74,15 +76,25 @@ export const locate = editorRows.locate as (rows: StopRowData[], id: number) => 
 export const listAt = editorRows.listAt as (rows: StopRowData[], at: ListPlace) => StopRowData[];
 /** Inserts a row at a place; a split only at the top level. */
 export const insertAt = editorRows.insertAt as (rows: StopRowData[], at: ListPlace, row: StopRowData) => StopRowData[];
-/** Where an add goes: after the selected row, into the active path from a caption, else at the end. */
-export const addTarget = editorRows.addTarget as (rows: StopRowData[], selection: { id: number; arm?: number } | null, isSplit?: boolean) => ListPlace;
+/** Where an add goes: after the selected row, into the active path from a caption (after the split with `after`), else at the end. */
+export const addTarget = editorRows.addTarget as (
+  rows: StopRowData[],
+  selection: { id: number; arm?: number; after?: boolean } | null,
+  isSplit?: boolean,
+) => ListPlace;
+/** The next-stop row at a place: the label the next stop takes there, the line under it, whether "Add at the end instead" shows. */
+export const nextStop = editorRows.nextStop as (
+  rows: StopRowData[],
+  at: ListPlace,
+  tabs?: Record<number, number>,
+) => { label: string; line: string; toEnd: boolean; after: string };
 /** Moves a row to a place (its index counted before the move); a split never into a path. */
 export const moveRowTo = editorRows.moveRowTo as (rows: StopRowData[], id: number, at: ListPlace) => StopRowData[];
 /** A drop zone under the pointer. */
 export type DropZone =
   | { kind: "row"; key: string; after?: boolean }
   | { kind: "caption"; index: number; arm?: number; after?: boolean }
-  | { kind: "path"; index: number; arm: number }
+  | { kind: "path"; index: number; arm: number; at?: number }
   | { kind: "end" };
 /** Where a drop lands; null where the dragged row cannot go. */
 export const dropTarget = editorRows.dropTarget as (rows: StopRowData[], zone: DropZone, dragged: StopRowData | undefined) => ListPlace | null;
@@ -96,9 +108,11 @@ export const SAME_CAMP_LINE = editorRows.SAME_CAMP_LINE as string;
 export const sameCampSequence = editorRows.sameCampSequence as (split: StopRowData["split"] | undefined) => boolean;
 /** Sets a path label as typed; `commit` trims it (on blur). */
 export const setArmLabel = editorRows.setArmLabel as (rows: StopRowData[], splitId: number, arm: number, label: string, commit?: boolean) => StopRowData[];
-/** One undo entry: the stop list before a change and what changed. */
-export type UndoEntry = { rows: StopRowData[]; label: string };
-export const pushUndo = editorRows.pushUndo as (stack: UndoEntry[], rows: StopRowData[], label: string) => UndoEntry[];
+/** The builder's selected row; on a split, `after` puts the next-stop row right after it. */
+export type Selection = { id: number; after?: boolean };
+/** One undo entry: the stop list before a change, what changed and the selection then. */
+export type UndoEntry = { rows: StopRowData[]; label: string; sel: Selection | null };
+export const pushUndo = editorRows.pushUndo as (stack: UndoEntry[], rows: StopRowData[], label: string, sel?: Selection | null) => UndoEntry[];
 export const popUndo = editorRows.popUndo as (stack: UndoEntry[]) => { entry: UndoEntry; stack: UndoEntry[] } | null;
 
 /** Applies `update` to the stops of arm `arm` of the split row `splitId`. */

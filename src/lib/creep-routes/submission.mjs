@@ -84,8 +84,8 @@ function baseStopSchema(iconSet, splitField) {
       leaveRest: z.boolean().optional(),
       /** A start, mine, shop or free point instead of a camp, see `place.mjs`. */
       place: placeSchema.optional(),
-      /** Camp and place stops: false when only the Bring units go (the hero still earns their XP); a
-       *  waypoint done by another unit (a lone Wisp scouting) is in the list, not on the map. */
+      /** Camp and attack stops: false when only the Bring units go (the hero still earns their XP); on a
+       *  waypoint, false makes it a pin (`isPin`): the line skips it. */
       hero: z.boolean().optional(),
       /** A split at the top level; inside an arm it is rejected (one level). */
       split: splitField,
