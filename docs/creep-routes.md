@@ -583,13 +583,13 @@ choose one, no number means a waypoint.
   shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
-  example has no rail. The heading of an "At the same time" split shows
-  one line after all paths, `+249 xp · Lv 3`, like a closed stop's level
-  line. It sits above the paths, like a section heading, not below them.
-  The level wears the kill chain's gold `Lv` tag when the hero levels
-  during the split. No path is marked because either path can contain
-  the level-up kill. The path stops have no individual hero meters, even when
-  opened; each one still opens for its own kills, Bring and note. A path such
+  example has no rail. The heading of an "At the same time" split is one
+  dropdown for all its paths and shows the hero after them all, like a
+  stop row: closed, the level line `Lv 3 · 552 xp`; open, the hero meter.
+  A level line starts with a gold double chevron when its stop or split
+  levels the hero. No path is marked because either path can contain the
+  level-up kill. The path stops have no chevron and no level of their own;
+  they open and close with the heading (the open key is the split's). A path such
   as harass or shopping may add no XP.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.

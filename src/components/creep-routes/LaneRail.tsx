@@ -1,9 +1,9 @@
 "use client";
 
 import { useRef } from "react";
-import { Swords } from "lucide-react";
+import { ChevronDown, Swords } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
-import { SplitXpSummary } from "./SplitXpSummary";
+import { HeroMeter, LevelLine } from "./HeroMeter";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { isPin, isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
@@ -125,6 +125,8 @@ export function SplitRow({
   stopKey,
   baseId,
   onChoose,
+  isOpen = false,
+  onToggle,
 }: {
   mode: "and" | "or" | "xor";
   arms: { label?: string; stops?: unknown[] }[];
@@ -134,6 +136,9 @@ export function SplitRow({
   stopKey: string;
   baseId: string;
   onChoose: (forkKey: string, arm: number) => void;
+  /** An "and" heading: whether its paths' stops are open, and the toggle (none in the builder). */
+  isOpen?: boolean;
+  onToggle?: () => void;
 }) {
   const choose = mode !== "and";
   const walked = node?.walked ?? 0;
@@ -149,7 +154,7 @@ export function SplitRow({
     tabs.current[next]?.focus();
   };
   return (
-    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5")}>
+    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-3")}>
       <ForkRail main={main} lanes={lanes} />
       {choose
         ? lanes.map((l) => (
@@ -198,9 +203,28 @@ export function SplitRow({
           <span aria-hidden className="min-w-2 flex-1 self-stretch border-b border-line-strong" />
         </div>
       ) : (
-        <div className="flex min-w-0 items-start justify-between gap-2">
-          <span className="pt-0.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
-          {mode === "and" && node ? <SplitXpSummary node={node} /> : null}
+        // One disclosure for every path, with the hero after them all: a stop's level line closed, its meter open.
+        <div className="relative grid grid-cols-[minmax(0,1fr)_1.25rem] gap-x-3">
+          {onToggle ? (
+            <button
+              type="button"
+              onClick={onToggle}
+              aria-expanded={isOpen}
+              aria-controls={`${baseId}-block-${stopKey}`}
+              aria-label={`${name}${node ? `, hero Lv ${node.levelAfter}, ${node.xpBefore + node.xpGained} xp` : ""}`}
+              className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
+            />
+          ) : null}
+          <div className={cn("pointer-events-none relative flex min-w-0 flex-wrap justify-between gap-3", isOpen ? "items-start" : "items-center")}>
+            <span className="pt-0.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
+            {node && isOpen ? <HeroMeter level={node.levelAfter} xp={node.xpBefore + node.xpGained} /> : null}
+            {node && !isOpen ? <LevelLine level={node.levelAfter} xp={node.xpBefore + node.xpGained} leveled={node.levelAfter > node.levelBefore} /> : null}
+          </div>
+          {onToggle ? (
+            <span aria-hidden className={cn("relative grid size-5 place-items-center self-start", isOpen ? "text-gold" : "text-faint")}>
+              <ChevronDown size={16} className={cn("transition-transform motion-reduce:transition-none", isOpen && "rotate-180")} />
+            </span>
+          ) : <span />}
         </div>
       )}
     </li>

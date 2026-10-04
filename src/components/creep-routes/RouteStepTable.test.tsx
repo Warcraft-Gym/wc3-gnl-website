@@ -8,12 +8,12 @@ import { RouteStepTable } from "./RouteStepTable";
 afterEach(cleanup);
 
 describe("simultaneous paths in the route list", () => {
-  it("keeps one shared hero meter when several path stops are open", () => {
+  it("open and close together under the split heading, which holds the only level", () => {
     const route = structuredClone(FIXTURE_ROUTES.find((r) => r.slug === "human-no-expansion-tidehunters")!);
     route.stops[1].split!.arms[0].stops.push({ campId: "c05", note: "A second action on this path" });
     const map = FIXTURE_MAPS.find((m) => m.slug === route.map.slug)!;
     function OpenableTable() {
-      const [open, setOpen] = useState(new Set(["0", "1.a.0", "1.a.1", "1.b.0", "2"]));
+      const [open, setOpen] = useState(new Set(["0", "1"]));
       const toggle = (key: string) => setOpen((current) => {
         const next = new Set(current);
         if (next.has(key)) next.delete(key);
@@ -22,20 +22,23 @@ describe("simultaneous paths in the route list", () => {
       });
       return <RouteStepTable route={route} map={map} open={open} onSummary={toggle} onChevron={toggle} onExpandAll={() => {}} onCollapseAll={() => {}} />;
     }
-    const { container } = render(<OpenableTable />);
+    render(<OpenableTable />);
     const split = screen.getByText("At the same time").closest("li")!;
-    const sharedResult = within(split).getByRole("group", { name: "XP and level after all paths at the same time" });
-    expect(sharedResult).toBeTruthy();
-    const paths = split.nextElementSibling!;
-    const stops = paths.querySelectorAll("li[data-stop]");
-    expect(stops).toHaveLength(3);
-    for (const stop of stops) {
-      expect(within(stop as HTMLElement).queryByText(/\d+\s*\/\s*\d+\s*xp/i)).toBeNull();
+    const heading = within(split).getByRole("button", { name: /^At the same time, hero Lv \d+, \d+ xp$/ });
+    const paths = split.nextElementSibling as HTMLElement;
+    const stops = () => [...paths.querySelectorAll("li[data-stop]")] as HTMLElement[];
+    expect(stops()).toHaveLength(3);
+    // No path stop has its own chevron or level, open or closed.
+    expect(within(paths).queryAllByRole("button", { name: /stop \d+ details/i })).toHaveLength(0);
+    expect(heading.getAttribute("aria-expanded")).toBe("true");
+    expect(within(split).getByText(/\d+ \/ \d+ xp/)).toBeTruthy();
+    for (const stop of stops()) {
+      expect(within(stop).getByRole("button", { name: /^Stop / }).getAttribute("aria-expanded")).toBe("true");
+      expect(within(stop).queryByText(/Lv \d+ · \d+ xp|\d+ \/ \d+ xp/)).toBeNull();
     }
-    expect(within(paths as HTMLElement).getAllByRole("button", { name: /hide stop \d+ details/i })).toHaveLength(3);
-    expect(container.querySelectorAll('[role="group"][aria-label="XP and level after all paths at the same time"]')).toHaveLength(1);
-    fireEvent.click(within(paths as HTMLElement).getAllByRole("button", { name: /hide stop \d+ details/i })[0]);
-    expect(within(paths as HTMLElement).getAllByRole("button", { name: /hide stop \d+ details/i })).toHaveLength(2);
-    expect(container.querySelectorAll('[role="group"][aria-label="XP and level after all paths at the same time"]')).toHaveLength(1);
+    fireEvent.click(heading);
+    expect(heading.getAttribute("aria-expanded")).toBe("false");
+    expect(within(split).getByText(/Lv \d+ · \d+ xp/)).toBeTruthy();
+    for (const stop of stops()) expect(within(stop).getByRole("button", { name: /^Stop / }).getAttribute("aria-expanded")).toBe("false");
   });
 });

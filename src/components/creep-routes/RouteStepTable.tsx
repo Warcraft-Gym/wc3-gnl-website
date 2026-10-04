@@ -134,7 +134,9 @@ export function RouteStepTable({
     const d = derived.stops[index];
     return arm === undefined ? d : d.split!.arms[arm].stops[j];
   };
-  const allOpen = count > 0 && keys.every((k) => open.has(k));
+  // An "and" path stop counts as open when its split heading is.
+  const blockOf = new Map(rows.flatMap((r) => (r.type === "stop" && r.block !== undefined ? [[r.key, String(r.block)] as const] : [])));
+  const allOpen = count > 0 && keys.every((k) => open.has(blockOf.get(k) ?? k));
   const itemRef = (key: string) => (el: HTMLLIElement | null) => {
     if (el) items.current.set(key, el);
     else items.current.delete(key);
@@ -153,13 +155,16 @@ export function RouteStepTable({
                   stopKey={row.key}
                   baseId={baseId}
                   onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
+                  isOpen={open.has(row.key)}
+                  onToggle={builder ? undefined : () => onChevron(row.key)}
                 />
               );
             }
             if (row.type === "join") {
               return <JoinRow key={row.key} lanes={row.lanes} />;
             }
-            // Every "and" path shares one level and XP result in the split header, in every disclosure state.
+            // A reader's "and" path stop opens with its split heading (`group`) and shows no level of its own.
+            const group = !builder && row.block !== undefined ? String(row.block) : undefined;
             return (
               <StopBlock
                 key={row.key}
@@ -170,7 +175,7 @@ export function RouteStepTable({
                 map={map}
                 youStart={route.start ?? 0}
                 isActive={row.key === selected}
-                isOpen={open.has(row.key)}
+                isOpen={open.has(group ?? row.key)}
                 isHover={row.key === hoverKey}
                 bodyId={`${baseId}-stop-${row.key}`}
                 onSummary={onSummary}
@@ -185,6 +190,7 @@ export function RouteStepTable({
                 lane={row.lane}
                 dnd={dnd?.({ kind: "row", key: row.key })}
                 sharedXp={row.block !== undefined}
+                chevron={!group}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
                 tools={stopTools && open.has(row.key) ? stopTools(row.key) : undefined}
               />
@@ -316,7 +322,7 @@ export function RouteStepTable({
             if (group.type === "block") {
               return [
                 renderRow(group.split),
-                <li key={`block-${group.split.key}`} className="relative">
+                <li key={`block-${group.split.key}`} id={`${baseId}-block-${group.split.key}`} className="relative">
                   <ol>{group.rows.map(renderRow)}</ol>
                 </li>,
               ];

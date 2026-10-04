@@ -294,7 +294,7 @@ export const GUIDES: Guide[] = [
       p("An attack is a numbered red disc with swords, and the leg into it is red."),
       { _type: "creepRoutePart", _key: "attack-map", part: "map", needs: "attack", slugs: ["am-lvl-3-rush-into-harass-9a77", "nightelf-aow-turtle-rock"], choice: { 3: 1 } },
       block("At the same time", "h2"),
-      p("When paths run at the same time, the list shows them together. The shared level and XP result sits in the split heading, above the paths. Open each step for its own details. A gold level tag means the hero levels during the split. Either path may give the level-up kill."),
+      p("When paths run at the same time, the list shows them together. The shared level and XP result sits in the split heading, above the paths. The heading opens them all together. A gold double chevron before the level means the hero levels during the split. Either path may give the level-up kill."),
       { _type: "creepRoutePart", _key: "same-time-stops", part: "stops", needs: "and", slugs: ["am-lvl-3-rush-into-harass-9a77", "human-no-expansion-tidehunters"] },
       p("That example includes a harass, which may give no XP. Here, both paths clear a creep camp, so either camp could cause the level up:"),
       { _type: "creepRoutePart", _key: "same-time-two-camps", part: "stops", needs: "and", slugs: ["fastest-lvl-3-1274"] },

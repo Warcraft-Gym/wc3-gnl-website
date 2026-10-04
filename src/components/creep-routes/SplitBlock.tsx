@@ -6,7 +6,7 @@ import { DROP, ForkRail, JoinRail, RailCell, type RailLine } from "./LaneRail";
 import { SAME_CAMP_LINE } from "./stop-rows";
 import { cn } from "@/lib/utils";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
-import { SplitXpSummary } from "./SplitXpSummary";
+import { LevelLine } from "./HeroMeter";
 
 /**
  * The builder's split (`RouteStepTable` with `builderRows`): every path shows,
@@ -212,7 +212,7 @@ export function AfterSplit({ lanes, joins, follows, slotAfter, node, onContinue 
           {follows ? null : " Leave it empty if each path ends the route."}
         </p>
       </div>
-      {node ? <div className="mt-2"><SplitXpSummary node={node} /></div> : null}
+      {node ? <LevelLine level={node.levelAfter} xp={node.xpBefore + node.xpGained} leveled={node.levelAfter > node.levelBefore} className="mt-2" /> : null}
       {slotAfter ? null : (
         <button type="button" onClick={onContinue} className={cn(ADD, "mt-1.5")}>
           <Plus aria-hidden size={13} /> Continue the route here
