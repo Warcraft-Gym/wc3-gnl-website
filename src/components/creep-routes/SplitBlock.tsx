@@ -29,8 +29,8 @@ export type SplitEdit = {
   error?: string;
   /** Absent at the path cap. */
   onAddPath?: () => void;
-  /** Absent with two paths: "Remove split" keeps one. */
-  onRemovePath?: (arm: number) => void;
+  /** Every path heading's x; removing one of two paths leaves the other's stops in the split's place. */
+  onRemovePath: (arm: number) => void;
   /** Puts the next-stop row at the end of a path. */
   onAddStops: (arm: number) => void;
   /** Puts the next-stop row right after the split. */
@@ -39,7 +39,7 @@ export type SplitEdit = {
   canMoveUp: boolean;
   canMoveDown: boolean;
   onRemove: () => void;
-  /** "Remove split, keep path A": the shown path stays. */
+  /** "Remove split, keep path A": path A always stays. */
   removeLabel: string;
   /** Every path is the same camps in the same order: a line under the chips, not blocking. */
   sameCamp?: boolean;
@@ -140,11 +140,15 @@ export function PathHead({ mode, arm, here, count, empty, lines, lane, edit, dnd
           />
         )}
         <span className="tnum shrink-0 text-[0.8rem] text-muted">{empty ? "empty" : `${count} ${count === 1 ? "stop" : "stops"}`}</span>
-        {edit.onRemovePath ? (
-          <button type="button" onClick={() => edit.onRemovePath?.(arm)} aria-label={`Remove path ${name}`} className="grid size-7 shrink-0 place-items-center rounded text-faint hover:text-loss">
-            <X size={14} />
-          </button>
-        ) : null}
+        <button
+          type="button"
+          onClick={() => edit.onRemovePath(arm)}
+          aria-label={`Remove path ${name}`}
+          title={`Remove path ${name}`}
+          className="grid size-7 shrink-0 place-items-center rounded text-faint hover:text-loss"
+        >
+          <X size={14} />
+        </button>
       </div>
       {error ? <p className="mt-1 text-[0.7rem] text-loss">{error}</p> : null}
     </li>

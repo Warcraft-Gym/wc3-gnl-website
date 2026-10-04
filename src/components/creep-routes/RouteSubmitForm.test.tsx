@@ -208,6 +208,41 @@ describe("RouteSubmitForm: the next-stop row and the split form", () => {
   });
 });
 
+describe("RouteSubmitForm: Remove split and remove path say what stays", () => {
+  const [a, b, c] = maps[0].camps;
+  const load = async () => {
+    const split = { mode: "or", arms: [{ label: "Fast", stops: [{ campId: b.id }] }, { label: "Safe", stops: [{ campId: c.id }] }] };
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: null, split }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-5" });
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelector("li[data-split]")).toBeInTheDocument());
+    return view;
+  };
+  const submitted = async (container: HTMLElement) => {
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    return JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson"))).map((s: { campId: string | null; split?: unknown }) => s.split ? "split" : s.campId);
+  };
+
+  it("the caption's trash keeps path A, even while path B holds the next stop", async () => {
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path B" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove split, keep path A" }));
+    expect(screen.getByRole("button", { name: /^Undo: remove split/ })).toBeInTheDocument();
+    expect(await submitted(container)).toEqual([a.id, b.id]);
+  });
+
+  it("a path heading's x removes one of two paths, and the other path's stops take the split's place", async () => {
+    const { container } = await load();
+    expect(screen.getByRole("button", { name: "Remove path B" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Remove path A" }));
+    expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: remove path A/ })).toBeInTheDocument();
+    expect(await submitted(container)).toEqual([a.id, c.id]);
+  });
+});
+
 describe("RouteSubmitForm: focus never drops to the page", () => {
   it("lands on Split here after Cancel, and on the next-stop row after Start, Continue the route here and a remove", async () => {
     const [a, b] = maps[0].camps;

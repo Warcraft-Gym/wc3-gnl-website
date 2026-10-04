@@ -381,7 +381,6 @@ export function RouteEditor({
     const row = stops[index];
     if (!row?.split) return undefined;
     const { arms, mode } = row.split;
-    const chosen = choice[String(index)] ?? 0;
     const errPath = `stops.${index}.split`;
     return {
       onMode: (next: "and" | "or") => {
@@ -404,15 +403,13 @@ export function RouteEditor({
             setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
             focusTo.current = `[aria-label="Path ${"ABC"[arms.length]} name"]`;
           },
-      onRemovePath:
-        arms.length > 2
-          ? (arm: number) => {
-              step(`remove path ${arm + 1}`);
-              setStops((rows) => removePath(rows, row.id, arm));
-              setTabs((t) => ({ ...t, [row.id]: 0 }));
-              focusTo.current = WAYPOINT;
-            }
-          : undefined,
+      // Removing one of two paths turns the split into the other path's stops, in its place (`removePath`).
+      onRemovePath: (arm: number) => {
+        step(`remove path ${mode === "and" ? arm + 1 : "ABC"[arm]}`);
+        setStops((rows) => removePath(rows, row.id, arm));
+        setTabs((t) => ({ ...t, [row.id]: 0 }));
+        focusTo.current = WAYPOINT;
+      },
       // The next-stop row moves to the end of that path, and the map follows it.
       onAddStops: (arm: number) => {
         select(row.id);
@@ -429,13 +426,14 @@ export function RouteEditor({
       },
       canMoveUp: index > 0,
       canMoveDown: index < stops.length - 1,
+      // The caption's trash always keeps path A; a path heading's x removes any other.
       onRemove: () => {
         step("remove split");
-        setStops((rows) => removeSplit(rows, row.id, chosen));
+        setStops((rows) => removeSplit(rows, row.id, 0));
         setSelectedId(null);
         focusTo.current = WAYPOINT;
       },
-      removeLabel: `Remove split, keep path ${mode === "and" ? chosen + 1 : "ABC"[chosen]}`,
+      removeLabel: `Remove split, keep path ${mode === "and" ? 1 : "A"}`,
       sameCamp: sameCampSequence(row.split),
     };
   };

@@ -1090,9 +1090,9 @@ sees; this section is the mechanics.
   stop that meets a split enters its first path from above, its last path from
   below; an arrow that enters or leaves a path says so in its name ("Move into
   path B", "path 2" at the same time, "Move out of the split"), and focus stays
-  on the moved stop's arrow; removing the second-last path turns the split into
-  plain stops (`removePath`); "Remove split" keeps the shown path
-  (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
+  on the moved stop's arrow; every path heading has a remove button, and
+  removing one of two paths turns the split into plain stops (`removePath`);
+  "Remove split" keeps path A (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
   Path labels are kept as typed and trimmed once on blur (`setArmLabel`).
