@@ -106,9 +106,10 @@ export function NextStopRow({
   );
 }
 
+/** The two kinds of split, each with its mini diagram: one path dashed (pick one) or both solid. */
 const MODES = [
-  { id: "or", title: "The player picks one path", text: "Readers get one tab per path. For real choices, e.g. Safe or Risky." },
-  { id: "and", title: "Both at the same time", text: "The hero walks path 1. Units without the hero do path 2, e.g. the Militia clear a camp." },
+  { id: "or", title: "Choose a path", line: <path d="M8 5 L14 9 H22 L28 5" strokeDasharray="2 2" /> },
+  { id: "and", title: "At the same time", line: <path d="M8 5 L14 9 H22 L28 5" /> },
 ] as const;
 const NAME_HINTS = ["e.g. Safe", "e.g. Risky", "e.g. vs. Mirror Image"];
 
@@ -144,14 +145,14 @@ export function SplitForm({
   });
   return (
     <div ref={box} data-split-form className={SLOT_BOX}>
-      <p className="text-sm font-medium leading-7 text-fg">Split the route {after}</p>
+      <p className="text-sm font-medium leading-7 text-fg">Split {after}</p>
       <fieldset className="mt-1">
-        <legend className="text-[0.8rem] text-muted">What happens here?</legend>
-        <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
+        <legend className="sr-only">Kind of split</legend>
+        <div className="grid gap-2 sm:grid-cols-2">
           {MODES.map((m) => (
             <label
               key={m.id}
-              className="flex cursor-pointer items-start gap-2.5 rounded border border-line p-2.5 hover:border-gold/40 has-[:checked]:border-gold/60 has-[:checked]:bg-gold/10"
+              className="flex cursor-pointer items-center gap-2 rounded border border-line px-2.5 py-2 hover:border-gold/40 has-[:checked]:border-gold/60 has-[:checked]:bg-gold/10"
             >
               <input
                 type="radio"
@@ -159,12 +160,13 @@ export function SplitForm({
                 value={m.id}
                 checked={setup.mode === m.id}
                 onChange={() => onChange({ ...setup, mode: m.id })}
-                className="mt-1 accent-[var(--wg-gold)]"
+                className="accent-[var(--wg-gold)]"
               />
-              <span>
-                <span className="block text-sm font-medium text-fg">{m.title}</span>
-                <span className="mt-0.5 block text-[0.78rem] leading-snug text-muted">{m.text}</span>
-              </span>
+              <span className="flex-1 text-sm font-medium text-fg">{m.title}</span>
+              <svg aria-hidden viewBox="0 0 34 10" className="h-2.5 w-[34px] shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth={1.5}>
+                <path d="M1 5 H8 L14 1 H22 L28 5 H33" />
+                {m.line}
+              </svg>
             </label>
           ))}
         </div>
@@ -202,27 +204,23 @@ export function SplitForm({
               ) : null}
             </div>
           ))}
-          <p className="text-[0.7rem] text-faint">
-            Readers pick a tab by this name.
-            {setup.names.length < MAX_PATHS ? (
-              <>
-                {" "}
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange({ ...setup, names: [...setup.names, ""] });
-                    focusTo.current = `[data-path-name="${setup.names.length}"]`;
-                  }}
-                  data-add-path
-                  className="text-gold underline underline-offset-2 hover:text-fg"
-                >
-                  Add a third path
-                </button>
-              </>
-            ) : null}
-          </p>
+          {setup.names.length < MAX_PATHS ? (
+            <button
+              type="button"
+              onClick={() => {
+                onChange({ ...setup, names: [...setup.names, ""] });
+                focusTo.current = `[data-path-name="${setup.names.length}"]`;
+              }}
+              data-add-path
+              className="text-[0.75rem] text-gold underline underline-offset-2 hover:text-fg"
+            >
+              Add a third path
+            </button>
+          ) : null}
         </div>
-      ) : null}
+      ) : (
+        <p className="mt-2 text-[0.8rem] text-muted">Path 1 is the hero&apos;s.</p>
+      )}
       <div className="mt-3 flex flex-wrap gap-1.5">
         <button type="button" onClick={onStart} disabled={!canStartSplit(setup)} className="btn-gold inline-flex h-8 items-center rounded px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40">
           Start path {pick ? "A" : "1"}

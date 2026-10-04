@@ -50,8 +50,8 @@ const ROW = "relative pl-[60px] pr-4 sm:pr-5";
 const ICON = "grid size-7 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
 const ADD = "inline-flex min-h-7 items-center gap-1 rounded border border-dashed border-line px-2 text-left text-xs text-muted hover:border-gold/50 hover:text-gold";
 const CHIPS = [
-  { id: "or", label: "The player picks one" },
-  { id: "and", label: "Both at the same time" },
+  { id: "or", label: "Choose a path" },
+  { id: "and", label: "At the same time" },
 ] as const;
 /** A path's letter: A, B, C in a pick-one split; 1, 2, 3 at the same time. */
 export const pathName = (mode: string, arm: number) => (mode === "and" ? String(arm + 1) : "ABC"[arm]);

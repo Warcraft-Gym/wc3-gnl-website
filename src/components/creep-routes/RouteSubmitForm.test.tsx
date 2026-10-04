@@ -193,6 +193,9 @@ describe("RouteSubmitForm: the next-stop row and the split form", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Split here" }));
     expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    expect(screen.getByText("Split after stop 2")).toBeInTheDocument();
+    expect(screen.getByRole("group", { name: "Kind of split" })).toBeInTheDocument();
+    expect(screen.queryByText("Readers pick a tab by this name.")).not.toBeInTheDocument();
     const start = screen.getByRole("button", { name: "Start path A" });
     fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
     expect(start).toBeDisabled();
@@ -215,7 +218,8 @@ describe("RouteSubmitForm: the next-stop row and the split form", () => {
     await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
     fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
     fireEvent.click(await screen.findByRole("button", { name: "Split here" }));
-    fireEvent.click(screen.getByText("Both at the same time"));
+    fireEvent.click(screen.getByRole("radio", { name: "At the same time" }));
+    expect(screen.getByText("Path 1 is the hero's.")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Start path 1" }));
     expect(container.querySelector("li[data-split]")).toBeInTheDocument();
 
