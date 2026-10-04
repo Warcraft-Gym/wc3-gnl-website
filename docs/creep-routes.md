@@ -1083,12 +1083,14 @@ sees; this section is the mechanics.
   has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
   `moveRowTo`), a split moves as a block and never into a path, and a path's
   heading and add row take a drop; the open stop's arrows make the
-  same moves on a keyboard or phone (`stepTarget`, then `moveRowTo`): up from a
-  path's first stop lands just above the split, down from its last stop just
-  below it, and a main-list stop that meets a split enters its shown path at the
-  near end (path 1 in "At the same time", where every path shows); an arrow
-  that crosses a split's edge says so in its name ("Move into path 2", "Move out
-  of the split"), and focus stays on the moved stop's arrow; removing the second-last path turns the split into
+  same moves on a keyboard or phone (`stepTarget`, then `moveRowTo`) in the
+  stacked order: up from a path's first stop to the end of the path above
+  (from path A: just above the split), down from its last stop to the start of
+  the path below (from the last path: just below the split), and a main-list
+  stop that meets a split enters its first path from above, its last path from
+  below; an arrow that enters or leaves a path says so in its name ("Move into
+  path B", "path 2" at the same time, "Move out of the split"), and focus stays
+  on the moved stop's arrow; removing the second-last path turns the split into
   plain stops (`removePath`); "Remove split" keeps the shown path
   (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z

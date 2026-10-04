@@ -111,55 +111,95 @@ test("move a split: the whole block moves, and it never lands in a path", () => 
 });
 
 // An arrow move is `moveRowTo` to `stepTarget`, the same function a drop calls.
-const arrow = (rows, id, dir, shown) => {
-  const at = stepTarget(rows, id, dir, shown);
+const arrow = (rows, id, dir) => {
+  const at = stepTarget(rows, id, dir);
   return at ? moveRowTo(rows, id, at) : rows;
 };
 const andRow = (...arms) => {
   const r = forkRow(...arms);
   return { ...r, split: { ...r.split, mode: "and" } };
 };
+// The arrows walk the builder's stacked order, one rule for "or" and "and": a 3-path pick-one split and a 2-path same-time split.
+const or3 = () => [camp("c1"), forkRow(["c2", "c3"], ["c4"], ["c5", "c6"]), camp("c7")];
+const and2 = () => [camp("c1"), andRow(["c2", "c3"], ["c4", "c5"]), camp("c6")];
+const at = (rows, arm, j) => rows[1].split.arms[arm].stops[j];
 
-test("arrows inside a path: one place up or down in that path", () => {
-  const rows = route();
-  const [c2, c3] = rows[1].split.arms[0].stops;
-  assert.deepEqual(pathIds(arrow(rows, c3.id, -1), 1), [["c3", "c2"], ["c4"]]);
-  assert.deepEqual(pathIds(arrow(rows, c2.id, 1), 1), [["c3", "c2"], ["c4"]]);
-  assert.equal(stepName(rows, c3.id, -1), "Move up");
-  assert.equal(stepName(rows, c2.id, 1), "Move down");
-});
-
-test("arrows out of a path: up from its first stop lands above the split, down from its last stop below it", () => {
-  for (const make of [route, () => [camp("c1"), andRow(["c2", "c3"], ["c4"]), camp("c5")]]) {
+test("arrows: the row right above a split moves down into its first path", () => {
+  for (const [make, name] of [[or3, "A"], [and2, "1"]]) {
     const rows = make();
-    const [c2, c3] = rows[1].split.arms[0].stops;
-    assert.deepEqual(ids(arrow(rows, c2.id, -1)), ["c1", "c2", "split", "c5"]);
-    assert.deepEqual(pathIds(arrow(rows, c2.id, -1), 2), [["c3"], ["c4"]]);
-    assert.deepEqual(ids(arrow(rows, c3.id, 1)), ["c1", "split", "c3", "c5"]);
-    assert.equal(stepName(rows, c2.id, -1), "Move out of the split");
-    assert.equal(stepName(rows, c3.id, 1), "Move out of the split");
+    assert.deepEqual(stepTarget(rows, rows[0].id, 1), { splitId: rows[1].id, arm: 0, index: 0 });
+    assert.deepEqual(pathIds(arrow(rows, rows[0].id, 1), 0)[0], ["c1", "c2", "c3"]);
+    assert.equal(stepName(rows, rows[0].id, 1), `Move into path ${name}`);
   }
 });
 
-test("arrows onto a split from the main list: into the shown path at the near end; path 1 in At the same time", () => {
-  const rows = route();
-  const split = rows[1].id;
-  // Down from above: first in the shown path; up from below: last in it.
-  assert.deepEqual(pathIds(arrow(rows, rows[0].id, 1), 0), [["c1", "c2", "c3"], ["c4"]]);
-  assert.deepEqual(pathIds(arrow(rows, rows[0].id, 1, { [split]: 1 }), 0), [["c2", "c3"], ["c1", "c4"]]);
-  assert.deepEqual(pathIds(arrow(rows, rows[2].id, -1, { [split]: 1 }), 1), [["c2", "c3"], ["c4", "c5"]]);
-  assert.deepEqual(stepTarget(rows, rows[2].id, -1, { [split]: 1 }), { splitId: split, arm: 1, index: 1 });
-  assert.equal(stepName(rows, rows[0].id, 1, { [split]: 1 }), "Move into path 2");
-  // A shown tab past the last path reads as the last path.
-  assert.deepEqual(stepTarget(rows, rows[0].id, 1, { [split]: 5 }), { splitId: split, arm: 1, index: 0 });
-  // "At the same time" shows every path: a stop enters path 1, the hero's line, whatever tab was last shown.
-  const and = [camp("c1"), andRow(["c2"], ["c4"]), camp("c5")];
-  assert.deepEqual(pathIds(arrow(and, and[0].id, 1, { [and[1].id]: 1 }), 0), [["c1", "c2"], ["c4"]]);
-  assert.deepEqual(pathIds(arrow(and, and[2].id, -1, { [and[1].id]: 1 }), 1), [["c2", "c5"], ["c4"]]);
-  assert.equal(stepName(and, and[2].id, -1), "Move into path 1");
-  // An empty shown path takes the stop as its only one.
-  const empty = [camp("c1"), forkRow(["c2"], [])];
-  assert.deepEqual(pathIds(arrow(empty, empty[0].id, 1, { [empty[1].id]: 1 }), 0), [["c2"], ["c1"]]);
+test("arrows: the row right below a split moves up to the end of its last path", () => {
+  const rows = or3();
+  assert.deepEqual(stepTarget(rows, rows[2].id, -1), { splitId: rows[1].id, arm: 2, index: 2 });
+  assert.deepEqual(pathIds(arrow(rows, rows[2].id, -1), 1)[2], ["c5", "c6", "c7"]);
+  assert.equal(stepName(rows, rows[2].id, -1), "Move into path C");
+  const and = and2();
+  assert.deepEqual(stepTarget(and, and[2].id, -1), { splitId: and[1].id, arm: 1, index: 2 });
+  assert.deepEqual(pathIds(arrow(and, and[2].id, -1), 1)[1], ["c4", "c5", "c6"]);
+  assert.equal(stepName(and, and[2].id, -1), "Move into path 2");
+});
+
+test("arrows inside a path: one place up or down in that path", () => {
+  for (const make of [or3, and2]) {
+    const rows = make();
+    const [c2, c3] = rows[1].split.arms[0].stops;
+    assert.deepEqual(pathIds(arrow(rows, c3.id, -1), 1)[0], ["c3", "c2"]);
+    assert.deepEqual(pathIds(arrow(rows, c2.id, 1), 1)[0], ["c3", "c2"]);
+    assert.equal(stepName(rows, c3.id, -1), "Move up");
+    assert.equal(stepName(rows, c2.id, 1), "Move down");
+  }
+  const rows = or3();
+  assert.deepEqual(pathIds(arrow(rows, at(rows, 2, 1).id, -1), 1)[2], ["c6", "c5"]);
+});
+
+test("arrows: up from a later path's first row goes to the end of the path above", () => {
+  const rows = or3();
+  assert.deepEqual(stepTarget(rows, at(rows, 1, 0).id, -1), { splitId: rows[1].id, arm: 0, index: 2 });
+  assert.deepEqual(pathIds(arrow(rows, at(rows, 1, 0).id, -1), 1), [["c2", "c3", "c4"], [], ["c5", "c6"]]);
+  assert.equal(stepName(rows, at(rows, 1, 0).id, -1), "Move into path A");
+  assert.deepEqual(pathIds(arrow(rows, at(rows, 2, 0).id, -1), 1), [["c2", "c3"], ["c4", "c5"], ["c6"]]);
+  assert.equal(stepName(rows, at(rows, 2, 0).id, -1), "Move into path B");
+  const and = and2();
+  assert.deepEqual(pathIds(arrow(and, at(and, 1, 0).id, -1), 1), [["c2", "c3", "c4"], ["c5"]]);
+  assert.equal(stepName(and, at(and, 1, 0).id, -1), "Move into path 1");
+});
+
+test("arrows: up from the first path's first row leaves the split, just above it", () => {
+  for (const make of [or3, and2]) {
+    const rows = make();
+    assert.deepEqual(stepTarget(rows, at(rows, 0, 0).id, -1), { index: 1 });
+    assert.deepEqual(ids(arrow(rows, at(rows, 0, 0).id, -1)).slice(0, 3), ["c1", "c2", "split"]);
+    assert.equal(stepName(rows, at(rows, 0, 0).id, -1), "Move out of the split");
+  }
+});
+
+test("arrows: down from a path's last row goes to the start of the next path, an empty one too", () => {
+  const rows = or3();
+  assert.deepEqual(stepTarget(rows, at(rows, 0, 1).id, 1), { splitId: rows[1].id, arm: 1, index: 0 });
+  assert.deepEqual(pathIds(arrow(rows, at(rows, 0, 1).id, 1), 1), [["c2"], ["c3", "c4"], ["c5", "c6"]]);
+  assert.equal(stepName(rows, at(rows, 0, 1).id, 1), "Move into path B");
+  assert.deepEqual(pathIds(arrow(rows, at(rows, 1, 0).id, 1), 1), [["c2", "c3"], [], ["c4", "c5", "c6"]]);
+  assert.equal(stepName(rows, at(rows, 1, 0).id, 1), "Move into path C");
+  const and = and2();
+  assert.deepEqual(pathIds(arrow(and, at(and, 0, 1).id, 1), 1), [["c2"], ["c3", "c4", "c5"]]);
+  assert.equal(stepName(and, at(and, 0, 1).id, 1), "Move into path 2");
+  const empty = [camp("c1"), forkRow(["c2"], [], ["c5"])];
+  assert.deepEqual(pathIds(arrow(empty, at(empty, 0, 0).id, 1), 1), [[], ["c2"], ["c5"]]);
+});
+
+test("arrows: down from the last path's last row leaves the split, just below it", () => {
+  for (const make of [or3, and2]) {
+    const rows = make();
+    const last = rows[1].split.arms.at(-1).stops.at(-1);
+    assert.deepEqual(stepTarget(rows, last.id, 1), { index: 2 });
+    assert.deepEqual(ids(arrow(rows, last.id, 1)).slice(1, 3), ["split", last.campId]);
+    assert.equal(stepName(rows, last.id, 1), "Move out of the split");
+  }
 });
 
 test("arrows: a split moves as one block, never into a path, and a stop between two splits enters one at a time", () => {
@@ -167,27 +207,28 @@ test("arrows: a split moves as one block, never into a path, and a stop between 
   assert.deepEqual(arrow(two, two[0].id, 1).map((r) => r.id), [two[1].id, two[0].id]);
   assert.deepEqual(stepTarget(two, two[1].id, -1), { index: 0 });
   assert.equal(stepName(two, two[0].id, 1), "Move down");
-  // c1 leaves split 1 downward and lands between the splits; the next press enters split 2.
-  const c1 = two[0].split.arms[0].stops[0];
-  const between = arrow(two, c1.id, 1);
-  assert.deepEqual(ids(between), ["split", "c1", "split"]);
-  assert.deepEqual(pathIds(between, 0), [[], ["c2"]]);
-  assert.deepEqual(pathIds(arrow(between, c1.id, 1), 1), [["c1", "c3"], ["c4"]]);
-  assert.deepEqual(pathIds(arrow(between, c1.id, -1), 0), [["c1"], ["c2"]]);
+  // c2 leaves split 1's last path downward and lands between the splits; the next press enters split 2's first path.
+  const c2 = two[0].split.arms[1].stops[0];
+  const between = arrow(two, c2.id, 1);
+  assert.deepEqual(ids(between), ["split", "c2", "split"]);
+  assert.deepEqual(pathIds(between, 0), [["c1"], []]);
+  assert.deepEqual(pathIds(arrow(between, c2.id, 1), 1), [["c2", "c3"], ["c4"]]);
+  assert.deepEqual(pathIds(arrow(between, c2.id, -1), 0), [["c1"], ["c2"]]);
 });
 
-test("arrows at the edges: the first row cannot go up, the last cannot go down, a path's stop always leaves", () => {
+test("arrows at the edges: the first row cannot go up, the last cannot go down, a path's stop always moves", () => {
   const rows = route();
   assert.equal(stepTarget(rows, rows[0].id, -1), null);
   assert.equal(stepTarget(rows, rows[2].id, 1), null);
   assert.equal(arrow(rows, rows[0].id, -1), rows);
   assert.equal(stepTarget(rows, -1, 1), null);
-  // A split first and last: its paths' stops still move out, and a one-stop path goes empty.
+  // A split first and last: its first path's first stop leaves upward, its last path's last stop downward.
   const only = [forkRow(["c2"], ["c4"])];
-  const c4 = only[0].split.arms[1].stops[0];
-  assert.deepEqual(ids(arrow(only, c4.id, -1)), ["c4", "split"]);
+  const [c2, c4] = only[0].split.arms.map((a) => a.stops[0]);
+  assert.deepEqual(ids(arrow(only, c2.id, -1)), ["c2", "split"]);
   assert.deepEqual(ids(arrow(only, c4.id, 1)), ["split", "c4"]);
   assert.deepEqual(pathIds(arrow(only, c4.id, 1), 0), [["c2"], []]);
+  assert.deepEqual(pathIds(arrow(only, c4.id, -1), 0), [["c2", "c4"], []]);
   assert.equal(stepTarget(only, only[0].id, -1), null);
   assert.equal(stepTarget(only, only[0].id, 1), null);
 });

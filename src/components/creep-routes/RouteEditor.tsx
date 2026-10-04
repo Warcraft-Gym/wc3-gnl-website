@@ -81,8 +81,8 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * the map follows the path that holds it. A drag handle on every row moves it
  * (native drag and drop on desktop; a split moves as a block and never into a
  * path; a path's heading and add row take a drop); the open stop's arrows make
- * the same moves on a keyboard or phone (`stepTarget`), into and out of a
- * split's paths too; its trash removes it.
+ * the same moves on a keyboard or phone (`stepTarget`), in the stacked order
+ * through every path of a split; its trash removes it.
  * "Remove path" and "Remove split" keep the model whole. Every change but typing
  * calls `remember` first, so the form can undo it; typing in one field is one
  * step until the field loses focus.
@@ -334,7 +334,7 @@ export function RouteEditor({
   const stopTools = (key: string) => {
     const row = rowAtKey(stops, key);
     if (!row || row.split) return undefined;
-    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir, tabs) as ListPlace | null;
+    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir) as ListPlace | null;
     return (
       <StopTools
         onRemove={() => {
@@ -352,8 +352,8 @@ export function RouteEditor({
         }}
         canMoveUp={target(-1) !== null}
         canMoveDown={target(1) !== null}
-        upLabel={stepName(stops, row.id, -1, tabs)}
-        downLabel={stepName(stops, row.id, 1, tabs)}
+        upLabel={stepName(stops, row.id, -1)}
+        downLabel={stepName(stops, row.id, 1)}
       />
     );
   };

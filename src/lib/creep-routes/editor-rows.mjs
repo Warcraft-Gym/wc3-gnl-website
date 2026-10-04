@@ -191,12 +191,13 @@ export function moveRowTo(rows, id, at) {
   return insertAt(removeRow(rows, id), { ...at, index }, row);
 }
 
-/** Where an arrow moves row `id` (-1 up, 1 down), for `moveRowTo`, so arrows and drag share one rule:
- *  one place in its own list; from a path's first stop up (last stop down) to just above (below) its
- *  split; from the main list onto a split, into its shown path (`shown`: tab by split id; path a in
- *  "and", where every path shows) at the near end. A split swaps with its neighbour as one block.
- *  Null at either end of the route. */
-export function stepTarget(rows, id, dir, shown = {}) {
+/** Where an arrow moves row `id` (-1 up, 1 down), for `moveRowTo`, so arrows and drag share one rule.
+ *  The arrows walk the builder's stacked order: one place in its own list; from a path's first stop up
+ *  to the end of the path above (from path A: just above the split); from a path's last stop down to the
+ *  start of the path below (from the last path: just below the split); from the main list onto a split,
+ *  into its first path from above, its last path from below. A split swaps with its neighbour as one
+ *  block. Null at either end of the route. */
+export function stepTarget(rows, id, dir) {
   const from = locate(rows, id);
   if (!from) return null;
   const list = listAt(rows, from);
@@ -204,23 +205,30 @@ export function stepTarget(rows, id, dir, shown = {}) {
   if (from.splitId !== undefined) {
     if (j >= 0 && j < list.length) return { ...from, index: dir < 0 ? j : j + 1 };
     const s = rows.findIndex((r) => r.id === from.splitId);
+    const arms = rows[s].split.arms;
+    const k = from.arm + dir;
+    if (k >= 0 && k < arms.length) return { splitId: from.splitId, arm: k, index: dir < 0 ? arms[k].stops.length : 0 };
     return { index: dir < 0 ? s : s + 1 };
   }
   const next = rows[j];
   if (!next) return null;
   if (next.split && !list[from.index].split) {
-    const arm = next.split.mode === "and" ? 0 : Math.min(shown[next.id] ?? 0, next.split.arms.length - 1);
+    const arm = dir < 0 ? next.split.arms.length - 1 : 0;
     return { splitId: next.id, arm, index: dir < 0 ? next.split.arms[arm].stops.length : 0 };
   }
   return { index: dir < 0 ? j : j + 1 };
 }
 
-/** The arrow's accessible name: what the move does when it crosses a split's edge, else "Move up" or "Move down". */
-export function stepName(rows, id, dir, shown = {}) {
+/** The arrow's accessible name: "Move into path B" when it enters a path ("path 2" in a same-time split),
+ *  "Move out of the split" when it leaves one, else "Move up" or "Move down". */
+export function stepName(rows, id, dir) {
   const from = locate(rows, id);
-  const to = stepTarget(rows, id, dir, shown);
+  const to = stepTarget(rows, id, dir);
   if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the split";
-  if (from && to && from.splitId === undefined && to.splitId !== undefined) return `Move into path ${to.arm + 1}`;
+  if (from && to && to.splitId !== undefined && (from.splitId !== to.splitId || from.arm !== to.arm)) {
+    const and = rows.find((r) => r.id === to.splitId)?.split?.mode === "and";
+    return `Move into path ${and ? to.arm + 1 : "ABC"[to.arm]}`;
+  }
   return dir < 0 ? "Move up" : "Move down";
 }
 
