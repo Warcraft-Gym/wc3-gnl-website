@@ -284,7 +284,7 @@ export const GUIDES: Guide[] = [
       p("Some routes split where the right play depends on the game. \"Choose a path\" shows each path as a tab: its stops read 3a, 4a or 3b, and the numbers run along the path you chose."),
       { _type: "creepRoutePart", _key: "split-stops", part: "stops", needs: "split", slugs: ["early-creep-route-vs-solo-blademaster-windwalk-b1c6", "undead-ves-autumn-leaves"] },
       block("Waypoints", "h2"),
-      p("A waypoint is a stop with no number: a glyph for build, expand, shop or scout. A waypoint done by another unit, such as a lone scout, stays in the list but is not on the map."),
+      p("A waypoint is a step at a place with no creeps and no number, with a glyph for build, expand, shop or scout; when it is on the route, the line on the map goes through it. A pin is a waypoint that marks a place that matters at that moment: the list reads \"Meanwhile\" before it, and on the map it has a dashed edge and the line skips it."),
       { _type: "creepRoutePart", _key: "waypoint-stops", part: "stops", needs: "waypoint", slugs: ["standard-early-creep-route-vs-dh-naga-0479", "undead-ves-echo-isles"] },
       block("Attacks", "h2"),
       p("An attack is a numbered red disc with swords, and the leg into it is red."),

@@ -7,7 +7,7 @@ import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, StopTools, type StopRowData } from "./StopEditBody";
 import type { SplitEdit } from "./SplitBlock";
-import { NextStopRow, SplitForm } from "./NextStopRow";
+import { NextStopRow, SplitForm, WaypointChooser, type WayType } from "./NextStopRow";
 import {
   addTarget,
   canStartSplit,
@@ -36,6 +36,7 @@ import {
   type UndoEntry,
 } from "./stop-rows";
 import { stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
+import { atKind } from "@/lib/creep-routes/place.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
@@ -81,7 +82,8 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * at the end of a path when its split is selected ("Add stops to path B"), right
  * after the split with "Continue the route here", else at the end; a camp
  * already in that list is selected instead. The next-stop row (`NextStopRow`)
- * sits in the list where that add lands and holds "Waypoint" and "Split here";
+ * sits in the list where that add lands and holds "Waypoint" (its chooser: on the
+ * route, a pin or no place) and "Split here";
  * the map follows the path that holds it. A drag handle on every row moves it
  * (native drag and drop on desktop; a split moves as a block and never into a
  * path; a path's heading and add row take a drop); the open stop's arrows make
@@ -148,9 +150,12 @@ export function RouteEditor({
   );
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(routeStops, choice), [routeStops, choice]);
-  const [pointArmed, setPointArmed] = useState(false);
-  // A waypoint just added with "Waypoint": the next map click puts it on a spot.
+  // The map waits for the spot of a waypoint on the route or a pin; `pending` is a row that gets it
+  // (a No place row switched back), else the click adds a new row.
+  const [armed, setArmed] = useState<Exclude<WayType, "none"> | null>(null);
   const [pending, setPending] = useState<number | null>(null);
+  // The waypoint chooser ("Waypoint"): nothing is inserted until a choice.
+  const [chooser, setChooser] = useState(false);
   // The split form ("Split here"): nothing is inserted until "Start path A".
   const [setup, setSetup] = useState<SplitSetup | null>(null);
   // After an action whose button unmounts, focus goes to this control (a selector in the editor), never to <body>.
@@ -164,20 +169,21 @@ export function RouteEditor({
   });
   // Bring and the condition of a camp stop stay open once opened, by row id, so they survive a move.
   const [opened, setOpened] = useState<Record<string, true>>({});
-  // Escape in the editor closes the split form and stops waiting for a waypoint's spot; an Escape a
-  // popover already took (`defaultPrevented`) or one outside the editor does not.
+  // Escape in the editor closes the split form and the waypoint chooser and stops waiting for a spot;
+  // an Escape a popover already took (`defaultPrevented`) or one outside the editor does not.
   useEffect(() => {
-    if (!setup && !pointArmed) return;
+    if (!setup && !armed && !chooser) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented || !rootRef.current?.contains(e.target as Node)) return;
       focusTo.current = setup ? '[data-focus="split"]' : WAYPOINT;
       setSetup(null);
-      setPointArmed(false);
+      setChooser(false);
+      setArmed(null);
       setPending(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [setup, pointArmed]);
+  }, [setup, armed, chooser]);
   // The text field being typed in: its edits are one undo step until it loses focus.
   const typing = useRef<string | null>(null);
   // The row being dragged and the drop zone under the pointer.
@@ -218,15 +224,16 @@ export function RouteEditor({
     if (sel && !locate(stops, sel.id)) setSel(undone?.sel ?? null);
     if (pending !== null && !locate(stops, pending)) {
       setPending(null);
-      setPointArmed(false);
+      setArmed(null);
     }
   }
 
-  /** Selects a row (the next-stop row moves after it); closes the split form and an armed waypoint. */
+  /** Selects a row (the next-stop row moves after it); closes the split form, the chooser and an armed map. */
   const select = (id: number | null, scroll = false, after = false) => {
     setSel(id === null ? null : { id, after });
     setSetup(null);
-    setPointArmed(false);
+    setChooser(false);
+    setArmed(null);
     setPending(null);
     const key = id === null ? null : keyOfRow(stops, id);
     if (key && scroll) setScrollTo({ key });
@@ -285,37 +292,49 @@ export function RouteEditor({
 
   // A camp already in the list the click adds to is selected, not added twice; a stop is removed with its trash.
   const onCampClick = (campId: string) => {
-    if (setup) return;
+    if (setup || chooser) return;
     const there = listAt(stops, addTarget(stops, selection)).find((r) => r.campId === campId);
     if (there) select(there.id, true);
     else add(newRow({ campId }), "stop", "add stop");
   };
-  const onPlaceSelect = (place: Place) => {
-    if (setup) return;
+  // A click unarmed or armed for the route adds a waypoint on the route (`kindForClick`); armed for a pin
+  // it adds a pin (`hero: false`), never an attack, a scout at a free point.
+  const onPlaceSelect = (picked: Place) => {
+    if (setup || chooser) return;
+    const pin = armed === "pin";
+    const place: Place = pin && (picked.kind === "attack" || atKind(picked.at) === "point") ? { ...picked, kind: "scout" } : picked;
+    const hero = pin ? false : undefined;
     if (pending !== null && rowAtKey(stops, keyOfRow(stops, pending) ?? "")) {
-      setStops((rows) => patchRow(rows, pending, { place }));
+      step(`edit ${nameOf(pending)}`);
+      setStops((rows) => patchRow(rows, pending, { place, hero }));
       setSelectedId(pending);
     } else {
-      add(newRow({ place }), place.kind === "attack" ? "stop" : "row", place.kind === "attack" ? "add stop" : "add waypoint");
+      add(newRow({ place, hero }), place.kind === "attack" ? "stop" : "row", place.kind === "attack" ? "add stop" : pin ? "add pin" : "add waypoint");
     }
     setPending(null);
-    setPointArmed(false);
+    setArmed(null);
   };
   const addWaypoint = () => {
-    if (pointArmed) {
-      setPointArmed(false);
-      setPending(null);
-      return;
+    if (addBlocked(stops, "row")) return;
+    setArmed(null);
+    setPending(null);
+    setChooser(true);
+    focusTo.current = '[data-focus="way-route"]';
+  };
+  /** The chooser's pick: On the route and A pin arm the map; No place adds an action row and focuses its text. */
+  const chooseWay = (type: WayType) => {
+    setChooser(false);
+    if (type !== "none") {
+      setArmed(type);
+      focusTo.current = '[data-focus="cancel"]';
+    } else if (add(newRow(), "stop", "add action") !== undefined) {
+      focusTo.current = "[data-way-text]";
     }
-    const id = add(newRow(), "row", "add waypoint");
-    if (id === undefined) return;
-    setPending(id);
-    setPointArmed(true);
-    focusTo.current = '[data-focus="cancel"]';
   };
   const openSplit = () => {
     if (addBlocked(stops, "row")) return;
-    setPointArmed(false);
+    setChooser(false);
+    setArmed(null);
     setPending(null);
     setSetup({ mode: "or", names: ["", ""] });
   };
@@ -361,6 +380,11 @@ export function RouteEditor({
         heroIcon={heroIcon}
         opened={{ bring: Boolean(opened[`${row.id}.bring`]), condition: Boolean(opened[`${row.id}.condition`]) }}
         onOpen={(part) => setOpened((o) => (o[`${row.id}.${part}`] ? o : { ...o, [`${row.id}.${part}`]: true }))}
+        onArm={(type) => {
+          setPending(row.id);
+          setArmed(type);
+          focusTo.current = '[data-focus="cancel"]';
+        }}
       />
     );
   };
@@ -523,7 +547,7 @@ export function RouteEditor({
           onCampCardHoverLeave={onHoverLeave}
           openCampId={openCampId}
           onPlaceSelect={onPlaceSelect}
-          pointArmed={pointArmed}
+          pointArmed={armed !== null}
           activeStop={selectedKey}
           onStopSelect={(key) => {
             const row = rowAtKey(stops, key);
@@ -533,11 +557,13 @@ export function RouteEditor({
         />
         <MapLegend />
         <p className="mt-2 text-xs text-faint">
-          {pointArmed
+          {armed
             ? "Click the map to put the waypoint on a spot."
-            : setup
-              ? "Finish the split form first."
-              : "Click a camp to add it at the dashed row. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
+            : chooser
+              ? "Choose the kind of waypoint first."
+              : setup
+                ? "Finish the split form first."
+                : "Click a camp to add it at the dashed row. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -583,9 +609,19 @@ export function RouteEditor({
           dnd={dnd}
           slot={slot}
           slotRow={
-            setup ? (
+            chooser ? (
+              <WaypointChooser
+                after={next.after}
+                noPlaceCap={addBlocked(stops, "stop")}
+                onChoose={chooseWay}
+                onCancel={() => {
+                  setChooser(false);
+                  focusTo.current = WAYPOINT;
+                }}
+              />
+            ) : setup ? (
               <SplitForm
-                after={next.after ?? "here"}
+                after={next.after}
                 setup={setup}
                 onChange={setSetup}
                 onStart={startSplit}
@@ -604,12 +640,12 @@ export function RouteEditor({
                   focusTo.current = WAYPOINT;
                 }}
                 inPath={at.splitId !== undefined}
-                armed={pointArmed}
+                armed={armed}
                 blocked={Boolean(addBlocked(stops, "row"))}
                 capLine={capLine}
                 onWaypoint={addWaypoint}
                 onCancel={() => {
-                  setPointArmed(false);
+                  setArmed(null);
                   setPending(null);
                   focusTo.current = WAYPOINT;
                 }}

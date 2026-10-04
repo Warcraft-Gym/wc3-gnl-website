@@ -156,7 +156,7 @@ export function addTarget(rows, selection, isSplit = false) {
 /** The builder's next-stop row, the dashed row at `at` (`addTarget`'s place): the label the next numbered
  *  stop takes there, counting itself in (`stop-numbers.mjs`; the rows below keep their own numbers), the
  *  line under it, and `toEnd` when the row is not at the end ("Add at the end instead"). `after` names the
- *  row before a top-level place ("after stop 2", "at the start"). `tabs`: the shown path by split id. */
+ *  row before the place ("after stop 2", "at the start", "at the start of path B"). `tabs`: the shown path by split id. */
 export function nextStop(rows, at, tabs = {}) {
   const withSlot = insertAt(rows, at, { id: -1, campId: "slot" });
   const choice = Object.fromEntries(withSlot.flatMap((r, i) => (r.split ? [[String(i), tabs[r.id] ?? 0]] : [])));
@@ -170,7 +170,9 @@ export function nextStop(rows, at, tabs = {}) {
       split.mode === "and"
         ? `path ${at.arm + 1}, ${at.arm === 0 ? "the hero's" : "without the hero"}`
         : `path ${"ABC"[at.arm]}${name ? ` (${name})` : ""}`;
-    return { label, line: `Adds stop ${label} to ${path}.`, toEnd: false };
+    const prev = split.arms[at.arm]?.stops[at.index - 1];
+    const after = !prev ? `at the start of path ${split.mode === "and" ? at.arm + 1 : "ABC"[at.arm]}` : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
+    return { label, line: `Adds stop ${label} to ${path}.`, toEnd: false, after };
   }
   const prev = rows[at.index - 1];
   const after = !prev ? "at the start" : prev.split ? "after the split" : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { Crosshair, MapPin, Split, X } from "lucide-react";
+import { Flag, MapPin, Split, X, Zap } from "lucide-react";
 import { canStartSplit, type SplitSetup } from "./stop-rows";
 import { MAX_PATHS } from "@/lib/creep-routes/caps.mjs";
 import { cn } from "@/lib/utils";
@@ -16,9 +16,9 @@ export const SLOT_BOX = "rounded border border-dashed border-gold/60 bg-gold/[0.
  * The builder's next-stop row (`RouteEditor`): one dashed gold row that sits in
  * the list where the next map click lands (`addTarget`), with the number that
  * stop will take in a dashed circle (`nextStop`). It holds the two adds that are
- * not a camp click: "Waypoint" arms the map, "Split here" opens the split form
- * (top level only, splits are one level deep). While a waypoint is armed the
- * row asks for its spot.
+ * not a camp click: "Waypoint" opens the waypoint chooser, "Split here" the split
+ * form (top level only, splits are one level deep). While the map is armed for a
+ * waypoint on the route or a pin the row asks for its spot.
  */
 export function NextStopRow({
   label,
@@ -41,8 +41,8 @@ export function NextStopRow({
   onToEnd: () => void;
   /** The row sits in a split's path: no "Split here". */
   inPath: boolean;
-  /** A waypoint waits for its spot on the map. */
-  armed: boolean;
+  /** A waypoint on the route or a pin waits for its spot on the map. */
+  armed: WayType | null;
   /** At the row cap the two adds do nothing. */
   blocked: boolean;
   capLine?: string | null;
@@ -57,12 +57,14 @@ export function NextStopRow({
           aria-hidden
           className="tnum grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-gold text-[0.75rem] font-bold text-gold"
         >
-          {armed ? <Crosshair size={14} /> : label}
+          {armed === "pin" ? <Flag size={14} /> : armed ? <MapPin size={14} /> : label}
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium leading-7 text-fg">
-            {armed ? (
-              "Click the map where it happens"
+            {armed === "pin" ? (
+              "Click the spot to pin"
+            ) : armed ? (
+              "Click the place on the map"
             ) : (
               <>
                 <span className="lg:hidden">Tap a camp on the map above</span>
@@ -71,7 +73,7 @@ export function NextStopRow({
             )}
           </p>
           <p aria-live="polite" className="text-[0.8rem] text-muted">
-            {armed ? "Bases, gold mines and shops snap to their spot." : line}
+            {armed === "pin" ? "Any spot. The line skips it." : armed ? "Bases, gold mines and shops snap to their spot." : line}
             {!armed && toEnd ? (
               <>
                 {" "}
@@ -107,6 +109,49 @@ export function NextStopRow({
 }
 
 /** The two kinds of split, each with its mini diagram: one path dashed (pick one) or both solid. */
+// A waypoint is a step at a place with no creeps. The line goes through it, or it is a pin the line skips.
+// A step with no place is an action. Who goes is Bring, as on any stop.
+export type WayType = "route" | "pin" | "none";
+export const WAY_TYPES = [
+  { id: "route", short: "On the route", long: "On the route", line: "The line goes through it.", Glyph: MapPin },
+  { id: "pin", short: "Pin", long: "A pin", line: "Marks a spot. The line skips it.", Glyph: Flag },
+  { id: "none", short: "No place", long: "No place", line: "An action, e.g. TP home.", Glyph: Zap },
+] as const;
+
+/**
+ * "Waypoint" turns the next-stop row into this chooser; nothing is inserted yet. On the route and
+ * A pin arm the map, No place adds an action row (`RouteEditor`). Escape and "Cancel" close it.
+ */
+export function WaypointChooser({ after, noPlaceCap, onChoose, onCancel }: { after: string; noPlaceCap?: string | null; onChoose: (type: WayType) => void; onCancel: () => void }) {
+  return (
+    <div data-waypoint-chooser className={SLOT_BOX}>
+      <p className="text-sm font-medium leading-7 text-fg">Waypoint {after}</p>
+      <div className="mt-1 grid gap-2 sm:grid-cols-3">
+        {WAY_TYPES.map((t) => (
+          <button
+            key={t.id}
+            type="button"
+            disabled={t.id === "none" && Boolean(noPlaceCap)}
+            onClick={() => onChoose(t.id)}
+            data-focus={`way-${t.id}`}
+            className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-2 rounded border border-line px-2.5 py-2 text-left hover:border-gold/60 hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <t.Glyph aria-hidden size={16} className="row-span-2 mt-0.5 text-gold" />
+            <span className="text-sm font-medium text-fg">{t.long}</span>
+            <span className="text-[0.75rem] leading-snug text-muted">{t.line}</span>
+          </button>
+        ))}
+      </div>
+      {noPlaceCap ? <p className="mt-2 text-[0.7rem] text-faint">{noPlaceCap}</p> : null}
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <button type="button" onClick={onCancel} data-focus="cancel" className={QUIET_BUTTON}>
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
 const MODES = [
   { id: "or", title: "Choose a path", line: <path d="M8 5 L14 9 H22 L28 5" strokeDasharray="2 2" /> },
   { id: "and", title: "At the same time", line: <path d="M8 5 L14 9 H22 L28 5" /> },

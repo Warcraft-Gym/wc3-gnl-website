@@ -319,11 +319,13 @@ test("next-stop row in a path: letters in a pick-one path, the same numbers in a
   rows[1].split.arms[0].label = "Safe";
   rows[1].split.arms[1].label = " Risky ";
   const inB = addTarget(rows, { id: rows[1].id, arm: 1 });
-  assert.deepEqual(nextStop(rows, inB, { [rows[1].id]: 1 }), { label: "3b", line: "Adds stop 3b to path B (Risky).", toEnd: false });
+  assert.deepEqual(nextStop(rows, inB, { [rows[1].id]: 1 }), { label: "3b", line: "Adds stop 3b to path B (Risky).", toEnd: false, after: "after stop 2b" });
   assert.equal(nextStop(rows, addTarget(rows, { id: rows[1].id, arm: 0 })).line, "Adds stop 3a to path A (Safe).");
   const and = [camp("c1"), { ...rows[1], split: { ...rows[1].split, mode: "and" } }];
-  assert.deepEqual(nextStop(and, addTarget(and, { id: and[1].id, arm: 1 })), { label: "3", line: "Adds stop 3 to path 2, without the hero.", toEnd: false });
+  assert.deepEqual(nextStop(and, addTarget(and, { id: and[1].id, arm: 1 })), { label: "3", line: "Adds stop 3 to path 2, without the hero.", toEnd: false, after: "after stop 2" });
   assert.equal(nextStop(and, addTarget(and, { id: and[1].id, arm: 0 })).line, "Adds stop 3 to path 1, the hero's.");
+  const empty = [camp("c1"), forkRow([], ["c3"])];
+  assert.equal(nextStop(empty, addTarget(empty, { id: empty[1].id, arm: 0 })).after, "at the start of path A");
 });
 
 test("split form: Start waits for a name on every pick-one path; a same-time split starts at once", () => {

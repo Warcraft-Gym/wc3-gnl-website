@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { cleanup, render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { cleanup, render, screen, fireEvent, waitFor, within } from "@testing-library/react";
 import { RouteSubmitForm } from "./RouteSubmitForm";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { EXCHANGE_FORMAT, IMPORT_HASH_KEY, encodeForHash } from "@/lib/creep-routes/exchange-codec.mjs";
@@ -308,5 +308,135 @@ describe("RouteSubmitForm: focus never drops to the page", () => {
     fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
     fireEvent.click(await screen.findByRole("button", { name: "Remove stop" }));
     await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+  });
+});
+
+describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
+  const [a, b] = maps[0].camps;
+  const their = String(maps[0].starts[1].player);
+  const load = async (more: object[] = [], numbered = 2) => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }, ...more] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelectorAll("li[data-stop]").length).toBe(numbered));
+    return view;
+  };
+  const waypoint = () => screen.getByRole("button", { name: "Waypoint" });
+  const theirBase = () => screen.getByRole("button", { name: "Add a stop at their base" });
+  // The hero's Bring entry is the one toggle in Bring.
+  const heroEntry = () => document.querySelector("[data-bring] button[aria-pressed]");
+  const pressed = (name: string) => within(screen.getByRole("group", { name: "Waypoint" })).getByRole("button", { name }).getAttribute("aria-pressed");
+
+  it("Waypoint asks first: three choices in the row, Cancel and Escape close it, focus comes back", async () => {
+    await load();
+    fireEvent.click(waypoint());
+    expect(screen.getByText("Waypoint after stop 2")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^On the route/ })).toHaveTextContent("The line goes through it.");
+    expect(screen.getByRole("button", { name: /^A pin/ })).toHaveTextContent("Marks a spot. The line skips it.");
+    expect(screen.getByRole("button", { name: /^No place/ })).toHaveTextContent("An action, e.g. TP home.");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /^On the route/ })));
+    expect(screen.getByText("Choose the kind of waypoint first.")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    fireEvent.click(waypoint());
+    fireEvent.keyDown(screen.getByRole("button", { name: /^A pin/ }), { key: "Escape" });
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.queryByText("Waypoint after stop 2")).not.toBeInTheDocument();
+  });
+
+  it("keeps No place unavailable when the numbered stop cap is full", async () => {
+    await load(maps[0].camps.slice(2, 12).map((camp) => ({ campId: camp.id })), 12);
+    fireEvent.click(waypoint());
+    expect(screen.getByRole("button", { name: /^No place/ })).toBeDisabled();
+    expect(screen.getByRole("button", { name: /^A pin/ })).toBeEnabled();
+    expect(screen.getByText(/cap of 12 numbered stops/)).toBeInTheDocument();
+  });
+
+  it("No place adds an action row and focuses its text; A pin arms the map and adds a pin there", async () => {
+    const { container } = await load();
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: /^No place/ }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What happens" })));
+    expect(screen.getByText("New action")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: add action/ })).toBeInTheDocument();
+
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: /^A pin/ }));
+    expect(screen.getByText("Click the spot to pin")).toBeInTheDocument();
+    expect(screen.getByText("Any spot. The line skips it.")).toBeInTheDocument();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Cancel" })));
+    fireEvent.click(theirBase());
+    const pin = container.querySelector("li[data-pin]")!;
+    expect(within(pin as HTMLElement).getByText("Meanwhile")).toBeInTheDocument();
+    expect(within(pin as HTMLElement).getByText("New pin")).toBeInTheDocument();
+    expect(within(pin as HTMLElement).getByText("their base")).toBeInTheDocument();
+    // A pin at their base scouts; it is never an attack.
+    expect(pressed("Pin")).toBe("true");
+    expect(screen.getByRole("button", { name: "Scout" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("button", { name: "Attack" })).not.toBeInTheDocument();
+  });
+
+  it("the switch: pin to route, to No place and back, each one undo step; no Hero entry on a waypoint", async () => {
+    const { container } = await load([{ campId: null, action: "Scout", place: { kind: "scout", at: { start: their } }, hero: false }]);
+    fireEvent.click(container.querySelector("li[data-waypoint] button")!);
+    expect(pressed("Pin")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: "Bring units" }));
+    expect(document.querySelector("[data-bring]")).toBeInTheDocument();
+    expect(heroEntry()).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "On the route" }));
+    expect(pressed("On the route")).toBe("true");
+    expect(container.querySelector("li[data-pin]")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: edit waypoint/ })).toBeInTheDocument();
+    expect(heroEntry()).toBeNull();
+
+    fireEvent.click(screen.getByRole("button", { name: "No place" }));
+    expect(pressed("No place")).toBe("true");
+    expect(screen.queryByRole("button", { name: "Scout" })).not.toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "What happens" })).toHaveValue("Scout");
+
+    fireEvent.click(screen.getByRole("button", { name: "Pin" }));
+    expect(screen.getByText("Click the spot to pin")).toBeInTheDocument();
+    fireEvent.click(theirBase());
+    expect(pressed("Pin")).toBe("true");
+    expect(container.querySelector("li[data-pin]")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
+    expect(pressed("No place")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
+    expect(pressed("On the route")).toBe("true");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
+    expect(pressed("Pin")).toBe("true");
+  });
+
+  it("an attack switched to Pin scouts", async () => {
+    const { container } = await load([{ campId: null, action: "Harass", place: { kind: "attack", at: { start: their } } }], 3);
+    fireEvent.click(container.querySelector('li[data-stop="3"] button')!);
+    expect(pressed("On the route")).toBe("true");
+    // An attack keeps the hero's Bring entry.
+    fireEvent.click(screen.getByRole("button", { name: "Bring units" }));
+    expect(heroEntry()).not.toBeNull();
+    expect(screen.getByRole("button", { name: "Attack" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(screen.getByRole("button", { name: "Pin" }));
+    expect(pressed("Pin")).toBe("true");
+    expect(screen.getByRole("button", { name: "Scout" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.queryByRole("button", { name: "Attack" })).not.toBeInTheDocument();
+  });
+
+  it("a pin submits the same stop object as today's hero-off waypoint", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-5" });
+    const old = { campId: null, action: "Scout their base", place: { kind: "scout", at: { start: their } }, hero: false };
+    const { container } = await load([old]);
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: /^A pin/ }));
+    fireEvent.click(theirBase());
+    fireEvent.change(screen.getByRole("textbox", { name: "What happens" }), { target: { value: "Scout their base" } });
+
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
+    expect(JSON.stringify(stops[3])).toBe(JSON.stringify(stops[2]));
+    expect(stops[3]).toMatchObject(old);
   });
 });

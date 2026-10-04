@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { actionNamesPlace, atKind, isWaypoint, kindForClick, placeIds, placeName, placePoint, placeProblem } from "./place.mjs";
+import { actionNamesPlace, atKind, isPin, isWaypoint, kindForClick, placeIds, placeName, placePoint, placeProblem, placeWhere } from "./place.mjs";
 
 const map = {
   starts: [{ player: 1, x: 0.7, y: 0.9 }, { player: 3, x: 0.3, y: 0.1 }],
@@ -29,6 +29,24 @@ test("placeName: your base, their base, a gold mine, the shop's name or shop, on
   assert.equal(placeName(map, at({ shop: "nmrk-6" })), "Marketplace");
   assert.equal(placeName(map, at({ shop: "hrdh-1" })), "shop");
   assert.equal(placeName(map, at({ x: 0.1, y: 0.1 })), "on the map");
+});
+
+test("placeWhere, the grey text: a start, mine or shop by name; nothing for a free point or no place", () => {
+  assert.equal(placeWhere(map, at({ start: "3" }, "scout"), 0), "their base");
+  assert.equal(placeWhere(map, at({ mine: "0" }, "expand")), "a gold mine");
+  assert.equal(placeWhere(map, at({ shop: "nmrk-6" }, "shop")), "Marketplace");
+  assert.equal(placeWhere(map, at({ x: 0.1, y: 0.1 }, "scout")), "");
+  assert.equal(placeWhere(map, undefined), "");
+  // An attack keeps its place, at a free point too.
+  assert.equal(placeWhere(map, at({ x: 0.1, y: 0.1 }, "attack")), "on the map");
+});
+
+test("isPin: a waypoint with the hero flag off; never an attack, a camp or a step with no place", () => {
+  assert.equal(isPin({ campId: null, place: at({ start: "3" }, "scout"), hero: false }), true);
+  assert.equal(isPin({ campId: null, place: at({ start: "3" }, "scout") }), false);
+  assert.equal(isPin({ campId: null, place: at({ start: "3" }, "attack"), hero: false }), false);
+  assert.equal(isPin({ campId: "c01", hero: false }), false);
+  assert.equal(isPin({ campId: null, action: "TP home", hero: false }), false);
 });
 
 test("placeProblem names a spot the map does not have and passes a point", () => {

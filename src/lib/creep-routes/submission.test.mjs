@@ -419,7 +419,7 @@ test("hero: false is kept on a camp, attack or waypoint stop and rejected on a b
   assert.equal(draft.stops[1].hero, false);
   assert.equal(draft.stops[2].hero, false);
   assert.equal(draft.stops[0].hero, undefined);
-  // A waypoint done by another unit (a lone scout).
+  // A pin: a waypoint with the hero flag off.
   const onWaypoint = s.safeParse(payload({ stops: [{ campId: null, action: "Scout", place: { kind: "scout", at: { x: 0.2, y: 0.2 } }, hero: false }, { campId: "c01" }, { campId: "c02" }] }));
   assert.equal(onWaypoint.success, true);
   assert.equal(toCreepRouteDraft(onWaypoint.data, "creepMap-autumn-leaves").stops[0].hero, false);

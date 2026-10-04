@@ -442,25 +442,46 @@ Ancient of War"); the submission schema rejects a place on a camp stop, a place
 without an action, and a start, mine or shop the map does not have
 (`place.mjs`'s `placeProblem`).
 
-An `attack` is a numbered stop. The other four kinds are waypoints: on the
-path, no number, not counted in "N stops" (`stop-numbers.mjs`).
+An `attack` is a numbered stop. The other four kinds are waypoints: no
+number, not counted in "N stops" (`stop-numbers.mjs`).
+
+A route is a list of steps in time. The line on the map joins the steps that
+are places, in order. A waypoint is a step at a place with no creeps; it is
+either **on the route** (the line goes through it) or **a pin** (it marks a
+place that matters at that moment; the line skips it). A step with no place
+(TP home) is **no place**, a base action. Who goes is Bring, on any step.
+Storage is unchanged: a pin is a waypoint with `hero: false`, read only
+through `isPin` (`place.mjs`); the field keeps its name from its history.
 
 - **Derive.** Unchanged: a place stop is a non-camp stop and passes through.
-- **Map.** The path runs through every place. An attack gets a numbered badge
+- **Map.** The path runs through every on-route place. An attack gets a numbered badge
   ringed in `--wg-loss` with lucide's `Swords` (white) under it, the leg into
   it (line and chevron) is `--wg-loss`, and its target mark gets the
   on-route ring. A waypoint has no badge: build is a 6px white diamond on
   the spot, scout a 6px circle with a dot, expand and shop the on-route ring
-  on the mine's or shop's own icon. The legend lists the three bands only;
+  on the mine's or shop's own icon. A pin is the waypoint disc with its glyph
+  and a dashed outline, with no legs into or out of it: the legs join the
+  steps around it (`route-legs.mjs`). The legend lists the three bands only;
   an attack's red disc and swords and its row's label say what it is.
 - **List.** An attack reads its number, red swords, the action, then the place
   name muted unless the action already says it, and no level. A waypoint is a
-  slim row with no number: glyph, action, the kind word muted, and Bring and
-  note when it has them; its summary only opens and closes it.
+  slim row with no number: glyph, action, then the named place muted
+  (`placeWhere`: "their base", "a gold mine", the shop's name; nothing for a
+  free point), and Bring and note when it has them; its summary only opens
+  and closes it. A pin's row reads "Meanwhile" (gold, small, bold) before
+  its glyph and ends with the first Bring unit's icon when Bring names units;
+  its rail node sits off the lane, a short dashed tick out to a dashed
+  diamond, and its content moves right to clear it.
 - **Builder.** A click on their start adds an attack, on your start a build
-  waypoint, on a mine an expand waypoint, on a shop a shop waypoint; "Point"
-  arms one click anywhere on the map for a build waypoint. The row has a kind
-  select. A start, mine or shop under a camp's button takes no mouse click;
+  waypoint, on a mine an expand waypoint, on a shop a shop waypoint
+  (`kindForClick`). "Waypoint" asks first, in the next-stop row: "On the
+  route", "A pin" or "No place". The first two arm the map (a start, mine or
+  shop snaps to its spot; a pin is never an attack and scouts at a free
+  point); No place adds a base action. An open waypoint has the switch "On
+  the route | Pin | No place" (one undo step each; No place clears the place
+  and keeps the text, back from No place arms the map for that row), the kind
+  buttons (a pin offers no Attack; an attack made a pin scouts), its text and
+  the note. A start, mine or shop under a camp's button takes no mouse click;
   Tab reaches it.
 - **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
   Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
@@ -471,8 +492,8 @@ path, no number, not counted in "N stops" (`stop-numbers.mjs`).
 
 `RouteStop.hero` on a camp or attack stop is `true` by default and stored only
 when `false`: only the Bring units go (an Ancient of War walking ahead, militia
-finishing a camp). The submission schema rejects `hero: false` on a waypoint or
-a base action.
+finishing a camp). On a waypoint `hero: false` makes it a pin (above); the
+submission schema rejects it on a base action.
 
 - **Derive.** A stop with `hero: false` earns hero XP like any other stop
   (see "XP model": XP is global). Derive also marks the later paths of an
@@ -484,8 +505,9 @@ a base action.
   camp or attack stop he goes to (the route's hero portrait, or a gold crown
   tile, "Any Hero", when the route names none); a hero-off stop lists the
   units only. Routes without one keep Bring as units only.
-- **Builder.** Bring starts with a "Hero" toggle (the route's hero portrait,
-  or the "Any Hero" crown tile when the route names none), on by default.
+- **Builder.** Bring on a camp or attack stop starts with a "Hero" toggle (the
+  route's hero portrait, or the "Any Hero" crown tile when the route names
+  none), on by default. A waypoint's Bring has no hero entry.
 
 ### Splits
 
@@ -1067,9 +1089,10 @@ sees; this section is the mechanics.
   phone) and the reader's `RouteStepTable` on the right. Every stop is the
   reader's one-line `StopBlock` row (a waypoint its slim row); one stop is
   open at a time, the selected one, shared with the map's pulsing node, and
-  its body is `StopEditBody` (place kind and action, Bring with the hero
-  entry, the kill order picker, condition, note; a camp stop keeps Bring and
-  the condition behind add buttons until used); move and remove
+  its body is `StopEditBody` (a camp stop: the kill order picker and the note;
+  any other step: the switch "On the route | Pin | No place", the kind
+  buttons, its text and the note; then Bring and the condition behind add
+  buttons until used, the hero entry on camp and attack stops only); move and remove
   (`StopTools`) sit on the open stop's summary line. A split shows every path
   stacked (`builderRows`, `SplitBlock`): the caption row with the mode chips,
   move and "Remove split", then one block per path (a heading row with the
@@ -1096,7 +1119,9 @@ sees; this section is the mechanics.
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
   Path labels are kept as typed and trimmed once on blur (`setArmLabel`).
-  "Waypoint" adds one and arms the next map click to put it on a spot. The
+  "Waypoint" opens its chooser in the next-stop row (`WaypointChooser`):
+  On the route and A pin arm the next map click, No place adds a base action
+  and focuses its text. The
   section header's "Edit |
   Preview" toggle draws the route page's own section (`CreepMapPlayground`)
   from the draft, read-only; the editor stays mounted under it, so the

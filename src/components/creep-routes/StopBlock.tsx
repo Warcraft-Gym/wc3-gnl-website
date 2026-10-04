@@ -4,7 +4,7 @@ import { ChevronDown, ChevronRight, Image as ImageIcon } from "lucide-react";
 import type { DerivedStop } from "@/lib/creep-routes/derive";
 import { killedXpShare, unorderedCreeps, validKills } from "@/lib/creep-routes/kills.mjs";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { actionNamesPlace, isWaypoint, placeName } from "@/lib/creep-routes/place.mjs";
+import { actionNamesPlace, isPin, isWaypoint, placeWhere } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BAND_LABEL, BandDot } from "./RouteBadges";
@@ -13,7 +13,7 @@ import { KillOrder, KillStrip } from "./KillOrder";
 import { PlaceIcon } from "./PlaceGlyph";
 import { HeroTile } from "./HeroTile";
 import { StopImages } from "./StopImages";
-import { DROP } from "./LaneRail";
+import { DROP, LANE_X } from "./LaneRail";
 import type { DropProps } from "./RouteStepTable";
 import { cn } from "@/lib/utils";
 
@@ -86,6 +86,7 @@ export function StopBlock({
   openCampId,
   stopBody,
   rail,
+  lane = "a",
   showHero = false,
   heroIcon,
   entry,
@@ -111,6 +112,8 @@ export function StopBlock({
   stopBody?: React.ReactNode;
   /** The lane rail cell (`StopRail`); absent on a guide's one stop. */
   rail?: React.ReactNode;
+  /** The row's lane on the rail: a pin's content clears its off-lane node. */
+  lane?: string;
   /** The route uses the hero toggle somewhere: Bring lists the hero first wherever he goes. */
   showHero?: boolean;
   /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
@@ -125,15 +128,21 @@ export function StopBlock({
 }) {
   const d = entry ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
-  // A place stop the author has not named yet (the builder) reads as new, never as a bare dash.
-  const label = camp ? campLabel(camp) : stop.action || (stop.place ? (stop.place.kind === "attack" ? "New attack" : "New waypoint") : stop.campId || "-");
-  const placeLabel = !camp && stop.place ? placeName(map, stop.place, youStart) : null;
+  const pin = isPin(stop);
+  // A step the author has not named yet (the builder) reads as new, never as a bare dash.
+  const label = camp
+    ? campLabel(camp)
+    : stop.action || (stop.place ? (stop.place.kind === "attack" ? "New attack" : pin ? "New pin" : "New waypoint") : stop.campId || "New action");
+  // The grey text: the named place (a waypoint at a free point has none), unless the action names it.
+  const placeLabel = camp ? "" : placeWhere(map, stop.place, youStart);
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
   const pictures = stop.images?.length ?? 0;
   // Hero off: its own flag, or a later way of an "and" split, which the hero cannot walk.
   const absent = stop.hero === false || d.hero === false;
   // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
   const waypoint = isWaypoint(stop) && stop.place ? stop.place.kind : null;
+  // A pin's node sits off its lane (`StopRail`): its content moves right to clear it.
+  const indent = pin && rail ? (LANE_X[lane] ?? 14) + 54 : undefined;
   return (
     <li
       ref={itemRef}
@@ -142,6 +151,8 @@ export function StopBlock({
       onMouseEnter={() => onHover(stopKey)}
       onMouseLeave={() => onHover(null)}
       aria-current={isActive ? "step" : undefined}
+      data-pin={pin || undefined}
+      style={indent ? { paddingLeft: indent } : undefined}
       {...dnd?.props}
       className={cn(
         DROP,
@@ -149,11 +160,16 @@ export function StopBlock({
         rail
           ? `relative border-t border-line/40 pl-[60px] pr-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:pr-5`
           : `border-t border-line/40 px-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:px-5`,
+        pin && "border-dashed",
         (isActive || isHover) && "bg-gold/10",
       )}
     >
       {rail}
-      {dnd?.handle ? <span className={cn("absolute left-[44px]", waypoint ? "top-2" : "top-4")}>{dnd.handle}</span> : null}
+      {dnd?.handle ? (
+        <span className={cn("absolute left-[44px]", waypoint ? "top-2" : "top-4")} style={indent ? { left: indent - 16 } : undefined}>
+          {dnd.handle}
+        </span>
+      ) : null}
       {/* Summary line: the select button covers it; the camp button and chevron sit above. */}
       <div className={cn("relative grid gap-x-3", isOpen && tools ? "grid-cols-[1.25rem_minmax(0,1fr)_auto]" : "grid-cols-[1.25rem_minmax(0,1fr)_1.25rem]")}>
         <button
@@ -161,7 +177,7 @@ export function StopBlock({
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={waypoint ? `${label}, ${waypoint}` : camp && !entry ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
+          aria-label={waypoint ? `${pin ? "Meanwhile, " : ""}${label}${where ? `, ${where}` : ""}` : camp && !entry ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -204,11 +220,12 @@ export function StopBlock({
               </button>
             ) : stop.place ? (
               <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 pt-0.5 text-sm">
+                {pin ? <span className="mr-0.5 text-[0.75rem] font-bold text-gold">Meanwhile</span> : null}
                 <PlaceIcon kind={stop.place.kind} className={cn("shrink-0 self-center", waypoint ? "text-fg" : "text-loss")} />
                 <span className="font-medium text-fg">{label}</span>
-                {waypoint ? <span className="text-muted">{waypoint}</span> : where ? <span className="text-muted">{where}</span> : null}
-                {/* A waypoint done by another unit: that unit's icon when Bring names one, like Bring. */}
-                {waypoint && stop.hero === false && stop.units?.[0] ? <GameIcon iconKey={stop.units[0].icon} size={20} className="self-center" /> : null}
+                {where ? <span className="text-muted">{where}</span> : null}
+                {/* A pin: the unit's icon when Bring names one, like Bring. */}
+                {pin && stop.units?.[0] ? <GameIcon iconKey={stop.units[0].icon} size={20} className="self-center" /> : null}
               </p>
             ) : (
               <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
