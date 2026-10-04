@@ -21,13 +21,20 @@
  */
 import { ARM_LETTERS, armsOf, numberStops, walkedArm } from "./stop-numbers.mjs";
 
-/** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). */
-export function routeRows(stops, choice = {}) {
+/** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). The builder's `slot`,
+ *  `{ index, label }` or `{ index, arm, j, label }`, adds its next-stop row (`type: "slot"`) at that place.
+ *  @param {any[]} stops
+ *  @param {Record<string, number>} [choice]
+ *  @param {{ index: number, arm?: number, j?: number, label: string } | null} [slot] */
+export function routeRows(stops, choice = {}, slot = null) {
   const numbers = numberStops(stops, choice);
   const rows = [];
   const full = (lane, off = false) => ({ lane, top: true, bottom: true, off });
+  const isSlot = (i, arm) => slot !== null && slot.index === i && slot.arm === arm;
+  const SLOT = {};
 
   stops.forEach((stop, i) => {
+    if (isSlot(i, undefined)) rows.push({ type: "slot", key: "slot", label: slot.label, lane: "", lines: [full("a")] });
     const n = numbers[i];
     const arms = armsOf(stop);
     if (!arms) {
@@ -37,7 +44,7 @@ export function routeRows(stops, choice = {}) {
     const mode = stop.split.mode;
     const walked = walkedArm(stop, n.key, choice);
     // An "and" block always ends in its join row (the block's XP line), even when nothing follows.
-    const follows = i < stops.length - 1 || mode === "and";
+    const follows = i < stops.length - 1 || mode === "and" || isSlot(i + 1, undefined);
     // The paths the list shows: every arm of an "and" split, only the chosen one otherwise.
     const shown = mode === "and" ? arms.map((_, a) => a) : [walked];
     const off = (a) => !shown.includes(a);
@@ -45,27 +52,37 @@ export function routeRows(stops, choice = {}) {
     rows.push({ type: "split", key: n.key, label: n.label, stop, index: i, mode, lanes, lines: [full("a")] });
 
     shown.forEach((a, k) => {
-      const last = arms[a].stops.length - 1;
-      arms[a].stops.forEach((s, j) => {
+      const list = [...arms[a].stops];
+      if (isSlot(i, a)) list.splice(slot.j, 0, SLOT);
+      const last = list.length - 1;
+      let j = 0;
+      list.forEach((s, p) => {
         // Paths after this block run past it; paths before it, and the dashed paths not taken, run on to the join.
         const lines = arms.flatMap((_, b) => {
-          if (b === a) return [{ lane: ARM_LETTERS[b], top: true, bottom: follows || j < last, off: false }];
+          if (b === a) return [{ lane: ARM_LETTERS[b], top: true, bottom: follows || p < last, off: false }];
           return (shown.indexOf(b) > k || follows) ? [full(ARM_LETTERS[b], off(b))] : [];
         });
+        const group = mode === "and" ? { block: n.key } : { panel: n.key };
+        if (s === SLOT) {
+          rows.push({ type: "slot", key: "slot", label: slot.label, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...group });
+          return;
+        }
         const key = n.arms[a].stops[j].key;
-        rows.push({ type: "stop", key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...(mode === "and" ? { block: n.key } : { panel: n.key }) });
+        rows.push({ type: "stop", key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...group });
+        j += 1;
       });
     });
 
     // The join row curves the lanes back into the main line before the first shared stop.
     if (follows) rows.push({ type: "join", key: `${n.key}.join`, index: i, mode, lanes, lines: [full("a")] });
   });
+  if (isSlot(stops.length, undefined)) rows.push({ type: "slot", key: "slot", label: slot.label, lane: "", lines: [full("a")] });
 
   // The rail starts at the first row's node and stops at the last row's.
   const first = rows[0];
   const last = rows[rows.length - 1];
   if (first) first.lines = first.lines.map((l) => (l.lane === "a" ? { ...l, top: false } : l));
-  if (last && last.type === "stop") last.lines = last.lines.map((l) => (l.lane === (last.lane || "a") ? { ...l, bottom: false } : l));
+  if (last && (last.type === "stop" || last.type === "slot")) last.lines = last.lines.map((l) => (l.lane === (last.lane || "a") ? { ...l, bottom: false } : l));
   return rows;
 }
 

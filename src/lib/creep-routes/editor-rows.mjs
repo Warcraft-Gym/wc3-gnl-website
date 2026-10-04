@@ -5,6 +5,7 @@
  * `{ splitId, arm, index }` in a path. Principle: the builder never shows a state the model cannot
  * hold, so every move has one rule. Typed in `stop-rows.ts`.
  */
+import { flatStops } from "./stop-numbers.mjs";
 
 /** A fresh editor row; `patch` sets the camp, the place or the fork. */
 export function newRow(patch = {}) {
@@ -144,6 +145,32 @@ export function addTarget(rows, selection, isSplit = false) {
     return { splitId: row.id, arm, index: row.split.arms[arm].stops.length };
   }
   return { index: where.index + 1 };
+}
+
+/** The builder's next-stop row, the dashed row at `at` (`addTarget`'s place): the label the next numbered
+ *  stop takes there, counting itself in (`stop-numbers.mjs`; the rows below keep their own numbers), the
+ *  line under it, and `toEnd` when the row is not at the end ("Add at the end instead"). `after` names the
+ *  row before a top-level place ("after stop 2", "at the start"). `tabs`: the shown path by split id. */
+export function nextStop(rows, at, tabs = {}) {
+  const withSlot = insertAt(rows, at, { id: -1, campId: "slot" });
+  const choice = Object.fromEntries(withSlot.flatMap((r, i) => (r.split ? [[String(i), tabs[r.id] ?? 0]] : [])));
+  const labels = new Map(flatStops(withSlot, choice).map((s) => [s.key, s.label]));
+  const labelOf = (id) => labels.get(keyOfRow(withSlot, id)) ?? "";
+  const label = labelOf(-1);
+  if (at.splitId !== undefined) {
+    const split = rows.find((r) => r.id === at.splitId).split;
+    const name = split.arms[at.arm]?.label.trim();
+    const path =
+      split.mode === "and"
+        ? `path ${at.arm + 1}, ${at.arm === 0 ? "the hero's" : "without the hero"}`
+        : `path ${"ABC"[at.arm]}${name ? ` (${name})` : ""}`;
+    return { label, line: `Adds stop ${label} to ${path}.`, toEnd: false };
+  }
+  const prev = rows[at.index - 1];
+  const after = !prev ? "at the start" : prev.split ? "after the split" : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
+  if (!rows.length) return { label, line: `Adds stop ${label}, your first stop.`, toEnd: false, after };
+  if (at.index >= rows.length) return { label, line: `Adds stop ${label} at the end.`, toEnd: false, after };
+  return { label, line: `Adds stop ${label} ${after}.`, toEnd: true, after };
 }
 
 /** Moves row `id` to place `at` (its index counted before the move). A split never goes into a path. */

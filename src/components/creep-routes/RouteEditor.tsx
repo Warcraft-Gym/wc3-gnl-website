@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GripVertical, Plus } from "lucide-react";
+import { GripVertical } from "lucide-react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
+import { NextStopRow } from "./NextStopRow";
 import {
   addTarget,
   dropTarget,
@@ -16,6 +17,7 @@ import {
   moveRow,
   moveRowTo,
   newRow,
+  nextStop,
   newSplitRow,
   patchRow,
   removePath,
@@ -36,7 +38,6 @@ import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Pl
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
 
-const TOOL = "inline-flex h-8 shrink-0 items-center gap-1.5 rounded border px-2.5 text-[0.65rem] font-bold uppercase tracking-wide";
 /** Fields whose typing is one undo step until the field loses focus. */
 const TEXT_FIELDS = new Set(["note", "condition", "action", "units"]);
 
@@ -71,8 +72,10 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * builder's controls (`SplitEdit`). Every move has one rule (`editor-rows.mjs`):
  * a map click adds after the selected row in its own list, into the shown path
  * when the split's caption (a tab) is selected, else at the end; a camp already
- * in that list is selected instead. A drag handle on every row moves it (native
- * drag and drop on desktop; a split moves as a block and never into a path); the
+ * in that list is selected instead. The next-stop row (`NextStopRow`) sits in the
+ * list where that add lands and holds "Waypoint" and "Split here". A drag handle
+ * on every row moves it (native drag and drop on desktop; a split moves as a
+ * block and never into a path); the
  * open stop's arrows make the same moves on a keyboard or phone (`stepTarget`),
  * into and out of a split's paths too; its trash removes it.
  * "Remove path" and "Remove split" keep the model whole. Every change but typing
@@ -198,8 +201,15 @@ export function RouteEditor({
   // A selected split caption adds into its shown path.
   const selection = selectedId === null ? null : { id: selectedId, arm: tabs[selectedId] ?? 0 };
 
-  // At a cap (`caps.mjs`) the add actions do nothing and the toolbar says so.
+  // At a cap (`caps.mjs`) the add actions do nothing and the next-stop row says so.
   const capLine = addBlocked(stops, "row") ?? addBlocked(stops, "stop");
+  // The next-stop row sits where the next map click lands, with the number that stop will take.
+  const at = addTarget(stops, selection);
+  const next = nextStop(stops, at, tabs);
+  const slot =
+    at.splitId === undefined
+      ? { index: at.index, label: next.label }
+      : { index: stops.findIndex((r) => r.id === at.splitId), arm: at.arm, j: at.index, label: next.label };
 
   /** Adds `row` where an add goes (`addTarget`) and selects it; a camp or attack added to path 2.. of an
    *  "and" split arrives with the hero off. `kind` is what it adds ("stop" numbered, "row" a waypoint or
@@ -428,27 +438,6 @@ export function RouteEditor({
     };
   };
 
-  const toolbar = (
-    <div className="flex shrink-0 flex-col items-end gap-1.5">
-      <div className="flex gap-1.5">
-        <button
-          type="button"
-          onClick={addWaypoint}
-          aria-pressed={pointArmed}
-          aria-disabled={!pointArmed && Boolean(addBlocked(stops, "row"))}
-          title="Add a waypoint; the next map click puts it on a spot"
-          className={cn(TOOL, pointArmed ? "border-gold bg-gold/15 text-fg" : "border-gold/50 text-gold hover:bg-gold/10", "aria-disabled:opacity-40")}
-        >
-          <Plus size={14} /> Waypoint
-        </button>
-        <button type="button" onClick={addSplit} aria-disabled={Boolean(addBlocked(stops, "row"))} className={cn(TOOL, "border-gold/50 text-gold hover:bg-gold/10 aria-disabled:opacity-40")}>
-          <Plus size={14} /> Split
-        </button>
-      </div>
-      {capLine ? <p className="max-w-[34ch] text-right text-[0.7rem] text-faint">{capLine}</p> : null}
-    </div>
-  );
-
   return (
     <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
       <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
@@ -473,7 +462,7 @@ export function RouteEditor({
         <p className="mt-2 text-xs text-faint">
           {pointArmed
             ? "Click the map to put the waypoint on a spot."
-            : "Click a camp to add it after the selected stop; a camp already there is selected. Click a base, gold mine or shop to add a waypoint there. Hover a camp to see what is inside; right-click pins the card."}
+            : "Click a camp to add it at the dashed row. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -521,15 +510,28 @@ export function RouteEditor({
               setSelectedId(split.id);
             }
           }}
-          toolbar={toolbar}
           editBody={editBody}
           splitEdit={splitEdit}
           pathTools={pathTools}
           dnd={dnd}
-          empty={
-            <p className="m-4 rounded border border-dashed border-line px-4 py-8 text-center text-sm text-muted">
-              Click camps on the map to add stops, or add a waypoint.
-            </p>
+          slot={slot}
+          slotRow={
+            <NextStopRow
+              label={next.label}
+              line={next.line}
+              toEnd={next.toEnd}
+              onToEnd={() => select(null)}
+              inPath={at.splitId !== undefined}
+              armed={pointArmed}
+              blocked={Boolean(addBlocked(stops, "row"))}
+              capLine={capLine}
+              onWaypoint={addWaypoint}
+              onCancel={() => {
+                setPointArmed(false);
+                setPending(null);
+              }}
+              onSplit={addSplit}
+            />
           }
         />
       </div>

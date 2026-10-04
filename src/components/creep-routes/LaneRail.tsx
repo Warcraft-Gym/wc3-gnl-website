@@ -31,11 +31,8 @@ const EDIT_ICON = "grid size-7 place-items-center rounded border border-line tex
 /** The builder's drop line on a row under a dragged row: gold at its top or bottom edge, a tint inside an empty path. */
 export const DROP = "data-[drop=before]:shadow-[inset_0_2px_0_var(--wg-gold)] data-[drop=after]:shadow-[inset_0_-2px_0_var(--wg-gold)] data-[drop=in]:bg-gold/10";
 
-/** The rail cell of a stop row; the `<li>` it sits in is `relative`. */
-export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
-  const waypoint = isWaypoint(stop);
-  const y = nodeY(waypoint);
-  const x = LANE_X[lane] ?? 14;
+/** A rail cell: the lane lines through a row, broken at `y` where the row's `node` sits on its `lane`. The `<li>` it sits in is `relative`. */
+export function RailCell({ lines, lane, y, node }: { lines: RailLine[]; lane: string; y: number; node: (x: number) => React.ReactNode }) {
   return (
     <span aria-hidden className="pointer-events-none absolute inset-y-0 left-0 w-11">
       {lines.map((l) => (
@@ -44,6 +41,34 @@ export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: strin
           {l.bottom ? <span className={l.off ? DASHED : LINE} style={{ left: LANE_X[l.lane] - 1, top: y, bottom: 0 }} /> : null}
         </span>
       ))}
+      {node(LANE_X[lane] ?? 14)}
+    </span>
+  );
+}
+
+/** The builder's next-stop row on the rail: a dashed gold ring on its lane, level with the row's dashed number. */
+export const SLOT_Y = 35;
+export function SlotRail({ lines, lane }: { lines: RailLine[]; lane: string }) {
+  return (
+    <RailCell
+      lines={lines}
+      lane={lane}
+      y={SLOT_Y}
+      node={(x) => <span className="absolute size-3 rounded-full border-[1.5px] border-dashed border-gold bg-bg" style={{ left: x - 6, top: SLOT_Y - 6 }} />}
+    />
+  );
+}
+
+/** The rail cell of a stop row. */
+export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: string; stop: RouteStop }) {
+  const waypoint = isWaypoint(stop);
+  const y = nodeY(waypoint);
+  return <RailCell lines={lines} lane={lane} y={y} node={(x) => <StopNode stop={stop} waypoint={waypoint} x={x} y={y} />} />;
+}
+
+function StopNode({ stop, waypoint, x, y }: { stop: RouteStop; waypoint: boolean; x: number; y: number }) {
+  return (
+    <>
       {stop.place?.kind === "attack" ? (
         <span
           className="absolute grid size-3.5 place-items-center rounded-full border-2 border-loss bg-bg text-loss"
@@ -56,7 +81,7 @@ export function StopRail({ lines, lane, stop }: { lines: RailLine[]; lane: strin
       ) : (
         <span className="absolute size-1.5 rounded-full bg-line-strong" style={{ left: x - 3, top: y - 3 }} />
       )}
-    </span>
+    </>
   );
 }
 

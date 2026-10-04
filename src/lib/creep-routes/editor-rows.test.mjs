@@ -10,6 +10,7 @@ import {
   locate,
   moveRow,
   moveRowTo,
+  nextStop,
   newRow,
   newSplitRow,
   patchRow,
@@ -256,4 +257,26 @@ test("undo: a stack of earlier lists with labels, capped at 50, no redo", () => 
   for (let i = 0; i < 60; i++) stack = pushUndo(stack, a, `edit ${i}`);
   assert.equal(stack.length, UNDO_CAP);
   assert.equal(stack[0].label, "edit 10");
+});
+
+test("next-stop row: its label counts itself in, and its line says where the next camp lands", () => {
+  const two = [camp("c1"), camp("c2")];
+  assert.deepEqual(nextStop(two, addTarget(two, null)), { label: "3", line: "Adds stop 3 at the end.", toEnd: false, after: "after stop 2" });
+  assert.deepEqual(nextStop(two, addTarget(two, { id: two[0].id })), { label: "2", line: "Adds stop 2 after stop 1.", toEnd: true, after: "after stop 1" });
+  assert.deepEqual(nextStop([], addTarget([], null)), { label: "1", line: "Adds stop 1, your first stop.", toEnd: false, after: "at the start" });
+  // A waypoint before it has no number.
+  const way = [camp("c1"), newRow({ place: { kind: "shop", at: { shop: "s1" } } }), camp("c2")];
+  assert.equal(nextStop(way, addTarget(way, { id: way[1].id })).line, "Adds stop 2 after the waypoint.");
+});
+
+test("next-stop row in a path: letters in a pick-one path, the same numbers in a same-time path", () => {
+  const rows = [camp("c1"), forkRow(["c2"], ["c3"]), camp("c5")];
+  rows[1].split.arms[0].label = "Safe";
+  rows[1].split.arms[1].label = " Risky ";
+  const inB = addTarget(rows, { id: rows[1].id, arm: 1 });
+  assert.deepEqual(nextStop(rows, inB, { [rows[1].id]: 1 }), { label: "3b", line: "Adds stop 3b to path B (Risky).", toEnd: false });
+  assert.equal(nextStop(rows, addTarget(rows, { id: rows[1].id, arm: 0 })).line, "Adds stop 3a to path A (Safe).");
+  const and = [camp("c1"), { ...rows[1], split: { ...rows[1].split, mode: "and" } }];
+  assert.deepEqual(nextStop(and, addTarget(and, { id: and[1].id, arm: 1 })), { label: "3", line: "Adds stop 3 to path 2, without the hero.", toEnd: false });
+  assert.equal(nextStop(and, addTarget(and, { id: and[1].id, arm: 0 })).line, "Adds stop 3 to path 1, the hero's.");
 });
