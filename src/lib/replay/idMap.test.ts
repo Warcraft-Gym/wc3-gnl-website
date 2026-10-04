@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { parseReplay } from "./parseReplay";
-import { describeId, ID_MAP } from "./idMap";
+import { describeId, ID_MAP, UPGRADE_ICONS } from "./idMap";
 import { FOOD_COST } from "./foodCost";
 import { UNIT_NAMES } from "./w3gjsData";
 
@@ -86,6 +86,14 @@ describe("idMap", () => {
     expect(described.kind).toBe("upgrade");
     expect(described.iconKey).toBe("nt-upgrade");
     expect(described.title).toBe("Ensnare");
+  });
+
+  it("draws each Blacksmith, Lumber Mill, War Mill, Hunter's Hall and Graveyard research level with its own manifest icon", () => {
+    const missing = Object.values(UPGRADE_ICONS).flat().filter((key) => !manifestKeys.has(key));
+    expect(missing).toEqual([]);
+    expect(describeId("Rhme").iconKey).toBe("steelmelee");
+    expect(describeId("Rhme", 3).iconKey).toBe("arcanitemelee");
+    expect(describeId("Reuv", 2).iconKey).toBe("ultravision");
   });
 });
 
