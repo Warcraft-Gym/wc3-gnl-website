@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef } from "react";
-import { Crosshair, MapPin, Split } from "lucide-react";
+import { Crosshair, MapPin, Split, X } from "lucide-react";
 import { canStartSplit, type SplitSetup } from "./stop-rows";
 import { MAX_PATHS } from "@/lib/creep-routes/caps.mjs";
 import { cn } from "@/lib/utils";
@@ -133,7 +133,7 @@ export function SplitForm({
 }) {
   const id = useId();
   const pick = setup.mode === "or";
-  // "Add a third path" puts focus in the new name field (its button unmounts).
+  // "Add a third path" puts focus in the new name field, its x back on "Add a third path" (each button unmounts).
   const box = useRef<HTMLDivElement>(null);
   const focusTo = useRef<string | null>(null);
   useEffect(() => {
@@ -172,18 +172,35 @@ export function SplitForm({
       {pick ? (
         <div className="mt-3 space-y-2">
           {setup.names.map((name, a) => (
-            <label key={a} className="flex items-center gap-3">
-              <span className="w-14 shrink-0 text-[0.8rem] text-muted">Path {"ABC"[a]}</span>
-              <input
-                value={name}
-                onChange={(e) => onChange({ ...setup, names: setup.names.map((n, b) => (b === a ? e.target.value : n)) })}
-                placeholder={NAME_HINTS[a]}
-                maxLength={60}
-                autoFocus={a === 0}
-                data-path-name={a}
-                className="h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none"
-              />
-            </label>
+            <div key={a} className="flex items-center gap-1.5">
+              <label className="flex min-w-0 flex-1 items-center gap-3">
+                <span className="w-14 shrink-0 text-[0.8rem] text-muted">Path {"ABC"[a]}</span>
+                <input
+                  value={name}
+                  onChange={(e) => onChange({ ...setup, names: setup.names.map((n, b) => (b === a ? e.target.value : n)) })}
+                  placeholder={NAME_HINTS[a]}
+                  maxLength={60}
+                  autoFocus={a === 0}
+                  data-path-name={a}
+                  className="h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none"
+                />
+              </label>
+              {/* A third path can go again; Start then judges the two names left. */}
+              {a === 2 ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({ ...setup, names: setup.names.slice(0, 2) });
+                    focusTo.current = "[data-add-path]";
+                  }}
+                  aria-label="Remove path C"
+                  title="Remove path C"
+                  className="grid size-7 shrink-0 place-items-center rounded text-faint hover:text-loss"
+                >
+                  <X size={14} />
+                </button>
+              ) : null}
+            </div>
           ))}
           <p className="text-[0.7rem] text-faint">
             Readers pick a tab by this name.
@@ -196,6 +213,7 @@ export function SplitForm({
                     onChange({ ...setup, names: [...setup.names, ""] });
                     focusTo.current = `[data-path-name="${setup.names.length}"]`;
                   }}
+                  data-add-path
                   className="text-gold underline underline-offset-2 hover:text-fg"
                 >
                   Add a third path

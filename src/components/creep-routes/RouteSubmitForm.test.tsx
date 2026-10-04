@@ -208,6 +208,23 @@ describe("RouteSubmitForm: the next-stop row and the split form", () => {
   });
 });
 
+describe("RouteSubmitForm: the split form's third path", () => {
+  it("can be removed again, and Start is judged on the names left", async () => {
+    renderForm();
+    fireEvent.click(await screen.findByRole("button", { name: "Split here" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
+    fireEvent.change(screen.getByPlaceholderText("e.g. Risky"), { target: { value: "Risky" } });
+    fireEvent.click(screen.getByRole("button", { name: "Add a third path" }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByPlaceholderText("e.g. vs. Mirror Image")));
+    expect(screen.getByRole("button", { name: "Start path A" })).toBeDisabled();
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove path C" }));
+    expect(screen.queryByPlaceholderText("e.g. vs. Mirror Image")).not.toBeInTheDocument();
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Add a third path" })));
+    expect(screen.getByRole("button", { name: "Start path A" })).toBeEnabled();
+  });
+});
+
 describe("RouteSubmitForm: Remove split and remove path say what stays", () => {
   const [a, b, c] = maps[0].camps;
   const load = async () => {
