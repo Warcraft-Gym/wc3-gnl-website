@@ -87,7 +87,7 @@ export const nextStop = editorRows.nextStop as (
   rows: StopRowData[],
   at: ListPlace,
   tabs?: Record<number, number>,
-) => { label: string; line: string; toEnd: boolean; after?: string };
+) => { label: string; line: string; toEnd: boolean; after: string };
 /** Moves a row to a place (its index counted before the move); a split never into a path. */
 export const moveRowTo = editorRows.moveRowTo as (rows: StopRowData[], id: number, at: ListPlace) => StopRowData[];
 /** A drop zone under the pointer. */

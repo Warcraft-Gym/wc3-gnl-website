@@ -375,7 +375,7 @@ export const FIXTURE_ROUTES = [
         campId: null,
         action: "Scout where their Ancient of War goes",
         place: { kind: "scout", at: { start: "1" } },
-        // A lone unit scouts (veS does not say which): in the list, not on the map.
+        // A pin: the scout marks their base while the route goes on; the line skips it.
         hero: false,
         note: "Meanwhile, scout Night Elf and check if their Ancient of War is moving towards the marketplace.",
       },

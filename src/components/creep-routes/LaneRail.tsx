@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { Swords } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import type { RouteStop } from "@/lib/creep-routes/types";
-import { isWaypoint } from "@/lib/creep-routes/place.mjs";
+import { isPin, isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
 
 /**
@@ -13,7 +13,8 @@ import { cn } from "@/lib/utils";
  * (the main line) runs at x 14, lane b at 30, lane c at 46; 2px lines in
  * `--wg-line-strong`, dashed for a path not taken. The row's own node sits on its
  * lane at the summary line: a small neutral dot for a camp or base action, the
- * diamond for a waypoint, a red-ringed Swords node for an attack. In the
+ * diamond for a waypoint, a red-ringed Swords node for an attack; a pin's node is off
+ * the lane, a short dashed tick out to a dashed diamond. In the
  * builder (`builderRows`) a path's own lane is lit over its block: gold where
  * the next stop goes, light elsewhere.
  */
@@ -78,6 +79,11 @@ function StopNode({ stop, waypoint, x, y }: { stop: RouteStop; waypoint: boolean
         >
           <Swords size={8} strokeWidth={3} />
         </span>
+      ) : isPin(stop) ? (
+        <svg className="absolute overflow-visible" style={{ left: x, top: y - 6 }} width={34} height={12}>
+          <line x1={0} y1={6} x2={20} y2={6} stroke="rgba(255,255,255,.55)" strokeWidth={1.5} strokeDasharray="2 2" />
+          <rect x={21} y={2} width={8} height={8} transform="rotate(45 25 6)" fill="var(--wg-bg)" stroke="rgba(255,255,255,.85)" strokeWidth={1.5} strokeDasharray="2 1.5" />
+        </svg>
       ) : waypoint ? (
         <span className="absolute size-2 rotate-45 rounded-[1px] border-2 border-white/85 bg-bg" style={{ left: x - 4, top: y - 4 }} />
       ) : (

@@ -121,7 +121,7 @@ export function RouteStepTable({
   const numbers = useMemo(() => numberStops(route.stops, choice ?? {}), [route.stops, choice]);
   const keys = useMemo(() => stopKeys(route.stops) as string[], [route.stops]);
   // Bring lists the hero only on a route that sends units somewhere without him: one hero-off camp or
-  // attack stop (a waypoint done by another unit, a lone scout, does not count).
+  // attack stop (a pin does not count).
   const showHero = useMemo(() => (flatStops(route.stops) as { stop: RouteStop }[]).some(({ stop }) => stop.hero === false && !isWaypoint(stop)), [route.stops]);
   const baseId = useId();
   // Every route is a flat list with the lane rail (`route-rows.mjs`); a guide's one stop has none.
@@ -184,6 +184,7 @@ export function RouteStepTable({
                 showHero={showHero}
                 heroIcon={route.hero}
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
+                lane={row.lane}
                 dnd={dnd?.({ kind: "row", key: row.key })}
                 entry={block ? { level: block.levelBefore, xp: block.xpBefore } : undefined}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}

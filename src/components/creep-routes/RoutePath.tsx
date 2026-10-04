@@ -5,7 +5,7 @@ import { gameIconSrc } from "@/lib/builds/icons";
 import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, UNIT_ICON, cornerMark, heroOffMark, labelFit, legOffsets, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { isWaypoint, placePoint } from "@/lib/creep-routes/place.mjs";
 import { hiddenBadgeKeys } from "@/lib/creep-routes/stop-numbers.mjs";
-import { onTheMap, routeLegs } from "@/lib/creep-routes/route-legs.mjs";
+import { routeLegs } from "@/lib/creep-routes/route-legs.mjs";
 import { useReducedMotion } from "@/lib/useReducedMotion";
 import { BAND_TOKEN } from "./RouteBadges";
 import { placeRadius, SwordsGlyph, WaypointGlyph } from "./PlaceGlyph";
@@ -31,6 +31,8 @@ type PathNode = {
   /** A place that is not an attack: a dark disc with its glyph, no number. */
   waypoint?: boolean;
   absent?: boolean;
+  /** A pin (`isPin`): the waypoint disc with a dashed outline and no legs. */
+  pin?: boolean;
 };
 
 /** `thin`: a lane of an "and" split without the hero. */
@@ -43,7 +45,7 @@ type LegStyle = "solid" | "thin";
  * the camps, one mark per stop. A stop's node is its badge: a disc in the camp's band colour
  * with its number in dark text and a 1.5px white outline; an attack is a disc in the loss red
  * with the red swords at its top-right; a waypoint is a smaller dark disc with its kind's glyph
- * in white and no number. Numbers come from `stop-numbers.mjs`, so they always match the stop
+ * in white and no number, a pin the same disc with a dashed outline and no legs. Numbers come from `stop-numbers.mjs`, so they always match the stop
  * list's. A camp stop's disc lets clicks through to its `CampMarker` below. `React.memo`d and
  * its own `campById` lookup `useMemo`d — see the F009 review, code-b.md items 3/5.
  */
@@ -55,7 +57,6 @@ export const RoutePath = memo(function RoutePath({
   onStopSelect,
   choice,
   campAt,
-  editing = false,
   layer,
 }: {
   map: CreepMap;
@@ -68,8 +69,6 @@ export const RoutePath = memo(function RoutePath({
   onStopSelect?: (key: string) => void;
   /** Split key to the chosen way of each "or"/"xor" split; default way a. */
   choice?: Record<string, number>;
-  /** The builder's Edit map: a waypoint done by another unit stays drawn so the author can place it. */
-  editing?: boolean;
   /** Where each camp's mark sits (viewBox units), when it guards a building (`campSpot`). */
   campAt?: Map<string, { x: number; y: number }>;
   /** `legs` under the camps, `nodes` (the stop discs) over them: `CreepMap` paints the two apart. */
@@ -98,11 +97,11 @@ export const RoutePath = memo(function RoutePath({
   };
 
   // Which stops are drawn and which legs join them (`route-legs.mjs`): the chosen path of an
-  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed). A waypoint done
-  // by another unit is not on the reader's map; the builder's Edit map keeps it.
+  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed). A pin is a node
+  // with no legs.
   const you = map.starts[youStart];
-  const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")) && (editing || onTheMap(s)));
-  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent }) ?? []);
+  const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")));
+  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent, pin: n.pin }) ?? []);
   const byKey = new Map<string, PathNode>(points.map((p) => [p.key, p]));
   if (you) byKey.set("start", { key: "start", label: "", stop: stops[0], cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" });
   const legs = plan.legs.flatMap(({ a, b, style }) => {
@@ -213,8 +212,8 @@ function Nodes({
         // A camp stop's disc lets clicks through to its camp marker; an attack disc selects its stop.
         // ponytail: a disc selects by pointer only; the stop list is the keyboard path to an attack.
         const select = attack && onStopSelect ? () => onStopSelect(p.key) : undefined;
-        // Hero off: the first Bring unit's icon on the disc's lower-left edge, clear of the number.
-        const unitIcon = p.absent ? p.stop.units?.[0]?.icon : undefined;
+        // Hero off: the first Bring unit's icon on the disc's lower-left edge, clear of the number (not on a pin).
+        const unitIcon = p.absent && !p.pin ? p.stop.units?.[0]?.icon : undefined;
         const corner = cornerMark(p.cx, p.cy, p.r);
         const unitAt = heroOffMark(p.cx, p.cy, p.r);
         return (
@@ -222,6 +221,7 @@ function Nodes({
             key={p.key}
             data-stop-marker={p.waypoint ? undefined : p.label}
             data-waypoint={p.waypoint ? p.place?.kind : undefined}
+            data-pin={p.pin || undefined}
             onClick={select}
             pointerEvents={select ? undefined : "none"}
             className={select ? "cursor-pointer" : undefined}
@@ -248,6 +248,7 @@ function Nodes({
                 fill={p.fill}
                 stroke="#fff"
                 strokeWidth={OUTLINE}
+                strokeDasharray={p.pin ? "2 1.5" : undefined}
                 style={{ filter: isActive ? "drop-shadow(0 0 5px var(--wg-gold-glow))" : undefined }}
               />
               {p.waypoint && p.place ? (

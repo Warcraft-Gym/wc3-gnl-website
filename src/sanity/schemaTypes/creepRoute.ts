@@ -442,7 +442,7 @@ export const creepStop = defineType({
       name: "hero",
       title: "Hero goes",
       type: "boolean",
-      description: "Empty or on: the hero goes with the units in Bring. Off: only the units go; the hero still gets their XP. A waypoint done by another unit (a lone scout) is in the list but not on the map.",
+      description: "Camp or attack stop, empty or on: the hero goes with the units in Bring; off: only the units go, the hero still gets their XP. Waypoint, empty or on: on the route, the line goes through it. Off: a pin; the line skips it.",
       hidden: ({ parent }) => {
         const p = parent as { campId?: string; place?: { kind?: string } } | undefined;
         return !p?.campId && !p?.place;
