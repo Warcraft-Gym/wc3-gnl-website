@@ -564,10 +564,12 @@ choose one, no number means a waypoint.
   example has no rail.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.
-- **Builder.** "+ Split" adds a "Choose a path" split with two empty paths
-  after the selected row. The caption row has two mode chips (Choose a path /
-  At the same time); `or` or `xor` is saved from the structure. See
-  "The slim builder" below for adds, moves, removals and undo.
+- **Builder.** "Split here" in the next-stop row opens a short form (pick one
+  path or both at the same time, and the paths' names) and inserts nothing
+  until "Start path A". In the builder every path shows, stacked, with its
+  heading and name field (`builderRows`); the reader keeps the tabs. The
+  caption row has two mode chips; `or` or `xor` is saved from the structure.
+  See "The slim builder" below for adds, moves, removals and undo.
 
 ### Pictures
 
@@ -1066,17 +1068,21 @@ sees; this section is the mechanics.
   reader's one-line `StopBlock` row (a waypoint its slim row); one stop is
   open at a time, the selected one, shared with the map's pulsing node, and
   its body is `StopEditBody` (place kind and action, Bring with the hero
-  entry, the kill order picker, condition, note, move and remove). A split is
-  the reader's caption row and tab strip (`SplitRow` with `edit`): the mode
-  chips on the caption row, path labels edited in the tabs, "+ Path" as the
-  last tab, move and "Remove split" at the right; the path's tools (its
-  errors, "Remove path") sit under the tabs. Every move has one rule
-  (`editor-rows.mjs`, v2.7): a map click adds after the selected row in its own
-  list, into the shown path when the split's caption (a tab) is selected, else
-  at the end, and a camp already in that list is selected instead; every row
+  entry, the kill order picker, condition, note; a camp stop keeps Bring and
+  the condition behind add buttons until used); move and remove
+  (`StopTools`) sit on the open stop's summary line. A split shows every path
+  stacked (`builderRows`, `SplitBlock`): the caption row with the mode chips,
+  move and "Remove split", then one block per path (a heading row with the
+  name field, the path's stops, an add row), and the "After the split" row.
+  The next-stop row (`NextStopRow`, `nextStop`) sits where the next map click
+  lands and holds "Waypoint" and "Split here" (`SplitForm`). Every move has
+  one rule (`editor-rows.mjs`, v2.7): a map click adds after the selected row
+  in its own list, at the end of a path when its split is selected ("Add stops
+  to path B"), right after the split with "Continue the route here", else at
+  the end, and a camp already in that list is selected instead; every row
   has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
-  `moveRowTo`), a split moves as a block and never into a path, and a stop
-  dropped into a path not shown switches to it; the open stop's arrows make the
+  `moveRowTo`), a split moves as a block and never into a path, and a path's
+  heading and add row take a drop; the open stop's arrows make the
   same moves on a keyboard or phone (`stepTarget`, then `moveRowTo`): up from a
   path's first stop lands just above the split, down from its last stop just
   below it, and a main-list stop that meets a split enters its shown path at the
@@ -1087,8 +1093,9 @@ sees; this section is the mechanics.
   (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
-  Path labels are kept as typed and trimmed once on blur (`setArmLabel`). The header's toolbar has "+ Waypoint" (adds one and arms the next map
-  click to put it on a spot) and "+ Split". The section header's "Edit |
+  Path labels are kept as typed and trimmed once on blur (`setArmLabel`).
+  "Waypoint" adds one and arms the next map click to put it on a spot. The
+  section header's "Edit |
   Preview" toggle draws the route page's own section (`CreepMapPlayground`)
   from the draft, read-only; the editor stays mounted under it, so the
   selection is kept. Row edits by key live in `editor-rows.mjs`

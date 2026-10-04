@@ -299,7 +299,7 @@ export const GUIDES: Guide[] = [
       block("Writing a creep route", "h2"),
       p("Have a route of your own? The route builder has three steps:"),
       step("Route setup: pick the map, your race, the opponent and the difficulty."),
-      step("Stops: click camps on the map in the order you take them. For each stop, set the kill order, the units to bring, a note and, if needed, a condition."),
+      step("Stops: click camps on the map in the order you take them. Each one lands at the dashed row; \"Split here\" in that row starts a split. For each stop, set the kill order and a note, and if needed the units to bring and a condition."),
       step("Notes and credit: add a title, a summary and your name."),
       { _type: "submitRouteCta", _key: "submit-route-cta" },
       { _type: "creepRouteList", _key: "creep-route-list" },
