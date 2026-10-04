@@ -102,13 +102,13 @@
               "time": "3:35",
               "supply": "23",
               "instruction": "Research Lumber Harvesting",
-              "icon": "nt-upgrade"
+              "icon": "humanlumberupgrade1"
             },
             {
               "time": "3:41",
               "supply": "23",
               "instruction": "Research Plating",
-              "icon": "nt-upgrade"
+              "icon": "humanarmorupone"
             },
             {
               "time": "3:53",
@@ -303,7 +303,7 @@
               "time": "4:36",
               "supply": "33",
               "instruction": "Research Lumber Harvesting",
-              "icon": "nt-upgrade"
+              "icon": "humanlumberupgrade1"
             },
             {
               "time": "5:19",
@@ -369,7 +369,7 @@
               "time": "7:12",
               "supply": "45",
               "instruction": "Research Lumber Harvesting",
-              "icon": "nt-upgrade"
+              "icon": "humanlumberupgrade2"
             },
             {
               "time": "7:15",
@@ -490,13 +490,13 @@
               "time": "3:35",
               "supply": "23",
               "instruction": "Research Lumber Harvesting",
-              "icon": "nt-upgrade"
+              "icon": "humanlumberupgrade1"
             },
             {
               "time": "3:41",
               "supply": "23",
               "instruction": "Research Plating",
-              "icon": "nt-upgrade"
+              "icon": "humanarmorupone"
             },
             {
               "time": "3:53",
@@ -691,7 +691,7 @@
               "time": "4:36",
               "supply": "33",
               "instruction": "Research Lumber Harvesting",
-              "icon": "nt-upgrade"
+              "icon": "humanlumberupgrade1"
             },
             {
               "time": "5:19",
@@ -757,7 +757,7 @@
               "time": "7:12",
               "supply": "45",
               "instruction": "Research Lumber Harvesting",
-              "icon": "nt-upgrade"
+              "icon": "humanlumberupgrade2"
             },
             {
               "time": "7:15",

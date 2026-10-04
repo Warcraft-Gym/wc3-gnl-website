@@ -282,6 +282,7 @@ export function extractBuild(summary: ReplaySummary, playerId: number, opts: Ext
 
   let supply = START_SUPPLY;
   const cancelledMeta: Record<number, ImportedStepMeta> = {};
+  const timesSeen = new Map<string, number>();
   const steps: ImportedBuildStep[] = mergedSteps.map((step, index) => {
     const displaySupply = Math.min(supply, MAX_SUPPLY);
     if (step.kind === "unit" || step.kind === "hero") {
@@ -290,7 +291,9 @@ export function extractBuild(summary: ReplaySummary, playerId: number, opts: Ext
     if (step.cancelled > 0) {
       cancelledMeta[index] = { ordered: step.ordered, cancelled: step.cancelled };
     }
-    const described = describeId(step.id);
+    const level = (timesSeen.get(step.id) ?? 0) + 1;
+    timesSeen.set(step.id, level);
+    const described = describeId(step.id, level);
     return {
       time: formatClock(step.ms),
       supply: displaySupply,

@@ -266,6 +266,38 @@ const UNIT_ICONS: Record<string, string> = {
   nzep: "goblinzeppelin",
 };
 
+/** Research id -> its icon at each level, as the game draws them. Covers the
+ *  Blacksmith, Lumber Mill, War Mill, Hunter's Hall and Graveyard research,
+ *  plus Improved Bows; other research draws `nt-upgrade`. */
+export const UPGRADE_ICONS: Record<string, string[]> = {
+  // Human Blacksmith and Lumber Mill
+  Rhme: ["steelmelee", "thoriummelee", "arcanitemelee"],
+  Rhra: ["humanmissileupone", "humanmissileuptwo", "humanmissileupthree"],
+  Rhar: ["humanarmorupone", "humanarmoruptwo", "humanarmorupthree"],
+  Rhla: ["leatherupgradeone", "leatherupgradetwo", "leatherupgradethree"],
+  Rhlh: ["humanlumberupgrade1", "humanlumberupgrade2"],
+  Rhac: ["stonearchitecture", "arcanitearchitecture", "imbuedmasonry"],
+  // Orc War Mill
+  Rome: ["orcmeleeupone", "orcmeleeuptwo", "orcmeleeupthree"],
+  Rora: ["steelranged", "thoriumranged", "arcaniteranged"],
+  Roar: ["steelarmor", "thoriumarmor", "arcanitearmor"],
+  Rosp: ["spikedbarricades", "improvedspikedbarricades", "advancedspikedbarricades"],
+  Rorb: ["reinforcedburrows"],
+  // Night Elf Hunter's Hall, and Improved Bows at the Ancient of War
+  Resm: ["strengthofthemoon", "improvedstrengthofthemoon", "advancedstrengthofthemoon"],
+  Rema: ["moonarmor", "improvedmoonarmor", "advancedmoonarmor"],
+  Resw: ["strengthofthewild", "improvedstrengthofthewild", "advancedstrengthofthewild"],
+  Rerh: ["reinforcedhides", "improvedreinforcedhides", "advancedreinforcedhides"],
+  Reuv: ["ultravision"],
+  Rews: ["wellspring"],
+  Reib: ["improvedbows"],
+  // Undead Graveyard
+  Rume: ["unholystrength", "improvedunholystrength", "advancedunholystrength"],
+  Ruar: ["unholyarmor", "improvedunholyarmor", "advancedunholyarmor"],
+  Rura: ["creatureattack", "improvedcreatureattack", "advancedcreatureattack"],
+  Rucr: ["creaturecarapace", "improvedcreaturecarapace", "advancedcreaturecarapace"],
+};
+
 function inferKind(id: string): IdKind {
   if (id.startsWith("R")) return "upgrade";
   if (/^[A-Z][a-z]{3}$/.test(id) || HERO_NAMES[id]) return "hero";
@@ -274,14 +306,17 @@ function inferKind(id: string): IdKind {
 
 /** Looks up a WC3 object id's icon/title/kind. Falls back to `w3gjs`'s
  *  upgrade/item/hero/unit name tables, then to the id itself as the title (per the
- *  spec's "unknown ids -> { title: id, ... }" rule). Never throws. */
-export function describeId(id: string): DescribedId {
+ *  spec's "unknown ids -> { title: id, ... }" rule). `level` picks a research's
+ *  icon for that level (1 = first). Never throws. */
+export function describeId(id: string, level = 1): DescribedId {
   const known = ID_MAP[id];
   if (known) return { iconKey: known.iconKey, title: known.title, kind: known.kind };
 
   if (id.startsWith("R")) {
     const name = UPGRADE_NAMES[id];
-    return { iconKey: "nt-upgrade", title: name ?? id, kind: "upgrade" };
+    const icons = UPGRADE_ICONS[id];
+    const iconKey = icons ? icons[Math.min(level, icons.length) - 1] : "nt-upgrade";
+    return { iconKey, title: name ?? id, kind: "upgrade" };
   }
 
   if (id === "stwp") {

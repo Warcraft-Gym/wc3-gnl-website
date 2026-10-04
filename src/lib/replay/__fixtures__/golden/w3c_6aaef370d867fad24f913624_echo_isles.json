@@ -409,13 +409,13 @@
               "time": "7:27",
               "supply": "37",
               "instruction": "Research Melee Weapons",
-              "icon": "nt-upgrade"
+              "icon": "orcmeleeupone"
             },
             {
               "time": "7:27",
               "supply": "37",
               "instruction": "Research Ranged Weapons",
-              "icon": "nt-upgrade"
+              "icon": "steelranged"
             }
           ],
           "meta": {
@@ -832,13 +832,13 @@
               "time": "7:27",
               "supply": "37",
               "instruction": "Research Melee Weapons",
-              "icon": "nt-upgrade"
+              "icon": "orcmeleeupone"
             },
             {
               "time": "7:27",
               "supply": "37",
               "instruction": "Research Ranged Weapons",
-              "icon": "nt-upgrade"
+              "icon": "steelranged"
             }
           ],
           "meta": {
