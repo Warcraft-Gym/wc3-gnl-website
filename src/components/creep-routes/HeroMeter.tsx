@@ -1,3 +1,4 @@
+import { ChevronsUp } from "lucide-react";
 import { heroXpForLevel } from "@/lib/creep-routes/xp.mjs";
 import { cn } from "@/lib/utils";
 
@@ -20,5 +21,20 @@ export function HeroMeter({ level, xp, className }: { level: number; xp: number;
         <div className="h-full rounded-full bg-gold" style={{ width: `${share * 100}%` }} />
       </div>
     </div>
+  );
+}
+
+/** A closed row's level, "Lv 2 · 303 xp", after a gold level-up mark when the row levels the hero. */
+export function LevelLine({ level, xp, leveled, className }: { level: number; xp: number; leveled: boolean; className?: string }) {
+  return (
+    <span className={cn("tnum inline-flex shrink-0 items-center gap-1 pt-0.5 text-[0.8rem] text-muted", className)}>
+      {leveled ? (
+        <>
+          <ChevronsUp aria-hidden size={15} strokeWidth={2.5} className="text-gold" />
+          <span className="sr-only">Level up: </span>
+        </>
+      ) : null}
+      Lv {level} · {xp} xp
+    </span>
   );
 }

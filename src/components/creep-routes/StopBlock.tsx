@@ -8,7 +8,7 @@ import { actionNamesPlace, isPin, isWaypoint, placeWhere } from "@/lib/creep-rou
 import type { CampCardTrigger, CreepMap, RouteStop, MapCamp, MapCampCreep } from "@/lib/creep-routes/types";
 import { GameIcon } from "@/components/builds/GameIcon";
 import { BAND_LABEL, BandDot } from "./RouteBadges";
-import { HeroMeter } from "./HeroMeter";
+import { HeroMeter, LevelLine } from "./HeroMeter";
 import { KillOrder, KillStrip } from "./KillOrder";
 import { PlaceIcon } from "./PlaceGlyph";
 import { HeroTile } from "./HeroTile";
@@ -89,7 +89,8 @@ export function StopBlock({
   lane = "a",
   showHero = false,
   heroIcon,
-  entry,
+  sharedXp = false,
+  chevron = true,
   dnd,
   tools,
 }: {
@@ -118,15 +119,16 @@ export function StopBlock({
   showHero?: boolean;
   /** The route's hero, for that Bring entry; a generic "Any Hero" tile when unset. */
   heroIcon?: string;
-  /** A stop inside an "and" block: the hero at the split. The order across paths is unknown, so
-   *  the row has no level line, the chain no level-up marks, and the meter shows this level. */
-  entry?: { level: number; xp: number };
+  /** A stop inside an "and" block: no level of its own, the split heading shows the shared one. */
+  sharedXp?: boolean;
+  /** False in a reader's "and" block: the split heading opens and closes its stops together. */
+  chevron?: boolean;
   /** The builder: the row's drag handle (left of the number) and its drop handlers. */
   dnd?: { handle?: React.ReactNode; props: DropProps };
   /** The builder: move and remove (`StopTools`), on the open stop's summary line before the chevron. */
   tools?: React.ReactNode;
 }) {
-  const d = entry ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
+  const d = sharedXp ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
   const pin = isPin(stop);
   // A step the author has not named yet (the builder) reads as new, never as a bare dash.
@@ -177,7 +179,7 @@ export function StopBlock({
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
           aria-expanded={isOpen}
           aria-controls={bodyId}
-          aria-label={waypoint ? `${pin ? "Meanwhile, " : ""}${label}${where ? `, ${where}` : ""}` : camp && !entry ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
+          aria-label={waypoint ? `${pin ? "Meanwhile, " : ""}${label}${where ? `, ${where}` : ""}` : camp && !sharedXp ? `Stop ${number}, ${label}, hero Lv ${d.heroLevelAfter}, ${d.xpAfter} xp` : `Stop ${number}, ${label}${where ? `, ${where}` : ""}`}
           className="absolute inset-0 cursor-pointer rounded focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-gold"
         />
         <span className="tnum pointer-events-none relative pt-1 text-center text-xs text-faint">
@@ -230,11 +232,9 @@ export function StopBlock({
             ) : (
               <p className="pt-0.5 text-sm font-medium text-fg">{label}</p>
             )}
-            {camp && isOpen ? <HeroMeter level={entry?.level ?? d.heroLevelAfter} xp={entry?.xp ?? d.xpAfter} /> : null}
-            {camp && !isOpen && !entry ? (
-              <span className={cn("tnum shrink-0 pt-0.5 text-[0.8rem] text-muted", pictures && "ml-auto")}>
-                Lv {d.heroLevelAfter} · {d.xpAfter} xp
-              </span>
+            {camp && isOpen && !sharedXp ? <HeroMeter level={d.heroLevelAfter} xp={d.xpAfter} /> : null}
+            {camp && !isOpen && !sharedXp ? (
+              <LevelLine level={d.heroLevelAfter} xp={d.xpAfter} leveled={d.kills.some((k) => k.leveledUp)} className={pictures ? "ml-auto" : undefined} />
             ) : null}
             {pictures && !isOpen ? (
               <span className="inline-flex shrink-0 items-center gap-1 pt-0.5 text-[0.8rem] text-muted" aria-label={`${pictures} pictures`}>
@@ -252,7 +252,7 @@ export function StopBlock({
         {/* The builder's tools sit before the chevron; on a phone they stack under it, so the name keeps its width. */}
         <span className={cn("flex items-start gap-1.5", isOpen && tools && "flex-col-reverse items-center sm:flex-row sm:items-start")}>
           {isOpen ? tools : null}
-          <button
+          {chevron ? <button
             type="button"
             onClick={() => onChevron(stopKey)}
             aria-expanded={isOpen}
@@ -264,7 +264,7 @@ export function StopBlock({
             )}
           >
             <ChevronDown aria-hidden size={16} className={cn("transition-transform motion-reduce:transition-none", isOpen && "rotate-180")} />
-          </button>
+          </button> : null}
         </span>
       </div>
       {isOpen ? (

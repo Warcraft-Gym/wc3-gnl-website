@@ -3,7 +3,7 @@
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
-import { builderRows, joinXpLabel, routeRows } from "@/lib/creep-routes/route-rows.mjs";
+import { builderRows, routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import { isWaypoint } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
@@ -134,7 +134,9 @@ export function RouteStepTable({
     const d = derived.stops[index];
     return arm === undefined ? d : d.split!.arms[arm].stops[j];
   };
-  const allOpen = count > 0 && keys.every((k) => open.has(k));
+  // An "and" path stop counts as open when its split heading is.
+  const blockOf = new Map(rows.flatMap((r) => (r.type === "stop" && r.block !== undefined ? [[r.key, String(r.block)] as const] : [])));
+  const allOpen = count > 0 && keys.every((k) => open.has(blockOf.get(k) ?? k));
   const itemRef = (key: string) => (el: HTMLLIElement | null) => {
     if (el) items.current.set(key, el);
     else items.current.delete(key);
@@ -153,15 +155,16 @@ export function RouteStepTable({
                   stopKey={row.key}
                   baseId={baseId}
                   onChoose={(forkKey, arm) => onChoose?.(forkKey, arm)}
+                  isOpen={open.has(row.key)}
+                  onToggle={builder ? undefined : () => onChevron(row.key)}
                 />
               );
             }
             if (row.type === "join") {
-              const node = derived.stops[row.index].split;
-              return <JoinRow key={row.key} lanes={row.lanes} xp={row.mode === "and" && node ? joinXpLabel(node) : undefined} />;
+              return <JoinRow key={row.key} lanes={row.lanes} />;
             }
-            // Inside an "and" block the order across paths is unknown: the stop shows the level at the split.
-            const block = row.block !== undefined && row.node !== undefined ? derived.stops[row.node].split : undefined;
+            // A reader's "and" path stop opens with its split heading (`group`) and shows no level of its own.
+            const group = !builder && row.block !== undefined ? String(row.block) : undefined;
             return (
               <StopBlock
                 key={row.key}
@@ -172,7 +175,7 @@ export function RouteStepTable({
                 map={map}
                 youStart={route.start ?? 0}
                 isActive={row.key === selected}
-                isOpen={open.has(row.key)}
+                isOpen={open.has(group ?? row.key)}
                 isHover={row.key === hoverKey}
                 bodyId={`${baseId}-stop-${row.key}`}
                 onSummary={onSummary}
@@ -186,7 +189,8 @@ export function RouteStepTable({
                 rail={<StopRail lines={row.lines} lane={row.lane} stop={row.stop} />}
                 lane={row.lane}
                 dnd={dnd?.({ kind: "row", key: row.key })}
-                entry={block ? { level: block.levelBefore, xp: block.xpBefore } : undefined}
+                sharedXp={row.block !== undefined}
+                chevron={!group}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
                 tools={stopTools && open.has(row.key) ? stopTools(row.key) : undefined}
               />
@@ -257,7 +261,7 @@ export function RouteStepTable({
         joins={row.joins}
         follows={row.follows}
         slotAfter={row.slotAfter}
-        xp={row.mode === "and" && node ? joinXpLabel(node) : undefined}
+        node={row.mode === "and" ? node : undefined}
         onContinue={edit.onContinue}
       />
     );
@@ -292,13 +296,9 @@ export function RouteStepTable({
         <ol>
           {groupBlocks(blocks).map((item) => {
             if (item.type !== "group") return renderBuilderRow(item);
-            // A split's blocks in one item; an "and" split's is framed in gold when the hero levels during it.
-            const node = derived.stops[Number(item.key)]?.split;
-            const leveled = Boolean(node && node.mode === "and" && node.levelAfter > node.levelBefore);
             return (
               <li key={`block-${item.key}`} className="relative">
                 <ol>{item.rows.map(renderBuilderRow)}</ol>
-                {leveled ? <span aria-hidden className="pointer-events-none absolute inset-0 rounded border-2 border-gold" /> : null}
               </li>
             );
           })}
@@ -318,15 +318,12 @@ export function RouteStepTable({
                 </li>
               );
             }
-            // An "and" block: its paths' rows in one item, framed in gold when the hero levels during it.
+            // An "and" block: its paths' rows in one item; the split row above carries their shared XP.
             if (group.type === "block") {
-              const node = derived.stops[group.split.index].split;
-              const leveled = Boolean(node && node.levelAfter > node.levelBefore);
               return [
                 renderRow(group.split),
-                <li key={`block-${group.split.key}`} className="relative">
+                <li key={`block-${group.split.key}`} id={`${baseId}-block-${group.split.key}`} className="relative">
                   <ol>{group.rows.map(renderRow)}</ol>
-                  {leveled ? <span aria-hidden className="pointer-events-none absolute inset-0 rounded border-2 border-gold" /> : null}
                 </li>,
               ];
             }

@@ -35,7 +35,7 @@ import {
   type SplitSetup,
   type UndoEntry,
 } from "./stop-rows";
-import { stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
+import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
 import { atKind } from "@/lib/creep-routes/place.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
@@ -441,7 +441,7 @@ export function RouteEditor({
         ? undefined
         : () => {
             step("add path");
-            setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
+            setSplit(row.id, { arms: [...arms, { id: newId(), label: "", stops: [] }] });
             focusTo.current = `[aria-label="Path ${"ABC"[arms.length]} name"]`;
           },
       // Removing one of two paths turns the split into the other path's stops, in its place (`removePath`).

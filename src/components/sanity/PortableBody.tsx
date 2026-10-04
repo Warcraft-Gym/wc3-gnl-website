@@ -15,6 +15,7 @@ import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground
 import { SubmitRouteCta } from "@/components/creep-routes/SubmitRouteCta";
 import { GuideRoutePart } from "@/components/learn/GuideRoutePart";
 import { GuideRouteCard, GuideRouteList } from "@/components/learn/GuideRouteList";
+import { RouteStepKey } from "@/components/learn/RouteStepKey";
 import type { CreepRoute, RouteStop } from "@/lib/creep-routes/types";
 
 
@@ -38,6 +39,7 @@ function guideRoute({ map, stops }: GuideRouteValue, fullMap: boolean) {
  */
 const components: PortableTextComponents = {
   types: {
+    routeStepKey: () => <RouteStepKey />,
     // Stray inline nodes the HTML converter can emit at block level, render
     // their text so no content is lost (and silence the console warning).
     span: ({ value }) => <>{(value as { text?: string })?.text ?? ""}</>,
@@ -76,7 +78,7 @@ const components: PortableTextComponents = {
     // kill order.
     creepRoutePart: ({ value }) => {
       // A live route by slug (`slugs`): nothing when it is not there.
-      const live = value as { slugs?: string[]; part: "map" | "stops"; choice?: Record<string, number>; needs?: "split" | "and" | "waypoint" | "attack" };
+      const live = value as { slugs?: string[]; part: "map" | "stops"; choice?: Record<string, number>; needs?: "split" | "and" | "waypoint" | "pin" | "attack" };
       if (live.slugs) return <GuideRoutePart slugs={live.slugs} part={live.part} choice={live.choice} needs={live.needs} />;
       const v = value as GuideRouteValue & { part: "map" | "stops" | "stop"; stop?: number; source: string; author: string };
       const g = guideRoute(v, v.part === "map");

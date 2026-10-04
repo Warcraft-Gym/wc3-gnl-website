@@ -583,7 +583,14 @@ choose one, no number means a waypoint.
   shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
-  example has no rail.
+  example has no rail. The heading of an "At the same time" split is one
+  dropdown for all its paths and shows the hero after them all, like a
+  stop row: closed, the level line `Lv 3 · 552 xp`; open, the hero meter.
+  A level line starts with a gold double chevron when its stop or split
+  levels the hero. No path is marked because either path can contain the
+  level-up kill. The path stops have no chevron and no level of their own;
+  they open and close with the heading (the open key is the split's). A path such
+  as harass or shopping may add no XP.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.
 - **Builder.** "Split here" in the next-stop row opens a short form (pick one
@@ -712,16 +719,21 @@ vocabulary" bullet for why `RouteFilters` stays a sibling of
 
 ## XP model
 
-A creep route has no time dimension (F007, user decision — see that
-feature's spec: "the timings are not important and can be removed"): a
-route is an ordered list of camp stops and base actions, nothing more. What
-*is* derived, and stays load-bearing, is the hero's running level/xp —
+A creep route lists steps in time order, without clock times. A step can be a
+camp, a place with no creeps or an action with no place. What the app derives
+is the hero's running level and XP —
 `src/lib/creep-routes/derive.mjs`'s `deriveRoute(route, map, { startLevel })`
 runs a hero through a route's stops **in order**, folding camp stops
 through `xp.mjs`'s per-kill math (skipping non-camp stops). A stop with
 `kills` counts those creeps first, in that order, then the rest of the
 camp, or only those creeps when `leaveRest` ("Skip the rest") is set; each
 derived stop reports `left`, the creeps it skips (also in the API's `derived`).
+For paths taken at the same time, the calculator folds path A, then path B,
+then path C if present. Each creep's XP uses the hero's level when that creep
+dies. The game can kill across paths in another order; if a level-up falls
+inside the split, that order can change the final XP. The split heading shows
+the calculator's total, and its level-up cue does not pick a path or moment.
+A non-camp step adds no creep XP.
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
 come from Blizzard's own
@@ -959,8 +971,10 @@ the dynamic `[category]` segment for that exact path). The guide
 a playable kill order (`killOrderDemo` block in
 `PortableBody`, data in `src/lib/learn/creep-route-demo.mjs`). A live route
 block (`slugs`, `GuideRoutePart`) takes the first slug whose route has the
-section's feature (`needs`: split, and, waypoint or attack; `route-has.mjs`)
-and renders nothing when no route has it.
+section's feature (`needs`: split, and, waypoint, pin or attack; `route-has.mjs`)
+and renders nothing when no route has it. The guide uses a small route-step
+key for On the route / A pin / No place, shows a real pin on both map and list,
+and embeds two simultaneous-path examples: a camp with harass and two camps.
 `src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
 every other category) and every published route slug.
 

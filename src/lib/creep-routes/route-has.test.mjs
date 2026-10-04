@@ -8,7 +8,7 @@ const split = (mode, ...arms) => ({ campId: null, split: { mode, arms: arms.map(
 const route = (...stops) => ({ stops });
 
 test("a route of plain camps has none of the features", () => {
-  for (const f of ["split", "and", "waypoint", "attack"]) assert.equal(routeHas(route(camp("c1"), camp("c2")), f), false);
+  for (const f of ["split", "and", "waypoint", "pin", "attack"]) assert.equal(routeHas(route(camp("c1"), camp("c2")), f), false);
 });
 
 test("an or / xor split is a split; an and split is not, and the reverse", () => {
@@ -30,4 +30,10 @@ test("a waypoint or an attack inside a split path counts", () => {
   const r = route(camp("c1"), split("xor", [camp("c2")], [place("attack")]), split("and", [place("shop")], [camp("c3")]));
   assert.equal(routeHas(r, "attack"), true);
   assert.equal(routeHas(r, "waypoint"), true);
+});
+
+test("a pin is a waypoint whose line is skipped, including inside a split", () => {
+  assert.equal(routeHas(route(place("shop")), "pin"), false);
+  assert.equal(routeHas(route({ ...place("scout"), hero: false }), "pin"), true);
+  assert.equal(routeHas(route(split("and", [camp("c1")], [{ ...place("scout"), hero: false }])), "pin"), true);
 });

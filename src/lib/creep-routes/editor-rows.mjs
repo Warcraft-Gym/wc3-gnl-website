@@ -7,9 +7,13 @@
  */
 import { flatStops } from "./stop-numbers.mjs";
 
+/** A new id for an editor row, path or Bring entry, unique in this page; never saved. */
+let lastId = 0;
+export const newId = () => ++lastId;
+
 /** A fresh editor row; `patch` sets the camp, the place or the fork. */
 export function newRow(patch = {}) {
-  return { id: Date.now() + Math.random(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, ...patch };
+  return { id: newId(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, ...patch };
 }
 
 /** The split mode chips, in order: "Choose a path" first, a new split's mode. Whether chosen paths rejoin
@@ -21,7 +25,7 @@ export const SPLIT_MODES = [
 
 /** A new split row: empty paths with these labels (two by default) in the first chip's mode by default. */
 export function newSplitRow(mode = SPLIT_MODES[0].id, labels = ["", ""]) {
-  return newRow({ split: { mode, arms: labels.map((label, a) => ({ id: Date.now() + Math.random() + a, label: label.trim(), stops: [] })) } });
+  return newRow({ split: { mode, arms: labels.map((label) => ({ id: newId(), label: label.trim(), stops: [] })) } });
 }
 
 /** The split form's "Start path A": a same-time split starts at once; a pick-one split needs a name on every path. */

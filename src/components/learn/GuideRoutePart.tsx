@@ -20,7 +20,7 @@ export async function GuideRoutePart({
 }: {
   slugs: string[];
   part: "map" | "stops";
-  needs?: "split" | "and" | "waypoint" | "attack";
+  needs?: "split" | "and" | "waypoint" | "pin" | "attack";
   /** The path each split shows first, by split key. */
   choice?: Record<string, number>;
 }) {
