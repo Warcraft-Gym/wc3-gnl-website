@@ -584,8 +584,8 @@ choose one, no number means a waypoint.
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
   example has no rail. At the join of an "At the same time" split, one
-  compact result shows the combined estimated XP and the hero level after
-  all paths. A small gold border around that level means it goes up during
+  compact result holds `+XP` beside the hero's level and XP bar after all
+  paths. A gold border around this small result means the hero levels during
   the split. No path gets a gold outline because either path can contain
   the level-up kill. A path such as harass or shopping may add no XP.
   A map click on a camp picks the top-level stop or the
@@ -726,10 +726,11 @@ through `xp.mjs`'s per-kill math (skipping non-camp stops). A stop with
 camp, or only those creeps when `leaveRest` ("Skip the rest") is set; each
 derived stop reports `left`, the creeps it skips (also in the API's `derived`).
 For paths taken at the same time, the calculator folds path A, then path B,
-then path C if present. The game can kill across those paths in another order,
-so the combined XP shown at their join is an estimate. The level-up cue sits
-on that combined result because the exact path and moment of the level-up are
-unknown. A non-camp step adds no creep XP.
+then path C if present. Each creep's XP uses the hero's level when that creep
+dies. The game can kill across paths in another order; if a level-up falls
+inside the split, that order can change the final XP. The join shows the
+calculator's total, and its level-up cue does not pick a path or moment.
+A non-camp step adds no creep XP.
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`
 come from Blizzard's own

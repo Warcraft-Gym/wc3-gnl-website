@@ -223,7 +223,7 @@ export function ForkRail({ main, lanes }: { main?: RailLine; lanes: { lane: stri
 /** The rail curving the shown lanes back into the main line before the first shared stop. */
 export function JoinRow({ lanes, node }: { lanes: { lane: string; off: boolean }[]; node?: DerivedNode }) {
   return (
-    <li aria-hidden={node ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", node ? "py-2 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
+    <li aria-hidden={node ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", node ? "py-1.5 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
       <JoinRail lanes={lanes} />
       {node ? <SplitXpSummary node={node} /> : null}
     </li>
