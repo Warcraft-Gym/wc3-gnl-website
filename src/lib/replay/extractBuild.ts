@@ -1,7 +1,7 @@
 import type { EditorFormInput } from "./editorFormTypes";
 import { describeId } from "./idMap";
 import { FOOD_COST } from "./foodCost";
-import { computeCancelledBuildOrResearch, computeCancelledOrders, filterLikelyRejected, type DroppedInfo } from "./rejectedOrders";
+import { computeCancelledOrders, computeCancelledResearch, filterLikelyRejected, type DroppedInfo } from "./rejectedOrders";
 import type {
   ExtractBuildOptions,
   ImportedBuildStep,
@@ -69,12 +69,8 @@ function instructionFor(kind: ReplayEvent["kind"], title: string, count: number)
     case "item":
       return `Buy ${title}`;
     case "cancel":
-      // Never reaches a rendered step — `dedupeAndMerge` only ever builds
-      // "cancel"-kind groups from already-filtered-out cancel events (see
-      // `extractBuild`'s `applyCancels`/`dropLikelyRejected` pipeline,
-      // which strips cancel events and F002-rejected orders out of the
-      // event stream before it ever reaches `dedupeAndMerge`). Exhaustiveness only.
-      return "";
+      // Only a building cancelled mid-construction reaches a step (see `dedupeAndMerge`).
+      return `Cancel ${title}`;
   }
 }
 
@@ -129,7 +125,9 @@ function dedupeAndMerge(events: readonly ReplayEvent[], removed: ReadonlySet<Rep
   const lastBuildingMs = new Map<string, number>();
   const lastHeroIndex = new Map<string, number>();
   for (const event of events) {
-    if (event.kind === "cancel") continue; // never itself a step
+    // A building cancel is its own step: a build can rely on it (the Night
+    // Elf shop trick). Unit/hero cancels only lower their group's count.
+    if (event.kind === "cancel" && event.target !== "building") continue;
     if (event.kind === "building") {
       const lastMs = lastBuildingMs.get(event.id);
       if (lastMs !== undefined && event.ms - lastMs <= DEDUPE_WINDOW_MS) continue;
@@ -265,18 +263,20 @@ export function extractBuild(summary: ReplaySummary, playerId: number, opts: Ext
   const removedOrders = applyCancels ? computeCancelledOrders(filtered, filtered) : new Set<ReplayEvent>();
   const survivingOrders = filtered.filter((e) => (e.kind === "unit" || e.kind === "hero") && !removedOrders.has(e));
 
-  // F001: buildings under construction and research/tier-ups cancelled via
-  // Esc never produce a step at all (unlike a cancelled unit/hero order,
-  // there's no "N ordered, M cancelled" partial count to show) — dropped
-  // from `eventsForMerge` outright, same as a `filterLikelyRejected` drop.
-  const removedBuildOrResearch = applyCancels ? computeCancelledBuildOrResearch(filtered) : new Set<ReplayEvent>();
+  // F001: research/tier-ups cancelled via Esc never produce a step at all —
+  // dropped from `eventsForMerge` outright, same as a `filterLikelyRejected`
+  // drop. A building cancelled mid-construction keeps its "Build" step and
+  // adds a "Cancel" step (see `dedupeAndMerge`).
+  const removedResearch = applyCancels ? computeCancelledResearch(filtered) : new Set<ReplayEvent>();
 
   const { accepted, dropped } = dropLikelyRejected
     ? filterLikelyRejected(survivingOrders, filtered)
     : { accepted: survivingOrders, dropped: EMPTY_DROPPED };
   const rejectedSet = new Set(survivingOrders.filter((order) => !accepted.includes(order)));
 
-  const eventsForMerge = filtered.filter((e) => !rejectedSet.has(e) && !removedBuildOrResearch.has(e));
+  const eventsForMerge = filtered.filter(
+    (e) => !rejectedSet.has(e) && !removedResearch.has(e) && (applyCancels || e.kind !== "cancel"),
+  );
   const mergedSteps = dedupeAndMerge(eventsForMerge, removedOrders);
   const droppedMeta = attachDroppedToSteps(mergedSteps, [...rejectedSet]);
 

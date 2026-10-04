@@ -5,7 +5,9 @@
  * before the move (from the untouched overlay copy; see
  * `scripts/generate-replay-goldens.ts`'s docblock for the exact command).
  * A failure here means the copy or the site-local `EditorFormInput` swap
- * changed behaviour, not just location.
+ * changed behaviour, not just location. Since then the goldens are
+ * regenerated with that script for intended changes (building cancels as
+ * "Cancel" steps), so they no longer match the overlay's copy.
  */
 import { describe, expect, it } from "vitest";
 import { readFileSync, readdirSync } from "node:fs";
