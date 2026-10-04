@@ -1,0 +1,1051 @@
+{
+  "file": "w3c_6aaaaeece066667e29f47568_last_refuge.w3g",
+  "map": {
+    "file": "3_w3c_260915_0738_LastRefuge_v1.5.w3x",
+    "name": "Last Refuge"
+  },
+  "version": "3.00",
+  "buildNumber": 7000,
+  "durationMs": 1152510,
+  "variants": {
+    "true": [
+      {
+        "id": 1,
+        "name": "Medusa#31315",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Medusa#31315 (Night Elf) vs Night Elf — Last Refuge",
+          "race": "nightelf",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260915_0738_LastRefuge_v1.5.w3x (v3.00, 19:12). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:02",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:04",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "7",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:23",
+              "supply": "7",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:30",
+              "supply": "7",
+              "instruction": "Train 4× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:48",
+              "supply": "11",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp",
+              "importNote": "2 dropped (likely rejected)"
+            },
+            {
+              "time": "1:00",
+              "supply": "13",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp",
+              "importNote": "2 ordered · 1 cancelled · 2 dropped (likely rejected)"
+            },
+            {
+              "time": "1:08",
+              "supply": "14",
+              "instruction": "Hero: Demon Hunter",
+              "icon": "ne-demon-hunter"
+            },
+            {
+              "time": "1:23",
+              "supply": "19",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:29",
+              "supply": "21",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:36",
+              "supply": "21",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:46",
+              "supply": "23",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:10",
+              "supply": "24",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:12",
+              "supply": "24",
+              "instruction": "Cancel Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:30",
+              "supply": "24",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "2:33",
+              "supply": "26",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "2:50",
+              "supply": "26",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "3:10",
+              "supply": "26",
+              "instruction": "Train 2× Forest Troll Shadow Priest",
+              "icon": "foresttrollshadowpriest"
+            },
+            {
+              "time": "3:42",
+              "supply": "30",
+              "instruction": "Train Forest Troll Berserker",
+              "icon": "foresttroll"
+            },
+            {
+              "time": "3:49",
+              "supply": "33",
+              "instruction": "Build Hunter's Hall",
+              "icon": "ne-hunters-hall"
+            },
+            {
+              "time": "5:01",
+              "supply": "33",
+              "instruction": "Hero: Naga Sea Witch",
+              "icon": "nt-naga-sea-witch"
+            },
+            {
+              "time": "5:09",
+              "supply": "38",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:09",
+              "supply": "38",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:24",
+              "supply": "38",
+              "instruction": "Build Ancient of Lore",
+              "icon": "ne-ancient-of-lore"
+            },
+            {
+              "time": "5:29",
+              "supply": "38",
+              "instruction": "Build Ancient of Lore",
+              "icon": "ne-ancient-of-lore"
+            },
+            {
+              "time": "5:56",
+              "supply": "38",
+              "instruction": "Build Tree of Eternity",
+              "icon": "ne-tree-of-eternity"
+            },
+            {
+              "time": "6:32",
+              "supply": "38",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "6:43",
+              "supply": "38",
+              "instruction": "Train Dryad",
+              "icon": "ne-dryad"
+            },
+            {
+              "time": "7:11",
+              "supply": "41",
+              "instruction": "Research Abolish Magic",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:11",
+              "supply": "41",
+              "instruction": "Research Druid of the Claw Training",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:12",
+              "supply": "41",
+              "instruction": "Research Druid of the Claw Training",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:26",
+              "supply": "41",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "7:41",
+              "supply": "41",
+              "instruction": "Train Druid of the Claw",
+              "icon": "ne-druid-of-the-claw"
+            },
+            {
+              "time": "7:54",
+              "supply": "45",
+              "instruction": "Train Druid of the Claw",
+              "icon": "ne-druid-of-the-claw"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "7": {
+                "ordered": 2,
+                "cancelled": 1
+              }
+            },
+            "dropped": {
+              "6": 2,
+              "7": 2
+            }
+          },
+          "dropped": {
+            "count": 4,
+            "byId": {
+              "ewsp": 4
+            },
+            "orderIndices": [
+              8,
+              9,
+              11,
+              12
+            ]
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Jens#11592",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Jens#11592 (Night Elf) vs Night Elf — Last Refuge",
+          "race": "nightelf",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260915_0738_LastRefuge_v1.5.w3x (v3.00, 19:12). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:00",
+              "supply": "5",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:01",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:03",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:05",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:17",
+              "supply": "7",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:21",
+              "supply": "7",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:30",
+              "supply": "7",
+              "instruction": "Train 3× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:47",
+              "supply": "10",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:00",
+              "supply": "11",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:07",
+              "supply": "12",
+              "instruction": "Hero: Keeper of the Grove",
+              "icon": "ne-keeper-of-the-grove"
+            },
+            {
+              "time": "1:12",
+              "supply": "17",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:22",
+              "supply": "18",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:35",
+              "supply": "20",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:41",
+              "supply": "20",
+              "instruction": "Train 3× Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:56",
+              "supply": "26",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "1:57",
+              "supply": "26",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:57",
+              "supply": "27",
+              "instruction": "Cancel Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:25",
+              "supply": "27",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:37",
+              "supply": "29",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "2:57",
+              "supply": "31",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "2:59",
+              "supply": "31",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:23",
+              "supply": "33",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "3:29",
+              "supply": "33",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:57",
+              "supply": "35",
+              "instruction": "Build Hunter's Hall",
+              "icon": "ne-hunters-hall"
+            },
+            {
+              "time": "4:05",
+              "supply": "35",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:44",
+              "supply": "37",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:45",
+              "supply": "39",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "5:19",
+              "supply": "39",
+              "instruction": "Hero: Priestess of the Moon",
+              "icon": "ne-priestess-of-the-moon"
+            },
+            {
+              "time": "5:19",
+              "supply": "44",
+              "instruction": "Research Improved Bows",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:24",
+              "supply": "44",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:32",
+              "supply": "44",
+              "instruction": "Build Ancient of Wind",
+              "icon": "ne-ancient-of-wind"
+            },
+            {
+              "time": "5:51",
+              "supply": "44",
+              "instruction": "Build Tree of Eternity",
+              "icon": "ne-tree-of-eternity"
+            },
+            {
+              "time": "6:16",
+              "supply": "44",
+              "instruction": "Train 2× Goblin Shredder",
+              "icon": "junkgolem"
+            },
+            {
+              "time": "6:52",
+              "supply": "52",
+              "instruction": "Train Hippogryph",
+              "icon": "ne-hippogryph"
+            },
+            {
+              "time": "6:55",
+              "supply": "54",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "7:07",
+              "supply": "54",
+              "instruction": "Research Strength of the Moon",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:39",
+              "supply": "54",
+              "instruction": "Build Ancient Protector",
+              "icon": "ne-ancient-protector"
+            },
+            {
+              "time": "7:54",
+              "supply": "54",
+              "instruction": "Train Hippogryph",
+              "icon": "ne-hippogryph"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ],
+    "false": [
+      {
+        "id": 1,
+        "name": "Medusa#31315",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 0,
+        "isObserver": false,
+        "draft": {
+          "title": "Medusa#31315 (Night Elf) vs Night Elf — Last Refuge",
+          "race": "nightelf",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260915_0738_LastRefuge_v1.5.w3x (v3.00, 19:12). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:01",
+              "supply": "5",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:02",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:04",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:16",
+              "supply": "7",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:23",
+              "supply": "7",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:30",
+              "supply": "7",
+              "instruction": "Train 4× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:48",
+              "supply": "11",
+              "instruction": "Train 4× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:00",
+              "supply": "15",
+              "instruction": "Train 3× Wisp",
+              "icon": "ne-wisp",
+              "importNote": "4 ordered · 1 cancelled"
+            },
+            {
+              "time": "1:08",
+              "supply": "18",
+              "instruction": "Hero: Demon Hunter",
+              "icon": "ne-demon-hunter"
+            },
+            {
+              "time": "1:23",
+              "supply": "23",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:29",
+              "supply": "25",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:36",
+              "supply": "25",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:46",
+              "supply": "27",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:10",
+              "supply": "28",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:12",
+              "supply": "28",
+              "instruction": "Cancel Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:30",
+              "supply": "28",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "2:33",
+              "supply": "30",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "2:50",
+              "supply": "30",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "3:10",
+              "supply": "30",
+              "instruction": "Train 2× Forest Troll Shadow Priest",
+              "icon": "foresttrollshadowpriest"
+            },
+            {
+              "time": "3:42",
+              "supply": "34",
+              "instruction": "Train Forest Troll Berserker",
+              "icon": "foresttroll"
+            },
+            {
+              "time": "3:49",
+              "supply": "37",
+              "instruction": "Build Hunter's Hall",
+              "icon": "ne-hunters-hall"
+            },
+            {
+              "time": "5:01",
+              "supply": "37",
+              "instruction": "Hero: Naga Sea Witch",
+              "icon": "nt-naga-sea-witch"
+            },
+            {
+              "time": "5:09",
+              "supply": "42",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:09",
+              "supply": "42",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:24",
+              "supply": "42",
+              "instruction": "Build Ancient of Lore",
+              "icon": "ne-ancient-of-lore"
+            },
+            {
+              "time": "5:29",
+              "supply": "42",
+              "instruction": "Build Ancient of Lore",
+              "icon": "ne-ancient-of-lore"
+            },
+            {
+              "time": "5:56",
+              "supply": "42",
+              "instruction": "Build Tree of Eternity",
+              "icon": "ne-tree-of-eternity"
+            },
+            {
+              "time": "6:32",
+              "supply": "42",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "6:43",
+              "supply": "42",
+              "instruction": "Train Dryad",
+              "icon": "ne-dryad"
+            },
+            {
+              "time": "7:11",
+              "supply": "45",
+              "instruction": "Research Abolish Magic",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:11",
+              "supply": "45",
+              "instruction": "Research Druid of the Claw Training",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:12",
+              "supply": "45",
+              "instruction": "Research Druid of the Claw Training",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:26",
+              "supply": "45",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "7:41",
+              "supply": "45",
+              "instruction": "Train Druid of the Claw",
+              "icon": "ne-druid-of-the-claw"
+            },
+            {
+              "time": "7:54",
+              "supply": "49",
+              "instruction": "Train Druid of the Claw",
+              "icon": "ne-druid-of-the-claw"
+            }
+          ],
+          "meta": {
+            "cancelled": {
+              "7": {
+                "ordered": 4,
+                "cancelled": 1
+              }
+            },
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      },
+      {
+        "id": 2,
+        "name": "Jens#11592",
+        "race": "nightelf",
+        "raceDetected": "nightelf",
+        "teamId": 1,
+        "isObserver": false,
+        "draft": {
+          "title": "Jens#11592 (Night Elf) vs Night Elf — Last Refuge",
+          "race": "nightelf",
+          "vsRaces": [
+            "nightelf"
+          ],
+          "difficulty": "intermediate",
+          "patch": "",
+          "tags": "replay",
+          "summary": "Imported from replay 3_w3c_260915_0738_LastRefuge_v1.5.w3x (v3.00, 19:12). Trim and annotate before sharing.",
+          "author": "Replay Import",
+          "authorDiscord": "",
+          "sourceUrl": "",
+          "description": "",
+          "steps": [
+            {
+              "time": "0:00",
+              "supply": "5",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:01",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:03",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:05",
+              "supply": "7",
+              "instruction": "Build Altar of Elders",
+              "icon": "ne-altar"
+            },
+            {
+              "time": "0:17",
+              "supply": "7",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "0:21",
+              "supply": "7",
+              "instruction": "Build Ancient of War",
+              "icon": "ne-ancient-of-war"
+            },
+            {
+              "time": "0:30",
+              "supply": "7",
+              "instruction": "Train 3× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "0:47",
+              "supply": "10",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:00",
+              "supply": "11",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:07",
+              "supply": "12",
+              "instruction": "Hero: Keeper of the Grove",
+              "icon": "ne-keeper-of-the-grove"
+            },
+            {
+              "time": "1:12",
+              "supply": "17",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:22",
+              "supply": "18",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:35",
+              "supply": "20",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "1:41",
+              "supply": "20",
+              "instruction": "Train 3× Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "1:56",
+              "supply": "26",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "1:57",
+              "supply": "26",
+              "instruction": "Train Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "1:57",
+              "supply": "27",
+              "instruction": "Cancel Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "2:25",
+              "supply": "27",
+              "instruction": "Train 2× Wisp",
+              "icon": "ne-wisp"
+            },
+            {
+              "time": "2:37",
+              "supply": "29",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "2:57",
+              "supply": "31",
+              "instruction": "Build Tree of Ages",
+              "icon": "ne-tree-of-ages"
+            },
+            {
+              "time": "2:59",
+              "supply": "31",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:23",
+              "supply": "33",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "3:29",
+              "supply": "33",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "3:57",
+              "supply": "35",
+              "instruction": "Build Hunter's Hall",
+              "icon": "ne-hunters-hall"
+            },
+            {
+              "time": "4:05",
+              "supply": "35",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:44",
+              "supply": "37",
+              "instruction": "Train Archer",
+              "icon": "ne-archer"
+            },
+            {
+              "time": "4:45",
+              "supply": "39",
+              "instruction": "Build Ancient of Wonders",
+              "icon": "ne-ancient-of-wonders"
+            },
+            {
+              "time": "5:19",
+              "supply": "39",
+              "instruction": "Hero: Priestess of the Moon",
+              "icon": "ne-priestess-of-the-moon"
+            },
+            {
+              "time": "5:19",
+              "supply": "44",
+              "instruction": "Research Improved Bows",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:24",
+              "supply": "44",
+              "instruction": "Research Ultravision",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "5:32",
+              "supply": "44",
+              "instruction": "Build Ancient of Wind",
+              "icon": "ne-ancient-of-wind"
+            },
+            {
+              "time": "5:51",
+              "supply": "44",
+              "instruction": "Build Tree of Eternity",
+              "icon": "ne-tree-of-eternity"
+            },
+            {
+              "time": "6:16",
+              "supply": "44",
+              "instruction": "Train 2× Goblin Shredder",
+              "icon": "junkgolem"
+            },
+            {
+              "time": "6:52",
+              "supply": "52",
+              "instruction": "Train Hippogryph",
+              "icon": "ne-hippogryph"
+            },
+            {
+              "time": "6:55",
+              "supply": "54",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
+              "time": "7:07",
+              "supply": "54",
+              "instruction": "Research Strength of the Moon",
+              "icon": "nt-upgrade"
+            },
+            {
+              "time": "7:39",
+              "supply": "54",
+              "instruction": "Build Ancient Protector",
+              "icon": "ne-ancient-protector"
+            },
+            {
+              "time": "7:54",
+              "supply": "54",
+              "instruction": "Train Hippogryph",
+              "icon": "ne-hippogryph"
+            }
+          ],
+          "meta": {
+            "cancelled": {},
+            "dropped": {}
+          },
+          "dropped": {
+            "count": 0,
+            "byId": {},
+            "orderIndices": []
+          }
+        }
+      }
+    ]
+  }
+}

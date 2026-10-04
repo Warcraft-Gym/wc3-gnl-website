@@ -720,3 +720,20 @@ describe("extractBuild — Random players (a Computer opponent, or an undetected
     expect(draft.vsRaces).toEqual(["orc"]);
   });
 });
+
+describe("extractBuild — the Night Elf shop trick", () => {
+  it("Last Refuge, Jens: Build Ancient of Wonders → Train Wisp → Cancel Ancient of Wonders; the earlier Moon Well stays", async () => {
+    const summary = await parseReplay(loadFixture("w3c_6aaaaeece066667e29f47568_last_refuge.w3g"));
+    const jensId = summary.players.find((p) => p.name === "Jens#11592")!.id;
+    const steps = extractBuild(summary, jensId).steps.map((s) => `${s.time} ${s.instruction}`);
+
+    const shop = steps.indexOf("1:56 Build Ancient of Wonders");
+    expect(steps.slice(shop, shop + 3)).toEqual([
+      "1:56 Build Ancient of Wonders",
+      "1:57 Train Wisp",
+      "1:57 Cancel Ancient of Wonders",
+    ]);
+    // Before the shop had a build time, the Esc matched this Moon Well instead.
+    expect(steps).toContain("1:35 Build Moon Well");
+  }, 15_000);
+});

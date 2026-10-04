@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Pause, Play, RotateCcw } from "lucide-react";
+import { Ban, Pause, Play, RotateCcw } from "lucide-react";
 import { GameIcon } from "./GameIcon";
-import { formatClock, parseClock, type BuildStep } from "@/lib/builds/types";
+import { formatClock, isCancelStep, parseClock, type BuildStep } from "@/lib/builds/types";
 import { cn } from "@/lib/utils";
 
 /**
@@ -128,7 +128,18 @@ export function StepTable({ steps }: { steps: BuildStep[] }) {
                   </td>
                   <td className="px-2 py-2.5 pr-4">
                     <span className="flex items-center gap-2.5">
-                      {s.icon ? <GameIcon iconKey={s.icon} size={32} /> : null}
+                      {s.icon && isCancelStep(s) ? (
+                        <span className="relative shrink-0">
+                          <GameIcon iconKey={s.icon} size={32} className="opacity-50 grayscale" />
+                          <Ban
+                            aria-hidden
+                            strokeWidth={2.5}
+                            className="absolute inset-0 m-auto size-7 text-loss drop-shadow-[0_0_1px_var(--wg-bg)]"
+                          />
+                        </span>
+                      ) : s.icon ? (
+                        <GameIcon iconKey={s.icon} size={32} />
+                      ) : null}
                       <span className={cn("font-medium", isActive ? "text-fg" : isPast ? "text-muted" : "text-fg")}>
                         {s.instruction}
                       </span>

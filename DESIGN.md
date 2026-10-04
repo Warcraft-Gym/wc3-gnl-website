@@ -205,6 +205,10 @@ Since the merge of #58 the easy and medium bands are the difficulty scale's firs
 
 F008 replaced the previous, self-derived palette (`#6BE0C8`/`#E0863A`/`#C23050`) with Liquipedia's own marker colours (the dominant opaque pixel of their marker PNGs) — a deliberate trade against the dataviz skill's own >= 3:1-per-mark rule, made because matching a resource players already read outweighs the marginal contrast loss on the hard band. `#b01818` alone measures 2.99:1 against black (WCAG relative luminance, `(L1+0.05)/(L2+0.05)`), just under the floor, so every camp circle also gets a `rgba(255,255,255,.55)` light halo ring outside its dark under-stroke (`CampMarker`) — that combination reads at full contrast against black *or* white, covering every terrain colour in between. The values were checked with the same small WCAG contrast script the F003 palette used (`dataviz`'s `validate_palette.js` still not present on disk).
 
+## Build orders
+
+- **A cancelled step.** A step whose instruction starts with "Cancel" (`isCancelStep`) draws its icon crossed out: the icon in grayscale at 50%, lucide's `Ban` over it in `--wg-loss` with a 1px `--wg-bg` under-stroke. The words still say "Cancel …"; the instruction text is not struck through, because the step happens, it is not deleted. The replay import writes a building cancelled mid-construction as "Build X", then "Cancel X" at the cancel's time. No new hue.
+
 ## Data flow
 
 - The page reads per-race rows once and passes them down. A component never fetches its own copy.
