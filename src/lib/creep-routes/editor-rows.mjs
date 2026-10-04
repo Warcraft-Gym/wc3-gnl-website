@@ -19,9 +19,14 @@ export const SPLIT_MODES = [
   { id: "and", label: "At the same time" },
 ];
 
-/** A new split row: two empty paths in the first chip's mode. */
-export function newSplitRow() {
-  return newRow({ split: { mode: SPLIT_MODES[0].id, arms: [0, 1].map((a) => ({ id: Date.now() + Math.random() + a, label: "", stops: [] })) } });
+/** A new split row: empty paths with these labels (two by default) in the first chip's mode by default. */
+export function newSplitRow(mode = SPLIT_MODES[0].id, labels = ["", ""]) {
+  return newRow({ split: { mode, arms: labels.map((label, a) => ({ id: Date.now() + Math.random() + a, label: label.trim(), stops: [] })) } });
+}
+
+/** The split form's "Start path A": a same-time split starts at once; a pick-one split needs a name on every path. */
+export function canStartSplit({ mode, names }) {
+  return mode === "and" || names.every((n) => n.trim() !== "");
 }
 
 /** The mode a split saves: "and" stays; a chosen path is "or" when stops follow the split (the paths

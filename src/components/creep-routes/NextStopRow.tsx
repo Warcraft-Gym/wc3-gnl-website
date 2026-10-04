@@ -1,6 +1,9 @@
 "use client";
 
+import { useId } from "react";
 import { Crosshair, MapPin, Split } from "lucide-react";
+import { canStartSplit, type SplitSetup } from "./stop-rows";
+import { MAX_PATHS } from "@/lib/creep-routes/caps.mjs";
 import { cn } from "@/lib/utils";
 
 const BUTTON = "inline-flex h-8 items-center gap-1.5 rounded border px-2.5 text-xs font-medium aria-disabled:opacity-40";
@@ -98,6 +101,100 @@ export function NextStopRow({
           </div>
           {capLine ? <p className="mt-2 text-[0.7rem] text-faint">{capLine}</p> : null}
         </div>
+      </div>
+    </div>
+  );
+}
+
+const MODES = [
+  { id: "or", title: "The player picks one path", text: "Readers get one tab per path. For real choices, e.g. Safe or Risky." },
+  { id: "and", title: "Both at the same time", text: "The hero walks path 1. Units without the hero do path 2, e.g. the Militia clear a camp." },
+] as const;
+const NAME_HINTS = ["e.g. Safe", "e.g. Risky", "e.g. vs. Mirror Image"];
+
+/**
+ * "Split here" turns the next-stop row into this form; nothing is inserted until
+ * "Start path A" (`canStartSplit`: every pick-one path has a name). Escape and
+ * "Cancel" close it (`RouteEditor`).
+ */
+export function SplitForm({
+  after,
+  setup,
+  onChange,
+  onStart,
+  onCancel,
+}: {
+  /** Where the split goes: "after stop 3", "at the start" (`nextStop`). */
+  after: string;
+  setup: SplitSetup;
+  onChange: (setup: SplitSetup) => void;
+  onStart: () => void;
+  onCancel: () => void;
+}) {
+  const id = useId();
+  const pick = setup.mode === "or";
+  return (
+    <div data-split-form className={SLOT_BOX}>
+      <p className="text-sm font-medium leading-7 text-fg">Split the route {after}</p>
+      <fieldset className="mt-1">
+        <legend className="text-[0.8rem] text-muted">What happens here?</legend>
+        <div className="mt-1.5 grid gap-2 sm:grid-cols-2">
+          {MODES.map((m) => (
+            <label
+              key={m.id}
+              className="flex cursor-pointer items-start gap-2.5 rounded border border-line p-2.5 hover:border-gold/40 has-[:checked]:border-gold/60 has-[:checked]:bg-gold/10"
+            >
+              <input
+                type="radio"
+                name={`${id}-mode`}
+                value={m.id}
+                checked={setup.mode === m.id}
+                onChange={() => onChange({ ...setup, mode: m.id })}
+                className="mt-1 accent-[var(--wg-gold)]"
+              />
+              <span>
+                <span className="block text-sm font-medium text-fg">{m.title}</span>
+                <span className="mt-0.5 block text-[0.78rem] leading-snug text-muted">{m.text}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </fieldset>
+      {pick ? (
+        <div className="mt-3 space-y-2">
+          {setup.names.map((name, a) => (
+            <label key={a} className="flex items-center gap-3">
+              <span className="w-14 shrink-0 text-[0.8rem] text-muted">Path {"ABC"[a]}</span>
+              <input
+                value={name}
+                onChange={(e) => onChange({ ...setup, names: setup.names.map((n, b) => (b === a ? e.target.value : n)) })}
+                placeholder={NAME_HINTS[a]}
+                maxLength={60}
+                autoFocus={a === 0}
+                className="h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none"
+              />
+            </label>
+          ))}
+          <p className="text-[0.7rem] text-faint">
+            Readers pick a tab by this name.
+            {setup.names.length < MAX_PATHS ? (
+              <>
+                {" "}
+                <button type="button" onClick={() => onChange({ ...setup, names: [...setup.names, ""] })} className="text-gold underline underline-offset-2 hover:text-fg">
+                  Add a third path
+                </button>
+              </>
+            ) : null}
+          </p>
+        </div>
+      ) : null}
+      <div className="mt-3 flex flex-wrap gap-1.5">
+        <button type="button" onClick={onStart} disabled={!canStartSplit(setup)} className="btn-gold inline-flex h-8 items-center rounded px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40">
+          Start path {pick ? "A" : "1"}
+        </button>
+        <button type="button" onClick={onCancel} className={QUIET_BUTTON}>
+          Cancel
+        </button>
       </div>
     </div>
   );

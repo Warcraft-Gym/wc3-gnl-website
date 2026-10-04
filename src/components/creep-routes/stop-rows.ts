@@ -58,8 +58,12 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
 
 /** The split mode chips in order, "Choose a path" first (a new split's mode). */
 export const SPLIT_MODES = editorRows.SPLIT_MODES as { id: "and" | "or"; label: string }[];
-/** A new split row: two empty paths, "Choose a path". */
-export const newSplitRow = editorRows.newSplitRow as () => StopRowData;
+/** A new split row: empty paths with these labels (two by default), "Choose a path" by default. */
+export const newSplitRow = editorRows.newSplitRow as (mode?: "and" | "or", labels?: string[]) => StopRowData;
+/** The split form before "Start path A": the mode and the paths' names. */
+export type SplitSetup = { mode: "and" | "or"; names: string[] };
+/** Start is enabled once every path of a pick-one split has a name. */
+export const canStartSplit = editorRows.canStartSplit as (setup: SplitSetup) => boolean;
 
 /** The editor rows as submitted stops, each split's or/xor read from the structure (stops after it: or). */
 export function rowsToStops(rows: StopRowData[]): StopInput[] {

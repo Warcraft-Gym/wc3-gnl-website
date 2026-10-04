@@ -6,9 +6,10 @@ import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
-import { NextStopRow } from "./NextStopRow";
+import { NextStopRow, SplitForm } from "./NextStopRow";
 import {
   addTarget,
+  canStartSplit,
   dropTarget,
   insertAt,
   keyOfRow,
@@ -29,6 +30,7 @@ import {
   setArmLabel,
   type DropZone,
   type ListPlace,
+  type SplitSetup,
 } from "./stop-rows";
 import { stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
@@ -134,8 +136,22 @@ export function RouteEditor({
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(routeStops, choice), [routeStops, choice]);
   const [pointArmed, setPointArmed] = useState(false);
-  // A waypoint just added with "+ Waypoint": the next map click puts it on a spot.
+  // A waypoint just added with "Waypoint": the next map click puts it on a spot.
   const [pending, setPending] = useState<number | null>(null);
+  // The split form ("Split here"): nothing is inserted until "Start path A".
+  const [setup, setSetup] = useState<SplitSetup | null>(null);
+  // Escape closes the split form and stops waiting for a waypoint's spot.
+  useEffect(() => {
+    if (!setup && !pointArmed) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== "Escape") return;
+      setSetup(null);
+      setPointArmed(false);
+      setPending(null);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [setup, pointArmed]);
   // The text field being typed in: its edits are one undo step until it loses focus.
   const typing = useRef<string | null>(null);
   // The row being dragged and the drop zone under the pointer.
@@ -169,8 +185,12 @@ export function RouteEditor({
     remember?.(label);
   };
 
+  /** Selects a row (the next-stop row moves after it); closes the split form and an armed waypoint. */
   const select = (id: number | null, scroll = false) => {
     setSelectedId(id);
+    setSetup(null);
+    setPointArmed(false);
+    setPending(null);
     const key = id === null ? null : keyOfRow(stops, id);
     if (key && scroll) setScrollTo({ key });
     // A stop in a path shows that path's tab.
@@ -228,11 +248,13 @@ export function RouteEditor({
 
   // A camp already in the list the click adds to is selected, not added twice; a stop is removed with its trash.
   const onCampClick = (campId: string) => {
+    if (setup) return;
     const there = listAt(stops, addTarget(stops, selection)).find((r) => r.campId === campId);
     if (there) select(there.id, true);
     else add(newRow({ campId }), "stop", "add stop");
   };
   const onPlaceSelect = (place: Place) => {
+    if (setup) return;
     if (pending !== null && rowAtKey(stops, keyOfRow(stops, pending) ?? "")) {
       setStops((rows) => patchRow(rows, pending, { place }));
       setSelectedId(pending);
@@ -253,10 +275,18 @@ export function RouteEditor({
     setPending(id);
     setPointArmed(true);
   };
-  const addSplit = () => {
-    const row = newSplitRow();
-    // The new split's caption is selected: the next map clicks fill its first path.
+  const openSplit = () => {
+    if (addBlocked(stops, "row")) return;
+    setPointArmed(false);
+    setPending(null);
+    setSetup({ mode: "or", names: ["", ""] });
+  };
+  /** "Start path A": one undo step, and the selection goes into path A, so the next-stop row sits there. */
+  const startSplit = () => {
+    if (!setup || !canStartSplit(setup)) return;
+    const row = newSplitRow(setup.mode, setup.mode === "and" ? ["", ""] : setup.names);
     if (add(row, "row", "add split") !== undefined) setTabs((t) => ({ ...t, [row.id]: 0 }));
+    setSetup(null);
   };
 
   const setSplit = (id: number, split: Partial<NonNullable<StopRowData["split"]>>) =>
@@ -462,7 +492,9 @@ export function RouteEditor({
         <p className="mt-2 text-xs text-faint">
           {pointArmed
             ? "Click the map to put the waypoint on a spot."
-            : "Click a camp to add it at the dashed row. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
+            : setup
+              ? "Finish the split form first."
+              : "Click a camp to add it at the dashed row. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -516,22 +548,26 @@ export function RouteEditor({
           dnd={dnd}
           slot={slot}
           slotRow={
-            <NextStopRow
-              label={next.label}
-              line={next.line}
-              toEnd={next.toEnd}
-              onToEnd={() => select(null)}
-              inPath={at.splitId !== undefined}
-              armed={pointArmed}
-              blocked={Boolean(addBlocked(stops, "row"))}
-              capLine={capLine}
-              onWaypoint={addWaypoint}
-              onCancel={() => {
-                setPointArmed(false);
-                setPending(null);
-              }}
-              onSplit={addSplit}
-            />
+            setup ? (
+              <SplitForm after={next.after ?? "here"} setup={setup} onChange={setSetup} onStart={startSplit} onCancel={() => setSetup(null)} />
+            ) : (
+              <NextStopRow
+                label={next.label}
+                line={next.line}
+                toEnd={next.toEnd}
+                onToEnd={() => select(null)}
+                inPath={at.splitId !== undefined}
+                armed={pointArmed}
+                blocked={Boolean(addBlocked(stops, "row"))}
+                capLine={capLine}
+                onWaypoint={addWaypoint}
+                onCancel={() => {
+                  setPointArmed(false);
+                  setPending(null);
+                }}
+                onSplit={openSplit}
+              />
+            )
           }
         />
       </div>

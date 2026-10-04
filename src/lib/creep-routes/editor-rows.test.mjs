@@ -5,6 +5,7 @@ import {
   SPLIT_MODES,
   UNDO_CAP,
   addTarget,
+  canStartSplit,
   dropTarget,
   keyOfRow,
   locate,
@@ -279,4 +280,15 @@ test("next-stop row in a path: letters in a pick-one path, the same numbers in a
   const and = [camp("c1"), { ...rows[1], split: { ...rows[1].split, mode: "and" } }];
   assert.deepEqual(nextStop(and, addTarget(and, { id: and[1].id, arm: 1 })), { label: "3", line: "Adds stop 3 to path 2, without the hero.", toEnd: false });
   assert.equal(nextStop(and, addTarget(and, { id: and[1].id, arm: 0 })).line, "Adds stop 3 to path 1, the hero's.");
+});
+
+test("split form: Start waits for a name on every pick-one path; a same-time split starts at once", () => {
+  assert.equal(canStartSplit({ mode: "or", names: ["Safe", ""] }), false);
+  assert.equal(canStartSplit({ mode: "or", names: ["Safe", "   "] }), false);
+  assert.equal(canStartSplit({ mode: "or", names: ["Safe", "Risky", ""] }), false);
+  assert.equal(canStartSplit({ mode: "or", names: ["Safe", "Risky"] }), true);
+  assert.equal(canStartSplit({ mode: "and", names: ["", ""] }), true);
+  const row = newSplitRow("or", [" Safe ", "Risky", "Mirror"]);
+  assert.deepEqual(row.split.arms.map((a) => a.label), ["Safe", "Risky", "Mirror"]);
+  assert.equal(newSplitRow("and").split.mode, "and");
 });
