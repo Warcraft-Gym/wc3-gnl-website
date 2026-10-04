@@ -26,14 +26,15 @@ import {
   mapLadder,
   type RawLadder,
   type RawSeason,
-  type RawTeam,
+  type RawLeagueTeam,
+  type RawTeamRoster,
   type RawSeriesSummary,
   type RawMatch,
   type RawFantasyTeam,
   type RawCareerStat,
   type RawUserSeason,
   type RawUserSeries,
-  type RawUser,
+  type RawUserSummary,
 } from "./mappers";
 import type {
   Season,
@@ -190,10 +191,10 @@ export async function getStandings(seasonNumber?: number): Promise<{
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
       const [teams, matches] = await Promise.all([
-        apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE }),
+        apiGet<RawTeamRoster[]>(`/events/${s.id}/teams/summary`, { revalidate: LIVE_REVALIDATE }),
         apiGet<RawMatch[]>(`/events/${s.id}/matches`, { revalidate: LIVE_REVALIDATE }),
       ]);
-      return mapStandings(teams, matchesToFixtures(matches), s.id);
+      return mapStandings(teams, matchesToFixtures(matches));
     },
     () => FIXTURE_STANDINGS,
     "getStandings",
@@ -205,8 +206,8 @@ export async function getTeams(seasonNumber?: number): Promise<{ teams: Team[]; 
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE });
-      return mapTeams(teams, s);
+      const teams = await apiGet<RawTeamRoster[]>(`/events/${s.id}/teams/summary`, { revalidate: LIVE_REVALIDATE });
+      return mapTeams(teams);
     },
     () => FIXTURE_TEAMS,
     "getTeams",
@@ -226,7 +227,7 @@ export async function getTeamPage(
     async () => {
       const raws = await fetchShownSeasonsRaw();
       // One call lists every team of the league with the seasons it entered.
-      const leagueTeams = await apiGet<RawTeam[]>(`/leagues/${raws[0].league_id}/teams`);
+      const leagueTeams = await apiGet<RawLeagueTeam[]>(`/leagues/${raws[0].league_id}/teams`);
       const entered = new Set(
         leagueTeams
           .filter((t) => slugify(t.long_name || t.name) === slug)
@@ -247,10 +248,10 @@ export async function getTeamPage(
       if (pick < 0) return null;
       const raw = played[pick];
       const [teams, matches] = await Promise.all([
-        apiGet<RawTeam[]>(`/events/${raw.id}/teams`, { revalidate: LIVE_REVALIDATE }),
+        apiGet<RawTeamRoster[]>(`/events/${raw.id}/teams/summary`, { revalidate: LIVE_REVALIDATE }),
         apiGet<RawMatch[]>(`/events/${raw.id}/matches`, { revalidate: LIVE_REVALIDATE }),
       ]);
-      const team = mapTeams(teams, raw).find((t) => t.slug === slug);
+      const team = mapTeams(teams).find((t) => t.slug === slug);
       if (!team) return null;
       const teamSeries = await apiGetAll<RawSeriesSummary>(`/events/${raw.id}/series/summary`, { revalidate: LIVE_REVALIDATE,
         query: { team_id: team.id },
@@ -259,7 +260,7 @@ export async function getTeamPage(
         team,
         season: seasons[pick],
         seasons,
-        standing: mapStandings(teams, matchesToFixtures(matches), raw.id).find((r) => r.team.id === team.id),
+        standing: mapStandings(teams, matchesToFixtures(matches)).find((r) => r.team.id === team.id),
         fixtures: mapFixtures(teamSeries, matches)
           .filter((f) => f.home.id === team.id || f.away.id === team.id)
           .sort((a, b) => a.week - b.week),
@@ -286,14 +287,13 @@ function fixtureTeamPage(slug: string, seasonNumber?: number): TeamPageData | nu
   };
 }
 
-/** Every running or finished season, newest first, with its teams' rosters and captains. */
+/** The teams of every running or finished season, newest season first, each with its roster and captains. */
 // ponytail: one teams read per season, for old name links only; the backend has no name or tag-name search of past rosters.
-async function fetchSeasonRosters(): Promise<{ season: RawSeason; teams: RawTeam[] }[]> {
+async function fetchSeasonRosters(): Promise<RawTeamRoster[][]> {
   const seasons = (await fetchShownSeasonsRaw()).sort(
     (a, b) => (Date.parse(b.start_date ?? "") || 0) - (Date.parse(a.start_date ?? "") || 0) || b.id - a.id,
   );
-  const teams = await Promise.all(seasons.map((season) => apiGet<RawTeam[]>(`/events/${season.id}/teams`)));
-  return seasons.map((season, i) => ({ season, teams: teams[i] }));
+  return Promise.all(seasons.map((season) => apiGet<RawTeamRoster[]>(`/events/${season.id}/teams/summary`)));
 }
 
 /** The person behind an old name link: the newest season's player whose name
@@ -303,10 +303,7 @@ async function fetchSeasonRosters(): Promise<{ season: RawSeason; teams: RawTeam
 export async function findPlayerBySlug(slug: string): Promise<{ id: number; name: string } | undefined> {
   const { data } = await withFallback(
     async () => {
-      const rows = (await fetchSeasonRosters()).flatMap(({ season, teams }) => {
-        const key = String(season.id);
-        return teams.flatMap((t) => [...(t.player_by_season?.[key] ?? []), ...(t.captains_by_season?.[key] ?? [])]);
-      });
+      const rows = (await fetchSeasonRosters()).flat().flatMap((t) => [...t.players, ...t.captains]);
       const hit = rows.find((p) => slugMatch(p, slug) === "name") ?? rows.find((p) => slugMatch(p, slug) === "tag");
       return hit ? { id: hit.id, name: hit.name } : null;
     },
@@ -326,7 +323,7 @@ export async function getPlayerProfile(userId: number): Promise<PlayerProfile | 
       const hour = { revalidate: 3600 };
       const [seasons, user, seats, career] = await Promise.all([
         fetchShownSeasonsRaw(),
-        apiGet<RawUser>(`/users/${userId}`, hour).catch(notFound(null)),
+        apiGet<RawUserSummary>(`/users/${userId}/summary`, hour).catch(notFound(null)),
         apiGet<RawUserSeason[]>(`/users/${userId}/seasons`, hour),
         apiGet<RawCareerStat>(`/stats/career/${userId}`, hour).catch(notFound(null)),
       ]);
@@ -359,8 +356,8 @@ export async function getPlayers(seasonNumber?: number): Promise<{
   const { data, source } = await withFallback(
     async () => {
       const s = await fetchSeasonRaw(seasonNumber);
-      const teams = await apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE });
-      return flattenPlayers(mapTeams(teams, s));
+      const teams = await apiGet<RawTeamRoster[]>(`/events/${s.id}/teams/summary`, { revalidate: LIVE_REVALIDATE });
+      return flattenPlayers(mapTeams(teams));
     },
     () => FIXTURE_PLAYERS,
     "getPlayers",
@@ -416,7 +413,7 @@ export async function getLadder(seasonNumber?: number): Promise<{ ladder: Ladder
       const s = await fetchSeasonRaw(seasonNumber);
       const [ladder, teams] = await Promise.all([
         apiGet<RawLadder>(`/events/${s.id}/ladder`, { revalidate: 900 }),
-        apiGet<RawTeam[]>(`/events/${s.id}/teams`, { revalidate: LIVE_REVALIDATE }),
+        apiGet<RawTeamRoster[]>(`/events/${s.id}/teams/summary`, { revalidate: LIVE_REVALIDATE }),
       ]);
       return mapLadder(ladder, teams, s.maps);
     },

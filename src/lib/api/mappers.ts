@@ -68,53 +68,37 @@ export interface RawRaceMmr {
   /** True for a race last played before the window; profile reads only. */
   stale?: boolean;
 }
+/** A person on an event row: a roster or captain seat, a fantasy pick. */
 export interface RawPlayer {
   id: number;
   name: string;
   battleTag?: string;
-  /** A legacy field of the backend. This site does not read it. */
-  race?: string;
   /** The race this player signed up with for the season of this row. */
   signup_race?: string | null;
   /** The tag of that signup; null when it names none. */
   played_as?: string | null;
-  /** Every tag the person holds, the active one first; empty where the read loads none. */
-  tags?: RawTag[];
   country?: string;
+}
+/** A roster seat of GET /events/{id}/teams/summary. `wins` and `losses`
+ *  count the player's best-of-three series in the event, not games. */
+export interface RawRosterPlayer extends RawPlayer {
+  wins: number;
+  losses: number;
+  /** The MMR entered with on a finished event, else the live rating of the signup race; null for none. */
+  mmr: number | null;
+}
+/** GET /users/{id}/summary: the person, their tags and their ladder summary. */
+export interface RawUserSummary {
+  id: number;
+  name: string;
+  battleTag?: string;
+  country?: string;
+  /** Every tag the person holds, the active one first. */
+  tag_names: string[];
   /** The ladder summary, one entry per race: window races best MMR first, then stale races. */
-  race_mmrs?: RawRaceMmr[];
+  race_mmrs: RawRaceMmr[];
   /** The window race with the top MMR and 10 or more games, else null. */
   main_race?: string | null;
-  /** The MMR the player entered a finished event with; roster reads only. */
-  mmr_entered?: number | null;
-  /** The record of this player in the event of an embedded read; null when they have none. */
-  record?: RawRecord | null;
-  /** One entry per roster season on the single player read. */
-  gnl_stats?: RawRecord[];
-}
-/** `games`, `wins` and `losses` count best-of-three series, not games. */
-export interface RawRecord {
-  season_id?: number;
-  team_id?: number;
-  games?: number;
-  wins?: number;
-  losses?: number;
-  /** The opponent race of each completed series, one entry per series. */
-  matchup_history?: string[];
-}
-export interface RawTag {
-  id: number;
-  tag: string;
-  verified: boolean;
-  active: boolean;
-  source: string;
-  first_seen: string;
-  last_seen: string;
-}
-/** GET /users/{id}: the person, a seat per roster season in `gnl_stats`,
- *  and every season signup with its race and tag. */
-export interface RawUser extends RawPlayer {
-  signup_seasons?: Array<RawSeason & { signup_race?: string | null; played_as?: string | null }>;
 }
 /** One row of GET /users/{id}/seasons: a season the person has a roster or
  *  captain seat in, newest first. */
@@ -166,16 +150,17 @@ interface RawTeamLite {
   long_name?: string | null;
   icon_url?: string | null;
 }
-interface RawSeasonInfo {
-  season_id: number;
-  final_score?: number;
-  points_available?: number;
-  points_against?: number;
+/** One row of GET /leagues/{id}/teams: a team with the seasons it entered. */
+export interface RawLeagueTeam extends RawTeamLite {
+  seasons_info?: { season_id: number }[];
 }
-export interface RawTeam extends RawTeamLite {
-  player_by_season?: Record<string, RawPlayer[]>;
-  captains_by_season?: Record<string, RawPlayer[]>;
-  seasons_info?: RawSeasonInfo[];
+/** One row of GET /events/{id}/teams/summary: a team with its roster and captains in the event. */
+export interface RawTeamRoster extends RawTeamLite {
+  /** The league points the team took in the event. */
+  final_score: number;
+  /** The roster in user id order. */
+  players: RawRosterPlayer[];
+  captains: RawPlayer[];
 }
 export interface RawMatch {
   id: number;
@@ -217,7 +202,7 @@ export interface RawFantasyTeam {
   race_points?: number;
   bet_points?: number;
   total_points?: number;
-  captain?: RawPlayer & { country?: string };
+  captain?: RawPlayer;
   drafted_team?: RawTeamLite;
   drafted_players?: RawPlayer[];
 }
@@ -312,55 +297,40 @@ function signupRace(value?: string | null): Race | null {
 /** The site race of a ladder race code; no race reads as random. */
 const w3cRace = (race?: string | null): Race => (race ? (W3C_RACE[race] ?? raceOf(race)) : "random");
 
-/**
- * The player's MMR from the backend summary. On an event roster: the MMR entered
- * with on a finished event, else the live figure of the signup race. Elsewhere
- * the live figure of the main race. Undefined when there is none.
- */
-export function currentMmr(p: RawPlayer, event?: "running" | "finished"): number | undefined {
-  if (event === "finished") return p.mmr_entered ?? undefined;
-  const race = event ? signupRace(p.signup_race) : p.main_race ? w3cRace(p.main_race) : null;
-  if (!race) return undefined;
-  return p.race_mmrs?.find((r) => !r.stale && r.mmr != null && w3cRace(r.race) === race)?.mmr ?? undefined;
+/** The live MMR of the player's main race; undefined when there is none. */
+function mainRaceMmr(p: RawUserSummary): number | undefined {
+  if (!p.main_race) return undefined;
+  const race = w3cRace(p.main_race);
+  return p.race_mmrs.find((r) => !r.stale && r.mmr != null && w3cRace(r.race) === race)?.mmr ?? undefined;
 }
 
-function mapPlayer(
-  p: RawPlayer,
-  teamId?: number,
-  teamName?: string,
-  isCaptain = false,
-  seasonId?: number,
-  event?: "running" | "finished",
-): Player {
-  const stat = seasonId != null && p.record?.season_id === seasonId ? p.record : undefined;
+/** The fields of a Player every read carries: the person and the race of their signup. */
+function person(p: RawPlayer): Pick<Player, "id" | "name" | "slug" | "battleTag" | "race" | "country"> {
   return {
     id: p.id,
     name: p.name,
     slug: playerSlug(p.id, p.name),
     battleTag: p.battleTag || undefined,
-    tags: (p.tags ?? []).map((t) => t.tag),
     race: signupRace(p.signup_race),
-    mmr: currentMmr(p, event),
     country: p.country,
-    teamId,
-    teamName,
-    isCaptain,
-    record: stat ? { wins: stat.wins ?? 0, losses: stat.losses ?? 0 } : undefined,
   };
 }
 
-export function mapTeams(raw: RawTeam[], season: RawSeason): Team[] {
-  const seasonId = season.id;
-  const event = isFinished(season) ? "finished" : "running";
+export function mapTeams(raw: RawTeamRoster[]): Team[] {
   return raw.map((t) => {
     const long = t.long_name || t.name;
-    const key = String(seasonId);
-    const roster = t.player_by_season?.[key] ?? [];
-    const captains = t.captains_by_season?.[key] ?? [];
-    const captainIds = new Set(captains.map((c) => c.id));
+    const captainIds = new Set(t.captains.map((c) => c.id));
     // Captains who also play come first, then the roster as the backend gives it.
-    const players = roster
-      .map((p) => mapPlayer(p, t.id, long, captainIds.has(p.id), seasonId, event))
+    const players = t.players
+      .map<Player>((p) => ({
+        ...person(p),
+        tags: [],
+        mmr: p.mmr ?? undefined,
+        teamId: t.id,
+        teamName: long,
+        isCaptain: captainIds.has(p.id),
+        record: { wins: p.wins, losses: p.losses },
+      }))
       .sort((a, b) => Number(b.isCaptain) - Number(a.isCaptain));
     return {
       id: t.id,
@@ -368,12 +338,11 @@ export function mapTeams(raw: RawTeam[], season: RawSeason): Team[] {
       slug: slugify(long),
       tag: t.name,
       logoUrl: logoUrl(t),
-      // A captain row carries no signup race, so a playing captain takes the one of their roster row.
-      captains: captains.map((c) => ({
+      captains: t.captains.map((c) => ({
         id: c.id,
         name: c.name,
         slug: playerSlug(c.id, c.name),
-        race: signupRace(c.signup_race ?? roster.find((p) => p.id === c.id)?.signup_race),
+        race: signupRace(c.signup_race),
         country: c.country,
       })),
       players,
@@ -488,12 +457,8 @@ export function matchesToFixtures(raw: RawMatch[]): TeamFixture[] {
     }));
 }
 
-// --- standings (team points from seasons_info, W/L/diff from fixtures) ---
-export function mapStandings(
-  teams: RawTeam[],
-  fixtures: TeamFixture[],
-  seasonId: number,
-): StandingRow[] {
+// --- standings (team points from final_score, W/L/diff from fixtures) ---
+export function mapStandings(teams: RawTeamRoster[], fixtures: TeamFixture[]): StandingRow[] {
   type Acc = { played: number; wins: number; draws: number; losses: number; mapDiff: number; results: ("W" | "D" | "L")[] };
   const stat = new Map<number, Acc>();
   const ensure = (id: number): Acc => {
@@ -540,7 +505,6 @@ export function mapStandings(
   };
 
   const rows: StandingRow[] = teams.map((t) => {
-    const info = t.seasons_info?.find((si) => si.season_id === seasonId);
     const s = stat.get(t.id) ?? { played: 0, wins: 0, draws: 0, losses: 0, mapDiff: 0, results: [] };
     const long = t.long_name || t.name;
     return {
@@ -551,12 +515,11 @@ export function mapStandings(
       draws: s.draws,
       losses: s.losses,
       mapDiff: s.mapDiff,
-      // The backend's final score is the league points total; the fallback
-      // approximates it when the season info is missing.
-      points: info?.final_score ?? s.wins * 3 + s.draws,
+      // The backend's final score is the league points total
+      points: t.final_score,
       streak: streakOf(s.results),
       form: s.results,
-      captains: (t.captains_by_season?.[String(seasonId)] ?? []).map((c) => c.name),
+      captains: t.captains.map((c) => c.name),
     };
   });
 
@@ -623,8 +586,8 @@ export function mapFantasy(
 // --- player profile ---
 
 /** The rated races of the backend summary, in its order: window races best MMR first, then stale races. */
-export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
-  return (p.race_mmrs ?? [])
+export function currentW3cRows(p: RawUserSummary): W3cRaceStat[] {
+  return p.race_mmrs
     .filter((r) => r.mmr != null && (r.games ?? 0) > 0)
     .map((r) => ({
       season: r.wc3_season,
@@ -641,7 +604,7 @@ export function currentW3cRows(p: RawPlayer): W3cRaceStat[] {
 export interface RawProfileReads {
   /** Every published GNL season that is running or finished. */
   seasons: RawSeason[];
-  user: RawUser;
+  user: RawUserSummary;
   /** The person's roster and captain seats, one row per season. */
   seats: RawUserSeason[];
   /** The player's series in the published seasons they have a roster seat in. */
@@ -729,10 +692,16 @@ export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefi
     }),
     { seriesPlayed: 0, seriesWon: 0, seriesLost: 0, matchupHistory: [] },
   );
-  // The header race is that of the latest season's signup; the MMR is that of the main race.
-  const me: RawPlayer = { ...user, signup_race: seats.get(entry.season.id)?.signup_race };
   return {
-    player: mapPlayer(me, entry.team.id, entry.team.name, entry.isCaptain),
+    // The header race is that of the latest season's signup; the MMR is that of the main race.
+    player: {
+      ...person({ ...user, signup_race: seats.get(entry.season.id)?.signup_race }),
+      tags: user.tag_names,
+      mmr: mainRaceMmr(user),
+      teamId: entry.team.id,
+      teamName: entry.team.name,
+      isCaptain: entry.isCaptain,
+    },
     team: entry.team,
     isCaptain: entry.isCaptain,
     captainOnly: entry.captainOnly,
@@ -740,8 +709,8 @@ export function mapPlayerProfile(reads: RawProfileReads): PlayerProfile | undefi
     season: entry.record,
     history,
     allTime,
-    w3c: currentW3cRows(me),
-    mainRace: me.main_race ? w3cRace(me.main_race) : null,
+    w3c: currentW3cRows(user),
+    mainRace: user.main_race ? w3cRace(user.main_race) : null,
     career: c
       ? {
           rating: c.rating ?? 0,
@@ -804,7 +773,7 @@ const toAch = (pictures: Map<string, string>) => (a: RawLadderAchievement): Ladd
   achievedAt: a.achieved_at ?? undefined,
 });
 
-export function mapLadder(raw: RawLadder, teams: RawTeam[], maps: RawSeason["maps"] = []): Ladder {
+export function mapLadder(raw: RawLadder, teams: RawTeamLite[], maps: RawSeason["maps"] = []): Ladder {
   const logos = new Map(teams.map((t) => [t.id, logoUrl(t)]));
   const ach = toAch(new Map(maps.flatMap((m) => (m.image ? [[m.name, m.image] as const] : []))));
   return {
