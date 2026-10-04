@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { HeroTile } from "./HeroTile";
 import { IconPicker } from "@/components/builds/IconPicker";
@@ -48,22 +49,23 @@ const textarea =
 
 /** The Note field, plus its "what does this do" hint. Shared by the camp
  *  and base-action layouts below — a base-action row has no Bring/Condition
- *  (F009: those make no sense for "TP home"), but every stop gets a note. */
-function NoteField({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+ *  (F009: those make no sense for "TP home"), but every stop gets a note.
+ *  A camp stop (`camp`) keeps the hint in the placeholder. */
+function NoteField({ value, onChange, camp }: { value: string; onChange: (v: string) => void; camp?: boolean }) {
   const remaining = STOP_NOTE_MAX - value.length;
   return (
     <div>
       <textarea
         aria-label="Note"
-        placeholder="Note (optional)"
+        placeholder={camp ? "What to do here and why (optional)" : "Note (optional)"}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         maxLength={STOP_NOTE_MAX}
         rows={3}
         className={textarea}
       />
-      <div className="mt-1 flex items-baseline justify-between gap-3">
-        <p className="text-[0.65rem] text-faint">What to do at this camp and why</p>
+      <div className="mt-1 flex items-baseline justify-between gap-3 empty:hidden">
+        {camp ? null : <p className="text-[0.65rem] text-faint">What to do at this camp and why</p>}
         {/* Only once it is actually close, so the hint doesn't nag. */}
         {remaining <= 100 ? (
           <p className={cn("tnum text-[0.65rem]", remaining === 0 ? "text-loss" : "text-faint")}>
@@ -75,13 +77,51 @@ function NoteField({ value, onChange }: { value: string; onChange: (v: string) =
   );
 }
 
+const iconButton = "grid size-7 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
+const addButton =
+  "inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2.5 text-xs text-muted hover:border-gold/50 hover:text-gold";
+
+/** Move up, move down and remove, on the open stop's summary row (`StopBlock`'s `tools`). The arrows'
+ *  names say when a move enters or leaves a split ("Move into path 2"); `data-move` lets the builder
+ *  put focus back on an arrow after the move. */
+export function StopTools({
+  onMove,
+  onRemove,
+  canMoveUp,
+  canMoveDown,
+  upLabel = "Move up",
+  downLabel = "Move down",
+}: {
+  onMove: (dir: -1 | 1) => void;
+  onRemove: () => void;
+  canMoveUp: boolean;
+  canMoveDown: boolean;
+  upLabel?: string;
+  downLabel?: string;
+}) {
+  return (
+    <span className="relative flex flex-col gap-1 sm:-my-1 sm:flex-row">
+      <button type="button" onClick={() => onMove(-1)} disabled={!canMoveUp} aria-label={upLabel} title={upLabel} data-move="-1" className={iconButton}>
+        <ArrowUp size={15} />
+      </button>
+      <button type="button" onClick={() => onMove(1)} disabled={!canMoveDown} aria-label={downLabel} title={downLabel} data-move="1" className={iconButton}>
+        <ArrowDown size={15} />
+      </button>
+      <button type="button" onClick={onRemove} aria-label="Remove stop" title="Remove stop" className={cn(iconButton, "hover:border-loss/60 hover:text-loss")}>
+        <Trash2 size={15} />
+      </button>
+    </span>
+  );
+}
+
 /**
  * The editor inside the builder's open stop (`RouteEditor`): the reader's
  * `StopBlock` draws the summary line (number, band dot, camp or place name,
- * level), this replaces its body. A place stop gets its kind and "What
- * happens here"; a base action its action text; a camp or attack stop the
- * Bring row with the hero entry; a camp the kill order picker; every stop a
- * condition and a note; then move and remove.
+ * level, and `StopTools`), this replaces its body. A place stop gets its kind
+ * and "What happens here"; a base action its action text; an attack stop the
+ * Bring row with the hero entry, a condition and a note. A camp stop is slim:
+ * the kill order picker and the note, then Bring and the condition as dashed
+ * add buttons until used (a field with content always shows).
  */
 export function StopEditBody({
   stop,
@@ -89,12 +129,6 @@ export function StopEditBody({
   iconRace,
   error,
   onChange,
-  onRemove,
-  onMove,
-  canMoveUp,
-  canMoveDown,
-  upLabel = "Move up",
-  downLabel = "Move down",
   trace,
   absent,
   heroIcon,
@@ -105,13 +139,6 @@ export function StopEditBody({
   iconRace?: IconRace;
   error?: (key: string) => string | undefined;
   onChange: (patch: Partial<StopRowData>) => void;
-  onRemove: () => void;
-  onMove: (dir: -1 | 1) => void;
-  canMoveUp: boolean;
-  canMoveDown: boolean;
-  /** The arrows' names, which say when a move enters or leaves a split ("Move into path 2"). */
-  upLabel?: string;
-  downLabel?: string;
   /** This stop's `deriveRoute` kill trace, for the kill order chain. */
   trace?: DerivedKill[];
   /** Derived hero off: its own flag, or a later path of an "and" split. */
@@ -122,6 +149,12 @@ export function StopEditBody({
   const heroOff = Boolean(absent ?? stop.hero === false);
   // A later path of an "and" split: the hero walks path a, so this stop cannot take him.
   const forcedOff = heroOff && stop.hero !== false;
+  // A camp stop shows Bring and the condition once used: content, a hero-off stop, or a click on the add button.
+  const isCamp = Boolean(stop.campId);
+  const [bringOpen, setBringOpen] = useState(false);
+  const [conditionOpen, setConditionOpen] = useState(false);
+  const showBring = !isCamp || bringOpen || stop.units.length > 0 || heroOff;
+  const showCondition = !isCamp || conditionOpen || Boolean(stop.condition);
   function addUnit() {
     if (stop.units.length >= 6) return;
     onChange({ units: [...stop.units, { id: Date.now() + Math.random(), icon: "", count: "1" }] });
@@ -132,7 +165,73 @@ export function StopEditBody({
   function removeUnit(id: number) {
     onChange({ units: stop.units.filter((u) => u.id !== id) });
   }
-  const iconButton = "grid size-9 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
+
+  const bring =
+    (stop.campId || stop.place) && showBring ? (
+      <div>
+        <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
+        <div className="flex flex-wrap items-center gap-1.5">
+          {/* The hero is the first entry on a camp or place stop: on by default, off = only the units go
+           *  (a waypoint done by another unit is not on the reader's map). */}
+          {stop.campId || stop.place ? (
+            <button
+              type="button"
+              aria-pressed={!heroOff}
+              disabled={forcedOff}
+              onClick={() => onChange({ hero: stop.hero === false ? undefined : false })}
+              title={forcedOff ? "The hero walks the first path" : heroOff ? "Add the hero" : "Send only the units"}
+              className={cn(
+                "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
+                heroOff ? "border-dashed border-line text-faint line-through" : "border-gold/50 text-fg",
+                forcedOff && "cursor-not-allowed",
+              )}
+            >
+              <HeroTile heroIcon={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
+              {heroIcon ? "Hero" : "Any Hero"}
+            </button>
+          ) : null}
+          {stop.units.map((u) => (
+            <span key={u.id} className="flex items-center gap-1 rounded border border-line/70 bg-surface/40 py-1 pl-1 pr-1.5">
+              <IconPicker value={u.icon} onChange={(k) => updateUnit(u.id, { icon: k })} race={iconRace} />
+              <input
+                aria-label="Count"
+                inputMode="numeric"
+                value={u.count}
+                onChange={(e) => updateUnit(u.id, { count: e.target.value.replace(/\D/g, "").slice(0, 2) })}
+                className="tnum h-7 w-9 rounded border border-line bg-surface/60 px-1 text-center text-xs text-fg focus:border-gold/60 focus:outline-none"
+              />
+              <button type="button" onClick={() => removeUnit(u.id)} aria-label="Remove" className="text-faint hover:text-loss">
+                <X size={14} />
+              </button>
+            </span>
+          ))}
+          {stop.units.length < 6 ? (
+            <button
+              type="button"
+              onClick={addUnit}
+              className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold uppercase tracking-wide text-muted hover:border-gold/50 hover:text-gold"
+            >
+              <Plus size={14} /> Add
+            </button>
+          ) : null}
+        </div>
+      </div>
+    ) : null;
+  const condition =
+    (stop.campId || stop.place) && showCondition ? (
+      <div>
+        <input
+          aria-label="Condition"
+          placeholder={isCamp ? "Shown above the note, e.g. Only if harassed" : 'Condition, e.g. "Only if harassed"'}
+          value={stop.condition}
+          onChange={(e) => onChange({ condition: e.target.value })}
+          maxLength={STOP_CONDITION_MAX}
+          autoFocus={conditionOpen && !stop.condition}
+          className={input}
+        />
+        {isCamp ? null : <p className="mt-1 text-[0.65rem] text-faint">Shown as written, above the note: write the whole phrase, e.g. Only if harassed</p>}
+      </div>
+    ) : null;
 
   return (
     <div className="min-w-0 space-y-3">
@@ -177,93 +276,40 @@ export function StopEditBody({
         </div>
       ) : null}
 
-      {stop.campId || stop.place ? (
-        <div>
-          <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
-          <div className="flex flex-wrap items-center gap-1.5">
-            {/* The hero is the first entry on a camp or place stop: on by default, off = only the units go
-             *  (a waypoint done by another unit is not on the reader's map). */}
-            {stop.campId || stop.place ? (
-              <button
-                type="button"
-                aria-pressed={!heroOff}
-                disabled={forcedOff}
-                onClick={() => onChange({ hero: stop.hero === false ? undefined : false })}
-                title={forcedOff ? "The hero walks the first path" : heroOff ? "Add the hero" : "Send only the units"}
-                className={cn(
-                  "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
-                  heroOff ? "border-dashed border-line text-faint line-through" : "border-gold/50 text-fg",
-                  forcedOff && "cursor-not-allowed",
-                )}
-              >
-                <HeroTile heroIcon={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
-                {heroIcon ? "Hero" : "Any Hero"}
-              </button>
-            ) : null}
-            {stop.units.map((u) => (
-              <span key={u.id} className="flex items-center gap-1 rounded border border-line/70 bg-surface/40 py-1 pl-1 pr-1.5">
-                <IconPicker value={u.icon} onChange={(k) => updateUnit(u.id, { icon: k })} race={iconRace} />
-                <input
-                  aria-label="Count"
-                  inputMode="numeric"
-                  value={u.count}
-                  onChange={(e) => updateUnit(u.id, { count: e.target.value.replace(/\D/g, "").slice(0, 2) })}
-                  className="tnum h-7 w-9 rounded border border-line bg-surface/60 px-1 text-center text-xs text-fg focus:border-gold/60 focus:outline-none"
-                />
-                <button type="button" onClick={() => removeUnit(u.id)} aria-label="Remove" className="text-faint hover:text-loss">
-                  <X size={14} />
-                </button>
-              </span>
-            ))}
-            {stop.units.length < 6 ? (
-              <button
-                type="button"
-                onClick={addUnit}
-                className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold uppercase tracking-wide text-muted hover:border-gold/50 hover:text-gold"
-              >
-                <Plus size={14} /> Add
-              </button>
-            ) : null}
-          </div>
-        </div>
-      ) : null}
-
+      {isCamp ? null : bring}
       {camp ? (
         <KillOrderField camp={camp} kills={stop.kills} leaveRest={stop.leaveRest} trace={trace ?? []} error={error?.("kills")} onChange={onChange} />
       ) : null}
 
-      {stop.campId || stop.place ? (
-        <div>
-          <input
-            aria-label="Condition"
-            placeholder='Condition, e.g. "Only if harassed"'
-            value={stop.condition}
-            onChange={(e) => onChange({ condition: e.target.value })}
-            maxLength={STOP_CONDITION_MAX}
-            className={input}
-          />
-          <p className="mt-1 text-[0.65rem] text-faint">Shown as written, above the note: write the whole phrase, e.g. Only if harassed</p>
+      {isCamp ? null : condition}
+
+      <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} camp={isCamp} />
+
+      {isCamp ? bring : null}
+      {isCamp ? condition : null}
+      {showBring && showCondition ? null : (
+        <div className="flex flex-wrap gap-1.5">
+          {showBring ? null : (
+            <button type="button" onClick={() => setBringOpen(true)} className={addButton}>
+              <Plus aria-hidden size={13} /> Bring units
+            </button>
+          )}
+          {showCondition ? null : (
+            <button type="button" onClick={() => setConditionOpen(true)} className={addButton}>
+              <Plus aria-hidden size={13} /> Condition
+            </button>
+          )}
         </div>
-      ) : null}
+      )}
 
-      <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} />
-
-      <div className="flex items-center gap-1">
-        <p className="mr-auto text-[0.65rem] text-faint">
+      {/* A camp stop names its pictures only when it has some. */}
+      {isCamp && !stop.pictures ? null : (
+        <p className="text-[0.65rem] text-faint">
           {stop.pictures
             ? `${stop.pictures} ${stop.pictures === 1 ? "picture stays" : "pictures stay"} with this stop`
             : "A coach can add pictures in the Studio after review"}
         </p>
-        <button type="button" onClick={() => onMove(-1)} disabled={!canMoveUp} aria-label={upLabel} title={upLabel} data-move="-1" className={iconButton}>
-          <ArrowUp size={16} />
-        </button>
-        <button type="button" onClick={() => onMove(1)} disabled={!canMoveDown} aria-label={downLabel} title={downLabel} data-move="1" className={iconButton}>
-          <ArrowDown size={16} />
-        </button>
-        <button type="button" onClick={onRemove} aria-label="Remove stop" className={cn(iconButton, "hover:border-loss/60 hover:text-loss")}>
-          <Trash2 size={16} />
-        </button>
-      </div>
+      )}
     </div>
   );
 }

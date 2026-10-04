@@ -173,3 +173,37 @@ describe("RouteSubmitForm: a stop keeps its key from the edit link to the submit
     expect(stops[1].split.arms[0].stops[0].key).toBe("k2");
   });
 });
+
+describe("RouteSubmitForm: the next-stop row and the split form", () => {
+  it("asks before it splits, then puts the next stop in path A; a camp stop opens slim", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    expect(screen.getByText("Adds stop 3 at the end.")).toBeInTheDocument();
+
+    // A camp stop opens with the kill order and the note; Bring and the condition wait behind add buttons.
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    expect(await screen.findByText("Adds stop 2 after stop 1.")).toBeInTheDocument();
+    expect(screen.queryByLabelText("Condition")).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Condition" }));
+    expect(screen.getByLabelText("Condition")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add at the end instead" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Split here" }));
+    expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();
+    const start = screen.getByRole("button", { name: "Start path A" });
+    fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
+    expect(start).toBeDisabled();
+    fireEvent.change(screen.getByPlaceholderText("e.g. Risky"), { target: { value: "Risky" } });
+    expect(start).toBeEnabled();
+    fireEvent.click(start);
+
+    expect(container.querySelector("li[data-split]")).toBeInTheDocument();
+    expect(screen.getByText("Adds stop 3a to path A (Safe).")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /^Undo: add split/ })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Path B is empty. Add its stops" }));
+    expect(screen.getByText("Adds stop 3b to path B (Risky).")).toBeInTheDocument();
+  });
+});

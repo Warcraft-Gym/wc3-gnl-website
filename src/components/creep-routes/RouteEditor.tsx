@@ -5,7 +5,7 @@ import { GripVertical } from "lucide-react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
-import { StopEditBody, type StopRowData } from "./StopEditBody";
+import { StopEditBody, StopTools, type StopRowData } from "./StopEditBody";
 import type { SplitEdit } from "./SplitBlock";
 import { NextStopRow, SplitForm } from "./NextStopRow";
 import {
@@ -163,7 +163,7 @@ export function RouteEditor({
   // The row being dragged and the drop zone under the pointer.
   const [drag, setDrag] = useState<number | null>(null);
   const [over, setOver] = useState<{ zone: string; after: boolean } | null>(null);
-  // After an arrow move, focus goes back to the moved stop's arrow: its body remounts at the new place.
+  // After an arrow move, focus goes back to the moved stop's arrow: its row remounts at the new place.
   const refocus = useRef<-1 | 1 | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -312,7 +312,6 @@ export function RouteEditor({
     const d = arm === undefined ? derived.stops[index] : derived.stops[index]?.split?.arms[arm]?.stops[j!];
     // An "and" block is one XP event: its chains carry no level-up marks.
     const inAnd = arm !== undefined && derived.stops[index]?.split?.mode === "and";
-    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir, tabs) as ListPlace | null;
     return (
       <StopEditBody
         stop={row}
@@ -324,6 +323,20 @@ export function RouteEditor({
           step(`edit ${nameOf(row.id)}`, keys.length === 1 && TEXT_FIELDS.has(keys[0]) ? `${row.id}.${keys[0]}` : undefined);
           setStops((rows) => patchRow(rows, row.id, patch));
         }}
+        trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
+        absent={row.hero === false || d?.hero === false}
+        heroIcon={heroIcon}
+      />
+    );
+  };
+
+  /** The open stop's move and remove buttons, on its summary line. */
+  const stopTools = (key: string) => {
+    const row = rowAtKey(stops, key);
+    if (!row || row.split) return undefined;
+    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir, tabs) as ListPlace | null;
+    return (
+      <StopTools
         onRemove={() => {
           step(`remove ${nameOf(row.id)}`);
           setStops((rows) => removeRow(rows, row.id));
@@ -341,9 +354,6 @@ export function RouteEditor({
         canMoveDown={target(1) !== null}
         upLabel={stepName(stops, row.id, -1, tabs)}
         downLabel={stepName(stops, row.id, 1, tabs)}
-        trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
-        absent={row.hero === false || d?.hero === false}
-        heroIcon={heroIcon}
       />
     );
   };
@@ -527,6 +537,7 @@ export function RouteEditor({
           openCampId={openCampId}
           choice={choice}
           editBody={editBody}
+          stopTools={stopTools}
           splitEdit={splitEdit}
           dnd={dnd}
           slot={slot}

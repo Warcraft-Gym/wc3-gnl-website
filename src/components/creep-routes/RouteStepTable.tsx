@@ -66,6 +66,7 @@ export function RouteStepTable({
   choice,
   onChoose,
   editBody,
+  stopTools,
   splitEdit,
   dnd,
   slot,
@@ -97,6 +98,8 @@ export function RouteStepTable({
   onChoose?: (forkKey: string, arm: number) => void;
   /** The builder (`RouteEditor`): the open stop's body, by key (the stop's editor). The header has no "Expand all". */
   editBody?: (key: string) => React.ReactNode;
+  /** The builder: the open stop's move and remove buttons, by key, on its summary line. */
+  stopTools?: (key: string) => React.ReactNode;
   /** The builder: the controls of split `index` (its caption, path headings, add rows and after row). */
   splitEdit?: (index: number) => SplitEdit | undefined;
   /** The builder: drag handles and drop zones (rows, captions, a path's heading and add row, the end of the list). */
@@ -184,6 +187,7 @@ export function RouteStepTable({
                 dnd={dnd?.({ kind: "row", key: row.key })}
                 entry={block ? { level: block.levelBefore, xp: block.xpBefore } : undefined}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
+                tools={stopTools && open.has(row.key) ? stopTools(row.key) : undefined}
               />
             );
           };

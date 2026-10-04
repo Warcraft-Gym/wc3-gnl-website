@@ -90,6 +90,7 @@ export function StopBlock({
   heroIcon,
   entry,
   dnd,
+  tools,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -119,6 +120,8 @@ export function StopBlock({
   entry?: { level: number; xp: number };
   /** The builder: the row's drag handle (left of the number) and its drop handlers. */
   dnd?: { handle?: React.ReactNode; props: DropProps };
+  /** The builder: move and remove (`StopTools`), on the open stop's summary line before the chevron. */
+  tools?: React.ReactNode;
 }) {
   const d = entry ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
@@ -152,7 +155,7 @@ export function StopBlock({
       {rail}
       {dnd?.handle ? <span className={cn("absolute left-[44px]", waypoint ? "top-2" : "top-4")}>{dnd.handle}</span> : null}
       {/* Summary line: the select button covers it; the camp button and chevron sit above. */}
-      <div className="relative grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
+      <div className={cn("relative grid gap-x-3", isOpen && tools ? "grid-cols-[1.25rem_minmax(0,1fr)_auto]" : "grid-cols-[1.25rem_minmax(0,1fr)_1.25rem]")}>
         <button
           type="button"
           onClick={() => (waypoint ? onChevron(stopKey) : onSummary(stopKey))}
@@ -229,19 +232,23 @@ export function StopBlock({
             </div>
           ) : null}
         </div>
-        <button
-          type="button"
-          onClick={() => onChevron(stopKey)}
-          aria-expanded={isOpen}
-          aria-controls={bodyId}
-          aria-label={`${isOpen ? "Hide" : "Show"} stop ${number} details`}
-          className={cn(
-            "relative grid size-5 place-items-center self-start rounded hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
-            isOpen ? "text-gold" : "text-faint",
-          )}
-        >
-          <ChevronDown aria-hidden size={16} className={cn("transition-transform motion-reduce:transition-none", isOpen && "rotate-180")} />
-        </button>
+        {/* The builder's tools sit before the chevron; on a phone they stack under it, so the name keeps its width. */}
+        <span className={cn("flex items-start gap-1.5", isOpen && tools && "flex-col-reverse items-center sm:flex-row sm:items-start")}>
+          {isOpen ? tools : null}
+          <button
+            type="button"
+            onClick={() => onChevron(stopKey)}
+            aria-expanded={isOpen}
+            aria-controls={bodyId}
+            aria-label={`${isOpen ? "Hide" : "Show"} stop ${number} details`}
+            className={cn(
+              "relative grid size-5 shrink-0 place-items-center self-start rounded hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
+              isOpen ? "text-gold" : "text-faint",
+            )}
+          >
+            <ChevronDown aria-hidden size={16} className={cn("transition-transform motion-reduce:transition-none", isOpen && "rotate-180")} />
+          </button>
+        </span>
       </div>
       {isOpen ? (
         <div id={bodyId} className="mt-3 grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
