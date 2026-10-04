@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useEffect, useId, useRef } from "react";
 import { Crosshair, MapPin, Split } from "lucide-react";
 import { canStartSplit, type SplitSetup } from "./stop-rows";
 import { MAX_PATHS } from "@/lib/creep-routes/caps.mjs";
@@ -83,16 +83,16 @@ export function NextStopRow({
           </p>
           <div className="mt-2.5 flex flex-wrap gap-1.5">
             {armed ? (
-              <button type="button" onClick={onCancel} className={QUIET_BUTTON}>
+              <button type="button" onClick={onCancel} data-focus="cancel" className={QUIET_BUTTON}>
                 Cancel
               </button>
             ) : (
               <>
-                <button type="button" onClick={onWaypoint} aria-disabled={blocked} className={GOLD_BUTTON}>
+                <button type="button" onClick={onWaypoint} aria-disabled={blocked} data-focus="waypoint" className={GOLD_BUTTON}>
                   <MapPin aria-hidden size={14} /> Waypoint
                 </button>
                 {inPath ? null : (
-                  <button type="button" onClick={onSplit} aria-disabled={blocked} className={GOLD_BUTTON}>
+                  <button type="button" onClick={onSplit} aria-disabled={blocked} data-focus="split" className={GOLD_BUTTON}>
                     <Split aria-hidden size={14} /> Split here
                   </button>
                 )}
@@ -133,8 +133,17 @@ export function SplitForm({
 }) {
   const id = useId();
   const pick = setup.mode === "or";
+  // "Add a third path" puts focus in the new name field (its button unmounts).
+  const box = useRef<HTMLDivElement>(null);
+  const focusTo = useRef<string | null>(null);
+  useEffect(() => {
+    const q = focusTo.current;
+    if (!q) return;
+    focusTo.current = null;
+    box.current?.querySelector<HTMLElement>(q)?.focus();
+  });
   return (
-    <div data-split-form className={SLOT_BOX}>
+    <div ref={box} data-split-form className={SLOT_BOX}>
       <p className="text-sm font-medium leading-7 text-fg">Split the route {after}</p>
       <fieldset className="mt-1">
         <legend className="text-[0.8rem] text-muted">What happens here?</legend>
@@ -171,6 +180,7 @@ export function SplitForm({
                 placeholder={NAME_HINTS[a]}
                 maxLength={60}
                 autoFocus={a === 0}
+                data-path-name={a}
                 className="h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none"
               />
             </label>
@@ -180,7 +190,14 @@ export function SplitForm({
             {setup.names.length < MAX_PATHS ? (
               <>
                 {" "}
-                <button type="button" onClick={() => onChange({ ...setup, names: [...setup.names, ""] })} className="text-gold underline underline-offset-2 hover:text-fg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange({ ...setup, names: [...setup.names, ""] });
+                    focusTo.current = `[data-path-name="${setup.names.length}"]`;
+                  }}
+                  className="text-gold underline underline-offset-2 hover:text-fg"
+                >
                   Add a third path
                 </button>
               </>

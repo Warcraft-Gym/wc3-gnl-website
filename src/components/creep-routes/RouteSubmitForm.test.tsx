@@ -207,3 +207,33 @@ describe("RouteSubmitForm: the next-stop row and the split form", () => {
     expect(screen.getByText("Adds stop 3b to path B (Risky).")).toBeInTheDocument();
   });
 });
+
+describe("RouteSubmitForm: focus never drops to the page", () => {
+  it("lands on Split here after Cancel, and on the next-stop row after Start, Continue the route here and a remove", async () => {
+    const [a, b] = maps[0].camps;
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+    const waypoint = () => screen.getByRole("button", { name: "Waypoint" });
+
+    fireEvent.click(screen.getByRole("button", { name: "Split here" }));
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Split here" })));
+
+    fireEvent.click(screen.getByRole("button", { name: "Split here" }));
+    fireEvent.change(screen.getByPlaceholderText("e.g. Safe"), { target: { value: "Safe" } });
+    fireEvent.change(screen.getByPlaceholderText("e.g. Risky"), { target: { value: "Risky" } });
+    fireEvent.click(screen.getByRole("button", { name: "Start path A" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.getByText("Adds stop 3a to path A (Safe).")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue the route here" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.getByText("Adds stop 3 at the end.")).toBeInTheDocument();
+
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    fireEvent.click(await screen.findByRole("button", { name: "Remove stop" }));
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+  });
+});

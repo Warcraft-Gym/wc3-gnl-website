@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef } from "react";
 import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
 import { HeroTile } from "./HeroTile";
 import { IconPicker } from "@/components/builds/IconPicker";
@@ -132,6 +132,8 @@ export function StopEditBody({
   trace,
   absent,
   heroIcon,
+  opened = { bring: false, condition: false },
+  onOpen = () => {},
 }: {
   stop: StopRowData;
   /** The resolved camp for a camp stop; undefined for a place or a base action. */
@@ -145,30 +147,46 @@ export function StopEditBody({
   absent?: boolean;
   /** The route's hero icon for the Bring hero entry; the "Any Hero" crown tile when the route names none. */
   heroIcon?: string;
+  /** A camp stop's Bring and condition, once opened (kept by row id in `RouteEditor`, so a move keeps them). */
+  opened?: { bring: boolean; condition: boolean };
+  onOpen?: (part: "bring" | "condition") => void;
 }) {
   const heroOff = Boolean(absent ?? stop.hero === false);
   // A later path of an "and" split: the hero walks path a, so this stop cannot take him.
   const forcedOff = heroOff && stop.hero !== false;
-  // A camp stop shows Bring and the condition once used: content, a hero-off stop, or a click on the add button.
+  // A camp stop shows Bring and the condition once used: content, a hero-off stop, or a click on the add
+  // button. An edit there keeps it open, so removing the last unit never hides the block under focus.
   const isCamp = Boolean(stop.campId);
-  const [bringOpen, setBringOpen] = useState(false);
-  const [conditionOpen, setConditionOpen] = useState(false);
-  const showBring = !isCamp || bringOpen || stop.units.length > 0 || heroOff;
-  const showCondition = !isCamp || conditionOpen || Boolean(stop.condition);
+  const showBring = !isCamp || opened.bring || stop.units.length > 0 || heroOff;
+  const showCondition = !isCamp || opened.condition || Boolean(stop.condition);
+  // After "+ Bring units", "+ Condition" or a unit's remove, focus goes to this control in the body.
+  const body = useRef<HTMLDivElement>(null);
+  const focusTo = useRef<string | null>(null);
+  useEffect(() => {
+    const q = focusTo.current;
+    if (!q) return;
+    focusTo.current = null;
+    body.current?.querySelector<HTMLElement>(q)?.focus();
+  });
+  const bringChange = (patch: Partial<StopRowData>) => {
+    if (isCamp) onOpen("bring");
+    onChange(patch);
+  };
   function addUnit() {
     if (stop.units.length >= 6) return;
-    onChange({ units: [...stop.units, { id: Date.now() + Math.random(), icon: "", count: "1" }] });
+    bringChange({ units: [...stop.units, { id: Date.now() + Math.random(), icon: "", count: "1" }] });
   }
   function updateUnit(id: number, patch: Partial<UnitRow>) {
-    onChange({ units: stop.units.map((u) => (u.id === id ? { ...u, ...patch } : u)) });
+    bringChange({ units: stop.units.map((u) => (u.id === id ? { ...u, ...patch } : u)) });
   }
   function removeUnit(id: number) {
-    onChange({ units: stop.units.filter((u) => u.id !== id) });
+    bringChange({ units: stop.units.filter((u) => u.id !== id) });
+    focusTo.current = "[data-add-unit]";
   }
 
   const bring =
     (stop.campId || stop.place) && showBring ? (
-      <div>
+      <div data-bring>
         <p className="mb-1 text-[0.6rem] font-bold uppercase tracking-[0.14em] text-faint">Bring</p>
         <div className="flex flex-wrap items-center gap-1.5">
           {/* The hero is the first entry on a camp or place stop: on by default, off = only the units go
@@ -178,7 +196,7 @@ export function StopEditBody({
               type="button"
               aria-pressed={!heroOff}
               disabled={forcedOff}
-              onClick={() => onChange({ hero: stop.hero === false ? undefined : false })}
+              onClick={() => bringChange({ hero: stop.hero === false ? undefined : false })}
               title={forcedOff ? "The hero walks the first path" : heroOff ? "Add the hero" : "Send only the units"}
               className={cn(
                 "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
@@ -209,6 +227,7 @@ export function StopEditBody({
             <button
               type="button"
               onClick={addUnit}
+              data-add-unit
               className="inline-flex h-8 items-center gap-1 rounded border border-dashed border-line px-2 text-[0.65rem] font-bold uppercase tracking-wide text-muted hover:border-gold/50 hover:text-gold"
             >
               <Plus size={14} /> Add
@@ -224,9 +243,11 @@ export function StopEditBody({
           aria-label="Condition"
           placeholder={isCamp ? "Shown above the note, e.g. Only if harassed" : 'Condition, e.g. "Only if harassed"'}
           value={stop.condition}
-          onChange={(e) => onChange({ condition: e.target.value })}
+          onChange={(e) => {
+            if (isCamp) onOpen("condition");
+            onChange({ condition: e.target.value });
+          }}
           maxLength={STOP_CONDITION_MAX}
-          autoFocus={conditionOpen && !stop.condition}
           className={input}
         />
         {isCamp ? null : <p className="mt-1 text-[0.65rem] text-faint">Shown as written, above the note: write the whole phrase, e.g. Only if harassed</p>}
@@ -234,7 +255,7 @@ export function StopEditBody({
     ) : null;
 
   return (
-    <div className="min-w-0 space-y-3">
+    <div ref={body} className="min-w-0 space-y-3">
       {stop.place ? (
         <div className="flex flex-wrap items-end gap-2">
           <label className="min-w-0 flex-1">
@@ -290,12 +311,26 @@ export function StopEditBody({
       {showBring && showCondition ? null : (
         <div className="flex flex-wrap gap-1.5">
           {showBring ? null : (
-            <button type="button" onClick={() => setBringOpen(true)} className={addButton}>
+            <button
+              type="button"
+              onClick={() => {
+                onOpen("bring");
+                focusTo.current = "[data-bring] button:not(:disabled)";
+              }}
+              className={addButton}
+            >
               <Plus aria-hidden size={13} /> Bring units
             </button>
           )}
           {showCondition ? null : (
-            <button type="button" onClick={() => setConditionOpen(true)} className={addButton}>
+            <button
+              type="button"
+              onClick={() => {
+                onOpen("condition");
+                focusTo.current = 'input[aria-label="Condition"]';
+              }}
+              className={addButton}
+            >
               <Plus aria-hidden size={13} /> Condition
             </button>
           )}
