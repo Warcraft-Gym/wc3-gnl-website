@@ -6,6 +6,7 @@ import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, type StopRowData } from "./StopEditBody";
+import type { SplitEdit } from "./SplitBlock";
 import { NextStopRow, SplitForm } from "./NextStopRow";
 import {
   addTarget,
@@ -70,16 +71,18 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * left (sticky on desktop, above the list on a phone) and the reader's stop
  * list (`RouteStepTable`) on the right. One stop is open at a time, the selected
  * one, shared with the map's pulsing node, and its body is the stop's editor
- * (`StopEditBody`). A split is the reader's caption row and tab strip with the
- * builder's controls (`SplitEdit`). Every move has one rule (`editor-rows.mjs`):
- * a map click adds after the selected row in its own list, into the shown path
- * when the split's caption (a tab) is selected, else at the end; a camp already
- * in that list is selected instead. The next-stop row (`NextStopRow`) sits in the
- * list where that add lands and holds "Waypoint" and "Split here". A drag handle
- * on every row moves it (native drag and drop on desktop; a split moves as a
- * block and never into a path); the
- * open stop's arrows make the same moves on a keyboard or phone (`stepTarget`),
- * into and out of a split's paths too; its trash removes it.
+ * (`StopEditBody`). A split shows every path stacked on the lane rail, each
+ * with its heading and name (`SplitBlock`). Every move has one rule
+ * (`editor-rows.mjs`): a map click adds after the selected row in its own list,
+ * at the end of a path when its split is selected ("Add stops to path B"), right
+ * after the split with "Continue the route here", else at the end; a camp
+ * already in that list is selected instead. The next-stop row (`NextStopRow`)
+ * sits in the list where that add lands and holds "Waypoint" and "Split here";
+ * the map follows the path that holds it. A drag handle on every row moves it
+ * (native drag and drop on desktop; a split moves as a block and never into a
+ * path; a path's heading and add row take a drop); the open stop's arrows make
+ * the same moves on a keyboard or phone (`stepTarget`), into and out of a
+ * split's paths too; its trash removes it.
  * "Remove path" and "Remove split" keep the model whole. Every change but typing
  * calls `remember` first, so the form can undo it; typing in one field is one
  * step until the field loses focus.
@@ -124,10 +127,13 @@ export function RouteEditor({
   const route = useMemo(() => ({ stops: routeStops, start, hero: heroIcon }) as CreepRoute, [routeStops, start, heroIcon]);
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
-  const [selectedId, setSelectedId] = useState<number | null>(null);
+  // The selected row; on a split, `after` puts the next-stop row right after it ("Continue the route here").
+  const [sel, setSel] = useState<{ id: number; after?: boolean } | null>(null);
+  const selectedId = sel?.id ?? null;
+  const setSelectedId = (id: number | null) => setSel(id === null ? null : { id });
   const selectedKey = selectedId === null ? null : keyOfRow(stops, selectedId);
   const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
-  // The tab shown per split, by the split row's id (its index moves when rows move).
+  // The path shown per split, by the split row's id: the map and the numbers after the split follow it.
   const [tabs, setTabs] = useState<Record<number, number>>({});
   const choice = useMemo(
     () => Object.fromEntries(stops.flatMap((r, i) => (r.split ? [[String(i), Math.min(tabs[r.id] ?? 0, r.split.arms.length - 1)]] : []))),
@@ -186,14 +192,14 @@ export function RouteEditor({
   };
 
   /** Selects a row (the next-stop row moves after it); closes the split form and an armed waypoint. */
-  const select = (id: number | null, scroll = false) => {
-    setSelectedId(id);
+  const select = (id: number | null, scroll = false, after = false) => {
+    setSel(id === null ? null : { id, after });
     setSetup(null);
     setPointArmed(false);
     setPending(null);
     const key = id === null ? null : keyOfRow(stops, id);
     if (key && scroll) setScrollTo({ key });
-    // A stop in a path shows that path's tab.
+    // A stop in a path: the map follows that path.
     if (key?.includes(".")) {
       const { index, arm } = parseKey(key);
       const split = stops[index];
@@ -218,8 +224,8 @@ export function RouteEditor({
     if (row) select(row.id, true);
   }
 
-  // A selected split caption adds into its shown path.
-  const selection = selectedId === null ? null : { id: selectedId, arm: tabs[selectedId] ?? 0 };
+  // A selected split adds into its shown path, or after the split with `after`.
+  const selection = selectedId === null ? null : { id: selectedId, arm: tabs[selectedId] ?? 0, after: sel?.after };
 
   // At a cap (`caps.mjs`) the add actions do nothing and the next-stop row says so.
   const capLine = addBlocked(stops, "row") ?? addBlocked(stops, "stop");
@@ -342,15 +348,13 @@ export function RouteEditor({
     );
   };
 
-  const splitEdit = (index: number) => {
+  const splitEdit = (index: number): SplitEdit | undefined => {
     const row = stops[index];
     if (!row?.split) return undefined;
     const { arms, mode } = row.split;
     const chosen = choice[String(index)] ?? 0;
     const errPath = `stops.${index}.split`;
     return {
-      chosen,
-      selected: selectedId === row.id,
       onMode: (next: "and" | "or") => {
         if ((next === "and") === (mode === "and")) return;
         step("change split mode");
@@ -362,11 +366,28 @@ export function RouteEditor({
         setStops((rows) => setArmLabel(rows, row.id, arm, label));
       },
       onLabelBlur: (arm: number) => setStops((rows) => setArmLabel(rows, row.id, arm, rows.find((r) => r.id === row.id)?.split?.arms[arm]?.label ?? "", true)),
-      onAddPath: () => {
-        if (addBlocked(stops, "path", row)) return;
-        step("add path");
-        setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
+      pathError: (arm: number) => fieldError?.(`${errPath}.arms.${arm}.label`) ?? fieldError?.(`${errPath}.arms.${arm}.stops`),
+      error: fieldError?.(errPath),
+      onAddPath: addBlocked(stops, "path", row)
+        ? undefined
+        : () => {
+            step("add path");
+            setSplit(row.id, { arms: [...arms, { id: Date.now() + Math.random(), label: "", stops: [] }] });
+          },
+      onRemovePath:
+        arms.length > 2
+          ? (arm: number) => {
+              step(`remove path ${arm + 1}`);
+              setStops((rows) => removePath(rows, row.id, arm));
+              setTabs((t) => ({ ...t, [row.id]: 0 }));
+            }
+          : undefined,
+      // The next-stop row moves to the end of that path, and the map follows it.
+      onAddStops: (arm: number) => {
+        select(row.id);
+        setTabs((t) => ({ ...t, [row.id]: arm }));
       },
+      onContinue: () => select(row.id, false, true),
       onMove: (dir: -1 | 1) => {
         step("move split");
         setStops((rows) => moveRow(rows, row.id, dir));
@@ -378,38 +399,9 @@ export function RouteEditor({
         setStops((rows) => removeSplit(rows, row.id, chosen));
         setSelectedId(null);
       },
+      removeLabel: `Remove split, keep path ${mode === "and" ? chosen + 1 : "ABC"[chosen]}`,
       sameCamp: sameCampSequence(row.split),
-      labelError: (arm: number) => fieldError?.(`${errPath}.arms.${arm}.label`),
     };
-  };
-
-  // Under the tabs: the shown path's errors, how to fill it when empty, the path cap and "Remove path".
-  const pathTools = (index: number) => {
-    const row = stops[index];
-    if (!row?.split) return null;
-    const arm = choice[String(index)] ?? 0;
-    const errPath = `stops.${index}.split`;
-    const error = fieldError?.(`${errPath}.arms.${arm}.label`) ?? fieldError?.(`${errPath}.arms.${arm}.stops`) ?? fieldError?.(errPath);
-    const empty = !row.split.arms[arm]?.stops.length;
-    const pathCap = addBlocked(stops, "path", row);
-    return (
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.7rem]">
-        {empty ? <span className="text-faint">This path is empty: click the map to add its stops, or drag a stop here.</span> : null}
-        {error ? <span className="text-loss">{error}</span> : null}
-        {pathCap ? <span className="text-faint">{pathCap}</span> : null}
-        <button
-          type="button"
-          onClick={() => {
-            step(`remove path ${arm + 1}`);
-            setStops((rows) => removePath(rows, row.id, arm));
-            setTabs((t) => ({ ...t, [row.id]: 0 }));
-          }}
-          className="ml-auto text-muted hover:text-loss"
-        >
-          Remove path
-        </button>
-      </div>
-    );
   };
 
   // Drag and drop: the row being dragged, and where it would land (`dropTarget`).
@@ -418,7 +410,7 @@ export function RouteEditor({
     return at ? listAt(stops, at)[at.index] : undefined;
   })();
   const zoneId = (zone: DropZone) =>
-    zone.kind === "row" ? `r${zone.key}` : zone.kind === "caption" ? `c${zone.index}` : zone.kind === "path" ? `p${zone.index}.${zone.arm}` : "end";
+    zone.kind === "row" ? `r${zone.key}` : zone.kind === "caption" ? `c${zone.index}` : zone.kind === "path" ? `p${zone.index}.${zone.arm}.${zone.at ?? 0}` : "end";
   const zoneRow = (zone: DropZone) =>
     zone.kind === "row" ? rowAtKey(stops, zone.key) : zone.kind === "caption" ? stops[zone.index] : undefined;
   const dropAt = (zone: DropZone, e: React.DragEvent<HTMLLIElement>) => {
@@ -458,7 +450,7 @@ export function RouteEditor({
           if (at) {
             step(`move ${nameOf(drag)}`);
             setStops(moveRowTo(stops, drag, at));
-            // A stop dropped into a path that is not shown switches to it, so the result is visible.
+            // A stop dropped into a path: the map follows that path.
             if (at.splitId !== undefined && at.arm !== undefined) setTabs((t) => ({ ...t, [at.splitId!]: at.arm! }));
           }
           setDrag(null);
@@ -534,17 +526,8 @@ export function RouteEditor({
           onOpenCard={onOpenCard}
           openCampId={openCampId}
           choice={choice}
-          onChoose={(key, arm) => {
-            // A tab selects its split's caption: the next map click adds to that path.
-            const split = stops[Number(key)];
-            if (split) {
-              setTabs((t) => ({ ...t, [split.id]: arm }));
-              setSelectedId(split.id);
-            }
-          }}
           editBody={editBody}
           splitEdit={splitEdit}
-          pathTools={pathTools}
           dnd={dnd}
           slot={slot}
           slotRow={

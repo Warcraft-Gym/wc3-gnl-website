@@ -135,9 +135,10 @@ export function insertAt(rows, at, row) {
   return updateArm(rows, at.splitId, at.arm, (stops) => [...stops.slice(0, at.index), row, ...stops.slice(at.index)]);
 }
 
-/** Where an add goes (a map click, "+ Waypoint", "+ Split"): after the selected row in its own list;
- *  at the end of the active path `arm` when the selection is a split's caption; at the end with no
- *  selection. A split added from inside a split goes after that split. `selection`: `{ id, arm }`. */
+/** Where an add goes (a map click, "Waypoint", "Split here"): after the selected row in its own list;
+ *  at the end of the active path `arm` when the selection is a split's caption, or right after the split
+ *  with `after` ("Continue the route here"); at the end with no selection. A split added from inside a
+ *  split goes after that split. `selection`: `{ id, arm, after }`. */
 export function addTarget(rows, selection, isSplit = false) {
   const where = selection ? locate(rows, selection.id) : null;
   if (!where) return { index: rows.length };
@@ -145,7 +146,7 @@ export function addTarget(rows, selection, isSplit = false) {
     return isSplit ? { index: rows.findIndex((r) => r.id === where.splitId) + 1 } : { splitId: where.splitId, arm: where.arm, index: where.index + 1 };
   }
   const row = rows[where.index];
-  if (row.split && !isSplit) {
+  if (row.split && !isSplit && !selection.after) {
     const arm = Math.min(selection.arm ?? 0, row.split.arms.length - 1);
     return { splitId: row.id, arm, index: row.split.arms[arm].stops.length };
   }
@@ -225,13 +226,13 @@ export function stepName(rows, id, dir, shown = {}) {
 
 /** Where a drop lands, from the zone under the pointer: a stop row (`row`, its key "3" or "2.a.1")
  *  before or `after` it; a split's `caption` (its index, `arm` the shown path) before the split, or
- *  after it into the shown path (a dragged split goes after the whole block instead); an empty
- *  `path` (the split's index and `arm`); the list's `end`. Null where the dragged row cannot go:
+ *  after it into the shown path (a dragged split goes after the whole block instead); a `path` (the
+ *  split's index and `arm`, at its position `at`, 0 by default); the list's `end`. Null where the dragged row cannot go:
  *  a split into a path (no drop zone lights up), or a split onto its own caption. */
 export function dropTarget(rows, zone, dragged) {
   let at;
   if (zone.kind === "end") at = { index: rows.length };
-  else if (zone.kind === "path") at = { splitId: rows[zone.index]?.id, arm: zone.arm, index: 0 };
+  else if (zone.kind === "path") at = { splitId: rows[zone.index]?.id, arm: zone.arm, index: zone.at ?? 0 };
   else if (zone.kind === "caption") {
     if (dragged?.split && rows[zone.index]?.id === dragged.id) return null;
     if (!zone.after) at = { index: zone.index };

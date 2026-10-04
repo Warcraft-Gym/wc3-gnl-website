@@ -78,8 +78,12 @@ export const locate = editorRows.locate as (rows: StopRowData[], id: number) => 
 export const listAt = editorRows.listAt as (rows: StopRowData[], at: ListPlace) => StopRowData[];
 /** Inserts a row at a place; a split only at the top level. */
 export const insertAt = editorRows.insertAt as (rows: StopRowData[], at: ListPlace, row: StopRowData) => StopRowData[];
-/** Where an add goes: after the selected row, into the active path from a caption, else at the end. */
-export const addTarget = editorRows.addTarget as (rows: StopRowData[], selection: { id: number; arm?: number } | null, isSplit?: boolean) => ListPlace;
+/** Where an add goes: after the selected row, into the active path from a caption (after the split with `after`), else at the end. */
+export const addTarget = editorRows.addTarget as (
+  rows: StopRowData[],
+  selection: { id: number; arm?: number; after?: boolean } | null,
+  isSplit?: boolean,
+) => ListPlace;
 /** The next-stop row at a place: the label the next stop takes there, the line under it, whether "Add at the end instead" shows. */
 export const nextStop = editorRows.nextStop as (
   rows: StopRowData[],
@@ -92,7 +96,7 @@ export const moveRowTo = editorRows.moveRowTo as (rows: StopRowData[], id: numbe
 export type DropZone =
   | { kind: "row"; key: string; after?: boolean }
   | { kind: "caption"; index: number; arm?: number; after?: boolean }
-  | { kind: "path"; index: number; arm: number }
+  | { kind: "path"; index: number; arm: number; at?: number }
   | { kind: "end" };
 /** Where a drop lands; null where the dragged row cannot go. */
 export const dropTarget = editorRows.dropTarget as (rows: StopRowData[], zone: DropZone, dragged: StopRowData | undefined) => ListPlace | null;

@@ -20,21 +20,16 @@
  * last node.
  */
 import { ARM_LETTERS, armsOf, numberStops, walkedArm } from "./stop-numbers.mjs";
+import { isWaypoint } from "./place.mjs";
+import { MAX_PATHS } from "./caps.mjs";
 
-/** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). The builder's `slot`,
- *  `{ index, label }` or `{ index, arm, j, label }`, adds its next-stop row (`type: "slot"`) at that place.
- *  @param {any[]} stops
- *  @param {Record<string, number>} [choice]
- *  @param {{ index: number, arm?: number, j?: number, label: string } | null} [slot] */
-export function routeRows(stops, choice = {}, slot = null) {
+/** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). */
+export function routeRows(stops, choice = {}) {
   const numbers = numberStops(stops, choice);
   const rows = [];
   const full = (lane, off = false) => ({ lane, top: true, bottom: true, off });
-  const isSlot = (i, arm) => slot !== null && slot.index === i && slot.arm === arm;
-  const SLOT = {};
 
   stops.forEach((stop, i) => {
-    if (isSlot(i, undefined)) rows.push({ type: "slot", key: "slot", label: slot.label, lane: "", lines: [full("a")] });
     const n = numbers[i];
     const arms = armsOf(stop);
     if (!arms) {
@@ -44,7 +39,7 @@ export function routeRows(stops, choice = {}, slot = null) {
     const mode = stop.split.mode;
     const walked = walkedArm(stop, n.key, choice);
     // An "and" block always ends in its join row (the block's XP line), even when nothing follows.
-    const follows = i < stops.length - 1 || mode === "and" || isSlot(i + 1, undefined);
+    const follows = i < stops.length - 1 || mode === "and";
     // The paths the list shows: every arm of an "and" split, only the chosen one otherwise.
     const shown = mode === "and" ? arms.map((_, a) => a) : [walked];
     const off = (a) => !shown.includes(a);
@@ -52,41 +47,107 @@ export function routeRows(stops, choice = {}, slot = null) {
     rows.push({ type: "split", key: n.key, label: n.label, stop, index: i, mode, lanes, lines: [full("a")] });
 
     shown.forEach((a, k) => {
-      const list = [...arms[a].stops];
-      if (isSlot(i, a)) list.splice(slot.j, 0, SLOT);
-      const last = list.length - 1;
-      let j = 0;
-      list.forEach((s, p) => {
+      const last = arms[a].stops.length - 1;
+      arms[a].stops.forEach((s, j) => {
         // Paths after this block run past it; paths before it, and the dashed paths not taken, run on to the join.
         const lines = arms.flatMap((_, b) => {
-          if (b === a) return [{ lane: ARM_LETTERS[b], top: true, bottom: follows || p < last, off: false }];
+          if (b === a) return [{ lane: ARM_LETTERS[b], top: true, bottom: follows || j < last, off: false }];
           return (shown.indexOf(b) > k || follows) ? [full(ARM_LETTERS[b], off(b))] : [];
         });
-        const group = mode === "and" ? { block: n.key } : { panel: n.key };
-        if (s === SLOT) {
-          rows.push({ type: "slot", key: "slot", label: slot.label, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...group });
-          return;
-        }
         const key = n.arms[a].stops[j].key;
-        rows.push({ type: "stop", key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...group });
-        j += 1;
+        rows.push({ type: "stop", key, label: n.arms[a].stops[j].label, stop: s, lane: ARM_LETTERS[a], arm: a, node: i, lines, ...(mode === "and" ? { block: n.key } : { panel: n.key }) });
       });
     });
 
     // The join row curves the lanes back into the main line before the first shared stop.
     if (follows) rows.push({ type: "join", key: `${n.key}.join`, index: i, mode, lanes, lines: [full("a")] });
   });
-  if (isSlot(stops.length, undefined)) rows.push({ type: "slot", key: "slot", label: slot.label, lane: "", lines: [full("a")] });
 
   // The rail starts at the first row's node and stops at the last row's.
   const first = rows[0];
   const last = rows[rows.length - 1];
   if (first) first.lines = first.lines.map((l) => (l.lane === "a" ? { ...l, top: false } : l));
-  if (last && (last.type === "stop" || last.type === "slot")) last.lines = last.lines.map((l) => (l.lane === (last.lane || "a") ? { ...l, bottom: false } : l));
+  if (last && last.type === "stop") last.lines = last.lines.map((l) => (l.lane === (last.lane || "a") ? { ...l, bottom: false } : l));
   return rows;
 }
 
 /** An "and" block's join row: the level after the block and the XP it paid, "Lv 3 · +250 xp". */
 export function joinXpLabel(node) {
   return `Lv ${node.levelAfter} · +${node.xpGained} xp`;
+}
+
+/**
+ * The builder's rows (`RouteStepTable` with `editBody`): the same stop rows, but every path of a split
+ * shows, one block per path in order: a heading row (`head`), the path's stops, then the next-stop row
+ * (`slot`) when the next add lands in that path, else a quiet `add` row. A `sep` row stands between two
+ * blocks, `more` ("Add a third path") after a pick-one split's last block, and the `after` row closes the
+ * split; its lanes curve back into lane a when a stop or the next-stop row follows (`joins`; `follows`
+ * counts stops only). `slot` is `{ index, label }` at the
+ * top level or `{ index, arm, j, label }` in a path, or null. Rows inside a split carry `group` (the
+ * split's key); an "and" split's stops carry `block`.
+ *
+ * Lines come from the marks each row puts on a lane (a node, a path's letter disc, the split's fork, the
+ * join): a lane runs from its first mark to its last. Lane a is the main line and every path a; lanes b
+ * and c belong to one split. A path's own lane is lit over its block, from its heading to its last mark:
+ * `gold` where the next stop goes, `light` elsewhere; a line end is `true` when it is drawn plain.
+ * @param {any[]} stops
+ * @param {Record<string, number>} [choice]
+ * @param {{ index: number, arm?: number, j?: number, label: string } | null} [slot]
+ */
+export function builderRows(stops, choice = {}, slot = null) {
+  const numbers = numberStops(stops, choice);
+  const rows = [];
+  const lit = [];
+  const isSlot = (i, arm) => slot !== null && slot.index === i && slot.arm === arm;
+  const slotRow = (lane, mark, extra = {}) => ({ type: "slot", key: "slot", label: slot.label, lane, marks: [mark], ...extra });
+
+  stops.forEach((stop, i) => {
+    if (isSlot(i, undefined)) rows.push(slotRow("a", "a"));
+    const n = numbers[i];
+    const arms = armsOf(stop);
+    if (!arms) {
+      rows.push({ type: "stop", key: n.key, label: n.label, stop, lane: "a", marks: ["a"] });
+      return;
+    }
+    const mode = stop.split.mode;
+    const group = n.key;
+    const ids = arms.map((_, a) => (a === 0 ? "a" : `${n.key}${ARM_LETTERS[a]}`));
+    const lanes = arms.map((_, a) => ({ lane: ARM_LETTERS[a], off: false }));
+    const joins = i < stops.length - 1 || isSlot(i + 1, undefined);
+    rows.push({ type: "split", key: n.key, stop, index: i, mode, lanes, marks: ids });
+    arms.forEach((arm, a) => {
+      const lane = ARM_LETTERS[a];
+      const here = isSlot(i, a);
+      if (a > 0) rows.push({ type: "sep", key: `${n.key}.sep.${a}`, mode, group, marks: [] });
+      const from = rows.length;
+      const count = arm.stops.filter((s) => !isWaypoint(s)).length;
+      rows.push({ type: "head", key: `${n.key}.head.${a}`, index: i, arm: a, lane, mode, here, count, empty: !arm.stops.length, group, marks: [ids[a]] });
+      const entries = [...arm.stops];
+      if (here) entries.splice(slot.j, 0, null);
+      let j = 0;
+      for (const s of entries) {
+        if (s === null) {
+          rows.push(slotRow(lane, ids[a], { arm: a, group }));
+          continue;
+        }
+        const { key, label } = n.arms[a].stops[j++];
+        rows.push({ type: "stop", key, label, stop: s, lane, arm: a, node: i, group, marks: [ids[a]], ...(mode === "and" ? { block: n.key } : {}) });
+      }
+      lit.push({ id: ids[a], from, to: rows.length - 1, tone: here ? "gold" : "light" });
+      if (!here) rows.push({ type: "add", key: `${n.key}.add.${a}`, index: i, arm: a, lane, mode, length: arm.stops.length, group, marks: [] });
+    });
+    if (mode !== "and" && arms.length < MAX_PATHS) rows.push({ type: "more", key: `${n.key}.more`, index: i, marks: [] });
+    rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, follows: i < stops.length - 1, slotAfter: isSlot(i + 1, undefined), marks: joins ? ids : [] });
+  });
+  if (isSlot(stops.length, undefined)) rows.push(slotRow("a", "a"));
+
+  const spans = new Map();
+  rows.forEach((r, k) => r.marks.forEach((id) => spans.set(id, { first: spans.get(id)?.first ?? k, last: k })));
+  const tone = (id, k, top) => lit.find((b) => b.id === id && (top ? k > b.from && k <= b.to : k >= b.from && k < b.to))?.tone ?? true;
+  return rows.map((row, k) => ({
+    ...row,
+    lines: [...spans]
+      .filter(([, s]) => s.first < s.last && k >= s.first && k <= s.last)
+      .map(([id, s]) => ({ lane: id.at(-1), top: k > s.first && tone(id, k, true), bottom: k < s.last && tone(id, k, false), off: false })),
+  }));
 }

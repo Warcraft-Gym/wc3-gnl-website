@@ -292,3 +292,10 @@ test("split form: Start waits for a name on every pick-one path; a same-time spl
   assert.deepEqual(row.split.arms.map((a) => a.label), ["Safe", "Risky", "Mirror"]);
   assert.equal(newSplitRow("and").split.mode, "and");
 });
+
+test("add after a split (\"Continue the route here\"), and a drop at a place inside a path", () => {
+  const rows = route();
+  assert.deepEqual(addTarget(rows, { id: rows[1].id, arm: 1, after: true }), { index: 2 });
+  assert.deepEqual(dropTarget(rows, { kind: "path", index: 1, arm: 0, at: 2 }, rows[0]), { splitId: rows[1].id, arm: 0, index: 2 });
+  assert.deepEqual(dropTarget(rows, { kind: "path", index: 1, arm: 1 }, rows[0]), { splitId: rows[1].id, arm: 1, index: 0 });
+});
