@@ -164,7 +164,7 @@
               "time": "4:03",
               "supply": "23",
               "instruction": "Research Masonry",
-              "icon": "nt-upgrade"
+              "icon": "stonearchitecture"
             },
             {
               "time": "4:57",
@@ -650,7 +650,7 @@
               "time": "4:03",
               "supply": "29",
               "instruction": "Research Masonry",
-              "icon": "nt-upgrade"
+              "icon": "stonearchitecture"
             },
             {
               "time": "4:31",

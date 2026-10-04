@@ -357,7 +357,7 @@
               "time": "5:44",
               "supply": "43",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "6:03",
@@ -375,7 +375,7 @@
               "time": "6:46",
               "supply": "43",
               "instruction": "Research Improved Bows",
-              "icon": "nt-upgrade"
+              "icon": "improvedbows"
             },
             {
               "time": "6:59",
@@ -775,7 +775,7 @@
               "time": "5:44",
               "supply": "43",
               "instruction": "Research Ultravision",
-              "icon": "nt-upgrade"
+              "icon": "ultravision"
             },
             {
               "time": "6:03",
@@ -793,7 +793,7 @@
               "time": "6:46",
               "supply": "43",
               "instruction": "Research Improved Bows",
-              "icon": "nt-upgrade"
+              "icon": "improvedbows"
             },
             {
               "time": "6:59",
