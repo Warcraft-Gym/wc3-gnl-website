@@ -71,11 +71,6 @@ export function routeRows(stops, choice = {}) {
   return rows;
 }
 
-/** An "and" block's join row: the level after the block and the XP it paid, "Lv 3 · +250 xp". */
-export function joinXpLabel(node) {
-  return `Lv ${node.levelAfter} · +${node.xpGained} xp`;
-}
-
 /**
  * The builder's rows (`RouteStepTable` with `editBody`): the same stop rows, but every path of a split
  * shows, one block per path in order: a heading row (`head`), the path's stops, then the next-stop row

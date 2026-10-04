@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { builderRows, joinXpLabel, routeRows } from "./route-rows.mjs";
+import { builderRows, routeRows } from "./route-rows.mjs";
 import { deriveRoute } from "./derive.mjs";
 import { hiddenBadgeKeys, shownStops } from "./stop-numbers.mjs";
 
@@ -81,11 +81,6 @@ test("the rail starts at the first row's node and stops at the last", () => {
   assert.equal(lanes(rows[5]), "a^");
 });
 
-test("an and block's join row reads the level after the block and its XP total", () => {
-  assert.equal(joinXpLabel({ levelBefore: 2, levelAfter: 3, xpBefore: 260, xpGained: 250 }), "Lv 3 · +250 xp");
-  assert.equal(joinXpLabel({ levelBefore: 1, levelAfter: 1, xpBefore: 0, xpGained: 0 }), "Lv 1 · +0 xp");
-});
-
 // The staging Echo Isles route: 1 c11, 2 c02, a scout waypoint, an "or" split on c05, then c03.
 const echo = () => [camp("c11"), camp("c02"), { campId: null, action: "Scout", place: { kind: "scout", at: { start: "1" } } }, or([camp("c05")], [camp("c05")]), camp("c03")];
 
@@ -108,7 +103,6 @@ test("an and block's join row still shows the grouped total", () => {
   const join = rows.find((r) => r.type === "join");
   assert.equal(join.mode, "and");
   const node = deriveRoute({ stops }, map).stops[join.index].split;
-  assert.match(joinXpLabel(node), /^Lv \d+ · \+\d+ xp$/);
   assert.ok(node.xpGained > 0);
 });
 

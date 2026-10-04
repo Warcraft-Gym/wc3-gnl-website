@@ -3,6 +3,7 @@
 import { useRef } from "react";
 import { Swords } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
+import { SplitXpSummary } from "./SplitXpSummary";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { isPin, isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
@@ -219,22 +220,12 @@ export function ForkRail({ main, lanes }: { main?: RailLine; lanes: { lane: stri
   );
 }
 
-/** The rail curving the shown lanes back into the main line before the first shared stop. An "and"
- *  block's join row also carries its one XP line at the right, where a stop row has its level. */
-export function JoinRow({ lanes, xp }: { lanes: { lane: string; off: boolean }[]; xp?: string }) {
+/** The rail curving the shown lanes back into the main line before the first shared stop. */
+export function JoinRow({ lanes, node }: { lanes: { lane: string; off: boolean }[]; node?: DerivedNode }) {
   return (
-    <li aria-hidden={xp ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", xp ? "py-1 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
+    <li aria-hidden={node ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", node ? "py-2 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
       <JoinRail lanes={lanes} />
-      {xp ? (
-        <p className="grid grid-cols-[1.25rem_minmax(0,1fr)_1.25rem] gap-x-3">
-          <span />
-          <span className="tnum text-right text-[0.8rem] text-muted">
-            <span className="sr-only">After the paths: </span>
-            {xp}
-          </span>
-          <span />
-        </p>
-      ) : null}
+      {node ? <SplitXpSummary node={node} /> : null}
     </li>
   );
 }

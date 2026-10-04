@@ -5,6 +5,8 @@ import type { DropProps } from "./RouteStepTable";
 import { DROP, ForkRail, JoinRail, RailCell, type RailLine } from "./LaneRail";
 import { SAME_CAMP_LINE } from "./stop-rows";
 import { cn } from "@/lib/utils";
+import type { DerivedNode } from "@/lib/creep-routes/derive";
+import { SplitXpSummary } from "./SplitXpSummary";
 
 /**
  * The builder's split (`RouteStepTable` with `builderRows`): every path shows,
@@ -200,7 +202,7 @@ export function AddThirdPath({ lines, onAdd }: { lines: RailLine[]; onAdd: () =>
 }
 
 /** The row that closes a split: the lanes curve back into lane a when stops follow; "Continue the route here" puts the next-stop row there. */
-export function AfterSplit({ lanes, joins, follows, slotAfter, xp, onContinue }: { lanes: { lane: string; off: boolean }[]; joins: boolean; follows: boolean; slotAfter: boolean; xp?: string; onContinue: () => void }) {
+export function AfterSplit({ lanes, joins, follows, slotAfter, node, onContinue }: { lanes: { lane: string; off: boolean }[]; joins: boolean; follows: boolean; slotAfter: boolean; node?: DerivedNode; onContinue: () => void }) {
   return (
     <li className={cn(ROW, "border-t border-dashed border-line/60 py-2.5")}>
       {joins ? <JoinRail lanes={lanes} /> : null}
@@ -209,13 +211,8 @@ export function AfterSplit({ lanes, joins, follows, slotAfter, xp, onContinue }:
           <span className="font-medium text-fg">After the split.</span> Stops below are taken on every path.
           {follows ? null : " Leave it empty if each path ends the route."}
         </p>
-        {xp ? (
-          <span className="tnum shrink-0 text-[0.8rem] text-muted">
-            <span className="sr-only">After the paths: </span>
-            {xp}
-          </span>
-        ) : null}
       </div>
+      {node ? <div className="mt-2"><SplitXpSummary node={node} /></div> : null}
       {slotAfter ? null : (
         <button type="button" onClick={onContinue} className={cn(ADD, "mt-1.5")}>
           <Plus aria-hidden size={13} /> Continue the route here
