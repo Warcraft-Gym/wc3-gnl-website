@@ -583,9 +583,9 @@ choose one, no number means a waypoint.
   shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
-  example has no rail. At the join of an "At the same time" split, one
+  example has no rail. In the heading of an "At the same time" split, one
   compact result holds `+XP` beside the hero's level and XP bar after all
-  paths. A gold border around this small result means the hero levels during
+  paths. It sits above the paths, like a section heading, not below them. A gold border around this small result means the hero levels during
   the split. No path gets a gold outline because either path can contain
   the level-up kill. The path stops have no individual hero meters, even when
   opened; each one still opens for its own kills, Bring and note. A path such
@@ -730,8 +730,8 @@ derived stop reports `left`, the creeps it skips (also in the API's `derived`).
 For paths taken at the same time, the calculator folds path A, then path B,
 then path C if present. Each creep's XP uses the hero's level when that creep
 dies. The game can kill across paths in another order; if a level-up falls
-inside the split, that order can change the final XP. The join shows the
-calculator's total, and its level-up cue does not pick a path or moment.
+inside the split, that order can change the final XP. The split heading shows
+the calculator's total, and its level-up cue does not pick a path or moment.
 A non-camp step adds no creep XP.
 
 `src/lib/creep-routes/xp.mjs`'s `creepXp`/`heroXpForLevel`/`creepXpFactor`

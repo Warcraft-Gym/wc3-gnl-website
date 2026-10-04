@@ -24,6 +24,8 @@ describe("simultaneous paths in the route list", () => {
     }
     const { container } = render(<OpenableTable />);
     const split = screen.getByText("At the same time").closest("li")!;
+    const sharedResult = within(split).getByRole("group", { name: "XP and level after all paths at the same time" });
+    expect(sharedResult).toBeTruthy();
     const paths = split.nextElementSibling!;
     const stops = paths.querySelectorAll("li[data-stop]");
     expect(stops).toHaveLength(3);

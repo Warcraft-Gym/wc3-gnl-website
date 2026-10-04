@@ -157,10 +157,9 @@ export function RouteStepTable({
               );
             }
             if (row.type === "join") {
-              const node = derived.stops[row.index].split;
-              return <JoinRow key={row.key} lanes={row.lanes} node={row.mode === "and" ? node : undefined} />;
+              return <JoinRow key={row.key} lanes={row.lanes} />;
             }
-            // Every "and" path shares one level and XP result at the join, in every disclosure state.
+            // Every "and" path shares one level and XP result in the split header, in every disclosure state.
             return (
               <StopBlock
                 key={row.key}

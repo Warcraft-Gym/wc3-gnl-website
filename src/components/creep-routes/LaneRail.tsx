@@ -149,7 +149,7 @@ export function SplitRow({
     tabs.current[next]?.focus();
   };
   return (
-    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-1.5")}>
+    <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : mode === "and" ? "py-2" : "py-1.5")}>
       <ForkRail main={main} lanes={lanes} />
       {choose
         ? lanes.map((l) => (
@@ -198,7 +198,10 @@ export function SplitRow({
           <span aria-hidden className="min-w-2 flex-1 self-stretch border-b border-line-strong" />
         </div>
       ) : (
-        <span className="text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
+        <div className="flex min-w-0 items-start justify-between gap-2">
+          <span className="pt-1 text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
+          {mode === "and" && node ? <SplitXpSummary node={node} /> : null}
+        </div>
       )}
     </li>
   );
@@ -221,11 +224,10 @@ export function ForkRail({ main, lanes }: { main?: RailLine; lanes: { lane: stri
 }
 
 /** The rail curving the shown lanes back into the main line before the first shared stop. */
-export function JoinRow({ lanes, node }: { lanes: { lane: string; off: boolean }[]; node?: DerivedNode }) {
+export function JoinRow({ lanes }: { lanes: { lane: string; off: boolean }[] }) {
   return (
-    <li aria-hidden={node ? undefined : true} className={cn("relative border-t border-line/40 first:border-t-0", node ? "py-1.5 pl-[60px] pr-4 sm:pr-5" : "h-6")}>
+    <li aria-hidden="true" className="relative h-6 border-t border-line/40 first:border-t-0">
       <JoinRail lanes={lanes} />
-      {node ? <SplitXpSummary node={node} /> : null}
     </li>
   );
 }
