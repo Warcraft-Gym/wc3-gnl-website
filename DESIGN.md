@@ -205,13 +205,17 @@ Since the merge of #58 the easy and medium bands are the difficulty scale's firs
 
 F008 replaced the previous, self-derived palette (`#6BE0C8`/`#E0863A`/`#C23050`) with Liquipedia's own marker colours (the dominant opaque pixel of their marker PNGs) — a deliberate trade against the dataviz skill's own >= 3:1-per-mark rule, made because matching a resource players already read outweighs the marginal contrast loss on the hard band. `#b01818` alone measures 2.99:1 against black (WCAG relative luminance, `(L1+0.05)/(L2+0.05)`), just under the floor, so every camp circle also gets a `rgba(255,255,255,.55)` light halo ring outside its dark under-stroke (`CampMarker`) — that combination reads at full contrast against black *or* white, covering every terrain colour in between. The values were checked with the same small WCAG contrast script the F003 palette used (`dataviz`'s `validate_palette.js` still not present on disk).
 
+## Build orders
+
+- **A cancelled step.** A step whose instruction starts with "Cancel" (`isCancelStep`) draws its icon crossed out: the icon in grayscale at 50%, lucide's `Ban` over it in `--wg-loss` with a 1px `--wg-bg` under-stroke. The words still say "Cancel …"; the instruction text is not struck through, because the step happens, it is not deleted. The replay import writes a building cancelled mid-construction as "Build X", then "Cancel X" at the cancel's time. No new hue.
+
 ## Data flow
 
 - The page reads per-race rows once and passes them down. A component never fetches its own copy.
 - The W3Champions API serves the race rows and one MMR timeline per race. The timelines of all ladder races load in parallel on the server, with the 10 minute cache window of `src/lib/w3c.ts`. That is up to five small reads per player page per window, and none of them touch the league backend. The timelines of five races add about 5 KB to the page payload.
 - The per-race split of the ladder panel is the whole season, from one `player-stats/{tag}/race-on-map-versus-race?season={n}` read of about 49 KB, in the same window and behind the same never-throw wrapper. `vsRaceOfSeason()` keeps the one row the page needs: every race the player picked, over the map "Overall". The 100 match read stays for "Recent ladder games" and the heroes, and never feeds the split. When the season read fails the panel shows its headline record and no per-race rows, because a 100 game sample and a season are different figures.
 - Each other tag of a person adds two W3Champions reads per window: a 10 game 1v1 match search for "Recent ladder games" and its season split, whose sum is that tag's season record.
-- The player page reads the league backend 6 + k times: the league and event lists, the league's teams (long names and logos), `GET /users/{id}` (tags, roster seats and signups with `played_as`), `GET /users/{id}/history` (captain seats) and the career stats, plus one series read per season the person has a roster seat in, for casts and fixture team names. An old name link reads every season's teams once, then redirects.
+- The player page reads the league backend 6 times: the league and event lists, `GET /users/{id}/summary` (tags and ladder summary), `GET /users/{id}/seasons` (roster and captain seats with `played_as`), the career stats, and one series read over every season the person has a roster seat in, for casts and fixture team names. An old name link reads every season's `GET /events/{id}/teams/summary` once, then redirects.
 - League reads keep their 60 second window. A new data mark never adds a league read per row. Ask for one aggregated read instead.
 
 ## Shared with the app

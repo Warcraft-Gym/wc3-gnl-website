@@ -249,33 +249,29 @@ export function filterLikelyRejected(
   return { accepted, dropped: { count: orderIndices.length, byId, orderIndices } };
 }
 
-/** F001: which `ReplayEvent.kind` an Esc-resolved building/research cancel's
- *  `id` would have shown up as in the raw event stream — a tier-up
- *  (`id in HALL_LINE`) is recorded as a `"building"` event ("Build Keep"),
- *  same as a brand-new building; a true research/upgrade is a
- *  `"upgrade"` event. */
+/** F001: which `ReplayEvent.kind` an Esc-resolved research cancel's `id`
+ *  would have shown up as in the raw event stream — a tier-up
+ *  (`id in HALL_LINE`) is recorded as a `"building"` event ("Build Keep");
+ *  a true research/upgrade is an `"upgrade"` event. */
 function kindForCancelledId(id: string): ReplayEvent["kind"] {
   return id in HALL_LINE ? "building" : "upgrade";
 }
 
 /**
- * F001: `extractBuild.ts`'s counterpart to `computeCancelledOrders` for the
- * two Esc-resolved cancel shapes that aren't unit/hero orders —
- * `target: "building"` (a building under construction) and
- * `target: "research"` (a research or tier-up in progress, per
- * `kindForCancelledId`). Matches each cancel to the most recent
- * not-yet-matched `"building"`/`"upgrade"` event with the same `id` at or
- * before the cancel's `ms` — preferring an exact `cancelsOrderMs` match
- * when present (see `parseReplay.ts`'s `resolveEscCancel`). Returns the set
- * of `"building"`/`"upgrade"` events to drop entirely (they never finished,
- * so — unlike a cancelled unit/hero order — there's no partial step to
- * count, just an absent one).
+ * F001: `extractBuild.ts`'s counterpart to `computeCancelledOrders` for an
+ * Esc-resolved `target: "research"` cancel (a research or tier-up in
+ * progress, per `kindForCancelledId`). Matches each cancel to the most recent
+ * not-yet-matched event with the same `id` at or before the cancel's `ms` —
+ * preferring an exact `cancelsOrderMs` match when present (see
+ * `parseReplay.ts`'s `resolveEscCancel`). Returns the set of events to drop
+ * entirely. A `target: "building"` cancel is not handled here: it stays in
+ * the build as its own "Cancel" step.
  */
-export function computeCancelledBuildOrResearch(sortedEvents: readonly ReplayEvent[]): ReadonlySet<ReplayEvent> {
+export function computeCancelledResearch(sortedEvents: readonly ReplayEvent[]): ReadonlySet<ReplayEvent> {
   const removed = new Set<ReplayEvent>();
   for (const cancel of sortedEvents) {
-    if (cancel.kind !== "cancel" || (cancel.target !== "building" && cancel.target !== "research")) continue;
-    const kind = cancel.target === "building" ? "building" : kindForCancelledId(cancel.id);
+    if (cancel.kind !== "cancel" || cancel.target !== "research") continue;
+    const kind = kindForCancelledId(cancel.id);
 
     const candidates = sortedEvents.filter(
       (e) => e.kind === kind && e.id === cancel.id && e.ms <= cancel.ms && !removed.has(e),

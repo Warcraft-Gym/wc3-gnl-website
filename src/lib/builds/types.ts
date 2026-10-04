@@ -54,6 +54,13 @@ export const BUILD_DIFFICULTIES: { id: BuildDifficulty; label: string }[] = [
   { id: "advanced", label: "Advanced" },
 ];
 
+/** A step that cancels something, written "Cancel …" (the Night Elf shop
+ *  trick: start an Ancient of Wonders, train a Wisp, cancel the shop). Its
+ *  icon draws crossed out. */
+export function isCancelStep(step: BuildStep): boolean {
+  return /^cancel\b/i.test(step.instruction.trim());
+}
+
 /** Parse "mm:ss" → seconds; undefined when absent or malformed. */
 export function parseClock(time?: string): number | undefined {
   if (!time) return undefined;

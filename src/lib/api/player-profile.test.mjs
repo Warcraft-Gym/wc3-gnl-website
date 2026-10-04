@@ -12,7 +12,7 @@ const reads = {
     { id: 10, league_id: 1, name: "Season 10", start_date: "2025-01-01" },
     { id: 11, league_id: 1, name: "Season 11", start_date: "2025-06-01" },
   ],
-  user: { id: 7, name: "Belit", race_mmrs: [], main_race: null },
+  user: { id: 7, name: "Belit", battleTag: "Belit#1", tag_names: ["Belit#1", "OldBelit#2"], race_mmrs: [], main_race: null },
   seats: [
     // season 12 is not published, so the page leaves it out
     { season_id: 12, team: team(3, "C", "Gamma"), is_captain: false, captain_only: false, signup_race: "orc", played_as: null, record: { games: 1, wins: 1, losses: 0, matchup_history: ["HU"] } },
@@ -55,6 +55,7 @@ test("the profile is built from the seasons, series and career reads", () => {
   assert.equal(lost.cast, undefined);
 
   assert.equal(p.team.name, "Beta");
+  assert.deepEqual(p.player.tags, ["Belit#1", "OldBelit#2"]);
   assert.equal(p.career.rating, 1500);
 });
 

@@ -295,7 +295,7 @@
               "time": "3:21",
               "supply": "17",
               "instruction": "Research Spiked Barricades",
-              "icon": "nt-upgrade"
+              "icon": "spikedbarricades"
             },
             {
               "time": "3:25",
@@ -615,7 +615,7 @@
               "time": "3:21",
               "supply": "17",
               "instruction": "Research Spiked Barricades",
-              "icon": "nt-upgrade"
+              "icon": "spikedbarricades"
             },
             {
               "time": "3:25",

@@ -159,6 +159,12 @@
               "icon": "ne-archer"
             },
             {
+              "time": "3:54",
+              "supply": "28",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
               "time": "4:09",
               "supply": "28",
               "instruction": "Train Archer",
@@ -169,6 +175,12 @@
               "supply": "30",
               "instruction": "Train Archer",
               "icon": "ne-archer"
+            },
+            {
+              "time": "4:32",
+              "supply": "32",
+              "instruction": "Cancel Moon Well",
+              "icon": "ne-moon-well"
             },
             {
               "time": "5:10",
@@ -606,6 +618,12 @@
               "icon": "ne-archer"
             },
             {
+              "time": "3:54",
+              "supply": "28",
+              "instruction": "Build Moon Well",
+              "icon": "ne-moon-well"
+            },
+            {
               "time": "4:09",
               "supply": "28",
               "instruction": "Train Archer",
@@ -616,6 +634,12 @@
               "supply": "30",
               "instruction": "Train Archer",
               "icon": "ne-archer"
+            },
+            {
+              "time": "4:32",
+              "supply": "32",
+              "instruction": "Cancel Moon Well",
+              "icon": "ne-moon-well"
             },
             {
               "time": "5:10",

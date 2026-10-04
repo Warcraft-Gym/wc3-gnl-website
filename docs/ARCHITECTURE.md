@@ -63,12 +63,12 @@ The selected event scopes every public table:
 | Data | Backend read | Mapping |
 | --- | --- | --- |
 | season header and weeks | selected event | `mapSeason`, `deriveWeeks` |
-| teams and rosters | `GET /events/{event_id}/teams` | `mapTeams`, `flattenPlayers` |
+| teams and rosters | `GET /events/{event_id}/teams/summary` | `mapTeams`, `flattenPlayers` |
 | schedule and results | `GET /events/{event_id}/series/summary` joined to `GET /events/{event_id}/matches` | `mapFixtures` |
-| standings | `GET /events/{event_id}/teams` and `GET /events/{event_id}/matches` | `mapStandings` |
-| player pages | `GET /users/{user_id}` (tags, `race_mmrs`, `main_race`), `/users/{user_id}/seasons`, `/stats/career/{user_id}` and `/users/{user_id}/series` for the events played | `mapPlayerProfile` |
+| standings | `GET /events/{event_id}/teams/summary` and `GET /events/{event_id}/matches` | `mapStandings` |
+| player pages | `GET /users/{user_id}/summary` (`tag_names`, `race_mmrs`, `main_race`), `/users/{user_id}/seasons`, `/stats/career/{user_id}` and `/users/{user_id}/series` for the events played | `mapPlayerProfile` |
 | team pages | the league's teams for the switcher; the chosen season's teams and matches, and the team's series (`team_id`) | `getTeamPage` |
-| season ladder | `GET /events/{event_id}/ladder` | `mapLadder` |
+| season ladder | `GET /events/{event_id}/ladder`, with team logos from `GET /events/{event_id}/teams/summary` | `mapLadder` |
 | fantasy table | `GET /events/{event_id}/fantasy/teams` | `mapFantasy` |
 
 Team images use the `icon_url` carried by the backend response. That URL points
@@ -82,7 +82,7 @@ Backend reads go to open routes with no token. `apiGet` keeps each answer for
 consumer rules are in its repository, in `docs/okf/api/consumers.md`.
 
 The UI consumes only the types in `src/lib/api/types.ts`. Backend-specific
-names such as `season_id`, `playday` and `player_by_season` stop in the mapper.
+names such as `season_id`, `playday` and `final_score` stop in the mapper.
 
 ## Player dashboard
 
