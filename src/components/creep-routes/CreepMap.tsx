@@ -523,9 +523,15 @@ export function CreepMap({
   /** A press on a waypoint or pin mark (fine pointers): a move past 4 px starts a drag with pointer capture;
    *  the mark follows the pointer and snaps to a target within `MAGNET` px of its edge. Release on the map
    *  moves the waypoint; outside it, Escape or a cancel change nothing. A press without the move is a click. */
+  const stopsNow = useRef(route?.stops);
+  useEffect(() => {
+    stopsNow.current = route?.stops;
+  });
   const onMarkDown: MarkDown = (key, e, mark) => {
     const el = svgBox.current;
-    if (!el || !onWaypointDrag || e.button !== 0) return;
+    // A mouse or a pen only: a touch on a hybrid device scrolls or taps.
+    if (!el || !onWaypointDrag || e.button !== 0 || e.pointerType === "touch") return;
+    const stopsAtDown = route?.stops;
     const sx = e.clientX, sy = e.clientY, id = e.pointerId;
     const all = placeTargetsOf(map, youStartIndex);
     const spots = layoutTargets(all.map((t) => ({ x: t.x * pw, y: t.y * ph })), pw, ph);
@@ -563,7 +569,8 @@ export function CreepMap({
       if (ev.pointerId !== id) return;
       const p = on ? at(ev) : null;
       end();
-      if (!p?.inside) return;
+      // The stops changed during the drag (an undo, say): the drag ends with no change.
+      if (!p?.inside || stopsNow.current !== stopsAtDown) return;
       const round = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
       const point = { x: round(p.fx), y: round(p.fy) };
       onWaypointDrag(key, p.snap >= 0 ? all[p.snap].place : ({ kind: kindForClick(point, ""), at: point } as Place));
@@ -578,7 +585,8 @@ export function CreepMap({
     window.addEventListener("pointercancel", end);
     window.addEventListener("keydown", esc, true);
   };
-  const hovered = hoverTarget !== null ? targets[hoverTarget] : undefined;
+  // A hovered target only while places mode shows the targets, never left over for a later drag.
+  const hovered = placesMode && hoverTarget !== null ? targets[hoverTarget] : undefined;
   const hoveredAttack = preview?.move ? preview.move.attack : hovered?.place.kind === "attack";
   const previewNext = preview?.to ? spotOf(preview.to) : null;
   // A preview of a step on the target's leg: that leg draws at 30%. A move adds nothing at the target.

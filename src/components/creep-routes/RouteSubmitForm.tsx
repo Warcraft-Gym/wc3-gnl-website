@@ -108,6 +108,8 @@ function RouteSubmitFormInner({
   const remember = (label: string, sel: Selection | null) => setUndo((u) => pushUndo(u, stops, label, sel));
   // The last undo's entry, a new object each time: the builder puts back its selection when the selected row is gone.
   const [undone, setUndone] = useState<UndoEntry | null>(null);
+  // Bumped by an import: the editor remounts, so its target is the end of the route.
+  const [imports, setImports] = useState(0);
   const undoLast = () => {
     const top = popUndo(undo);
     if (!top) return;
@@ -181,6 +183,8 @@ function RouteSubmitFormInner({
     setTags(r.tags.slice(0, 8));
     setStops(r.stops.map(stopToRow));
     setUndo([]);
+    // A new editor for imported stops: the target goes back to the end of the route.
+    setImports((n) => n + 1);
   };
   // Applies a `#route=` payload on mount, and again on `hashchange` so a
   // link followed while the editor is already open (in-tab hash navigation,
@@ -392,6 +396,7 @@ function RouteSubmitFormInner({
           ) : null}
           <div className="mt-4" hidden={preview}>
             <RouteEditor
+              key={imports}
               map={map}
               stops={stops}
               setStops={setStops}

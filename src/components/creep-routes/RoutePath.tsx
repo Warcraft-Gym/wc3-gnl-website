@@ -170,7 +170,9 @@ export const RoutePath = memo(function RoutePath({
   const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack && !g.active));
   // A leg inside one list (the route, or one path) takes a click; legs from your start or into or out of a path do not.
   const listOf = (k: string) => (k.includes(".") ? k.split(".").slice(0, 2).join(".") : "");
-  const clickable = onLeg ? segments.filter((g) => g.a.key !== "start" && listOf(g.a.key) === listOf(g.b.key)) : [];
+  // A leg of one list; a route leg that crosses a paths block (its shown path has no place step) takes no click.
+  const crossesBlock = (a: string, b: string) => !a.includes(".") && stops.slice(Number(a) + 1, Number(b)).some((s) => s.split);
+  const clickable = onLeg ? segments.filter((g) => g.a.key !== "start" && listOf(g.a.key) === listOf(g.b.key) && !crossesBlock(g.a.key, g.b.key)) : [];
   const nameOf = (p: PathNode) => (p.label ? `stop ${p.label}` : p.stop.action?.trim() || "the waypoint");
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 

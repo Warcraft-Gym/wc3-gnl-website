@@ -145,9 +145,9 @@ function anchored(rows, t) {
   const inList = (x) => x && x.splitId === t.splitId && x.arm === t.arm;
   const a = t.after != null ? locate(rows, t.after) : null;
   const b = t.before != null ? locate(rows, t.before) : null;
-  if (inList(a) && inList(b) && b.index === a.index + 1) return b;
-  if (inList(b)) return b;
+  // Right after the leg's first step: `after` wins when the two rows are no longer next to each other.
   if (inList(a)) return { ...a, index: a.index + 1 };
+  if (inList(b)) return b;
   return null;
 }
 
@@ -155,7 +155,7 @@ function anchored(rows, t) {
  *  whose path is gone is the end of the route. */
 export function targetPlace(rows, target) {
   const t = target ?? ROUTE_END;
-  if (t.pos !== null && targetExists(rows, t)) {
+  if (t.pos !== null && listExists(rows, t)) {
     const at = anchored(rows, t);
     if (at) return at;
   }
@@ -165,8 +165,17 @@ export function targetPlace(rows, target) {
   return { splitId: t.splitId, arm: t.arm, index: t.pos === null ? list.length : Math.min(t.pos, list.length) };
 }
 
-/** True when the target's list exists: the route, or a path still in its block. */
+/** True when the target's list exists (the route, or a path still in its block) and no row it is
+ *  anchored to (`after`, `before`) sits in another list. */
 export function targetExists(rows, target) {
+  for (const id of [target.after, target.before]) {
+    const at = id != null ? locate(rows, id) : null;
+    if (at && (at.splitId !== target.splitId || at.arm !== target.arm)) return false;
+  }
+  return listExists(rows, target);
+}
+
+function listExists(rows, target) {
   if (target.splitId === undefined) return true;
   return target.arm < (rows.find((r) => r.id === target.splitId)?.split?.arms.length ?? 0);
 }
@@ -197,6 +206,10 @@ export function legTarget(rows, a, b) {
   const from = rowAtKey(rows, a);
   const at = from ? locate(rows, from.id) : null;
   if (!at) return null;
+  // A route leg across a paths block is no leg of one list.
+  const to = rowAtKey(rows, b);
+  const end = to ? listAt(rows, at).indexOf(to) : -1;
+  if (listAt(rows, at).slice(at.index + 1, end).some((r) => r.split)) return null;
   const before = listAt(rows, at)[at.index + 1];
   const t = { pos: at.index + 1, after: from.id, before: before?.id ?? null };
   return at.splitId === undefined ? t : { splitId: at.splitId, arm: at.arm, ...t };

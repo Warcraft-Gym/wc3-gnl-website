@@ -545,7 +545,8 @@ export function RouteEditor({
       // The block's trash always keeps path A; a path heading's x removes any other.
       onRemove: () => {
         step("remove paths");
-        if (target.splitId === row.id) setTarget(ROUTE_END);
+        // A position in path A stays between its two steps, now on the route, as when path B is removed.
+        if (target.splitId === row.id) setTarget(target.arm === 0 && target.pos !== null ? { pos: target.pos, after: target.after, before: target.before } : ROUTE_END);
         setStops((rows) => removeSplit(rows, row.id, 0));
         setSelectedId(null);
         setRingStop(null);
