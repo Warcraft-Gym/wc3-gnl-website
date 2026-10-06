@@ -24,7 +24,7 @@ export const stepSchema = z.object({
   time: clock,
   // A blank Food leaves the key out of the JSON; zod 4 needs `.optional()` for a missing key, not just `undefined` in the union.
   supply: z
-    .union([z.number().int().min(0).max(100), z.nan()])
+    .union([z.number().int().min(0).max(100, "Max 100"), z.nan()])
     .optional()
     .transform((v) => (typeof v === "number" && !Number.isNaN(v) ? v : undefined)),
   instruction: z.string().trim().min(2, "Say what to do").max(160, "Keep it under 160 characters"),
