@@ -1,6 +1,6 @@
 import type { ZodError, ZodType } from "zod";
 import * as impl from "./submission.mjs";
-import type { Place } from "./types";
+import type { CreepMap, Place } from "./types";
 
 /**
  * Typed façade over `submission.mjs`'s pure, plain-JS implementation —
@@ -84,6 +84,16 @@ export type SubmissionCatalogue = {
 export const createSubmissionSchema = impl.createSubmissionSchema as (
   catalogue: SubmissionCatalogue,
 ) => ZodType<SubmissionInput>;
+
+/** The catalogue for `createSubmissionSchema`, from the live maps and builds; see the `.mjs`. */
+export const routeCatalogue = impl.routeCatalogue as (
+  maps: CreepMap[],
+  iconKeys: string[],
+  buildSlugs?: string[],
+) => SubmissionCatalogue;
+
+/** The schema's input from the submit form's fields; null when `stopsJson` is not JSON. */
+export const routeFormInput = impl.routeFormInput as (formData: FormData) => Record<string, unknown> | null;
 
 export const flattenErrors = impl.flattenErrors as (err: ZodError) => FieldErrors;
 

@@ -19,9 +19,22 @@ vi.mock("@/app/(site)/learn/creep-routes/submit/actions", () => ({
   submitCreepRoute: (...args: unknown[]) => submitCreepRoute(...args),
 }));
 
+// Most tests here drive what follows a sent form, so the form's own check before it sends is off;
+// the "checks before it sends" tests turn it on.
+const formCheck = vi.hoisted(() => ({ on: false }));
+vi.mock("@/lib/useFormCheck", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("@/lib/useFormCheck")>();
+  return {
+    ...mod,
+    useFormCheck: (check: (data: FormData) => Record<string, string> | null) =>
+      mod.useFormCheck((data) => (formCheck.on ? check(data) : null)),
+  };
+});
+
 afterEach(() => {
   cleanup();
   submitCreepRoute.mockReset();
+  formCheck.on = false;
   window.location.hash = "";
 });
 
@@ -851,5 +864,65 @@ describe("RouteSubmitForm: a numeric target through removes, undo and legs", () 
     expect(leg(container, "2", "3")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Waypoint" }));
     expect(container.querySelector("[data-leg]")).toBeNull();
+  });
+});
+
+describe("RouteSubmitForm: checks before it sends", () => {
+  it("lists a message no field shows in the alert, named by its place", async () => {
+    formCheck.on = true;
+    const [a, b] = maps[0].camps;
+    const route = {
+      title: "Archmage two camp start",
+      map: maps[0].slug,
+      race: "human",
+      hero: "not-a-hero",
+      summary: "Two quick camps before the first expansion goes down.",
+      author: "Tester",
+      stops: [{ campId: a.id }, { campId: b.id, note: "x".repeat(700) }],
+    };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify({ format: EXCHANGE_FORMAT, route }))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Hero: Unknown hero icon");
+    expect(alert).toHaveTextContent("Stop 2, Note: Max 600 characters");
+    expect(submitCreepRoute).not.toHaveBeenCalled();
+  });
+
+  it("keeps an empty form from the server and says what is missing", async () => {
+    formCheck.on = true;
+    const { container } = renderForm();
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    expect(await screen.findByText("Add at least two stops")).toBeInTheDocument();
+    expect(screen.getByText("Give it a proper title")).toBeInTheDocument();
+    expect(screen.getByText("Pick your race")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Please fix the highlighted fields.");
+    expect(submitCreepRoute).not.toHaveBeenCalled();
+  });
+
+  it("sends a complete form", async () => {
+    formCheck.on = true;
+    const [a, b] = maps[0].camps;
+    const route = {
+      title: "Archmage two camp start",
+      map: maps[0].slug,
+      race: "human",
+      summary: "Two quick camps before the first expansion goes down.",
+      author: "Tester",
+      stops: [{ campId: a.id }, { campId: b.id }],
+    };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify({ format: EXCHANGE_FORMAT, route }))}`;
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "archmage-two-camp" });
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalledTimes(1));
   });
 });

@@ -11,7 +11,10 @@ import { BuildImportZone, type ImportMessage } from "./BuildImportZone";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import type { IconRace } from "@/lib/builds/icons";
 import { BUILD_DIFFICULTIES, type BuildDifficulty, type BuildRace, type BuildStep } from "@/lib/builds/types";
-import type { StepInput } from "@/lib/builds/submission";
+import { buildFormInput, flattenErrors, submissionSchema, type StepInput } from "@/lib/builds/submission";
+import { FIX_FIELDS_MESSAGE, useFormCheck } from "@/lib/useFormCheck";
+import { BUILD_SHOWN, buildErrorPlace, unshownErrors } from "@/lib/form-errors.mjs";
+import { FormAlert } from "@/components/ui/FormAlert";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeBuild } from "@/lib/builds/exchange";
 import { cn } from "@/lib/utils";
 import { PATCHES, normalizePatch, patchLabel } from "@/lib/patches.mjs";
@@ -142,7 +145,14 @@ function BuildSubmitFormInner({ autoFocus, onSubmitAnother }: { autoFocus: boole
     formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, [autoFocus]);
 
-  const errors = state.status === "error" ? state.fields ?? {} : {};
+  // The same schema as the action, run before sending: an empty form is told here, not after a round trip.
+  const check = useFormCheck((data) => {
+    const parsed = submissionSchema.safeParse(buildFormInput(data));
+    return parsed.success ? null : flattenErrors(parsed.error);
+  });
+  const errors = check.fields ?? (state.status === "error" ? state.fields ?? {} : {});
+  const errorMessage = check.fields ? FIX_FIELDS_MESSAGE : state.status === "error" ? state.message : undefined;
+  const unshown = unshownErrors(errors, (key) => BUILD_SHOWN.test(key), buildErrorPlace);
   const stepsJson = JSON.stringify(
     steps.map<StepInput>((s) => ({
       time: s.time,
@@ -263,7 +273,7 @@ function BuildSubmitFormInner({ autoFocus, onSubmitAnother }: { autoFocus: boole
   }
 
   return (
-    <form ref={formRef} action={formAction} tabIndex={-1}>
+    <form ref={formRef} action={formAction} onSubmit={check.onSubmit} noValidate tabIndex={-1}>
       {/* Honeypot + hidden state */}
       <div className="hidden" aria-hidden>
         <label>
@@ -512,11 +522,7 @@ function BuildSubmitFormInner({ autoFocus, onSubmitAnother }: { autoFocus: boole
             />
           </Field>
 
-          {state.status === "error" ? (
-            <p role="alert" className="rounded border border-loss/50 bg-loss/10 px-4 py-3 text-sm text-fg">
-              {state.message}
-            </p>
-          ) : null}
+          <FormAlert message={errorMessage} unshown={unshown} />
 
           <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex min-w-0 flex-1 items-start gap-3 text-sm text-muted">

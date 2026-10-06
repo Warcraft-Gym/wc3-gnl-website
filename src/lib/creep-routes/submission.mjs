@@ -2,7 +2,7 @@ import { z } from "zod";
 import { isEmbeddable } from "../video-embed.mjs";
 import { isKnownPatch } from "../patches.mjs";
 import { killsProblem } from "./kills.mjs";
-import { placeProblem } from "./place.mjs";
+import { placeIds, placeProblem } from "./place.mjs";
 import { countStops } from "./stop-numbers.mjs";
 import { CAP_OVER, MAX_PATHS, capProblems } from "./caps.mjs";
 
@@ -313,6 +313,55 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         });
       }
     });
+}
+
+/** The catalogue `createSubmissionSchema` checks against, from the live maps and builds. The server
+ *  action and the submit form build it the same way, so the form's own check before it sends agrees
+ *  with the server's. */
+export function routeCatalogue(maps, iconKeys, buildSlugs = []) {
+  return {
+    maps: maps.map((m) => ({
+      slug: m.slug,
+      campIds: m.camps.map((c) => c.id),
+      startsCount: m.starts.length,
+      creepCounts: Object.fromEntries(m.camps.map((c) => [c.id, c.creeps.map((k) => k.count)])),
+      ...placeIds(m),
+    })),
+    iconKeys,
+    buildSlugs,
+  };
+}
+
+/** The schema's input, read from the submit form's fields; null when `stopsJson` is not JSON. */
+export function routeFormInput(formData) {
+  let stops;
+  try {
+    stops = JSON.parse(String(formData.get("stopsJson") ?? "[]"));
+  } catch {
+    return null;
+  }
+  return {
+    map: formData.get("map"),
+    race: formData.get("race"),
+    vsRaces: formData.getAll("vsRaces").filter(Boolean),
+    level: formData.get("level"),
+    start: formData.get("start") ?? undefined,
+    hero: formData.get("hero") ?? undefined,
+    build: formData.get("build") ?? undefined,
+    supersedes: formData.get("supersedes") ?? undefined,
+    title: formData.get("title"),
+    summary: formData.get("summary"),
+    author: formData.get("author"),
+    authorDiscord: formData.get("authorDiscord") ?? undefined,
+    sourceUrl: formData.get("sourceUrl") ?? undefined,
+    videoUrl: formData.get("videoUrl") ?? undefined,
+    patch: formData.get("patch") ?? undefined,
+    tags: formData.get("tags") ?? undefined,
+    description: formData.get("description") ?? undefined,
+    stops,
+    website: formData.get("website") ?? undefined,
+    startedAt: formData.get("startedAt") ?? undefined,
+  };
 }
 
 /** A `stopsJson` form value larger than this is rejected *before*
