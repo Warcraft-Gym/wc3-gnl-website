@@ -10,6 +10,9 @@ import { cn } from "@/lib/utils";
  *  In SVG user units (viewBox space). Fixed regardless of `active`: the
  *  "grow when active" effect is a `transform: scale()` on a wrapper `<g>`,
  *  not a change to this radius — see the wrapper below. */
+/** How far a camp mark's light halo reaches past its radius (the halo's radius plus half its stroke). */
+export const CAMP_HALO = 2.25;
+
 export function radiusFor(level: number) {
   return Math.min(11, Math.max(5, 4 + level * 0.3));
 }
@@ -47,6 +50,7 @@ export const CampMarker = memo(function CampMarker({
   asGroup,
   onCampCardOpen,
   cardOpen,
+  disabled,
 }: {
   camp: MapCamp;
   /** Where the mark sits in viewBox units when not on the camp itself: a camp guarding a building draws at the icon's edge. */
@@ -86,6 +90,8 @@ export const CampMarker = memo(function CampMarker({
    *  *this* camp — drives `aria-expanded` on the marker's own interactive
    *  element (C-025). */
   cardOpen?: boolean;
+  /** The editor's "Move" is armed and this camp cannot take the stop: `aria-disabled`, the default cursor. */
+  disabled?: boolean;
 }) {
   const reduced = useReducedMotion();
   const cx = at?.x ?? camp.x * imageWidth;
@@ -202,8 +208,9 @@ export const CampMarker = memo(function CampMarker({
             aria-label={`Camp ${camp.id}, ${camp.band}, level ${camp.level}${pressed ? ", on the route" : ""}`}
             aria-pressed={pressed ?? false}
             aria-expanded={cardOpen ?? false}
+            aria-disabled={disabled || undefined}
             style={{ width: "100%", height: "100%", borderRadius: "50%" }}
-            className="cursor-pointer bg-transparent"
+            className={cn("bg-transparent", disabled ? "cursor-default" : "cursor-pointer")}
           />
         </foreignObject>
       </g>

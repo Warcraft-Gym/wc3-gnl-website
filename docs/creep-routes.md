@@ -502,8 +502,9 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   note, condition, Bring, hero, pictures and its place in the list stay, so
   it submits what a stop added fresh at that camp with the same fields
   submits. One undo step, "move stop". With a fine pointer the stop's mark
-  drags: past 4 px every camp that can take it has a 2px gold ring, the
-  others draw at 45%, and the mark snaps to a camp it is inside or within
+  drags: past 4 px every camp that can take it has a 2px white ring 2px off
+  its mark's edge (white reads on every band, gold camps too), the others
+  draw at 45%, and the mark snaps to a camp it is inside or within
   6 px of, in that camp's band colour; the release there moves the stop and
   opens its row, and anywhere else (open ground, a camp that cannot take it,
   off the map, Escape, a cancel, an undo during the drag) changes nothing.
@@ -511,6 +512,8 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   and "+ Condition", "Move stop 3 to another camp") arms the map the same
   way with the bar "Click the new camp for stop 3" and "Cancel"; a click on
   a camp that can take it moves the stop and puts focus back on "Move".
+  The other camps are `aria-disabled` while armed. Showing another path of
+  the stop's block leaves the armed state, for a waypoint's "Move" too.
 - **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
   Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
   Appearance under Neutral, from the art the site already has. `count` on an
