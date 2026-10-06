@@ -81,19 +81,20 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * left (sticky on desktop, above the list on a phone) and the reader's stop
  * list (`RouteStepTable`) on the right. One stop is open at a time, the selected
  * one, shared with the map's pulsing node, and its body is the stop's editor
- * (`StopEditBody`). A split shows every path stacked on the lane rail, each
- * with its heading and name (`SplitBlock`). Every move has one rule
- * (`editor-rows.mjs`): the builder keeps one target, the route or one path and a
- * place in it (`targetPlace`), and a map click adds the camp there; a camp already
- * in that list opens instead. Opening a stop never moves the target; "Two paths",
- * a path's tab or its quiet add line, "Continue the route", a new path and a
- * removed path do. The add line (`NextStopRow`) sits at the target with the
- * number that stop takes; "Waypoint" and "Two paths" sit in the list header;
- * the map follows the path that holds it. A drag handle on every row moves it
- * (native drag and drop on desktop; a split moves as a block and never into a
- * path; a path's heading and add row take a drop); the open stop's arrows make
- * the same moves on a keyboard or phone (`stepTarget`), in the stacked order
- * through every path of a split; its trash removes it.
+ * (`StopEditBody`). A paths block (`SplitBlock`) shows "Choose one path" as tabs
+ * and the shown path, "Take all paths simultaneously" as every path one under
+ * the other. Every move has one rule (`editor-rows.mjs`): the builder keeps one
+ * target, the route or one path and a place in it (`targetPlace`), and a map
+ * click adds the camp there; a camp already in that list opens instead. The
+ * target is never in a hidden path: showing a path (`showPath`) moves a target
+ * in that block to it. "Two paths", a path's tab or its quiet add line,
+ * "Continue the route", a new path and a removed path move it too. The add line
+ * (`NextStopRow`) sits at the target with the number that stop takes; "Waypoint"
+ * and "Two paths" sit in the list header; the map follows the shown paths. A
+ * drag handle on every row moves it (native drag and drop on desktop; a block
+ * moves whole and never into a path; a path's heading and add row take a drop);
+ * the open stop's arrows make the same moves on a keyboard or phone
+ * (`stepTarget`), through what is on screen; its trash removes it.
  * "Remove path" and "Remove paths" keep the model whole. Every change but typing
  * calls `remember` first, so the form can undo it; typing in one field is one
  * step until the field loses focus.
@@ -141,7 +142,8 @@ export function RouteEditor({
   const route = useMemo(() => ({ stops: routeStops, start, hero: heroIcon }) as CreepRoute, [routeStops, start, heroIcon]);
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
-  // The open stop, and the target: where the next add lands. Opening a stop never moves the target.
+  // The open stop, and the target: where the next add lands. Opening a stop moves the target only
+  // when it sits in another path of the same block (`showPath`).
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [target, setTarget] = useState<Target>(ROUTE_END);
   const selectedKey = selectedId === null ? null : keyOfRow(stops, selectedId);
@@ -505,7 +507,7 @@ export function RouteEditor({
       },
       canMoveUp: index > 0,
       canMoveDown: index < stops.length - 1,
-      // The caption's trash always keeps path A; a path heading's x removes any other.
+      // The block's trash always keeps path A; a path heading's x removes any other.
       onRemove: () => {
         step("remove paths");
         if (target.splitId === row.id) setTarget(ROUTE_END);

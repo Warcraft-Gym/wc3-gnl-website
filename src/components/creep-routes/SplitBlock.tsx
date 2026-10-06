@@ -43,9 +43,9 @@ export type SplitEdit = {
   canMoveUp: boolean;
   canMoveDown: boolean;
   onRemove: () => void;
-  /** "Remove split, keep path A": path A always stays. */
+  /** "Remove paths, keep path A": path A always stays. */
   removeLabel: string;
-  /** Every path is the same camps in the same order: a line under the chips, not blocking. */
+  /** Every path is the same camps in the same order: a line under the kind switch, not blocking. */
   sameCamp?: boolean;
 };
 
@@ -201,20 +201,19 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
   );
 }
 
-/** Between two blocks: "or instead of the path above", "and at the same time". */
-export function PathSep({ mode, lines }: { mode: string; lines: RailLine[] }) {
+/** Between two paths of a "Take all paths simultaneously" block: "and at the same time". */
+export function PathSep({ lines }: { lines: RailLine[] }) {
   return (
     <li className={cn(ROW, "border-t border-line/40 py-1.5")}>
       <RailCell lines={lines} />
       <p className="text-[0.8rem]">
-        <span className="font-medium text-gold">{mode === "and" ? "and" : "or"}</span>{" "}
-        <span className="text-muted">{mode === "and" ? "at the same time" : "instead of the path above"}</span>
+        <span className="font-medium text-gold">and</span> <span className="text-muted">at the same time</span>
       </p>
     </li>
   );
 }
 
-/** The end of a path that is not the target: a quiet button that makes it the target. */
+/** The end of a path that is not the target: a quiet button that makes it the target; focus then goes to "Waypoint". */
 export function PathAdd({ mode, arm, empty, lines, onAdd, dnd }: { mode: string; arm: number; empty: boolean; lines: RailLine[]; onAdd: () => void; dnd?: Dnd }) {
   const name = pathName(mode, arm);
   return (
@@ -226,7 +225,7 @@ export function PathAdd({ mode, arm, empty, lines, onAdd, dnd }: { mode: string;
 }
 
 /** The row that closes a block: the lanes curve back into lane a when stops follow; a same-time block shows its shared level. */
-export function AfterSplit({ lanes, joins, node }: { lanes: { lane: string; off: boolean }[]; joins: boolean; follows: boolean; node?: DerivedNode }) {
+export function AfterSplit({ lanes, joins, node }: { lanes: { lane: string; off: boolean }[]; joins: boolean; node?: DerivedNode }) {
   if (!joins && !node) return null;
   return (
     <li className={cn(ROW, node ? "py-2" : "h-3")}>

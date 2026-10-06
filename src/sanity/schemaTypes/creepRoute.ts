@@ -249,7 +249,7 @@ export const creepRoute = defineType({
         // As the submit check: an "xor" split never rejoins, so it is the last stop.
         rule.custom((stops) => {
           const list = (stops ?? []) as { _type?: string; mode?: string }[];
-          return list.every((s, i) => !(s._type === "creepSplit" && s.mode === "xor") || i === list.length - 1) || "Nothing follows an either/or split";
+          return list.every((s, i) => !(s._type === "creepSplit" && s.mode === "xor") || i === list.length - 1) || "No stop can follow paths that end the route.";
         }),
       ],
       // `name: "stop"` keeps `_type: "stop"` on every stored stop, so existing documents stay valid.

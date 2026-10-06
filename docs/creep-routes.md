@@ -523,7 +523,7 @@ every path; a continuation of only one path belongs inside that path.
 - **`or`**: the reader chooses one path by its label (required), then the
   route goes on with the shared stops.
 - **`xor`**: the reader chooses one path and it never rejoins; the schema
-  rejects stops after an `xor` split ("Nothing follows an either/or split").
+  rejects stops after an `xor` split ("No stop can follow paths that end the route.").
 
 The Studio repeats both checks as errors with the same words: an `or` or
 `xor` path with no label ("Say when to take this path") and a stop after an
@@ -579,8 +579,8 @@ choose one, no number means a waypoint.
   lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
   node for an attack. The split row is a slim caption: "Take all paths simultaneously"
   (`and`), or "Choose one path" with tabs (`PathTabs`, `role="tablist"`, arrow
-  keys, the hero's level at each path's end; the chosen tab is open at the
-  bottom onto its path's rows, a `tabpanel`; the others are recessed). `and`
+  keys, the hero's level at each path's end; the shown tab opens into its
+  panel, a `tabpanel` named by that tab, and the others are dimmer). `and`
   shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
@@ -1117,24 +1117,30 @@ sees; this section is the mechanics.
   line), "Take all paths simultaneously" lists every path one under the other.
   The builder keeps one target, the route or one path (`targetPlace`); the add
   line (`NextStopRow`, `nextStop`) sits there and every other list end shows a
-  quiet add button ("Add stops to path B", "Continue the route"). Opening a
-  stop never moves the target; a tab, a quiet add button, "Two paths", a new
-  path and a removed path do. "Waypoint" and "Two paths" sit in the list
+  quiet add button ("Add stops to path B", "Continue the route"; focus then
+  goes to "Waypoint"). The target is never in a hidden path: showing a path of
+  the target's block (`showPath`: opening a stop, a submit error, an arrow
+  move, a drop, a removed path) moves the target to it; a tab, a quiet add
+  button, "Two paths", a new path and a removed path move it too. Undo keeps
+  the target while it exists, else the saved one, else the end of the route. "Waypoint" and "Two paths" sit in the list
   header. Every move has one rule (`editor-rows.mjs`): a map click adds at the
   target, and a camp already in that list opens instead; every row
   has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
   `moveRowTo`), a split moves as a block and never into a path, and a path's
   heading and add row take a drop; the open stop's arrows make the
-  same moves on a keyboard or phone (`stepTarget`, then `moveRowTo`) in the
-  stacked order: up from a path's first stop to the end of the path above
-  (from path A: just above the split), down from its last stop to the start of
-  the path below (from the last path: just below the split), and a main-list
-  stop that meets a split enters its first path from above, its last path from
+  same moves on a keyboard or phone (`stepTarget` with the shown tabs, then
+  `moveRowTo`) through what is on screen: in a "Choose one path" block only the
+  shown path, so up from its first stop leaves just above the block, down from
+  its last stop just below it, and a route stop that meets the block enters the
+  shown path; a "Take all paths simultaneously" block walks every path in
+  order (up from a path's first stop to the end of the path above, down from
+  its last stop to the start of the path below, out past path 1 or the last
+  path) and a route stop enters its first path from above, its last from
   below; an arrow that enters or leaves a path says so in its name ("Move into
-  path B", "path 2" at the same time, "Move out of the split"), and focus stays
-  on the moved stop's arrow; every path heading has a remove button, and
-  removing one of two paths turns the split into plain stops (`removePath`);
-  "Remove split" keeps path A (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
+  path B", "path 2" in a "Take all" block, "Move out of the paths"), and focus
+  stays on the moved stop's arrow; every path heading has a remove button, and
+  removing one of two paths turns the block into plain stops (`removePath`);
+  "Remove paths, keep path A" keeps path A (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
   Path labels are kept as typed and trimmed once on blur (`setArmLabel`).

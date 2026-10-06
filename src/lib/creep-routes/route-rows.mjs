@@ -138,7 +138,7 @@ export function builderRows(stops, choice = {}, slot = null) {
       if (!here) rows.push({ type: "add", key: `${n.key}.add.${a}`, index: i, arm: a, lane, mode, length: arm.stops.length, group, ...panel, marks: [] });
     });
     if (shown !== null) offs.push({ from: splitRow, to: rows.length, lanes: new Set(lanes.filter((l) => l.off).map((l) => l.lane)) });
-    rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, follows: i < stops.length - 1, slotAfter: isSlot(i + 1, undefined), marks: joins ? ids : [] });
+    rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, marks: joins ? ids : [] });
   });
   // The route's own end line always exists: the add line when the target is there, else a quiet `end` row.
   if (isSlot(stops.length, undefined)) rows.push(slotRow("a", "a"));

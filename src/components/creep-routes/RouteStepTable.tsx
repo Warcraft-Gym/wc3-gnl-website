@@ -35,7 +35,7 @@ type BuilderRow =
   | { type: "head"; key: string; index: number; arm: number; lane: string; mode: string; here: boolean; count: number; waypoints: number; lines: RailLine[]; group: string; panel?: string }
   | { type: "sep"; key: string; mode: string; lines: RailLine[]; group: string; panel?: undefined }
   | { type: "add"; key: string; index: number; arm: number; mode: string; length: number; lines: RailLine[]; group: string; panel?: string }
-  | { type: "after"; key: string; index: number; mode: string; lanes: Lanes; joins: boolean; follows: boolean; slotAfter: boolean; lines: RailLine[]; group?: undefined; panel?: undefined };
+  | { type: "after"; key: string; index: number; mode: string; lanes: Lanes; joins: boolean; lines: RailLine[]; group?: undefined; panel?: undefined };
 
 /**
  * The route as an ordered list of stops, each a disclosure. Both states are
@@ -48,9 +48,10 @@ type BuilderRow =
  * the keys of `stop-numbers.mjs`; every stop, a split's arms' stops too, is a
  * flat row with the lane rail (`LaneRail`), except a guide's one stop
  * (`only`). Blocks carry `data-stop` (the stop's number, "3a" in an arm);
- * map badges carry `data-stop-marker`. In the builder (`editBody`) every path
- * of a split shows, stacked (`builderRows`, `SplitBlock`), with the next-stop
- * row (`slot`) where the next add lands; the reader keeps the tabs.
+ * map badges carry `data-stop-marker`. In the builder (`editBody`) a paths
+ * block shows the reader's tabs and the shown path for "Choose one path", or
+ * every path one under the other for "Take all paths simultaneously"
+ * (`builderRows`, `SplitBlock`), with the add line (`slot`) at the target.
  */
 export function RouteStepTable({
   route,
@@ -234,7 +235,7 @@ export function RouteStepTable({
         </li>
       );
     }
-    if (row.type === "sep") return <PathSep key={row.key} mode={row.mode} lines={row.lines} />;
+    if (row.type === "sep") return <PathSep key={row.key} lines={row.lines} />;
     const edit = splitEdit?.(row.index);
     if (!edit) return null;
     if (row.type === "split") {
@@ -289,7 +290,6 @@ export function RouteStepTable({
         key={row.key}
         lanes={row.lanes}
         joins={row.joins}
-        follows={row.follows}
         node={row.mode === "and" ? node : undefined}
       />
     );

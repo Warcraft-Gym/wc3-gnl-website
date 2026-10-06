@@ -460,6 +460,8 @@ test("nodes: a node inside an arm, an empty arm and a fork without labels are re
   assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A path cannot hold more paths");
   const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
   assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Path 1 is empty. Add a stop to it or remove it.");
+  const emptyB = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ label: "A", stops: [{ campId: "c02" }] }, { label: "B", stops: [] }])] }));
+  assert.equal(flattenErrors(emptyB.error)["stops.1.split.arms.1.stops"], "Path B is empty. Add a stop to it or remove it.");
   const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
   assert.equal(flattenErrors(unlabelled.error)["stops.1.split.arms.0.label"], "Say when to take this path");
   const bothOk = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }])] }));
@@ -480,7 +482,7 @@ test("a fork node carrying any field besides its ways is rejected, not silently 
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   for (const extra of [{ hero: false }, { note: "x" }, { condition: "if" }, { units: [{ icon: "or-grunt", count: 1 }] }]) {
     const r = s.safeParse(payload({ stops: [{ campId: "c01" }, { ...forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]), ...extra }] }));
-    assert.equal(flattenErrors(r.error)["stops.1.split"], "A split holds only its paths", JSON.stringify(extra));
+    assert.equal(flattenErrors(r.error)["stops.1.split"], "Paths hold only stops.", JSON.stringify(extra));
   }
 });
 
@@ -500,7 +502,7 @@ test("xor split: accepted as the last stop, rejected with stops after it", () =>
   const xor = { campId: null, split: { mode: "xor", arms: [{ label: "A", stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }] } };
   assert.equal(s.safeParse(payload({ stops: [{ campId: "c01" }, xor] })).success, true);
   const after = s.safeParse(payload({ stops: [{ campId: "c01" }, xor, { campId: "c02" }] }));
-  assert.equal(flattenErrors(after.error)["stops.1.split"], "Nothing follows an either/or split");
+  assert.equal(flattenErrors(after.error)["stops.1.split"], "No stop can follow paths that end the route.");
 });
 
 test("caps: the submit check repeats the builder's cap lines past 12 stops, 20 rows or 3 paths", () => {
@@ -514,7 +516,7 @@ test("caps: the submit check repeats the builder's cap lines past 12 stops, 20 r
   assert.equal(flattenErrors(rows.error).stops, "This route is over the cap of 20 rows. Ask on Discord if you need more.");
   const four = forkStop("both", [1, 2, 3, 4].map(() => ({ stops: [{ campId: "c01" }] })));
   const paths = s.safeParse(payload({ stops: [{ campId: "c01" }, four] }));
-  assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "This block is over the cap of 3 paths. Ask on Discord if you need more.");
+  assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "More than 3 paths here. Ask on Discord if you need more.");
 });
 
 test("key: a Sanity-shaped stop key is kept, a malformed one is rejected, pictures from the browser are dropped", () => {

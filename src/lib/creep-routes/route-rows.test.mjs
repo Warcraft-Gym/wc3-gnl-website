@@ -144,7 +144,6 @@ test("builder: the add line on the route right after the block joins the paths; 
   const rows = builderRows(stops, {}, { index: 1, label: "2" });
   assert.deepEqual(kinds(rows), ["split", "head", "1a", "add", "after", "[2]"]);
   assert.equal(rows[0].lines.find((l) => l.lane === "a").top, false);
-  assert.equal(rows[4].slotAfter, true);
   assert.equal(rail(rows[4]), "a^v b^*");
   // Without the add line there the route ends in its quiet end row.
   assert.equal(builderRows(stops, {}, null).at(-1).type, "end");

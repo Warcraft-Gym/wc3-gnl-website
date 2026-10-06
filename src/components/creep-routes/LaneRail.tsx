@@ -111,10 +111,10 @@ export function RailSvg({ children }: { children: React.ReactNode }) {
 
 /**
  * A split's caption row: no number, no band dot, no chevron. The rail curves every lane out of
- * the main line, a path not taken dashed. "or" and "xor" read "Choose a path" and carry the tab
- * strip as browser tabs (`role="tablist"`, arrow keys, the hero's level at each path's end): the
- * chosen tab is open at the bottom onto its path's rows, the `tabpanel` below; the others are
- * recessed. "and" reads "At the same time". The builder draws its own caption (`SplitCaption`).
+ * the main line, a path not taken dashed. "or" and "xor" read "Choose one path" and carry the tab
+ * strip (`PathTabs`, `role="tablist"` named by the kind, arrow keys, the hero's level at each path's
+ * end): the shown tab opens into its panel, the `tabpanel` below. "and" reads "Take all paths
+ * simultaneously". The builder draws its own caption (`SplitCaption`) with the same tabs.
  */
 export function SplitRow({
   mode,
