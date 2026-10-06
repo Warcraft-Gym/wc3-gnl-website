@@ -58,8 +58,9 @@ export const WAY_TYPES = [
  * Places mode's bar, under the map: what a click does there, then "No place" (adding a waypoint) and
  * "Cancel". Moving a waypoint (`move`) asks for its new place, with only "Cancel".
  */
-export function ArmedBar({ move, noPlaceCap, onNoPlace, onCancel }: { move: boolean; noPlaceCap?: boolean; onNoPlace: () => void; onCancel: () => void }) {
-  const say = move ? "the new place for this waypoint" : "a base, gold mine, shop or any spot";
+export function ArmedBar({ move, camp, noPlaceCap, onNoPlace, onCancel }: { move: boolean; camp?: string; noPlaceCap?: boolean; onNoPlace: () => void; onCancel: () => void }) {
+  // `camp`: a camp stop's "Move", by its name ("stop 3").
+  const say = camp ? `the new camp for ${camp}` : move ? "the new place for this waypoint" : "a base, gold mine, shop or any spot";
   return (
     <div data-armed-bar className="mt-2 flex min-h-10 flex-wrap items-center gap-x-2.5 gap-y-1 rounded border border-gold bg-gold/10 py-1 pl-3 pr-1.5 text-[0.86rem] text-fg">
       <span role="status" className="mr-auto">

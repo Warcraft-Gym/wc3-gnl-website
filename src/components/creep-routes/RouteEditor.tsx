@@ -31,6 +31,9 @@ import {
   targetAfterAdd,
   legTarget,
   stepsAround,
+  campsInListOf,
+  campTakesStop,
+  moveStopToCamp,
   targetAfterRemovePath,
   targetExists,
   firstErrorAt,
@@ -159,16 +162,17 @@ export function RouteEditor({
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(routeStops, choice), [routeStops, choice]);
   // Places mode ("Waypoint"): the map's bases, mines and shops are targets and a click adds a waypoint;
-  // with `moveId` the click moves that row there instead.
-  const [places, setPlaces] = useState<{ moveId: number | null } | null>(null);
+  // with `moveId` the click moves that row there instead. With `camp` (a camp stop's "Move") only a camp
+  // that can take the stop takes the click, and the map shows no place targets.
+  const [places, setPlaces] = useState<{ moveId: number | null; camp?: boolean } | null>(null);
   // The row pointed at or focused: the map rings its mark.
   const [ringStop, setRingStop] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const narrow = () => !window.matchMedia?.("(min-width: 1024px)").matches;
   /** Enters places mode; below `lg` the map scrolls into view. */
-  const enterPlaces = (moveId: number | null) => {
-    setPlaces({ moveId });
+  const enterPlaces = (moveId: number | null, camp = false) => {
+    setPlaces({ moveId, camp });
     if (narrow()) mapRef.current?.scrollIntoView?.({ block: "start", behavior: reduced ? "auto" : "smooth" });
   };
   // After an action whose button unmounts, focus goes to this control (a selector in the editor), never to <body>.
@@ -243,8 +247,11 @@ export function RouteEditor({
     if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
     if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
   }
-  // The row "Move" acts on is gone (its trash, a removed path or block, an undo): places mode ends.
-  if (places?.moveId != null && !locate(stops, places.moveId)) setPlaces(null);
+  // The row "Move" acts on is gone (its trash, a removed path or block, an undo) or no longer shown (its
+  // path's tab switched away in a "Choose one path" block): places mode ends.
+  const moveAt = places?.moveId != null ? locate(stops, places.moveId) : null;
+  const moveSplit = moveAt?.splitId !== undefined ? stops.find((r) => r.id === moveAt.splitId && r.split?.mode !== "and")?.split : undefined;
+  if (places?.moveId != null && (!moveAt || (moveSplit && Math.min(tabs[moveAt.splitId!] ?? 0, moveSplit.arms.length - 1) !== moveAt.arm))) setPlaces(null);
 
   /** Shows path `arm` of block `splitId` (its tab; the map follows it). In a "Choose one path" block a
    *  target in another path moves to the end of this one, so the target is never in a hidden path; a
@@ -308,9 +315,12 @@ export function RouteEditor({
   const around = stepsAround(stops, at);
   // While "Move" is armed the preview is the moved row's own legs to the pointed spot: from the step
   // before it and on to the step after it, in its kind and with no number; a pin, off the line, has none.
-  const moving = places?.moveId != null ? locate(stops, places.moveId) : null;
+  const moving = places?.moveId != null && !places.camp ? locate(stops, places.moveId) : null;
   const movedRow = moving ? listAt(stops, moving)[moving.index] : undefined;
-  const preview = movedRow
+  // A camp stop's "Move" previews no add.
+  const preview = places?.camp
+    ? undefined
+    : movedRow
     ? isPin(movedRow)
       ? undefined
       : {
@@ -351,7 +361,10 @@ export function RouteEditor({
 
   // A camp already in the list the click adds to is selected, not added twice; a stop is removed with its trash.
   const onCampClick = (campId: string) => {
-    if (places) return;
+    if (places) {
+      if (places.camp && places.moveId != null) moveToCamp(places.moveId, campId);
+      return;
+    }
     const there = listAt(stops, at).find((r) => r.campId === campId);
     if (there) select(there.id, true);
     else add(newRow({ campId }), "stop", "add stop");
@@ -383,6 +396,29 @@ export function RouteEditor({
     if (!row?.place) return;
     step("move waypoint");
     setStops((rows) => patchRow(rows, row.id, { place: { ...picked, kind: row.place!.kind } }));
+  };
+  /** A camp stop's "Move", then a camp click: a camp that can take it gets the stop (`moveStopToCamp`),
+   *  as one undo step, and the row opens with focus on its "Move"; any other camp does nothing. */
+  const moveToCamp = (id: number, campId: string) => {
+    if (!campTakesStop(stops, id, campId)) return;
+    step("move stop");
+    setStops((rows) => moveStopToCamp(rows, id, campId));
+    select(id);
+    focusTo.current = `[data-move-way="${id}"]`;
+    scrollFocus.current = narrow();
+  };
+  /** A camp stop's mark dragged onto a camp that can take it: the same move; its row opens. */
+  const onCampDrag = (key: string, campId: string) => {
+    const row = rowAtKey(stops, key);
+    if (!row || !campTakesStop(stops, row.id, campId)) return;
+    step("move stop");
+    setStops((rows) => moveStopToCamp(rows, row.id, campId));
+    select(row.id);
+  };
+  /** The camps a camp stop (by key) cannot move to: those in its own list. */
+  const campSkip = (key: string) => {
+    const row = rowAtKey(stops, key);
+    return row ? campsInListOf(stops, row.id) : new Set<string>();
   };
   /** After an add: focus in the new row's text; below `lg` the row scrolls into view. */
   const focusText = () => {
@@ -451,7 +487,8 @@ export function RouteEditor({
         heroIcon={heroIcon}
         opened={{ bring: Boolean(opened[`${row.id}.bring`]), condition: Boolean(opened[`${row.id}.condition`]) }}
         onOpen={(part) => setOpened((o) => (o[`${row.id}.${part}`] ? o : { ...o, [`${row.id}.${part}`]: true }))}
-        onMove={() => enterPlaces(row.id)}
+        onMove={() => enterPlaces(row.id, Boolean(row.campId))}
+        moveLabel={row.campId ? `Move ${nameOf(row.id)} to another camp` : undefined}
       />
     );
   };
@@ -633,20 +670,35 @@ export function RouteEditor({
           onCampCardHoverLeave={onHoverLeave}
           openCampId={openCampId}
           onPlaceSelect={onPlaceSelect}
-          placesMode={places !== null}
+          placesMode={places !== null && !places.camp}
+          campMove={places?.camp && places.moveId != null ? { key: keyOfRow(stops, places.moveId) ?? "", skip: campsInListOf(stops, places.moveId) } : null}
           activeStop={selectedKey}
-          onStopSelect={(key) => {
-            const row = rowAtKey(stops, key);
-            if (row) select(row.id, true);
-          }}
+          onStopSelect={
+            places?.camp
+              ? undefined
+              : (key) => {
+                  const row = rowAtKey(stops, key);
+                  if (row) select(row.id, true);
+                }
+          }
           choice={choice}
           preview={preview}
           ringStop={ringStop}
           activeLeg={activeLeg}
-          onLeg={onLeg}
+          onLeg={places?.camp ? undefined : onLeg}
           onWaypointDrag={onWaypointDrag}
+          onCampDrag={onCampDrag}
+          campSkip={campSkip}
         />
-        {places ? <ArmedBar move={places.moveId !== null} noPlaceCap={Boolean(addBlocked(stops, "stop"))} onNoPlace={addNoPlace} onCancel={leavePlaces} /> : null}
+        {places ? (
+          <ArmedBar
+            move={places.moveId !== null}
+            camp={places.camp && places.moveId !== null ? nameOf(places.moveId) : undefined}
+            noPlaceCap={Boolean(addBlocked(stops, "stop"))}
+            onNoPlace={addNoPlace}
+            onCancel={leavePlaces}
+          />
+        ) : null}
         <MapLegend />
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>

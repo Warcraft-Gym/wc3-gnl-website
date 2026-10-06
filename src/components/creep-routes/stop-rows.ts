@@ -70,6 +70,12 @@ export type ListPlace = { index: number; splitId?: number; arm?: number };
 export const locate = editorRows.locate as (rows: StopRowData[], id: number) => ListPlace | null;
 /** The list a place names. */
 export const listAt = editorRows.listAt as (rows: StopRowData[], at: ListPlace) => StopRowData[];
+/** The camps that cannot take camp stop `id`: those already a stop in its own list. */
+export const campsInListOf = editorRows.campsInListOf as (rows: StopRowData[], id: number) => Set<string>;
+/** Whether camp stop `id` can move to camp `campId`. */
+export const campTakesStop = editorRows.campTakesStop as (rows: StopRowData[], id: number, campId: string) => boolean;
+/** Camp stop `id` moved to camp `campId`; its kill order clears. */
+export const moveStopToCamp = editorRows.moveStopToCamp as (rows: StopRowData[], id: number, campId: string) => StopRowData[];
 /** Inserts a row at a place; a split only at the top level. */
 export const insertAt = editorRows.insertAt as (rows: StopRowData[], at: ListPlace, row: StopRowData) => StopRowData[];
 /** Where the next add lands (`editor-rows.mjs`): the route or one path, and `pos`, null for the end of that list. */
