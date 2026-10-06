@@ -315,7 +315,6 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(screen.getByRole("button", { name: /^A pin/ })).toHaveTextContent("Marks a spot. The line skips it.");
     expect(screen.getByRole("button", { name: /^No place/ })).toHaveTextContent("An action, e.g. TP home.");
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /^On the route/ })));
-    expect(screen.getByText("Choose the kind of waypoint first.")).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(document.activeElement).toBe(waypoint()));

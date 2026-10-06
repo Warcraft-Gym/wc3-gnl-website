@@ -9,7 +9,9 @@ import { PlaceTargets } from "./PlaceTargets";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { countStops, findStopKey, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
-import { backdropRadius, campSpot } from "@/lib/creep-routes/map-marks.mjs";
+import { STOP_RADIUS, backdropRadius, campSpot, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
+import { placePoint } from "@/lib/creep-routes/place.mjs";
+import { useMediaQuery } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
 
 /** `(hover: none)` covers touch and other coarse pointers — the F012a
@@ -97,6 +99,9 @@ export type CreepMapProps = {
   onPlaceSelect?: (place: Place) => void;
   /** Editor: the next click anywhere on the map adds a `point` place stop. */
   pointArmed?: boolean;
+  /** Builder: the stop a click adds is drawn while a camp outside `skip` is pointed at or focused, as a
+   *  dashed leg from `from` (the last place of the target list, none without one) and `label` in a dashed gold circle. */
+  preview?: { from: Pick<RouteStop, "campId" | "place"> | null; label: string; skip: Set<string> };
   className?: string;
 };
 
@@ -189,6 +194,33 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
   );
 }
 
+/** The stop a click would add: a dashed leg (the route line's, at 75%) from the last place to the spot,
+ *  ending at the edge of each mark, and the number the stop takes in a dashed gold circle at the spot's upper right. */
+export function PreviewStep({ from, to, label, attack = false }: { from: { x: number; y: number; trim: number } | null; to: { x: number; y: number; trim: number }; label?: string; attack?: boolean }) {
+  const leg = from ? offsetLeg(from.x, from.y, to.x, to.y, from.trim, to.trim) : null;
+  const d = leg ? `M${leg.x1.toFixed(1)},${leg.y1.toFixed(1)}L${leg.x2.toFixed(1)},${leg.y2.toFixed(1)}` : "";
+  const r = STOP_RADIUS * 0.8;
+  const cx = to.x + STOP_RADIUS * 0.75, cy = to.y - STOP_RADIUS * 0.75;
+  return (
+    <g data-preview pointerEvents="none">
+      {d ? (
+        <g opacity={0.75}>
+          <path d={d} fill="none" stroke="var(--wg-bg)" strokeOpacity={0.7} strokeWidth={4} strokeDasharray="4 3" />
+          <path d={d} fill="none" stroke={attack ? "var(--wg-loss)" : "rgba(255,255,255,.85)"} strokeWidth={2} strokeDasharray="4 3" />
+        </g>
+      ) : null}
+      {label ? (
+        <g data-preview-label>
+          <circle cx={cx} cy={cy} r={r} fill="var(--wg-bg)" fillOpacity={0.85} stroke="var(--wg-gold)" strokeWidth={1} strokeDasharray="2 1.5" />
+          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" fill="var(--wg-gold)" fontSize={label.length > 2 ? 6 : 7.5} className="tnum select-none font-bold">
+            {label}
+          </text>
+        </g>
+      ) : null}
+    </g>
+  );
+}
+
 /**
  * The creep map: the minimap image with camps (coloured by difficulty
  * band), every start spot (your own base a red X, every other a small
@@ -233,6 +265,7 @@ export function CreepMap({
   choice,
   onPlaceSelect,
   pointArmed = false,
+  preview,
   className,
 }: CreepMapProps) {
   // The SVG <image> is fetched only once the parser reaches the map, so the
@@ -240,6 +273,8 @@ export function CreepMap({
   // <head> starts the fetch with the page.
   if (map.minimapUrl) preload(map.minimapUrl, { as: "image", fetchPriority: "high" });
   const [hoverCamp, setHoverCamp] = useState<string | null>(null);
+  const [focusCamp, setFocusCamp] = useState<string | null>(null);
+  const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
   const [walkIndex, setWalkIndex] = useState<number | null>(null);
   const box = useRef<HTMLDivElement>(null);
   // The SVG's own box, unpadded — the arrow-key walk's `[data-camp]` lookup
@@ -418,6 +453,15 @@ export function CreepMap({
   );
 
   const youStartIndex = route?.start ?? 0;
+  // A step's spot and the radius its leg stops at: a camp's mark, or a place's.
+  const spotOf = (s: Pick<RouteStop, "campId" | "place">) => {
+    const spot = s.campId ? campAt.get(s.campId) : s.place ? placePoint(map, s.place) : null;
+    if (!spot) return null;
+    const c = s.campId ? nodeCentre(spot.x / iw, spot.y / ih, iw, ih) : nodeCentre(spot.x, spot.y, iw, ih);
+    return { x: c.x, y: c.y, trim: nodeTrim(STOP_RADIUS) };
+  };
+  const previewCampId = (finePointer ? hoverCamp : null) ?? focusCamp;
+  const previewTo = preview && previewCampId && !preview.skip.has(previewCampId) ? spotOf({ campId: previewCampId }) : null;
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
     opponentStartCount === 1 ? "" : "s"
@@ -442,6 +486,8 @@ export function CreepMap({
           onBlur={() => setWalkIndex(null)}
           onPointerOver={handlePointerOver}
           onPointerOut={handlePointerOut}
+          onFocus={(e) => setFocusCamp((e.target as Element).closest?.("[data-camp]")?.getAttribute("data-camp") ?? null)}
+          onBlurCapture={() => setFocusCamp(null)}
           className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
@@ -486,6 +532,7 @@ export function CreepMap({
           {route ? (
             <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="nodes" />
           ) : null}
+          {previewTo && preview ? <PreviewStep from={preview.from ? spotOf(preview.from) : null} to={previewTo} label={preview.label} /> : null}
           {onPlaceSelect && pointArmed ? <PlaceTargets map={map} youStart={youStartIndex} onPlaceSelect={onPlaceSelect} pointArmed /> : null}
         </svg>
       </div>

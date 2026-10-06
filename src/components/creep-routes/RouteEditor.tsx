@@ -38,7 +38,7 @@ import {
   type UndoEntry,
 } from "./stop-rows";
 import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
-import { atKind } from "@/lib/creep-routes/place.mjs";
+import { atKind, isPin } from "@/lib/creep-routes/place.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
@@ -273,6 +273,19 @@ export function RouteEditor({
     at.splitId === undefined
       ? { index: at.index, label: next.label }
       : { index: stops.findIndex((r) => r.id === at.splitId), arm: at.arm, j: at.index, label: next.label };
+
+  // The map's preview of a camp click: a leg from the last place before the target in its list (a paths
+  // block or the list's start ends the search), skipped for camps already in that list.
+  const preview = (() => {
+    const list = listAt(stops, at) as StopRowData[];
+    let from: StopRowData | null = null;
+    for (let i = at.index - 1; i >= 0 && !from; i--) {
+      const r = list[i];
+      if (r.split) break;
+      if (r.campId || (r.place && !isPin(r))) from = r;
+    }
+    return { from, label: next.label, skip: new Set(list.flatMap((r) => (r.campId ? [r.campId] : []))) };
+  })();
 
   /** Adds `row` at the target and opens it; a paths block always goes at the end of the route. A camp or
    *  attack added to path 2.. of an "and" block arrives with the hero off. `kind` is what it adds ("stop"
@@ -552,15 +565,9 @@ export function RouteEditor({
             if (row) select(row.id, true);
           }}
           choice={choice}
+          preview={preview}
         />
         <MapLegend />
-        <p className="mt-2 text-xs text-faint">
-          {armed
-            ? "Click the map to put the waypoint on a spot."
-            : chooser
-              ? "Choose the kind of waypoint first."
-              : "Click a camp to add it at the dashed line. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
-        </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
             <p className="font-display text-[0.68rem] font-bold uppercase tracking-[0.16em] text-muted">Your spawn</p>
