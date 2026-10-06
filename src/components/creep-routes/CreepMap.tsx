@@ -7,12 +7,12 @@ import { CampMarker } from "./CampMarker";
 import { RoutePath, type MarkDown } from "./RoutePath";
 import { WaypointGlyph } from "./PlaceGlyph";
 import { PlaceTargets, placeTargetsOf } from "./PlaceTargets";
-import { radiusFor } from "./CampMarker";
+import { CAMP_HALO, radiusFor } from "./CampMarker";
 import { layoutTargets, nearTarget } from "@/lib/creep-routes/place-targets.mjs";
 import { BAND_TOKEN } from "./RouteBadges";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
-import { countStops, findStopKey, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, findStopKey, hiddenBadgeKeys, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
 import { routeLegs } from "@/lib/creep-routes/route-legs.mjs";
 import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, backdropRadius, labelFit, campSpot, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { kindForClick, placePoint } from "@/lib/creep-routes/place.mjs";
@@ -121,7 +121,7 @@ export type CreepMapProps = {
   onCampDrag?: (key: string, campId: string) => void;
   /** Builder: the camps a camp stop (by key) cannot move to, those already in its list. */
   campSkip?: (key: string) => Set<string>;
-  /** Builder: a camp stop's "Move" is armed. Camps outside `skip` take a gold ring and the click, the
+  /** Builder: a camp stop's "Move" is armed. Camps outside `skip` take a white ring and the click, the
    *  others draw at 45%; no place targets, no legs, no drags. */
   campMove?: { key: string; skip: Set<string> } | null;
   /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
@@ -321,8 +321,8 @@ export function CreepMap({
   const [hoverTarget, setHoverTarget] = useState<number | null>(null);
   // A mark being dragged (`pressDrag`): its stop key, where it is (viewBox units), the place target it
   // snaps to (-1 for none) and how the mark looks; a camp stop's carries `camp` (the camp it snaps to,
-  // its number, its fill, and the camps that cannot take it).
-  type CampDrag = { snap: string | null; label: string; fill: string; skip: Set<string> };
+  // its number, its fill, the camps that cannot take it, and the camp it left when no other disc is there).
+  type CampDrag = { snap: string | null; label: string; fill: string; skip: Set<string>; left: string | null };
   const [drag, setDrag] = useState<{ key: string; x: number; y: number; snap: number; kind: Place["kind"]; pin: boolean; camp?: CampDrag } | null>(null);
   const justDragged = useRef(false);
   const selectStop = useCallback(
@@ -370,6 +370,11 @@ export function CreepMap({
     () => new Map(map.camps.map((c) => [c.id, route ? findStopKey(route.stops, c.id, choice) : null])),
     [map.camps, route, choice],
   );
+  // The stops whose disc the map draws (no hidden path, one badge per camp in a split's paths), in draw order.
+  const badges = useMemo(() => {
+    const hidden = route ? hiddenBadgeKeys(route.stops, choice) : new Set<string>();
+    return allStops.filter(({ key }) => !hidden.has(key));
+  }, [route, choice, allStops]);
 
   // Keyboard walk order: every camp on the map when `walkAllCamps` (the
   // route page, F012-followup-3 — every camp is interactive there now, so
@@ -404,6 +409,8 @@ export function CreepMap({
       setWalkIndex((w) => (w == null ? walkCampIds.length - 1 : Math.max(0, w - 1)));
       e.preventDefault();
     } else if (e.key === "Escape") {
+      // Only an Escape that ends the walk is taken; any other reaches the editor (it leaves "Move").
+      if (walkIndex === null) return;
       setWalkIndex(null);
       e.preventDefault();
     } else if ((e.key === "Enter" || e.key === " ") && walkCampId && isCampInteractive(walkCampId)) {
@@ -627,7 +634,9 @@ export function CreepMap({
   const campDragOn = Boolean(onCampDrag && route && finePointer && !placesMode && !campMove);
   const onCampDown = (e: React.PointerEvent) => {
     const campId = (e.target as Element).closest?.("[data-camp]")?.getAttribute("data-camp");
-    const key = campId && allStops.some(({ stop }) => stop.campId === campId) ? campKey.get(campId) : null;
+    // The disc on top: the open stop when it sits on this camp, else the last drawn stop there.
+    const onCamp = campId ? badges.filter(({ stop }) => stop.campId === campId) : [];
+    const key = (onCamp.find((b) => b.key === activeStop) ?? onCamp.at(-1))?.key ?? null;
     if (!campDragOn || !key || !route) return;
     const skip = campSkip?.(key) ?? new Set<string>();
     const label = routeLegs(route.stops, choice).nodes.find((n: { key: string }) => n.key === key)?.label ?? "";
@@ -646,7 +655,7 @@ export function CreepMap({
         return { x: i >= 0 ? spots[i].x * unit : fx * iw, y: i >= 0 ? spots[i].y * unit : fy * ih, camp, inside: inMap(fx, fy) };
       },
       (p) =>
-        setDrag({ key, x: p.x, y: p.y, snap: -1, kind: "other", pin: false, camp: { snap: p.camp?.id ?? null, label, fill: p.camp ? (BAND_TOKEN[p.camp.band] ?? own) : own, skip } }),
+        setDrag({ key, x: p.x, y: p.y, snap: -1, kind: "other", pin: false, camp: { snap: p.camp?.id ?? null, label, fill: p.camp ? (BAND_TOKEN[p.camp.band] ?? own) : own, skip, left: onCamp.length === 1 ? campId! : null } }),
       (p) => {
         if (p.camp) onCampDrag?.(key, p.camp.id);
       },
@@ -724,32 +733,28 @@ export function CreepMap({
               );
             }
             const isInteractive = isCampInteractive(camp.id);
-            // A camp stop being moved: a camp that cannot take it draws at 45%.
-            const marker = (
-              <CampMarker
-                key={camp.id}
-                camp={camp}
-                at={campAt.get(camp.id)}
-                imageWidth={iw}
-                imageHeight={ih}
-                active={!onRoute && activeStop != null && campKey.get(camp.id) === activeStop}
-                highlighted={highlightCamps?.has(camp.id) ?? false}
-                pressed={onRoute}
-                onCampSelect={isInteractive ? handleCampClick : undefined}
-                onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
-                cardOpen={openCampId === camp.id}
-                asGroup={groupMarkers}
-                secondary={deemphasizeOffRoute && !onRoute}
-                // The camp a stop is dragged off draws its own mark (at 45%) while the disc is away.
-                underStop={onRoute && !(drag?.camp && campKey.get(camp.id) === drag.key)}
-              />
-            );
-            return campSkipNow?.has(camp.id) ? (
-              <g key={camp.id} opacity={0.45}>
-                {marker}
+            // A camp stop being moved: a camp that cannot take it draws at 45%; while "Move" is armed its
+            // button is disabled too. Always the same <g>, so the marker never remounts.
+            return (
+              <g key={camp.id} opacity={campSkipNow?.has(camp.id) ? 0.45 : undefined}>
+                <CampMarker
+                  camp={camp}
+                  at={campAt.get(camp.id)}
+                  imageWidth={iw}
+                  imageHeight={ih}
+                  active={!onRoute && activeStop != null && campKey.get(camp.id) === activeStop}
+                  highlighted={highlightCamps?.has(camp.id) ?? false}
+                  pressed={onRoute}
+                  onCampSelect={isInteractive ? handleCampClick : undefined}
+                  onCampCardOpen={isInteractive ? handleCampCardPin : undefined}
+                  cardOpen={openCampId === camp.id}
+                  asGroup={groupMarkers}
+                  secondary={deemphasizeOffRoute && !onRoute}
+                  // The camp a stop is dragged off draws its own mark (at 45%) while the disc is away.
+                  underStop={onRoute && drag?.camp?.left !== camp.id}
+                  disabled={Boolean(campMove?.skip.has(camp.id))}
+                />
               </g>
-            ) : (
-              marker
             );
           })}
           {/* The stop discs over everything else: a stop's node is its badge. */}
@@ -758,15 +763,16 @@ export function CreepMap({
               <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect ? selectStop : undefined} choice={choice} campAt={campAt} layer="nodes" ringStop={ringStop} drag={drag} onMarkDown={onWaypointDrag && finePointer && !placesMode && !campMove ? onMarkDown : undefined} dimCamps={campSkipNow ? { skip: campSkipNow, keep: drag?.key ?? campMove?.key ?? "" } : undefined} />
             </g>
           ) : null}
-          {/* A camp stop being moved: every camp that can take it has a 2px gold ring. */}
+          {/* A camp stop being moved: every camp that can take it has a 2px white ring, 2px off the mark's
+              edge (its white halo or outline), so it reads on every band and on the terrain. */}
           {campSkipNow
             ? map.camps.map((camp) => {
                 if (campSkipNow.has(camp.id)) return null;
                 const onRoute = allStops.some(({ stop }) => stop.campId === camp.id);
                 const c = onRoute ? spotOf({ campId: camp.id }) : campAt.get(camp.id);
                 if (!c) return null;
-                const r = (onRoute ? STOP_RADIUS : radiusFor(camp.level)) + 2 * unit;
-                return <circle key={camp.id} data-camp-ring={camp.id} cx={c.x} cy={c.y} r={r} fill="none" stroke="var(--wg-gold)" strokeWidth={2 * unit} pointerEvents="none" />;
+                const edge = onRoute ? STOP_RADIUS + OUTLINE / 2 : radiusFor(camp.level) + CAMP_HALO;
+                return <circle key={camp.id} data-camp-ring={camp.id} cx={c.x} cy={c.y} r={edge + 3 * unit} fill="none" stroke="#fff" strokeWidth={2 * unit} pointerEvents="none" />;
               })
             : null}
           {previewTo && preview ? <PreviewStep from={preview.from ? spotOf(preview.from) : null} to={previewTo} next={previewNext} label={preview.label} /> : null}

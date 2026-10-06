@@ -247,8 +247,11 @@ export function RouteEditor({
     if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
     if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
   }
-  // The row "Move" acts on is gone (its trash, a removed path or block, an undo): places mode ends.
-  if (places?.moveId != null && !locate(stops, places.moveId)) setPlaces(null);
+  // The row "Move" acts on is gone (its trash, a removed path or block, an undo) or no longer shown (its
+  // path's tab switched away in a "Choose one path" block): places mode ends.
+  const moveAt = places?.moveId != null ? locate(stops, places.moveId) : null;
+  const moveSplit = moveAt?.splitId !== undefined ? stops.find((r) => r.id === moveAt.splitId && r.split?.mode !== "and")?.split : undefined;
+  if (places?.moveId != null && (!moveAt || (moveSplit && Math.min(tabs[moveAt.splitId!] ?? 0, moveSplit.arms.length - 1) !== moveAt.arm))) setPlaces(null);
 
   /** Shows path `arm` of block `splitId` (its tab; the map follows it). In a "Choose one path" block a
    *  target in another path moves to the end of this one, so the target is never in a hidden path; a
