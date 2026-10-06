@@ -22,8 +22,10 @@ const clock = z
 
 export const stepSchema = z.object({
   time: clock,
+  // A blank Food leaves the key out of the JSON; zod 4 needs `.optional()` for a missing key, not just `undefined` in the union.
   supply: z
-    .union([z.number().int().min(0).max(100), z.nan(), z.undefined()])
+    .union([z.number().int().min(0).max(100), z.nan()])
+    .optional()
     .transform((v) => (typeof v === "number" && !Number.isNaN(v) ? v : undefined)),
   instruction: z.string().trim().min(2, "Say what to do").max(160, "Keep it under 160 characters"),
   icon: z
@@ -106,4 +108,33 @@ export function flattenErrors(err: z.ZodError): FieldErrors {
     if (!out[key]) out[key] = issue.message;
   }
   return out;
+}
+
+/** The schema's input, read from the submit form's fields; null when `stepsJson` is not JSON.
+ *  Shared by the server action and the form's own check before it sends. */
+export function buildFormInput(formData: FormData): Record<string, unknown> | null {
+  let steps: unknown;
+  try {
+    steps = JSON.parse(String(formData.get("stepsJson") ?? "[]"));
+  } catch {
+    return null;
+  }
+  return {
+    title: formData.get("title"),
+    race: formData.get("race"),
+    vsRaces: formData.getAll("vsRaces").filter(Boolean),
+    difficulty: formData.get("difficulty"),
+    patch: formData.get("patch") ?? undefined,
+    tags: formData.get("tags") ?? undefined,
+    summary: formData.get("summary"),
+    author: formData.get("author"),
+    authorDiscord: formData.get("authorDiscord") ?? undefined,
+    sourceUrl: formData.get("sourceUrl") ?? undefined,
+    videoUrl: formData.get("videoUrl") ?? undefined,
+    supersedes: formData.get("supersedes") ?? undefined,
+    description: formData.get("description") ?? undefined,
+    steps,
+    website: formData.get("website") ?? undefined,
+    startedAt: formData.get("startedAt") ?? undefined,
+  };
 }

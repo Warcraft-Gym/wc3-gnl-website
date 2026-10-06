@@ -5,6 +5,7 @@ import {
   decideSubmission,
   flattenErrors,
   MAX_STOPS_JSON_BYTES,
+  routeFormInput,
   slugFromInput,
   stopsJsonTooLarge,
   toCreepRouteDraft,
@@ -540,4 +541,35 @@ test("the draft carries the pictures the server copied, under a fresh key", () =
   assert.notEqual(draft.stops[0]._key, "s1");
   assert.equal(draft.stops[0].key, undefined);
   assert.equal(draft.stops[1].images, undefined);
+});
+
+test("routeFormInput: reads the form's fields as the schema's input", () => {
+  const form = new FormData();
+  form.set("map", "autumn-leaves");
+  form.set("title", "A fine test route title");
+  form.append("vsRaces", "orc");
+  form.append("vsRaces", "");
+  form.append("vsRaces", "undead");
+  form.set("stopsJson", JSON.stringify([{ campId: "c01" }]));
+  const input = routeFormInput(form);
+  assert.equal(input.map, "autumn-leaves");
+  assert.deepEqual(input.vsRaces, ["orc", "undead"]);
+  assert.deepEqual(input.stops, [{ campId: "c01" }]);
+  assert.equal(input.summary, null);
+  assert.equal(input.hero, undefined);
+});
+
+test("routeFormInput: an empty form fails the schema with field messages", () => {
+  const parsed = schema().safeParse(routeFormInput(new FormData()));
+  assert.equal(parsed.success, false);
+  const fields = flattenErrors(parsed.error);
+  assert.ok(fields.title);
+  assert.ok(fields.race);
+  assert.ok(fields.stops);
+});
+
+test("routeFormInput: null when stopsJson is not JSON", () => {
+  const form = new FormData();
+  form.set("stopsJson", "{not json");
+  assert.equal(routeFormInput(form), null);
 });
