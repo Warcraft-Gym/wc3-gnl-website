@@ -306,7 +306,7 @@ function RouteSubmitFormInner({
             <ChevronDown size={18} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
-            <li className="flex gap-2"><span className="text-gold">·</span> Click camps on the map in the order you clear them, no need to type camp contents.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> Pick camps on the map in the order you clear them, no need to type camp contents.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> A note or condition on a stop says <em>why</em>: when it works, what to watch for.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> Standard is the current meta route; Beginner is the safer, simpler pick — choose the one your route actually is.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> Condition is the short trigger shown before the note (e.g. &quot;if harassed&quot;); Note explains what to do and why.</li>

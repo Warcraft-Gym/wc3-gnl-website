@@ -479,12 +479,16 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   moved one draws a line to its true spot, which is stored), a click
   within 6 px of one takes it, and a click anywhere else adds a free
   point of kind Other (lucide `MapPin`, "e.g. Wait here until the creeps
-  sleep"). A bar under the map holds "No place" (a base action) and
-  "Cancel"; in the normal state places take no click. An open waypoint has
-  the kind buttons (a pin offers no Attack; an attack made a pin scouts),
+  sleep"). Each target is named "Add a waypoint at <name>", or "Add an
+  attack at their base"; a name several targets share is numbered in map
+  order ("Gold mine 2"). A bar under the map holds "No place" (a base action)
+  and "Cancel"; in the normal state places take no click. An open waypoint has
+  the kind buttons (Shop, Expand, Build, Scout, Attack, Other; a pin offers
+  no Attack; an attack made a pin scouts),
   the switch "On the route | Pin" and "Move" (places mode for that row;
-  the click moves it and keeps its text, kind, type and Bring), its text
-  and the note; a base action has only its text and the note. With a fine
+  the click moves it and keeps its text, kind, type and Bring; removing that
+  row ends places mode), its text and the note; a base action has its text
+  and the note, and Bring or a condition only when they hold content. With a fine
   pointer a waypoint or pin mark also drags on the map: past 4 px the place
   targets show, the mark and its legs follow, it snaps within 6 px of a
   target, and the release moves the row in one undo step ("move waypoint");
@@ -981,7 +985,8 @@ a playable kill order (`killOrderDemo` block in
 block (`slugs`, `GuideRoutePart`) takes the first slug whose route has the
 section's feature (`needs`: split, and, waypoint, pin or attack; `route-has.mjs`)
 and renders nothing when no route has it. The guide uses a small route-step
-key for On the route / A pin / No place, shows a real pin on both map and list,
+key for the three kinds of step that are not camps (On the route, Pin, No
+place), shows a real pin on both map and list,
 and embeds two simultaneous-path examples: a camp with harass and two camps.
 `src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
 every other category) and every published route slug.
