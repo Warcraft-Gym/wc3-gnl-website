@@ -1116,3 +1116,84 @@ describe("RouteSubmitForm: checks before it sends", () => {
     expect(submitCreepRoute).not.toHaveBeenCalled();
   });
 });
+
+describe("RouteSubmitForm: Move on a camp stop", () => {
+  const [a, b, c] = maps[0].camps;
+  const first = { campId: a.id, note: "Pull to the left", units: [{ icon: "footman", count: 2 }], kills: [{ row: 0, n: 0 }] };
+  const load = async (stops: object[]) => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelectorAll("li[data-stop]").length).toBe(stops.length));
+    return view;
+  };
+  const submitted = async (container: HTMLElement) => {
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    return JSON.parse(String((submitCreepRoute.mock.calls.at(-1)![1] as FormData).get("stopsJson")));
+  };
+  const camp = (container: HTMLElement, id: string) => fireEvent.click([...container.querySelectorAll(`[data-camp="${id}"]`)].at(-1)!);
+  const move = () => screen.getByRole("button", { name: "Move stop 1 to another camp" });
+  const arm = (container: HTMLElement) => {
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    fireEvent.click(move());
+  };
+
+  it("moves the stop to a free camp: the kill order clears, the note and Bring stay, one undo step", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-camp-move" });
+    const { container, unmount } = await load([first, { campId: b.id }]);
+    arm(container);
+    expect(screen.getByText("Click the new camp for stop 1")).toBeInTheDocument();
+    expect(screen.getByText("Tap the new camp for stop 1")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "No place" })).not.toBeInTheDocument();
+    expect(container.querySelector(`[data-camp-ring="${c.id}"]`)).toBeInTheDocument();
+    expect(container.querySelector(`[data-camp-ring="${b.id}"]`)).toBeNull();
+    // A camp already in the list does nothing; the map stays armed.
+    camp(container, b.id);
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(2);
+    expect(document.querySelector("[data-armed-bar]")).toBeInTheDocument();
+
+    camp(container, c.id);
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(2);
+    await waitFor(() => expect(document.activeElement).toBe(move()));
+    expect(screen.getByRole("button", { name: /^Undo: move stop$/ })).toBeInTheDocument();
+    const moved = (await submitted(container))[0];
+    expect(moved.campId).toBe(c.id);
+    expect(moved.kills ?? []).toEqual([]);
+    expect(moved.note).toBe("Pull to the left");
+    unmount();
+
+    // The same object a stop added fresh at that camp, with the same note and Bring, submits.
+    const fresh = await load([{ campId: c.id, note: first.note, units: first.units }, { campId: b.id }]);
+    expect((await submitted(fresh.container))[0]).toEqual(moved);
+  });
+
+  it("Escape and Cancel leave with no change and focus on Move; while armed a camp click adds no stop", async () => {
+    const { container } = await load([first, { campId: b.id }]);
+    arm(container);
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(document.activeElement).toBe(move()));
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+    fireEvent.click(move());
+    fireEvent.keyDown(move(), { key: "Escape" });
+    await waitFor(() => expect(document.activeElement).toBe(move()));
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+    expect(screen.queryByRole("button", { name: /^Undo:/ })).toBeNull();
+    // Waypoint leaves the armed state too.
+    fireEvent.click(move());
+    fireEvent.click(screen.getByRole("button", { name: "Waypoint" }));
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+  });
+
+  it("removing the stop while armed leaves the armed state", async () => {
+    const { container } = await load([first, { campId: b.id }]);
+    arm(container);
+    fireEvent.click(screen.getByRole("button", { name: "Remove stop" }));
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(1);
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+    expect(container.querySelector("[data-camp-move]")).toBeNull();
+    camp(container, c.id);
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(2);
+  });
+});

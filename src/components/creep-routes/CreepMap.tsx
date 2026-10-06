@@ -13,7 +13,8 @@ import { BAND_TOKEN } from "./RouteBadges";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { campLabel } from "@/lib/creep-routes/camp-label.mjs";
 import { countStops, findStopKey, shownStops } from "@/lib/creep-routes/stop-numbers.mjs";
-import { OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, backdropRadius, campSpot, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
+import { routeLegs } from "@/lib/creep-routes/route-legs.mjs";
+import { LABEL_SIZE, OUTLINE, STOP_RADIUS, WAYPOINT_RADIUS, backdropRadius, labelFit, campSpot, nodeCentre, nodeTrim, offsetLeg } from "@/lib/creep-routes/map-marks.mjs";
 import { kindForClick, placePoint } from "@/lib/creep-routes/place.mjs";
 import { useMediaQuery } from "@/lib/useReducedMotion";
 import { cn } from "@/lib/utils";
@@ -116,6 +117,13 @@ export type CreepMapProps = {
   /** Builder, fine pointers: a waypoint or pin mark (its stop key) dragged and released on the map, to a
    *  place target it snapped to or a free point. */
   onWaypointDrag?: (key: string, place: Place) => void;
+  /** Builder, fine pointers: a camp stop's mark (its stop key) dragged and released on a camp that can take it. */
+  onCampDrag?: (key: string, campId: string) => void;
+  /** Builder: the camps a camp stop (by key) cannot move to, those already in its list. */
+  campSkip?: (key: string) => Set<string>;
+  /** Builder: a camp stop's "Move" is armed. Camps outside `skip` take a gold ring and the click, the
+   *  others draw at 45%; no place targets, no legs, no drags. */
+  campMove?: { key: string; skip: Set<string> } | null;
   /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
   ringStop?: string | null;
   className?: string;
@@ -298,6 +306,9 @@ export function CreepMap({
   activeLeg = null,
   onLeg,
   onWaypointDrag,
+  onCampDrag,
+  campSkip,
+  campMove = null,
   className,
 }: CreepMapProps) {
   // The SVG <image> is fetched only once the parser reaches the map, so the
@@ -308,9 +319,11 @@ export function CreepMap({
   const [focusCamp, setFocusCamp] = useState<string | null>(null);
   const finePointer = useMediaQuery("(hover: hover) and (pointer: fine)");
   const [hoverTarget, setHoverTarget] = useState<number | null>(null);
-  // A waypoint or pin mark being dragged (`onMarkDown`): its stop key, where it is (viewBox units), the
-  // target it snaps to (-1 for none) and how the mark looks.
-  const [drag, setDrag] = useState<{ key: string; x: number; y: number; snap: number; kind: Place["kind"]; pin: boolean } | null>(null);
+  // A mark being dragged (`pressDrag`): its stop key, where it is (viewBox units), the place target it
+  // snaps to (-1 for none) and how the mark looks; a camp stop's carries `camp` (the camp it snaps to,
+  // its number, its fill, and the camps that cannot take it).
+  type CampDrag = { snap: string | null; label: string; fill: string; skip: Set<string> };
+  const [drag, setDrag] = useState<{ key: string; x: number; y: number; snap: number; kind: Place["kind"]; pin: boolean; camp?: CampDrag } | null>(null);
   const justDragged = useRef(false);
   const selectStop = useCallback(
     (key: string) => {
@@ -486,6 +499,7 @@ export function CreepMap({
   // route page toggles the matching stop block — see `CreepMapPlayground`).
   const handleCampClick = useCallback(
     (campId: string) => {
+      if (justDragged.current) return;
       setHoverCamp(campId);
       onCampSelect?.(campId);
     },
@@ -517,31 +531,29 @@ export function CreepMap({
   // Places mode: the targets laid out in px of the drawn map (a stand-in width before it is measured).
   const pw = drawnWidth || 600, ph = (pw * ih) / iw, unit = iw / pw;
   // A waypoint mark being dragged shows the place targets as places mode does, with no clicks on them.
-  const showTargets = placesMode || drag !== null;
+  const showTargets = placesMode || (drag !== null && !drag.camp);
+  // A camp stop being moved (dragged, or "Move" armed): the camps that cannot take it.
+  const campSkipNow = drag?.camp?.skip ?? campMove?.skip ?? null;
   const targets = showTargets ? placeTargetsOf(map, youStartIndex) : [];
   const layout = showTargets ? layoutTargets(targets.map((t) => ({ x: t.x * pw, y: t.y * ph })), pw, ph) : [];
-  /** A press on a waypoint or pin mark (fine pointers): a move past 4 px starts a drag with pointer capture;
-   *  the mark follows the pointer and snaps to a target within `MAGNET` px of its edge. Release on the map
-   *  moves the waypoint; outside it, Escape or a cancel change nothing. A press without the move is a click. */
   const stopsNow = useRef(route?.stops);
   useEffect(() => {
     stopsNow.current = route?.stops;
   });
-  const onMarkDown: MarkDown = (key, e, mark) => {
+  /** A press on a mark (fine pointers, never touch): a move past 4 px starts a drag with pointer capture,
+   *  and `follow` places the mark at each move. Release on the map hands the last spot to `drop`; a press
+   *  without the move is a click; Escape, a cancel, a release off the map or a change to the stops during
+   *  the drag (an undo) change nothing. */
+  const pressDrag = <P extends { inside: boolean }>(e: React.PointerEvent, at: (fx: number, fy: number) => P, follow: (p: P) => void, drop: (p: P) => void) => {
     const el = svgBox.current;
     // A mouse or a pen only: a touch on a hybrid device scrolls or taps.
-    if (!el || !onWaypointDrag || e.button !== 0 || e.pointerType === "touch") return;
+    if (!el || e.button !== 0 || e.pointerType === "touch") return;
     const stopsAtDown = route?.stops;
     const sx = e.clientX, sy = e.clientY, id = e.pointerId;
-    const all = placeTargetsOf(map, youStartIndex);
-    const spots = layoutTargets(all.map((t) => ({ x: t.x * pw, y: t.y * ph })), pw, ph);
     let on = false;
-    const at = (ev: PointerEvent) => {
+    const where = (ev: PointerEvent) => {
       const b = el.getBoundingClientRect();
-      const fx = (ev.clientX - b.left) / (b.width || 1), fy = (ev.clientY - b.top) / (b.height || 1);
-      const snap = nearTarget(fx * pw, fy * ph, spots);
-      const p = snap >= 0 ? spots[snap] : { x: fx * pw, y: fy * ph };
-      return { x: p.x * unit, y: p.y * unit, snap, fx, fy, inside: fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1 };
+      return at((ev.clientX - b.left) / (b.width || 1), (ev.clientY - b.top) / (b.height || 1));
     };
     const end = () => {
       window.removeEventListener("pointermove", move);
@@ -561,19 +573,21 @@ export function CreepMap({
         if (Math.hypot(ev.clientX - sx, ev.clientY - sy) <= 4) return;
         on = true;
         el.setPointerCapture?.(id);
+        // A camp card the press opened closes, and the pressed camp's add preview goes (its hover, and the
+        // focus the press gave its button); neither shows during the drag or after it.
+        onCampCardHoverLeave?.();
+        setHoverCamp(null);
+        if (document.activeElement instanceof HTMLElement && el.contains(document.activeElement)) document.activeElement.blur();
       }
-      const p = at(ev);
-      setDrag({ key, x: p.x, y: p.y, snap: p.snap, ...mark });
+      follow(where(ev));
     };
     const up = (ev: PointerEvent) => {
       if (ev.pointerId !== id) return;
-      const p = on ? at(ev) : null;
+      const p = on ? where(ev) : null;
       end();
       // The stops changed during the drag (an undo, say): the drag ends with no change.
       if (!p?.inside || stopsNow.current !== stopsAtDown) return;
-      const round = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
-      const point = { x: round(p.fx), y: round(p.fy) };
-      onWaypointDrag(key, p.snap >= 0 ? all[p.snap].place : ({ kind: kindForClick(point, ""), at: point } as Place));
+      drop(p);
     };
     const esc = (ev: KeyboardEvent) => {
       if (ev.key !== "Escape" || !on) return;
@@ -584,6 +598,59 @@ export function CreepMap({
     window.addEventListener("pointerup", up);
     window.addEventListener("pointercancel", end);
     window.addEventListener("keydown", esc, true);
+  };
+  const inMap = (fx: number, fy: number) => fx >= 0 && fx <= 1 && fy >= 0 && fy <= 1;
+  /** A waypoint or pin mark: it snaps to a place target within `MAGNET` px of its edge; release on the map
+   *  moves the waypoint there or to a free point. */
+  const onMarkDown: MarkDown = (key, e, mark) => {
+    if (!onWaypointDrag) return;
+    const all = placeTargetsOf(map, youStartIndex);
+    const spots = layoutTargets(all.map((t) => ({ x: t.x * pw, y: t.y * ph })), pw, ph);
+    pressDrag(
+      e,
+      (fx, fy) => {
+        const snap = nearTarget(fx * pw, fy * ph, spots);
+        const p = snap >= 0 ? spots[snap] : { x: fx * pw, y: fy * ph };
+        return { x: p.x * unit, y: p.y * unit, snap, fx, fy, inside: inMap(fx, fy) };
+      },
+      (p) => setDrag({ key, x: p.x, y: p.y, snap: p.snap, ...mark }),
+      (p) => {
+        const round = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
+        const point = { x: round(p.fx), y: round(p.fy) };
+        onWaypointDrag(key, p.snap >= 0 ? all[p.snap].place : ({ kind: kindForClick(point, ""), at: point } as Place));
+      },
+    );
+  };
+  /** A camp stop's mark (the press lands on its camp's button, under the disc): it snaps to a camp that
+   *  can take the stop, inside its mark or within `MAGNET` px of its edge, and takes that camp's band
+   *  colour; release there moves the stop. Bases, mines and shops are no targets. */
+  const campDragOn = Boolean(onCampDrag && route && finePointer && !placesMode && !campMove);
+  const onCampDown = (e: React.PointerEvent) => {
+    const campId = (e.target as Element).closest?.("[data-camp]")?.getAttribute("data-camp");
+    const key = campId && allStops.some(({ stop }) => stop.campId === campId) ? campKey.get(campId) : null;
+    if (!campDragOn || !key || !route) return;
+    const skip = campSkip?.(key) ?? new Set<string>();
+    const label = routeLegs(route.stops, choice).nodes.find((n: { key: string }) => n.key === key)?.label ?? "";
+    const own = BAND_TOKEN[campById.get(campId!)?.band ?? ""] ?? "var(--wg-text-faint)";
+    const camps = map.camps.filter((c) => !skip.has(c.id));
+    const spots = camps.map((c) => {
+      const s = spotOf({ campId: c.id })!;
+      const onRoute = allStops.some(({ stop }) => stop.campId === c.id);
+      return { x: s.x / unit, y: s.y / unit, r: (onRoute ? STOP_RADIUS : radiusFor(c.level)) / unit };
+    });
+    pressDrag(
+      e,
+      (fx, fy) => {
+        const i = nearTarget(fx * pw, fy * ph, spots);
+        const camp = i >= 0 ? camps[i] : null;
+        return { x: i >= 0 ? spots[i].x * unit : fx * iw, y: i >= 0 ? spots[i].y * unit : fy * ih, camp, inside: inMap(fx, fy) };
+      },
+      (p) =>
+        setDrag({ key, x: p.x, y: p.y, snap: -1, kind: "other", pin: false, camp: { snap: p.camp?.id ?? null, label, fill: p.camp ? (BAND_TOKEN[p.camp.band] ?? own) : own, skip } }),
+      (p) => {
+        if (p.camp) onCampDrag?.(key, p.camp.id);
+      },
+    );
   };
   // A hovered target only while places mode shows the targets, never left over for a later drag.
   const hovered = placesMode && hoverTarget !== null ? targets[hoverTarget] : undefined;
@@ -601,7 +668,8 @@ export function CreepMap({
       ref={box}
       data-places-mode={placesMode || undefined}
       data-dragging={drag ? "" : undefined}
-      className={cn("panel relative overflow-hidden p-3", placesMode && "!border-gold", drag && "cursor-grabbing select-none [&_*]:!cursor-grabbing", className)}
+      data-camp-move={campMove ? campMove.key : undefined}
+      className={cn("panel relative overflow-hidden p-3", (placesMode || campMove) && "!border-gold", drag && "cursor-grabbing select-none [&_*]:!cursor-grabbing", className)}
     >
       {/* Sizing is CSS-driven (`viewBox` + `w-full h-auto`, no numeric
           width/height state) so the map is complete in the server-rendered
@@ -622,7 +690,12 @@ export function CreepMap({
           onPointerOut={handlePointerOut}
           onFocus={(e) => setFocusCamp((e.target as Element).closest?.("[data-camp]")?.getAttribute("data-camp") ?? null)}
           onBlurCapture={() => setFocusCamp(null)}
-          className="block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]"
+          onPointerDown={campDragOn ? onCampDown : undefined}
+          className={cn(
+            "block h-auto w-full touch-pan-y rounded [outline:none] focus-visible:[outline:2px_solid_var(--wg-gold)] focus-visible:[outline-offset:2px]",
+            // A camp stop's mark drags: its camp's button, under the disc, shows `grab`.
+            campDragOn && "[&_button[aria-pressed=true]]:cursor-grab",
+          )}
         >
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
           {route ? (
@@ -651,7 +724,8 @@ export function CreepMap({
               );
             }
             const isInteractive = isCampInteractive(camp.id);
-            return (
+            // A camp stop being moved: a camp that cannot take it draws at 45%.
+            const marker = (
               <CampMarker
                 key={camp.id}
                 camp={camp}
@@ -666,16 +740,35 @@ export function CreepMap({
                 cardOpen={openCampId === camp.id}
                 asGroup={groupMarkers}
                 secondary={deemphasizeOffRoute && !onRoute}
-                underStop={onRoute}
+                // The camp a stop is dragged off draws its own mark (at 45%) while the disc is away.
+                underStop={onRoute && !(drag?.camp && campKey.get(camp.id) === drag.key)}
               />
+            );
+            return campSkipNow?.has(camp.id) ? (
+              <g key={camp.id} opacity={0.45}>
+                {marker}
+              </g>
+            ) : (
+              marker
             );
           })}
           {/* The stop discs over everything else: a stop's node is its badge. */}
           {route ? (
             <g opacity={showTargets ? 0.6 : undefined}>
-              <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect ? selectStop : undefined} choice={choice} campAt={campAt} layer="nodes" ringStop={ringStop} drag={drag} onMarkDown={onWaypointDrag && finePointer && !placesMode ? onMarkDown : undefined} />
+              <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect ? selectStop : undefined} choice={choice} campAt={campAt} layer="nodes" ringStop={ringStop} drag={drag} onMarkDown={onWaypointDrag && finePointer && !placesMode && !campMove ? onMarkDown : undefined} dimCamps={campSkipNow ? { skip: campSkipNow, keep: drag?.key ?? campMove?.key ?? "" } : undefined} />
             </g>
           ) : null}
+          {/* A camp stop being moved: every camp that can take it has a 2px gold ring. */}
+          {campSkipNow
+            ? map.camps.map((camp) => {
+                if (campSkipNow.has(camp.id)) return null;
+                const onRoute = allStops.some(({ stop }) => stop.campId === camp.id);
+                const c = onRoute ? spotOf({ campId: camp.id }) : campAt.get(camp.id);
+                if (!c) return null;
+                const r = (onRoute ? STOP_RADIUS : radiusFor(camp.level)) + 2 * unit;
+                return <circle key={camp.id} data-camp-ring={camp.id} cx={c.x} cy={c.y} r={r} fill="none" stroke="var(--wg-gold)" strokeWidth={2 * unit} pointerEvents="none" />;
+              })
+            : null}
           {previewTo && preview ? <PreviewStep from={preview.from ? spotOf(preview.from) : null} to={previewTo} next={previewNext} label={preview.label} /> : null}
           {/* A target pushed off its spot: a 1px line back to the true spot, which is what gets stored. */}
           {layout.map((o, i) =>
@@ -699,7 +792,25 @@ export function CreepMap({
         {placesMode && onPlaceSelect ? (
           <PlaceTargets targets={targets} layout={layout} width={pw} height={ph} onPick={onPlaceSelect} onHover={setHoverTarget} />
         ) : null}
-        {drag ? (
+        {drag?.camp ? (
+          // The dragged camp stop's disc, over everything; on a camp that can take it, in that camp's band colour.
+          <svg aria-hidden viewBox={`0 0 ${iw} ${ih}`} className="pointer-events-none absolute inset-0 h-full w-full" data-drag-mark={drag.camp.snap ?? ""}>
+            <circle cx={drag.x} cy={drag.y} r={STOP_RADIUS} fill={drag.camp.fill} stroke="#fff" strokeWidth={OUTLINE} />
+            <text
+              x={drag.x}
+              y={drag.y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              textLength={labelFit(drag.camp.label)}
+              lengthAdjust={labelFit(drag.camp.label) ? "spacingAndGlyphs" : undefined}
+              fill="var(--wg-bg)"
+              fontSize={LABEL_SIZE}
+              className="tnum select-none font-bold"
+            >
+              {drag.camp.label}
+            </text>
+          </svg>
+        ) : drag ? (
           <>
             <PlaceTargets targets={targets} layout={layout} width={pw} height={ph} onPick={() => {}} onHover={() => {}} snap={drag.snap >= 0 ? drag.snap : null} />
             {/* The dragged mark over the targets, so it shows on the one it snaps to. */}

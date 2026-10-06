@@ -36,6 +36,9 @@ import {
   stepsAround,
 
   insertAt,
+  campsInListOf,
+  campTakesStop,
+  moveStopToCamp,
 } from "./editor-rows.mjs";
 
 const forkRow = (...arms) => newRow({ split: { mode: "or", arms: arms.map((campIds, i) => ({ id: i, label: "", stops: campIds.map((campId) => newRow({ campId })) })) } });
@@ -447,4 +450,30 @@ test("a numeric target whose two rows part stays right after its first row", () 
 test("legTarget: a route leg across a paths block is no leg", () => {
   const rows = [newRow({ campId: "c1" }), forkRow([], []), newRow({ campId: "c2" })];
   assert.equal(legTarget(rows, "0", "2"), null);
+});
+
+test("a camp stop moved to another camp keeps the stop's own fields and clears the old camp's kill order", () => {
+  const stop = newRow({ campId: "c1", kills: [{ creep: "x" }], leaveRest: true, note: "pull left", condition: "if safe", units: [{ id: 9, icon: "u", count: "2" }], hero: false, pictures: 2 });
+  const rows = [stop, newRow({ campId: "c2" })];
+  const moved = moveStopToCamp(rows, stop.id, "c7")[0];
+  assert.deepEqual(moved, { ...stop, campId: "c7", kills: [], leaveRest: false });
+  assert.equal(moveStopToCamp(rows, stop.id, "c7").length, 2);
+});
+
+test("which camps can take a camp stop: not its own, not one in its list; one in another path or a free one can", () => {
+  const rows = [newRow({ campId: "c1" }), forkRow(["c2", "c3"], ["c4"]), newRow({ campId: "c5" })];
+  const c1 = rows[0].id, c2 = rows[1].split.arms[0].stops[0].id;
+  assert.equal(campTakesStop(rows, c1, "c1"), false);
+  assert.equal(campTakesStop(rows, c1, "c5"), false);
+  assert.equal(campTakesStop(rows, c1, "c2"), true);
+  assert.equal(campTakesStop(rows, c1, "c9"), true);
+  assert.equal(campTakesStop(rows, c2, "c3"), false);
+  assert.equal(campTakesStop(rows, c2, "c4"), true);
+  assert.equal(campTakesStop(rows, c2, "c1"), true);
+  assert.deepEqual([...campsInListOf(rows, c2)], ["c2", "c3"]);
+  // A camp that cannot take it leaves the rows as they were.
+  assert.equal(moveStopToCamp(rows, c1, "c5"), rows);
+  // A waypoint is not a camp stop.
+  const way = newRow({ place: { kind: "shop", at: { shop: "s1" } } });
+  assert.equal(campTakesStop([way], way.id, "c9"), false);
 });

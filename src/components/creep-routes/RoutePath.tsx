@@ -67,6 +67,7 @@ export const RoutePath = memo(function RoutePath({
   replacing = false,
   drag,
   onMarkDown,
+  dimCamps,
 }: {
   map: CreepMap;
   stops: RouteStop[];
@@ -94,6 +95,8 @@ export const RoutePath = memo(function RoutePath({
   drag?: { key: string; x: number; y: number } | null;
   /** The builder with a fine pointer: a press on a waypoint or pin mark may start a drag. */
   onMarkDown?: MarkDown;
+  /** A camp stop being moved: the discs of camps in `skip` draw at 45%, except the moved stop's (`keep`). */
+  dimCamps?: { skip: Set<string>; keep: string };
 }) {
   const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
@@ -133,7 +136,7 @@ export const RoutePath = memo(function RoutePath({
 
   if (!points.length) return null;
   const hidden = hiddenBadgeKeys(stops, choice);
-  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} ringStop={ringStop} onStopSelect={onStopSelect} onMarkDown={onMarkDown} reduced={reduced} />;
+  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} ringStop={ringStop} onStopSelect={onStopSelect} onMarkDown={onMarkDown} dimCamps={dimCamps} reduced={reduced} />;
 
   // One straight segment per leg, ending at the edge of each node's disc. Legs that would read as one
   // line (collinear, or through another stop's disc) move sideways apart (`legOffsets`).
@@ -258,9 +261,11 @@ function Nodes({
   ringStop,
   onStopSelect,
   onMarkDown,
+  dimCamps,
   reduced,
 }: {
   onMarkDown?: MarkDown;
+  dimCamps?: { skip: Set<string>; keep: string };
   points: PathNode[];
   ringStop?: string | null;
   hidden: Set<string>;
@@ -295,6 +300,7 @@ function Nodes({
             onClick={select}
             onPointerDown={grab}
             pointerEvents={select ? undefined : "none"}
+            opacity={dimCamps && p.key !== dimCamps.keep && p.stop.campId && dimCamps.skip.has(p.stop.campId) ? 0.45 : undefined}
             className={grab ? "cursor-grab" : select ? "cursor-pointer" : undefined}
           >
             {/* A row pointed at or focused in the list rings its mark. */}

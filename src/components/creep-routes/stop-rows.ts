@@ -69,6 +69,10 @@ export type ListPlace = { index: number; splitId?: number; arm?: number };
 /** Where row `id` sits; null when absent. */
 export const locate = editorRows.locate as (rows: StopRowData[], id: number) => ListPlace | null;
 /** The list a place names. */
+export const campsInListOf = editorRows.campsInListOf as (rows: StopRowData[], id: number) => Set<string>;
+export const campTakesStop = editorRows.campTakesStop as (rows: StopRowData[], id: number, campId: string) => boolean;
+export const moveStopToCamp = editorRows.moveStopToCamp as (rows: StopRowData[], id: number, campId: string) => StopRowData[];
+
 export const listAt = editorRows.listAt as (rows: StopRowData[], at: ListPlace) => StopRowData[];
 /** Inserts a row at a place; a split only at the top level. */
 export const insertAt = editorRows.insertAt as (rows: StopRowData[], at: ListPlace, row: StopRowData) => StopRowData[];

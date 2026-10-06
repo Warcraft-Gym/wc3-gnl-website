@@ -89,6 +89,26 @@ export function removeRow(rows, id) {
   return inListOf(rows, id, (list) => list.filter((r) => r.id !== id));
 }
 
+/** The camps that cannot take camp stop `id`: every camp already a stop in its own list (its own camp too). */
+export function campsInListOf(rows, id) {
+  const at = locate(rows, id);
+  return new Set(at ? listAt(rows, at).flatMap((r) => (r.campId ? [r.campId] : [])) : []);
+}
+
+/** Whether camp stop `id` can move to `campId`: the camp is not a stop in that stop's own list yet. */
+export function campTakesStop(rows, id, campId) {
+  const at = locate(rows, id);
+  const row = at ? listAt(rows, at)[at.index] : undefined;
+  return Boolean(row?.campId && campId) && !campsInListOf(rows, id).has(campId);
+}
+
+/** Camp stop `id` moved to camp `campId`: the kill order belonged to the old camp, so it clears;
+ *  the note, condition, Bring, hero and pictures stay, and so does its place in the list. */
+export function moveStopToCamp(rows, id, campId) {
+  if (!campTakesStop(rows, id, campId)) return rows;
+  return patchRow(rows, id, { campId, kills: [], leaveRest: false });
+}
+
 /** Moves row `id` one place up (-1) or down (1) inside its own list. */
 export function moveRow(rows, id, dir) {
   return inListOf(rows, id, (list) => {
