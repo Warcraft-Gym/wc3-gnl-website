@@ -47,14 +47,14 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
     const parallel = stop.split?.mode === "and";
     const rawArms = stop.split?.arms;
     if (!rawArms) {
-      const d = deriveStop(stop, map, level, xp, false);
+      const d = deriveStop(stop, map, level, xp);
       level = d.heroLevelAfter;
       xp = d.xpAfter;
       return d;
     }
     // A split: in "or"/"xor" every arm is derived from the state at the split and only
     // the walked arm (`choice[forkKey]`) feeds the running total. In "and" every arm
-    // feeds it; arms 1.. run without the hero whatever their own flags say. An "and"
+    // feeds it; a stop is without the hero by its own flag only (XP is global). An "and"
     // block is one XP event: the reader shows only its total and the level after it.
     // ponytail: order across paths is unknown; list order (a, then b) is the approximation.
     const forkKey = String(i);
@@ -65,7 +65,7 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
       let armLevel = parallel ? level : startLevelAt;
       let armXp = parallel ? xp : startXpAt;
       const armStops = arm.stops.map((s) => {
-        const d = deriveStop(s, map, armLevel, armXp, parallel && armIndex > 0);
+        const d = deriveStop(s, map, armLevel, armXp);
         armLevel = d.heroLevelAfter;
         armXp = d.xpAfter;
         return { ...d, armIndex, forkKey };
@@ -96,8 +96,8 @@ export function deriveRoute(route, map, { startLevel = 1, choice = {} } = {}) {
   return { stops, finalLevel: level, finalXp: xp };
 }
 
-/** One plain stop from the hero's `level`/`xp`; `absent` marks a stop of an "and" way without the hero. */
-function deriveStop(stop, map, level, xp, absent) {
+/** One plain stop from the hero's `level`/`xp`. */
+function deriveStop(stop, map, level, xp) {
   const camp = stop.campId ? findCamp(map, stop.campId) : null;
   const kills = [];
   if (camp) {
@@ -122,6 +122,5 @@ function deriveStop(stop, map, level, xp, absent) {
     band: camp ? camp.band : null,
     left: camp ? creepsLeft(camp, stop.kills, stop.leaveRest) : 0,
     kills,
-    ...(absent ? { hero: false } : {}),
   };
 }

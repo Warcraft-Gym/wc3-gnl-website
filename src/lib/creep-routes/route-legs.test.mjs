@@ -29,8 +29,8 @@ test("a pin in a path: a node, and the path's legs skip it", () => {
   assert.equal(plan.nodes.find((n) => n.key === "1.a.0").pin, true);
 });
 
-test("a split that opens the route starts at your base; and draws every path, the later ones thin", () => {
-  const and = [{ campId: null, split: { mode: "and", arms: [{ stops: [{ campId: "c1" }] }, { stops: [{ campId: "c2" }] }] } }, { campId: "c3" }];
+test("a split that opens the route starts at your base; and draws every path, a path without the hero thin", () => {
+  const and = [{ campId: null, split: { mode: "and", arms: [{ stops: [{ campId: "c1" }] }, { stops: [{ campId: "c2", hero: false }] }] } }, { campId: "c3" }];
   const plan = routeLegs(and);
   assert.deepEqual(plan.legs.map(({ a, b, style }) => `${a}>${b}:${style}`), ["start>0.a.0:solid", "start>0.b.0:thin", "0.a.0>1:solid", "0.b.0>1:thin"]);
   assert.equal(plan.nodes.find((n) => n.key === "0.b.0").absent, true);

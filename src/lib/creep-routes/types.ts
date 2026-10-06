@@ -150,8 +150,8 @@ export type RouteStop = {
 };
 
 /** A route that splits, one level deep, into 2 or 3 arms of 1..n stops (an arm stop never holds a
- *  split). "and": every way runs at once, no labels; arm 0 is the hero's line and arms 1.. run
- *  without the hero. "or": the reader chooses one way by its label (required), then the route goes
+ *  split). "and": every way runs at once, no labels; each stop's own `hero` says who goes there, and
+ *  a way has the hero when one of its camp or attack stops does (`pathHasHero`). "or": the reader chooses one way by its label (required), then the route goes
  *  on. "xor": the reader chooses one way and it never rejoins, so nothing follows the split. Stops
  *  after a split are shared by every way: a continuation of only one way belongs inside that way. */
 export type Split = { mode: "and" | "or" | "xor"; arms: { label?: string; stops: RouteStop[] }[] };

@@ -118,7 +118,7 @@ export const RoutePath = memo(function RoutePath({
   };
 
   // Which stops are drawn and which legs join them (`route-legs.mjs`): the chosen path of an
-  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed). A pin is a node
+  // "or"/"xor" split, every path of an "and" split (a path without the hero thin and bowed). A pin is a node
   // with no legs.
   const you = map.starts[youStart];
   const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")));

@@ -118,7 +118,7 @@ export default async function CreepRoutePage({ params }: Params) {
     );
   }
 
-  // A split contributes way a's stops (the way the page shows first, the hero's line) in its place.
+  // A split contributes way a's stops (the way the page shows first) in its place.
   const stepStops = route.stops.flatMap((s) => {
     const arms = s.split?.arms;
     return arms ? (arms[0]?.stops ?? []) : [s];

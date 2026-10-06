@@ -145,8 +145,8 @@ export function StopBlock({
   const placeLabel = camp ? "" : placeWhere(map, stop.place, youStart);
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
   const pictures = stop.images?.length ?? 0;
-  // Hero off: its own flag, or a later way of an "and" split, which the hero cannot walk.
-  const absent = stop.hero === false || d.hero === false;
+  // Hero off: the stop's own flag.
+  const absent = stop.hero === false;
   // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
   const waypoint = isWaypoint(stop) && stop.place ? stop.place.kind : null;
   // A pin's node sits off its lane (`StopRail`): its content moves right to clear it.

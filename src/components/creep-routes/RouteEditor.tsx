@@ -448,7 +448,7 @@ export function RouteEditor({
           setStops((rows) => patchRow(rows, row.id, patch));
         }}
         trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
-        absent={row.hero === false || d?.hero === false}
+        absent={row.hero === false}
         heroIcon={heroIcon}
         opened={{ bring: Boolean(opened[`${row.id}.bring`]), condition: Boolean(opened[`${row.id}.condition`]) }}
         onOpen={(part) => setOpened((o) => (o[`${row.id}.${part}`] ? o : { ...o, [`${row.id}.${part}`]: true }))}
