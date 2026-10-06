@@ -16,11 +16,11 @@ export function newRow(patch = {}) {
   return { id: newId(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, ...patch };
 }
 
-/** The split mode chips, in order: "Choose a path" first, a new split's mode. Whether chosen paths rejoin
+/** The kinds of a paths block, in order: "Choose one path" first, a new block's kind. Whether chosen paths rejoin
  *  is read from the structure on save (`savedMode`), so the builder stores "or" for both. */
 export const SPLIT_MODES = [
-  { id: "or", label: "Choose a path" },
-  { id: "and", label: "At the same time" },
+  { id: "or", label: "Choose one path" },
+  { id: "and", label: "Take all paths simultaneously" },
 ];
 
 /** A new split row: empty paths with these labels (two by default) in the first chip's mode by default. */

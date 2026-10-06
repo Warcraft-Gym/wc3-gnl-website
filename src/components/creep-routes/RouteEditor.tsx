@@ -219,7 +219,11 @@ export function RouteEditor({
   const [seenUndo, setSeenUndo] = useState(undone);
   if (undone !== seenUndo) {
     setSeenUndo(undone);
-    if (undone?.sel) setTarget(undone.sel.target);
+    if (undone?.sel) {
+      const t = undone.sel.target;
+      setTarget(t);
+      if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
+    }
     if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
     if (pending !== null && !locate(stops, pending)) {
       setPending(null);

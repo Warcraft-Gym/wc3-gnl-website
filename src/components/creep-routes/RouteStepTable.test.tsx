@@ -23,8 +23,8 @@ describe("simultaneous paths in the route list", () => {
       return <RouteStepTable route={route} map={map} open={open} onSummary={toggle} onChevron={toggle} onExpandAll={() => {}} onCollapseAll={() => {}} />;
     }
     render(<OpenableTable />);
-    const split = screen.getByText("At the same time").closest("li")!;
-    const heading = within(split).getByRole("button", { name: /^At the same time, hero Lv \d+, \d+ xp$/ });
+    const split = screen.getByText("Take all paths simultaneously").closest("li")!;
+    const heading = within(split).getByRole("button", { name: /^Take all paths simultaneously, hero Lv \d+, \d+ xp$/ });
     const paths = split.nextElementSibling as HTMLElement;
     const stops = () => [...paths.querySelectorAll("li[data-stop]")] as HTMLElement[];
     expect(stops()).toHaveLength(3);

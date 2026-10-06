@@ -209,8 +209,16 @@ describe("RouteSubmitForm: the target and the add line", () => {
     expect(addLine(container)).toBe("3a");
     expect(screen.getByRole("button", { name: /^Undo: add paths/ })).toBeInTheDocument();
     expect(screen.getByLabelText("Path A name")).toHaveValue("");
-    fireEvent.click(screen.getByRole("button", { name: "Path B is empty. Add its stops" }));
+    // A tab shows its path and makes it the target; the other path's end is a quiet add line.
+    fireEvent.click(screen.getByRole("tab", { name: "Path B" }));
+    expect(screen.getByRole("tab", { name: "Path B" })).toHaveAttribute("aria-selected", "true");
     expect(addLine(container)).toBe("3b");
+    fireEvent.click(screen.getByRole("tab", { name: "Path A" }));
+    expect(addLine(container)).toBe("3a");
+    fireEvent.click(screen.getByRole("button", { name: "Path" }));
+    expect(screen.getByRole("tab", { name: "Path C" })).toHaveAttribute("aria-selected", "true");
+    expect(addLine(container)).toBe("3c");
+    expect(screen.queryByRole("button", { name: "Path" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Continue the route" }));
     expect(addLine(container)).toBe("3");
     expect(screen.queryByRole("button", { name: "Continue the route" })).not.toBeInTheDocument();
@@ -245,7 +253,7 @@ describe("RouteSubmitForm: Remove paths and remove path say what stays", () => {
 
   it("the block's trash keeps path A, even while path B is the target, and the target goes to the route", async () => {
     const { container } = await load();
-    fireEvent.click(screen.getByRole("button", { name: "Add stops to path B" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
     expect(addLine(container)).toBe("3b");
     fireEvent.click(screen.getByRole("button", { name: "Remove paths, keep path A" }));
     expect(screen.getByRole("button", { name: /^Undo: remove paths/ })).toBeInTheDocument();
@@ -255,11 +263,13 @@ describe("RouteSubmitForm: Remove paths and remove path say what stays", () => {
 
   it("a path heading's x removes one of two paths, and the other path's stops take the split's place", async () => {
     const { container } = await load();
-    expect(screen.getByRole("button", { name: "Remove path B" })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole("button", { name: "Add stops to path B" }));
+    // Only the shown path's heading is listed.
+    expect(screen.queryByRole("button", { name: "Remove path B" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
     fireEvent.click(screen.getByRole("button", { name: "Remove path B" }));
     fireEvent.click(screen.getByRole("button", { name: /^Undo: remove path B/ }));
     expect(addLine(container)).toBe("3b");
+    fireEvent.click(screen.getByRole("tab", { name: "Fast" }));
     fireEvent.click(screen.getByRole("button", { name: "Remove path A" }));
     expect(addLine(container)).toBe("3");
     expect(container.querySelector("li[data-split]")).not.toBeInTheDocument();

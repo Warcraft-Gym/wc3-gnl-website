@@ -49,9 +49,9 @@ test("rows by key: a path's stop has the stop list's key, and patch, move and re
   assert.deepEqual(placeInList(rows, c4.id), { index: 1, length: 2 });
 });
 
-test("a new split is \"Choose a path\", the first mode chip, with two empty paths", () => {
-  assert.equal(SPLIT_MODES[0].label, "Choose a path");
-  assert.equal(SPLIT_MODES.at(-1).label, "At the same time");
+test("a new split is \"Choose one path\", the first mode chip, with two empty paths", () => {
+  assert.equal(SPLIT_MODES[0].label, "Choose one path");
+  assert.equal(SPLIT_MODES.at(-1).label, "Take all paths simultaneously");
   assert.equal(SPLIT_MODES.length, 2);
   const row = newSplitRow();
   assert.equal(row.split.mode, SPLIT_MODES[0].id);
@@ -65,7 +65,7 @@ const ids = (list) => list.map((r) => r.campId ?? (r.split ? "split" : r.action)
 const pathIds = (rows, i) => rows[i].split.arms.map((a) => a.stops.map((s) => s.campId));
 const route = () => [camp("c1"), forkRow(["c2", "c3"], ["c4"]), camp("c5")];
 
-test("mode: the builder stores Choose a path; saving reads or (stops follow) or xor (nothing follows)", () => {
+test("mode: the builder stores Choose one path; saving reads or (stops follow) or xor (nothing follows)", () => {
   const rows = route();
   assert.equal(savedMode(rows, 1), "or");
   assert.equal(savedMode(rows.slice(0, 2), 1), "xor");
