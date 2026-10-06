@@ -811,3 +811,45 @@ describe("RouteSubmitForm: Take all paths keeps the target", () => {
     expect(screen.queryByRole("button", { name: "Add stops to path 1" })).toBeNull();
   });
 });
+
+describe("RouteSubmitForm: a numeric target through removes, undo and legs", () => {
+  const [c1, c2, c3, c4, c5] = maps[0].camps;
+  const load = async (stops: object[]) => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelector("li[data-stop]")).toBeInTheDocument());
+    return view;
+  };
+  const block = (mode = "or", b: object[] = [{ campId: c4.id }]) => ({ campId: null, split: { mode, arms: [{ label: "", stops: [{ campId: c2.id }, { campId: c3.id }] }, { label: "", stops: b }] } });
+  const leg = (container: HTMLElement, a: string, b: string) => container.querySelector(`[data-leg="${a}>${b}"]`);
+
+  it("undo after removing a path puts the add line back in its gap in the path", async () => {
+    const { container } = await load([{ campId: c1.id }, block("and")]);
+    fireEvent.click(leg(container, "1.a.0", "1.a.1")!);
+    const at = addLine(container);
+    // A leg click is no undo step.
+    expect(screen.queryByRole("button", { name: /^Undo:/ })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Remove path 2" }));
+    expect(addLine(container)).toBe("3");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo: remove path 2/ }));
+    expect(container.querySelector("li[data-split]")).toBeInTheDocument();
+    expect(addLine(container)).toBe(at);
+  });
+
+  it("the block's trash keeps a position in path A between its two steps", async () => {
+    const { container } = await load([{ campId: c1.id }, block()]);
+    fireEvent.click(leg(container, "1.a.0", "1.a.1")!);
+    fireEvent.click(screen.getByRole("button", { name: "Remove paths, keep path A" }));
+    expect(addLine(container)).toBe("3");
+    expect(screen.getByRole("button", { name: "Continue the route" })).toBeInTheDocument();
+  });
+
+  it("a route leg across a block whose shown path has no place takes no click; legs take none in places mode", async () => {
+    const { container } = await load([{ campId: c1.id }, { campId: null, split: { mode: "or", arms: [{ label: "", stops: [{ campId: null, action: "TP home" }] }, { label: "", stops: [{ campId: c4.id }] }] } }, { campId: c5.id }, { campId: c2.id }]);
+    expect(leg(container, "0", "2")).toBeNull();
+    expect(leg(container, "2", "3")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Waypoint" }));
+    expect(container.querySelector("[data-leg]")).toBeNull();
+  });
+});

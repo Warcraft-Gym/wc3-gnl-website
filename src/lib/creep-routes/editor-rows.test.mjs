@@ -428,3 +428,23 @@ test("a position in the kept path stays between its steps when the block turns i
   assert.deepEqual(targetPlace(removePath(rows, block.id, 1), next), { index: 2 });
   assert.equal(targetAfterRemovePath(rows, t, block.id, 0), ROUTE_END);
 });
+
+test("targetExists: false when a row the target is anchored to sits in another list", () => {
+  const rows = [newRow({ campId: "c1" }), forkRow(["c2", "c3"], ["c4"])];
+  const [c2, c3] = rows[1].split.arms[0].stops;
+  assert.equal(targetExists(rows, { pos: 2, after: c2.id, before: c3.id }), false);
+  assert.equal(targetExists(rows, { splitId: rows[1].id, arm: 0, pos: 1, after: c2.id, before: c3.id }), true);
+});
+
+test("a numeric target whose two rows part stays right after its first row", () => {
+  const [a, b, c, d] = ["c1", "c2", "c3", "c4"].map((campId) => newRow({ campId }));
+  const t = { pos: 1, after: a.id, before: b.id };
+  assert.deepEqual(targetPlace([a, c, d, b], t), { index: 1 });
+  assert.deepEqual(targetPlace([b, a, c, d], t), { index: 2 });
+  assert.deepEqual(targetPlace([b, c, d], t), { index: 0 });
+});
+
+test("legTarget: a route leg across a paths block is no leg", () => {
+  const rows = [newRow({ campId: "c1" }), forkRow([], []), newRow({ campId: "c2" })];
+  assert.equal(legTarget(rows, "0", "2"), null);
+});
