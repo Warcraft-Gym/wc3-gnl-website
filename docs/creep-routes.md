@@ -527,9 +527,15 @@ with no action, place or other field, one level deep (an arm stop never
 holds a split), 2 or 3 arms of 1..n stops. Stops after a split are shared by
 every path; a continuation of only one path belongs inside that path.
 
-- **`and`**: every path runs at once, no labels. Path a is the hero's line; the
-  builder sets `hero: false` on each camp or attack it adds to paths b.., and
-  derive runs those paths without the hero whatever their flags say.
+- **`and`**: every path runs at once, no labels. Who goes to a stop is the
+  stop's own `hero` flag, on every path. A path has the hero when one of its
+  camp or attack stops does (`pathHasHero`; waypoints do not count, their
+  `hero: false` is a pin); a path with no camp or attack stop falls back to
+  position (the first path with the hero, later paths without). The map draws
+  a path with the hero as the main line and the others thin; any mix is
+  allowed. In the builder each path's heading has a switch, "With the hero" /
+  "Without the hero", that sets the flag on every camp and attack stop of the
+  path, and a camp or attack added to a path takes the path's state.
 - **`or`**: the reader chooses one path by its label (required), then the
   route goes on with the shared stops.
 - **`xor`**: the reader chooses one path and it never rejoins; the schema
@@ -812,8 +818,8 @@ discount for a second/third hero; a heroes-count toggle that divides the
 per-kill grant accordingly is backlog, not shipped.
 
 **XP is global.** A hero earns the XP of every kill his player makes, with
-or without him there, so a stop with `hero: false` (units only) and the
-paths of an `and` split that run without the hero add their kills' XP to the
+or without him there, so a stop with `hero: false` (units only), on a
+path of an `and` split or anywhere else, adds its kills' XP to the
 running level and xp like any other stop; the factor still reads the hero's
 current level per kill. The flag only says the hero is not there to fight.
 

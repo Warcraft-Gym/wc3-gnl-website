@@ -579,8 +579,10 @@ describe("RouteSubmitForm: paths blocks keep the target on screen", () => {
     const { container } = await load();
     fireEvent.click(screen.getByRole("radio", { name: "Take all paths simultaneously" }));
     expect(container.querySelectorAll("li[data-stop]").length).toBe(3);
-    expect(screen.getByText("The hero's path")).toBeInTheDocument();
-    expect(screen.getByText("Units without the hero")).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: "The hero takes path 1" })).toHaveTextContent("With the hero");
+    expect(screen.getByRole("switch", { name: "The hero takes path 2" })).toHaveTextContent("With the hero");
+    expect(screen.queryByText("The hero's path")).toBeNull();
+    expect(screen.queryByText("Units without the hero")).toBeNull();
     expect(screen.getByRole("button", { name: "Add stops to path 1" })).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Add stops to path 2" }));
     await waitFor(() => expect(focused()).toHaveAttribute("data-focus", "waypoint"));
@@ -822,6 +824,77 @@ describe("RouteSubmitForm: Take all paths keeps the target", () => {
     fireEvent.click([...container.querySelectorAll("li[data-stop]")].at(-1)!.querySelector("button")!);
     expect(screen.getByRole("button", { name: "Add stops to path 2" })).toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Add stops to path 1" })).toBeNull();
+  });
+});
+
+describe("RouteSubmitForm: who takes a take-all path", () => {
+  const [a, b, c, d, e] = maps[0].camps;
+  const their = String(maps[0].starts[1].player);
+  const load = async (stops: object[], arms: object[] = []) => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: arms.length ? [...stops, { campId: null, split: { mode: "and", arms } }] : stops } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelectorAll("li[data-stop]").length).toBeGreaterThan(0));
+    return view;
+  };
+  const camp = (container: HTMLElement, id: string) => fireEvent.click([...container.querySelectorAll(`[data-camp="${id}"]`)].at(-1)!);
+  const toggle = (n: number) => screen.getByRole("switch", { name: `The hero takes path ${n}` });
+  type Sent = { split?: { arms: { stops: { campId: string | null; hero?: boolean }[] }[] } };
+  const sent = async (container: HTMLElement) => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-hero" });
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson"))) as Sent[];
+    return stops.find((s) => s.split)!.split!.arms.map((arm) => arm.stops.map((s) => `${s.campId ?? "place"}:${"hero" in s ? s.hero : "-"}`));
+  };
+
+  it("a new block submits as before: path 1 with no flag, path 2 hero off; a later stop takes its path's state", async () => {
+    const { container } = await load([{ campId: a.id }, { campId: b.id }]);
+    fireEvent.click(screen.getByRole("button", { name: "Two paths" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Take all paths simultaneously" }));
+    // Empty paths show the position fallback, disabled.
+    expect(toggle(1)).toHaveAttribute("aria-checked", "true");
+    expect(toggle(1)).toHaveAttribute("aria-disabled", "true");
+    expect(toggle(2)).toHaveAttribute("aria-checked", "false");
+    expect(toggle(2)).toHaveTextContent("Without the hero");
+    camp(container, c.id);
+    fireEvent.click(screen.getByRole("button", { name: "Path 2 is empty. Add its stops" }));
+    camp(container, d.id);
+    expect(toggle(2)).not.toHaveAttribute("aria-disabled");
+    expect(await sent(container)).toEqual([[`${c.id}:-`], [`${d.id}:false`]]);
+  });
+
+  it("a stop added to a path takes the path's state, after a flip too", async () => {
+    const { container } = await load([{ campId: a.id }], [{ stops: [{ campId: b.id }] }, { stops: [{ campId: c.id, hero: false }] }]);
+    fireEvent.click(toggle(2));
+    fireEvent.click(toggle(1));
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path 1" }));
+    camp(container, d.id);
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path 2" }));
+    camp(container, e.id);
+    expect(await sent(container)).toEqual([[`${b.id}:false`, `${d.id}:false`], [`${c.id}:-`, `${e.id}:-`]]);
+  });
+
+  it("the switch flips every camp and attack stop of its path in one undo step and leaves a pin alone", async () => {
+    const pin = { campId: null, action: "Scout", place: { kind: "scout", at: { start: their } }, hero: false };
+    const attack = { campId: null, action: "Harass", place: { kind: "attack", at: { start: their } }, hero: false };
+    const { container } = await load([{ campId: a.id }], [{ stops: [{ campId: b.id }] }, { stops: [{ campId: c.id, hero: false }, pin, attack] }]);
+    expect(toggle(2)).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(toggle(2));
+    expect(toggle(2)).toHaveAttribute("aria-checked", "true");
+    expect(toggle(2)).toHaveTextContent("With the hero");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo: hero on path 2/ }));
+    expect(toggle(2)).toHaveAttribute("aria-checked", "false");
+    fireEvent.click(toggle(2));
+    expect(await sent(container)).toEqual([[`${b.id}:-`], [`${c.id}:-`, "place:false", "place:-"]]);
+  });
+
+  it("turning the hero off a path is its own undo step", async () => {
+    await load([{ campId: a.id }], [{ stops: [{ campId: b.id }] }, { stops: [{ campId: c.id }] }]);
+    fireEvent.click(toggle(1));
+    expect(toggle(1)).toHaveAttribute("aria-checked", "false");
+    expect(toggle(2)).toHaveAttribute("aria-checked", "true");
+    expect(screen.getByRole("button", { name: /^Undo: no hero on path 1/ })).toBeInTheDocument();
   });
 });
 

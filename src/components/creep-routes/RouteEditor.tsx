@@ -44,7 +44,7 @@ import {
 import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
-import { isPin } from "@/lib/creep-routes/place.mjs";
+import { heroStop, isPin, pathHasHero } from "@/lib/creep-routes/place.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
@@ -334,13 +334,13 @@ export function RouteEditor({
   };
 
   /** Adds `row` at the target and opens it; a paths block always goes at the end of the route. A camp or
-   *  attack added to path 2.. of an "and" block arrives with the hero off. `kind` is what it adds ("stop"
+   *  attack added to a path of an "and" block takes that path's hero state (`pathHasHero`). `kind` is what it adds ("stop"
    *  numbered, "row" a waypoint or paths): nothing happens at a cap. */
   const add = (row: StopRowData, kind: "stop" | "row", label: string) => {
     if (addBlocked(stops, kind)) return undefined;
     const at = row.split ? { index: stops.length } : targetPlace(stops, target);
     const split = at.splitId === undefined ? undefined : stops.find((r) => r.id === at.splitId);
-    const heroOff = split?.split?.mode === "and" && (at.arm ?? 0) > 0 && Boolean(row.campId || row.place?.kind === "attack");
+    const heroOff = split?.split?.mode === "and" && heroStop(row) && !pathHasHero(split.split.arms, at.arm ?? 0);
     step(label);
     setStops(insertAt(stops, at, heroOff ? { ...row, hero: false } : row));
     setSelectedId(row.id);
@@ -448,7 +448,6 @@ export function RouteEditor({
           setStops((rows) => patchRow(rows, row.id, patch));
         }}
         trace={inAnd ? d?.kills.map((k) => ({ ...k, leveledUp: false })) : d?.kills}
-        absent={row.hero === false}
         heroIcon={heroIcon}
         opened={{ bring: Boolean(opened[`${row.id}.bring`]), condition: Boolean(opened[`${row.id}.condition`]) }}
         onOpen={(part) => setOpened((o) => (o[`${row.id}.${part}`] ? o : { ...o, [`${row.id}.${part}`]: true }))}
@@ -502,6 +501,15 @@ export function RouteEditor({
         if (next === "or" && target.splitId === row.id) setTabs((t) => ({ ...t, [row.id]: target.arm ?? 0 }));
       },
       label: (arm: number) => arms[arm]?.label ?? "",
+      pathHero: (arm: number) => ({ on: pathHasHero(arms, arm), fallback: !arms[arm]?.stops.some(heroStop) }),
+      // One undo step flips the hero on every camp and attack stop of the path; a waypoint keeps its flag (a pin).
+      onPathHero: (arm: number) => {
+        const on = !pathHasHero(arms, arm);
+        step(`${on ? "hero" : "no hero"} on path ${arm + 1}`);
+        const stopsOf = (list: StopRowData[]) => list.map((s) => (heroStop(s) ? { ...s, hero: on ? undefined : false } : s));
+        setSplit(row.id, { arms: arms.map((p, i) => (i === arm ? { ...p, stops: stopsOf(p.stops) } : p)) });
+      },
+      heroIcon,
       onLabel: (arm: number, label: string) => {
         step("edit path label", `${row.id}.label.${arm}`);
         setStops((rows) => setArmLabel(rows, row.id, arm, label));

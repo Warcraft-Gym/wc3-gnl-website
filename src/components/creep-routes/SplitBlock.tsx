@@ -9,6 +9,7 @@ import { PathTabs } from "./PathTabs";
 import { cn } from "@/lib/utils";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import { LevelLine } from "./HeroMeter";
+import { HeroTile } from "./HeroTile";
 
 /**
  * The builder's paths block (`RouteStepTable` with `builderRows`). The top row
@@ -24,6 +25,13 @@ export type SplitEdit = {
   /** The block's row id: its name fields carry `data-path-field="<id>.<arm>"`. */
   blockId: number;
   onMode: (mode: "and" | "or") => void;
+  /** A take-all path's hero switch: `on` when the path has the hero (`pathHasHero`); `fallback` when it
+   *  holds no camp or attack stop, so its state is the position fallback and the switch is disabled. */
+  pathHero: (arm: number) => { on: boolean; fallback: boolean };
+  /** Flips the hero on every camp and attack stop of a take-all path, as one undo step. */
+  onPathHero: (arm: number) => void;
+  /** The route's hero for the switch's mark; the "Any Hero" crown when the route names none. */
+  heroIcon?: string;
   /** A path's label as typed (the route's own is trimmed). */
   label: (arm: number) => string;
   onLabel: (arm: number, label: string) => void;
@@ -169,7 +177,7 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
       />
       <div className="flex min-h-8 items-center gap-3">
         {mode === "and" ? (
-          <span className="text-sm font-medium text-fg">{arm === 0 ? "The hero's path" : "Units without the hero"}</span>
+          <HeroSwitch name={name} {...edit.pathHero(arm)} heroIcon={edit.heroIcon} onFlip={() => edit.onPathHero(arm)} />
         ) : (
           <input
             aria-label={`Path ${name} name`}
@@ -198,6 +206,30 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
       </div>
       {error ? <p className="mt-1 text-[0.7rem] text-loss">{error}</p> : null}
     </li>
+  );
+}
+
+/** Who takes a take-all path: the hero's mark and "With the hero" (gold) or "Without the hero" (muted).
+ *  ponytail: a path with no camp or attack stop has no flag to flip; its switch shows the position
+ *  fallback, disabled, until the path holds one. */
+function HeroSwitch({ name, on, fallback, heroIcon, onFlip }: { name: string; on: boolean; fallback: boolean; heroIcon?: string; onFlip: () => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-disabled={fallback || undefined}
+      aria-label={`The hero takes path ${name}`}
+      onClick={fallback ? undefined : onFlip}
+      className={cn(
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded border pl-1 pr-2.5 text-[0.8rem] font-medium lg:h-[30px]",
+        on ? "border-gold text-gold" : "border-line-strong text-muted",
+        fallback ? "cursor-not-allowed opacity-50" : on ? "hover:bg-gold/10" : "hover:text-fg",
+      )}
+    >
+      <HeroTile heroIcon={heroIcon} size={20} className={cn(!on && "opacity-40")} />
+      {on ? "With the hero" : "Without the hero"}
+    </button>
   );
 }
 

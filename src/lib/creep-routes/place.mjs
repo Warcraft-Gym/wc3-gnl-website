@@ -21,13 +21,18 @@ export function isPin(stop) {
   return isWaypoint(stop) && stop.hero === false;
 }
 
+/** True for a camp or attack stop: one the hero can go to or stay away from (a waypoint's `hero: false` is a pin). */
+export function heroStop(stop) {
+  return Boolean(stop?.campId || stop?.place?.kind === "attack");
+}
+
 /** True when the hero goes on path `a` of a take-all ("and") block: one of its camp or attack stops
  *  has the hero (`hero !== false`). A waypoint does not count: its `hero: false` is a pin.
  *  ponytail: a path with no camp or attack stop falls back to position (the first path with the
  *  hero, later paths without); the ceiling is a path of waypoints only the hero walks, or not, by
  *  choice: no flag says so until it holds a camp or an attack. */
 export function pathHasHero(arms, a) {
-  const fights = (arms[a]?.stops ?? []).filter((s) => s.campId || s.place?.kind === "attack");
+  const fights = (arms[a]?.stops ?? []).filter(heroStop);
   return fights.length ? fights.some((s) => s.hero !== false) : a === 0;
 }
 

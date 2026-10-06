@@ -142,7 +142,6 @@ export function StopEditBody({
   error,
   onChange,
   trace,
-  absent,
   heroIcon,
   opened = { bring: false, condition: false },
   onOpen = () => {},
@@ -156,8 +155,6 @@ export function StopEditBody({
   onChange: (patch: Partial<StopRowData>) => void;
   /** This stop's `deriveRoute` kill trace, for the kill order chain. */
   trace?: DerivedKill[];
-  /** Derived hero off: its own flag, or a later path of an "and" split. */
-  absent?: boolean;
   /** The route's hero icon for the Bring hero entry; the "Any Hero" crown tile when the route names none. */
   heroIcon?: string;
   /** A camp stop's Bring and condition, once opened (kept by row id in `RouteEditor`, so a move keeps them). */
@@ -170,9 +167,7 @@ export function StopEditBody({
   const isAction = !isCamp && !stop.place;
   // The hero is Bring's first entry on a camp or attack stop; a waypoint has none (a pin is the switch's).
   const heroEntry = Boolean(stop.campId || stop.place?.kind === "attack");
-  const heroOff = heroEntry && Boolean(absent ?? stop.hero === false);
-  // A later path of an "and" split: the hero walks path a, so this stop cannot take him.
-  const forcedOff = heroOff && stop.hero !== false;
+  const heroOff = heroEntry && stop.hero === false;
   // Bring and the condition show once used: content, a hero-off stop, or a click on the add button.
   // An edit there keeps it open, so removing the last unit never hides the block under focus.
   const showBring = opened.bring || stop.units.length > 0 || heroOff;
@@ -218,13 +213,11 @@ export function StopEditBody({
             <button
               type="button"
               aria-pressed={!heroOff}
-              disabled={forcedOff}
               onClick={() => bringChange({ hero: stop.hero === false ? undefined : false })}
-              title={forcedOff ? "The hero walks the first path" : heroOff ? "Add the hero" : "Send only the units"}
+              title={heroOff ? "Add the hero" : "Send only the units"}
               className={cn(
                 "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
                 heroOff ? "border-dashed border-line text-faint line-through" : "border-gold/50 text-fg",
-                forcedOff && "cursor-not-allowed",
               )}
             >
               <HeroTile heroIcon={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
