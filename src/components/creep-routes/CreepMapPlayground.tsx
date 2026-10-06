@@ -77,6 +77,8 @@ export function CreepMapPlayground({
   const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
   // The way the reader follows in each "or"/"xor" split: page state, not URL state.
   const [choice, setChoice] = useState<Record<string, number>>(initialChoice ?? {});
+  // The row pointed at or focused: the map rings its mark.
+  const [ringStop, setRingStop] = useState<string | null>(null);
   const { card, openCampId, hoverEnter, hoverLeave, cancelHoverLeave, pin, close } = useCampCard();
 
   // Escape clears the selection, unless a card or popover is open (it closes that instead).
@@ -121,6 +123,7 @@ export function CreepMapPlayground({
         map={map}
         route={route}
         activeStop={view.selected}
+        ringStop={ringStop}
         onCampSelect={onMarkerSelect}
         groupMarkers
         walkAllCamps
@@ -138,6 +141,7 @@ export function CreepMapPlayground({
   const stopColumn = (
     <>
       <RouteStepTable
+        onHoverKey={setRingStop}
         route={route}
         map={map}
         selected={view.selected}

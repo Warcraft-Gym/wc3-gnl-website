@@ -22,8 +22,6 @@ export type DerivedStop = {
   left: number;
   /** One entry per kill, in kill order. */
   kills: DerivedKill[];
-  /** Set on an arm stop the hero cannot walk (a later arm of an "and" split): derived without the hero whatever its own flag. */
-  hero?: false;
   /** Arm stops only: which arm of which split (the split's top-level key). */
   armIndex?: number;
   forkKey?: string;

@@ -98,8 +98,9 @@ const stopName = (label) => (label ? `Stop ${label}` : "A waypoint");
 
 /**
  * Where a route form message sits, named the way the route list numbers its
- * stops: "Stop 3, Note", "Stop 4a, Camp", "Split at stop 2, path b". `stops`
- * is the list that was checked, so the numbers match the message's indexes.
+ * stops: "Stop 3, Note", "Stop 4a, Camp", "Paths at stop 2, path B". A path is
+ * named as its tab or heading names it: A, B, C to choose one, 1, 2, 3 to take all.
+ * `stops` is the list that was checked, so the numbers match the message's indexes.
  * @param {string} key
  * @param {{ split?: { mode: string, arms: { stops: unknown[] }[] } }[]} stops
  */
@@ -115,7 +116,7 @@ export function routeErrorPlace(key, stops) {
     j !== undefined
       ? stopName(armEntry?.stops[Number(j)]?.label)
       : split
-        ? `Split at stop ${entry.label}${armEntry ? `, path ${armEntry.letter}` : ""}`
+        ? `Paths at stop ${entry.label}${armEntry ? `, path ${stops[Number(i)].split?.mode === "and" ? Number(arm) + 1 : armEntry.letter.toUpperCase()}` : ""}`
         : stopName(entry.label);
   return field ? `${place}, ${fieldLabel(field)}` : place;
 }

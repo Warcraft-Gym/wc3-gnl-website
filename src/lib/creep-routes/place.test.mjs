@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { actionNamesPlace, atKind, isPin, isWaypoint, kindForClick, placeIds, placeName, placePoint, placeProblem, placeWhere } from "./place.mjs";
+import { PLACE_KINDS, actionNamesPlace, atKind, isPin, isWaypoint, kindForClick, placeIds, placeName, placePoint, placeProblem, placeWhere } from "./place.mjs";
 
 const map = {
   starts: [{ player: 1, x: 0.7, y: 0.9 }, { player: 3, x: 0.3, y: 0.1 }],
@@ -71,11 +71,16 @@ test("a builder click picks the kind: enemy start attack, own start build, mine 
   assert.equal(kindForClick({ start: "1" }, "1"), "build");
   assert.equal(kindForClick({ mine: "0" }, "1"), "expand");
   assert.equal(kindForClick({ shop: "nmrk-6" }, "1"), "shop");
-  assert.equal(kindForClick({ x: 0.2, y: 0.4 }, "1"), "build");
+  assert.equal(kindForClick({ x: 0.2, y: 0.4 }, "1"), "other");
 });
 
 test("actionNamesPlace: the list drops the place name when the action already says it", () => {
   assert.equal(actionNamesPlace("Harass their base", "their base"), true);
   assert.equal(actionNamesPlace("Buy at the MARKETPLACE", "Marketplace"), true);
   assert.equal(actionNamesPlace("Buy circlet", "Marketplace"), false);
+});
+
+test("the kinds: attack is numbered, five waypoint kinds, other last", () => {
+  assert.deepEqual(PLACE_KINDS, ["attack", "build", "expand", "shop", "scout", "other"]);
+  assert.equal(isWaypoint({ place: { kind: "other", at: { x: 0.5, y: 0.5 } } }), true);
 });

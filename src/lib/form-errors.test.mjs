@@ -55,8 +55,14 @@ test("routeErrorPlace: names a stop the way the route list numbers it", () => {
   assert.equal(routeErrorPlace("stops.1.place", stops), "A waypoint, Place");
   assert.equal(routeErrorPlace("stops.2.split.arms.0.stops.1.note", stops), "Stop 3a, Note");
   assert.equal(routeErrorPlace("stops.2.split.arms.1.stops.0.units.0.count", stops), "Stop 2b, Bring");
-  assert.equal(routeErrorPlace("stops.2.split.arms.1.label", stops), "Split at stop 2, path b, When to take it");
+  assert.equal(routeErrorPlace("stops.2.split.arms.1.label", stops), "Paths at stop 2, path B, When to take it");
+  assert.equal(routeErrorPlace("stops.2.split", stops), "Paths at stop 2");
   assert.equal(routeErrorPlace("stops.3.hero", stops), "Stop 4, Hero");
+});
+
+test("routeErrorPlace: a take-all path by its number", () => {
+  const all = [camp("c1"), { campId: null, split: { mode: "and", arms: [{ stops: [camp("c2")] }, { stops: [] }] } }];
+  assert.equal(routeErrorPlace("stops.1.split.arms.1.stops", all), "Paths at stop 2, path 2, Stops");
 });
 
 test("routeErrorPlace: a route field by its name; an index past the list is the stops", () => {

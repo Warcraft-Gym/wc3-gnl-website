@@ -109,48 +109,49 @@ test("an and block's join row points at a split with a grouped total", () => {
 // The builder: every path shows as a block on the lane rail.
 const kinds = (rows) => rows.map((r) => (r.type === "stop" ? r.label : r.type === "slot" ? `[${r.label}]` : r.type));
 const ends = (v) => (v === true ? "" : v ? v[0] : "");
-const rail = (row) => row.lines.map((l) => `${l.lane}${l.top ? `${ends(l.top)}^` : ""}${l.bottom ? `${ends(l.bottom)}v` : ""}`).join(" ");
+const rail = (row) => row.lines.map((l) => `${l.lane}${l.top ? `${ends(l.top)}^` : ""}${l.bottom ? `${ends(l.bottom)}v` : ""}${l.off ? "*" : ""}`).join(" ");
 
-test("builder: every path is a block, a heading, its stops, then an add row; or between blocks; after the split", () => {
+test("builder: a choose-one block lists only the shown path in its panel; the others are dashed lanes", () => {
   const stops = [camp("c1"), or([camp("c2")], [camp("c3"), camp("c4")]), camp("c5")];
   const rows = builderRows(stops, {}, { index: 3, label: "4" });
-  // The stop after the split goes on from the chosen path, a by default.
-  assert.deepEqual(kinds(rows), ["1", "split", "head", "2a", "add", "sep", "head", "2b", "3b", "add", "more", "after", "3", "[4]"]);
-  assert.deepEqual(rows.filter((r) => r.type === "head").map((r) => [r.count, r.waypoints]), [[1, 0], [2, 0]]);
-  // Lane b curves out at the split, runs past block a and joins at the after row; lane a runs through.
-  assert.equal(rail(rows[3]), "al^v b^v");
-  assert.equal(rail(rows[11]), "a^v b^");
-  assert.equal(rows[11].joins, true);
-  assert.equal(rail(rows[13]), "a^");
+  // The stop after the block goes on from the shown path, a by default.
+  assert.deepEqual(kinds(rows), ["1", "split", "head", "2a", "add", "after", "3", "[4]"]);
+  assert.deepEqual(rows.filter((r) => r.panel).map((r) => r.type), ["head", "stop", "add"]);
+  assert.equal(rows[1].shown, 0);
+  assert.deepEqual(rows[1].lanes, [{ lane: "a", off: false }, { lane: "b", off: true }]);
+  // Lane a runs through path a; lane b runs dashed beside the panel and joins at the after row.
+  assert.equal(rail(rows[3]), "al^v b^v*");
+  assert.equal(rail(rows[5]), "a^v b^*");
+  assert.equal(rows[5].joins, true);
+  assert.equal(rail(rows[7]), "a^");
 });
 
-test("builder: the next-stop row sits in its path, which is lit gold; the other paths are light", () => {
+test("builder: a tab shows its path; the add line in it is lit gold; nothing after, so the lanes end there", () => {
   const stops = [camp("c1"), or([camp("c2")], [camp("c3")])];
-  const rows = builderRows(stops, {}, { index: 1, arm: 1, j: 1, label: "3b" });
-  assert.deepEqual(kinds(rows), ["1", "split", "head", "2a", "add", "sep", "head", "2b", "[3b]", "more", "after"]);
+  const rows = builderRows(stops, { 1: 1 }, { index: 1, arm: 1, j: 1, label: "3b" });
+  assert.deepEqual(kinds(rows), ["1", "split", "head", "2b", "[3b]", "after", "end"]);
+  assert.equal(rows[1].shown, 1);
   assert.equal(rows.find((r) => r.type === "slot").lane, "b");
-  // Path a: light from its heading to its last stop; path b: gold to the next-stop row. Nothing follows, so the lanes end there.
-  assert.equal(rail(rows[2]), "a^lv b^v");
-  assert.equal(rail(rows[3]), "al^ b^v");
-  assert.equal(rail(rows[6]), "b^gv");
-  assert.equal(rail(rows[8]), "bg^");
-  assert.equal(rows[10].joins, false);
-  assert.equal(rail(rows[10]), "");
+  assert.equal(rows.find((r) => r.type === "slot").panel, "1");
+  assert.equal(rail(rows[3]), "bg^gv");
+  assert.equal(rail(rows[4]), "bg^");
+  assert.equal(rows[5].joins, false);
+  assert.equal(rail(rows[5]), "");
 });
 
-test("builder: a next-stop row right after the split joins the paths; an empty path ends at its heading", () => {
+test("builder: the add line on the route right after the block joins the paths; the route ends in it", () => {
   const stops = [or([camp("c2")], [])];
   const rows = builderRows(stops, {}, { index: 1, label: "2" });
-  assert.deepEqual(kinds(rows), ["split", "head", "1a", "add", "sep", "head", "add", "more", "after", "[2]"]);
+  assert.deepEqual(kinds(rows), ["split", "head", "1a", "add", "after", "[2]"]);
   assert.equal(rows[0].lines.find((l) => l.lane === "a").top, false);
-  assert.equal(rows[8].slotAfter, true);
-  assert.equal(rail(rows[8]), "a^v b^");
-  assert.equal(rows[6].length, 0);
+  assert.equal(rail(rows[4]), "a^v b^*");
+  // Without the add line there the route ends in its quiet end row.
+  assert.equal(builderRows(stops, {}, null).at(-1).type, "end");
 });
 
 test("builder: a same-time split keeps one number per step on every path and marks its stops as one block", () => {
   const stops = [camp("c1"), and([camp("c2")], [camp("c3")]), camp("c4")];
   const rows = builderRows(stops);
-  assert.deepEqual(kinds(rows), ["1", "split", "head", "2", "add", "sep", "head", "2", "add", "after", "3"]);
+  assert.deepEqual(kinds(rows), ["1", "split", "head", "2", "add", "sep", "head", "2", "add", "after", "3", "end"]);
   assert.ok(rows.filter((r) => r.type === "stop" && r.group).every((r) => r.block === "1"));
 });

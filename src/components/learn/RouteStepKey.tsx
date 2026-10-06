@@ -1,7 +1,7 @@
-/** A small map key for the three choices in the route builder. */
+/** A small map key for the three kinds of step that are not camps. */
 export function RouteStepKey() {
   return (
-    <figure className="my-6 grid gap-2 sm:grid-cols-3" aria-label="How places appear on a route map">
+    <figure className="my-6 grid gap-2 sm:grid-cols-3" aria-label="Steps that are not camps">
       <div className="rounded border border-line bg-bg p-3">
         <svg aria-hidden viewBox="0 0 140 38" className="h-10 w-full">
           <path d="M8 19 H132" stroke="var(--wg-text-muted)" strokeWidth="2" />
@@ -16,7 +16,7 @@ export function RouteStepKey() {
           <path d="M70 18 V8" stroke="var(--wg-text-muted)" strokeWidth="1.5" strokeDasharray="3 2" />
           <path d="M70 2 L76 8 L70 14 L64 8 Z" fill="var(--wg-bg)" stroke="white" strokeWidth="1.5" strokeDasharray="3 2" />
         </svg>
-        <p className="font-semibold text-fg">A pin</p>
+        <p className="font-semibold text-fg">Pin</p>
         <p className="text-sm text-muted">The place is marked. The line skips it.</p>
       </div>
       <div className="rounded border border-line bg-bg p-3">

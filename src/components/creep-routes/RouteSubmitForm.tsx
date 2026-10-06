@@ -112,6 +112,8 @@ function RouteSubmitFormInner({
   const remember = (label: string, sel: Selection | null) => setUndo((u) => pushUndo(u, stops, label, sel));
   // The last undo's entry, a new object each time: the builder puts back its selection when the selected row is gone.
   const [undone, setUndone] = useState<UndoEntry | null>(null);
+  // Bumped by an import: the editor remounts, so its target is the end of the route.
+  const [imports, setImports] = useState(0);
   const undoLast = () => {
     const top = popUndo(undo);
     if (!top) return;
@@ -185,6 +187,8 @@ function RouteSubmitFormInner({
     setTags(r.tags.slice(0, 8));
     setStops(r.stops.map(stopToRow));
     setUndo([]);
+    // A new editor for imported stops: the target goes back to the end of the route.
+    setImports((n) => n + 1);
   };
   // Applies a `#route=` payload on mount, and again on `hashchange` so a
   // link followed while the editor is already open (in-tab hash navigation,
@@ -327,7 +331,7 @@ function RouteSubmitFormInner({
             <ChevronDown size={18} className="shrink-0 text-gold transition-transform group-open:rotate-180" />
           </summary>
           <ul className="space-y-1.5 border-t border-gold/20 px-5 py-4">
-            <li className="flex gap-2"><span className="text-gold">·</span> Click camps on the map in the order you clear them, no need to type camp contents.</li>
+            <li className="flex gap-2"><span className="text-gold">·</span> Pick camps on the map in the order you clear them, no need to type camp contents.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> A note or condition on a stop says <em>why</em>: when it works, what to watch for.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> Standard is the current meta route; Beginner is the safer, simpler pick — choose the one your route actually is.</li>
             <li className="flex gap-2"><span className="text-gold">·</span> Condition is the short trigger shown before the note (e.g. &quot;if harassed&quot;); Note explains what to do and why.</li>
@@ -413,6 +417,7 @@ function RouteSubmitFormInner({
           ) : null}
           <div className="mt-4" hidden={preview}>
             <RouteEditor
+              key={imports}
               map={map}
               stops={stops}
               setStops={setStops}

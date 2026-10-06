@@ -1,12 +1,12 @@
 "use client";
 
-import { useRef } from "react";
 import { ChevronDown, Swords } from "lucide-react";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import { HeroMeter, LevelLine } from "./HeroMeter";
 import type { RouteStop } from "@/lib/creep-routes/types";
 import { isPin, isWaypoint } from "@/lib/creep-routes/place.mjs";
 import { cn } from "@/lib/utils";
+import { PathTabs } from "./PathTabs";
 
 /**
  * The lane rail of every route (`route-rows.mjs`): a 44px column at the left
@@ -111,10 +111,10 @@ export function RailSvg({ children }: { children: React.ReactNode }) {
 
 /**
  * A split's caption row: no number, no band dot, no chevron. The rail curves every lane out of
- * the main line, a path not taken dashed. "or" and "xor" read "Choose a path" and carry the tab
- * strip as browser tabs (`role="tablist"`, arrow keys, the hero's level at each path's end): the
- * chosen tab is open at the bottom onto its path's rows, the `tabpanel` below; the others are
- * recessed. "and" reads "At the same time". The builder draws its own caption (`SplitCaption`).
+ * the main line, a path not taken dashed. "or" and "xor" read "Choose one path" and carry the tab
+ * strip (`PathTabs`, `role="tablist"` named by the kind, arrow keys, the hero's level at each path's
+ * end): the shown tab opens into its panel, the `tabpanel` below. "and" reads "Take all paths
+ * simultaneously". The builder draws its own caption (`SplitCaption`) with the same tabs.
  */
 export function SplitRow({
   mode,
@@ -142,17 +142,7 @@ export function SplitRow({
 }) {
   const choose = mode !== "and";
   const walked = node?.walked ?? 0;
-  const tabs = useRef<(HTMLButtonElement | null)[]>([]);
-  const name = mode !== "and" ? "Choose a path" : "At the same time";
-  // Arrow keys move the selection along the tab strip, Home and End to its ends.
-  const onTabKey = (e: React.KeyboardEvent, a: number) => {
-    const last = arms.length - 1;
-    const next = e.key === "ArrowRight" ? (a === last ? 0 : a + 1) : e.key === "ArrowLeft" ? (a === 0 ? last : a - 1) : e.key === "Home" ? 0 : e.key === "End" ? last : null;
-    if (next === null) return;
-    e.preventDefault();
-    onChoose(stopKey, next);
-    tabs.current[next]?.focus();
-  };
+  const name = mode !== "and" ? "Choose one path" : "Take all paths simultaneously";
   return (
     <li data-split={stopKey} className={cn("relative min-h-8 border-t border-line/40 pl-[60px] pr-4 first:border-t-0 sm:pr-5", choose ? "pt-1.5" : "py-3")}>
       <ForkRail main={main} lanes={lanes} />
@@ -164,44 +154,19 @@ export function SplitRow({
           ))
         : null}
       {choose ? (
-        // Browser tabs: the strip's base line runs under the caption, the recessed tabs and the
-        // filler; the chosen tab has no bottom edge, so it opens into its path's rows below.
-        <div className="flex min-w-0 flex-wrap items-end">
-          <span className="basis-full pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint sm:basis-auto sm:border-b sm:border-line-strong sm:pr-3">{name}</span>
-          <div role="tablist" aria-label={name} className="flex min-w-0 flex-wrap items-end">
-            {arms.map((arm, a) => {
-              const chosen = a === walked;
-              const level = node?.arms[a] ? <span className={cn("tnum shrink-0 text-[0.8rem]", chosen ? "text-muted" : "text-faint")}>Lv {node.arms[a].levelAfter}</span> : null;
-              return (
-                <button
-                  key={a}
-                  ref={(el) => {
-                    tabs.current[a] = el;
-                  }}
-                  id={`${baseId}-tab-${stopKey}-${a}`}
-                  type="button"
-                  role="tab"
-                  aria-selected={chosen}
-                  aria-controls={chosen ? `${baseId}-panel-${stopKey}` : undefined}
-                  tabIndex={chosen ? 0 : -1}
-                  onClick={() => onChoose(stopKey, a)}
-                  onKeyDown={(e) => onTabKey(e, a)}
-                  className={cn(
-                    "inline-flex min-w-0 items-baseline gap-1.5 rounded-t border px-3 text-left text-[0.84rem] transition-colors",
-                    "focus-visible:outline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-gold",
-                    chosen
-                      ? "border-line-strong border-b-transparent pb-2 pt-1.5 text-fg"
-                      : "border-transparent border-b-line-strong bg-bg/50 pb-1 pt-1 text-faint hover:text-muted",
-                  )}
-                >
-                  <span>{arm.label}</span>
-                  {level}
-                </button>
-              );
-            })}
-          </div>
-          <span aria-hidden className="min-w-2 flex-1 self-stretch border-b border-line-strong" />
-        </div>
+        <>
+          <span className="block pb-1.5 text-[0.74rem] uppercase tracking-[0.06em] text-faint">{name}</span>
+          <PathTabs
+            labels={arms.map((arm) => arm.label ?? "")}
+            shown={walked}
+            onShow={(a) => onChoose(stopKey, a)}
+            tabId={(a) => `${baseId}-tab-${stopKey}-${a}`}
+            panelId={`${baseId}-panel-${stopKey}`}
+            name={name}
+            after={(a) => (node?.arms[a] ? <span className="tnum shrink-0 text-[0.8rem] text-muted">Lv {node.arms[a].levelAfter}</span> : null)}
+            className="-ml-2.5 -mr-2 sm:-mr-3"
+          />
+        </>
       ) : (
         // One disclosure for every path, with the hero after them all: a stop's level line closed, its meter open.
         <div className="relative grid grid-cols-[minmax(0,1fr)_1.25rem] gap-x-3">

@@ -97,7 +97,7 @@ function baseStopSchema(iconSet, splitField) {
           (k) => stop[k] !== undefined && !(Array.isArray(stop[k]) && !stop[k].length),
         );
         if (stop.campId !== null || extra.length) {
-          ctx.addIssue({ code: "custom", message: "A split holds only its paths", path: ["split"] });
+          ctx.addIssue({ code: "custom", message: "Paths hold only stops.", path: ["split"] });
         }
         return;
       }
@@ -129,13 +129,14 @@ function splitSchema(armStopSchema) {
             stops: z.array(armStopSchema).max(20, "Max 20 stops"),
           }),
         )
-        .min(2, "A split needs two or three paths")
+        .min(2, "Add a second path or remove the paths.")
         .max(MAX_PATHS, CAP_OVER.paths),
     })
     .superRefine((split, ctx) => {
-      // The builder leaves a path empty when its last stop moves out; the check names it.
+      // The builder leaves a path empty when its last stop moves out; the check names it as its tab or heading does.
       split.arms.forEach((arm, a) => {
-        if (!arm.stops.length) ctx.addIssue({ code: "custom", message: `Path ${a + 1} is empty. Add a stop to it or remove it.`, path: ["arms", a, "stops"] });
+        const name = split.mode === "and" ? a + 1 : "ABC"[a];
+        if (!arm.stops.length) ctx.addIssue({ code: "custom", message: `Path ${name} is empty. Add a stop to it or remove it.`, path: ["arms", a, "stops"] });
       });
       if (split.mode === "and") return;
       split.arms.forEach((arm, a) => {
@@ -145,7 +146,7 @@ function splitSchema(armStopSchema) {
 }
 
 const placeSchema = z.object({
-  kind: z.enum(["attack", "build", "expand", "shop", "scout"], { error: "Pick what happens here" }),
+  kind: z.enum(["attack", "build", "expand", "shop", "scout", "other"], { error: "Pick what happens here" }),
   at: z.union([
     z.object({ start: z.string().trim().min(1).max(20) }).strict(),
     z.object({ mine: z.string().trim().min(1).max(20) }).strict(),
@@ -178,7 +179,7 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A path cannot hold another split");
+  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A path cannot hold more paths");
   const armStopSchema = baseStopSchema(iconSet, noSplit);
   const stopSchema = baseStopSchema(iconSet, splitSchema(armStopSchema).optional());
 
@@ -300,7 +301,7 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
         stop.split?.arms.forEach((arm, a) => arm.stops.forEach((s, j) => checkStop(s, ["stops", i, "split", "arms", a, "stops", j])));
         // An "xor" way never rejoins: nothing may follow it.
         if (stop.split?.mode === "xor" && i < data.stops.length - 1) {
-          ctx.addIssue({ code: "custom", message: "Nothing follows an either/or split", path: ["stops", i, "split"] });
+          ctx.addIssue({ code: "custom", message: "No stop can follow paths that end the route.", path: ["stops", i, "split"] });
         }
       });
       const startsCount = startsCountByMap.get(data.map);

@@ -433,8 +433,9 @@ data layer share:
 A camp stop always kills something; everything else is a waypoint.
 
 A stop can happen at a place instead of a camp: `RouteStop.place` is
-`{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop` or
-`scout`. `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
+`{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop`,
+`scout` or `other` (the builder and the Studio list them Shop, Expand, Build,
+Scout, Attack, Other). `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
 `{ mine }` (the index into `map.mines[]`), `{ shop }` (`map.shops[].id`) or
 `{ x, y }` (an image fraction 0..1, like a camp's). A place stop has
 `campId: null` and an `action` that names it ("Harass their base", "Plant the
@@ -442,7 +443,7 @@ Ancient of War"); the submission schema rejects a place on a camp stop, a place
 without an action, and a start, mine or shop the map does not have
 (`place.mjs`'s `placeProblem`).
 
-An `attack` is a numbered stop. The other four kinds are waypoints: no
+An `attack` is a numbered stop. The other five kinds are waypoints: no
 number, not counted in "N stops" (`stop-numbers.mjs`).
 
 A route is a list of steps in time. The line on the map joins the steps that
@@ -474,15 +475,25 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   diamond, and its content moves right to clear it.
 - **Builder.** A click on their start adds an attack, on your start a build
   waypoint, on a mine an expand waypoint, on a shop a shop waypoint
-  (`kindForClick`). "Waypoint" asks first, in the next-stop row: "On the
-  route", "A pin" or "No place". The first two arm the map (a start, mine or
-  shop snaps to its spot; a pin is never an attack and scouts at a free
-  point); No place adds a base action. An open waypoint has the switch "On
-  the route | Pin | No place" (one undo step each; No place clears the place
-  and keeps the text, back from No place arms the map for that row), the kind
-  buttons (a pin offers no Attack; an attack made a pin scouts), its text and
-  the note. A start, mine or shop under a camp's button takes no mouse click;
-  Tab reaches it.
+  (`kindForClick`). "Waypoint" switches the map to places mode: every
+  start, mine and shop is a 32px button that never overlaps another (a
+  moved one draws a line to its true spot, which is stored), a click
+  within 6 px of one takes it, and a click anywhere else adds a free
+  point of kind Other (lucide `MapPin`, "e.g. Wait here until the creeps
+  sleep"). Each target is named "Add a waypoint at <name>", or "Add an
+  attack at their base"; a name several targets share is numbered in map
+  order ("Gold mine 2"). A bar under the map holds "No place" (a base action)
+  and "Cancel"; in the normal state places take no click. An open waypoint has
+  the kind buttons (Shop, Expand, Build, Scout, Attack, Other; a pin offers
+  no Attack; an attack made a pin scouts),
+  the switch "On the route | Pin" and "Move" (places mode for that row;
+  the click moves it and keeps its text, kind, type and Bring; removing that
+  row ends places mode), its text and the note; a base action has its text
+  and the note, and Bring or a condition only when they hold content. With a fine
+  pointer a waypoint or pin mark also drags on the map: past 4 px the place
+  targets show, the mark and its legs follow, it snaps within 6 px of a
+  target, and the release moves the row in one undo step ("move waypoint");
+  Escape, a cancel or a release off the map change nothing.
 - **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
   Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
   Appearance under Neutral, from the art the site already has. `count` on an
@@ -516,24 +527,30 @@ with no action, place or other field, one level deep (an arm stop never
 holds a split), 2 or 3 arms of 1..n stops. Stops after a split are shared by
 every path; a continuation of only one path belongs inside that path.
 
-- **`and`**: every path runs at once, no labels. Path a is the hero's line; the
-  builder sets `hero: false` on each camp or attack it adds to paths b.., and
-  derive runs those paths without the hero whatever their flags say.
+- **`and`**: every path runs at once, no labels. Who goes to a stop is the
+  stop's own `hero` flag, on every path. A path has the hero when one of its
+  camp or attack stops does (`pathHasHero`; waypoints do not count, their
+  `hero: false` is a pin); a path with no camp or attack stop falls back to
+  position (the first path with the hero, later paths without). The map draws
+  a path with the hero as the main line and the others thin; any mix is
+  allowed. In the builder each path's heading has a switch, "With the hero" /
+  "Without the hero", that sets the flag on every camp and attack stop of the
+  path, and a camp or attack added to a path takes the path's state.
 - **`or`**: the reader chooses one path by its label (required), then the
   route goes on with the shared stops.
 - **`xor`**: the reader chooses one path and it never rejoins; the schema
-  rejects stops after an `xor` split ("Nothing follows an either/or split").
+  rejects stops after an `xor` split ("No stop can follow paths that end the route.").
 
 The Studio repeats both checks as errors with the same words: an `or` or
 `xor` path with no label ("Say when to take this path") and a stop after an
 `xor` split.
 
-The builder offers two modes, "Choose a path" and "At the same time", and
+The builder offers two kinds, "Choose one path" and "Take all paths simultaneously", and
 saves `or` or `xor` from the structure: stops after the split mean `or`,
 nothing after means `xor` (`savedMode` in `editor-rows.mjs`).
 
-In Sanity the split is a `creepSplit` array member (Studio: "At the same
-time" / "Choose a path, then continue" / "Choose a path"), next to the `stop`
+In Sanity the split is a `creepSplit` array member (Studio: "Take all paths
+simultaneously" / "Choose one path, then continue" / "Choose one path"), next to the `stop`
 members (`creepStop`, stored under the name `stop`). A whole-route pair is a
 split at index 0. `condition` stays a single stop's.
 
@@ -576,14 +593,14 @@ choose one, no number means a waypoint.
   split row and, when stops follow, a join row. A 44px rail is added in front of today's row and moves nothing: 2px lines in
   `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
   lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
-  node for an attack. The split row is a slim caption: "At the same time"
-  (`and`), or "Choose a path" with browser tabs (`role="tablist"`, arrow
-  keys, the hero's level at each path's end; the chosen tab is open at the
-  bottom onto its path's rows, a `tabpanel`; the others are recessed). `and`
+  node for an attack. The split row is a slim caption: "Take all paths simultaneously"
+  (`and`), or "Choose one path" with tabs (`PathTabs`, `role="tablist"`, arrow
+  keys, the hero's level at each path's end; the shown tab opens into its
+  panel, a `tabpanel` named by that tab, and the others are dimmer). `and`
   shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
-  example has no rail. The heading of an "At the same time" split is one
+  example has no rail. The heading of a "Take all paths simultaneously" block is one
   dropdown for all its paths and shows the hero after them all, like a
   stop row: closed, the level line `Lv 3 · 552 xp`; open, the hero meter.
   A level line starts with a gold double chevron when its stop or split
@@ -593,11 +610,13 @@ choose one, no number means a waypoint.
   as harass or shopping may add no XP.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.
-- **Builder.** "Split here" in the next-stop row opens a short form (pick one
-  path or both at the same time, and the paths' names) and inserts nothing
-  until "Start path A". In the builder every path shows, stacked, with its
-  heading and name field (`builderRows`); the reader keeps the tabs. The
-  caption row has two mode chips; `or` or `xor` is saved from the structure.
+- **Builder.** "Two paths" in the list header adds a "Choose one path" block
+  with two unnamed paths at the end of the route and makes path A the target.
+  The block's top row has a kind switch, "Choose one path" or "Take all paths
+  simultaneously"; `or` or `xor` is saved from the structure. "Choose one
+  path" shows the reader's tabs (`PathTabs`) and only the shown path, with its
+  name field, in a panel under its tab; "Take all paths simultaneously" lists
+  every path one under the other (`builderRows`).
   See "The slim builder" below for adds, moves, removals and undo.
 
 ### Pictures
@@ -799,8 +818,8 @@ discount for a second/third hero; a heroes-count toggle that divides the
 per-kill grant accordingly is backlog, not shipped.
 
 **XP is global.** A hero earns the XP of every kill his player makes, with
-or without him there, so a stop with `hero: false` (units only) and the
-paths of an `and` split that run without the hero add their kills' XP to the
+or without him there, so a stop with `hero: false` (units only), on a
+path of an `and` split or anywhere else, adds its kills' XP to the
 running level and xp like any other stop; the factor still reads the hero's
 current level per kill. The flag only says the hero is not there to fight.
 
@@ -973,7 +992,8 @@ a playable kill order (`killOrderDemo` block in
 block (`slugs`, `GuideRoutePart`) takes the first slug whose route has the
 section's feature (`needs`: split, and, waypoint, pin or attack; `route-has.mjs`)
 and renders nothing when no route has it. The guide uses a small route-step
-key for On the route / A pin / No place, shows a real pin on both map and list,
+key for the three kinds of step that are not camps (On the route, Pin, No
+place), shows a real pin on both map and list,
 and embeds two simultaneous-path examples: a camp with harass and two camps.
 `src/app/sitemap.ts` lists the list page (via `LEARN_CATEGORIES`, same as
 every other category) and every published route slug.
@@ -1104,38 +1124,51 @@ sees; this section is the mechanics.
   reader's one-line `StopBlock` row (a waypoint its slim row); one stop is
   open at a time, the selected one, shared with the map's pulsing node, and
   its body is `StopEditBody` (a camp stop: the kill order picker and the note;
-  any other step: the switch "On the route | Pin | No place", the kind
-  buttons, its text and the note; then Bring and the condition behind add
+  any other step: the kind buttons, the switch "On the route | Pin" and
+  "Move", its text and the note; then Bring and the condition behind add
   buttons until used, the hero entry on camp and attack stops only); move and remove
-  (`StopTools`) sit on the open stop's summary line. A split shows every path
-  stacked (`builderRows`, `SplitBlock`): the caption row with the mode chips,
-  move and "Remove split", then one block per path (a heading row with the
-  name field, the path's stops, an add row), and the "After the split" row.
-  The next-stop row (`NextStopRow`, `nextStop`) sits where the next map click
-  lands and holds "Waypoint" and "Split here" (`SplitForm`). Every move has
-  one rule (`editor-rows.mjs`, v2.7): a map click adds after the selected row
-  in its own list, at the end of a path when its split is selected ("Add stops
-  to path B"), right after the split with "Continue the route here", else at
-  the end, and a camp already in that list is selected instead; every row
+  (`StopTools`) sit on the open stop's summary line. A paths block
+  (`builderRows`, `SplitBlock`) has a top row with the kind switch, move and
+  "Remove paths, keep path A"; "Choose one path" adds the tab strip and lists
+  the shown path in a panel (a head row with the name field, its stops, its add
+  line), "Take all paths simultaneously" lists every path one under the other.
+  The builder keeps one target, the route or one path and a position in it
+  (`targetPlace`; null is the end). A click or Enter on a map leg inside one
+  list sets the position right after the leg's first step (`legTarget`); a
+  second click, or "Continue the route", puts it back at the end. A position
+  holds the ids of the rows around it, so it stays between the same two steps
+  when rows move or a two-path block turns into plain stops, and is clamped
+  into its list when both are gone; setting it is not an undo step. The add
+  line (`NextStopRow`, `nextStop`) sits there and every other list end shows a
+  quiet add button ("Add stops to path B", "Continue the route"; focus then
+  goes to "Waypoint"). The target is never in a hidden path: showing a path of
+  the target's block (`showPath`: opening a stop, a submit error, an arrow
+  move, a drop, a removed path) moves the target to it; a tab, a quiet add
+  button, "Two paths", a new path and a removed path move it too. Undo keeps
+  the target while it exists, else the saved one, else the end of the route. "Waypoint" and "Two paths" sit in the list
+  header. Every move has one rule (`editor-rows.mjs`): a map click adds at the
+  target, and a camp already in that list opens instead; every row
   has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
   `moveRowTo`), a split moves as a block and never into a path, and a path's
   heading and add row take a drop; the open stop's arrows make the
-  same moves on a keyboard or phone (`stepTarget`, then `moveRowTo`) in the
-  stacked order: up from a path's first stop to the end of the path above
-  (from path A: just above the split), down from its last stop to the start of
-  the path below (from the last path: just below the split), and a main-list
-  stop that meets a split enters its first path from above, its last path from
+  same moves on a keyboard or phone (`stepTarget` with the shown tabs, then
+  `moveRowTo`) through what is on screen: in a "Choose one path" block only the
+  shown path, so up from its first stop leaves just above the block, down from
+  its last stop just below it, and a route stop that meets the block enters the
+  shown path; a "Take all paths simultaneously" block walks every path in
+  order (up from a path's first stop to the end of the path above, down from
+  its last stop to the start of the path below, out past path 1 or the last
+  path) and a route stop enters its first path from above, its last from
   below; an arrow that enters or leaves a path says so in its name ("Move into
-  path B", "path 2" at the same time, "Move out of the split"), and focus stays
-  on the moved stop's arrow; every path heading has a remove button, and
-  removing one of two paths turns the split into plain stops (`removePath`);
-  "Remove split" keeps path A (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
+  path B", "path 2" in a "Take all" block, "Move out of the paths"), and focus
+  stays on the moved stop's arrow; every path heading has a remove button, and
+  removing one of two paths turns the block into plain stops (`removePath`);
+  "Remove paths, keep path A" keeps path A (`removeSplit`). Undo is a stack of up to 50 earlier stop lists in the form
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
   Path labels are kept as typed and trimmed once on blur (`setArmLabel`).
-  "Waypoint" opens its chooser in the next-stop row (`WaypointChooser`):
-  On the route and A pin arm the next map click, No place adds a base action
-  and focuses its text. The
+  "Waypoint" toggles places mode (`PlaceTargets`, the armed bar under the
+  map); an add opens the new row with focus in its text. The
   section header's "Edit |
   Preview" toggle draws the route page's own section (`CreepMapPlayground`)
   from the draft, read-only; the editor stays mounted under it, so the

@@ -35,6 +35,9 @@ type PathNode = {
   pin?: boolean;
 };
 
+/** A press on a waypoint or pin mark: its stop key, the event, and how the mark looks. */
+export type MarkDown = (key: string, e: React.PointerEvent, mark: { kind: Place["kind"]; pin: boolean }) => void;
+
 /** `thin`: a lane of an "and" split without the hero. */
 type LegStyle = "solid" | "thin";
 
@@ -53,11 +56,17 @@ export const RoutePath = memo(function RoutePath({
   map,
   stops,
   activeStop,
+  ringStop,
   youStart = 0,
   onStopSelect,
   choice,
   campAt,
   layer,
+  activeLeg,
+  onLeg,
+  replacing = false,
+  drag,
+  onMarkDown,
 }: {
   map: CreepMap;
   stops: RouteStop[];
@@ -73,6 +82,18 @@ export const RoutePath = memo(function RoutePath({
   campAt?: Map<string, { x: number; y: number }>;
   /** `legs` under the camps, `nodes` (the stop discs) over them: `CreepMap` paints the two apart. */
   layer: "legs" | "nodes";
+  /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
+  ringStop?: string | null;
+  /** The leg the builder's target sits on (its two stop keys): dashed gold. */
+  activeLeg?: { a: string; b: string } | null;
+  /** The builder: a click on a leg inside one list puts the next step there. */
+  onLeg?: (a: string, b: string) => void;
+  /** The map previews a step on the active leg: that leg draws at 30%. */
+  replacing?: boolean;
+  /** A waypoint or pin mark being dragged: its stop key and where it is now (viewBox units); its legs follow. */
+  drag?: { key: string; x: number; y: number } | null;
+  /** The builder with a fine pointer: a press on a waypoint or pin mark may start a drag. */
+  onMarkDown?: MarkDown;
 }) {
   const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
@@ -97,11 +118,11 @@ export const RoutePath = memo(function RoutePath({
   };
 
   // Which stops are drawn and which legs join them (`route-legs.mjs`): the chosen path of an
-  // "or"/"xor" split, every path of an "and" split (the later ones thin and bowed). A pin is a node
+  // "or"/"xor" split, every path of an "and" split (a path without the hero thin and bowed). A pin is a node
   // with no legs.
   const you = map.starts[youStart];
   const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")));
-  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent, pin: n.pin }) ?? []);
+  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent, pin: n.pin }) ?? []).map((p) => (drag?.key === p.key ? { ...p, cx: drag.x, cy: drag.y } : p));
   const byKey = new Map<string, PathNode>(points.map((p) => [p.key, p]));
   if (you) byKey.set("start", { key: "start", label: "", stop: stops[0], cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" });
   const legs = plan.legs.flatMap(({ a, b, style }) => {
@@ -112,7 +133,7 @@ export const RoutePath = memo(function RoutePath({
 
   if (!points.length) return null;
   const hidden = hiddenBadgeKeys(stops, choice);
-  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} onStopSelect={onStopSelect} reduced={reduced} />;
+  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} ringStop={ringStop} onStopSelect={onStopSelect} onMarkDown={onMarkDown} reduced={reduced} />;
 
   // One straight segment per leg, ending at the edge of each node's disc. Legs that would read as one
   // line (collinear, or through another stop's disc) move sideways apart (`legOffsets`).
@@ -128,7 +149,8 @@ export const RoutePath = memo(function RoutePath({
     // A thin leg bows 12% of its length to the right of travel, so it never lies on a main leg.
     const bow = 0.24 * seg;
     const qx = (x1 + x2) / 2 - uy * bow, qy = (y1 + y2) / 2 + ux * bow;
-    return [{ x1, y1, x2, y2, qx, qy, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack }];
+    const active = activeLeg?.a === a.key && activeLeg?.b === b.key;
+    return [{ a, b, x1, y1, x2, y2, qx, qy, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack, active }];
   });
   const pathOf = (list: typeof segments) =>
     list
@@ -138,12 +160,20 @@ export const RoutePath = memo(function RoutePath({
           : `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`,
       )
       .join("");
-  const d = pathOf(segments.filter((g) => g.style === "solid" && !g.attack));
+  // The target's leg draws dashed gold on its own, over the same under-stroke.
+  const dActive = pathOf(segments.filter((g) => g.active));
+  const d = pathOf(segments.filter((g) => g.style === "solid" && !g.attack && !g.active));
   // A leg of an "and" path the hero does not walk: thin (1.25px), bowed, at 60%, no chevron.
-  const dOther = pathOf(segments.filter((g) => g.style === "thin" && !g.attack));
+  const dOther = pathOf(segments.filter((g) => g.style === "thin" && !g.attack && !g.active));
   // A leg into an attack stop, line and chevron, is the loss red over the same under-stroke.
-  const dAttack = pathOf(segments.filter((g) => g.style === "solid" && g.attack));
-  const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack));
+  const dAttack = pathOf(segments.filter((g) => g.style === "solid" && g.attack && !g.active));
+  const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack && !g.active));
+  // A leg inside one list (the route, or one path) takes a click; legs from your start or into or out of a path do not.
+  const listOf = (k: string) => (k.includes(".") ? k.split(".").slice(0, 2).join(".") : "");
+  // A leg of one list; a route leg that crosses a paths block (its shown path has no place step) takes no click.
+  const crossesBlock = (a: string, b: string) => !a.includes(".") && stops.slice(Number(a) + 1, Number(b)).some((s) => s.split);
+  const clickable = onLeg ? segments.filter((g) => g.a.key !== "start" && listOf(g.a.key) === listOf(g.b.key) && !crossesBlock(g.a.key, g.b.key)) : [];
+  const nameOf = (p: PathNode) => (p.label ? `stop ${p.label}` : p.stop.action?.trim() || "the waypoint");
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
   return (
@@ -170,19 +200,52 @@ export const RoutePath = memo(function RoutePath({
           <path d={dOtherAttack} fill="none" stroke={ATTACK} strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round" />
         </g>
       ) : null}
-      {/* A 6px direction chevron at the middle of every leg, same light fill. */}
+      {dActive ? (
+        <g data-route-active-leg opacity={replacing ? 0.3 : undefined}>
+          <path d={dActive} fill="none" strokeWidth="4" {...under} />
+          <path d={dActive} fill="none" stroke="var(--wg-gold)" strokeWidth="2" strokeDasharray="4 3" />
+        </g>
+      ) : null}
+      {/* A 6px direction chevron at the middle of every leg, in its leg's colour (gold on the target's leg). */}
       {segments.map((g, i) => g.style !== "solid" ? null : (
         <path
           key={i}
           data-route-direction
           d="M3,0L-3,-3L-3,3Z"
           transform={`translate(${g.mx.toFixed(1)},${g.my.toFixed(1)}) rotate(${g.angle.toFixed(1)})`}
-          fill={g.attack ? ATTACK : LINE}
+          fill={g.active ? "var(--wg-gold)" : g.attack ? ATTACK : LINE}
+          opacity={g.active && replacing ? 0.3 : undefined}
           strokeWidth="2"
           paintOrder="stroke"
           {...under}
         />
       ))}
+      {/* Each leg's hit line: 12 CSS px, transparent, gold on hover or focus. */}
+      {clickable.map((g) => {
+        const leg = pathOf([g]);
+        const pick = () => onLeg?.(g.a.key, g.b.key);
+        return (
+          <g
+            key={`${g.a.key}>${g.b.key}`}
+            data-leg={`${g.a.key}>${g.b.key}`}
+            role="button"
+            tabIndex={0}
+            aria-pressed={g.active}
+            aria-label={`Put the next step between ${nameOf(g.a)} and ${nameOf(g.b)}`}
+            onClick={pick}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter" && e.key !== " ") return;
+              e.preventDefault();
+              e.stopPropagation();
+              pick();
+            }}
+            className="group cursor-pointer outline-none"
+          >
+            <path d={leg} fill="none" stroke="var(--wg-gold)" strokeWidth="2" strokeLinecap="round" className={cn("opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100", g.active && "hidden")} pointerEvents="none" />
+            <path d={leg} fill="none" stroke="transparent" strokeWidth={12} vectorEffect="non-scaling-stroke" pointerEvents="stroke" />
+          </g>
+        );
+      })}
     </g>
   );
 });
@@ -192,10 +255,14 @@ function Nodes({
   points,
   hidden,
   activeStop,
+  ringStop,
   onStopSelect,
+  onMarkDown,
   reduced,
 }: {
+  onMarkDown?: MarkDown;
   points: PathNode[];
+  ringStop?: string | null;
   hidden: Set<string>;
   activeStop?: string | null;
   onStopSelect?: (key: string) => void;
@@ -209,13 +276,16 @@ function Nodes({
       {[...shown].sort((a, b) => rank(a) - rank(b)).map((p) => {
         const isActive = activeStop === p.key;
         const attack = p.place?.kind === "attack";
-        // A camp stop's disc lets clicks through to its camp marker; an attack disc selects its stop.
-        // ponytail: a disc selects by pointer only; the stop list is the keyboard path to an attack.
-        const select = attack && onStopSelect ? () => onStopSelect(p.key) : undefined;
+        // A camp stop's disc lets clicks through to its camp marker; a place's disc (an attack, a waypoint, a pin) opens its row.
+        // ponytail: a disc selects by pointer only; the stop list is the keyboard path to it.
+        const select = p.place && onStopSelect ? () => onStopSelect(p.key) : undefined;
         // Hero off: the first Bring unit's icon on the disc's lower-left edge, clear of the number (not on a pin).
         const unitIcon = p.absent && !p.pin ? p.stop.units?.[0]?.icon : undefined;
-        const corner = cornerMark(p.cx, p.cy, p.r);
+        // The swords sit 3 units out from the disc edge, clear of a two-character label ("3b").
+        const corner = cornerMark(p.cx, p.cy, p.r + 3);
         const unitAt = heroOffMark(p.cx, p.cy, p.r);
+        // A waypoint or pin mark drags with a fine pointer; camp stops and attacks never do.
+        const grab = p.waypoint && p.place && onMarkDown ? (e: React.PointerEvent) => onMarkDown(p.key, e, { kind: p.place!.kind, pin: Boolean(p.pin) }) : undefined;
         return (
           <g
             key={p.key}
@@ -223,9 +293,12 @@ function Nodes({
             data-waypoint={p.waypoint ? p.place?.kind : undefined}
             data-pin={p.pin || undefined}
             onClick={select}
+            onPointerDown={grab}
             pointerEvents={select ? undefined : "none"}
-            className={select ? "cursor-pointer" : undefined}
+            className={grab ? "cursor-grab" : select ? "cursor-pointer" : undefined}
           >
+            {/* A row pointed at or focused in the list rings its mark. */}
+            {ringStop === p.key ? <circle data-ring cx={p.cx} cy={p.cy} r={p.r + 3.5} fill="none" stroke="var(--wg-gold)" strokeWidth={1.5} /> : null}
             {/* Grow via `transform: scale()` on a wrapper, never a transition of `r`
              *  (compositor-only motion — DESIGN.md, F009 review code-b.md item 2). */}
             <g

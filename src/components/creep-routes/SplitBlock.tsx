@@ -1,25 +1,37 @@
 "use client";
 
-import { ArrowDown, ArrowUp, Plus, Split, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, Trash2, X } from "lucide-react";
 import type { DropProps } from "./RouteStepTable";
 import { DROP, ForkRail, JoinRail, RailCell, type RailLine } from "./LaneRail";
 import { SAME_CAMP_LINE } from "./stop-rows";
+import { KindLine, QuietAdd } from "./NextStopRow";
+import { PathTabs } from "./PathTabs";
 import { cn } from "@/lib/utils";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import { LevelLine } from "./HeroMeter";
+import { HeroTile } from "./HeroTile";
 
 /**
- * The builder's split (`RouteStepTable` with `builderRows`): every path shows,
- * stacked on the lane rail. The caption row holds the mode chips, move and
- * remove; each path is a block with a heading row (its name, on its lane's
- * letter disc), its stops and an add row; "or" / "and" rows sit between blocks;
- * the "After the split" row closes it. The reader and Preview keep the tabs
- * (`SplitRow`).
+ * The builder's paths block (`RouteStepTable` with `builderRows`). The top row
+ * holds the kind switch, move and remove. "Choose one path" shows a tab strip
+ * (`PathTabs`, the reader's look) and only the shown path, in a panel: its
+ * heading row (the name field, what it holds, its x), its stops and its add
+ * line. "Take all paths simultaneously" lists every path one under the other,
+ * a separator row between two.
  */
 
 /** The builder's controls of one split (`RouteEditor`). */
 export type SplitEdit = {
+  /** The block's row id: its name fields carry `data-path-field="<id>.<arm>"`. */
+  blockId: number;
   onMode: (mode: "and" | "or") => void;
+  /** A take-all path's hero switch: `on` when the path has the hero (`pathHasHero`); `fallback` when it
+   *  holds no camp or attack stop, so its state is the position fallback and the switch is disabled. */
+  pathHero: (arm: number) => { on: boolean; fallback: boolean };
+  /** Flips the hero on every camp and attack stop of a take-all path, as one undo step. */
+  onPathHero: (arm: number) => void;
+  /** The route's hero for the switch's mark; the "Any Hero" crown when the route names none. */
+  heroIcon?: string;
   /** A path's label as typed (the route's own is trimmed). */
   label: (arm: number) => string;
   onLabel: (arm: number, label: string) => void;
@@ -33,61 +45,84 @@ export type SplitEdit = {
   onAddPath?: () => void;
   /** Every path heading's x; removing one of two paths leaves the other's stops in the split's place. */
   onRemovePath: (arm: number) => void;
-  /** Puts the next-stop row at the end of a path. */
-  onAddStops: (arm: number) => void;
-  /** Puts the next-stop row right after the split. */
-  onContinue: () => void;
+  /** Shows a path and makes its end the target; `quiet` (its quiet add line, which unmounts) moves focus to "Waypoint". */
+  onAddStops: (arm: number, quiet?: boolean) => void;
   onMove: (dir: -1 | 1) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
   onRemove: () => void;
-  /** "Remove split, keep path A": path A always stays. */
+  /** "Remove paths, keep path A": path A always stays. */
   removeLabel: string;
-  /** Every path is the same camps in the same order: a line under the chips, not blocking. */
+  /** Every path is the same camps in the same order: a line under the kind switch, not blocking. */
   sameCamp?: boolean;
 };
 
 type Dnd = { handle?: React.ReactNode; props: DropProps };
 const ROW = "relative pl-[60px] pr-4 sm:pr-5";
 const ICON = "grid size-7 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
-const ADD = "inline-flex min-h-7 items-center gap-1 rounded border border-dashed border-line px-2 text-left text-xs text-muted hover:border-gold/50 hover:text-gold";
-const CHIPS = [
-  { id: "or", label: "Choose a path" },
-  { id: "and", label: "At the same time" },
+const KINDS = [
+  { id: "or", label: "Choose one path" },
+  { id: "and", label: "Take all paths simultaneously" },
 ] as const;
 /** A path's letter: A, B, C in a pick-one split; 1, 2, 3 at the same time. */
 export const pathName = (mode: string, arm: number) => (mode === "and" ? String(arm + 1) : "ABC"[arm]);
 
-/** The split's caption row: the split glyph, the two mode chips, move and remove. */
-export function SplitCaption({ stopKey, mode, main, lanes, edit, dnd }: { stopKey: string; mode: string; main?: RailLine; lanes: { lane: string; off: boolean }[]; edit: SplitEdit; dnd?: Dnd }) {
+/** A block's top row: the grip, the kind switch, move and remove; under it, for "Choose one path", the tab strip. */
+export function SplitCaption({
+  stopKey,
+  mode,
+  main,
+  lanes,
+  edit,
+  dnd,
+  shown,
+  paths,
+  tabId,
+  panelId,
+}: {
+  stopKey: string;
+  mode: string;
+  main?: RailLine;
+  lanes: { lane: string; off: boolean }[];
+  edit: SplitEdit;
+  dnd?: Dnd;
+  shown: number;
+  paths: number;
+  tabId: (arm: number) => string;
+  panelId: string;
+}) {
   const and = mode === "and";
   return (
-    <li data-split={stopKey} {...dnd?.props} className={cn(ROW, "border-t border-line/40 py-2 first:border-t-0", DROP)}>
+    <li data-split={stopKey} {...dnd?.props} className={cn(ROW, "border-t border-line/40 pt-2 first:border-t-0", and ? "pb-2" : "pb-0", DROP)}>
       <ForkRail main={main} lanes={lanes} />
       {dnd?.handle ? <span className="absolute left-[44px] top-3.5">{dnd.handle}</span> : null}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <span className="inline-flex items-center gap-1.5 text-sm font-medium text-fg">
-          <Split aria-hidden size={16} className="text-gold" /> Split
-        </span>
-        <div role="radiogroup" aria-label="Kind of split" className="flex flex-wrap gap-1">
-          {CHIPS.map((m) => (
-            <button
-              key={m.id}
-              type="button"
-              role="radio"
-              aria-checked={(m.id === "and") === and}
-              onClick={() => edit.onMode(m.id)}
-              className={cn("h-7 rounded border border-arcane/40 px-2 text-[0.72rem]", (m.id === "and") === and ? "bg-arcane/10 text-fg" : "text-arcane hover:bg-arcane/5")}
-            >
-              {m.label}
-            </button>
-          ))}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:flex-nowrap">
+        <div role="radiogroup" aria-label="Kind of paths" className="grid min-w-0 basis-full grid-cols-2 overflow-hidden rounded border border-line sm:max-w-[26rem] sm:flex-1 sm:basis-auto">
+          {KINDS.map((m) => {
+            const on = (m.id === "and") === and;
+            return (
+              <button
+                key={m.id}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => edit.onMode(m.id)}
+                className={cn(
+                  "flex min-h-9 min-w-0 flex-col items-start justify-center gap-1 px-2 py-1 text-left text-[0.75rem] leading-tight sm:flex-row sm:items-center sm:gap-[7px] sm:text-[0.8rem] [&+&]:border-l [&+&]:border-line",
+                  on ? "bg-gold/10 text-fg" : "text-muted hover:text-fg",
+                )}
+              >
+                <KindLine mode={m.id} className={on ? "text-gold" : "text-muted"} />
+                {m.label}
+              </button>
+            );
+          })}
         </div>
         <span className="ml-auto flex gap-1">
-          <button type="button" onClick={() => edit.onMove(-1)} disabled={!edit.canMoveUp} aria-label="Move split up" className={ICON}>
+          <button type="button" onClick={() => edit.onMove(-1)} disabled={!edit.canMoveUp} aria-label="Move paths up" className={ICON}>
             <ArrowUp size={14} />
           </button>
-          <button type="button" onClick={() => edit.onMove(1)} disabled={!edit.canMoveDown} aria-label="Move split down" className={ICON}>
+          <button type="button" onClick={() => edit.onMove(1)} disabled={!edit.canMoveDown} aria-label="Move paths down" className={ICON}>
             <ArrowDown size={14} />
           </button>
           <button type="button" onClick={edit.onRemove} aria-label={edit.removeLabel} title={edit.removeLabel} className={cn(ICON, "hover:border-loss/60 hover:text-loss")}>
@@ -95,9 +130,19 @@ export function SplitCaption({ stopKey, mode, main, lanes, edit, dnd }: { stopKe
           </button>
         </span>
       </div>
-      {and ? <p className="mt-1 text-[0.7rem] text-faint">Paths at the same time share one XP total; the order of kills is unknown.</p> : null}
       {edit.sameCamp ? <p className="mt-1 text-[0.7rem] text-faint">{SAME_CAMP_LINE}</p> : null}
       {edit.error ? <p className="mt-1 text-[0.7rem] text-loss">{edit.error}</p> : null}
+      {and ? null : (
+        <PathTabs
+          labels={Array.from({ length: paths }, (_, a) => edit.label(a))}
+          shown={shown}
+          onShow={edit.onAddStops}
+          tabId={tabId}
+          panelId={panelId}
+          onAdd={edit.onAddPath}
+          className="-ml-2.5 -mr-2 mt-2 sm:-mr-3"
+        />
+      )}
     </li>
   );
 }
@@ -116,12 +161,12 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
   const name = pathName(mode, arm);
   const error = edit.pathError(arm);
   return (
-    <li data-path-head={name} {...dnd?.props} className={cn(ROW, "border-t border-line/40 py-2", DROP)}>
+    <li data-path-head={name} data-path-row={`${edit.blockId}.${arm}`} tabIndex={-1} {...dnd?.props} className={cn(ROW, "border-t border-line/40 py-2", DROP)}>
       <RailCell
         lines={lines}
         lane={lane}
         y={HEAD_Y}
-        node={(x) => (
+        node={mode !== "and" ? undefined : (x) => (
           <span
             className={cn("absolute grid size-[18px] place-items-center rounded-full border bg-bg text-[10px] font-bold leading-none", here ? "border-gold text-gold" : "border-line-strong text-fg")}
             style={{ left: x - 9, top: HEAD_Y - 9 }}
@@ -132,10 +177,11 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
       />
       <div className="flex min-h-8 items-center gap-3">
         {mode === "and" ? (
-          <span className="text-sm font-medium text-fg">{arm === 0 ? "The hero's path" : "Units without the hero"}</span>
+          <HeroSwitch name={name} {...edit.pathHero(arm)} heroIcon={edit.heroIcon} onFlip={() => edit.onPathHero(arm)} />
         ) : (
           <input
             aria-label={`Path ${name} name`}
+            data-path-field={`${edit.blockId}.${arm}`}
             placeholder={`Name, e.g. ${["Safe", "Risky", "vs. Mirror Image"][arm]}`}
             value={edit.label(arm)}
             onChange={(e) => edit.onLabel(arm, e.target.value)}
@@ -163,61 +209,60 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
   );
 }
 
-/** Between two blocks: "or instead of the path above", "and at the same time". */
-export function PathSep({ mode, lines }: { mode: string; lines: RailLine[] }) {
+/** Who takes a take-all path: the hero's mark and "With the hero" (gold) or "Without the hero" (muted).
+ *  ponytail: a path with no camp or attack stop has no flag to flip; its switch shows the position
+ *  fallback, disabled, until the path holds one. */
+function HeroSwitch({ name, on, fallback, heroIcon, onFlip }: { name: string; on: boolean; fallback: boolean; heroIcon?: string; onFlip: () => void }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      aria-disabled={fallback || undefined}
+      aria-label={`The hero takes path ${name}`}
+      onClick={fallback ? undefined : onFlip}
+      className={cn(
+        "inline-flex h-9 shrink-0 items-center gap-1.5 rounded border pl-1 pr-2.5 text-[0.8rem] font-medium lg:h-[30px]",
+        on ? "border-gold text-gold" : "border-line-strong text-muted",
+        fallback ? "cursor-not-allowed opacity-50" : on ? "hover:bg-gold/10" : "hover:text-fg",
+      )}
+    >
+      <HeroTile heroIcon={heroIcon} size={20} className={cn(!on && "opacity-40")} />
+      {on ? "With the hero" : "Without the hero"}
+    </button>
+  );
+}
+
+/** Between two paths of a "Take all paths simultaneously" block: "and at the same time". */
+export function PathSep({ lines }: { lines: RailLine[] }) {
   return (
     <li className={cn(ROW, "border-t border-line/40 py-1.5")}>
       <RailCell lines={lines} />
       <p className="text-[0.8rem]">
-        <span className="font-medium text-gold">{mode === "and" ? "and" : "or"}</span>{" "}
-        <span className="text-muted">{mode === "and" ? "at the same time" : "instead of the path above"}</span>
+        <span className="font-medium text-gold">and</span> <span className="text-muted">at the same time</span>
       </p>
     </li>
   );
 }
 
-/** The end of a block whose path does not hold the next-stop row: a quiet button that moves it there. */
+/** The end of a path that is not the target: a quiet button that makes it the target; focus then goes to "Waypoint". */
 export function PathAdd({ mode, arm, empty, lines, onAdd, dnd }: { mode: string; arm: number; empty: boolean; lines: RailLine[]; onAdd: () => void; dnd?: Dnd }) {
   const name = pathName(mode, arm);
   return (
     <li {...dnd?.props} className={cn(ROW, "py-2", DROP)}>
       <RailCell lines={lines} />
-      <button type="button" onClick={onAdd} className={ADD}>
-        <Plus aria-hidden size={13} /> {empty ? `Path ${name} is empty. Add its stops` : `Add stops to path ${name}`}
-      </button>
+      <QuietAdd onClick={onAdd}>{empty ? `Path ${name} is empty. Add its stops` : `Add stops to path ${name}`}</QuietAdd>
     </li>
   );
 }
 
-/** "Add a third path", under a pick-one split's last block. */
-export function AddThirdPath({ lines, onAdd }: { lines: RailLine[]; onAdd: () => void }) {
+/** The row that closes a block: the lanes curve back into lane a when stops follow; a same-time block shows its shared level. */
+export function AfterSplit({ lanes, joins, node }: { lanes: { lane: string; off: boolean }[]; joins: boolean; node?: DerivedNode }) {
+  if (!joins && !node) return null;
   return (
-    <li className={cn(ROW, "pb-2")}>
-      <RailCell lines={lines} />
-      <button type="button" onClick={onAdd} className={ADD}>
-        <Plus aria-hidden size={13} /> Add a third path
-      </button>
-    </li>
-  );
-}
-
-/** The row that closes a split: the lanes curve back into lane a when stops follow; "Continue the route here" puts the next-stop row there. */
-export function AfterSplit({ lanes, joins, follows, slotAfter, node, onContinue }: { lanes: { lane: string; off: boolean }[]; joins: boolean; follows: boolean; slotAfter: boolean; node?: DerivedNode; onContinue: () => void }) {
-  return (
-    <li className={cn(ROW, "border-t border-dashed border-line/60 py-2.5")}>
+    <li className={cn(ROW, node ? "py-2" : "h-3")}>
       {joins ? <JoinRail lanes={lanes} /> : null}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <p className="min-w-0 flex-1 text-[0.8rem] text-muted">
-          <span className="font-medium text-fg">After the split.</span> Stops below are taken on every path.
-          {follows ? null : " Leave it empty if each path ends the route."}
-        </p>
-      </div>
-      {node ? <LevelLine level={node.levelAfter} xp={node.xpBefore + node.xpGained} leveled={node.levelAfter > node.levelBefore} className="mt-2" /> : null}
-      {slotAfter ? null : (
-        <button type="button" onClick={onContinue} className={cn(ADD, "mt-1.5")}>
-          <Plus aria-hidden size={13} /> Continue the route here
-        </button>
-      )}
+      {node ? <LevelLine level={node.levelAfter} xp={node.xpBefore + node.xpGained} leveled={node.levelAfter > node.levelBefore} /> : null}
     </li>
   );
 }

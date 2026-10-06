@@ -67,6 +67,9 @@ function StopBody({ stop, d, hero }: { stop: RouteStop; d: DerivedStop; hero?: R
  * (`onChevron`); the camp label is its own button that pins the camp card.
  * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a").
  */
+/** The open or pointed row's tint inside a tab panel: from the panel's inner edge (`PANEL_EDGE`: 50px and 8px, 1px border), under the row's content. */
+const PANEL_TINT = "isolate before:-z-10 before:pointer-events-none before:absolute before:inset-y-0 before:left-[51px] before:right-[9px] before:bg-gold/10";
+
 export function StopBlock({
   stop,
   d: derived,
@@ -93,6 +96,7 @@ export function StopBlock({
   chevron = true,
   dnd,
   tools,
+  inPanel = false,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -127,6 +131,8 @@ export function StopBlock({
   dnd?: { handle?: React.ReactNode; props: DropProps };
   /** The builder: move and remove (`StopTools`), on the open stop's summary line before the chevron. */
   tools?: React.ReactNode;
+  /** A row in a "Choose one path" tab panel (`PANEL_EDGE`): its tint and drag grip stay inside the panel. */
+  inPanel?: boolean;
 }) {
   const d = sharedXp ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
@@ -139,8 +145,8 @@ export function StopBlock({
   const placeLabel = camp ? "" : placeWhere(map, stop.place, youStart);
   const where = placeLabel && !actionNamesPlace(stop.action, placeLabel) ? placeLabel : null;
   const pictures = stop.images?.length ?? 0;
-  // Hero off: its own flag, or a later way of an "and" split, which the hero cannot walk.
-  const absent = stop.hero === false || d.hero === false;
+  // Hero off: the stop's own flag.
+  const absent = stop.hero === false;
   // A waypoint is a slim row with no number; its summary only opens and closes it (the map never selects it).
   const waypoint = isWaypoint(stop) && stop.place ? stop.place.kind : null;
   // A pin's node sits off its lane (`StopRail`): its content moves right to clear it.
@@ -152,6 +158,8 @@ export function StopBlock({
       data-waypoint={waypoint ?? undefined}
       onMouseEnter={() => onHover(stopKey)}
       onMouseLeave={() => onHover(null)}
+      onFocus={() => onHover(stopKey)}
+      onBlur={() => onHover(null)}
       aria-current={isActive ? "step" : undefined}
       data-pin={pin || undefined}
       style={indent ? { paddingLeft: indent } : undefined}
@@ -163,12 +171,13 @@ export function StopBlock({
           ? `relative border-t border-line/40 pl-[60px] pr-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:pr-5`
           : `border-t border-line/40 px-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:px-5`,
         pin && "border-dashed",
-        (isActive || isHover) && "bg-gold/10",
+        inPanel && !indent && "pl-[64px]",
+        (isActive || isHover) && (inPanel ? PANEL_TINT : "bg-gold/10"),
       )}
     >
       {rail}
       {dnd?.handle ? (
-        <span className={cn("absolute left-[44px]", waypoint ? "top-2" : "top-4")} style={indent ? { left: indent - 16 } : undefined}>
+        <span className={cn("absolute", inPanel ? "left-[52px]" : "left-[44px]", waypoint ? "top-2" : "top-4")} style={indent ? { left: indent - 16 } : undefined}>
           {dnd.handle}
         </span>
       ) : null}
@@ -257,7 +266,7 @@ export function StopBlock({
             onClick={() => onChevron(stopKey)}
             aria-expanded={isOpen}
             aria-controls={bodyId}
-            aria-label={`${isOpen ? "Hide" : "Show"} stop ${number} details`}
+            aria-label={[isOpen ? "Hide" : "Show", "stop", number, "details"].filter(Boolean).join(" ")}
             className={cn(
               "relative grid size-5 shrink-0 place-items-center self-start rounded hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
               isOpen ? "text-gold" : "text-faint",

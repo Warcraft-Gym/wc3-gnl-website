@@ -214,13 +214,15 @@ test("or split: the hero walks the chosen arm; the other arm is derived but feed
   assert.ok(second.stops[1].xpAfter < first.stops[1].xpAfter);
 });
 
-test("and split: every arm earns xp, arms 1.. carry no hero and add up after arm 0", () => {
+test("and split: every arm earns xp and adds up after the one before it, whoever goes", () => {
   const route = forkRoute("parallel");
-  arms(route)[1].stops = [{ campId: "c2", hero: true }];
+  arms(route)[1].stops = [{ campId: "c2", hero: false }];
   const result = deriveRoute(route, MAP, { choice: { 1: 1 } });
   const node = result.stops[1].split;
   assert.equal(node.walked, 0);
-  assert.equal(node.arms[1].stops[0].hero, false);
+  // The hero flag changes no number: the same block with the hero on path b pays the same.
+  arms(route)[1].stops = [{ campId: "c2" }];
+  assert.deepEqual(deriveRoute(route, MAP).stops[1].split.arms[1].stops[0].kills, node.arms[1].stops[0].kills);
   assert.ok(node.arms[1].stops[0].kills.every((k) => k.xp > 0));
   assert.equal(node.arms[0].xpAfter, 306);
   // Way b runs on from way a's total, and the stop after the split from way b's.

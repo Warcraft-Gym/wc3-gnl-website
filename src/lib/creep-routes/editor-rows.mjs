@@ -6,6 +6,7 @@
  * hold, so every move has one rule. Typed in `stop-rows.ts`.
  */
 import { flatStops } from "./stop-numbers.mjs";
+import { isPin } from "./place.mjs";
 
 /** A new id for an editor row, path or Bring entry, unique in this page; never saved. */
 let lastId = 0;
@@ -16,21 +17,16 @@ export function newRow(patch = {}) {
   return { id: newId(), campId: null, action: "", units: [], note: "", condition: "", kills: [], leaveRest: false, ...patch };
 }
 
-/** The split mode chips, in order: "Choose a path" first, a new split's mode. Whether chosen paths rejoin
+/** The kinds of a paths block, in order: "Choose one path" first, a new block's kind. Whether chosen paths rejoin
  *  is read from the structure on save (`savedMode`), so the builder stores "or" for both. */
 export const SPLIT_MODES = [
-  { id: "or", label: "Choose a path" },
-  { id: "and", label: "At the same time" },
+  { id: "or", label: "Choose one path" },
+  { id: "and", label: "Take all paths simultaneously" },
 ];
 
 /** A new split row: empty paths with these labels (two by default) in the first chip's mode by default. */
 export function newSplitRow(mode = SPLIT_MODES[0].id, labels = ["", ""]) {
   return newRow({ split: { mode, arms: labels.map((label) => ({ id: newId(), label: label.trim(), stops: [] })) } });
-}
-
-/** The split form's "Start path A": a same-time split starts at once; a pick-one split needs a name on every path. */
-export function canStartSplit({ mode, names }) {
-  return mode === "and" || names.every((n) => n.trim() !== "");
 }
 
 /** The mode a split saves: "and" stays; a chosen path is "or" when stops follow the split (the paths
@@ -139,28 +135,117 @@ export function insertAt(rows, at, row) {
   return updateArm(rows, at.splitId, at.arm, (stops) => [...stops.slice(0, at.index), row, ...stops.slice(at.index)]);
 }
 
-/** Where an add goes (a map click, "Waypoint", "Split here"): after the selected row in its own list;
- *  at the end of the active path `arm` when the selection is a split's caption, or right after the split
- *  with `after` ("Continue the route here"); at the end with no selection. A split added from inside a
- *  split goes after that split. `selection`: `{ id, arm, after }`. */
-export function addTarget(rows, selection, isSplit = false) {
-  const where = selection ? locate(rows, selection.id) : null;
-  if (!where) return { index: rows.length };
-  if (where.splitId !== undefined) {
-    return isSplit ? { index: rows.findIndex((r) => r.id === where.splitId) + 1 } : { splitId: where.splitId, arm: where.arm, index: where.index + 1 };
-  }
-  const row = rows[where.index];
-  if (row.split && !isSplit && !selection.after) {
-    const arm = Math.min(selection.arm ?? 0, row.split.arms.length - 1);
-    return { splitId: row.id, arm, index: row.split.arms[arm].stops.length };
-  }
-  return { index: where.index + 1 };
+/** The end of the route, the builder's first target. Opening a stop never moves the target. */
+export const ROUTE_END = { pos: null };
+
+/** The builder's target, where the next add lands: the route (no `splitId`) or path `arm` of the block
+ *  `splitId`, and `pos`, null for the end of that list or an index in it. A position also holds the ids
+ *  of the rows around it (`after`, `before`), so it stays between the same two steps while rows move. */
+function anchored(rows, t) {
+  const inList = (x) => x && x.splitId === t.splitId && x.arm === t.arm;
+  const a = t.after != null ? locate(rows, t.after) : null;
+  const b = t.before != null ? locate(rows, t.before) : null;
+  // Right after the leg's first step: `after` wins when the two rows are no longer next to each other.
+  if (inList(a)) return { ...a, index: a.index + 1 };
+  if (inList(b)) return b;
+  return null;
 }
 
-/** The builder's next-stop row, the dashed row at `at` (`addTarget`'s place): the label the next numbered
- *  stop takes there, counting itself in (`stop-numbers.mjs`; the rows below keep their own numbers), the
- *  line under it, and `toEnd` when the row is not at the end ("Add at the end instead"). `after` names the
- *  row before the place ("after stop 2", "at the start", "at the start of path B"). `tabs`: the shown path by split id. */
+/** The place a target names; a position whose neighbours are gone is clamped into its list; a target
+ *  whose path is gone is the end of the route. */
+export function targetPlace(rows, target) {
+  const t = target ?? ROUTE_END;
+  if (t.pos !== null && listExists(rows, t)) {
+    const at = anchored(rows, t);
+    if (at) return at;
+  }
+  if (t.splitId === undefined) return { index: t.pos === null ? rows.length : Math.min(t.pos, rows.length) };
+  const list = rows.find((r) => r.id === t.splitId)?.split?.arms[t.arm]?.stops;
+  if (!list) return { index: rows.length };
+  return { splitId: t.splitId, arm: t.arm, index: t.pos === null ? list.length : Math.min(t.pos, list.length) };
+}
+
+/** True when the target's list exists (the route, or a path still in its block) and no row it is
+ *  anchored to (`after`, `before`) sits in another list. */
+export function targetExists(rows, target) {
+  for (const id of [target.after, target.before]) {
+    const at = id != null ? locate(rows, id) : null;
+    if (at && (at.splitId !== target.splitId || at.arm !== target.arm)) return false;
+  }
+  return listExists(rows, target);
+}
+
+function listExists(rows, target) {
+  if (target.splitId === undefined) return true;
+  return target.arm < (rows.find((r) => r.id === target.splitId)?.split?.arms.length ?? 0);
+}
+
+/** The first submit error (its key, "stops.2.note") the builder can open, in the keys' order: a stop's
+ *  field as `{ key }` ("2", "2.b.1"), or a path's name or emptiness as `{ index, arm }`; null for none. */
+export function firstErrorAt(keys) {
+  for (const k of keys) {
+    const stop = /^stops\.(\d+)(?:\.split\.arms\.(\d+)\.stops\.(\d+))?\.(?!split\b)/.exec(k);
+    if (stop) return { key: stop[2] === undefined ? stop[1] : `${stop[1]}.${"abc"[Number(stop[2])]}.${stop[3]}` };
+    const path = /^stops\.(\d+)\.split\.arms\.(\d+)\.(?:label|stops)$/.exec(k);
+    if (path) return { index: Number(path[1]), arm: Number(path[2]) };
+  }
+  return null;
+}
+
+/** The target after adding row `id` at it: the end stays the end; a place in the middle moves past the new row. */
+export function targetAfterAdd(target, id) {
+  if (target.pos === null) return target;
+  return id === undefined ? { ...target, pos: target.pos + 1 } : { ...target, pos: target.pos + 1, after: id };
+}
+
+/** The target a click on the leg from step `a` to step `b` sets (their stop-list keys): right after `a`
+ *  in their list. Null for a leg that is not inside one list (from your start, or into or out of a path). */
+export function legTarget(rows, a, b) {
+  const list = (k) => (k.includes(".") ? k.split(".").slice(0, 2).join(".") : "");
+  if (a === "start" || b === "start" || list(a) !== list(b)) return null;
+  const from = rowAtKey(rows, a);
+  const at = from ? locate(rows, from.id) : null;
+  if (!at) return null;
+  // A route leg across a paths block is no leg of one list.
+  const to = rowAtKey(rows, b);
+  const end = to ? listAt(rows, at).indexOf(to) : -1;
+  if (listAt(rows, at).slice(at.index + 1, end).some((r) => r.split)) return null;
+  const before = listAt(rows, at)[at.index + 1];
+  const t = { pos: at.index + 1, after: from.id, before: before?.id ?? null };
+  return at.splitId === undefined ? t : { splitId: at.splitId, arm: at.arm, ...t };
+}
+
+/** The steps on the line around place `at` in its list: `from`, the last place step before it, and `to`,
+ *  the first after it (null at the end of the list, or past a paths block). Pins are not on the line. */
+export function stepsAround(rows, at) {
+  const list = listAt(rows, at);
+  const onLine = (r) => Boolean(r.campId || (r.place && !isPin(r)));
+  let from = null, to = null;
+  for (let i = at.index - 1; i >= 0 && !from; i--) {
+    if (list[i].split) break;
+    if (onLine(list[i])) from = list[i];
+  }
+  for (let i = at.index; i < list.length && !to; i++) {
+    if (list[i].split) break;
+    if (onLine(list[i])) to = list[i];
+  }
+  return { from, to };
+}
+
+/** The target after removing path `arm` of block `splitId`: the route when it held that path or the
+ *  block turns into plain stops (a position in the kept path stays between its steps); a later path of a block that stays shifts down one. */
+export function targetAfterRemovePath(rows, target, splitId, arm) {
+  if (target.splitId !== splitId) return target;
+  const paths = rows.find((r) => r.id === splitId)?.split?.arms.length ?? 0;
+  if (target.arm === arm) return ROUTE_END;
+  // The block turns into plain stops: a position stays between its two steps, now on the route.
+  if (paths <= 2) return target.pos === null ? ROUTE_END : { pos: target.pos, after: target.after, before: target.before };
+  return target.arm > arm ? { ...target, arm: target.arm - 1 } : target;
+}
+
+/** The add line at `at` (`targetPlace`): the label the next numbered stop takes there, counting itself in
+ *  (`stop-numbers.mjs`; the rows below keep their own numbers), and `after`, the row before the place
+ *  ("after stop 2", "at the start", "at the start of path B"). `tabs`: the shown path by block id. */
 export function nextStop(rows, at, tabs = {}) {
   const withSlot = insertAt(rows, at, { id: -1, campId: "slot" });
   const choice = Object.fromEntries(withSlot.flatMap((r, i) => (r.split ? [[String(i), tabs[r.id] ?? 0]] : [])));
@@ -169,20 +254,13 @@ export function nextStop(rows, at, tabs = {}) {
   const label = labelOf(-1);
   if (at.splitId !== undefined) {
     const split = rows.find((r) => r.id === at.splitId).split;
-    const name = split.arms[at.arm]?.label.trim();
-    const path =
-      split.mode === "and"
-        ? `path ${at.arm + 1}, ${at.arm === 0 ? "the hero's" : "without the hero"}`
-        : `path ${"ABC"[at.arm]}${name ? ` (${name})` : ""}`;
     const prev = split.arms[at.arm]?.stops[at.index - 1];
     const after = !prev ? `at the start of path ${split.mode === "and" ? at.arm + 1 : "ABC"[at.arm]}` : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
-    return { label, line: `Adds stop ${label} to ${path}.`, toEnd: false, after };
+    return { label, after };
   }
   const prev = rows[at.index - 1];
-  const after = !prev ? "at the start" : prev.split ? "after the split" : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
-  if (!rows.length) return { label, line: `Adds stop ${label}, your first stop.`, toEnd: false, after };
-  if (at.index >= rows.length) return { label, line: `Adds stop ${label} at the end.`, toEnd: false, after };
-  return { label, line: `Adds stop ${label} ${after}.`, toEnd: true, after };
+  const after = !prev ? "at the start" : prev.split ? "after the paths" : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
+  return { label, after };
 }
 
 /** Moves row `id` to place `at` (its index counted before the move). A split never goes into a path. */
@@ -198,12 +276,15 @@ export function moveRowTo(rows, id, at) {
 }
 
 /** Where an arrow moves row `id` (-1 up, 1 down), for `moveRowTo`, so arrows and drag share one rule.
- *  The arrows walk the builder's stacked order: one place in its own list; from a path's first stop up
- *  to the end of the path above (from path A: just above the split); from a path's last stop down to the
- *  start of the path below (from the last path: just below the split); from the main list onto a split,
- *  into its first path from above, its last path from below. A split swaps with its neighbour as one
- *  block. Null at either end of the route. */
-export function stepTarget(rows, id, dir) {
+ *  The arrows walk what is on screen: one place in its own list. In a "Choose one path" block only the
+ *  shown path (`shown`: tab by block id, path A by default) is on screen: from its first stop up to just
+ *  above the block, from its last stop down to just below it, and a stop from the route enters the shown
+ *  path at the near end. A "Take all paths simultaneously" block shows every path stacked: from a path's
+ *  first stop up to the end of the path above (from path 1: just above the block), from its last stop
+ *  down to the start of the path below (from the last path: just below the block); from the route into
+ *  its first path from above, its last path from below. A block swaps with its neighbour as one block.
+ *  Null at either end of the route. */
+export function stepTarget(rows, id, dir, shown = {}) {
   const from = locate(rows, id);
   if (!from) return null;
   const list = listAt(rows, from);
@@ -211,26 +292,27 @@ export function stepTarget(rows, id, dir) {
   if (from.splitId !== undefined) {
     if (j >= 0 && j < list.length) return { ...from, index: dir < 0 ? j : j + 1 };
     const s = rows.findIndex((r) => r.id === from.splitId);
-    const arms = rows[s].split.arms;
+    const { arms, mode } = rows[s].split;
     const k = from.arm + dir;
-    if (k >= 0 && k < arms.length) return { splitId: from.splitId, arm: k, index: dir < 0 ? arms[k].stops.length : 0 };
+    if (mode === "and" && k >= 0 && k < arms.length) return { splitId: from.splitId, arm: k, index: dir < 0 ? arms[k].stops.length : 0 };
     return { index: dir < 0 ? s : s + 1 };
   }
   const next = rows[j];
   if (!next) return null;
   if (next.split && !list[from.index].split) {
-    const arm = dir < 0 ? next.split.arms.length - 1 : 0;
-    return { splitId: next.id, arm, index: dir < 0 ? next.split.arms[arm].stops.length : 0 };
+    const { arms, mode } = next.split;
+    const arm = mode === "and" ? (dir < 0 ? arms.length - 1 : 0) : Math.min(shown[next.id] ?? 0, arms.length - 1);
+    return { splitId: next.id, arm, index: dir < 0 ? arms[arm].stops.length : 0 };
   }
   return { index: dir < 0 ? j : j + 1 };
 }
 
-/** The arrow's accessible name: "Move into path B" when it enters a path ("path 2" in a same-time split),
- *  "Move out of the split" when it leaves one, else "Move up" or "Move down". */
-export function stepName(rows, id, dir) {
+/** The arrow's accessible name: "Move into path B" when it enters a path ("path 2" in a "Take all paths
+ *  simultaneously" block), "Move out of the paths" when it leaves one, else "Move up" or "Move down". */
+export function stepName(rows, id, dir, shown = {}) {
   const from = locate(rows, id);
-  const to = stepTarget(rows, id, dir);
-  if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the split";
+  const to = stepTarget(rows, id, dir, shown);
+  if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the paths";
   if (from && to && to.splitId !== undefined && (from.splitId !== to.splitId || from.arm !== to.arm)) {
     const and = rows.find((r) => r.id === to.splitId)?.split?.mode === "and";
     return `Move into path ${and ? to.arm + 1 : "ABC"[to.arm]}`;
@@ -282,7 +364,7 @@ export function removeSplit(rows, splitId, keep = 0) {
 }
 
 /** The line under a split's chips (and in the submit check, not blocking) when every path is the same camps. */
-export const SAME_CAMP_LINE = "A split is for different places. For another action at one camp, use one stop and say so in the note.";
+export const SAME_CAMP_LINE = "Paths are for different places. For another action at one camp, use one stop and say so in the note.";
 
 /** True when every path of `split` visits the same camps in the same order (waypoints aside): a split
  *  for another action at one place. The same camps in another order are a real choice. */

@@ -21,7 +21,6 @@
  */
 import { ARM_LETTERS, armsOf, numberStops, walkedArm } from "./stop-numbers.mjs";
 import { isWaypoint } from "./place.mjs";
-import { MAX_PATHS } from "./caps.mjs";
 
 /** The flat rows. `choice` maps an "or" split's key to the chosen arm (default 0). */
 export function routeRows(stops, choice = {}) {
@@ -72,19 +71,19 @@ export function routeRows(stops, choice = {}) {
 }
 
 /**
- * The builder's rows (`RouteStepTable` with `editBody`): the same stop rows, but every path of a split
- * shows, one block per path in order: a heading row (`head`), the path's stops, then the next-stop row
- * (`slot`) when the next add lands in that path, else a quiet `add` row. A `sep` row stands between two
- * blocks, `more` ("Add a third path") after a pick-one split's last block, and the `after` row closes the
- * split; its lanes curve back into lane a when a stop or the next-stop row follows (`joins`; `follows`
- * counts stops only). `slot` is `{ index, label }` at the
- * top level or `{ index, arm, j, label }` in a path, or null. Rows inside a split carry `group` (the
- * split's key); an "and" split's stops carry `block`.
+ * The builder's rows (`RouteStepTable` with `editBody`): the same stop rows. A "Choose one path" block lists
+ * only its shown path (`choice`), its rows carrying `panel` (the tab panel): a heading row (`head`), the
+ * path's stops, then the add line (`slot`) when the target is that path, else a quiet `add` row; the other
+ * paths are dashed lanes beside it. A "Take all paths simultaneously" block lists every path that way, a
+ * `sep` row between two. The `after` row closes a block; its lanes curve back into lane a when a stop or
+ * the add line follows (`joins`). The route ends in the add line or a quiet `end` row. `slot` is
+ * `{ index, label }` at the top level or `{ index, arm, j, label }` in a path, or null. Rows inside a block
+ * carry `group` (the block's key); a take-all block's stops carry `block`.
  *
- * Lines come from the marks each row puts on a lane (a node, a path's letter disc, the split's fork, the
- * join): a lane runs from its first mark to its last. Lane a is the main line and every path a; lanes b
- * and c belong to one split. A path's own lane is lit over its block, from its heading to its last mark:
- * `gold` where the next stop goes, `light` elsewhere; a line end is `true` when it is drawn plain.
+ * Lines come from the marks each row puts on a lane (a node, a path's letter disc, the fork, the join): a
+ * lane runs from its first mark to its last. Lane a is the main line and every path a; lanes b and c belong
+ * to one block. A path's own lane is lit over its rows: `gold` where the add line is, `light` elsewhere; a
+ * line end is `true` when it is drawn plain.
  * @param {any[]} stops
  * @param {Record<string, number>} [choice]
  * @param {{ index: number, arm?: number, j?: number, label: string } | null} [slot]
@@ -93,6 +92,7 @@ export function builderRows(stops, choice = {}, slot = null) {
   const numbers = numberStops(stops, choice);
   const rows = [];
   const lit = [];
+  const offs = [];
   const isSlot = (i, arm) => slot !== null && slot.index === i && slot.arm === arm;
   const slotRow = (lane, mark, extra = {}) => ({ type: "slot", key: "slot", label: slot.label, lane, marks: [mark], ...extra });
 
@@ -107,35 +107,43 @@ export function builderRows(stops, choice = {}, slot = null) {
     const mode = stop.split.mode;
     const group = n.key;
     const ids = arms.map((_, a) => (a === 0 ? "a" : `${n.key}${ARM_LETTERS[a]}`));
-    const lanes = arms.map((_, a) => ({ lane: ARM_LETTERS[a], off: false }));
+    // "Choose one path" lists only the shown path, in a tab panel; the others are dashed lanes beside it.
+    const shown = mode === "and" ? null : walkedArm(stop, n.key, choice);
+    const panel = shown === null ? {} : { panel: n.key };
+    const lanes = arms.map((_, a) => ({ lane: ARM_LETTERS[a], off: shown !== null && a !== shown }));
     const joins = i < stops.length - 1 || isSlot(i + 1, undefined);
-    rows.push({ type: "split", key: n.key, stop, index: i, mode, lanes, marks: ids });
+    const splitRow = rows.length;
+    rows.push({ type: "split", key: n.key, stop, index: i, mode, lanes, shown: shown ?? 0, marks: ids });
     arms.forEach((arm, a) => {
+      if (shown !== null && a !== shown) return;
       const lane = ARM_LETTERS[a];
       const here = isSlot(i, a);
-      if (a > 0) rows.push({ type: "sep", key: `${n.key}.sep.${a}`, mode, group, marks: [] });
+      if (a > 0 && shown === null) rows.push({ type: "sep", key: `${n.key}.sep.${a}`, mode, group, marks: [] });
       const from = rows.length;
       const waypoints = arm.stops.filter(isWaypoint).length;
       const count = arm.stops.length - waypoints;
-      rows.push({ type: "head", key: `${n.key}.head.${a}`, index: i, arm: a, lane, mode, here, count, waypoints, group, marks: [ids[a]] });
+      rows.push({ type: "head", key: `${n.key}.head.${a}`, index: i, arm: a, lane, mode, here, count, waypoints, group, ...panel, marks: [ids[a]] });
       const entries = [...arm.stops];
       if (here) entries.splice(slot.j, 0, null);
       let j = 0;
       for (const s of entries) {
         if (s === null) {
-          rows.push(slotRow(lane, ids[a], { arm: a, group }));
+          rows.push(slotRow(lane, ids[a], { arm: a, group, ...panel }));
           continue;
         }
         const { key, label } = n.arms[a].stops[j++];
-        rows.push({ type: "stop", key, label, stop: s, lane, arm: a, node: i, group, marks: [ids[a]], ...(mode === "and" ? { block: n.key } : {}) });
+        rows.push({ type: "stop", key, label, stop: s, lane, arm: a, node: i, group, ...panel, marks: [ids[a]], ...(mode === "and" ? { block: n.key } : {}) });
       }
       lit.push({ id: ids[a], from, to: rows.length - 1, tone: here ? "gold" : "light" });
-      if (!here) rows.push({ type: "add", key: `${n.key}.add.${a}`, index: i, arm: a, lane, mode, length: arm.stops.length, group, marks: [] });
+      // A path's end that is not the target keeps its quiet add line (the target may sit inside the path).
+      if (!here || slot.j < arm.stops.length) rows.push({ type: "add", key: `${n.key}.add.${a}`, index: i, arm: a, lane, mode, length: arm.stops.length, group, ...panel, marks: [] });
     });
-    if (mode !== "and" && arms.length < MAX_PATHS) rows.push({ type: "more", key: `${n.key}.more`, index: i, marks: [] });
-    rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, follows: i < stops.length - 1, slotAfter: isSlot(i + 1, undefined), marks: joins ? ids : [] });
+    if (shown !== null) offs.push({ from: splitRow, to: rows.length, lanes: new Set(lanes.filter((l) => l.off).map((l) => l.lane)) });
+    rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, marks: joins ? ids : [] });
   });
+  // The route's own end line always exists: the add line when the target is there, else a quiet `end` row.
   if (isSlot(stops.length, undefined)) rows.push(slotRow("a", "a"));
+  else rows.push({ type: "end", key: "end", marks: [] });
 
   const spans = new Map();
   rows.forEach((r, k) => r.marks.forEach((id) => spans.set(id, { first: spans.get(id)?.first ?? k, last: k })));
@@ -144,6 +152,11 @@ export function builderRows(stops, choice = {}, slot = null) {
     ...row,
     lines: [...spans]
       .filter(([, s]) => s.first < s.last && k >= s.first && k <= s.last)
-      .map(([id, s]) => ({ lane: id.at(-1), top: k > s.first && tone(id, k, true), bottom: k < s.last && tone(id, k, false), off: false })),
+      .map(([id, s]) => ({
+        lane: id.at(-1),
+        top: k > s.first && tone(id, k, true),
+        bottom: k < s.last && tone(id, k, false),
+        off: offs.some((o) => k > o.from && k <= o.to && o.lanes.has(id.at(-1))),
+      })),
   }));
 }

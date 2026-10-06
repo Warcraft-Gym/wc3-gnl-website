@@ -2,14 +2,16 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
-import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, flatStops, numberStops, parseKey, shownStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { builderRows, routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import { isWaypoint } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
 import { StopBlock } from "./StopBlock";
 import { cn } from "@/lib/utils";
 import { DROP, JoinRow, SlotRail, SplitRow, StopRail, type RailLine } from "./LaneRail";
-import { AddThirdPath, AfterSplit, PathAdd, PathHead, PathSep, SplitCaption, type SplitEdit } from "./SplitBlock";
+import { QuietAdd } from "./NextStopRow";
+import { PANEL_EDGE } from "./PathTabs";
+import { AfterSplit, PathAdd, PathHead, PathSep, SplitCaption, type SplitEdit } from "./SplitBlock";
 import type { DropZone } from "./stop-rows";
 
 /** The builder's drop handlers on a row (`RouteEditor`); `data-drop` lights the drop line. */
@@ -26,13 +28,14 @@ type LaneRow =
 /** One row of the builder's list, see `builderRows` in `route-rows.mjs`; `group` is the split a row belongs to. */
 type Lanes = { lane: string; off: boolean }[];
 type BuilderRow =
-  | ((LaneRow & { type: "stop" | "split" }) & { group?: string })
-  | { type: "slot"; key: string; label: string; lane: string; lines: RailLine[]; group?: string }
-  | { type: "head"; key: string; index: number; arm: number; lane: string; mode: string; here: boolean; count: number; waypoints: number; lines: RailLine[]; group: string }
-  | { type: "sep"; key: string; mode: string; lines: RailLine[]; group: string }
-  | { type: "add"; key: string; index: number; arm: number; mode: string; length: number; lines: RailLine[]; group: string }
-  | { type: "more"; key: string; index: number; lines: RailLine[]; group?: undefined }
-  | { type: "after"; key: string; index: number; mode: string; lanes: Lanes; joins: boolean; follows: boolean; slotAfter: boolean; lines: RailLine[]; group?: undefined };
+  | ((LaneRow & { type: "stop" }) & { group?: string })
+  | ((LaneRow & { type: "split" }) & { group?: string; shown: number; panel?: undefined })
+  | { type: "slot"; key: string; label: string; lane: string; lines: RailLine[]; group?: string; panel?: string }
+  | { type: "end"; key: string; lines: RailLine[]; group?: undefined; panel?: undefined }
+  | { type: "head"; key: string; index: number; arm: number; lane: string; mode: string; here: boolean; count: number; waypoints: number; lines: RailLine[]; group: string; panel?: string }
+  | { type: "sep"; key: string; mode: string; lines: RailLine[]; group: string; panel?: undefined }
+  | { type: "add"; key: string; index: number; arm: number; mode: string; length: number; lines: RailLine[]; group: string; panel?: string }
+  | { type: "after"; key: string; index: number; mode: string; lanes: Lanes; joins: boolean; lines: RailLine[]; group?: undefined; panel?: undefined };
 
 /**
  * The route as an ordered list of stops, each a disclosure. Both states are
@@ -45,9 +48,10 @@ type BuilderRow =
  * the keys of `stop-numbers.mjs`; every stop, a split's arms' stops too, is a
  * flat row with the lane rail (`LaneRail`), except a guide's one stop
  * (`only`). Blocks carry `data-stop` (the stop's number, "3a" in an arm);
- * map badges carry `data-stop-marker`. In the builder (`editBody`) every path
- * of a split shows, stacked (`builderRows`, `SplitBlock`), with the next-stop
- * row (`slot`) where the next add lands; the reader keeps the tabs.
+ * map badges carry `data-stop-marker`. In the builder (`editBody`) a paths
+ * block shows the reader's tabs and the shown path for "Choose one path", or
+ * every path one under the other for "Take all paths simultaneously"
+ * (`builderRows`, `SplitBlock`), with the add line (`slot`) at the target.
  */
 export function RouteStepTable({
   route,
@@ -59,6 +63,7 @@ export function RouteStepTable({
   onExpandAll,
   onCollapseAll,
   scrollTo = null,
+  onHoverKey,
   onOpenCard,
   openCampId = null,
   only,
@@ -71,6 +76,8 @@ export function RouteStepTable({
   dnd,
   slot,
   slotRow,
+  onContinue,
+  tools,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -84,6 +91,8 @@ export function RouteStepTable({
   onCollapseAll: () => void;
   /** A stop to scroll into view; a new object each time it should scroll. */
   scrollTo?: { key: string } | null;
+  /** The row pointed at or focused, for the map to ring its mark. */
+  onHoverKey?: (key: string | null) => void;
   /** Pins the camp card for a stop's camp, from its camp label button. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   /** The camp the card is showing, for the camp button's `aria-expanded`. */
@@ -108,10 +117,21 @@ export function RouteStepTable({
   slot?: { index: number; arm?: number; j?: number; label: string };
   /** The builder: the next-stop row's content (`NextStopRow`). */
   slotRow?: React.ReactNode;
+  /** The builder: the route's quiet end line, "Continue the route", makes the route the target. */
+  onContinue?: () => void;
+  /** The builder: buttons at the right of the list header ("Waypoint", "Two paths"). */
+  tools?: React.ReactNode;
 }) {
   // The header counts the numbered stops a reader of the chosen paths sees (no split, no waypoint).
   const count = countStops(route.stops, choice ?? {});
-  const [hoverKey, setHoverKey] = useState<string | null>(null);
+  // Waypoints and pins on the shown paths.
+  const ways = (shownStops(route.stops, choice ?? {}) as { stop: RouteStop }[]).filter(({ stop }) => isWaypoint(stop)).length;
+  const [hoverKey, setHover] = useState<string | null>(null);
+  // The map rings the mark of the row pointed at or focused (`onHoverKey`).
+  const setHoverKey = (key: string | null) => {
+    setHover(key);
+    onHoverKey?.(key);
+  };
   const items = useRef(new Map<string, HTMLLIElement>());
   useEffect(() => {
     if (scrollTo) items.current.get(scrollTo.key)?.scrollIntoView({ block: "nearest" });
@@ -190,6 +210,7 @@ export function RouteStepTable({
                 lane={row.lane}
                 dnd={dnd?.({ kind: "row", key: row.key })}
                 sharedXp={row.block !== undefined}
+                inPanel={row.panel !== undefined}
                 chevron={!group}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
                 tools={stopTools && open.has(row.key) ? stopTools(row.key) : undefined}
@@ -207,7 +228,14 @@ export function RouteStepTable({
         </li>
       );
     }
-    if (row.type === "sep") return <PathSep key={row.key} mode={row.mode} lines={row.lines} />;
+    if (row.type === "end") {
+      return (
+        <li key="end" className="relative border-t border-line/40 py-2 pl-[60px] pr-4 first:border-t-0 sm:pr-5">
+          <QuietAdd onClick={() => onContinue?.()}>Continue the route</QuietAdd>
+        </li>
+      );
+    }
+    if (row.type === "sep") return <PathSep key={row.key} lines={row.lines} />;
     const edit = splitEdit?.(row.index);
     if (!edit) return null;
     if (row.type === "split") {
@@ -216,6 +244,10 @@ export function RouteStepTable({
           key={row.key}
           stopKey={row.key}
           mode={row.mode}
+          shown={row.shown}
+          paths={row.stop.split?.arms.length ?? 0}
+          tabId={(a) => `${baseId}-tab-${row.key}-${a}`}
+          panelId={`${baseId}-panel-${row.key}`}
           main={row.lines.find((l) => l.lane === "a")}
           lanes={row.lanes}
           edit={edit}
@@ -247,22 +279,18 @@ export function RouteStepTable({
           arm={row.arm}
           empty={!row.length}
           lines={row.lines}
-          onAdd={() => edit.onAddStops(row.arm)}
+          onAdd={() => edit.onAddStops(row.arm, true)}
           dnd={dnd?.({ kind: "path", index: row.index, arm: row.arm, at: row.length })}
         />
       );
     }
-    if (row.type === "more") return edit.onAddPath ? <AddThirdPath key={row.key} lines={row.lines} onAdd={edit.onAddPath} /> : null;
     const node = derived.stops[row.index].split;
     return (
       <AfterSplit
         key={row.key}
         lanes={row.lanes}
         joins={row.joins}
-        follows={row.follows}
-        slotAfter={row.slotAfter}
         node={row.mode === "and" ? node : undefined}
-        onContinue={edit.onContinue}
       />
     );
   };
@@ -275,12 +303,12 @@ export function RouteStepTable({
             <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
               Route{" "}
               <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
-                · {count} stops
+                · {count} stops{ways ? ` · ${ways} ${ways === 1 ? "waypoint" : "waypoints"}` : ""}
               </span>
             </h2>
             <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
           </div>
-          {editBody ? null : (
+          {editBody ? tools : (
             <button
               type="button"
               onClick={allOpen ? onCollapseAll : onExpandAll}
@@ -296,9 +324,21 @@ export function RouteStepTable({
         <ol>
           {groupBlocks(blocks).map((item) => {
             if (item.type !== "group") return renderBuilderRow(item);
+            // "Choose one path": the shown path's rows hang from its tab in one panel.
+            const panel = item.rows.filter((r) => r.panel);
+            const head = panel.find((r) => r.type === "head");
+            const shown = head?.type === "head" ? head.arm : 0;
             return (
               <li key={`block-${item.key}`} className="relative">
-                <ol>{item.rows.map(renderBuilderRow)}</ol>
+                <ol>
+                  {panel.length ? (
+                    <li role="tabpanel" id={`${baseId}-panel-${item.key}`} aria-labelledby={`${baseId}-tab-${item.key}-${shown}`} className="relative pb-1.5">
+                      <span aria-hidden className={PANEL_EDGE} />
+                      <ol>{panel.map(renderBuilderRow)}</ol>
+                    </li>
+                  ) : null}
+                  {item.rows.filter((r) => !r.panel).map(renderBuilderRow)}
+                </ol>
               </li>
             );
           })}
@@ -313,7 +353,8 @@ export function RouteStepTable({
               const split = group.split;
               if (!group.rows.length) return null;
               return (
-                <li key={`panel-${split.key}`} role="tabpanel" id={`${baseId}-panel-${split.key}`} aria-labelledby={`${baseId}-tab-${split.key}-${derived.stops[split.index].split?.walked ?? 0}`}>
+                <li key={`panel-${split.key}`} role="tabpanel" id={`${baseId}-panel-${split.key}`} aria-labelledby={`${baseId}-tab-${split.key}-${derived.stops[split.index].split?.walked ?? 0}`} className="relative">
+                  <span aria-hidden className={PANEL_EDGE} />
                   <ol>{group.rows.map(renderRow)}</ol>
                 </li>
               );

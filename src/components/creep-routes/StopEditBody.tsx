@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { ArrowDown, ArrowUp, Plus, Trash2, X } from "lucide-react";
+import { ArrowDown, ArrowUp, MapPin, Plus, Trash2, X } from "lucide-react";
 import { HeroTile } from "./HeroTile";
 import { WAY_TYPES, type WayType } from "./NextStopRow";
 import { PlaceIcon } from "./PlaceGlyph";
@@ -51,8 +51,7 @@ const textarea =
   "w-full resize-y rounded border border-line bg-surface/60 px-3 py-2 text-sm leading-relaxed text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
 
 /** The Note field, plus its "what does this do" hint. Shared by the camp
- *  and base-action layouts below — a base-action row has no Bring/Condition
- *  (F009: those make no sense for "TP home"), but every stop gets a note.
+ *  and base-action layouts below; every stop gets a note.
  *  A camp stop (`camp`) keeps the hint in the placeholder. */
 function NoteField({ value, onChange, camp }: { value: string; onChange: (v: string) => void; camp?: boolean }) {
   const remaining = STOP_NOTE_MAX - value.length;
@@ -68,7 +67,6 @@ function NoteField({ value, onChange, camp }: { value: string; onChange: (v: str
         className={textarea}
       />
       <div className="mt-1 flex items-baseline justify-between gap-3 empty:hidden">
-        {camp ? null : <p className="text-[0.65rem] text-faint">What to do at this camp and why</p>}
         {/* Only once it is actually close, so the hint doesn't nag. */}
         {remaining <= 100 ? (
           <p className={cn("tnum text-[0.65rem]", remaining === 0 ? "text-loss" : "text-faint")}>
@@ -87,6 +85,7 @@ const KINDS: { id: PlaceKind; label: string; hint: string }[] = [
   { id: "build", label: "Build", hint: "e.g. Build a second Altar" },
   { id: "scout", label: "Scout", hint: "e.g. Scout their hero" },
   { id: "attack", label: "Attack", hint: "e.g. Harass their workers" },
+  { id: "other", label: "Other", hint: "e.g. Wait here until the creeps sleep" },
 ];
 
 const iconButton = "grid size-9 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
@@ -131,10 +130,10 @@ export function StopTools({
  * `StopBlock` draws the summary line (number, band dot, camp or place name,
  * level, and `StopTools`), this replaces its body. A camp stop: the kill order
  * picker and the note. Any other step (a waypoint, a pin, an attack or a step with
- * no place): the switch "On the route | Pin | No place", the kind buttons, its text
- * and the note. Then Bring and the condition as dashed add buttons until used (a
- * field with content always shows); the hero is Bring's first entry on a camp or
- * attack stop only.
+ * no place): the kind buttons, then the switch "On the route | Pin" and "Move", its text
+ * and the note. Then Bring and the condition as dashed add buttons until used (a field
+ * with content always shows); a step with no place gets no add buttons, so it shows them
+ * only with content. The hero is Bring's first entry on a camp or attack stop only.
  */
 export function StopEditBody({
   stop,
@@ -143,11 +142,10 @@ export function StopEditBody({
   error,
   onChange,
   trace,
-  absent,
   heroIcon,
   opened = { bring: false, condition: false },
   onOpen = () => {},
-  onArm,
+  onMove,
 }: {
   stop: StopRowData;
   /** The resolved camp for a camp stop; undefined for a place or a base action. */
@@ -157,33 +155,27 @@ export function StopEditBody({
   onChange: (patch: Partial<StopRowData>) => void;
   /** This stop's `deriveRoute` kill trace, for the kill order chain. */
   trace?: DerivedKill[];
-  /** Derived hero off: its own flag, or a later path of an "and" split. */
-  absent?: boolean;
   /** The route's hero icon for the Bring hero entry; the "Any Hero" crown tile when the route names none. */
   heroIcon?: string;
   /** A camp stop's Bring and condition, once opened (kept by row id in `RouteEditor`, so a move keeps them). */
   opened?: { bring: boolean; condition: boolean };
   onOpen?: (part: "bring" | "condition") => void;
-  /** No place switched to On the route or Pin: the map waits for this step's spot. */
-  onArm?: (type: Exclude<WayType, "none">) => void;
+  /** "Move": the map waits for this step's new place. */
+  onMove?: () => void;
 }) {
   const isCamp = Boolean(stop.campId);
+  const isAction = !isCamp && !stop.place;
   // The hero is Bring's first entry on a camp or attack stop; a waypoint has none (a pin is the switch's).
   const heroEntry = Boolean(stop.campId || stop.place?.kind === "attack");
-  const heroOff = heroEntry && Boolean(absent ?? stop.hero === false);
-  // A later path of an "and" split: the hero walks path a, so this stop cannot take him.
-  const forcedOff = heroOff && stop.hero !== false;
+  const heroOff = heroEntry && stop.hero === false;
   // Bring and the condition show once used: content, a hero-off stop, or a click on the add button.
   // An edit there keeps it open, so removing the last unit never hides the block under focus.
   const showBring = opened.bring || stop.units.length > 0 || heroOff;
   const showCondition = opened.condition || Boolean(stop.condition);
-  const type: WayType = !stop.place ? "none" : isPin(stop) ? "pin" : "route";
-  // Each switch is one change: No place clears the place (the text stays), from No place the map waits
-  // for the spot, between the other two the hero flag flips (an attack made a pin scouts).
+  const type: WayType = isPin(stop) ? "pin" : "route";
+  // Each switch is one change: the hero flag flips (an attack made a pin scouts).
   const setType = (to: WayType) => {
-    if (to === type) return;
-    if (to === "none") return onChange({ place: undefined, hero: undefined });
-    if (!stop.place) return onArm?.(to);
+    if (to === type || !stop.place) return;
     onChange({ place: { ...stop.place, kind: to === "pin" && stop.place.kind === "attack" ? "scout" : stop.place.kind }, hero: to === "pin" ? false : undefined });
   };
   // After "+ Bring units", "+ Condition" or a unit's remove, focus goes to this control in the body.
@@ -221,13 +213,11 @@ export function StopEditBody({
             <button
               type="button"
               aria-pressed={!heroOff}
-              disabled={forcedOff}
               onClick={() => bringChange({ hero: stop.hero === false ? undefined : false })}
-              title={forcedOff ? "The hero walks the first path" : heroOff ? "Add the hero" : "Send only the units"}
+              title={heroOff ? "Add the hero" : "Send only the units"}
               className={cn(
                 "inline-flex h-8 items-center gap-1.5 rounded border py-1 pl-1 pr-2 text-xs",
                 heroOff ? "border-dashed border-line text-faint line-through" : "border-gold/50 text-fg",
-                forcedOff && "cursor-not-allowed",
               )}
             >
               <HeroTile heroIcon={heroIcon} size={24} className={cn(heroOff && "opacity-40 grayscale")} />
@@ -281,34 +271,41 @@ export function StopEditBody({
     <div ref={body} className="min-w-0 space-y-3">
       {isCamp ? null : (
         <>
-          <div role="group" aria-label="Waypoint" className="flex w-fit flex-wrap divide-x divide-line overflow-hidden rounded border border-line">
-            {WAY_TYPES.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                aria-pressed={t.id === type}
-                title={t.line}
-                onClick={() => setType(t.id)}
-                className="inline-flex h-8 items-center gap-1.5 px-2.5 text-xs text-muted hover:text-fg aria-pressed:bg-gold/10 aria-pressed:text-fg"
-              >
-                <t.Glyph aria-hidden size={14} /> {t.short}
-              </button>
-            ))}
-          </div>
           {stop.place ? (
-            <div role="group" aria-label="What happens here" className="flex flex-wrap gap-1.5">
-              {KINDS.filter((k) => !(type === "pin" && k.id === "attack")).map((k) => (
-                <button
-                  key={k.id}
-                  type="button"
-                  aria-pressed={k.id === stop.place?.kind}
-                  onClick={() => stop.place && onChange({ place: { ...stop.place, kind: k.id } })}
-                  className="inline-flex h-8 items-center gap-1.5 rounded border border-line px-2.5 text-xs text-muted hover:text-fg aria-pressed:border-gold/60 aria-pressed:bg-gold/10 aria-pressed:text-fg"
-                >
-                  <PlaceIcon kind={k.id} className={k.id === "attack" ? "text-loss" : undefined} /> {k.label}
+            <>
+              <div role="group" aria-label="What happens here" className="flex flex-wrap gap-1.5">
+                {KINDS.filter((k) => !(type === "pin" && k.id === "attack")).map((k) => (
+                  <button
+                    key={k.id}
+                    type="button"
+                    aria-pressed={k.id === stop.place?.kind}
+                    onClick={() => stop.place && onChange({ place: { ...stop.place, kind: k.id } })}
+                    className="inline-flex h-8 items-center gap-1.5 rounded border border-line px-2.5 text-xs text-muted hover:text-fg aria-pressed:border-gold/60 aria-pressed:bg-gold/10 aria-pressed:text-fg"
+                  >
+                    <PlaceIcon kind={k.id} className={k.id === "attack" ? "text-loss" : undefined} /> {k.label}
+                  </button>
+                ))}
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <div role="group" aria-label="Waypoint" className="flex w-fit divide-x divide-line overflow-hidden rounded border border-line">
+                  {WAY_TYPES.map((t) => (
+                    <button
+                      key={t.id}
+                      type="button"
+                      aria-pressed={t.id === type}
+                      title={t.line}
+                      onClick={() => setType(t.id)}
+                      className="inline-flex h-8 items-center gap-1.5 px-2.5 text-xs text-muted hover:text-fg aria-pressed:bg-gold/10 aria-pressed:text-fg"
+                    >
+                      <t.Glyph aria-hidden size={14} /> {t.short}
+                    </button>
+                  ))}
+                </div>
+                <button type="button" onClick={onMove} data-move-way={stop.id} className="inline-flex h-8 items-center gap-1.5 rounded px-2 text-xs text-muted hover:text-gold">
+                  <MapPin aria-hidden size={13} /> Move
                 </button>
-              ))}
-            </div>
+              </div>
+            </>
           ) : null}
           <div>
             <input
@@ -329,10 +326,10 @@ export function StopEditBody({
       ) : null}
 
       <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} camp={isCamp} />
-
       {bring}
       {condition}
-      {showBring && showCondition ? null : (
+      {/* A step with no place (an action) gets no add buttons; Bring, the condition and pictures show only with content. */}
+      {isAction || (showBring && showCondition) ? null : (
         <div className="flex flex-wrap gap-1.5">
           {showBring ? null : (
             <button
@@ -362,7 +359,7 @@ export function StopEditBody({
       )}
 
       {/* A camp stop names its pictures only when it has some. */}
-      {isCamp && !stop.pictures ? null : (
+      {(isCamp || isAction) && !stop.pictures ? null : (
         <p className="text-[0.65rem] text-faint">
           {stop.pictures
             ? `${stop.pictures} ${stop.pictures === 1 ? "picture stays" : "pictures stay"} with this stop`

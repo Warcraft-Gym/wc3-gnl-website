@@ -94,9 +94,12 @@ export function KillOrderField({
         <p className="mt-1 text-[0.65rem] text-loss">{error}</p>
       ) : (
         <p className="mt-1 text-[0.65rem] text-faint">
-          {!rows.length
-            ? "Optional. Click creeps in the order to kill them. Empty means clear the whole camp."
-            : !rest.length
+          {!rows.length ? (
+            <>
+              <span className="lg:hidden">Optional. Tap creeps in the order to kill them. Empty means clear the whole camp.</span>
+              <span className="hidden lg:inline">Optional. Click creeps in the order to kill them. Empty means clear the whole camp.</span>
+            </>
+          ) : !rest.length
               ? "Clears the camp in this order."
               : leaveRest
                 ? `Skips ${rest.length}. Hero after counts only these kills.`

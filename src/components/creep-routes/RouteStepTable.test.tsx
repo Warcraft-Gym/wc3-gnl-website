@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import { useState } from "react";
 import { FIXTURE_MAPS, FIXTURE_ROUTES } from "@/lib/creep-routes/fixtures";
 import { RouteStepTable } from "./RouteStepTable";
+import { CreepMapPlayground } from "./CreepMapPlayground";
 
 afterEach(cleanup);
 
@@ -23,8 +24,8 @@ describe("simultaneous paths in the route list", () => {
       return <RouteStepTable route={route} map={map} open={open} onSummary={toggle} onChevron={toggle} onExpandAll={() => {}} onCollapseAll={() => {}} />;
     }
     render(<OpenableTable />);
-    const split = screen.getByText("At the same time").closest("li")!;
-    const heading = within(split).getByRole("button", { name: /^At the same time, hero Lv \d+, \d+ xp$/ });
+    const split = screen.getByText("Take all paths simultaneously").closest("li")!;
+    const heading = within(split).getByRole("button", { name: /^Take all paths simultaneously, hero Lv \d+, \d+ xp$/ });
     const paths = split.nextElementSibling as HTMLElement;
     const stops = () => [...paths.querySelectorAll("li[data-stop]")] as HTMLElement[];
     expect(stops()).toHaveLength(3);
@@ -40,5 +41,19 @@ describe("simultaneous paths in the route list", () => {
     expect(heading.getAttribute("aria-expanded")).toBe("false");
     expect(within(split).getByText(/Lv \d+ · \d+ xp/)).toBeTruthy();
     for (const stop of stops()) expect(within(stop).getByRole("button", { name: /^Stop / }).getAttribute("aria-expanded")).toBe("false");
+  });
+});
+
+describe("the reader rings a row's mark", () => {
+  it("on focus, and the ring goes on blur", () => {
+    const route = FIXTURE_ROUTES[0];
+    const map = FIXTURE_MAPS.find((m) => m.slug === route.map.slug)!;
+    const { container } = render(<CreepMapPlayground map={map} route={route} />);
+    const row = container.querySelector('li[data-stop="1"]')!;
+    expect(container.querySelector("svg [data-ring]")).toBeNull();
+    fireEvent.focusIn(row);
+    expect(container.querySelector("svg [data-ring]")).toBeInTheDocument();
+    fireEvent.focusOut(row);
+    expect(container.querySelector("svg [data-ring]")).toBeNull();
   });
 });
