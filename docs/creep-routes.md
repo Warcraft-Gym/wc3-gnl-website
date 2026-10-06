@@ -474,7 +474,7 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   diamond, and its content moves right to clear it.
 - **Builder.** A click on their start adds an attack, on your start a build
   waypoint, on a mine an expand waypoint, on a shop a shop waypoint
-  (`kindForClick`). "Waypoint" asks first, in the next-stop row: "On the
+  (`kindForClick`). "Waypoint" asks first, at the add line: "On the
   route", "A pin" or "No place". The first two arm the map (a start, mine or
   shop snaps to its spot; a pin is never an attack and scouts at a free
   point); No place adds a base action. An open waypoint has the switch "On
@@ -528,7 +528,7 @@ The Studio repeats both checks as errors with the same words: an `or` or
 `xor` path with no label ("Say when to take this path") and a stop after an
 `xor` split.
 
-The builder offers two modes, "Choose a path" and "At the same time", and
+The builder offers two kinds, "Choose one path" and "Take all paths simultaneously", and
 saves `or` or `xor` from the structure: stops after the split mean `or`,
 nothing after means `xor` (`savedMode` in `editor-rows.mjs`).
 
@@ -576,14 +576,14 @@ choose one, no number means a waypoint.
   split row and, when stops follow, a join row. A 44px rail is added in front of today's row and moves nothing: 2px lines in
   `--wg-line-strong` (lane a at x 14, b at 30, c at 46), and on the row's
   lane a 6px neutral dot, the diamond for a waypoint or a red-ringed Swords
-  node for an attack. The split row is a slim caption: "At the same time"
-  (`and`), or "Choose a path" with browser tabs (`role="tablist"`, arrow
+  node for an attack. The split row is a slim caption: "Take all paths simultaneously"
+  (`and`), or "Choose one path" with tabs (`PathTabs`, `role="tablist"`, arrow
   keys, the hero's level at each path's end; the chosen tab is open at the
   bottom onto its path's rows, a `tabpanel`; the others are recessed). `and`
   shows every path. `or` and `xor` show only the chosen path: a path not taken
   has no rows, only a dashed lane, from the split row to the join row in
   `or`, a stub that ends in the split row in `xor`. A guide's one-stop
-  example has no rail. The heading of an "At the same time" split is one
+  example has no rail. The heading of a "Take all paths simultaneously" block is one
   dropdown for all its paths and shows the hero after them all, like a
   stop row: closed, the level line `Lv 3 · 552 xp`; open, the hero meter.
   A level line starts with a gold double chevron when its stop or split
@@ -593,11 +593,13 @@ choose one, no number means a waypoint.
   as harass or shopping may add no XP.
   A map click on a camp picks the top-level stop or the
   walked path's (`findStopKey`). HowTo steps follow path a.
-- **Builder.** "Split here" in the next-stop row opens a short form (pick one
-  path or both at the same time, and the paths' names) and inserts nothing
-  until "Start path A". In the builder every path shows, stacked, with its
-  heading and name field (`builderRows`); the reader keeps the tabs. The
-  caption row has two mode chips; `or` or `xor` is saved from the structure.
+- **Builder.** "Two paths" in the list header adds a "Choose one path" block
+  with two unnamed paths at the end of the route and makes path A the target.
+  The block's top row has a kind switch, "Choose one path" or "Take all paths
+  simultaneously"; `or` or `xor` is saved from the structure. "Choose one
+  path" shows the reader's tabs (`PathTabs`) and only the shown path, with its
+  name field, in a panel under its tab; "Take all paths simultaneously" lists
+  every path one under the other (`builderRows`).
   See "The slim builder" below for adds, moves, removals and undo.
 
 ### Pictures
@@ -1107,16 +1109,18 @@ sees; this section is the mechanics.
   any other step: the switch "On the route | Pin | No place", the kind
   buttons, its text and the note; then Bring and the condition behind add
   buttons until used, the hero entry on camp and attack stops only); move and remove
-  (`StopTools`) sit on the open stop's summary line. A split shows every path
-  stacked (`builderRows`, `SplitBlock`): the caption row with the mode chips,
-  move and "Remove split", then one block per path (a heading row with the
-  name field, the path's stops, an add row), and the "After the split" row.
-  The next-stop row (`NextStopRow`, `nextStop`) sits where the next map click
-  lands and holds "Waypoint" and "Split here" (`SplitForm`). Every move has
-  one rule (`editor-rows.mjs`, v2.7): a map click adds after the selected row
-  in its own list, at the end of a path when its split is selected ("Add stops
-  to path B"), right after the split with "Continue the route here", else at
-  the end, and a camp already in that list is selected instead; every row
+  (`StopTools`) sit on the open stop's summary line. A paths block
+  (`builderRows`, `SplitBlock`) has a top row with the kind switch, move and
+  "Remove paths, keep path A"; "Choose one path" adds the tab strip and lists
+  the shown path in a panel (a head row with the name field, its stops, its add
+  line), "Take all paths simultaneously" lists every path one under the other.
+  The builder keeps one target, the route or one path (`targetPlace`); the add
+  line (`NextStopRow`, `nextStop`) sits there and every other list end shows a
+  quiet add button ("Add stops to path B", "Continue the route"). Opening a
+  stop never moves the target; a tab, a quiet add button, "Two paths", a new
+  path and a removed path do. "Waypoint" and "Two paths" sit in the list
+  header. Every move has one rule (`editor-rows.mjs`): a map click adds at the
+  target, and a camp already in that list opens instead; every row
   has a drag handle (native HTML drag and drop, fine pointers; `dropTarget`,
   `moveRowTo`), a split moves as a block and never into a path, and a path's
   heading and add row take a drop; the open stop's arrows make the
@@ -1133,7 +1137,7 @@ sees; this section is the mechanics.
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
   Path labels are kept as typed and trimmed once on blur (`setArmLabel`).
-  "Waypoint" opens its chooser in the next-stop row (`WaypointChooser`):
+  "Waypoint" opens its chooser at the add line (`WaypointChooser`):
   On the route and A pin arm the next map click, No place adds a base action
   and focuses its text. The
   section header's "Edit |

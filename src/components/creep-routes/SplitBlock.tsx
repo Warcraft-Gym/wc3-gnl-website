@@ -88,8 +88,8 @@ export function SplitCaption({
     <li data-split={stopKey} {...dnd?.props} className={cn(ROW, "border-t border-line/40 pt-2 first:border-t-0", and ? "pb-2" : "pb-0", DROP)}>
       <ForkRail main={main} lanes={lanes} />
       {dnd?.handle ? <span className="absolute left-[44px] top-3.5">{dnd.handle}</span> : null}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <div role="radiogroup" aria-label="Kind of paths" className="grid flex-[1_1_220px] grid-cols-2 overflow-hidden rounded border border-line sm:inline-flex sm:flex-none">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 sm:flex-nowrap">
+        <div role="radiogroup" aria-label="Kind of paths" className="grid min-w-0 basis-full grid-cols-2 overflow-hidden rounded border border-line sm:max-w-[26rem] sm:flex-1 sm:basis-auto">
           {KINDS.map((m) => {
             const on = (m.id === "and") === and;
             return (
@@ -100,7 +100,7 @@ export function SplitCaption({
                 aria-checked={on}
                 onClick={() => edit.onMode(m.id)}
                 className={cn(
-                  "inline-flex min-h-8 items-center gap-[7px] px-2.5 py-1 text-left text-[0.8rem] leading-tight [&+&]:border-l [&+&]:border-line",
+                  "flex min-h-9 min-w-0 flex-col items-start justify-center gap-1 px-2 py-1 text-left text-[0.75rem] leading-tight sm:flex-row sm:items-center sm:gap-[7px] sm:text-[0.8rem] [&+&]:border-l [&+&]:border-line",
                   on ? "bg-gold/10 text-fg" : "text-muted hover:text-fg",
                 )}
               >

@@ -21,14 +21,14 @@ const ASK = "Ask on Discord if you need more.";
 export const CAP_AT = {
   stops: `This route is at the cap of ${MAX_STOPS} numbered stops. ${ASK}`,
   rows: `This route is at the cap of ${MAX_ROWS} rows. ${ASK}`,
-  paths: `This split is at the cap of ${MAX_PATHS} paths. ${ASK}`,
+  paths: `This block is at the cap of ${MAX_PATHS} paths. ${ASK}`,
 };
 
 /** The same line when a route is past a cap (the submit check, the Studio). */
 export const CAP_OVER = {
   stops: `This route is over the cap of ${MAX_STOPS} numbered stops. ${ASK}`,
   rows: `This route is over the cap of ${MAX_ROWS} rows. ${ASK}`,
-  paths: `This split is over the cap of ${MAX_PATHS} paths. ${ASK}`,
+  paths: `This block is over the cap of ${MAX_PATHS} paths. ${ASK}`,
   images: `This stop is over the cap of ${MAX_STOP_IMAGES} pictures. ${ASK}`,
   imageBytes: `This picture is over the cap of ${MAX_IMAGE_BYTES / 1024 / 1024} MB. Save the screenshot as JPEG and upload it again.`,
 };

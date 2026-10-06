@@ -129,7 +129,7 @@ function splitSchema(armStopSchema) {
             stops: z.array(armStopSchema).max(20, "Max 20 stops"),
           }),
         )
-        .min(2, "A split needs two or three paths")
+        .min(2, "A paths block needs two or three paths")
         .max(MAX_PATHS, CAP_OVER.paths),
     })
     .superRefine((split, ctx) => {
@@ -178,7 +178,7 @@ export function createSubmissionSchema({ maps, iconKeys, buildSlugs = [] }) {
   const placeIdsByMap = new Map(maps.map((m) => [m.slug, { startIds: m.startIds, mineCount: m.mineCount, shopIds: m.shopIds }]));
   const iconSet = new Set(iconKeys ?? []);
   const buildSet = new Set(buildSlugs);
-  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A path cannot hold another split");
+  const noSplit = z.unknown().optional().refine((v) => v === undefined, "A path cannot hold more paths");
   const armStopSchema = baseStopSchema(iconSet, noSplit);
   const stopSchema = baseStopSchema(iconSet, splitSchema(armStopSchema).optional());
 

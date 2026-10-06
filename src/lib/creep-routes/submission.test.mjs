@@ -457,7 +457,7 @@ test("nodes: a node inside an arm, an empty arm and a fork without labels are re
   const s = createSubmissionSchema({ maps: placeMaps, iconKeys });
   const inner = forkStop("both", [{ stops: [{ campId: "c01" }] }, { stops: [{ campId: "c02" }] }]);
   const nested = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [inner] }, { stops: [{ campId: "c02" }] }])] }));
-  assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A path cannot hold another split");
+  assert.equal(flattenErrors(nested.error)["stops.1.split.arms.0.stops.0.split"], "A path cannot hold more paths");
   const empty = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("both", [{ stops: [] }, { stops: [{ campId: "c02" }] }])] }));
   assert.equal(flattenErrors(empty.error)["stops.1.split.arms.0.stops"], "Path 1 is empty. Add a stop to it or remove it.");
   const unlabelled = s.safeParse(payload({ stops: [{ campId: "c01" }, forkStop("either", [{ stops: [{ campId: "c01" }] }, { label: "B", stops: [{ campId: "c02" }] }])] }));
@@ -514,7 +514,7 @@ test("caps: the submit check repeats the builder's cap lines past 12 stops, 20 r
   assert.equal(flattenErrors(rows.error).stops, "This route is over the cap of 20 rows. Ask on Discord if you need more.");
   const four = forkStop("both", [1, 2, 3, 4].map(() => ({ stops: [{ campId: "c01" }] })));
   const paths = s.safeParse(payload({ stops: [{ campId: "c01" }, four] }));
-  assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "This split is over the cap of 3 paths. Ask on Discord if you need more.");
+  assert.equal(flattenErrors(paths.error)["stops.1.split.arms"], "This block is over the cap of 3 paths. Ask on Discord if you need more.");
 });
 
 test("key: a Sanity-shaped stop key is kept, a malformed one is rejected, pictures from the browser are dropped", () => {

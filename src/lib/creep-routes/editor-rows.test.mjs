@@ -195,7 +195,7 @@ test("arrows: up from the first path's first row leaves the split, just above it
     const rows = make();
     assert.deepEqual(stepTarget(rows, at(rows, 0, 0).id, -1), { index: 1 });
     assert.deepEqual(ids(arrow(rows, at(rows, 0, 0).id, -1)).slice(0, 3), ["c1", "c2", "split"]);
-    assert.equal(stepName(rows, at(rows, 0, 0).id, -1), "Move out of the split");
+    assert.equal(stepName(rows, at(rows, 0, 0).id, -1), "Move out of the paths");
   }
 });
 
@@ -219,7 +219,7 @@ test("arrows: down from the last path's last row leaves the split, just below it
     const last = rows[1].split.arms.at(-1).stops.at(-1);
     assert.deepEqual(stepTarget(rows, last.id, 1), { index: 2 });
     assert.deepEqual(ids(arrow(rows, last.id, 1)).slice(1, 3), ["split", last.campId]);
-    assert.equal(stepName(rows, last.id, 1), "Move out of the split");
+    assert.equal(stepName(rows, last.id, 1), "Move out of the paths");
   }
 });
 
@@ -293,7 +293,7 @@ test("same camps in every path, same order: allowed, with one line; another orde
   assert.equal(sameCampSequence(forkRow(["c5"], ["c5", "c6"]).split), false);
   assert.equal(sameCampSequence(forkRow(["c5"], []).split), false);
   assert.equal(sameCampSequence(forkRow([], []).split), false);
-  assert.match(SAME_CAMP_LINE, /^A split is for different places\./);
+  assert.match(SAME_CAMP_LINE, /^Paths are for different places\./);
 });
 
 test("a path label keeps what is typed and trims once on blur", () => {

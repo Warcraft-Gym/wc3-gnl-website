@@ -11,7 +11,7 @@ test("the caps are 3 paths, 12 numbered stops and 20 rows", () => {
   assert.deepEqual([MAX_PATHS, MAX_STOPS, MAX_ROWS], [3, 12, 20]);
   assert.equal(CAP_AT.stops, "This route is at the cap of 12 numbered stops. Ask on Discord if you need more.");
   assert.equal(CAP_AT.rows, "This route is at the cap of 20 rows. Ask on Discord if you need more.");
-  assert.equal(CAP_AT.paths, "This split is at the cap of 3 paths. Ask on Discord if you need more.");
+  assert.equal(CAP_AT.paths, "This block is at the cap of 3 paths. Ask on Discord if you need more.");
 });
 
 test("a stop takes 3 pictures of 5 MB at most; the lines give the limits", () => {

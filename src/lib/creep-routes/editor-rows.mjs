@@ -222,11 +222,11 @@ export function stepTarget(rows, id, dir) {
 }
 
 /** The arrow's accessible name: "Move into path B" when it enters a path ("path 2" in a same-time split),
- *  "Move out of the split" when it leaves one, else "Move up" or "Move down". */
+ *  "Move out of the paths" when it leaves one, else "Move up" or "Move down". */
 export function stepName(rows, id, dir) {
   const from = locate(rows, id);
   const to = stepTarget(rows, id, dir);
-  if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the split";
+  if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the paths";
   if (from && to && to.splitId !== undefined && (from.splitId !== to.splitId || from.arm !== to.arm)) {
     const and = rows.find((r) => r.id === to.splitId)?.split?.mode === "and";
     return `Move into path ${and ? to.arm + 1 : "ABC"[to.arm]}`;
@@ -278,7 +278,7 @@ export function removeSplit(rows, splitId, keep = 0) {
 }
 
 /** The line under a split's chips (and in the submit check, not blocking) when every path is the same camps. */
-export const SAME_CAMP_LINE = "A split is for different places. For another action at one camp, use one stop and say so in the note.";
+export const SAME_CAMP_LINE = "Paths are for different places. For another action at one camp, use one stop and say so in the note.";
 
 /** True when every path of `split` visits the same camps in the same order (waypoints aside): a split
  *  for another action at one place. The same camps in another order are a real choice. */

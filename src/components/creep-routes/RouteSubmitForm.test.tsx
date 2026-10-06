@@ -145,9 +145,9 @@ describe("RouteSubmitForm: the arrows move a stop into and out of a split", () =
 
     fireEvent.click(await screen.findByRole("button", { name: "Move into path A" }));
     await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move down"));
-    expect(screen.getByRole("button", { name: "Move out of the split" })).toBeEnabled();
+    expect(screen.getByRole("button", { name: "Move out of the paths" })).toBeEnabled();
 
-    fireEvent.click(screen.getByRole("button", { name: "Move out of the split" }));
+    fireEvent.click(screen.getByRole("button", { name: "Move out of the paths" }));
     // Back first: up is disabled, so focus lands on the other arrow.
     await waitFor(() => expect(document.activeElement).toHaveAttribute("aria-label", "Move into path A"));
     expect(screen.getByRole("button", { name: /^Undo: move stop/ })).toBeInTheDocument();

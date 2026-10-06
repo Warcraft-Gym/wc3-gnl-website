@@ -91,7 +91,7 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * path; a path's heading and add row take a drop); the open stop's arrows make
  * the same moves on a keyboard or phone (`stepTarget`), in the stacked order
  * through every path of a split; its trash removes it.
- * "Remove path" and "Remove split" keep the model whole. Every change but typing
+ * "Remove path" and "Remove paths" keep the model whole. Every change but typing
  * calls `remember` first, so the form can undo it; typing in one field is one
  * step until the field loses focus.
  */
