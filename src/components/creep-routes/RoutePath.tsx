@@ -219,7 +219,8 @@ function Nodes({
         const select = p.place && onStopSelect ? () => onStopSelect(p.key) : undefined;
         // Hero off: the first Bring unit's icon on the disc's lower-left edge, clear of the number (not on a pin).
         const unitIcon = p.absent && !p.pin ? p.stop.units?.[0]?.icon : undefined;
-        const corner = cornerMark(p.cx, p.cy, p.r);
+        // The swords sit 3 units out from the disc edge, clear of a two-character label ("3b").
+        const corner = cornerMark(p.cx, p.cy, p.r + 3);
         const unitAt = heroOffMark(p.cx, p.cy, p.r);
         return (
           <g

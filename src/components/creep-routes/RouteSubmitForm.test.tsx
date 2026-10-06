@@ -422,6 +422,8 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
   it("a click on a waypoint's mark opens its row and adds nothing; pointing at a row rings its mark", async () => {
     const { container } = await load([{ campId: null, action: "Build", place: { kind: "build", at: { start: their } } }]);
     const rows = container.querySelectorAll("li").length;
+    // The header counts waypoints apart from the numbered stops.
+    expect(screen.getByText("· 2 stops · 1 waypoint")).toBeInTheDocument();
     fireEvent.click(container.querySelector("svg g[data-waypoint]")!);
     expect(screen.getByRole("button", { name: "Move" })).toBeInTheDocument();
     expect(container.querySelectorAll("li").length).toBe(rows);

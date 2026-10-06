@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { deriveRoute } from "@/lib/creep-routes/derive";
-import { countStops, flatStops, numberStops, parseKey, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
+import { countStops, flatStops, numberStops, parseKey, shownStops, stopKeys } from "@/lib/creep-routes/stop-numbers.mjs";
 import { builderRows, routeRows } from "@/lib/creep-routes/route-rows.mjs";
 import { isWaypoint } from "@/lib/creep-routes/place.mjs";
 import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "@/lib/creep-routes/types";
@@ -123,6 +123,8 @@ export function RouteStepTable({
 }) {
   // The header counts the numbered stops a reader of the chosen paths sees (no split, no waypoint).
   const count = countStops(route.stops, choice ?? {});
+  // Waypoints and pins on the shown paths.
+  const ways = (shownStops(route.stops, choice ?? {}) as { stop: RouteStop }[]).filter(({ stop }) => isWaypoint(stop)).length;
   const [hoverKey, setHover] = useState<string | null>(null);
   // The map rings the mark of the row pointed at or focused (`onHoverKey`).
   const setHoverKey = (key: string | null) => {
@@ -300,7 +302,7 @@ export function RouteStepTable({
             <h2 className="text-[1.05rem] font-bold tracking-[0.06em]">
               Route{" "}
               <span className="font-sans text-sm font-normal normal-case tracking-normal text-muted">
-                · {count} stops
+                · {count} stops{ways ? ` · ${ways} ${ways === 1 ? "waypoint" : "waypoints"}` : ""}
               </span>
             </h2>
             <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>

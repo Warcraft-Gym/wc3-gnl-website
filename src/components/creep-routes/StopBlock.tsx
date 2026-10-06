@@ -259,7 +259,7 @@ export function StopBlock({
             onClick={() => onChevron(stopKey)}
             aria-expanded={isOpen}
             aria-controls={bodyId}
-            aria-label={`${isOpen ? "Hide" : "Show"} stop ${number} details`}
+            aria-label={[isOpen ? "Hide" : "Show", "stop", number, "details"].filter(Boolean).join(" ")}
             className={cn(
               "relative grid size-5 shrink-0 place-items-center self-start rounded hover:text-gold focus-visible:outline focus-visible:outline-2 focus-visible:outline-gold",
               isOpen ? "text-gold" : "text-faint",
