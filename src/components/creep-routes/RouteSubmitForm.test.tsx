@@ -370,10 +370,11 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(screen.getByRole("button", { name: "Attack" })).toHaveAttribute("aria-pressed", "true");
   });
 
-  it("the switch: pin to route, to No place and back, each one undo step; no Hero entry on a waypoint", async () => {
+  it("the switch: pin to route and back, each one undo step; no Hero entry on a waypoint; no No place in it", async () => {
     const { container } = await load([{ campId: null, action: "Scout", place: { kind: "scout", at: { start: their } }, hero: false }]);
     fireEvent.click(container.querySelector("li[data-waypoint] button")!);
     expect(pressed("Pin")).toBe("true");
+    expect(within(screen.getByRole("group", { name: "Waypoint" })).queryByRole("button", { name: "No place" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Bring units" }));
     expect(document.querySelector("[data-bring]")).toBeInTheDocument();
     expect(heroEntry()).toBeNull();
@@ -383,24 +384,39 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(container.querySelector("li[data-pin]")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Undo: edit waypoint/ })).toBeInTheDocument();
     expect(heroEntry()).toBeNull();
-
-    fireEvent.click(screen.getByRole("button", { name: "No place" }));
-    expect(pressed("No place")).toBe("true");
-    expect(screen.queryByRole("button", { name: "Scout" })).not.toBeInTheDocument();
-    expect(screen.getByRole("textbox", { name: "What happens" })).toHaveValue("Scout");
-
     fireEvent.click(screen.getByRole("button", { name: "Pin" }));
-    expect(screen.getByText("Click the new place for this waypoint")).toBeInTheDocument();
-    fireEvent.click(theirBase());
-    expect(pressed("Pin")).toBe("true");
     expect(container.querySelector("li[data-pin]")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
-    expect(pressed("No place")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
     expect(pressed("On the route")).toBe("true");
     fireEvent.click(screen.getByRole("button", { name: /^Undo:/ }));
     expect(pressed("Pin")).toBe("true");
+  });
+
+  it("Move moves the row to the clicked place and keeps its text, kind and type, in one undo step", async () => {
+    const { container } = await load([{ campId: null, action: "Scout", place: { kind: "scout", at: { start: their } }, hero: false }]);
+    fireEvent.click(container.querySelector("li[data-waypoint] button")!);
+    fireEvent.click(screen.getByRole("button", { name: "Move" }));
+    expect(screen.getByText("Click the new place for this waypoint")).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "No place" })).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole("button", { name: "Add a waypoint at Gold mine" })[0]);
+    expect(within(container.querySelector("li[data-pin]") as HTMLElement).getByText("a gold mine")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "What happens" })).toHaveValue("Scout");
+    expect(screen.getByRole("button", { name: "Scout" })).toHaveAttribute("aria-pressed", "true");
+    expect(pressed("Pin")).toBe("true");
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Move" })));
+    expect(screen.getByRole("button", { name: /^Undo: move waypoint/ })).toBeInTheDocument();
+  });
+
+  it("an action row has only its text and the note", async () => {
+    await load();
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: "No place" }));
+    expect(screen.queryByRole("group", { name: "Waypoint" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Move" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Bring units" })).toBeNull();
+    expect(screen.getByLabelText("Note")).toHaveAttribute("placeholder", "Note (optional)");
+    expect(screen.queryByText("What to do at this camp and why")).toBeNull();
   });
 
   it("an attack switched to Pin scouts", async () => {

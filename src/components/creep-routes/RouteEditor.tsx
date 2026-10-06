@@ -153,14 +153,14 @@ export function RouteEditor({
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(routeStops, choice), [routeStops, choice]);
   // Places mode ("Waypoint"): the map's bases, mines and shops are targets and a click adds a waypoint;
-  // with `moveId` the click moves that row instead (`pin` makes it a pin as it moves).
-  const [places, setPlaces] = useState<{ moveId: number | null; pin?: boolean } | null>(null);
+  // with `moveId` the click moves that row there instead.
+  const [places, setPlaces] = useState<{ moveId: number | null } | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const narrow = () => !window.matchMedia?.("(min-width: 1024px)").matches;
   /** Enters places mode; below `lg` the map scrolls into view. */
-  const enterPlaces = (moveId: number | null, pin?: boolean) => {
-    setPlaces({ moveId, pin });
+  const enterPlaces = (moveId: number | null) => {
+    setPlaces({ moveId });
     if (narrow()) mapRef.current?.scrollIntoView?.({ block: "start", behavior: reduced ? "auto" : "smooth" });
   };
   // After an action whose button unmounts, focus goes to this control (a selector in the editor), never to <body>.
@@ -322,11 +322,9 @@ export function RouteEditor({
     const row = mv != null ? rowAtKey(stops, keyOfRow(stops, mv) ?? "") : undefined;
     setPlaces(null);
     if (mv != null && row) {
-      const pin = places?.pin ?? isPin(row);
-      const kind = row.place?.kind ?? picked.kind;
-      const place: Place = { ...picked, kind: pin && kind === "attack" ? "scout" : kind };
+      const place: Place = { ...picked, kind: row.place?.kind ?? picked.kind };
       step("move waypoint");
-      setStops((rows) => patchRow(rows, mv, { place, hero: pin ? false : row.hero }));
+      setStops((rows) => patchRow(rows, mv, { place }));
       setSelectedId(mv);
       focusTo.current = `[data-move-way="${mv}"]`;
       return;
@@ -401,7 +399,7 @@ export function RouteEditor({
         heroIcon={heroIcon}
         opened={{ bring: Boolean(opened[`${row.id}.bring`]), condition: Boolean(opened[`${row.id}.condition`]) }}
         onOpen={(part) => setOpened((o) => (o[`${row.id}.${part}`] ? o : { ...o, [`${row.id}.${part}`]: true }))}
-        onArm={(type) => enterPlaces(row.id, type === "pin")}
+        onMove={() => enterPlaces(row.id)}
       />
     );
   };
@@ -554,7 +552,7 @@ export function RouteEditor({
 
   return (
     <div ref={rootRef} className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-      <div ref={mapRef} className="min-w-0 scroll-mt-[calc(var(--wg-header-h)+0.5rem)] lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
+      <div ref={mapRef} className="min-w-0 scroll-mt-[calc(var(--wg-header-h)+var(--wg-subnav-h)+0.25rem)] lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <CreepMap
           map={map}
           route={route}

@@ -47,12 +47,11 @@ export function QuietAdd({ children, onClick }: { children: React.ReactNode; onC
 }
 
 // A waypoint is a step at a place with no creeps. The line goes through it, or it is a pin the line skips.
-// A step with no place is an action. Who goes is Bring, as on any stop.
-export type WayType = "route" | "pin" | "none";
+// A step with no place is an action ("No place"). Who goes is Bring, as on any stop.
+export type WayType = "route" | "pin";
 export const WAY_TYPES = [
   { id: "route", short: "On the route", long: "On the route", line: "The line goes through it.", Glyph: MapPin },
   { id: "pin", short: "Pin", long: "A pin", line: "Marks a spot. The line skips it.", Glyph: Flag },
-  { id: "none", short: "No place", long: "No place", line: "An action, e.g. TP home.", Glyph: Zap },
 ] as const;
 
 /**
