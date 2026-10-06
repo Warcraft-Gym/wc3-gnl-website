@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 /** The message a submit form shows by its button when fields need fixing; the server action's own. */
 export const FIX_FIELDS_MESSAGE = "Please fix the highlighted fields.";
@@ -19,13 +19,26 @@ export const FIX_FIELDS_MESSAGE = "Please fix the highlighted fields.";
  */
 export function useFormCheck(check: (data: FormData) => Record<string, string> | null) {
   const [fields, setFields] = useState<Record<string, string> | null>(null);
+  const form = useRef<HTMLFormElement | null>(null);
+
+  // Once the messages render, bring the topmost one into view: the first
+  // problem (a race, the stops) is often far above the submit button and
+  // has no text field to focus. Field messages are the forms' `p.text-loss`.
+  useEffect(() => {
+    if (!fields) return;
+    form.current?.querySelector("p.text-loss")?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [fields]);
+
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     const found = check(new FormData(e.currentTarget));
     setFields(found);
     if (!found) return;
     e.preventDefault();
-    // A text field's id is its name; a step or stop key matches none and focus stays put.
-    document.getElementById(Object.keys(found)[0])?.focus();
+    form.current = e.currentTarget;
+    // Keyboard focus goes to the first text field with a message (its id is its name); the
+    // effect above does the scrolling, as the first message may sit on a race or the stops.
+    const field = Object.keys(found).map((key) => document.getElementById(key)).find(Boolean);
+    field?.focus({ preventScroll: true });
   };
   return { fields, onSubmit };
 }
