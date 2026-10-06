@@ -474,15 +474,16 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   diamond, and its content moves right to clear it.
 - **Builder.** A click on their start adds an attack, on your start a build
   waypoint, on a mine an expand waypoint, on a shop a shop waypoint
-  (`kindForClick`). "Waypoint" asks first, at the add line: "On the
-  route", "A pin" or "No place". The first two arm the map (a start, mine or
-  shop snaps to its spot; a pin is never an attack and scouts at a free
-  point); No place adds a base action. An open waypoint has the switch "On
-  the route | Pin | No place" (one undo step each; No place clears the place
-  and keeps the text, back from No place arms the map for that row), the kind
-  buttons (a pin offers no Attack; an attack made a pin scouts), its text and
-  the note. A start, mine or shop under a camp's button takes no mouse click;
-  Tab reaches it.
+  (`kindForClick`). "Waypoint" switches the map to places mode: every
+  start, mine and shop is a 32px button that never overlaps another (a
+  moved one draws a line to its true spot, which is stored), a click
+  within 6 px of one takes it, and a click anywhere else adds a free
+  point. A bar under the map holds "No place" (a base action) and
+  "Cancel"; in the normal state places take no click. An open waypoint has
+  the kind buttons (a pin offers no Attack; an attack made a pin scouts),
+  the switch "On the route | Pin" and "Move" (places mode for that row;
+  the click moves it and keeps its text, kind, type and Bring), its text
+  and the note; a base action has only its text and the note.
 - **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
   Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
   Appearance under Neutral, from the art the site already has. `count` on an
@@ -1106,8 +1107,8 @@ sees; this section is the mechanics.
   reader's one-line `StopBlock` row (a waypoint its slim row); one stop is
   open at a time, the selected one, shared with the map's pulsing node, and
   its body is `StopEditBody` (a camp stop: the kill order picker and the note;
-  any other step: the switch "On the route | Pin | No place", the kind
-  buttons, its text and the note; then Bring and the condition behind add
+  any other step: the kind buttons, the switch "On the route | Pin" and
+  "Move", its text and the note; then Bring and the condition behind add
   buttons until used, the hero entry on camp and attack stops only); move and remove
   (`StopTools`) sit on the open stop's summary line. A paths block
   (`builderRows`, `SplitBlock`) has a top row with the kind switch, move and
@@ -1137,9 +1138,8 @@ sees; this section is the mechanics.
   (`pushUndo`, `popUndo`): "Undo: <action>" in the section header and Ctrl+Z
   outside text fields; typing in one field is one step until it loses focus.
   Path labels are kept as typed and trimmed once on blur (`setArmLabel`).
-  "Waypoint" opens its chooser at the add line (`WaypointChooser`):
-  On the route and A pin arm the next map click, No place adds a base action
-  and focuses its text. The
+  "Waypoint" toggles places mode (`PlaceTargets`, the armed bar under the
+  map); an add opens the new row with focus in its text. The
   section header's "Edit |
   Preview" toggle draws the route page's own section (`CreepMapPlayground`)
   from the draft, read-only; the editor stays mounted under it, so the
