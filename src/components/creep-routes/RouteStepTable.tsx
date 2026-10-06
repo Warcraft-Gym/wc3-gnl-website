@@ -62,6 +62,7 @@ export function RouteStepTable({
   onExpandAll,
   onCollapseAll,
   scrollTo = null,
+  onHoverKey,
   onOpenCard,
   openCampId = null,
   only,
@@ -89,6 +90,8 @@ export function RouteStepTable({
   onCollapseAll: () => void;
   /** A stop to scroll into view; a new object each time it should scroll. */
   scrollTo?: { key: string } | null;
+  /** The row pointed at or focused, for the map to ring its mark. */
+  onHoverKey?: (key: string | null) => void;
   /** Pins the camp card for a stop's camp, from its camp label button. */
   onOpenCard?: (camp: MapCamp, el: CampCardTrigger) => void;
   /** The camp the card is showing, for the camp button's `aria-expanded`. */
@@ -120,7 +123,12 @@ export function RouteStepTable({
 }) {
   // The header counts the numbered stops a reader of the chosen paths sees (no split, no waypoint).
   const count = countStops(route.stops, choice ?? {});
-  const [hoverKey, setHoverKey] = useState<string | null>(null);
+  const [hoverKey, setHover] = useState<string | null>(null);
+  // The map rings the mark of the row pointed at or focused (`onHoverKey`).
+  const setHoverKey = (key: string | null) => {
+    setHover(key);
+    onHoverKey?.(key);
+  };
   const items = useRef(new Map<string, HTMLLIElement>());
   useEffect(() => {
     if (scrollTo) items.current.get(scrollTo.key)?.scrollIntoView({ block: "nearest" });

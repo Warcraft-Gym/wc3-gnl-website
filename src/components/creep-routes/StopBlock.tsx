@@ -152,6 +152,8 @@ export function StopBlock({
       data-waypoint={waypoint ?? undefined}
       onMouseEnter={() => onHover(stopKey)}
       onMouseLeave={() => onHover(null)}
+      onFocus={() => onHover(stopKey)}
+      onBlur={() => onHover(null)}
       aria-current={isActive ? "step" : undefined}
       data-pin={pin || undefined}
       style={indent ? { paddingLeft: indent } : undefined}

@@ -155,6 +155,8 @@ export function RouteEditor({
   // Places mode ("Waypoint"): the map's bases, mines and shops are targets and a click adds a waypoint;
   // with `moveId` the click moves that row there instead.
   const [places, setPlaces] = useState<{ moveId: number | null } | null>(null);
+  // The row pointed at or focused: the map rings its mark.
+  const [ringStop, setRingStop] = useState<string | null>(null);
   const mapRef = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const narrow = () => !window.matchMedia?.("(min-width: 1024px)").matches;
@@ -570,6 +572,7 @@ export function RouteEditor({
           }}
           choice={choice}
           preview={preview}
+          ringStop={ringStop}
         />
         {places ? <ArmedBar move={places.moveId !== null} noPlaceCap={Boolean(addBlocked(stops, "stop"))} onNoPlace={addNoPlace} onCancel={leavePlaces} /> : null}
         <MapLegend />
@@ -608,6 +611,7 @@ export function RouteEditor({
           onExpandAll={() => {}}
           onCollapseAll={() => {}}
           scrollTo={scrollTo}
+          onHoverKey={setRingStop}
           onOpenCard={onOpenCard}
           openCampId={openCampId}
           choice={choice}

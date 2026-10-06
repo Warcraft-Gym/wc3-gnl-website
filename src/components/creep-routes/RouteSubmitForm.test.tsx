@@ -419,6 +419,19 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(screen.queryByText("What to do at this camp and why")).toBeNull();
   });
 
+  it("a click on a waypoint's mark opens its row and adds nothing; pointing at a row rings its mark", async () => {
+    const { container } = await load([{ campId: null, action: "Build", place: { kind: "build", at: { start: their } } }]);
+    const rows = container.querySelectorAll("li").length;
+    fireEvent.click(container.querySelector("svg g[data-waypoint]")!);
+    expect(screen.getByRole("button", { name: "Move" })).toBeInTheDocument();
+    expect(container.querySelectorAll("li").length).toBe(rows);
+    expect(container.querySelector("svg [data-ring]")).toBeNull();
+    fireEvent.mouseEnter(container.querySelector('li[data-stop="1"]')!);
+    expect(container.querySelector("svg [data-ring]")).toBeInTheDocument();
+    fireEvent.mouseLeave(container.querySelector('li[data-stop="1"]')!);
+    expect(container.querySelector("svg [data-ring]")).toBeNull();
+  });
+
   it("an attack switched to Pin scouts", async () => {
     const { container } = await load([{ campId: null, action: "Harass", place: { kind: "attack", at: { start: their } } }], 3);
     fireEvent.click(container.querySelector('li[data-stop="3"] button')!);

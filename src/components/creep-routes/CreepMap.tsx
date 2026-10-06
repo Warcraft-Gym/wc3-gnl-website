@@ -106,6 +106,8 @@ export type CreepMapProps = {
   /** Builder: the stop a click adds is drawn while a camp outside `skip` is pointed at or focused, as a
    *  dashed leg from `from` (the last place of the target list, none without one) and `label` in a dashed gold circle. */
   preview?: { from: Pick<RouteStop, "campId" | "place"> | null; label: string; skip: Set<string> };
+  /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
+  ringStop?: string | null;
   className?: string;
 };
 
@@ -270,6 +272,7 @@ export function CreepMap({
   onPlaceSelect,
   placesMode = false,
   preview,
+  ringStop = null,
   className,
 }: CreepMapProps) {
   // The SVG <image> is fetched only once the parser reaches the map, so the
@@ -559,7 +562,7 @@ export function CreepMap({
           {/* The stop discs over everything else: a stop's node is its badge. */}
           {route ? (
             <g opacity={placesMode ? 0.6 : undefined}>
-              <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="nodes" />
+              <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="nodes" ringStop={ringStop} />
             </g>
           ) : null}
           {previewTo && preview ? <PreviewStep from={preview.from ? spotOf(preview.from) : null} to={previewTo} label={preview.label} /> : null}

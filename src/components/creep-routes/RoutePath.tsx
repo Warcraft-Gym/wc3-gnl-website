@@ -53,6 +53,7 @@ export const RoutePath = memo(function RoutePath({
   map,
   stops,
   activeStop,
+  ringStop,
   youStart = 0,
   onStopSelect,
   choice,
@@ -73,6 +74,8 @@ export const RoutePath = memo(function RoutePath({
   campAt?: Map<string, { x: number; y: number }>;
   /** `legs` under the camps, `nodes` (the stop discs) over them: `CreepMap` paints the two apart. */
   layer: "legs" | "nodes";
+  /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
+  ringStop?: string | null;
 }) {
   const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
@@ -112,7 +115,7 @@ export const RoutePath = memo(function RoutePath({
 
   if (!points.length) return null;
   const hidden = hiddenBadgeKeys(stops, choice);
-  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} onStopSelect={onStopSelect} reduced={reduced} />;
+  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} ringStop={ringStop} onStopSelect={onStopSelect} reduced={reduced} />;
 
   // One straight segment per leg, ending at the edge of each node's disc. Legs that would read as one
   // line (collinear, or through another stop's disc) move sideways apart (`legOffsets`).
@@ -192,10 +195,12 @@ function Nodes({
   points,
   hidden,
   activeStop,
+  ringStop,
   onStopSelect,
   reduced,
 }: {
   points: PathNode[];
+  ringStop?: string | null;
   hidden: Set<string>;
   activeStop?: string | null;
   onStopSelect?: (key: string) => void;
@@ -209,9 +214,9 @@ function Nodes({
       {[...shown].sort((a, b) => rank(a) - rank(b)).map((p) => {
         const isActive = activeStop === p.key;
         const attack = p.place?.kind === "attack";
-        // A camp stop's disc lets clicks through to its camp marker; an attack disc selects its stop.
-        // ponytail: a disc selects by pointer only; the stop list is the keyboard path to an attack.
-        const select = attack && onStopSelect ? () => onStopSelect(p.key) : undefined;
+        // A camp stop's disc lets clicks through to its camp marker; a place's disc (an attack, a waypoint, a pin) opens its row.
+        // ponytail: a disc selects by pointer only; the stop list is the keyboard path to it.
+        const select = p.place && onStopSelect ? () => onStopSelect(p.key) : undefined;
         // Hero off: the first Bring unit's icon on the disc's lower-left edge, clear of the number (not on a pin).
         const unitIcon = p.absent && !p.pin ? p.stop.units?.[0]?.icon : undefined;
         const corner = cornerMark(p.cx, p.cy, p.r);
@@ -226,6 +231,8 @@ function Nodes({
             pointerEvents={select ? undefined : "none"}
             className={select ? "cursor-pointer" : undefined}
           >
+            {/* A row pointed at or focused in the list rings its mark. */}
+            {ringStop === p.key ? <circle data-ring cx={p.cx} cy={p.cy} r={p.r + 3.5} fill="none" stroke="var(--wg-gold)" strokeWidth={1.5} /> : null}
             {/* Grow via `transform: scale()` on a wrapper, never a transition of `r`
              *  (compositor-only motion — DESIGN.md, F009 review code-b.md item 2). */}
             <g
