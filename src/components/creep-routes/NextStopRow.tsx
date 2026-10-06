@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 const BUTTON = "inline-flex h-8 items-center gap-1.5 rounded border px-2.5 text-xs font-medium aria-disabled:opacity-40";
 export const GOLD_BUTTON = cn(BUTTON, "border-gold/50 text-gold hover:bg-gold/10");
 export const QUIET_BUTTON = cn(BUTTON, "border-line text-muted hover:text-fg");
+const ARMED_BUTTON = "inline-flex h-8 items-center gap-1.5 rounded px-2 text-sm text-fg hover:text-gold aria-disabled:opacity-40";
 /** The dashed gold box of the next-stop row and the split form. */
 export const SLOT_BOX = "rounded border border-dashed border-gold/60 bg-gold/[0.04] p-3";
 
@@ -13,21 +14,9 @@ export const SLOT_BOX = "rounded border border-dashed border-gold/60 bg-gold/[0.
  * The builder's add line (`RouteEditor`): a slim row at the target, where the
  * next map click lands (`targetPlace`), with the number that stop will take in a
  * dashed circle (`nextStop`). No box and no buttons: "Waypoint" and "Two paths"
- * sit in the list header. While the map is armed for a waypoint on the route or
- * a pin the line asks for its spot.
+ * sit in the list header.
  */
-export function NextStopRow({
-  label,
-  armed,
-  capLine,
-  onCancel,
-}: {
-  label: string;
-  /** A waypoint on the route or a pin waits for its spot on the map. */
-  armed: WayType | null;
-  capLine?: string | null;
-  onCancel: () => void;
-}) {
+export function NextStopRow({ label, capLine }: { label: string; capLine?: string | null }) {
   return (
     <div className="flex min-h-7 items-center gap-3">
       <span
@@ -35,25 +24,13 @@ export function NextStopRow({
         data-add-label
         className="tnum grid size-[26px] shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-gold text-[0.75rem] font-bold text-gold"
       >
-        {armed === "pin" ? <Flag size={14} /> : armed ? <MapPin size={14} /> : label}
+        {label}
       </span>
       <div aria-live="polite" className="min-w-0 flex-1 text-sm text-muted">
-        {armed ? (
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 py-0.5">
-            <p>
-              <span className="font-medium text-fg">{armed === "pin" ? "Click the spot to pin" : "Click the place on the map"}</span>{" "}
-              {armed === "pin" ? "Any spot. The line skips it." : "Bases, gold mines and shops snap to their spot."}
-            </p>
-            <button type="button" onClick={onCancel} data-focus="cancel" className={QUIET_BUTTON}>
-              Cancel
-            </button>
-          </div>
-        ) : (
-          <p>
-            <span className="lg:hidden">Tap a camp on the map above</span>
-            <span className="hidden lg:inline">Click a camp on the map</span>
-          </p>
-        )}
+        <p>
+          <span className="lg:hidden">Tap a camp on the map above</span>
+          <span className="hidden lg:inline">Click a camp on the map</span>
+        </p>
         {capLine ? <p className="mt-1 text-[0.7rem] text-faint">{capLine}</p> : null}
       </div>
     </div>
@@ -79,35 +56,25 @@ export const WAY_TYPES = [
 ] as const;
 
 /**
- * "Waypoint" turns the next-stop row into this chooser; nothing is inserted yet. On the route and
- * A pin arm the map, No place adds an action row (`RouteEditor`). Escape and "Cancel" close it.
+ * Places mode's bar, under the map: what a click does there, then "No place" (adding a waypoint) and
+ * "Cancel". Moving a waypoint (`move`) asks for its new place, with only "Cancel".
  */
-export function WaypointChooser({ after, noPlaceCap, onChoose, onCancel }: { after: string; noPlaceCap?: string | null; onChoose: (type: WayType) => void; onCancel: () => void }) {
+export function ArmedBar({ move, noPlaceCap, onNoPlace, onCancel }: { move: boolean; noPlaceCap?: boolean; onNoPlace: () => void; onCancel: () => void }) {
+  const say = move ? "the new place for this waypoint" : "a base, gold mine, shop or any spot";
   return (
-    <div data-waypoint-chooser className={SLOT_BOX}>
-      <p className="text-sm font-medium leading-7 text-fg">Waypoint {after}</p>
-      <div className="mt-1 grid gap-2 sm:grid-cols-3">
-        {WAY_TYPES.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            disabled={t.id === "none" && Boolean(noPlaceCap)}
-            onClick={() => onChoose(t.id)}
-            data-focus={`way-${t.id}`}
-            className="grid grid-cols-[1rem_minmax(0,1fr)] gap-x-2 rounded border border-line px-2.5 py-2 text-left hover:border-gold/60 hover:bg-gold/10 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            <t.Glyph aria-hidden size={16} className="row-span-2 mt-0.5 text-gold" />
-            <span className="text-sm font-medium text-fg">{t.long}</span>
-            <span className="text-[0.75rem] leading-snug text-muted">{t.line}</span>
-          </button>
-        ))}
-      </div>
-      {noPlaceCap ? <p className="mt-2 text-[0.7rem] text-faint">{noPlaceCap}</p> : null}
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        <button type="button" onClick={onCancel} data-focus="cancel" className={QUIET_BUTTON}>
-          Cancel
+    <div role="status" data-armed-bar className="mt-2 flex min-h-10 flex-wrap items-center gap-x-2.5 gap-y-1 rounded border border-gold bg-gold/10 py-1 pl-3 pr-1.5 text-[0.86rem] text-fg">
+      <span className="mr-auto">
+        <span className="lg:hidden">Tap {say}</span>
+        <span className="hidden lg:inline">Click {say}</span>
+      </span>
+      {move ? null : (
+        <button type="button" onClick={onNoPlace} aria-disabled={noPlaceCap || undefined} className={ARMED_BUTTON}>
+          <Zap aria-hidden size={14} /> No place
         </button>
-      </div>
+      )}
+      <button type="button" onClick={onCancel} data-focus="cancel" className={ARMED_BUTTON}>
+        Cancel
+      </button>
     </div>
   );
 }

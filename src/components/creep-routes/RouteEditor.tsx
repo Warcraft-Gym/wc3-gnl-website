@@ -7,7 +7,7 @@ import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, StopTools, type StopRowData } from "./StopEditBody";
 import type { SplitEdit } from "./SplitBlock";
-import { GOLD_BUTTON, NextStopRow, WaypointChooser, type WayType } from "./NextStopRow";
+import { ArmedBar, GOLD_BUTTON, NextStopRow } from "./NextStopRow";
 import {
   dropTarget,
   insertAt,
@@ -38,13 +38,14 @@ import {
   type UndoEntry,
 } from "./stop-rows";
 import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
-import { atKind, isPin } from "@/lib/creep-routes/place.mjs";
+import { isPin } from "@/lib/creep-routes/place.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
 import { cn } from "@/lib/utils";
+import { useReducedMotion } from "@/lib/useReducedMotion";
 
 /** Fields whose typing is one undo step until the field loses focus. */
 const TEXT_FIELDS = new Set(["note", "condition", "action", "units"]);
@@ -151,37 +152,46 @@ export function RouteEditor({
   );
   const derived = useMemo(() => deriveRoute(route, map, { choice }), [route, map, choice]);
   const numbers = useMemo(() => numberStops(routeStops, choice), [routeStops, choice]);
-  // The map waits for the spot of a waypoint on the route or a pin; `pending` is a row that gets it
-  // (a No place row switched back), else the click adds a new row.
-  const [armed, setArmed] = useState<Exclude<WayType, "none"> | null>(null);
-  const [pending, setPending] = useState<number | null>(null);
-  // The waypoint chooser ("Waypoint"): nothing is inserted until a choice.
-  const [chooser, setChooser] = useState(false);
+  // Places mode ("Waypoint"): the map's bases, mines and shops are targets and a click adds a waypoint;
+  // with `moveId` the click moves that row instead (`pin` makes it a pin as it moves).
+  const [places, setPlaces] = useState<{ moveId: number | null; pin?: boolean } | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
+  const narrow = () => !window.matchMedia?.("(min-width: 1024px)").matches;
+  /** Enters places mode; below `lg` the map scrolls into view. */
+  const enterPlaces = (moveId: number | null, pin?: boolean) => {
+    setPlaces({ moveId, pin });
+    if (narrow()) mapRef.current?.scrollIntoView?.({ block: "start", behavior: reduced ? "auto" : "smooth" });
+  };
   // After an action whose button unmounts, focus goes to this control (a selector in the editor), never to <body>.
   const rootRef = useRef<HTMLDivElement>(null);
   const focusTo = useRef<string | null>(null);
+  // The focus target scrolls to the middle too (an added row, below `lg`).
+  const scrollFocus = useRef(false);
   useEffect(() => {
     const q = focusTo.current;
     if (!q) return;
     focusTo.current = null;
-    rootRef.current?.querySelector<HTMLElement>(q)?.focus();
+    const el = rootRef.current?.querySelector<HTMLElement>(q);
+    el?.focus();
+    if (scrollFocus.current) el?.scrollIntoView?.({ block: "center", behavior: reduced ? "auto" : "smooth" });
+    scrollFocus.current = false;
   });
   // Bring and the condition of a camp stop stay open once opened, by row id, so they survive a move.
   const [opened, setOpened] = useState<Record<string, true>>({});
-  // Escape in the editor closes the waypoint chooser and stops waiting for a spot;
-  // an Escape a popover already took (`defaultPrevented`) or one outside the editor does not.
+  // Escape in the editor leaves places mode; an Escape a popover already took (`defaultPrevented`)
+  // or one outside the editor does not.
   useEffect(() => {
-    if (!armed && !chooser) return;
+    if (!places) return;
+    const back = places.moveId != null ? `[data-move-way="${places.moveId}"]` : WAYPOINT;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented || !rootRef.current?.contains(e.target as Node)) return;
-      focusTo.current = WAYPOINT;
-      setChooser(false);
-      setArmed(null);
-      setPending(null);
+      focusTo.current = back;
+      setPlaces(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [armed, chooser]);
+  }, [places]);
   // The text field being typed in: its edits are one undo step until it loses focus.
   const typing = useRef<string | null>(null);
   // The row being dragged and the drop zone under the pointer.
@@ -225,18 +235,13 @@ export function RouteEditor({
       if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
     }
     if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
-    if (pending !== null && !locate(stops, pending)) {
-      setPending(null);
-      setArmed(null);
-    }
+    if (places?.moveId != null && !locate(stops, places.moveId)) setPlaces(null);
   }
 
-  /** Opens a row (the target stays); closes the chooser and an armed map. */
+  /** Opens a row (the target stays); leaves places mode. */
   const select = (id: number | null, scroll = false) => {
     setSelectedId(id);
-    setChooser(false);
-    setArmed(null);
-    setPending(null);
+    setPlaces(null);
     const key = id === null ? null : keyOfRow(stops, id);
     if (key && scroll) setScrollTo({ key });
     // A stop in a path: the map follows that path.
@@ -305,52 +310,57 @@ export function RouteEditor({
 
   // A camp already in the list the click adds to is selected, not added twice; a stop is removed with its trash.
   const onCampClick = (campId: string) => {
-    if (chooser) return;
+    if (places) return;
     const there = listAt(stops, at).find((r) => r.campId === campId);
     if (there) select(there.id, true);
     else add(newRow({ campId }), "stop", "add stop");
   };
-  // A click unarmed or armed for the route adds a waypoint on the route (`kindForClick`); armed for a pin
-  // it adds a pin (`hero: false`), never an attack, a scout at a free point.
+  // Places mode: a click adds a waypoint on the route at the target (`kindForClick`; their base an attack),
+  // or moves the row being moved there, keeping its text, kind and Bring. Then the row opens with focus in its text.
   const onPlaceSelect = (picked: Place) => {
-    if (chooser) return;
-    const pin = armed === "pin";
-    const place: Place = pin && (picked.kind === "attack" || atKind(picked.at) === "point") ? { ...picked, kind: "scout" } : picked;
-    const hero = pin ? false : undefined;
-    if (pending !== null && rowAtKey(stops, keyOfRow(stops, pending) ?? "")) {
-      step(`edit ${nameOf(pending)}`);
-      setStops((rows) => patchRow(rows, pending, { place, hero }));
-      setSelectedId(pending);
-    } else {
-      add(newRow({ place, hero }), place.kind === "attack" ? "stop" : "row", place.kind === "attack" ? "add stop" : pin ? "add pin" : "add waypoint");
+    const mv = places?.moveId;
+    const row = mv != null ? rowAtKey(stops, keyOfRow(stops, mv) ?? "") : undefined;
+    setPlaces(null);
+    if (mv != null && row) {
+      const pin = places?.pin ?? isPin(row);
+      const kind = row.place?.kind ?? picked.kind;
+      const place: Place = { ...picked, kind: pin && kind === "attack" ? "scout" : kind };
+      step("move waypoint");
+      setStops((rows) => patchRow(rows, mv, { place, hero: pin ? false : row.hero }));
+      setSelectedId(mv);
+      focusTo.current = `[data-move-way="${mv}"]`;
+      return;
     }
-    setPending(null);
-    setArmed(null);
+    const attack = picked.kind === "attack";
+    if (add(newRow({ place: picked }), attack ? "stop" : "row", attack ? "add stop" : "add waypoint") !== undefined) focusText();
   };
-  const addWaypoint = () => {
+  /** After an add: focus in the new row's text; below `lg` the row scrolls into view. */
+  const focusText = () => {
+    focusTo.current = "[data-way-text]";
+    scrollFocus.current = narrow();
+  };
+  /** Leaves places mode; focus goes back to the control that entered it. */
+  const leavePlaces = () => {
+    focusTo.current = places?.moveId != null ? `[data-move-way="${places.moveId}"]` : WAYPOINT;
+    setPlaces(null);
+  };
+  /** "Waypoint" toggles places mode; nothing is inserted until a click. */
+  const toggleWaypoint = () => {
+    if (places) return leavePlaces();
     if (addBlocked(stops, "row")) return;
-    setArmed(null);
-    setPending(null);
-    setChooser(true);
-    focusTo.current = '[data-focus="way-route"]';
+    enterPlaces(null);
   };
-  /** The chooser's pick: On the route and A pin arm the map; No place adds an action row and focuses its text. */
-  const chooseWay = (type: WayType) => {
-    setChooser(false);
-    if (type !== "none") {
-      setArmed(type);
-      focusTo.current = '[data-focus="cancel"]';
-    } else if (add(newRow(), "stop", "add action") !== undefined) {
-      focusTo.current = "[data-way-text]";
-    }
+  /** "No place": an action row at the target, focus in its text. */
+  const addNoPlace = () => {
+    if (addBlocked(stops, "stop")) return;
+    setPlaces(null);
+    if (add(newRow(), "stop", "add action") !== undefined) focusText();
   };
   /** "Two paths": a choose-one block with two unnamed paths at the end of the route, one undo step;
    *  path A becomes the target. With a mouse its name field takes focus; map clicks still add. */
   const addPaths = () => {
     if (addBlocked(stops, "row")) return;
-    setChooser(false);
-    setArmed(null);
-    setPending(null);
+    setPlaces(null);
     const row = newSplitRow("or");
     if (add(row, "row", "add paths") === undefined) return;
     setTabs((t) => ({ ...t, [row.id]: 0 }));
@@ -391,11 +401,7 @@ export function RouteEditor({
         heroIcon={heroIcon}
         opened={{ bring: Boolean(opened[`${row.id}.bring`]), condition: Boolean(opened[`${row.id}.condition`]) }}
         onOpen={(part) => setOpened((o) => (o[`${row.id}.${part}`] ? o : { ...o, [`${row.id}.${part}`]: true }))}
-        onArm={(type) => {
-          setPending(row.id);
-          setArmed(type);
-          focusTo.current = '[data-focus="cancel"]';
-        }}
+        onArm={(type) => enterPlaces(row.id, type === "pin")}
       />
     );
   };
@@ -548,7 +554,7 @@ export function RouteEditor({
 
   return (
     <div ref={rootRef} className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:items-start">
-      <div className="min-w-0 lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
+      <div ref={mapRef} className="min-w-0 scroll-mt-[calc(var(--wg-header-h)+0.5rem)] lg:sticky lg:top-[calc(var(--wg-header-h)+1rem)]">
         <CreepMap
           map={map}
           route={route}
@@ -558,7 +564,7 @@ export function RouteEditor({
           onCampCardHoverLeave={onHoverLeave}
           openCampId={openCampId}
           onPlaceSelect={onPlaceSelect}
-          pointArmed={armed !== null}
+          placesMode={places !== null}
           activeStop={selectedKey}
           onStopSelect={(key) => {
             const row = rowAtKey(stops, key);
@@ -567,6 +573,7 @@ export function RouteEditor({
           choice={choice}
           preview={preview}
         />
+        {places ? <ArmedBar move={places.moveId !== null} noPlaceCap={Boolean(addBlocked(stops, "stop"))} onNoPlace={addNoPlace} onCancel={leavePlaces} /> : null}
         <MapLegend />
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -614,7 +621,7 @@ export function RouteEditor({
           onContinue={() => setTarget(ROUTE_END)}
           tools={
             <span className="flex shrink-0 gap-1.5">
-              <button type="button" onClick={addWaypoint} aria-disabled={Boolean(capLine)} data-focus="waypoint" className={GOLD_BUTTON}>
+              <button type="button" onClick={toggleWaypoint} aria-pressed={places !== null && places.moveId === null} aria-disabled={Boolean(addBlocked(stops, "row"))} data-focus="waypoint" className={cn(GOLD_BUTTON, "aria-pressed:bg-gold/15")}>
                 <MapPin aria-hidden size={14} /> Waypoint
               </button>
               <button type="button" onClick={addPaths} aria-disabled={Boolean(addBlocked(stops, "row"))} data-focus="paths" className={GOLD_BUTTON}>
@@ -622,30 +629,7 @@ export function RouteEditor({
               </button>
             </span>
           }
-          slotRow={
-            chooser ? (
-              <WaypointChooser
-                after={next.after}
-                noPlaceCap={addBlocked(stops, "stop")}
-                onChoose={chooseWay}
-                onCancel={() => {
-                  setChooser(false);
-                  focusTo.current = WAYPOINT;
-                }}
-              />
-            ) : (
-              <NextStopRow
-                label={next.label}
-                armed={armed}
-                capLine={capLine}
-                onCancel={() => {
-                  setArmed(null);
-                  setPending(null);
-                  focusTo.current = WAYPOINT;
-                }}
-              />
-            )
-          }
+          slotRow={<NextStopRow label={next.label} capLine={capLine} />}
         />
       </div>
     </div>

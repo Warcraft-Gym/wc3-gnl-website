@@ -302,58 +302,72 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     return view;
   };
   const waypoint = () => screen.getByRole("button", { name: "Waypoint" });
-  const theirBase = () => screen.getByRole("button", { name: "Add a stop at their base" });
+  const theirBase = () => screen.getByRole("button", { name: "Add a waypoint at Their base" });
   // The hero's Bring entry is the one toggle in Bring.
   const heroEntry = () => document.querySelector("[data-bring] button[aria-pressed]");
   const pressed = (name: string) => within(screen.getByRole("group", { name: "Waypoint" })).getByRole("button", { name }).getAttribute("aria-pressed");
 
-  it("Waypoint asks first: three choices in the row, Cancel and Escape close it, focus comes back", async () => {
+  it("in the normal state bases, mines and shops take no click", async () => {
+    await load();
+    expect(waypoint()).toHaveAttribute("aria-pressed", "false");
+    expect(screen.queryByRole("button", { name: /^Add a waypoint at/ })).not.toBeInTheDocument();
+    expect(document.querySelector("[data-places]")).toBeNull();
+  });
+
+  it("Waypoint switches the map to its places; pressing it again, Cancel and Escape leave, focus comes back", async () => {
     await load();
     fireEvent.click(waypoint());
-    expect(screen.getByText("Waypoint after stop 2")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /^On the route/ })).toHaveTextContent("The line goes through it.");
-    expect(screen.getByRole("button", { name: /^A pin/ })).toHaveTextContent("Marks a spot. The line skips it.");
-    expect(screen.getByRole("button", { name: /^No place/ })).toHaveTextContent("An action, e.g. TP home.");
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: /^On the route/ })));
+    expect(waypoint()).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByText("Click a base, gold mine, shop or any spot")).toBeInTheDocument();
+    expect(screen.getByText("Tap a base, gold mine, shop or any spot")).toBeInTheDocument();
+    expect(theirBase()).toBeInTheDocument();
+    expect(screen.getAllByRole("button", { name: "Add a waypoint at Gold mine" }).length).toBeGreaterThan(0);
 
     fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
     await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+    expect(screen.queryByRole("button", { name: /^Add a waypoint at/ })).not.toBeInTheDocument();
     fireEvent.click(waypoint());
-    fireEvent.keyDown(screen.getByRole("button", { name: /^A pin/ }), { key: "Escape" });
+    fireEvent.click(waypoint());
+    expect(waypoint()).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(waypoint());
+    fireEvent.keyDown(theirBase(), { key: "Escape" });
     await waitFor(() => expect(document.activeElement).toBe(waypoint()));
-    expect(screen.queryByText("Waypoint after stop 2")).not.toBeInTheDocument();
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
   });
 
   it("keeps No place unavailable when the numbered stop cap is full", async () => {
     await load(maps[0].camps.slice(2, 12).map((camp) => ({ campId: camp.id })), 12);
     fireEvent.click(waypoint());
-    expect(screen.getByRole("button", { name: /^No place/ })).toBeDisabled();
-    expect(screen.getByRole("button", { name: /^A pin/ })).toBeEnabled();
-    expect(screen.getByText(/cap of 12 numbered stops/)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "No place" })).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(screen.getByRole("button", { name: "No place" }));
+    expect(screen.queryByText("New action")).not.toBeInTheDocument();
   });
 
-  it("No place adds an action row and focuses its text; A pin arms the map and adds a pin there", async () => {
-    const { container } = await load();
+  it("No place adds an action row at the target and focuses its text", async () => {
+    await load();
     fireEvent.click(waypoint());
-    fireEvent.click(screen.getByRole("button", { name: /^No place/ }));
+    fireEvent.click(screen.getByRole("button", { name: "No place" }));
     await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What happens" })));
     expect(screen.getByText("New action")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Undo: add action/ })).toBeInTheDocument();
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+  });
 
+  it("a target click adds at the target with the kind of its place, opens the row and focuses its text", async () => {
+    const { container } = await load();
     fireEvent.click(waypoint());
-    fireEvent.click(screen.getByRole("button", { name: /^A pin/ }));
-    expect(screen.getByText("Click the spot to pin")).toBeInTheDocument();
-    expect(screen.getByText("Any spot. The line skips it.")).toBeInTheDocument();
-    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("button", { name: "Cancel" })));
+    fireEvent.click(screen.getAllByRole("button", { name: "Add a waypoint at Gold mine" })[0]);
+    await waitFor(() => expect(document.activeElement).toBe(screen.getByRole("textbox", { name: "What happens" })));
+    expect(screen.getByRole("button", { name: "Expand" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /^Undo: add waypoint/ })).toBeInTheDocument();
+    expect(container.querySelector("li[data-waypoint]")).toBeInTheDocument();
+    expect(document.querySelector("[data-places]")).toBeNull();
+
+    // Their base is an attack: a numbered stop.
+    fireEvent.click(waypoint());
     fireEvent.click(theirBase());
-    const pin = container.querySelector("li[data-pin]")!;
-    expect(within(pin as HTMLElement).getByText("Meanwhile")).toBeInTheDocument();
-    expect(within(pin as HTMLElement).getByText("New pin")).toBeInTheDocument();
-    expect(within(pin as HTMLElement).getByText("their base")).toBeInTheDocument();
-    // A pin at their base scouts; it is never an attack.
-    expect(pressed("Pin")).toBe("true");
-    expect(screen.getByRole("button", { name: "Scout" })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.queryByRole("button", { name: "Attack" })).not.toBeInTheDocument();
+    expect(container.querySelector('li[data-stop="3"]')).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Attack" })).toHaveAttribute("aria-pressed", "true");
   });
 
   it("the switch: pin to route, to No place and back, each one undo step; no Hero entry on a waypoint", async () => {
@@ -376,7 +390,7 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(screen.getByRole("textbox", { name: "What happens" })).toHaveValue("Scout");
 
     fireEvent.click(screen.getByRole("button", { name: "Pin" }));
-    expect(screen.getByText("Click the spot to pin")).toBeInTheDocument();
+    expect(screen.getByText("Click the new place for this waypoint")).toBeInTheDocument();
     fireEvent.click(theirBase());
     expect(pressed("Pin")).toBe("true");
     expect(container.querySelector("li[data-pin]")).toBeInTheDocument();
@@ -408,8 +422,8 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     const old = { campId: null, action: "Scout their base", place: { kind: "scout", at: { start: their } }, hero: false };
     const { container } = await load([old]);
     fireEvent.click(waypoint());
-    fireEvent.click(screen.getByRole("button", { name: /^A pin/ }));
     fireEvent.click(theirBase());
+    fireEvent.click(screen.getByRole("button", { name: "Pin" }));
     fireEvent.change(screen.getByRole("textbox", { name: "What happens" }), { target: { value: "Scout their base" } });
 
     fireEvent.submit(container.querySelector("form")!);
