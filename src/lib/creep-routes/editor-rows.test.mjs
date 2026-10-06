@@ -26,6 +26,8 @@ import {
   setArmLabel,
   stepName,
   stepTarget,
+  targetExists,
+  firstErrorAt,
   targetAfterAdd,
   targetAfterRemovePath,
   targetPlace,
@@ -354,4 +356,20 @@ test("a drop at a place inside a path", () => {
 test("rows made in the same millisecond get different ids", () => {
   const ids = new Set(Array.from({ length: 1000 }, () => newRow().id));
   assert.equal(ids.size, 1000);
+});
+
+test("targetExists: the route always; a path while its block still has it", () => {
+  const rows = [camp("c1"), forkRow(["c2"], ["c3"])];
+  assert.equal(targetExists(rows, { pos: null }), true);
+  assert.equal(targetExists(rows, { splitId: rows[1].id, arm: 1, pos: null }), true);
+  assert.equal(targetExists(rows, { splitId: rows[1].id, arm: 2, pos: null }), false);
+  assert.equal(targetExists(rows, { splitId: -5, arm: 0, pos: null }), false);
+});
+
+test("firstErrorAt: the first stop field or path error in the keys' order", () => {
+  assert.deepEqual(firstErrorAt(["title", "stops.2.note"]), { key: "2" });
+  assert.deepEqual(firstErrorAt(["stops.1.split.arms.1.stops.0.kills"]), { key: "1.b.0" });
+  assert.deepEqual(firstErrorAt(["stops.1.split.arms.1.label", "stops.3.note"]), { index: 1, arm: 1 });
+  assert.deepEqual(firstErrorAt(["stops.1.split.arms.0.stops"]), { index: 1, arm: 0 });
+  assert.equal(firstErrorAt(["stops.1.split", "map"]), null);
 });

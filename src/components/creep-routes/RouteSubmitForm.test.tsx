@@ -465,3 +465,146 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(stops[3]).toMatchObject(old);
   });
 });
+
+describe("RouteSubmitForm: paths blocks keep the target on screen", () => {
+  const [a, b, c, d] = maps[0].camps;
+  const load = async (arms = [{ label: "Fast", stops: [{ campId: b.id }] }, { label: "Safe", stops: [{ campId: c.id }] }], mode = "or") => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: null, split: { mode, arms } }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelector("li[data-split]")).toBeInTheDocument());
+    return view;
+  };
+  // The click target is the innermost of a camp's `data-camp` elements.
+  const camp = (container: HTMLElement, id: string) => fireEvent.click([...container.querySelectorAll(`[data-camp="${id}"]`)].at(-1)!);
+  const focused = () => document.activeElement as HTMLElement;
+
+  it("a map click adds at path B when it is the target; a camp already there opens instead", async () => {
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
+    camp(container, d.id);
+    expect(container.querySelector('li[data-stop="3b"]')).toBeInTheDocument();
+    camp(container, c.id);
+    expect(container.querySelector('li[data-stop="2b"]')).toHaveAttribute("aria-current", "step");
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(3);
+  });
+
+  it("Two paths goes to the end of the route while the target is in another block", async () => {
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
+    fireEvent.click(screen.getByRole("button", { name: "Two paths" }));
+    expect(container.querySelectorAll("li[data-split]").length).toBe(2);
+    expect(addLine(container)).toBe("3a");
+  });
+
+  it("with a fine pointer, Two paths puts focus in path A's name field", async () => {
+    const before = window.matchMedia;
+    window.matchMedia = ((q: string) => ({ matches: q.includes("pointer: fine") })) as unknown as typeof window.matchMedia;
+    try {
+      await load();
+      fireEvent.click(screen.getByRole("button", { name: "Two paths" }));
+      await waitFor(() => expect(focused()).toHaveAttribute("data-path-field"));
+      expect(focused()).toHaveAccessibleName("Path A name");
+    } finally {
+      window.matchMedia = before;
+    }
+  });
+
+  it("arrow keys move between the builder's tabs", async () => {
+    await load();
+    fireEvent.keyDown(screen.getByRole("tab", { name: "Fast" }), { key: "ArrowRight" });
+    expect(screen.getByRole("tab", { name: "Safe" })).toHaveAttribute("aria-selected", "true");
+    expect(focused()).toBe(screen.getByRole("tab", { name: "Safe" }));
+  });
+
+  it("switching the kind keeps every path and stop; Take all lists both headings and both add lines", async () => {
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("radio", { name: "Take all paths simultaneously" }));
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(3);
+    expect(screen.getByText("The hero's path")).toBeInTheDocument();
+    expect(screen.getByText("Units without the hero")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Add stops to path 1" })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path 2" }));
+    await waitFor(() => expect(focused()).toHaveAttribute("data-focus", "waypoint"));
+    fireEvent.click(screen.getByRole("radio", { name: "Choose one path" }));
+    expect(screen.getByRole("tab", { name: "Safe" })).toHaveAttribute("aria-selected", "true");
+    expect(container.querySelectorAll("li[data-stop]").length).toBe(2);
+  });
+
+  it("focus goes to Waypoint after Continue the route", async () => {
+    await load();
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue the route" }));
+    await waitFor(() => expect(focused()).toHaveAttribute("data-focus", "waypoint"));
+  });
+
+  it("a submit error in a hidden path shows it and leaves a route target; arrows leave the block; the quiet labels read right", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "error", message: "Please fix the highlighted fields.", fields: { "stops.1.split.arms.1.stops.0.kills": "Too long" } });
+    const { container } = await load();
+    // The route is the target: showing path B does not move it.
+    expect(screen.getByRole("button", { name: "Add stops to path A" })).toBeInTheDocument();
+    fireEvent.submit(container.querySelector("form")!);
+    expect(await screen.findByText("Too long")).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: "Safe" })).toHaveAttribute("aria-selected", "true");
+    expect(addLine(container)).toBe("3");
+    expect(screen.getByRole("button", { name: "Add stops to path B" })).toBeInTheDocument();
+    // Arrows skip the hidden path A: up and down both leave the block.
+    expect(screen.getAllByRole("button", { name: "Move out of the paths" }).length).toBe(2);
+    fireEvent.click(screen.getAllByRole("button", { name: "Move out of the paths" })[1]);
+    expect(screen.getByRole("button", { name: "Path B is empty. Add its stops" })).toBeInTheDocument();
+    expect(container.querySelector('li[data-stop="2"]')).toBeInTheDocument();
+  });
+
+  it("a stop error in path B moves a target in path A to path B", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "error", message: "Please fix the highlighted fields.", fields: { "stops.1.split.arms.1.stops.0.kills": "Too long" } });
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("tab", { name: "Fast" }));
+    expect(addLine(container)).toBe("3a");
+    fireEvent.submit(container.querySelector("form")!);
+    expect(await screen.findByText("Too long")).toBeInTheDocument();
+    expect(addLine(container)).toBe("3b");
+  });
+
+  it("a path's own error shows its tab and focuses its name field", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "error", message: "Please fix the highlighted fields.", fields: { "stops.1.split.arms.1.label": "Say when to take this path" } });
+    const { container } = await load();
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(focused()).toHaveAccessibleName("Path B name"));
+    expect(screen.getByText("Say when to take this path")).toBeInTheDocument();
+  });
+
+  it("undo keeps the current target when it still exists", async () => {
+    const { container } = await load();
+    fireEvent.click(screen.getByRole("tab", { name: "Fast" }));
+    fireEvent.click(container.querySelector('li[data-stop="1"] button')!);
+    fireEvent.click(screen.getByRole("button", { name: "Remove stop" }));
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
+    expect(addLine(container)).toBe("2b");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo: remove stop 1/ }));
+    expect(addLine(container)).toBe("3b");
+  });
+
+  it("the reader's tabs: the tablist is named by the kind and the panel by its tab", async () => {
+    await load();
+    fireEvent.click(screen.getByRole("radio", { name: "Preview" }));
+    const list = await screen.findByRole("tablist", { name: "Choose one path" });
+    fireEvent.click(within(list).getByRole("tab", { name: /Safe/ }));
+    const tab = within(list).getByRole("tab", { name: /Safe/ });
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", tab.id);
+  });
+
+  it("removing a path keeps the target's path shown, also after a kind switch", async () => {
+    const { container } = await load([{ label: "", stops: [{ campId: b.id }] }, { label: "", stops: [{ campId: c.id }] }, { label: "", stops: [{ campId: d.id }] }], "and");
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path 3" }));
+    fireEvent.click(screen.getByRole("button", { name: "Remove path 1" }));
+    fireEvent.click(screen.getByRole("radio", { name: "Choose one path" }));
+    expect(screen.getByRole("tab", { name: "Path B" })).toHaveAttribute("aria-selected", "true");
+    expect(addLine(container)).toBe("3b");
+  });
+
+  it("the builder's panel is named by the shown tab", async () => {
+    await load();
+    fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
+    expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", screen.getByRole("tab", { name: "Safe" }).id);
+  });
+});
