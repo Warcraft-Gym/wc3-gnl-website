@@ -38,7 +38,7 @@ const stopSchema = z.object({
   leaveRest: z.boolean().optional(),
   place: z
     .object({
-      kind: z.enum(["attack", "build", "expand", "shop", "scout"]),
+      kind: z.enum(["attack", "build", "expand", "shop", "scout", "other"]),
       at: z.union([
         z.object({ start: z.string() }),
         z.object({ mine: z.string() }),

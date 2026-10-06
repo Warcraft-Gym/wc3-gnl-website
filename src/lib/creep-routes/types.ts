@@ -159,9 +159,9 @@ export type Split = { mode: "and" | "or" | "xor"; arms: { label?: string; stops:
 /** A picture on a stop: a Sanity image url (resized with `?w=`) or a plain fixture url. */
 export type StopImage = { url: string; width: number; height: number; alt: string; caption?: string };
 
-/** What happens at a place: `attack` is a numbered stop; build, expand, shop and scout are
+/** What happens at a place: `attack` is a numbered stop; build, expand, shop, scout and other are
  *  waypoints (on the path, no number). */
-export type PlaceKind = "attack" | "build" | "expand" | "shop" | "scout";
+export type PlaceKind = "attack" | "build" | "expand" | "shop" | "scout" | "other";
 
 /** The spot: `start` is `String(player)` of `CreepMap.starts[]`, `mine` is `String(index)` into
  *  `CreepMap.mines[]`, `shop` is `CreepMap.shops[].id`, `x`/`y` an image fraction 0..1 like a camp's. */

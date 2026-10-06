@@ -451,12 +451,12 @@ export const creepStop = defineType({
     defineField({
       name: "place",
       type: "object",
-      description: "Optional. An attack or a waypoint instead of a camp. Leave the camp id empty and name what happens in Action. An attack takes a stop number; build, expand, shop and scout are waypoints on the path with no number.",
+      description: "Optional. An attack or a waypoint instead of a camp. Leave the camp id empty and name what happens in Action. An attack takes a stop number; build, expand, shop, scout and other are waypoints on the path with no number.",
       fields: [
         defineField({
           name: "kind",
           type: "string",
-          options: { list: ["attack", "build", "expand", "shop", "scout"] },
+          options: { list: ["attack", "build", "expand", "shop", "scout", "other"] },
           validation: (rule) => rule.required(),
         }),
         defineField({
@@ -513,9 +513,9 @@ export const creepSplit = defineType({
       type: "string",
       options: {
         list: [
-          { title: "At the same time", value: "and" },
-          { title: "Choose a path, then continue", value: "or" },
-          { title: "Choose a path", value: "xor" },
+          { title: "Take all paths simultaneously", value: "and" },
+          { title: "Choose one path, then continue", value: "or" },
+          { title: "Choose one path", value: "xor" },
         ],
       },
       initialValue: "xor",
@@ -555,7 +555,7 @@ export const creepSplit = defineType({
   preview: {
     select: { mode: "mode", arms: "arms" },
     prepare: ({ mode, arms }) => ({
-      title: `${mode === "and" ? "At the same time" : "Choose a path"}: ${(arms as unknown[] | undefined)?.length ?? 0} paths`,
+      title: `${mode === "and" ? "Take all paths simultaneously" : "Choose one path"}: ${(arms as unknown[] | undefined)?.length ?? 0} paths`,
     }),
   },
 });

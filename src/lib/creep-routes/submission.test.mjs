@@ -409,6 +409,8 @@ test("place: an id the map does not have is rejected; a point must sit inside th
   assert.match(flattenErrors(mine.error)["stops.0.place"], /Unknown gold mine/);
   const point = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "build", at: { x: 1.2, y: 0.5 } } }, { campId: "c01" }] }));
   assert.equal(point.success, false);
+  const other = s.safeParse(payload({ stops: [{ campId: null, action: "Wait", place: { kind: "other", at: { x: 0.2, y: 0.5 } } }, { campId: "c01" }, { campId: "c02" }] }));
+  assert.deepEqual(other.success ? {} : flattenErrors(other.error), {});
 });
 
 test("hero: false is kept on a camp, attack or waypoint stop and rejected on a base action", () => {

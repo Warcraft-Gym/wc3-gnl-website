@@ -1,5 +1,5 @@
 import type { Place, PlaceKind } from "@/lib/creep-routes/types";
-import { Eye, Hammer, Pickaxe, ShoppingBag, Swords, type LucideIcon } from "lucide-react";
+import { Eye, Hammer, MapPin, Pickaxe, ShoppingBag, Swords, type LucideIcon } from "lucide-react";
 import { atKind } from "@/lib/creep-routes/place.mjs";
 
 /** The mark a place sits on, as a radius in viewBox units: the start X, the gold-mine and
@@ -43,7 +43,7 @@ export function SwordsGlyph({ cx, cy, size = 8 }: { cx: number; cy: number; size
 }
 
 /** One lucide glyph per place kind, the same in the stop list, the map's waypoint disc and the legend. */
-const PLACE_GLYPHS: Record<PlaceKind, LucideIcon> = { attack: Swords, build: Hammer, expand: Pickaxe, shop: ShoppingBag, scout: Eye };
+const PLACE_GLYPHS: Record<PlaceKind, LucideIcon> = { attack: Swords, build: Hammer, expand: Pickaxe, shop: ShoppingBag, scout: Eye, other: MapPin };
 
 /** The kind's glyph at text size for the stop list, the builder and the legend. */
 export function PlaceIcon({ kind, className }: { kind: PlaceKind; className?: string }) {

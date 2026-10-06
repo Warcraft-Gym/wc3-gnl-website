@@ -402,6 +402,8 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     const { container } = await load([{ campId: null, action: "Scout", place: { kind: "scout", at: { start: their } }, hero: false }]);
     fireEvent.click(container.querySelector("li[data-waypoint] button")!);
     expect(pressed("Pin")).toBe("true");
+    const kinds = () => within(screen.getByRole("group", { name: "What happens here" })).getAllByRole("button").map((b) => b.textContent?.trim());
+    expect(kinds()).toEqual(["Shop", "Expand", "Build", "Scout", "Other"]);
     expect(within(screen.getByRole("group", { name: "Waypoint" })).queryByRole("button", { name: "No place" })).toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Bring units" }));
     expect(document.querySelector("[data-bring]")).toBeInTheDocument();
@@ -409,6 +411,7 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "On the route" }));
     expect(pressed("On the route")).toBe("true");
+    expect(kinds()).toEqual(["Shop", "Expand", "Build", "Scout", "Other", "Attack"]);
     expect(container.querySelector("li[data-pin]")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /^Undo: edit waypoint/ })).toBeInTheDocument();
     expect(heroEntry()).toBeNull();

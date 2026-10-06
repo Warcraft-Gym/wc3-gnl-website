@@ -146,7 +146,7 @@ function splitSchema(armStopSchema) {
 }
 
 const placeSchema = z.object({
-  kind: z.enum(["attack", "build", "expand", "shop", "scout"], { error: "Pick what happens here" }),
+  kind: z.enum(["attack", "build", "expand", "shop", "scout", "other"], { error: "Pick what happens here" }),
   at: z.union([
     z.object({ start: z.string().trim().min(1).max(20) }).strict(),
     z.object({ mine: z.string().trim().min(1).max(20) }).strict(),

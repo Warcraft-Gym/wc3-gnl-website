@@ -85,6 +85,7 @@ const KINDS: { id: PlaceKind; label: string; hint: string }[] = [
   { id: "expand", label: "Expand", hint: "e.g. Take the natural expansion" },
   { id: "build", label: "Build", hint: "e.g. Build a second Altar" },
   { id: "scout", label: "Scout", hint: "e.g. Scout their hero" },
+  { id: "other", label: "Other", hint: "e.g. Wait here until the creeps sleep" },
   { id: "attack", label: "Attack", hint: "e.g. Harass their workers" },
 ];
 

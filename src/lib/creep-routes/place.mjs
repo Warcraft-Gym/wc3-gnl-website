@@ -1,13 +1,13 @@
 /**
  * Place stops: `RouteStop.place = { kind, at }` (see `types.ts`). `kind` is the
- * purpose (attack, build, expand, shop, scout); `at` is the spot: a start, a gold
+ * purpose (attack, build, expand, shop, scout, other); `at` is the spot: a start, a gold
  * mine, a shop, looked up on the route's map, or a free point `{ x, y }`. Plain
  * JS so `node --test` runs `place.test.mjs` with no loader.
  */
 import { neutralIconFor } from "./neutral-icons.mjs";
 
-/** What happens at a place: `attack` is a numbered stop; the other four are waypoints (on the path, no number). */
-export const PLACE_KINDS = ["attack", "build", "expand", "shop", "scout"];
+/** What happens at a place: `attack` is a numbered stop; the other five are waypoints (on the path, no number). */
+export const PLACE_KINDS = ["attack", "build", "expand", "shop", "scout", "other"];
 
 /** True for a place stop that takes no number: every kind but `attack`. */
 export function isWaypoint(stop) {
@@ -77,12 +77,12 @@ export function atKind(at) {
 }
 
 /** The kind a builder click starts with: an enemy start is an attack, a mine an expansion,
- *  a shop a shop visit, your own start or a free point a build spot. */
+ *  a shop a shop visit, your own start a build spot, a free point "other". */
 export function kindForClick(at, youPlayer) {
   if (at.start != null) return at.start === youPlayer ? "build" : "attack";
   if (at.mine != null) return "expand";
   if (at.shop != null) return "shop";
-  return "build";
+  return "other";
 }
 
 /** True when the action text already names the place ("Harass their base" at their base),
