@@ -1,16 +1,14 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { GripVertical } from "lucide-react";
+import { GripVertical, MapPin, Split } from "lucide-react";
 import { CreepMap } from "./CreepMap";
 import { MapLegend } from "./MapLegend";
 import { RouteStepTable, type DropProps } from "./RouteStepTable";
 import { StopEditBody, StopTools, type StopRowData } from "./StopEditBody";
 import type { SplitEdit } from "./SplitBlock";
-import { NextStopRow, SplitForm, WaypointChooser, type WayType } from "./NextStopRow";
+import { GOLD_BUTTON, NextStopRow, WaypointChooser, type WayType } from "./NextStopRow";
 import {
-  addTarget,
-  canStartSplit,
   dropTarget,
   insertAt,
   keyOfRow,
@@ -25,14 +23,18 @@ import {
   removePath,
   removeRow,
   removeSplit,
+  ROUTE_END,
   rowAtKey,
   rowsToStops,
   sameCampSequence,
   setArmLabel,
+  targetAfterAdd,
+  targetAfterRemovePath,
+  targetPlace,
   type DropZone,
   type ListPlace,
   type Selection,
-  type SplitSetup,
+  type Target,
   type UndoEntry,
 } from "./stop-rows";
 import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
@@ -46,7 +48,7 @@ import { cn } from "@/lib/utils";
 
 /** Fields whose typing is one undo step until the field loses focus. */
 const TEXT_FIELDS = new Set(["note", "condition", "action", "units"]);
-/** The next-stop row's first button, where focus goes after an add, a remove or a move of that row. */
+/** The header's "Waypoint", where focus goes when the control that had it unmounts. */
 const WAYPOINT = '[data-focus="waypoint"]';
 
 /** The drag handle of a row: native HTML drag and drop on a fine pointer; the open stop's arrows are the keyboard and phone path. */
@@ -78,12 +80,12 @@ function DragHandle({ onStart, onEnd }: { onStart: () => void; onEnd: () => void
  * one, shared with the map's pulsing node, and its body is the stop's editor
  * (`StopEditBody`). A split shows every path stacked on the lane rail, each
  * with its heading and name (`SplitBlock`). Every move has one rule
- * (`editor-rows.mjs`): a map click adds after the selected row in its own list,
- * at the end of a path when its split is selected ("Add stops to path B"), right
- * after the split with "Continue the route here", else at the end; a camp
- * already in that list is selected instead. The next-stop row (`NextStopRow`)
- * sits in the list where that add lands and holds "Waypoint" (its chooser: on the
- * route, a pin or no place) and "Split here";
+ * (`editor-rows.mjs`): the builder keeps one target, the route or one path and a
+ * place in it (`targetPlace`), and a map click adds the camp there; a camp already
+ * in that list opens instead. Opening a stop never moves the target; "Two paths",
+ * a path's tab or its quiet add line, "Continue the route", a new path and a
+ * removed path do. The add line (`NextStopRow`) sits at the target with the
+ * number that stop takes; "Waypoint" and "Two paths" sit in the list header;
  * the map follows the path that holds it. A drag handle on every row moves it
  * (native drag and drop on desktop; a split moves as a block and never into a
  * path; a path's heading and add row take a drop); the open stop's arrows make
@@ -136,10 +138,9 @@ export function RouteEditor({
   const route = useMemo(() => ({ stops: routeStops, start, hero: heroIcon }) as CreepRoute, [routeStops, start, heroIcon]);
   const campById = useMemo(() => new Map(map.camps.map((c) => [c.id, c])), [map.camps]);
 
-  // The selected row; on a split, `after` puts the next-stop row right after it ("Continue the route here").
-  const [sel, setSel] = useState<Selection | null>(null);
-  const selectedId = sel?.id ?? null;
-  const setSelectedId = (id: number | null) => setSel(id === null ? null : { id });
+  // The open stop, and the target: where the next add lands. Opening a stop never moves the target.
+  const [selectedId, setSelectedId] = useState<number | null>(null);
+  const [target, setTarget] = useState<Target>(ROUTE_END);
   const selectedKey = selectedId === null ? null : keyOfRow(stops, selectedId);
   const [scrollTo, setScrollTo] = useState<{ key: string } | null>(null);
   // The path shown per split, by the split row's id: the map and the numbers after the split follow it.
@@ -156,8 +157,6 @@ export function RouteEditor({
   const [pending, setPending] = useState<number | null>(null);
   // The waypoint chooser ("Waypoint"): nothing is inserted until a choice.
   const [chooser, setChooser] = useState(false);
-  // The split form ("Split here"): nothing is inserted until "Start path A".
-  const [setup, setSetup] = useState<SplitSetup | null>(null);
   // After an action whose button unmounts, focus goes to this control (a selector in the editor), never to <body>.
   const rootRef = useRef<HTMLDivElement>(null);
   const focusTo = useRef<string | null>(null);
@@ -169,21 +168,20 @@ export function RouteEditor({
   });
   // Bring and the condition of a camp stop stay open once opened, by row id, so they survive a move.
   const [opened, setOpened] = useState<Record<string, true>>({});
-  // Escape in the editor closes the split form and the waypoint chooser and stops waiting for a spot;
+  // Escape in the editor closes the waypoint chooser and stops waiting for a spot;
   // an Escape a popover already took (`defaultPrevented`) or one outside the editor does not.
   useEffect(() => {
-    if (!setup && !armed && !chooser) return;
+    if (!armed && !chooser) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape" || e.defaultPrevented || !rootRef.current?.contains(e.target as Node)) return;
-      focusTo.current = setup ? '[data-focus="split"]' : WAYPOINT;
-      setSetup(null);
+      focusTo.current = WAYPOINT;
       setChooser(false);
       setArmed(null);
       setPending(null);
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
-  }, [setup, armed, chooser]);
+  }, [armed, chooser]);
   // The text field being typed in: its edits are one undo step until it loses focus.
   const typing = useRef<string | null>(null);
   // The row being dragged and the drop zone under the pointer.
@@ -200,12 +198,12 @@ export function RouteEditor({
     (arrows.find((b) => b.dataset.move === String(dir)) ?? arrows[0])?.focus();
   }, [stops]);
 
-  /** A row's name in an undo label: "stop 3", "waypoint", "split". */
+  /** A row's name in an undo label: "stop 3", "waypoint", "paths". */
   const nameOf = (id: number) => {
     const key = keyOfRow(stops, id);
     const row = key ? rowAtKey(stops, key) : undefined;
     if (!key || !row) return "stop";
-    if (row.split) return "split";
+    if (row.split) return "paths";
     const { index, arm, j } = parseKey(key);
     const label = arm === undefined ? numbers[index]?.label : numbers[index]?.arms?.[arm]?.stops[j!]?.label;
     return label ? `stop ${label}` : "waypoint";
@@ -214,24 +212,24 @@ export function RouteEditor({
   const step = (label: string, field?: string) => {
     if (field && typing.current === field) return;
     typing.current = field ?? null;
-    remember?.(label, sel);
+    remember?.(label, { id: selectedId, target });
   };
-  // After an undo the selected row may be gone (undo of "add split"): the selection, and with it the
-  // next-stop row, goes back to where it was before that action. Adjusted during render, like the errors below.
+  // An undo puts the target back, and the open stop when it is gone (undo of "add stop").
+  // Adjusted during render, like the errors below.
   const [seenUndo, setSeenUndo] = useState(undone);
   if (undone !== seenUndo) {
     setSeenUndo(undone);
-    if (sel && !locate(stops, sel.id)) setSel(undone?.sel ?? null);
+    if (undone?.sel) setTarget(undone.sel.target);
+    if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
     if (pending !== null && !locate(stops, pending)) {
       setPending(null);
       setArmed(null);
     }
   }
 
-  /** Selects a row (the next-stop row moves after it); closes the split form, the chooser and an armed map. */
-  const select = (id: number | null, scroll = false, after = false) => {
-    setSel(id === null ? null : { id, after });
-    setSetup(null);
+  /** Opens a row (the target stays); closes the chooser and an armed map. */
+  const select = (id: number | null, scroll = false) => {
+    setSelectedId(id);
     setChooser(false);
     setArmed(null);
     setPending(null);
@@ -262,45 +260,43 @@ export function RouteEditor({
     if (row) select(row.id, true);
   }
 
-  // A selected split adds into its shown path, or after the split with `after`.
-  const selection = selectedId === null ? null : { id: selectedId, arm: tabs[selectedId] ?? 0, after: sel?.after };
-
   // At a cap (`caps.mjs`) the add actions do nothing and the next-stop row says so.
   const capLine = addBlocked(stops, "row") ?? addBlocked(stops, "stop");
-  // The next-stop row sits where the next map click lands, with the number that stop will take.
-  const at = addTarget(stops, selection);
+  // The add line sits at the target, with the number that stop will take.
+  const at = targetPlace(stops, target);
   const next = nextStop(stops, at, tabs);
   const slot =
     at.splitId === undefined
       ? { index: at.index, label: next.label }
       : { index: stops.findIndex((r) => r.id === at.splitId), arm: at.arm, j: at.index, label: next.label };
 
-  /** Adds `row` where an add goes (`addTarget`) and selects it; a camp or attack added to path 2.. of an
-   *  "and" split arrives with the hero off. `kind` is what it adds ("stop" numbered, "row" a waypoint or
-   *  split): nothing happens at a cap. */
+  /** Adds `row` at the target and opens it; a paths block always goes at the end of the route. A camp or
+   *  attack added to path 2.. of an "and" block arrives with the hero off. `kind` is what it adds ("stop"
+   *  numbered, "row" a waypoint or paths): nothing happens at a cap. */
   const add = (row: StopRowData, kind: "stop" | "row", label: string) => {
     if (addBlocked(stops, kind)) return undefined;
-    const at = addTarget(stops, selection, Boolean(row.split));
+    const at = row.split ? { index: stops.length } : targetPlace(stops, target);
     const split = at.splitId === undefined ? undefined : stops.find((r) => r.id === at.splitId);
     const heroOff = split?.split?.mode === "and" && (at.arm ?? 0) > 0 && Boolean(row.campId || row.place?.kind === "attack");
     step(label);
     setStops(insertAt(stops, at, heroOff ? { ...row, hero: false } : row));
     setSelectedId(row.id);
+    if (!row.split) setTarget(targetAfterAdd(target));
     if (split && at.arm !== undefined) setTabs((t) => ({ ...t, [split.id]: at.arm! }));
     return row.id;
   };
 
   // A camp already in the list the click adds to is selected, not added twice; a stop is removed with its trash.
   const onCampClick = (campId: string) => {
-    if (setup || chooser) return;
-    const there = listAt(stops, addTarget(stops, selection)).find((r) => r.campId === campId);
+    if (chooser) return;
+    const there = listAt(stops, at).find((r) => r.campId === campId);
     if (there) select(there.id, true);
     else add(newRow({ campId }), "stop", "add stop");
   };
   // A click unarmed or armed for the route adds a waypoint on the route (`kindForClick`); armed for a pin
   // it adds a pin (`hero: false`), never an attack, a scout at a free point.
   const onPlaceSelect = (picked: Place) => {
-    if (setup || chooser) return;
+    if (chooser) return;
     const pin = armed === "pin";
     const place: Place = pin && (picked.kind === "attack" || atKind(picked.at) === "point") ? { ...picked, kind: "scout" } : picked;
     const hero = pin ? false : undefined;
@@ -331,20 +327,18 @@ export function RouteEditor({
       focusTo.current = "[data-way-text]";
     }
   };
-  const openSplit = () => {
+  /** "Two paths": a choose-one block with two unnamed paths at the end of the route, one undo step;
+   *  path A becomes the target. With a mouse its name field takes focus; map clicks still add. */
+  const addPaths = () => {
     if (addBlocked(stops, "row")) return;
     setChooser(false);
     setArmed(null);
     setPending(null);
-    setSetup({ mode: "or", names: ["", ""] });
-  };
-  /** "Start path A": one undo step, and the selection goes into path A, so the next-stop row sits there. */
-  const startSplit = () => {
-    if (!setup || !canStartSplit(setup)) return;
-    const row = newSplitRow(setup.mode, setup.mode === "and" ? ["", ""] : setup.names);
-    if (add(row, "row", "add split") !== undefined) setTabs((t) => ({ ...t, [row.id]: 0 }));
-    setSetup(null);
-    focusTo.current = WAYPOINT;
+    const row = newSplitRow("or");
+    if (add(row, "row", "add paths") === undefined) return;
+    setTabs((t) => ({ ...t, [row.id]: 0 }));
+    setTarget({ splitId: row.id, arm: 0, pos: null });
+    if (window.matchMedia?.("(pointer: fine)").matches) focusTo.current = `[data-path-field="${row.id}.0"]`;
   };
 
   const setSplit = (id: number, split: Partial<NonNullable<StopRowData["split"]>>) =>
@@ -426,7 +420,7 @@ export function RouteEditor({
     return {
       onMode: (next: "and" | "or") => {
         if ((next === "and") === (mode === "and")) return;
-        step("change split mode");
+        step("change kind");
         setSplit(row.id, { mode: next });
       },
       label: (arm: number) => arms[arm]?.label ?? "",
@@ -437,44 +431,44 @@ export function RouteEditor({
       onLabelBlur: (arm: number) => setStops((rows) => setArmLabel(rows, row.id, arm, rows.find((r) => r.id === row.id)?.split?.arms[arm]?.label ?? "", true)),
       pathError: (arm: number) => fieldError?.(`${errPath}.arms.${arm}.label`) ?? fieldError?.(`${errPath}.arms.${arm}.stops`),
       error: fieldError?.(errPath),
+      blockId: row.id,
       onAddPath: addBlocked(stops, "path", row)
         ? undefined
         : () => {
             step("add path");
             setSplit(row.id, { arms: [...arms, { id: newId(), label: "", stops: [] }] });
-            focusTo.current = `[aria-label="Path ${"ABC"[arms.length]} name"]`;
+            setTabs((t) => ({ ...t, [row.id]: arms.length }));
+            setTarget({ splitId: row.id, arm: arms.length, pos: null });
+            focusTo.current = `[data-path-field="${row.id}.${arms.length}"]`;
           },
-      // Removing one of two paths turns the split into the other path's stops, in its place (`removePath`).
+      // Removing one of two paths turns the block into the other path's stops, in its place (`removePath`).
       onRemovePath: (arm: number) => {
         step(`remove path ${mode === "and" ? arm + 1 : "ABC"[arm]}`);
+        setTarget(targetAfterRemovePath(stops, target, row.id, arm));
         setStops((rows) => removePath(rows, row.id, arm));
         setTabs((t) => ({ ...t, [row.id]: 0 }));
         focusTo.current = WAYPOINT;
       },
-      // The next-stop row moves to the end of that path, and the map follows it.
+      // A path's tab or its quiet add line: the path shows, the map follows it, and it becomes the target.
       onAddStops: (arm: number) => {
-        select(row.id);
         setTabs((t) => ({ ...t, [row.id]: arm }));
-        focusTo.current = WAYPOINT;
-      },
-      onContinue: () => {
-        select(row.id, false, true);
-        focusTo.current = WAYPOINT;
+        setTarget({ splitId: row.id, arm, pos: null });
       },
       onMove: (dir: -1 | 1) => {
-        step("move split");
+        step("move paths");
         setStops((rows) => moveRow(rows, row.id, dir));
       },
       canMoveUp: index > 0,
       canMoveDown: index < stops.length - 1,
       // The caption's trash always keeps path A; a path heading's x removes any other.
       onRemove: () => {
-        step("remove split");
+        step("remove paths");
+        if (target.splitId === row.id) setTarget(ROUTE_END);
         setStops((rows) => removeSplit(rows, row.id, 0));
         setSelectedId(null);
         focusTo.current = WAYPOINT;
       },
-      removeLabel: `Remove split, keep path ${mode === "and" ? 1 : "A"}`,
+      removeLabel: `Remove paths, keep path ${mode === "and" ? 1 : "A"}`,
       sameCamp: sameCampSequence(row.split),
     };
   };
@@ -561,9 +555,7 @@ export function RouteEditor({
             ? "Click the map to put the waypoint on a spot."
             : chooser
               ? "Choose the kind of waypoint first."
-              : setup
-                ? "Finish the split form first."
-                : "Click a camp to add it at the dashed row. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
+              : "Click a camp to add it at the dashed line. Click a base, gold mine or shop to add a waypoint there. A camp already in that list opens instead."}
         </p>
         {map.starts.length > 2 ? (
           <div className="mt-3" data-start-picker>
@@ -608,6 +600,17 @@ export function RouteEditor({
           splitEdit={splitEdit}
           dnd={dnd}
           slot={slot}
+          onContinue={() => setTarget(ROUTE_END)}
+          tools={
+            <span className="flex shrink-0 gap-1.5">
+              <button type="button" onClick={addWaypoint} aria-disabled={Boolean(capLine)} data-focus="waypoint" className={GOLD_BUTTON}>
+                <MapPin aria-hidden size={14} /> Waypoint
+              </button>
+              <button type="button" onClick={addPaths} aria-disabled={Boolean(addBlocked(stops, "row"))} data-focus="paths" className={GOLD_BUTTON}>
+                <Split aria-hidden size={14} /> Two paths
+              </button>
+            </span>
+          }
           slotRow={
             chooser ? (
               <WaypointChooser
@@ -619,37 +622,16 @@ export function RouteEditor({
                   focusTo.current = WAYPOINT;
                 }}
               />
-            ) : setup ? (
-              <SplitForm
-                after={next.after}
-                setup={setup}
-                onChange={setSetup}
-                onStart={startSplit}
-                onCancel={() => {
-                  setSetup(null);
-                  focusTo.current = '[data-focus="split"]';
-                }}
-              />
             ) : (
               <NextStopRow
                 label={next.label}
-                line={next.line}
-                toEnd={next.toEnd}
-                onToEnd={() => {
-                  select(null);
-                  focusTo.current = WAYPOINT;
-                }}
-                inPath={at.splitId !== undefined}
                 armed={armed}
-                blocked={Boolean(addBlocked(stops, "row"))}
                 capLine={capLine}
-                onWaypoint={addWaypoint}
                 onCancel={() => {
                   setArmed(null);
                   setPending(null);
                   focusTo.current = WAYPOINT;
                 }}
-                onSplit={openSplit}
               />
             )
           }

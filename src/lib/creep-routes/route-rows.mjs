@@ -135,7 +135,9 @@ export function builderRows(stops, choice = {}, slot = null) {
     if (mode !== "and" && arms.length < MAX_PATHS) rows.push({ type: "more", key: `${n.key}.more`, index: i, marks: [] });
     rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, follows: i < stops.length - 1, slotAfter: isSlot(i + 1, undefined), marks: joins ? ids : [] });
   });
+  // The route's own end line always exists: the add line when the target is there, else a quiet `end` row.
   if (isSlot(stops.length, undefined)) rows.push(slotRow("a", "a"));
+  else rows.push({ type: "end", key: "end", marks: [] });
 
   const spans = new Map();
   rows.forEach((r, k) => r.marks.forEach((id) => spans.set(id, { first: spans.get(id)?.first ?? k, last: k })));

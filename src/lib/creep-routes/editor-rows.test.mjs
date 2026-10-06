@@ -4,8 +4,7 @@ import {
   SAME_CAMP_LINE,
   SPLIT_MODES,
   UNDO_CAP,
-  addTarget,
-  canStartSplit,
+  ROUTE_END,
   dropTarget,
   keyOfRow,
   locate,
@@ -27,6 +26,9 @@ import {
   setArmLabel,
   stepName,
   stepTarget,
+  targetAfterAdd,
+  targetAfterRemovePath,
+  targetPlace,
   withSavedModes,
 } from "./editor-rows.mjs";
 
@@ -72,16 +74,35 @@ test("mode: the builder stores Choose a path; saving reads or (stops follow) or 
   assert.deepEqual(withSavedModes(rows.slice(0, 2)).map((r) => r.split?.mode), [undefined, "xor"]);
 });
 
-test("add: after the selected row in its own list, into the active path from a caption, else at the end", () => {
+test("target: the end of the route, the end of a path, or a place in either list", () => {
   const rows = route();
-  const c2 = rows[1].split.arms[0].stops[0];
-  assert.deepEqual(addTarget(rows, null), { index: 3 });
-  assert.deepEqual(addTarget(rows, { id: rows[0].id }), { index: 1 });
-  assert.deepEqual(addTarget(rows, { id: c2.id }), { splitId: rows[1].id, arm: 0, index: 1 });
-  assert.deepEqual(addTarget(rows, { id: rows[1].id, arm: 1 }), { splitId: rows[1].id, arm: 1, index: 1 });
-  // A split added from inside a path goes after that split; a split never goes into a path.
-  assert.deepEqual(addTarget(rows, { id: c2.id }, true), { index: 2 });
-  assert.deepEqual(addTarget(rows, { id: rows[1].id, arm: 1 }, true), { index: 2 });
+  const id = rows[1].id;
+  assert.deepEqual(targetPlace(rows, ROUTE_END), { index: 3 });
+  assert.deepEqual(targetPlace(rows, null), { index: 3 });
+  assert.deepEqual(targetPlace(rows, { pos: 1 }), { index: 1 });
+  assert.deepEqual(targetPlace(rows, { splitId: id, arm: 1, pos: null }), { splitId: id, arm: 1, index: 1 });
+  assert.deepEqual(targetPlace(rows, { splitId: id, arm: 0, pos: 0 }), { splitId: id, arm: 0, index: 0 });
+  // A place past the end is the end; a path that is gone is the end of the route.
+  assert.deepEqual(targetPlace(rows, { pos: 9 }), { index: 3 });
+  assert.deepEqual(targetPlace(rows, { splitId: id, arm: 2, pos: null }), { index: 3 });
+  assert.deepEqual(targetPlace(rows, { splitId: -5, arm: 0, pos: null }), { index: 3 });
+});
+
+test("target after an add: the end stays the end; a place in the middle moves past the new row", () => {
+  assert.equal(targetAfterAdd(ROUTE_END), ROUTE_END);
+  assert.deepEqual(targetAfterAdd({ splitId: 4, arm: 1, pos: 0 }), { splitId: 4, arm: 1, pos: 1 });
+});
+
+test("target after removing a path: the route when it held that path or the block ends; a later path shifts", () => {
+  const two = route();
+  const id = two[1].id;
+  assert.equal(targetAfterRemovePath(two, { splitId: id, arm: 1, pos: null }, id, 1), ROUTE_END);
+  assert.equal(targetAfterRemovePath(two, { splitId: id, arm: 0, pos: null }, id, 1), ROUTE_END);
+  const three = [forkRow(["c1"], ["c2"], ["c3"])];
+  const t = three[0].id;
+  assert.deepEqual(targetAfterRemovePath(three, { splitId: t, arm: 2, pos: null }, t, 0), { splitId: t, arm: 1, pos: null });
+  assert.deepEqual(targetAfterRemovePath(three, { splitId: t, arm: 0, pos: null }, t, 2), { splitId: t, arm: 0, pos: null });
+  assert.equal(targetAfterRemovePath(three, ROUTE_END, t, 0), ROUTE_END);
 });
 
 test("move: a stop drops between rows, into a path or out of it; the last stop leaving a path leaves it empty", () => {
@@ -304,44 +325,37 @@ test("undo: a stack of earlier lists with labels, capped at 50, no redo", () => 
   assert.equal(stack[0].label, "edit 10");
 });
 
-test("next-stop row: its label counts itself in, and its line says where the next camp lands", () => {
+test("add line: its label counts itself in, and `after` names the row before it", () => {
   const two = [camp("c1"), camp("c2")];
-  assert.deepEqual(nextStop(two, addTarget(two, null)), { label: "3", line: "Adds stop 3 at the end.", toEnd: false, after: "after stop 2" });
-  assert.deepEqual(nextStop(two, addTarget(two, { id: two[0].id })), { label: "2", line: "Adds stop 2 after stop 1.", toEnd: true, after: "after stop 1" });
-  assert.deepEqual(nextStop([], addTarget([], null)), { label: "1", line: "Adds stop 1, your first stop.", toEnd: false, after: "at the start" });
+  assert.deepEqual(nextStop(two, targetPlace(two, ROUTE_END)), { label: "3", after: "after stop 2" });
+  assert.deepEqual(nextStop(two, targetPlace(two, { pos: 1 })), { label: "2", after: "after stop 1" });
+  assert.deepEqual(nextStop([], targetPlace([], ROUTE_END)), { label: "1", after: "at the start" });
   // A waypoint before it has no number.
   const way = [camp("c1"), newRow({ place: { kind: "shop", at: { shop: "s1" } } }), camp("c2")];
-  assert.equal(nextStop(way, addTarget(way, { id: way[1].id })).line, "Adds stop 2 after the waypoint.");
+  assert.deepEqual(nextStop(way, targetPlace(way, { pos: 2 })), { label: "2", after: "after the waypoint" });
+  const paths = [camp("c1"), forkRow(["c2"])];
+  assert.equal(nextStop(paths, targetPlace(paths, ROUTE_END)).after, "after the paths");
 });
 
-test("next-stop row in a path: letters in a pick-one path, the same numbers in a same-time path", () => {
+test("add line in a path: letters in a choose-one path, the same numbers in a take-all path", () => {
   const rows = [camp("c1"), forkRow(["c2"], ["c3"]), camp("c5")];
-  rows[1].split.arms[0].label = "Safe";
-  rows[1].split.arms[1].label = " Risky ";
-  const inB = addTarget(rows, { id: rows[1].id, arm: 1 });
-  assert.deepEqual(nextStop(rows, inB, { [rows[1].id]: 1 }), { label: "3b", line: "Adds stop 3b to path B (Risky).", toEnd: false, after: "after stop 2b" });
-  assert.equal(nextStop(rows, addTarget(rows, { id: rows[1].id, arm: 0 })).line, "Adds stop 3a to path A (Safe).");
+  const inB = targetPlace(rows, { splitId: rows[1].id, arm: 1, pos: null });
+  assert.deepEqual(nextStop(rows, inB, { [rows[1].id]: 1 }), { label: "3b", after: "after stop 2b" });
+  assert.equal(nextStop(rows, targetPlace(rows, { splitId: rows[1].id, arm: 0, pos: null })).label, "3a");
   const and = [camp("c1"), { ...rows[1], split: { ...rows[1].split, mode: "and" } }];
-  assert.deepEqual(nextStop(and, addTarget(and, { id: and[1].id, arm: 1 })), { label: "3", line: "Adds stop 3 to path 2, without the hero.", toEnd: false, after: "after stop 2" });
-  assert.equal(nextStop(and, addTarget(and, { id: and[1].id, arm: 0 })).line, "Adds stop 3 to path 1, the hero's.");
+  assert.deepEqual(nextStop(and, targetPlace(and, { splitId: and[1].id, arm: 1, pos: null })), { label: "3", after: "after stop 2" });
   const empty = [camp("c1"), forkRow([], ["c3"])];
-  assert.equal(nextStop(empty, addTarget(empty, { id: empty[1].id, arm: 0 })).after, "at the start of path A");
+  assert.equal(nextStop(empty, targetPlace(empty, { splitId: empty[1].id, arm: 0, pos: null })).after, "at the start of path A");
 });
 
-test("split form: Start waits for a name on every pick-one path; a same-time split starts at once", () => {
-  assert.equal(canStartSplit({ mode: "or", names: ["Safe", ""] }), false);
-  assert.equal(canStartSplit({ mode: "or", names: ["Safe", "   "] }), false);
-  assert.equal(canStartSplit({ mode: "or", names: ["Safe", "Risky", ""] }), false);
-  assert.equal(canStartSplit({ mode: "or", names: ["Safe", "Risky"] }), true);
-  assert.equal(canStartSplit({ mode: "and", names: ["", ""] }), true);
+test("a new paths block holds the names given, and its kind", () => {
   const row = newSplitRow("or", [" Safe ", "Risky", "Mirror"]);
   assert.deepEqual(row.split.arms.map((a) => a.label), ["Safe", "Risky", "Mirror"]);
   assert.equal(newSplitRow("and").split.mode, "and");
 });
 
-test("add after a split (\"Continue the route here\"), and a drop at a place inside a path", () => {
+test("a drop at a place inside a path", () => {
   const rows = route();
-  assert.deepEqual(addTarget(rows, { id: rows[1].id, arm: 1, after: true }), { index: 2 });
   assert.deepEqual(dropTarget(rows, { kind: "path", index: 1, arm: 0, at: 2 }, rows[0]), { splitId: rows[1].id, arm: 0, index: 2 });
   assert.deepEqual(dropTarget(rows, { kind: "path", index: 1, arm: 1 }, rows[0]), { splitId: rows[1].id, arm: 1, index: 0 });
 });

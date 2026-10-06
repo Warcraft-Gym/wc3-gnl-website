@@ -1,9 +1,6 @@
 "use client";
 
-import { useEffect, useId, useRef } from "react";
-import { Flag, MapPin, Split, X, Zap } from "lucide-react";
-import { canStartSplit, type SplitSetup } from "./stop-rows";
-import { MAX_PATHS } from "@/lib/creep-routes/caps.mjs";
+import { Flag, MapPin, Plus, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const BUTTON = "inline-flex h-8 items-center gap-1.5 rounded border px-2.5 text-xs font-medium aria-disabled:opacity-40";
@@ -13,102 +10,65 @@ export const QUIET_BUTTON = cn(BUTTON, "border-line text-muted hover:text-fg");
 export const SLOT_BOX = "rounded border border-dashed border-gold/60 bg-gold/[0.04] p-3";
 
 /**
- * The builder's next-stop row (`RouteEditor`): one dashed gold row that sits in
- * the list where the next map click lands (`addTarget`), with the number that
- * stop will take in a dashed circle (`nextStop`). It holds the two adds that are
- * not a camp click: "Waypoint" opens the waypoint chooser, "Split here" the split
- * form (top level only, splits are one level deep). While the map is armed for a
- * waypoint on the route or a pin the row asks for its spot.
+ * The builder's add line (`RouteEditor`): a slim row at the target, where the
+ * next map click lands (`targetPlace`), with the number that stop will take in a
+ * dashed circle (`nextStop`). No box and no buttons: "Waypoint" and "Two paths"
+ * sit in the list header. While the map is armed for a waypoint on the route or
+ * a pin the line asks for its spot.
  */
 export function NextStopRow({
   label,
-  line,
-  toEnd,
-  onToEnd,
-  inPath,
   armed,
-  blocked,
   capLine,
-  onWaypoint,
   onCancel,
-  onSplit,
 }: {
   label: string;
-  /** "Adds stop 3 after stop 2." (`nextStop`). */
-  line: string;
-  /** The row is not at the end: "Add at the end instead" clears the selection. */
-  toEnd: boolean;
-  onToEnd: () => void;
-  /** The row sits in a split's path: no "Split here". */
-  inPath: boolean;
   /** A waypoint on the route or a pin waits for its spot on the map. */
   armed: WayType | null;
-  /** At the row cap the two adds do nothing. */
-  blocked: boolean;
   capLine?: string | null;
-  onWaypoint: () => void;
   onCancel: () => void;
-  onSplit: () => void;
 }) {
   return (
-    <div className={SLOT_BOX}>
-      <div className="flex items-start gap-3">
-        <span
-          aria-hidden
-          className="tnum grid size-7 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-gold text-[0.75rem] font-bold text-gold"
-        >
-          {armed === "pin" ? <Flag size={14} /> : armed ? <MapPin size={14} /> : label}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-medium leading-7 text-fg">
-            {armed === "pin" ? (
-              "Click the spot to pin"
-            ) : armed ? (
-              "Click the place on the map"
-            ) : (
-              <>
-                <span className="lg:hidden">Tap a camp on the map above</span>
-                <span className="hidden lg:inline">Click a camp on the map</span>
-              </>
-            )}
-          </p>
-          <p aria-live="polite" className="text-[0.8rem] text-muted">
-            {armed === "pin" ? "Any spot. The line skips it." : armed ? "Bases, gold mines and shops snap to their spot." : line}
-            {!armed && toEnd ? (
-              <>
-                {" "}
-                <button type="button" onClick={onToEnd} className="text-gold underline underline-offset-2 hover:text-fg">
-                  Add at the end instead
-                </button>
-              </>
-            ) : null}
-          </p>
-          <div className="mt-2.5 flex flex-wrap gap-1.5">
-            {armed ? (
-              <button type="button" onClick={onCancel} data-focus="cancel" className={QUIET_BUTTON}>
-                Cancel
-              </button>
-            ) : (
-              <>
-                <button type="button" onClick={onWaypoint} aria-disabled={blocked} data-focus="waypoint" className={GOLD_BUTTON}>
-                  <MapPin aria-hidden size={14} /> Waypoint
-                </button>
-                {inPath ? null : (
-                  <button type="button" onClick={onSplit} aria-disabled={blocked} data-focus="split" className={GOLD_BUTTON}>
-                    <Split aria-hidden size={14} /> Split here
-                  </button>
-                )}
-              </>
-            )}
+    <div className="flex min-h-7 items-center gap-3">
+      <span
+        aria-hidden
+        data-add-label
+        className="tnum grid size-[26px] shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-gold text-[0.75rem] font-bold text-gold"
+      >
+        {armed === "pin" ? <Flag size={14} /> : armed ? <MapPin size={14} /> : label}
+      </span>
+      <div aria-live="polite" className="min-w-0 flex-1 text-sm text-muted">
+        {armed ? (
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5 py-0.5">
+            <p>
+              <span className="font-medium text-fg">{armed === "pin" ? "Click the spot to pin" : "Click the place on the map"}</span>{" "}
+              {armed === "pin" ? "Any spot. The line skips it." : "Bases, gold mines and shops snap to their spot."}
+            </p>
+            <button type="button" onClick={onCancel} data-focus="cancel" className={QUIET_BUTTON}>
+              Cancel
+            </button>
           </div>
-          {capLine ? <p className="mt-2 text-[0.7rem] text-faint">{capLine}</p> : null}
-        </div>
+        ) : (
+          <p>
+            <span className="lg:hidden">Tap a camp on the map above</span>
+            <span className="hidden lg:inline">Click a camp on the map</span>
+          </p>
+        )}
+        {capLine ? <p className="mt-1 text-[0.7rem] text-faint">{capLine}</p> : null}
       </div>
     </div>
   );
 }
 
-/** The two kinds of split, each with its mini diagram: one path dashed (pick one) or both solid. */
+/** The end of a list that is not the target: a quiet text button that makes it the target. */
+export function QuietAdd({ children, onClick }: { children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button type="button" onClick={onClick} className="inline-flex min-h-7 items-center gap-1.5 text-left text-sm text-muted hover:text-gold">
+      <Plus aria-hidden size={14} /> {children}
+    </button>
+  );
+}
+
 // A waypoint is a step at a place with no creeps. The line goes through it, or it is a pin the line skips.
 // A step with no place is an action. Who goes is Bring, as on any stop.
 export type WayType = "route" | "pin" | "none";
@@ -152,128 +112,12 @@ export function WaypointChooser({ after, noPlaceCap, onChoose, onCancel }: { aft
   );
 }
 
-const MODES = [
-  { id: "or", title: "Choose a path", line: <path d="M8 5 L14 9 H22 L28 5" strokeDasharray="2 2" /> },
-  { id: "and", title: "At the same time", line: <path d="M8 5 L14 9 H22 L28 5" /> },
-] as const;
-const NAME_HINTS = ["e.g. Safe", "e.g. Risky", "e.g. vs. Mirror Image"];
-
-/**
- * "Split here" turns the next-stop row into this form; nothing is inserted until
- * "Start path A" (`canStartSplit`: every pick-one path has a name). Escape and
- * "Cancel" close it (`RouteEditor`).
- */
-export function SplitForm({
-  after,
-  setup,
-  onChange,
-  onStart,
-  onCancel,
-}: {
-  /** Where the split goes: "after stop 3", "at the start" (`nextStop`). */
-  after: string;
-  setup: SplitSetup;
-  onChange: (setup: SplitSetup) => void;
-  onStart: () => void;
-  onCancel: () => void;
-}) {
-  const id = useId();
-  const pick = setup.mode === "or";
-  // "Add a third path" puts focus in the new name field, its x back on "Add a third path" (each button unmounts).
-  const box = useRef<HTMLDivElement>(null);
-  const focusTo = useRef<string | null>(null);
-  useEffect(() => {
-    const q = focusTo.current;
-    if (!q) return;
-    focusTo.current = null;
-    box.current?.querySelector<HTMLElement>(q)?.focus();
-  });
+/** A kind of paths block as a mini line: one path dashed (choose one) or both solid (take all). */
+export function KindLine({ mode, className }: { mode: string; className?: string }) {
   return (
-    <div ref={box} data-split-form className={SLOT_BOX}>
-      <p className="text-sm font-medium leading-7 text-fg">Split {after}</p>
-      <fieldset className="mt-1">
-        <legend className="sr-only">Kind of split</legend>
-        <div className="grid gap-2 sm:grid-cols-2">
-          {MODES.map((m) => (
-            <label
-              key={m.id}
-              className="flex cursor-pointer items-center gap-2 rounded border border-line px-2.5 py-2 hover:border-gold/40 has-[:checked]:border-gold/60 has-[:checked]:bg-gold/10"
-            >
-              <input
-                type="radio"
-                name={`${id}-mode`}
-                value={m.id}
-                checked={setup.mode === m.id}
-                onChange={() => onChange({ ...setup, mode: m.id })}
-                className="accent-[var(--wg-gold)]"
-              />
-              <span className="flex-1 text-sm font-medium text-fg">{m.title}</span>
-              <svg aria-hidden viewBox="0 0 34 10" className="h-2.5 w-[34px] shrink-0 text-muted" fill="none" stroke="currentColor" strokeWidth={1.5}>
-                <path d="M1 5 H8 L14 1 H22 L28 5 H33" />
-                {m.line}
-              </svg>
-            </label>
-          ))}
-        </div>
-      </fieldset>
-      {pick ? (
-        <div className="mt-3 space-y-2">
-          {setup.names.map((name, a) => (
-            <div key={a} className="flex items-center gap-1.5">
-              <label className="flex min-w-0 flex-1 items-center gap-3">
-                <span className="w-14 shrink-0 text-[0.8rem] text-muted">Path {"ABC"[a]}</span>
-                <input
-                  value={name}
-                  onChange={(e) => onChange({ ...setup, names: setup.names.map((n, b) => (b === a ? e.target.value : n)) })}
-                  placeholder={NAME_HINTS[a]}
-                  maxLength={60}
-                  autoFocus={a === 0}
-                  data-path-name={a}
-                  className="h-9 min-w-0 flex-1 rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none"
-                />
-              </label>
-              {/* A third path can go again; Start then judges the two names left. */}
-              {a === 2 ? (
-                <button
-                  type="button"
-                  onClick={() => {
-                    onChange({ ...setup, names: setup.names.slice(0, 2) });
-                    focusTo.current = "[data-add-path]";
-                  }}
-                  aria-label="Remove path C"
-                  title="Remove path C"
-                  className="grid size-7 shrink-0 place-items-center rounded text-faint hover:text-loss"
-                >
-                  <X size={14} />
-                </button>
-              ) : null}
-            </div>
-          ))}
-          {setup.names.length < MAX_PATHS ? (
-            <button
-              type="button"
-              onClick={() => {
-                onChange({ ...setup, names: [...setup.names, ""] });
-                focusTo.current = `[data-path-name="${setup.names.length}"]`;
-              }}
-              data-add-path
-              className="text-[0.75rem] text-gold underline underline-offset-2 hover:text-fg"
-            >
-              Add a third path
-            </button>
-          ) : null}
-        </div>
-      ) : (
-        <p className="mt-2 text-[0.8rem] text-muted">Path 1 is the hero&apos;s.</p>
-      )}
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        <button type="button" onClick={onStart} disabled={!canStartSplit(setup)} className="btn-gold inline-flex h-8 items-center rounded px-3 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40">
-          Start path {pick ? "A" : "1"}
-        </button>
-        <button type="button" onClick={onCancel} className={QUIET_BUTTON}>
-          Cancel
-        </button>
-      </div>
-    </div>
+    <svg aria-hidden viewBox="0 0 34 10" className={cn("h-2.5 w-[34px] shrink-0", className)} fill="none" stroke="currentColor" strokeWidth={1.5}>
+      <path d="M1 5 H8 L14 1 H22 L28 5 H33" />
+      <path d="M8 5 L14 9 H22 L28 5" strokeDasharray={mode === "and" ? undefined : "2 2"} />
+    </svg>
   );
 }

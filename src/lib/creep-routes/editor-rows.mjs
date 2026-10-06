@@ -28,11 +28,6 @@ export function newSplitRow(mode = SPLIT_MODES[0].id, labels = ["", ""]) {
   return newRow({ split: { mode, arms: labels.map((label) => ({ id: newId(), label: label.trim(), stops: [] })) } });
 }
 
-/** The split form's "Start path A": a same-time split starts at once; a pick-one split needs a name on every path. */
-export function canStartSplit({ mode, names }) {
-  return mode === "and" || names.every((n) => n.trim() !== "");
-}
-
 /** The mode a split saves: "and" stays; a chosen path is "or" when stops follow the split (the paths
  *  rejoin) and "xor" when nothing does (the paths end). */
 export function savedMode(stops, index) {
@@ -139,28 +134,36 @@ export function insertAt(rows, at, row) {
   return updateArm(rows, at.splitId, at.arm, (stops) => [...stops.slice(0, at.index), row, ...stops.slice(at.index)]);
 }
 
-/** Where an add goes (a map click, "Waypoint", "Split here"): after the selected row in its own list;
- *  at the end of the active path `arm` when the selection is a split's caption, or right after the split
- *  with `after` ("Continue the route here"); at the end with no selection. A split added from inside a
- *  split goes after that split. `selection`: `{ id, arm, after }`. */
-export function addTarget(rows, selection, isSplit = false) {
-  const where = selection ? locate(rows, selection.id) : null;
-  if (!where) return { index: rows.length };
-  if (where.splitId !== undefined) {
-    return isSplit ? { index: rows.findIndex((r) => r.id === where.splitId) + 1 } : { splitId: where.splitId, arm: where.arm, index: where.index + 1 };
-  }
-  const row = rows[where.index];
-  if (row.split && !isSplit && !selection.after) {
-    const arm = Math.min(selection.arm ?? 0, row.split.arms.length - 1);
-    return { splitId: row.id, arm, index: row.split.arms[arm].stops.length };
-  }
-  return { index: where.index + 1 };
+/** The builder's target, where the next add lands: the route (no `splitId`) or path `arm` of the block
+ *  `splitId`, and `pos`, null for the end of that list or an index in it. Opening a stop never moves it. */
+export const ROUTE_END = { pos: null };
+
+/** The place a target names; a target whose path is gone is the end of the route. */
+export function targetPlace(rows, target) {
+  const t = target ?? ROUTE_END;
+  if (t.splitId === undefined) return { index: t.pos === null ? rows.length : Math.min(t.pos, rows.length) };
+  const list = rows.find((r) => r.id === t.splitId)?.split?.arms[t.arm]?.stops;
+  if (!list) return { index: rows.length };
+  return { splitId: t.splitId, arm: t.arm, index: t.pos === null ? list.length : Math.min(t.pos, list.length) };
 }
 
-/** The builder's next-stop row, the dashed row at `at` (`addTarget`'s place): the label the next numbered
- *  stop takes there, counting itself in (`stop-numbers.mjs`; the rows below keep their own numbers), the
- *  line under it, and `toEnd` when the row is not at the end ("Add at the end instead"). `after` names the
- *  row before the place ("after stop 2", "at the start", "at the start of path B"). `tabs`: the shown path by split id. */
+/** The target after an add at it: the end stays the end; a place in the middle moves past the new row. */
+export function targetAfterAdd(target) {
+  return target.pos === null ? target : { ...target, pos: target.pos + 1 };
+}
+
+/** The target after removing path `arm` of block `splitId`: the route when it held that path or the
+ *  block turns into plain stops; a later path of a block that stays shifts down one. */
+export function targetAfterRemovePath(rows, target, splitId, arm) {
+  if (target.splitId !== splitId) return target;
+  const paths = rows.find((r) => r.id === splitId)?.split?.arms.length ?? 0;
+  if (target.arm === arm || paths <= 2) return ROUTE_END;
+  return target.arm > arm ? { ...target, arm: target.arm - 1 } : target;
+}
+
+/** The add line at `at` (`targetPlace`): the label the next numbered stop takes there, counting itself in
+ *  (`stop-numbers.mjs`; the rows below keep their own numbers), and `after`, the row before the place
+ *  ("after stop 2", "at the start", "at the start of path B"). `tabs`: the shown path by block id. */
 export function nextStop(rows, at, tabs = {}) {
   const withSlot = insertAt(rows, at, { id: -1, campId: "slot" });
   const choice = Object.fromEntries(withSlot.flatMap((r, i) => (r.split ? [[String(i), tabs[r.id] ?? 0]] : [])));
@@ -169,20 +172,13 @@ export function nextStop(rows, at, tabs = {}) {
   const label = labelOf(-1);
   if (at.splitId !== undefined) {
     const split = rows.find((r) => r.id === at.splitId).split;
-    const name = split.arms[at.arm]?.label.trim();
-    const path =
-      split.mode === "and"
-        ? `path ${at.arm + 1}, ${at.arm === 0 ? "the hero's" : "without the hero"}`
-        : `path ${"ABC"[at.arm]}${name ? ` (${name})` : ""}`;
     const prev = split.arms[at.arm]?.stops[at.index - 1];
     const after = !prev ? `at the start of path ${split.mode === "and" ? at.arm + 1 : "ABC"[at.arm]}` : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
-    return { label, line: `Adds stop ${label} to ${path}.`, toEnd: false, after };
+    return { label, after };
   }
   const prev = rows[at.index - 1];
-  const after = !prev ? "at the start" : prev.split ? "after the split" : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
-  if (!rows.length) return { label, line: `Adds stop ${label}, your first stop.`, toEnd: false, after };
-  if (at.index >= rows.length) return { label, line: `Adds stop ${label} at the end.`, toEnd: false, after };
-  return { label, line: `Adds stop ${label} ${after}.`, toEnd: true, after };
+  const after = !prev ? "at the start" : prev.split ? "after the paths" : labelOf(prev.id) ? `after stop ${labelOf(prev.id)}` : "after the waypoint";
+  return { label, after };
 }
 
 /** Moves row `id` to place `at` (its index counted before the move). A split never goes into a path. */

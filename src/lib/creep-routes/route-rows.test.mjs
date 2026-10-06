@@ -127,7 +127,7 @@ test("builder: every path is a block, a heading, its stops, then an add row; or 
 test("builder: the next-stop row sits in its path, which is lit gold; the other paths are light", () => {
   const stops = [camp("c1"), or([camp("c2")], [camp("c3")])];
   const rows = builderRows(stops, {}, { index: 1, arm: 1, j: 1, label: "3b" });
-  assert.deepEqual(kinds(rows), ["1", "split", "head", "2a", "add", "sep", "head", "2b", "[3b]", "more", "after"]);
+  assert.deepEqual(kinds(rows), ["1", "split", "head", "2a", "add", "sep", "head", "2b", "[3b]", "more", "after", "end"]);
   assert.equal(rows.find((r) => r.type === "slot").lane, "b");
   // Path a: light from its heading to its last stop; path b: gold to the next-stop row. Nothing follows, so the lanes end there.
   assert.equal(rail(rows[2]), "a^lv b^v");
@@ -151,6 +151,6 @@ test("builder: a next-stop row right after the split joins the paths; an empty p
 test("builder: a same-time split keeps one number per step on every path and marks its stops as one block", () => {
   const stops = [camp("c1"), and([camp("c2")], [camp("c3")]), camp("c4")];
   const rows = builderRows(stops);
-  assert.deepEqual(kinds(rows), ["1", "split", "head", "2", "add", "sep", "head", "2", "add", "after", "3"]);
+  assert.deepEqual(kinds(rows), ["1", "split", "head", "2", "add", "sep", "head", "2", "add", "after", "3", "end"]);
   assert.ok(rows.filter((r) => r.type === "stop" && r.group).every((r) => r.block === "1"));
 });

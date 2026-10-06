@@ -4,6 +4,7 @@ import { ArrowDown, ArrowUp, Plus, Split, Trash2, X } from "lucide-react";
 import type { DropProps } from "./RouteStepTable";
 import { DROP, ForkRail, JoinRail, RailCell, type RailLine } from "./LaneRail";
 import { SAME_CAMP_LINE } from "./stop-rows";
+import { QuietAdd } from "./NextStopRow";
 import { cn } from "@/lib/utils";
 import type { DerivedNode } from "@/lib/creep-routes/derive";
 import { LevelLine } from "./HeroMeter";
@@ -19,6 +20,8 @@ import { LevelLine } from "./HeroMeter";
 
 /** The builder's controls of one split (`RouteEditor`). */
 export type SplitEdit = {
+  /** The block's row id: its name fields carry `data-path-field="<id>.<arm>"`. */
+  blockId: number;
   onMode: (mode: "and" | "or") => void;
   /** A path's label as typed (the route's own is trimmed). */
   label: (arm: number) => string;
@@ -33,10 +36,8 @@ export type SplitEdit = {
   onAddPath?: () => void;
   /** Every path heading's x; removing one of two paths leaves the other's stops in the split's place. */
   onRemovePath: (arm: number) => void;
-  /** Puts the next-stop row at the end of a path. */
+  /** Shows a path and makes its end the target. */
   onAddStops: (arm: number) => void;
-  /** Puts the next-stop row right after the split. */
-  onContinue: () => void;
   onMove: (dir: -1 | 1) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
@@ -136,6 +137,7 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
         ) : (
           <input
             aria-label={`Path ${name} name`}
+            data-path-field={`${edit.blockId}.${arm}`}
             placeholder={`Name, e.g. ${["Safe", "Risky", "vs. Mirror Image"][arm]}`}
             value={edit.label(arm)}
             onChange={(e) => edit.onLabel(arm, e.target.value)}
@@ -176,15 +178,13 @@ export function PathSep({ mode, lines }: { mode: string; lines: RailLine[] }) {
   );
 }
 
-/** The end of a block whose path does not hold the next-stop row: a quiet button that moves it there. */
+/** The end of a path that is not the target: a quiet button that makes it the target. */
 export function PathAdd({ mode, arm, empty, lines, onAdd, dnd }: { mode: string; arm: number; empty: boolean; lines: RailLine[]; onAdd: () => void; dnd?: Dnd }) {
   const name = pathName(mode, arm);
   return (
     <li {...dnd?.props} className={cn(ROW, "py-2", DROP)}>
       <RailCell lines={lines} />
-      <button type="button" onClick={onAdd} className={ADD}>
-        <Plus aria-hidden size={13} /> {empty ? `Path ${name} is empty. Add its stops` : `Add stops to path ${name}`}
-      </button>
+      <QuietAdd onClick={onAdd}>{empty ? `Path ${name} is empty. Add its stops` : `Add stops to path ${name}`}</QuietAdd>
     </li>
   );
 }
@@ -201,23 +201,13 @@ export function AddThirdPath({ lines, onAdd }: { lines: RailLine[]; onAdd: () =>
   );
 }
 
-/** The row that closes a split: the lanes curve back into lane a when stops follow; "Continue the route here" puts the next-stop row there. */
-export function AfterSplit({ lanes, joins, follows, slotAfter, node, onContinue }: { lanes: { lane: string; off: boolean }[]; joins: boolean; follows: boolean; slotAfter: boolean; node?: DerivedNode; onContinue: () => void }) {
+/** The row that closes a block: the lanes curve back into lane a when stops follow; a same-time block shows its shared level. */
+export function AfterSplit({ lanes, joins, node }: { lanes: { lane: string; off: boolean }[]; joins: boolean; follows: boolean; node?: DerivedNode }) {
+  if (!joins && !node) return null;
   return (
-    <li className={cn(ROW, "border-t border-dashed border-line/60 py-2.5")}>
+    <li className={cn(ROW, node ? "py-2" : "h-3")}>
       {joins ? <JoinRail lanes={lanes} /> : null}
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-        <p className="min-w-0 flex-1 text-[0.8rem] text-muted">
-          <span className="font-medium text-fg">After the split.</span> Stops below are taken on every path.
-          {follows ? null : " Leave it empty if each path ends the route."}
-        </p>
-      </div>
-      {node ? <LevelLine level={node.levelAfter} xp={node.xpBefore + node.xpGained} leveled={node.levelAfter > node.levelBefore} className="mt-2" /> : null}
-      {slotAfter ? null : (
-        <button type="button" onClick={onContinue} className={cn(ADD, "mt-1.5")}>
-          <Plus aria-hidden size={13} /> Continue the route here
-        </button>
-      )}
+      {node ? <LevelLine level={node.levelAfter} xp={node.xpBefore + node.xpGained} leveled={node.levelAfter > node.levelBefore} /> : null}
     </li>
   );
 }

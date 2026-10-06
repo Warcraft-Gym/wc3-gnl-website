@@ -56,12 +56,8 @@ export function stopToRow(s: ExchangeStop | Omit<ExchangeStop, "split">): StopRo
   });
 }
 
-/** A new split row: empty paths with these labels (two by default), "Choose a path" by default. */
+/** A new split row: empty paths with these labels (two by default), "Choose one path" by default. */
 export const newSplitRow = editorRows.newSplitRow as (mode?: "and" | "or", labels?: string[]) => StopRowData;
-/** The split form before "Start path A": the mode and the paths' names. */
-export type SplitSetup = { mode: "and" | "or"; names: string[] };
-/** Start is enabled once every path of a pick-one split has a name. */
-export const canStartSplit = editorRows.canStartSplit as (setup: SplitSetup) => boolean;
 
 /** The editor rows as submitted stops, each split's or/xor read from the structure (stops after it: or). */
 export function rowsToStops(rows: StopRowData[]): StopInput[] {
@@ -76,18 +72,19 @@ export const locate = editorRows.locate as (rows: StopRowData[], id: number) => 
 export const listAt = editorRows.listAt as (rows: StopRowData[], at: ListPlace) => StopRowData[];
 /** Inserts a row at a place; a split only at the top level. */
 export const insertAt = editorRows.insertAt as (rows: StopRowData[], at: ListPlace, row: StopRowData) => StopRowData[];
-/** Where an add goes: after the selected row, into the active path from a caption (after the split with `after`), else at the end. */
-export const addTarget = editorRows.addTarget as (
-  rows: StopRowData[],
-  selection: { id: number; arm?: number; after?: boolean } | null,
-  isSplit?: boolean,
-) => ListPlace;
-/** The next-stop row at a place: the label the next stop takes there, the line under it, whether "Add at the end instead" shows. */
+/** Where the next add lands (`editor-rows.mjs`): the route or one path, and `pos`, null for the end of that list. */
+export type Target = { splitId?: number; arm?: number; pos: number | null };
+export const ROUTE_END = editorRows.ROUTE_END as Target;
+/** The place a target names; a target whose path is gone is the end of the route. */
+export const targetPlace = editorRows.targetPlace as (rows: StopRowData[], target: Target | null) => ListPlace;
+export const targetAfterAdd = editorRows.targetAfterAdd as (target: Target) => Target;
+export const targetAfterRemovePath = editorRows.targetAfterRemovePath as (rows: StopRowData[], target: Target, splitId: number, arm: number) => Target;
+/** The add line at a place: the label the next stop takes there, and the row before it ("after stop 2"). */
 export const nextStop = editorRows.nextStop as (
   rows: StopRowData[],
   at: ListPlace,
   tabs?: Record<number, number>,
-) => { label: string; line: string; toEnd: boolean; after: string };
+) => { label: string; after: string };
 /** Moves a row to a place (its index counted before the move); a split never into a path. */
 export const moveRowTo = editorRows.moveRowTo as (rows: StopRowData[], id: number, at: ListPlace) => StopRowData[];
 /** A drop zone under the pointer. */
@@ -109,7 +106,8 @@ export const sameCampSequence = editorRows.sameCampSequence as (split: StopRowDa
 /** Sets a path label as typed; `commit` trims it (on blur). */
 export const setArmLabel = editorRows.setArmLabel as (rows: StopRowData[], splitId: number, arm: number, label: string, commit?: boolean) => StopRowData[];
 /** The builder's selected row; on a split, `after` puts the next-stop row right after it. */
-export type Selection = { id: number; after?: boolean };
+/** The open stop and the target when a change is made: undo puts both back. */
+export type Selection = { id: number | null; target: Target };
 /** One undo entry: the stop list before a change, what changed and the selection then. */
 export type UndoEntry = { rows: StopRowData[]; label: string; sel: Selection | null };
 export const pushUndo = editorRows.pushUndo as (stack: UndoEntry[], rows: StopRowData[], label: string, sel?: Selection | null) => UndoEntry[];

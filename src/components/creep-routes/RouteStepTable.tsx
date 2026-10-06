@@ -9,6 +9,7 @@ import type { CampCardTrigger, CreepMap, CreepRoute, MapCamp, RouteStop } from "
 import { StopBlock } from "./StopBlock";
 import { cn } from "@/lib/utils";
 import { DROP, JoinRow, SlotRail, SplitRow, StopRail, type RailLine } from "./LaneRail";
+import { QuietAdd } from "./NextStopRow";
 import { AddThirdPath, AfterSplit, PathAdd, PathHead, PathSep, SplitCaption, type SplitEdit } from "./SplitBlock";
 import type { DropZone } from "./stop-rows";
 
@@ -28,6 +29,7 @@ type Lanes = { lane: string; off: boolean }[];
 type BuilderRow =
   | ((LaneRow & { type: "stop" | "split" }) & { group?: string })
   | { type: "slot"; key: string; label: string; lane: string; lines: RailLine[]; group?: string }
+  | { type: "end"; key: string; lines: RailLine[]; group?: undefined }
   | { type: "head"; key: string; index: number; arm: number; lane: string; mode: string; here: boolean; count: number; waypoints: number; lines: RailLine[]; group: string }
   | { type: "sep"; key: string; mode: string; lines: RailLine[]; group: string }
   | { type: "add"; key: string; index: number; arm: number; mode: string; length: number; lines: RailLine[]; group: string }
@@ -71,6 +73,8 @@ export function RouteStepTable({
   dnd,
   slot,
   slotRow,
+  onContinue,
+  tools,
 }: {
   route: CreepRoute;
   map: CreepMap;
@@ -108,6 +112,10 @@ export function RouteStepTable({
   slot?: { index: number; arm?: number; j?: number; label: string };
   /** The builder: the next-stop row's content (`NextStopRow`). */
   slotRow?: React.ReactNode;
+  /** The builder: the route's quiet end line, "Continue the route", makes the route the target. */
+  onContinue?: () => void;
+  /** The builder: buttons at the right of the list header ("Waypoint", "Two paths"). */
+  tools?: React.ReactNode;
 }) {
   // The header counts the numbered stops a reader of the chosen paths sees (no split, no waypoint).
   const count = countStops(route.stops, choice ?? {});
@@ -207,6 +215,13 @@ export function RouteStepTable({
         </li>
       );
     }
+    if (row.type === "end") {
+      return (
+        <li key="end" className="relative border-t border-line/40 py-2 pl-[60px] pr-4 first:border-t-0 sm:pr-5">
+          <QuietAdd onClick={() => onContinue?.()}>Continue the route</QuietAdd>
+        </li>
+      );
+    }
     if (row.type === "sep") return <PathSep key={row.key} mode={row.mode} lines={row.lines} />;
     const edit = splitEdit?.(row.index);
     if (!edit) return null;
@@ -260,9 +275,7 @@ export function RouteStepTable({
         lanes={row.lanes}
         joins={row.joins}
         follows={row.follows}
-        slotAfter={row.slotAfter}
         node={row.mode === "and" ? node : undefined}
-        onContinue={edit.onContinue}
       />
     );
   };
@@ -280,7 +293,7 @@ export function RouteStepTable({
             </h2>
             <p className="mt-1 text-[0.8rem] text-muted">XP at the hero&apos;s level at that moment. A boxed set is kills in any order.</p>
           </div>
-          {editBody ? null : (
+          {editBody ? tools : (
             <button
               type="button"
               onClick={allOpen ? onCollapseAll : onExpandAll}
