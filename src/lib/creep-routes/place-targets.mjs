@@ -45,16 +45,17 @@ export function layoutTargets(points, w, h, r = TARGET_R, gap = TARGET_GAP) {
 }
 
 /**
- * The index of the target a click at (x, y) px takes: the nearest whose disc, widened by `magnet`,
- * holds the point; -1 for none (the click is a free point).
+ * The index of the target a click at (x, y) px takes: the one whose edge is nearest, when the point is
+ * inside its disc widened by `magnet`; -1 for none (the click is a free point). A target with its own
+ * `r` (a camp's disc) uses it.
  * @param {number} x
  * @param {number} y
- * @param {{ x: number; y: number }[]} targets
+ * @param {{ x: number; y: number; r?: number }[]} targets
  */
 export function nearTarget(x, y, targets, r = TARGET_R, magnet = MAGNET) {
-  let best = -1, bestD = r + magnet;
+  let best = -1, bestD = magnet;
   targets.forEach((t, i) => {
-    const d = Math.hypot(t.x - x, t.y - y);
+    const d = Math.hypot(t.x - x, t.y - y) - (t.r ?? r);
     if (d <= bestD) {
       best = i;
       bestD = d;

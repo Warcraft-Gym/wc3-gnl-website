@@ -46,3 +46,12 @@ test("a map with four starts, each with a mine beside it: no two discs overlap",
   apart(out);
   inside(out, 400, 400);
 });
+
+test("a camp snaps by its own radius: inside, within 6 px of its edge, not past that", () => {
+  const camps = [{ x: 100, y: 100, r: 10 }, { x: 300, y: 100, r: 20 }];
+  assert.equal(nearTarget(103, 100, camps), 0);
+  assert.equal(nearTarget(116, 100, camps), 0);
+  assert.equal(nearTarget(117, 100, camps), -1);
+  assert.equal(nearTarget(300, 74, camps), 1);
+  assert.equal(nearTarget(300, 73, camps), -1);
+});

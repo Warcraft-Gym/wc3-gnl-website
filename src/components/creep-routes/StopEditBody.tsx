@@ -146,6 +146,7 @@ export function StopEditBody({
   opened = { bring: false, condition: false },
   onOpen = () => {},
   onMove,
+  moveLabel,
 }: {
   stop: StopRowData;
   /** The resolved camp for a camp stop; undefined for a place or a base action. */
@@ -160,8 +161,10 @@ export function StopEditBody({
   /** A camp stop's Bring and condition, once opened (kept by row id in `RouteEditor`, so a move keeps them). */
   opened?: { bring: boolean; condition: boolean };
   onOpen?: (part: "bring" | "condition") => void;
-  /** "Move": the map waits for this step's new place. */
+  /** "Move": the map waits for this step's new place (a camp stop's: another camp). */
   onMove?: () => void;
+  /** A camp stop's "Move" name: "Move stop 3 to another camp". */
+  moveLabel?: string;
 }) {
   const isCamp = Boolean(stop.campId);
   const isAction = !isCamp && !stop.place;
@@ -328,9 +331,10 @@ export function StopEditBody({
       <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} camp={isCamp} />
       {bring}
       {condition}
-      {/* A step with no place (an action) gets no add buttons; Bring, the condition and pictures show only with content. */}
-      {isAction || (showBring && showCondition) ? null : (
-        <div className="flex flex-wrap gap-1.5">
+      {/* A step with no place (an action) gets no add buttons; Bring, the condition and pictures show only with content.
+          A camp stop's row ends in "Move". */}
+      {isAction || (!isCamp && showBring && showCondition) ? null : (
+        <div className="flex flex-wrap items-center gap-1.5">
           {showBring ? null : (
             <button
               type="button"
@@ -355,6 +359,11 @@ export function StopEditBody({
               <Plus aria-hidden size={13} /> Condition
             </button>
           )}
+          {isCamp && onMove ? (
+            <button type="button" onClick={onMove} aria-label={moveLabel} data-move-way={stop.id} className="ml-auto inline-flex h-8 items-center gap-1.5 rounded px-2 text-xs text-muted hover:text-gold">
+              <MapPin aria-hidden size={13} /> Move
+            </button>
+          ) : null}
         </div>
       )}
 
