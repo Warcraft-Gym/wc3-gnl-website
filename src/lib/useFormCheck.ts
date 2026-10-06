@@ -23,10 +23,12 @@ export function useFormCheck(check: (data: FormData) => Record<string, string> |
 
   // Once the messages render, bring the topmost one into view: the first
   // problem (a race, the stops) is often far above the submit button and
-  // has no text field to focus. Field messages are the forms' `p.text-loss`.
+  // has no text field to focus. Field messages are the forms' `p.text-loss`;
+  // with none, every message is in the alert by the button.
   useEffect(() => {
     if (!fields) return;
-    form.current?.querySelector("p.text-loss")?.scrollIntoView({ behavior: "smooth", block: "center" });
+    const target = form.current?.querySelector("p.text-loss") ?? form.current?.querySelector("[role=alert]");
+    target?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, [fields]);
 
   const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {

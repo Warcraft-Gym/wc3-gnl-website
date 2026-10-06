@@ -455,6 +455,30 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
 });
 
 describe("RouteSubmitForm: checks before it sends", () => {
+  it("lists a message no field shows in the alert, named by its place", async () => {
+    formCheck.on = true;
+    const [a, b] = maps[0].camps;
+    const route = {
+      title: "Archmage two camp start",
+      map: maps[0].slug,
+      race: "human",
+      hero: "not-a-hero",
+      summary: "Two quick camps before the first expansion goes down.",
+      author: "Tester",
+      stops: [{ campId: a.id }, { campId: b.id, note: "x".repeat(700) }],
+    };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify({ format: EXCHANGE_FORMAT, route }))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelectorAll("li[data-stop]").length).toBe(2));
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    const alert = await screen.findByRole("alert");
+    expect(alert).toHaveTextContent("Hero: Unknown hero icon");
+    expect(alert).toHaveTextContent("Stop 2, Note: Max 600 characters");
+    expect(submitCreepRoute).not.toHaveBeenCalled();
+  });
+
   it("keeps an empty form from the server and says what is missing", async () => {
     formCheck.on = true;
     const { container } = renderForm();

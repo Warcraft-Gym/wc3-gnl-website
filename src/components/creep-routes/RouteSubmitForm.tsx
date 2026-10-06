@@ -23,6 +23,7 @@ import { createSubmissionSchema, flattenErrors, routeCatalogue, routeFormInput }
 import { GAME_ICON_OPTIONS } from "@/lib/builds/icons";
 import { normalizePatch } from "@/lib/patches.mjs";
 import { FIX_FIELDS_MESSAGE, useFormCheck } from "@/lib/useFormCheck";
+import { ROUTE_SHOWN, routeErrorPlace, unshownErrors } from "@/lib/form-errors.mjs";
 
 const initial: SubmitState = { status: "idle" };
 
@@ -250,7 +251,10 @@ function RouteSubmitFormInner({
     const fields = check.fields ?? serverFields;
     return fields ? Object.keys(fields) : undefined;
   }, [check.fields, serverFields]);
-  const stopsJson = JSON.stringify(rowsToStops(stops));
+  const routeStops = rowsToStops(stops);
+  const stopsJson = JSON.stringify(routeStops);
+  // Stops are named by the list's numbers now; an edit after the check can shift them until the next submit.
+  const unshown = unshownErrors(errors, (key) => ROUTE_SHOWN.test(key), (key) => routeErrorPlace(key, routeStops));
   // The submit check's notes that do not block: a split whose paths are the same camps in the same order.
   const notes = stops.some((r) => sameCampSequence(r.split)) ? [SAME_CAMP_LINE] : [];
   // "Edit | Preview": the preview is the route page's own section (map and list) drawn from the draft.
@@ -449,6 +453,7 @@ function RouteSubmitFormInner({
           onTagsChange={setTags}
           errors={errors}
           errorMessage={errorMessage}
+          unshownErrors={unshown}
           notes={notes}
           pending={pending}
           submissionsOpen={submissionsOpen}

@@ -103,6 +103,28 @@ describe("BuildSubmitForm: checks before it sends", () => {
     expect(submitBuild).not.toHaveBeenCalled();
   });
 
+  it("lists a message no field shows in the alert, named by its step", async () => {
+    formCheck.on = true;
+    const payload = {
+      format: EXCHANGE_FORMAT_SINGLE,
+      build: {
+        title: "Fast Blademaster harass",
+        race: "orc",
+        summary: "Early harass with the Blademaster into a fast expansion.",
+        author: "Tester",
+        steps: [{ instruction: "Train a peon", icon: "not-an-icon" }, { instruction: "Build a burrow" }, { instruction: "Build an altar" }],
+      },
+    };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = render(<BuildSubmitForm />);
+    await screen.findByDisplayValue("Fast Blademaster harass");
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Step 1, Icon: Unknown icon");
+    expect(submitBuild).not.toHaveBeenCalled();
+  });
+
   it("sends a complete form", async () => {
     formCheck.on = true;
     const payload = {
