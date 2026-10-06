@@ -653,3 +653,161 @@ describe("RouteSubmitForm: paths blocks keep the target on screen", () => {
     expect(screen.getByRole("tabpanel")).toHaveAttribute("aria-labelledby", screen.getByRole("tab", { name: "Safe" }).id);
   });
 });
+
+describe("RouteSubmitForm: places mode, Move and the map preview", () => {
+  const [a, b, c] = maps[0].camps;
+  const their = String(maps[0].starts[1].player);
+  const scout = { campId: null, action: "Scout", place: { kind: "scout", at: { start: their } } };
+  const load = async (more: object[] = [], numbered = 2) => {
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: b.id }, ...more] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelectorAll("li[data-stop]").length).toBe(numbered));
+    return view;
+  };
+  const waypoint = () => screen.getByRole("button", { name: "Waypoint" });
+  const move = () => screen.getByRole("button", { name: "Move" });
+  const focusCamp = (container: HTMLElement, id: string) => fireEvent.focusIn([...container.querySelectorAll(`[data-camp="${id}"]`)].at(-1)!);
+  const openWaypoint = (container: HTMLElement) => fireEvent.click(container.querySelector("li[data-waypoint] button")!);
+
+  it("the preview: on keyboard focus with the next number, none for a camp in the list, no line when the list has no place", async () => {
+    const { container } = await load();
+    focusCamp(container, c.id);
+    expect(container.querySelector("svg [data-preview-label]")?.textContent).toBe("3");
+    expect(container.querySelectorAll("svg [data-preview] path").length).toBeGreaterThan(0);
+    focusCamp(container, a.id);
+    expect(container.querySelector("svg [data-preview]")).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: "Two paths" }));
+    focusCamp(container, c.id);
+    expect(container.querySelector("svg [data-preview]")).toBeInTheDocument();
+    expect(container.querySelectorAll("svg [data-preview] path").length).toBe(0);
+  });
+
+  it("in the normal state a click on a base's spot adds nothing; in places mode a camp takes no click", async () => {
+    const { container } = await load();
+    const rows = container.querySelectorAll("li").length;
+    fireEvent.click(container.querySelector('svg g[data-start="opponent"]')!);
+    expect(container.querySelectorAll("li").length).toBe(rows);
+    fireEvent.click(waypoint());
+    expect(container.querySelector(`[data-camp="${c.id}"]`)).toBeNull();
+    fireEvent.click(container.querySelector(`[data-camp-dot="${c.id}"]`)!);
+    expect(container.querySelectorAll("li").length).toBe(rows);
+    expect(screen.getAllByRole("button", { name: /^Add a waypoint at Gold mine \d$/ }).length).toBe(maps[0].mines.length);
+  });
+
+  it("a free-point click adds a waypoint where it was made", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-6" });
+    const { container } = await load();
+    fireEvent.click(waypoint());
+    fireEvent.click(container.querySelector("[data-places]")!, { clientX: 0, clientY: 0 });
+    expect(container.querySelector('li[data-waypoint="other"]')).toBeInTheDocument();
+    fireEvent.change(screen.getByRole("textbox", { name: "What happens" }), { target: { value: "Wait" } });
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
+    expect(stops[2].place).toEqual({ kind: "other", at: { x: 0, y: 0 } });
+  });
+
+  it("Cancel and Escape during Move return focus to Move", async () => {
+    const { container } = await load([scout]);
+    openWaypoint(container);
+    fireEvent.click(move());
+    fireEvent.click(screen.getByRole("button", { name: "Cancel" }));
+    await waitFor(() => expect(document.activeElement).toBe(move()));
+    fireEvent.click(move());
+    fireEvent.keyDown(move(), { key: "Escape" });
+    await waitFor(() => expect(document.activeElement).toBe(move()));
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+  });
+
+  it("Move keeps Bring", async () => {
+    const { container } = await load([{ ...scout, units: [{ icon: "footman", count: 2 }] }]);
+    openWaypoint(container);
+    fireEvent.click(move());
+    fireEvent.click(screen.getAllByRole("button", { name: /^Add a waypoint at Gold mine/ })[0]);
+    expect(within(container.querySelector("li[data-waypoint]") as HTMLElement).getByText("a gold mine")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Count" })).toHaveValue("2");
+  });
+
+  it("removing the row Move acts on ends places mode", async () => {
+    const { container } = await load([scout]);
+    openWaypoint(container);
+    fireEvent.click(move());
+    fireEvent.click(screen.getByRole("button", { name: "Remove stop" }));
+    expect(document.querySelector("[data-armed-bar]")).toBeNull();
+    expect(document.querySelector("[data-places]")).toBeNull();
+    expect(container.querySelector("li[data-waypoint]")).toBeNull();
+    await waitFor(() => expect(document.activeElement).toBe(waypoint()));
+  });
+
+  it("a click on an attack's mark or a pin's mark opens its row", async () => {
+    const { container } = await load([{ campId: null, action: "Harass", place: { kind: "attack", at: { start: their } } }, { ...scout, hero: false }], 3);
+    fireEvent.click(container.querySelector('svg g[data-stop-marker="3"]')!);
+    expect(container.querySelector('li[data-stop="3"]')).toHaveAttribute("aria-current", "step");
+    expect(screen.getByRole("button", { name: "Attack" })).toHaveAttribute("aria-pressed", "true");
+    fireEvent.click(container.querySelector("svg g[data-pin]")!);
+    expect(container.querySelector("li[data-pin]")).toHaveAttribute("aria-current", "step");
+  });
+
+  it("Waypoint is aria-disabled at the row cap", async () => {
+    const camps = maps[0].camps.slice(2, 12).map((camp) => ({ campId: camp.id }));
+    const ways = Array.from({ length: 8 }, (_, i) => ({ ...scout, action: `Scout ${i}` }));
+    await load([...camps, ...ways], 12);
+    expect(waypoint()).toHaveAttribute("aria-disabled", "true");
+    fireEvent.click(waypoint());
+    expect(document.querySelector("[data-places]")).toBeNull();
+  });
+
+  it("an action row shows Bring and the condition when they hold content, with no add buttons", async () => {
+    const { container } = await load([{ campId: null, action: "TP home", units: [{ icon: "footman", count: 2 }], condition: "Only if low" }], 3);
+    fireEvent.click(container.querySelector('li[data-stop="3"] button')!);
+    expect(document.querySelector("[data-bring]")).toBeInTheDocument();
+    expect(screen.getByRole("textbox", { name: "Condition" })).toHaveValue("Only if low");
+    expect(screen.queryByRole("button", { name: "Bring units" })).toBeNull();
+  });
+
+  it("an on-the-route waypoint, an attack and an action made in the builder submit the imported objects", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-7" });
+    // From FIXTURE_ROUTES: a scout at their base (on the route here), an attack on their base and TP home.
+    const way = { campId: null, action: "Scout where their Ancient of War goes", place: { kind: "scout", at: { start: their } } };
+    const attack = { campId: null, action: "Harass their base", place: { kind: "attack", at: { start: their } } };
+    const action = { campId: null, action: "TP home", note: "Buy the Ring of Protection off the Wisp's stock" };
+    const { container } = await load([way, attack, action], 4);
+    const text = (v: string) => fireEvent.change(screen.getByRole("textbox", { name: "What happens" }), { target: { value: v } });
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: "Add an attack at their base" }));
+    fireEvent.click(screen.getByRole("button", { name: "Scout" }));
+    text(way.action);
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: "Add an attack at their base" }));
+    text(attack.action);
+    fireEvent.click(waypoint());
+    fireEvent.click(screen.getByRole("button", { name: "No place" }));
+    text(action.action);
+    fireEvent.change(screen.getByLabelText("Note"), { target: { value: action.note } });
+
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
+    expect(stops.slice(5).map((s: object) => JSON.stringify(s))).toEqual(stops.slice(2, 5).map((s: object) => JSON.stringify(s)));
+    expect(stops[5]).toMatchObject(way);
+    expect(stops[6]).toMatchObject(attack);
+    expect(stops[7]).toMatchObject(action);
+  });
+});
+
+describe("RouteSubmitForm: Take all paths keeps the target", () => {
+  const [a, b, c] = maps[0].camps;
+  it("opening a stop in path 2 leaves the add line in path 1", async () => {
+    const arms = [{ label: "", stops: [{ campId: b.id }] }, { label: "", stops: [{ campId: c.id }] }];
+    const payload = { format: EXCHANGE_FORMAT, route: { title: "Imported route", map: maps[0].slug, stops: [{ campId: a.id }, { campId: null, split: { mode: "and", arms } }] } };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify(payload))}`;
+    const { container } = renderForm();
+    await waitFor(() => expect(container.querySelector("li[data-split]")).toBeInTheDocument());
+    fireEvent.click(screen.getByRole("button", { name: "Add stops to path 1" }));
+    expect(screen.getByRole("button", { name: "Add stops to path 2" })).toBeInTheDocument();
+    fireEvent.click([...container.querySelectorAll("li[data-stop]")].at(-1)!.querySelector("button")!);
+    expect(screen.getByRole("button", { name: "Add stops to path 2" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Add stops to path 1" })).toBeNull();
+  });
+});

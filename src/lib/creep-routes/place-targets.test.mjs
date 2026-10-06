@@ -27,3 +27,22 @@ test("a click within 6 px outside a disc takes that target; further out takes no
   assert.equal(nearTarget(100 + TARGET_R + 7, 100, t), -1);
   assert.equal(nearTarget(200, 100 - TARGET_R - 3, t), 1);
 });
+
+const apart = (out) => {
+  for (let a = 0; a < out.length; a++)
+    for (let b = a + 1; b < out.length; b++) assert.ok(Math.hypot(out[a].x - out[b].x, out[a].y - out[b].y) >= 2 * TARGET_R + TARGET_GAP - 0.5, `${a} and ${b} overlap`);
+};
+const inside = (out, w, h) => out.forEach((o) => assert.ok(o.x >= TARGET_R && o.x <= w - TARGET_R && o.y >= TARGET_R && o.y <= h - TARGET_R));
+
+test("an overlap pressed against a map edge is pushed apart and stays inside", () => {
+  const out = layoutTargets([{ x: 2, y: 150 }, { x: 4, y: 156 }, { x: 1, y: 144 }], 300, 300);
+  apart(out);
+  inside(out, 300, 300);
+});
+
+test("a map with four starts, each with a mine beside it: no two discs overlap", () => {
+  const starts = [{ x: 30, y: 30 }, { x: 370, y: 30 }, { x: 30, y: 370 }, { x: 370, y: 370 }];
+  const out = layoutTargets([...starts, ...starts.map((s) => ({ x: s.x + 8, y: s.y + 5 }))], 400, 400);
+  apart(out);
+  inside(out, 400, 400);
+});
