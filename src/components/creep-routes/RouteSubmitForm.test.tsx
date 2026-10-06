@@ -187,6 +187,33 @@ describe("RouteSubmitForm: the target and the add line", () => {
     return view;
   };
 
+  it("a click on a leg puts the next stop between its two stops; a second click puts it back at the end", async () => {
+    submitCreepRoute.mockResolvedValue({ status: "ok", slug: "test-route-leg" });
+    const [, , c, d] = maps[0].camps;
+    const { container } = await loadTwo();
+    const camp = (id: string) => fireEvent.click([...container.querySelectorAll(`[data-camp="${id}"]`)].at(-1)!);
+    const leg = () => container.querySelector('[data-leg="0>1"]')!;
+    expect(leg().getAttribute("aria-label")).toBe("Put the next step between stop 1 and stop 2");
+    fireEvent.click(leg());
+    expect(addLine(container)).toBe("2");
+    expect(screen.getByRole("button", { name: "Continue the route" })).toBeInTheDocument();
+    fireEvent.click(leg());
+    expect(addLine(container)).toBe("3");
+    fireEvent.keyDown(leg(), { key: "Enter" });
+    expect(addLine(container)).toBe("2");
+    camp(c.id);
+    // The target sits right after the new stop.
+    expect(addLine(container)).toBe("3");
+    fireEvent.click(screen.getByRole("button", { name: "Continue the route" }));
+    camp(d.id);
+
+    fireEvent.submit(container.querySelector("form")!);
+    await waitFor(() => expect(submitCreepRoute).toHaveBeenCalled());
+    const stops = JSON.parse(String((submitCreepRoute.mock.calls[0][1] as FormData).get("stopsJson")));
+    expect(stops.map((s: { campId: string }) => s.campId)).toEqual([a.id, c.id, b.id, d.id]);
+    expect(JSON.stringify({ ...stops[1], campId: d.id })).toBe(JSON.stringify(stops[3]));
+  });
+
   it("opening a stop never moves the target; a camp stop opens slim", async () => {
     const { container } = await loadTwo();
     expect(addLine(container)).toBe("3");

@@ -73,7 +73,8 @@ export const listAt = editorRows.listAt as (rows: StopRowData[], at: ListPlace) 
 /** Inserts a row at a place; a split only at the top level. */
 export const insertAt = editorRows.insertAt as (rows: StopRowData[], at: ListPlace, row: StopRowData) => StopRowData[];
 /** Where the next add lands (`editor-rows.mjs`): the route or one path, and `pos`, null for the end of that list. */
-export type Target = { splitId?: number; arm?: number; pos: number | null };
+/** Where the next step goes; a position keeps the ids of the rows around it (`editor-rows.mjs`). */
+export type Target = { splitId?: number; arm?: number; pos: number | null; after?: number | null; before?: number | null };
 export const ROUTE_END = editorRows.ROUTE_END as Target;
 /** The place a target names; a target whose path is gone is the end of the route. */
 export const targetPlace = editorRows.targetPlace as (rows: StopRowData[], target: Target | null) => ListPlace;
@@ -81,7 +82,9 @@ export const targetPlace = editorRows.targetPlace as (rows: StopRowData[], targe
 export const targetExists = editorRows.targetExists as (rows: StopRowData[], target: Target) => boolean;
 /** The first submit error the builder can open: a stop's key, or a path (block index and arm). */
 export const firstErrorAt = editorRows.firstErrorAt as (keys: string[]) => { key?: string; index: number; arm?: number } | null;
-export const targetAfterAdd = editorRows.targetAfterAdd as (target: Target) => Target;
+export const targetAfterAdd = editorRows.targetAfterAdd as (target: Target, id?: number) => Target;
+export const legTarget = editorRows.legTarget as (rows: StopRowData[], a: string, b: string) => Target | null;
+export const stepsAround = editorRows.stepsAround as (rows: StopRowData[], at: ListPlace) => { from: StopRowData | null; to: StopRowData | null };
 export const targetAfterRemovePath = editorRows.targetAfterRemovePath as (rows: StopRowData[], target: Target, splitId: number, arm: number) => Target;
 /** The add line at a place: the label the next stop takes there, and the row before it ("after stop 2"). */
 export const nextStop = editorRows.nextStop as (

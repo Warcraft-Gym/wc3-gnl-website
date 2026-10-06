@@ -135,7 +135,8 @@ export function builderRows(stops, choice = {}, slot = null) {
         rows.push({ type: "stop", key, label, stop: s, lane, arm: a, node: i, group, ...panel, marks: [ids[a]], ...(mode === "and" ? { block: n.key } : {}) });
       }
       lit.push({ id: ids[a], from, to: rows.length - 1, tone: here ? "gold" : "light" });
-      if (!here) rows.push({ type: "add", key: `${n.key}.add.${a}`, index: i, arm: a, lane, mode, length: arm.stops.length, group, ...panel, marks: [] });
+      // A path's end that is not the target keeps its quiet add line (the target may sit inside the path).
+      if (!here || slot.j < arm.stops.length) rows.push({ type: "add", key: `${n.key}.add.${a}`, index: i, arm: a, lane, mode, length: arm.stops.length, group, ...panel, marks: [] });
     });
     if (shown !== null) offs.push({ from: splitRow, to: rows.length, lanes: new Set(lanes.filter((l) => l.off).map((l) => l.lane)) });
     rows.push({ type: "after", key: `${n.key}.after`, index: i, mode, lanes, joins, marks: joins ? ids : [] });

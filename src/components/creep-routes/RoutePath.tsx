@@ -59,6 +59,9 @@ export const RoutePath = memo(function RoutePath({
   choice,
   campAt,
   layer,
+  activeLeg,
+  onLeg,
+  replacing = false,
 }: {
   map: CreepMap;
   stops: RouteStop[];
@@ -76,6 +79,12 @@ export const RoutePath = memo(function RoutePath({
   layer: "legs" | "nodes";
   /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
   ringStop?: string | null;
+  /** The leg the builder's target sits on (its two stop keys): dashed gold. */
+  activeLeg?: { a: string; b: string } | null;
+  /** The builder: a click on a leg inside one list puts the next step there. */
+  onLeg?: (a: string, b: string) => void;
+  /** The map previews a step on the active leg: that leg draws at 30%. */
+  replacing?: boolean;
 }) {
   const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
@@ -131,7 +140,8 @@ export const RoutePath = memo(function RoutePath({
     // A thin leg bows 12% of its length to the right of travel, so it never lies on a main leg.
     const bow = 0.24 * seg;
     const qx = (x1 + x2) / 2 - uy * bow, qy = (y1 + y2) / 2 + ux * bow;
-    return [{ x1, y1, x2, y2, qx, qy, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack }];
+    const active = activeLeg?.a === a.key && activeLeg?.b === b.key;
+    return [{ a, b, x1, y1, x2, y2, qx, qy, mx: (x1 + x2) / 2, my: (y1 + y2) / 2, angle: (Math.atan2(uy, ux) * 180) / Math.PI, style, attack, active }];
   });
   const pathOf = (list: typeof segments) =>
     list
@@ -141,12 +151,18 @@ export const RoutePath = memo(function RoutePath({
           : `M${g.x1.toFixed(1)},${g.y1.toFixed(1)}L${g.x2.toFixed(1)},${g.y2.toFixed(1)}`,
       )
       .join("");
-  const d = pathOf(segments.filter((g) => g.style === "solid" && !g.attack));
+  // The target's leg draws dashed gold on its own, over the same under-stroke.
+  const dActive = pathOf(segments.filter((g) => g.active));
+  const d = pathOf(segments.filter((g) => g.style === "solid" && !g.attack && !g.active));
   // A leg of an "and" path the hero does not walk: thin (1.25px), bowed, at 60%, no chevron.
-  const dOther = pathOf(segments.filter((g) => g.style === "thin" && !g.attack));
+  const dOther = pathOf(segments.filter((g) => g.style === "thin" && !g.attack && !g.active));
   // A leg into an attack stop, line and chevron, is the loss red over the same under-stroke.
-  const dAttack = pathOf(segments.filter((g) => g.style === "solid" && g.attack));
-  const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack));
+  const dAttack = pathOf(segments.filter((g) => g.style === "solid" && g.attack && !g.active));
+  const dOtherAttack = pathOf(segments.filter((g) => g.style === "thin" && g.attack && !g.active));
+  // A leg inside one list (the route, or one path) takes a click; legs from your start or into or out of a path do not.
+  const listOf = (k: string) => (k.includes(".") ? k.split(".").slice(0, 2).join(".") : "");
+  const clickable = onLeg ? segments.filter((g) => g.a.key !== "start" && listOf(g.a.key) === listOf(g.b.key)) : [];
+  const nameOf = (p: PathNode) => (p.label ? `stop ${p.label}` : p.stop.action?.trim() || "the waypoint");
   const under = { stroke: "var(--wg-bg)", strokeOpacity: 0.7, strokeLinejoin: "round", strokeLinecap: "round" } as const;
 
   return (
@@ -173,6 +189,12 @@ export const RoutePath = memo(function RoutePath({
           <path d={dOtherAttack} fill="none" stroke={ATTACK} strokeWidth="1.25" strokeLinejoin="round" strokeLinecap="round" />
         </g>
       ) : null}
+      {dActive ? (
+        <g data-route-active-leg opacity={replacing ? 0.3 : undefined}>
+          <path d={dActive} fill="none" strokeWidth="4" {...under} />
+          <path d={dActive} fill="none" stroke="var(--wg-gold)" strokeWidth="2" strokeDasharray="4 3" />
+        </g>
+      ) : null}
       {/* A 6px direction chevron at the middle of every leg, same light fill. */}
       {segments.map((g, i) => g.style !== "solid" ? null : (
         <path
@@ -186,6 +208,32 @@ export const RoutePath = memo(function RoutePath({
           {...under}
         />
       ))}
+      {/* Each leg's hit line: 12 CSS px, transparent, gold on hover or focus. */}
+      {clickable.map((g) => {
+        const leg = pathOf([g]);
+        const pick = () => onLeg?.(g.a.key, g.b.key);
+        return (
+          <g
+            key={`${g.a.key}>${g.b.key}`}
+            data-leg={`${g.a.key}>${g.b.key}`}
+            role="button"
+            tabIndex={0}
+            aria-pressed={g.active}
+            aria-label={`Put the next step between ${nameOf(g.a)} and ${nameOf(g.b)}`}
+            onClick={pick}
+            onKeyDown={(e) => {
+              if (e.key !== "Enter" && e.key !== " ") return;
+              e.preventDefault();
+              e.stopPropagation();
+              pick();
+            }}
+            className="group cursor-pointer outline-none"
+          >
+            <path d={leg} fill="none" stroke="var(--wg-gold)" strokeWidth="2" strokeLinecap="round" className={cn("opacity-0 group-hover:opacity-100 group-focus-visible:opacity-100", g.active && "hidden")} pointerEvents="none" />
+            <path d={leg} fill="none" stroke="transparent" strokeWidth={12} vectorEffect="non-scaling-stroke" pointerEvents="stroke" />
+          </g>
+        );
+      })}
     </g>
   );
 });

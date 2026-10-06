@@ -32,6 +32,10 @@ import {
   targetAfterRemovePath,
   targetPlace,
   withSavedModes,
+  legTarget,
+  stepsAround,
+
+  insertAt,
 } from "./editor-rows.mjs";
 
 const forkRow = (...arms) => newRow({ split: { mode: "or", arms: arms.map((campIds, i) => ({ id: i, label: "", stops: campIds.map((campId) => newRow({ campId })) })) } });
@@ -372,4 +376,55 @@ test("firstErrorAt: the first stop field or path error in the keys' order", () =
   assert.deepEqual(firstErrorAt(["stops.1.split.arms.1.label", "stops.3.note"]), { index: 1, arm: 1 });
   assert.deepEqual(firstErrorAt(["stops.1.split.arms.0.stops"]), { index: 1, arm: 0 });
   assert.equal(firstErrorAt(["stops.1.split", "map"]), null);
+});
+
+test("a leg inside one list puts the target right after its first step; legs across lists or from the start do not", () => {
+  const rows = [newRow({ campId: "c1" }), newRow({ action: "TP" }), newRow({ campId: "c2" }), forkRow(["c3", "c4"], ["c5"])];
+  const [c1, tp, , block] = rows;
+  assert.deepEqual(legTarget(rows, "0", "2"), { pos: 1, after: c1.id, before: tp.id });
+  const c3 = block.split.arms[0].stops[0];
+  const c4 = block.split.arms[0].stops[1];
+  assert.deepEqual(legTarget(rows, "3.a.0", "3.a.1"), { splitId: block.id, arm: 0, pos: 1, after: c3.id, before: c4.id });
+  assert.equal(legTarget(rows, "2", "3.a.0"), null);
+  assert.equal(legTarget(rows, "start", "0"), null);
+});
+
+test("steps around a place: the last place step before it and the first after it, pins and actions skipped", () => {
+  const pin = newRow({ place: { kind: "build", at: { x: 0.5, y: 0.5 } }, hero: false });
+  const rows = [newRow({ campId: "c1" }), pin, newRow({ action: "TP" }), newRow({ campId: "c2" }), forkRow(["c3"], ["c4"])];
+  const { from, to } = stepsAround(rows, { index: 2 });
+  assert.equal(from.campId, "c1");
+  assert.equal(to.campId, "c2");
+  assert.deepEqual(stepsAround(rows, { index: 4 }).to, null);
+  assert.deepEqual(stepsAround(rows, { index: 5 }), { from: null, to: null });
+});
+
+test("a position stays between the same two steps when rows above it are added, removed, moved or dropped", () => {
+  const rows = [newRow({ campId: "c1" }), newRow({ campId: "c2" }), newRow({ campId: "c3" }), newRow({ campId: "c4" })];
+  const t = legTarget(rows, "2", "3");
+  assert.deepEqual(targetPlace(rows, t), { index: 3 });
+  // A row added above.
+  assert.deepEqual(targetPlace(insertAt(rows, { index: 0 }, newRow({ campId: "c9" })), t), { index: 4 });
+  // A row removed above.
+  assert.deepEqual(targetPlace(removeRow(rows, rows[0].id), t), { index: 2 });
+  // A row moved from above to below.
+  assert.deepEqual(ids(moveRowTo(rows, rows[0].id, { index: 4 })), ["c2", "c3", "c4", "c1"]);
+  assert.deepEqual(targetPlace(moveRowTo(rows, rows[0].id, { index: 4 }), t), { index: 2 });
+  // The step after it removed: right after the step before; both gone: clamped into its list.
+  assert.deepEqual(targetPlace(removeRow(rows, rows[3].id), t), { index: 3 });
+  assert.deepEqual(targetPlace(removeRow(removeRow(removeRow(rows, rows[3].id), rows[2].id), rows[1].id), t), { index: 1 });
+  // An add at the position: the target sits right after the new step.
+  const added = newRow({ campId: "c8" });
+  const after = targetAfterAdd(t, added.id);
+  assert.deepEqual(targetPlace(insertAt(rows, targetPlace(rows, t), added), after), { index: 4 });
+});
+
+test("a position in the kept path stays between its steps when the block turns into plain stops", () => {
+  const rows = [newRow({ campId: "c1" }), forkRow(["c2", "c3"], ["c4"])];
+  const block = rows[1];
+  const t = legTarget(rows, "1.a.0", "1.a.1");
+  const next = targetAfterRemovePath(rows, t, block.id, 1);
+  assert.equal(next.splitId, undefined);
+  assert.deepEqual(targetPlace(removePath(rows, block.id, 1), next), { index: 2 });
+  assert.equal(targetAfterRemovePath(rows, t, block.id, 0), ROUTE_END);
 });

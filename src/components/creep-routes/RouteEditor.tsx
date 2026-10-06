@@ -29,6 +29,8 @@ import {
   sameCampSequence,
   setArmLabel,
   targetAfterAdd,
+  legTarget,
+  stepsAround,
   targetAfterRemovePath,
   targetExists,
   firstErrorAt,
@@ -40,7 +42,6 @@ import {
   type UndoEntry,
 } from "./stop-rows";
 import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
-import { isPin } from "@/lib/creep-routes/place.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
@@ -299,17 +300,21 @@ export function RouteEditor({
       : { index: stops.findIndex((r) => r.id === at.splitId), arm: at.arm, j: at.index, label: next.label };
 
   // The map's preview of a camp click: a leg from the last place before the target in its list (a paths
-  // block or the list's start ends the search), skipped for camps already in that list.
-  const preview = (() => {
-    const list = listAt(stops, at) as StopRowData[];
-    let from: StopRowData | null = null;
-    for (let i = at.index - 1; i >= 0 && !from; i--) {
-      const r = list[i];
-      if (r.split) break;
-      if (r.campId || (r.place && !isPin(r))) from = r;
-    }
-    return { from, label: next.label, skip: new Set(list.flatMap((r) => (r.campId ? [r.campId] : []))) };
-  })();
+  // block or the list's start ends the search) and, in the middle of a list, a leg on to the next place;
+  // skipped for camps already in that list. Those two places are the target's leg, dashed gold on the map.
+  const around = stepsAround(stops, at);
+  const preview = {
+    ...around,
+    label: next.label,
+    skip: new Set((listAt(stops, at) as StopRowData[]).flatMap((r) => (r.campId ? [r.campId] : []))),
+  };
+  const activeLeg = around.from && around.to ? { a: keyOfRow(stops, around.from.id)!, b: keyOfRow(stops, around.to.id)! } : null;
+  /** A click on a leg puts the target right after its first step; on the target's own leg, back at the end of the route. */
+  const onLeg = (a: string, b: string) => {
+    if (activeLeg?.a === a && activeLeg.b === b) return setTarget(ROUTE_END);
+    const t = legTarget(stops, a, b);
+    if (t) setTarget(t);
+  };
 
   /** Adds `row` at the target and opens it; a paths block always goes at the end of the route. A camp or
    *  attack added to path 2.. of an "and" block arrives with the hero off. `kind` is what it adds ("stop"
@@ -322,7 +327,7 @@ export function RouteEditor({
     step(label);
     setStops(insertAt(stops, at, heroOff ? { ...row, hero: false } : row));
     setSelectedId(row.id);
-    if (!row.split) setTarget(targetAfterAdd(target));
+    if (!row.split) setTarget(targetAfterAdd(target, row.id));
     if (split && at.arm !== undefined) setTabs((t) => ({ ...t, [split.id]: at.arm! }));
     return row.id;
   };
@@ -597,6 +602,8 @@ export function RouteEditor({
           choice={choice}
           preview={preview}
           ringStop={ringStop}
+          activeLeg={activeLeg}
+          onLeg={onLeg}
         />
         {places ? <ArmedBar move={places.moveId !== null} noPlaceCap={Boolean(addBlocked(stops, "stop"))} onNoPlace={addNoPlace} onCancel={leavePlaces} /> : null}
         <MapLegend />

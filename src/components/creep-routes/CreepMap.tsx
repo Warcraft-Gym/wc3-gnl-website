@@ -104,8 +104,13 @@ export type CreepMapProps = {
    *  picks a free point; camps off the route are dim dots, the route at 60%, and nothing else takes a click. */
   placesMode?: boolean;
   /** Builder: the stop a click adds is drawn while a camp outside `skip` is pointed at or focused, as a
-   *  dashed leg from `from` (the last place of the target list, none without one) and `label` in a dashed gold circle. */
-  preview?: { from: Pick<RouteStop, "campId" | "place"> | null; label: string; skip: Set<string> };
+   *  dashed leg from `from` (the last place of the target list, none without one) and `label` in a dashed gold circle;
+   *  with `to` (the next place after a target in the middle of a list) a second dashed leg from the spot to it. */
+  preview?: { from: Pick<RouteStop, "campId" | "place"> | null; to?: Pick<RouteStop, "campId" | "place"> | null; label: string; skip: Set<string> };
+  /** Builder: the leg the target sits on (its two stop keys), dashed gold. */
+  activeLeg?: { a: string; b: string } | null;
+  /** Builder: a click on a leg inside one list puts the next step there; none in places mode. */
+  onLeg?: (a: string, b: string) => void;
   /** The stop whose row is pointed at or focused in the list: its mark gets a ring. */
   ringStop?: string | null;
   className?: string;
@@ -202,9 +207,15 @@ function NeutralMarker({ shop, iw, ih }: { shop: MapShop; iw: number; ih: number
 
 /** The stop a click would add: a dashed leg (the route line's, at 75%) from the last place to the spot,
  *  ending at the edge of each mark, and the number the stop takes in a dashed gold circle at the spot's upper right. */
-export function PreviewStep({ from, to, label, attack = false }: { from: { x: number; y: number; trim: number } | null; to: { x: number; y: number; trim: number }; label?: string; attack?: boolean }) {
-  const leg = from ? offsetLeg(from.x, from.y, to.x, to.y, from.trim, to.trim) : null;
-  const d = leg ? `M${leg.x1.toFixed(1)},${leg.y1.toFixed(1)}L${leg.x2.toFixed(1)},${leg.y2.toFixed(1)}` : "";
+type Spot = { x: number; y: number; trim: number };
+export function PreviewStep({ from, to, next, label, attack = false }: { from: Spot | null; to: Spot; next?: Spot | null; label?: string; attack?: boolean }) {
+  const path = (p: Spot, q: Spot) => {
+    const leg = offsetLeg(p.x, p.y, q.x, q.y, p.trim, q.trim);
+    return leg ? `M${leg.x1.toFixed(1)},${leg.y1.toFixed(1)}L${leg.x2.toFixed(1)},${leg.y2.toFixed(1)}` : "";
+  };
+  const d = from ? path(from, to) : "";
+  // A step in the middle of a list: the leg on to the next step, in the route line's colour.
+  const dNext = next ? path(to, next) : "";
   const r = STOP_RADIUS * 0.8;
   const cx = to.x + STOP_RADIUS * 0.75, cy = to.y - STOP_RADIUS * 0.75;
   return (
@@ -213,6 +224,12 @@ export function PreviewStep({ from, to, label, attack = false }: { from: { x: nu
         <g opacity={0.75}>
           <path d={d} fill="none" stroke="var(--wg-bg)" strokeOpacity={0.7} strokeWidth={4} strokeDasharray="4 3" />
           <path d={d} fill="none" stroke={attack ? "var(--wg-loss)" : "rgba(255,255,255,.85)"} strokeWidth={2} strokeDasharray="4 3" />
+        </g>
+      ) : null}
+      {dNext ? (
+        <g data-preview-next opacity={0.75}>
+          <path d={dNext} fill="none" stroke="var(--wg-bg)" strokeOpacity={0.7} strokeWidth={4} strokeDasharray="4 3" />
+          <path d={dNext} fill="none" stroke="rgba(255,255,255,.85)" strokeWidth={2} strokeDasharray="4 3" />
         </g>
       ) : null}
       {label ? (
@@ -273,6 +290,8 @@ export function CreepMap({
   placesMode = false,
   preview,
   ringStop = null,
+  activeLeg = null,
+  onLeg,
   className,
 }: CreepMapProps) {
   // The SVG <image> is fetched only once the parser reaches the map, so the
@@ -485,6 +504,9 @@ export function CreepMap({
   const layout = placesMode ? layoutTargets(targets.map((t) => ({ x: t.x * pw, y: t.y * ph })), pw, ph) : [];
   const hovered = hoverTarget !== null ? targets[hoverTarget] : undefined;
   const hoveredAttack = hovered?.place.kind === "attack";
+  const previewNext = preview?.to ? spotOf(preview.to) : null;
+  // A preview of a step on the target's leg: that leg draws at 30%.
+  const replacing = Boolean(previewNext && ((previewTo && preview) || (hovered && preview)));
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
     opponentStartCount === 1 ? "" : "s"
@@ -516,7 +538,7 @@ export function CreepMap({
           <image href={map.minimapUrl} x={0} y={0} width={iw} height={ih} preserveAspectRatio="none" />
           {route ? (
             <g opacity={placesMode ? 0.6 : undefined}>
-              <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="legs" />
+              <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="legs" activeLeg={activeLeg} onLeg={placesMode ? undefined : onLeg} replacing={replacing} />
             </g>
           ) : null}
           {map.starts.map((s, i) => (
@@ -565,7 +587,7 @@ export function CreepMap({
               <RoutePath map={map} stops={route.stops} activeStop={activeStop} youStart={youStartIndex} onStopSelect={onStopSelect} choice={choice} campAt={campAt} layer="nodes" ringStop={ringStop} />
             </g>
           ) : null}
-          {previewTo && preview ? <PreviewStep from={preview.from ? spotOf(preview.from) : null} to={previewTo} label={preview.label} /> : null}
+          {previewTo && preview ? <PreviewStep from={preview.from ? spotOf(preview.from) : null} to={previewTo} next={previewNext} label={preview.label} /> : null}
           {/* A target pushed off its spot: a 1px line back to the true spot, which is what gets stored. */}
           {layout.map((o, i) =>
             o.moved ? (
@@ -579,6 +601,7 @@ export function CreepMap({
             <PreviewStep
               from={preview.from ? spotOf(preview.from) : null}
               to={{ x: hovered.x * iw, y: hovered.y * ih, trim: nodeTrim(hoveredAttack ? STOP_RADIUS : WAYPOINT_RADIUS) }}
+              next={previewNext}
               label={hoveredAttack ? preview.label : undefined}
               attack={hoveredAttack}
             />

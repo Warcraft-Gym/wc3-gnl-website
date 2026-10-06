@@ -6,6 +6,7 @@
  * hold, so every move has one rule. Typed in `stop-rows.ts`.
  */
 import { flatStops } from "./stop-numbers.mjs";
+import { isPin } from "./place.mjs";
 
 /** A new id for an editor row, path or Bring entry, unique in this page; never saved. */
 let lastId = 0;
@@ -134,13 +135,30 @@ export function insertAt(rows, at, row) {
   return updateArm(rows, at.splitId, at.arm, (stops) => [...stops.slice(0, at.index), row, ...stops.slice(at.index)]);
 }
 
-/** The builder's target, where the next add lands: the route (no `splitId`) or path `arm` of the block
- *  `splitId`, and `pos`, null for the end of that list or an index in it. Opening a stop never moves it. */
+/** The end of the route, the builder's first target. Opening a stop never moves the target. */
 export const ROUTE_END = { pos: null };
 
-/** The place a target names; a target whose path is gone is the end of the route. */
+/** The builder's target, where the next add lands: the route (no `splitId`) or path `arm` of the block
+ *  `splitId`, and `pos`, null for the end of that list or an index in it. A position also holds the ids
+ *  of the rows around it (`after`, `before`), so it stays between the same two steps while rows move. */
+function anchored(rows, t) {
+  const inList = (x) => x && x.splitId === t.splitId && x.arm === t.arm;
+  const a = t.after != null ? locate(rows, t.after) : null;
+  const b = t.before != null ? locate(rows, t.before) : null;
+  if (inList(a) && inList(b) && b.index === a.index + 1) return b;
+  if (inList(b)) return b;
+  if (inList(a)) return { ...a, index: a.index + 1 };
+  return null;
+}
+
+/** The place a target names; a position whose neighbours are gone is clamped into its list; a target
+ *  whose path is gone is the end of the route. */
 export function targetPlace(rows, target) {
   const t = target ?? ROUTE_END;
+  if (t.pos !== null && targetExists(rows, t)) {
+    const at = anchored(rows, t);
+    if (at) return at;
+  }
   if (t.splitId === undefined) return { index: t.pos === null ? rows.length : Math.min(t.pos, rows.length) };
   const list = rows.find((r) => r.id === t.splitId)?.split?.arms[t.arm]?.stops;
   if (!list) return { index: rows.length };
@@ -165,17 +183,50 @@ export function firstErrorAt(keys) {
   return null;
 }
 
-/** The target after an add at it: the end stays the end; a place in the middle moves past the new row. */
-export function targetAfterAdd(target) {
-  return target.pos === null ? target : { ...target, pos: target.pos + 1 };
+/** The target after adding row `id` at it: the end stays the end; a place in the middle moves past the new row. */
+export function targetAfterAdd(target, id) {
+  if (target.pos === null) return target;
+  return id === undefined ? { ...target, pos: target.pos + 1 } : { ...target, pos: target.pos + 1, after: id };
+}
+
+/** The target a click on the leg from step `a` to step `b` sets (their stop-list keys): right after `a`
+ *  in their list. Null for a leg that is not inside one list (from your start, or into or out of a path). */
+export function legTarget(rows, a, b) {
+  const list = (k) => (k.includes(".") ? k.split(".").slice(0, 2).join(".") : "");
+  if (a === "start" || b === "start" || list(a) !== list(b)) return null;
+  const from = rowAtKey(rows, a);
+  const at = from ? locate(rows, from.id) : null;
+  if (!at) return null;
+  const before = listAt(rows, at)[at.index + 1];
+  const t = { pos: at.index + 1, after: from.id, before: before?.id ?? null };
+  return at.splitId === undefined ? t : { splitId: at.splitId, arm: at.arm, ...t };
+}
+
+/** The steps on the line around place `at` in its list: `from`, the last place step before it, and `to`,
+ *  the first after it (null at the end of the list, or past a paths block). Pins are not on the line. */
+export function stepsAround(rows, at) {
+  const list = listAt(rows, at);
+  const onLine = (r) => Boolean(r.campId || (r.place && !isPin(r)));
+  let from = null, to = null;
+  for (let i = at.index - 1; i >= 0 && !from; i--) {
+    if (list[i].split) break;
+    if (onLine(list[i])) from = list[i];
+  }
+  for (let i = at.index; i < list.length && !to; i++) {
+    if (list[i].split) break;
+    if (onLine(list[i])) to = list[i];
+  }
+  return { from, to };
 }
 
 /** The target after removing path `arm` of block `splitId`: the route when it held that path or the
- *  block turns into plain stops; a later path of a block that stays shifts down one. */
+ *  block turns into plain stops (a position in the kept path stays between its steps); a later path of a block that stays shifts down one. */
 export function targetAfterRemovePath(rows, target, splitId, arm) {
   if (target.splitId !== splitId) return target;
   const paths = rows.find((r) => r.id === splitId)?.split?.arms.length ?? 0;
-  if (target.arm === arm || paths <= 2) return ROUTE_END;
+  if (target.arm === arm) return ROUTE_END;
+  // The block turns into plain stops: a position stays between its two steps, now on the route.
+  if (paths <= 2) return target.pos === null ? ROUTE_END : { pos: target.pos, after: target.after, before: target.before };
   return target.arm > arm ? { ...target, arm: target.arm - 1 } : target;
 }
 
