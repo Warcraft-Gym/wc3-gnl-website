@@ -925,4 +925,47 @@ describe("RouteSubmitForm: checks before it sends", () => {
 
     await waitFor(() => expect(submitCreepRoute).toHaveBeenCalledTimes(1));
   });
+
+  // A route that passes every check but its paths block, with path A shown.
+  const withPaths = async (arms: { label: string; stops: { campId: string; note?: string }[] }[]) => {
+    formCheck.on = true;
+    const [a] = maps[0].camps;
+    const route = {
+      title: "Archmage two camp start",
+      map: maps[0].slug,
+      race: "human",
+      summary: "Two quick camps before the first expansion goes down.",
+      author: "Tester",
+      stops: [{ campId: a.id }, { campId: null, split: { mode: "or", arms } }],
+    };
+    window.location.hash = `#${IMPORT_HASH_KEY}=${encodeForHash(JSON.stringify({ format: EXCHANGE_FORMAT, route }))}`;
+    const view = renderForm();
+    await waitFor(() => expect(view.container.querySelector("li[data-split]")).toBeInTheDocument());
+    expect(screen.getByRole("tab", { name: "Fast" })).toHaveAttribute("aria-selected", "true");
+    return view;
+  };
+
+  it("a path with no name in a hidden tab: its tab shows, focus goes to its name field", async () => {
+    const [, b, c] = maps[0].camps;
+    const { container } = await withPaths([{ label: "Fast", stops: [{ campId: b.id }] }, { label: "", stops: [{ campId: c.id }] }]);
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    await waitFor(() => expect(document.activeElement).toHaveAccessibleName("Path B name"));
+    expect(screen.getByRole("tab", { name: "Path B" })).toHaveAttribute("aria-selected", "true");
+    expect(screen.getByText("Say when to take this path")).toBeInTheDocument();
+    expect(screen.getByRole("alert")).toHaveTextContent("Please fix the highlighted fields.");
+    expect(submitCreepRoute).not.toHaveBeenCalled();
+  });
+
+  it("a message no field shows, in a hidden path: the alert names its place and its tab shows", async () => {
+    const [, b, c] = maps[0].camps;
+    const { container } = await withPaths([{ label: "Fast", stops: [{ campId: b.id }] }, { label: "Safe", stops: [{ campId: c.id, note: "x".repeat(700) }] }]);
+
+    fireEvent.submit(container.querySelector("form")!);
+
+    expect(await screen.findByRole("alert")).toHaveTextContent("Stop 2b, Note: Max 600 characters");
+    expect(screen.getByRole("tab", { name: "Safe" })).toHaveAttribute("aria-selected", "true");
+    expect(submitCreepRoute).not.toHaveBeenCalled();
+  });
 });
