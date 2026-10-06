@@ -82,7 +82,8 @@ export function PlaceTargets({
         const near = box.width && box.height ? nearTarget((x / box.width) * width, (y / box.height) * height, layout) : -1;
         if (near >= 0) return onPick(targets[near].place);
         const at = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
-        onPick({ kind: "build", at: { x: at(x / (box.width || 1)), y: at(y / (box.height || 1)) } });
+        const point = { x: at(x / (box.width || 1)), y: at(y / (box.height || 1)) };
+        onPick({ kind: kindForClick(point, ""), at: point } as Place);
       }}
     >
       {targets.map((t, i) => {
