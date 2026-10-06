@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Coins, House, ShoppingBag } from "lucide-react";
 import type { CreepMap, Place, PlaceAt } from "@/lib/creep-routes/types";
 import { kindForClick } from "@/lib/creep-routes/place.mjs";
@@ -20,7 +20,8 @@ export type PlaceTarget = {
   base?: "you" | "them";
 };
 
-/** Every base, gold mine and shop with an icon, with the kind a click there starts with (`kindForClick`). */
+/** Every base, gold mine and shop with an icon, with the kind a click there starts with (`kindForClick`).
+ *  A name several targets share is numbered in map order ("Gold mine 2", "Their base 2"). */
 export function placeTargetsOf(map: CreepMap, youStart: number): PlaceTarget[] {
   const youPlayer = String(map.starts[youStart]?.player ?? "");
   const target = (key: string, at: PlaceAt, x: number, y: number, label: string, glyph: PlaceTarget["glyph"], base?: PlaceTarget["base"]): PlaceTarget => ({
@@ -32,7 +33,7 @@ export function placeTargetsOf(map: CreepMap, youStart: number): PlaceTarget[] {
     glyph,
     base,
   });
-  return [
+  const all = [
     ...map.starts.map((s, i) =>
       target(`start-${s.player}`, { start: String(s.player) }, s.x, s.y, i === youStart ? "Your base" : "Their base", "start", i === youStart ? "you" : "them"),
     ),
@@ -42,6 +43,20 @@ export function placeTargetsOf(map: CreepMap, youStart: number): PlaceTarget[] {
       return icon ? [target(`shop-${s.id}`, { shop: s.id }, s.x, s.y, icon.label, "shop")] : [];
     }),
   ];
+  const count = new Map<string, number>();
+  for (const t of all) count.set(t.label, (count.get(t.label) ?? 0) + 1);
+  const seen = new Map<string, number>();
+  return all.map((t) => {
+    if (count.get(t.label)! < 2) return t;
+    const n = (seen.get(t.label) ?? 0) + 1;
+    seen.set(t.label, n);
+    return { ...t, label: `${t.label} ${n}` };
+  });
+}
+
+/** A target button's name: their base adds an attack, any other target a waypoint. */
+export function targetName(t: PlaceTarget) {
+  return t.place.kind === "attack" ? `Add an attack at ${t.label.replace(/^Their/, "their")}` : `Add a waypoint at ${t.label}`;
 }
 
 const GLYPH = { start: House, mine: Coins, shop: ShoppingBag };
@@ -71,6 +86,8 @@ export function PlaceTargets({
   snap?: number | null;
 }) {
   const [hoverShown, setShown] = useState<number | null>(null);
+  // A pick, Cancel or Escape unmounts the targets with no pointer-leave or blur: the map's preview clears.
+  useEffect(() => () => onHover(null), [onHover]);
   const dragging = snap !== undefined;
   const shown = dragging ? snap : hoverShown;
   const show = (i: number | null) => {
@@ -88,6 +105,7 @@ export function PlaceTargets({
         const x = e.clientX - box.left, y = e.clientY - box.top;
         const near = box.width && box.height ? nearTarget((x / box.width) * width, (y / box.height) * height, layout) : -1;
         if (near >= 0) return onPick(targets[near].place);
+        // ponytail: a free point is pointer-only, no keyboard path picks one; a keyboard user takes a target or "No place".
         const at = (v: number) => Math.round(Math.min(1, Math.max(0, v)) * 1000) / 1000;
         const point = { x: at(x / (box.width || 1)), y: at(y / (box.height || 1)) };
         onPick({ kind: kindForClick(point, ""), at: point } as Place);
@@ -103,7 +121,7 @@ export function PlaceTargets({
             data-place-target={t.glyph}
             data-snap={(dragging && snap === i) || undefined}
             tabIndex={dragging ? -1 : undefined}
-            aria-label={`Add a waypoint at ${t.label}`}
+            aria-label={targetName(t)}
             style={{ left: `${(spot.x / width) * 100}%`, top: `${(spot.y / height) * 100}%` }}
             className="absolute -ml-4 -mt-4 grid size-8 cursor-pointer place-items-center rounded-full border-[1.5px] border-gold bg-bg text-gold hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg data-snap:outline-2 data-snap:outline-offset-2 data-snap:outline-gold"
             onClick={(e) => {

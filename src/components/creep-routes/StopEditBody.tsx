@@ -51,8 +51,7 @@ const textarea =
   "w-full resize-y rounded border border-line bg-surface/60 px-3 py-2 text-sm leading-relaxed text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
 
 /** The Note field, plus its "what does this do" hint. Shared by the camp
- *  and base-action layouts below — a base-action row has no Bring/Condition
- *  (F009: those make no sense for "TP home"), but every stop gets a note.
+ *  and base-action layouts below; every stop gets a note.
  *  A camp stop (`camp`) keeps the hint in the placeholder. */
 function NoteField({ value, onChange, camp }: { value: string; onChange: (v: string) => void; camp?: boolean }) {
   const remaining = STOP_NOTE_MAX - value.length;
@@ -85,8 +84,8 @@ const KINDS: { id: PlaceKind; label: string; hint: string }[] = [
   { id: "expand", label: "Expand", hint: "e.g. Take the natural expansion" },
   { id: "build", label: "Build", hint: "e.g. Build a second Altar" },
   { id: "scout", label: "Scout", hint: "e.g. Scout their hero" },
-  { id: "other", label: "Other", hint: "e.g. Wait here until the creeps sleep" },
   { id: "attack", label: "Attack", hint: "e.g. Harass their workers" },
+  { id: "other", label: "Other", hint: "e.g. Wait here until the creeps sleep" },
 ];
 
 const iconButton = "grid size-9 shrink-0 place-items-center rounded border border-line text-muted hover:text-gold disabled:opacity-30";
@@ -132,9 +131,9 @@ export function StopTools({
  * level, and `StopTools`), this replaces its body. A camp stop: the kill order
  * picker and the note. Any other step (a waypoint, a pin, an attack or a step with
  * no place): the kind buttons, then the switch "On the route | Pin" and "Move", its text
- * and the note; a step with no place has only its text and the note. Then Bring and the
- * condition as dashed add buttons until used (a field with content always shows); the
- * hero is Bring's first entry on a camp or attack stop only.
+ * and the note. Then Bring and the condition as dashed add buttons until used (a field
+ * with content always shows); a step with no place gets no add buttons, so it shows them
+ * only with content. The hero is Bring's first entry on a camp or attack stop only.
  */
 export function StopEditBody({
   stop,
@@ -168,6 +167,7 @@ export function StopEditBody({
   onMove?: () => void;
 }) {
   const isCamp = Boolean(stop.campId);
+  const isAction = !isCamp && !stop.place;
   // The hero is Bring's first entry on a camp or attack stop; a waypoint has none (a pin is the switch's).
   const heroEntry = Boolean(stop.campId || stop.place?.kind === "attack");
   const heroOff = heroEntry && Boolean(absent ?? stop.hero === false);
@@ -333,13 +333,10 @@ export function StopEditBody({
       ) : null}
 
       <NoteField value={stop.note} onChange={(v) => onChange({ note: v })} camp={isCamp} />
-      {/* A step with no place (an action) has only its text and the note. */}
-      {isCamp || stop.place ? (
-        <>
-
       {bring}
       {condition}
-      {showBring && showCondition ? null : (
+      {/* A step with no place (an action) gets no add buttons; Bring, the condition and pictures show only with content. */}
+      {isAction || (showBring && showCondition) ? null : (
         <div className="flex flex-wrap gap-1.5">
           {showBring ? null : (
             <button
@@ -369,15 +366,13 @@ export function StopEditBody({
       )}
 
       {/* A camp stop names its pictures only when it has some. */}
-      {isCamp && !stop.pictures ? null : (
+      {(isCamp || isAction) && !stop.pictures ? null : (
         <p className="text-[0.65rem] text-faint">
           {stop.pictures
             ? `${stop.pictures} ${stop.pictures === 1 ? "picture stays" : "pictures stay"} with this stop`
             : "A coach can add pictures in the Studio after review"}
         </p>
       )}
-        </>
-      ) : null}
     </div>
   );
 }

@@ -47,11 +47,11 @@ export function QuietAdd({ children, onClick }: { children: React.ReactNode; onC
 }
 
 // A waypoint is a step at a place with no creeps. The line goes through it, or it is a pin the line skips.
-// A step with no place is an action ("No place"). Who goes is Bring, as on any stop.
+// A step with no place is an action ("No place"): its text and note, and Bring or a condition only when they hold content.
 export type WayType = "route" | "pin";
 export const WAY_TYPES = [
-  { id: "route", short: "On the route", long: "On the route", line: "The line goes through it.", Glyph: MapPin },
-  { id: "pin", short: "Pin", long: "A pin", line: "Marks a spot. The line skips it.", Glyph: Flag },
+  { id: "route", short: "On the route", line: "The line goes through it.", Glyph: MapPin },
+  { id: "pin", short: "Pin", line: "Marks a spot. The line skips it.", Glyph: Flag },
 ] as const;
 
 /**
@@ -61,8 +61,8 @@ export const WAY_TYPES = [
 export function ArmedBar({ move, noPlaceCap, onNoPlace, onCancel }: { move: boolean; noPlaceCap?: boolean; onNoPlace: () => void; onCancel: () => void }) {
   const say = move ? "the new place for this waypoint" : "a base, gold mine, shop or any spot";
   return (
-    <div role="status" data-armed-bar className="mt-2 flex min-h-10 flex-wrap items-center gap-x-2.5 gap-y-1 rounded border border-gold bg-gold/10 py-1 pl-3 pr-1.5 text-[0.86rem] text-fg">
-      <span className="mr-auto">
+    <div data-armed-bar className="mt-2 flex min-h-10 flex-wrap items-center gap-x-2.5 gap-y-1 rounded border border-gold bg-gold/10 py-1 pl-3 pr-1.5 text-[0.86rem] text-fg">
+      <span role="status" className="mr-auto">
         <span className="lg:hidden">Tap {say}</span>
         <span className="hidden lg:inline">Click {say}</span>
       </span>
@@ -71,7 +71,7 @@ export function ArmedBar({ move, noPlaceCap, onNoPlace, onCancel }: { move: bool
           <Zap aria-hidden size={14} /> No place
         </button>
       )}
-      <button type="button" onClick={onCancel} data-focus="cancel" className={ARMED_BUTTON}>
+      <button type="button" onClick={onCancel} className={ARMED_BUTTON}>
         Cancel
       </button>
     </div>

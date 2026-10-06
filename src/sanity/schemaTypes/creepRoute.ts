@@ -456,7 +456,7 @@ export const creepStop = defineType({
         defineField({
           name: "kind",
           type: "string",
-          options: { list: ["attack", "build", "expand", "shop", "scout", "other"] },
+          options: { list: ["shop", "expand", "build", "scout", "attack", "other"] },
           validation: (rule) => rule.required(),
         }),
         defineField({

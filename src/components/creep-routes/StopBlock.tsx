@@ -67,8 +67,8 @@ function StopBody({ stop, d, hero }: { stop: RouteStop; d: DerivedStop; hero?: R
  * (`onChevron`); the camp label is its own button that pins the camp card.
  * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a").
  */
-/** The open or pointed row's tint inside a tab panel: from the panel's inner edge (`PANEL_EDGE`: 50px and 8px, 1px border). */
-const PANEL_TINT = "before:pointer-events-none before:absolute before:inset-y-0 before:left-[51px] before:right-[9px] before:bg-gold/10";
+/** The open or pointed row's tint inside a tab panel: from the panel's inner edge (`PANEL_EDGE`: 50px and 8px, 1px border), under the row's content. */
+const PANEL_TINT = "isolate before:-z-10 before:pointer-events-none before:absolute before:inset-y-0 before:left-[51px] before:right-[9px] before:bg-gold/10";
 
 export function StopBlock({
   stop,

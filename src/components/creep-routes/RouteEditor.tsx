@@ -44,6 +44,7 @@ import {
 import { newId, stepName, stepTarget } from "@/lib/creep-routes/editor-rows.mjs";
 import { deriveRoute } from "@/lib/creep-routes/derive";
 import { addBlocked } from "@/lib/creep-routes/caps.mjs";
+import { isPin } from "@/lib/creep-routes/place.mjs";
 import { numberStops, parseKey } from "@/lib/creep-routes/stop-numbers.mjs";
 import type { CampCardTrigger, CreepMap as CreepMapType, CreepRoute, MapCamp, Place } from "@/lib/creep-routes/types";
 import type { IconRace } from "@/lib/builds/icons";
@@ -241,15 +242,17 @@ export function RouteEditor({
     if (t !== target) setTarget(t);
     if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
     if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
-    if (places?.moveId != null && !locate(stops, places.moveId)) setPlaces(null);
   }
+  // The row "Move" acts on is gone (its trash, a removed path or block, an undo): places mode ends.
+  if (places?.moveId != null && !locate(stops, places.moveId)) setPlaces(null);
 
-  /** Shows path `arm` of block `splitId` (its tab; the map follows it). A target in another path of that
-   *  block moves to the end of this one, so the target is never in a hidden path; a target on the route
-   *  or in another block stays. */
+  /** Shows path `arm` of block `splitId` (its tab; the map follows it). In a "Choose one path" block a
+   *  target in another path moves to the end of this one, so the target is never in a hidden path; a
+   *  "Take all" block hides no path, and a target on the route or in another block stays. */
   const showPath = (splitId: number, arm: number) => {
     setTabs((t) => ({ ...t, [splitId]: arm }));
-    if (target.splitId === splitId && target.arm !== arm) setTarget({ splitId, arm, pos: null });
+    const choose = stops.find((r) => r.id === splitId)?.split?.mode !== "and";
+    if (choose && target.splitId === splitId && target.arm !== arm) setTarget({ splitId, arm, pos: null });
   };
   /** Opens a row and shows its path (`showPath`); leaves places mode. */
   const select = (id: number | null, scroll = false) => {
@@ -303,11 +306,25 @@ export function RouteEditor({
   // block or the list's start ends the search) and, in the middle of a list, a leg on to the next place;
   // skipped for camps already in that list. Those two places are the target's leg, dashed gold on the map.
   const around = stepsAround(stops, at);
-  const preview = {
-    ...around,
-    label: next.label,
-    skip: new Set((listAt(stops, at) as StopRowData[]).flatMap((r) => (r.campId ? [r.campId] : []))),
-  };
+  // While "Move" is armed the preview is the moved row's own legs to the pointed spot: from the step
+  // before it and on to the step after it, in its kind and with no number; a pin, off the line, has none.
+  const moving = places?.moveId != null ? locate(stops, places.moveId) : null;
+  const movedRow = moving ? listAt(stops, moving)[moving.index] : undefined;
+  const preview = movedRow
+    ? isPin(movedRow)
+      ? undefined
+      : {
+          from: stepsAround(stops, moving!).from,
+          to: stepsAround(stops, { ...moving!, index: moving!.index + 1 }).to,
+          label: "",
+          skip: new Set<string>(),
+          move: { attack: movedRow.place?.kind === "attack" },
+        }
+    : {
+        ...around,
+        label: next.label,
+        skip: new Set((listAt(stops, at) as StopRowData[]).flatMap((r) => (r.campId ? [r.campId] : []))),
+      };
   const activeLeg = around.from && around.to ? { a: keyOfRow(stops, around.from.id)!, b: keyOfRow(stops, around.to.id)! } : null;
   /** A click on a leg puts the target right after its first step; on the target's own leg, back at the end of the route. */
   const onLeg = (a: string, b: string) => {
@@ -345,11 +362,13 @@ export function RouteEditor({
     const mv = places?.moveId;
     const row = mv != null ? rowAtKey(stops, keyOfRow(stops, mv) ?? "") : undefined;
     setPlaces(null);
+    // The row being moved is gone: leave places mode and add nothing.
+    if (mv != null && !row) return;
     if (mv != null && row) {
       const place: Place = { ...picked, kind: row.place?.kind ?? picked.kind };
       step("move waypoint");
       setStops((rows) => patchRow(rows, mv, { place }));
-      setSelectedId(mv);
+      select(mv);
       focusTo.current = `[data-move-way="${mv}"]`;
       scrollFocus.current = narrow();
       return;
@@ -449,6 +468,8 @@ export function RouteEditor({
           step(`remove ${nameOf(row.id)}`);
           setStops((rows) => removeRow(rows, row.id));
           setSelectedId(null);
+          // A row removed by keyboard may fire no blur: its mark's ring goes with it.
+          setRingStop(null);
           focusTo.current = WAYPOINT;
         }}
         onMove={(dir) => {
@@ -505,6 +526,7 @@ export function RouteEditor({
         setTarget(next);
         setStops((rows) => removePath(rows, row.id, arm));
         setTabs((t) => ({ ...t, [row.id]: next.splitId === row.id ? next.arm! : 0 }));
+        setRingStop(null);
         focusTo.current = WAYPOINT;
       },
       // A path's tab or its quiet add line: the path shows, the map follows it, and it becomes the target.
@@ -526,6 +548,7 @@ export function RouteEditor({
         if (target.splitId === row.id) setTarget(ROUTE_END);
         setStops((rows) => removeSplit(rows, row.id, 0));
         setSelectedId(null);
+        setRingStop(null);
         focusTo.current = WAYPOINT;
       },
       removeLabel: `Remove paths, keep path ${mode === "and" ? 1 : "A"}`,

@@ -204,14 +204,15 @@ export const RoutePath = memo(function RoutePath({
           <path d={dActive} fill="none" stroke="var(--wg-gold)" strokeWidth="2" strokeDasharray="4 3" />
         </g>
       ) : null}
-      {/* A 6px direction chevron at the middle of every leg, same light fill. */}
+      {/* A 6px direction chevron at the middle of every leg, in its leg's colour (gold on the target's leg). */}
       {segments.map((g, i) => g.style !== "solid" ? null : (
         <path
           key={i}
           data-route-direction
           d="M3,0L-3,-3L-3,3Z"
           transform={`translate(${g.mx.toFixed(1)},${g.my.toFixed(1)}) rotate(${g.angle.toFixed(1)})`}
-          fill={g.attack ? ATTACK : LINE}
+          fill={g.active ? "var(--wg-gold)" : g.attack ? ATTACK : LINE}
+          opacity={g.active && replacing ? 0.3 : undefined}
           strokeWidth="2"
           paintOrder="stroke"
           {...under}

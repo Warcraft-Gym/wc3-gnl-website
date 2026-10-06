@@ -106,8 +106,9 @@ export type CreepMapProps = {
   placesMode?: boolean;
   /** Builder: the stop a click adds is drawn while a camp outside `skip` is pointed at or focused, as a
    *  dashed leg from `from` (the last place of the target list, none without one) and `label` in a dashed gold circle;
-   *  with `to` (the next place after a target in the middle of a list) a second dashed leg from the spot to it. */
-  preview?: { from: Pick<RouteStop, "campId" | "place"> | null; to?: Pick<RouteStop, "campId" | "place"> | null; label: string; skip: Set<string> };
+   *  with `to` (the next place after a target in the middle of a list) a second dashed leg from the spot to it.
+   *  With `move` (places mode moving a row) a hovered target draws that row's own legs, in its kind, with no number. */
+  preview?: { from: Pick<RouteStop, "campId" | "place"> | null; to?: Pick<RouteStop, "campId" | "place"> | null; label: string; skip: Set<string>; move?: { attack: boolean } };
   /** Builder: the leg the target sits on (its two stop keys), dashed gold. */
   activeLeg?: { a: string; b: string } | null;
   /** Builder: a click on a leg inside one list puts the next step there; none in places mode. */
@@ -578,10 +579,10 @@ export function CreepMap({
     window.addEventListener("keydown", esc, true);
   };
   const hovered = hoverTarget !== null ? targets[hoverTarget] : undefined;
-  const hoveredAttack = hovered?.place.kind === "attack";
+  const hoveredAttack = preview?.move ? preview.move.attack : hovered?.place.kind === "attack";
   const previewNext = preview?.to ? spotOf(preview.to) : null;
-  // A preview of a step on the target's leg: that leg draws at 30%.
-  const replacing = Boolean(previewNext && ((previewTo && preview) || (hovered && preview)));
+  // A preview of a step on the target's leg: that leg draws at 30%. A move adds nothing at the target.
+  const replacing = Boolean(!preview?.move && previewNext && ((previewTo && preview) || (hovered && preview)));
   const opponentStartCount = Math.max(0, map.starts.length - 1);
   const label = `${map.name} minimap, ${map.camps.length} creep camps, your base marked, ${opponentStartCount} opponent base${
     opponentStartCount === 1 ? "" : "s"
@@ -682,7 +683,7 @@ export function CreepMap({
               from={preview.from ? spotOf(preview.from) : null}
               to={{ x: hovered.x * iw, y: hovered.y * ih, trim: nodeTrim(hoveredAttack ? STOP_RADIUS : WAYPOINT_RADIUS) }}
               next={previewNext}
-              label={hoveredAttack ? preview.label : undefined}
+              label={hoveredAttack && !preview.move ? preview.label : undefined}
               attack={hoveredAttack}
             />
           ) : null}
