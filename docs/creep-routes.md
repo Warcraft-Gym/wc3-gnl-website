@@ -433,8 +433,8 @@ data layer share:
 A camp stop always kills something; everything else is a waypoint.
 
 A stop can happen at a place instead of a camp: `RouteStop.place` is
-`{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop` or
-`scout`. `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
+`{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop`,
+`scout` or `other`. `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
 `{ mine }` (the index into `map.mines[]`), `{ shop }` (`map.shops[].id`) or
 `{ x, y }` (an image fraction 0..1, like a camp's). A place stop has
 `campId: null` and an `action` that names it ("Harass their base", "Plant the
@@ -442,7 +442,7 @@ Ancient of War"); the submission schema rejects a place on a camp stop, a place
 without an action, and a start, mine or shop the map does not have
 (`place.mjs`'s `placeProblem`).
 
-An `attack` is a numbered stop. The other four kinds are waypoints: no
+An `attack` is a numbered stop. The other five kinds are waypoints: no
 number, not counted in "N stops" (`stop-numbers.mjs`).
 
 A route is a list of steps in time. The line on the map joins the steps that
@@ -478,12 +478,17 @@ through `isPin` (`place.mjs`); the field keeps its name from its history.
   start, mine and shop is a 32px button that never overlaps another (a
   moved one draws a line to its true spot, which is stored), a click
   within 6 px of one takes it, and a click anywhere else adds a free
-  point. A bar under the map holds "No place" (a base action) and
+  point of kind Other (lucide `MapPin`, "e.g. Wait here until the creeps
+  sleep"). A bar under the map holds "No place" (a base action) and
   "Cancel"; in the normal state places take no click. An open waypoint has
   the kind buttons (a pin offers no Attack; an attack made a pin scouts),
   the switch "On the route | Pin" and "Move" (places mode for that row;
   the click moves it and keeps its text, kind, type and Bring), its text
-  and the note; a base action has only its text and the note.
+  and the note; a base action has only its text and the note. With a fine
+  pointer a waypoint or pin mark also drags on the map: past 4 px the place
+  targets show, the mark and its legs follow, it snaps within 6 px of a
+  target, and the release moves the row in one undo step ("move waypoint");
+  Escape, a cancel or a release off the map change nothing.
 - **Items in Bring.** The Bring picker lists Rod of Necromancy, Ritual Dagger,
   Sacrificial Skull, Healing Salve, Scroll of Town Portal and Dust of
   Appearance under Neutral, from the art the site already has. `count` on an
@@ -1115,7 +1120,13 @@ sees; this section is the mechanics.
   "Remove paths, keep path A"; "Choose one path" adds the tab strip and lists
   the shown path in a panel (a head row with the name field, its stops, its add
   line), "Take all paths simultaneously" lists every path one under the other.
-  The builder keeps one target, the route or one path (`targetPlace`); the add
+  The builder keeps one target, the route or one path and a position in it
+  (`targetPlace`; null is the end). A click or Enter on a map leg inside one
+  list sets the position right after the leg's first step (`legTarget`); a
+  second click, or "Continue the route", puts it back at the end. A position
+  holds the ids of the rows around it, so it stays between the same two steps
+  when rows move or a two-path block turns into plain stops, and is clamped
+  into its list when both are gone; setting it is not an undo step. The add
   line (`NextStopRow`, `nextStop`) sits there and every other list end shows a
   quiet add button ("Add stops to path B", "Continue the route"; focus then
   goes to "Waypoint"). The target is never in a hidden path: showing a path of
