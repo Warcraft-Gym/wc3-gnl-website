@@ -477,3 +477,14 @@ test("which camps can take a camp stop: not its own, not one in its list; one in
   const way = newRow({ place: { kind: "shop", at: { shop: "s1" } } });
   assert.equal(campTakesStop([way], way.id, "c9"), false);
 });
+
+test("a camp used only by a waypoint or an attack place is no stop in the list; such a row is no camp stop", () => {
+  const attack = newRow({ place: { kind: "attack", at: { x: 0.5, y: 0.5 } } });
+  const way = newRow({ place: { kind: "scout", at: { start: "1" } } });
+  const stop = newRow({ campId: "c1" });
+  const rows = [stop, attack, way];
+  assert.deepEqual([...campsInListOf(rows, stop.id)], ["c1"]);
+  assert.equal(campTakesStop(rows, stop.id, "c9"), true);
+  assert.equal(campTakesStop(rows, attack.id, "c9"), false);
+  assert.equal(moveStopToCamp(rows, attack.id, "c9"), rows);
+});
