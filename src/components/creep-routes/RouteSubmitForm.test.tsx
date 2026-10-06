@@ -865,6 +865,80 @@ describe("RouteSubmitForm: a numeric target through removes, undo and legs", () 
     fireEvent.click(screen.getByRole("button", { name: "Waypoint" }));
     expect(container.querySelector("[data-leg]")).toBeNull();
   });
+
+  const three = [{ campId: c1.id }, { campId: c2.id }, { campId: c3.id }];
+  const clickCamp = (container: HTMLElement, id: string) => fireEvent.click([...container.querySelectorAll(`[data-camp="${id}"]`)].at(-1)!);
+  const ids = (container: HTMLElement) => [...container.querySelectorAll("li[data-stop]")].map((li) => li.getAttribute("data-stop"));
+
+  it("undo after an add at a numeric target puts the add line back between the same two steps", async () => {
+    const { container } = await load(three);
+    fireEvent.click(leg(container, "0", "1")!);
+    clickCamp(container, c4.id);
+    expect(addLine(container)).toBe("3");
+    fireEvent.click(screen.getByRole("button", { name: /^Undo: add stop/ }));
+    expect(ids(container)).toEqual(["1", "2", "3"]);
+    expect(addLine(container)).toBe("2");
+    expect(container.querySelector("[data-add-label]")?.closest("li")?.previousElementSibling).toHaveAttribute("data-stop", "1");
+  });
+
+  it("an arrow move of the target's first row keeps the target right after it", async () => {
+    const { container } = await load(three);
+    fireEvent.click(leg(container, "1", "2")!);
+    expect(addLine(container)).toBe("3");
+    fireEvent.click(container.querySelector('li[data-stop="2"] button')!);
+    fireEvent.click(screen.getByRole("button", { name: "Move up" }));
+    // Stop 2 is now stop 1; the add line follows it.
+    expect(addLine(container)).toBe("2");
+  });
+
+  it("a drag and drop of the target's first row keeps the target right after it", async () => {
+    const { container } = await load([...three, { campId: c5.id }]);
+    fireEvent.click(leg(container, "0", "1")!);
+    const dataTransfer = { setData: () => {}, setDragImage: () => {}, effectAllowed: "", dropEffect: "" };
+    fireEvent.dragStart(container.querySelector('li[data-stop="1"] [title="Drag to move"]')!, { dataTransfer });
+    const zone = container.querySelector('li[data-stop="3"]')!;
+    fireEvent.dragOver(zone, { dataTransfer });
+    fireEvent.drop(zone, { dataTransfer });
+    // c1 drops before c3 (the drag event carries no pointer height here): c2, c1, c3, c5, and the target follows c1.
+    const camps = JSON.parse((container.querySelector('[name="stopsJson"]') as HTMLInputElement).value).map((s: { campId: string }) => s.campId);
+    expect(camps).toEqual([c2.id, c1.id, c3.id, c5.id]);
+    expect(addLine(container)).toBe("3");
+  });
+
+  it("a numeric target in a path that becomes hidden moves to the shown path's end", async () => {
+    const { container } = await load([{ campId: c1.id }, block()]);
+    fireEvent.click(leg(container, "1.a.0", "1.a.1")!);
+    expect(addLine(container)).toBe("3a");
+    fireEvent.click(screen.getByRole("tab", { name: "Path B" }));
+    expect(addLine(container)).toBe("3b");
+  });
+
+  it("the add line before a waypoint takes the next stop's number", async () => {
+    const shop = { campId: null, action: "Buy boots", place: { kind: "shop", at: { start: String(maps[0].starts[0].player) } } };
+    const { container } = await load([{ campId: c1.id }, shop, { campId: c2.id }]);
+    fireEvent.click(leg(container, "0", "1")!);
+    expect(addLine(container)).toBe("2");
+  });
+
+  it("legs skip a pin: none to or from it, and the leg between the two stops around it", async () => {
+    const pin = { campId: null, action: "Scout their base", place: { kind: "scout", at: { start: String(maps[0].starts[1].player) } }, hero: false };
+    const { container } = await load([{ campId: c1.id }, pin, { campId: c2.id }]);
+    expect(leg(container, "0", "1")).toBeNull();
+    expect(leg(container, "1", "2")).toBeNull();
+    expect(leg(container, "0", "2")).toBeInTheDocument();
+  });
+
+  it("an unused camp under the pointer with a numeric target: two preview legs, the replaced leg at 30%", async () => {
+    const { container } = await load(three);
+    fireEvent.click(leg(container, "0", "1")!);
+    const active = () => container.querySelector("[data-route-active-leg]");
+    expect(active()).not.toHaveAttribute("opacity");
+    fireEvent.focusIn([...container.querySelectorAll(`[data-camp="${c4.id}"]`)].at(-1)!);
+    expect(container.querySelector("svg [data-preview-label]")?.textContent).toBe("2");
+    expect(container.querySelectorAll("svg [data-preview] > g:not([data-preview-label]) path").length).toBe(4);
+    expect(container.querySelector("svg [data-preview-next]")).toBeInTheDocument();
+    expect(active()).toHaveAttribute("opacity", "0.3");
+  });
 });
 
 describe("RouteSubmitForm: checks before it sends", () => {
