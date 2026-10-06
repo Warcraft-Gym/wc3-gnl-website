@@ -357,6 +357,14 @@ export function RouteEditor({
     const attack = picked.kind === "attack";
     if (add(newRow({ place: picked }), attack ? "stop" : "row", attack ? "add stop" : "add waypoint") !== undefined) focusText();
   };
+  /** A waypoint or pin mark dragged on the map: to the place it snapped to (taking its name) or a free
+   *  point; its text, kind, type and Bring stay. One undo step. */
+  const onWaypointDrag = (key: string, picked: Place) => {
+    const row = rowAtKey(stops, key);
+    if (!row?.place) return;
+    step("move waypoint");
+    setStops((rows) => patchRow(rows, row.id, { place: { ...picked, kind: row.place!.kind } }));
+  };
   /** After an add: focus in the new row's text; below `lg` the row scrolls into view. */
   const focusText = () => {
     focusTo.current = "[data-way-text]";
@@ -604,6 +612,7 @@ export function RouteEditor({
           ringStop={ringStop}
           activeLeg={activeLeg}
           onLeg={onLeg}
+          onWaypointDrag={onWaypointDrag}
         />
         {places ? <ArmedBar move={places.moveId !== null} noPlaceCap={Boolean(addBlocked(stops, "stop"))} onNoPlace={addNoPlace} onCancel={leavePlaces} /> : null}
         <MapLegend />

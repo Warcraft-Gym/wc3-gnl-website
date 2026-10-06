@@ -35,6 +35,9 @@ type PathNode = {
   pin?: boolean;
 };
 
+/** A press on a waypoint or pin mark: its stop key, the event, and how the mark looks. */
+export type MarkDown = (key: string, e: React.PointerEvent, mark: { kind: Place["kind"]; pin: boolean }) => void;
+
 /** `thin`: a lane of an "and" split without the hero. */
 type LegStyle = "solid" | "thin";
 
@@ -62,6 +65,8 @@ export const RoutePath = memo(function RoutePath({
   activeLeg,
   onLeg,
   replacing = false,
+  drag,
+  onMarkDown,
 }: {
   map: CreepMap;
   stops: RouteStop[];
@@ -85,6 +90,10 @@ export const RoutePath = memo(function RoutePath({
   onLeg?: (a: string, b: string) => void;
   /** The map previews a step on the active leg: that leg draws at 30%. */
   replacing?: boolean;
+  /** A waypoint or pin mark being dragged: its stop key and where it is now (viewBox units); its legs follow. */
+  drag?: { key: string; x: number; y: number } | null;
+  /** The builder with a fine pointer: a press on a waypoint or pin mark may start a drag. */
+  onMarkDown?: MarkDown;
 }) {
   const reduced = useReducedMotion();
   const { width: iw, height: ih } = map.image;
@@ -113,7 +122,7 @@ export const RoutePath = memo(function RoutePath({
   // with no legs.
   const you = map.starts[youStart];
   const plan = routeLegs(stops, choice, (s) => Boolean(nodeOf(s, "", "")));
-  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent, pin: n.pin }) ?? []);
+  const points = plan.nodes.flatMap((n) => nodeOf(n.stop, n.key, n.label, { absent: n.absent, pin: n.pin }) ?? []).map((p) => (drag?.key === p.key ? { ...p, cx: drag.x, cy: drag.y } : p));
   const byKey = new Map<string, PathNode>(points.map((p) => [p.key, p]));
   if (you) byKey.set("start", { key: "start", label: "", stop: stops[0], cx: you.x * iw, cy: you.y * ih, r: 0, trim: placeRadius({ kind: "build", at: { start: "" } }, iw, true) + 1, fill: "" });
   const legs = plan.legs.flatMap(({ a, b, style }) => {
@@ -124,7 +133,7 @@ export const RoutePath = memo(function RoutePath({
 
   if (!points.length) return null;
   const hidden = hiddenBadgeKeys(stops, choice);
-  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} ringStop={ringStop} onStopSelect={onStopSelect} reduced={reduced} />;
+  if (layer === "nodes") return <Nodes points={points} hidden={hidden} activeStop={activeStop} ringStop={ringStop} onStopSelect={onStopSelect} onMarkDown={onMarkDown} reduced={reduced} />;
 
   // One straight segment per leg, ending at the edge of each node's disc. Legs that would read as one
   // line (collinear, or through another stop's disc) move sideways apart (`legOffsets`).
@@ -245,8 +254,10 @@ function Nodes({
   activeStop,
   ringStop,
   onStopSelect,
+  onMarkDown,
   reduced,
 }: {
+  onMarkDown?: MarkDown;
   points: PathNode[];
   ringStop?: string | null;
   hidden: Set<string>;
@@ -270,6 +281,8 @@ function Nodes({
         // The swords sit 3 units out from the disc edge, clear of a two-character label ("3b").
         const corner = cornerMark(p.cx, p.cy, p.r + 3);
         const unitAt = heroOffMark(p.cx, p.cy, p.r);
+        // A waypoint or pin mark drags with a fine pointer; camp stops and attacks never do.
+        const grab = p.waypoint && p.place && onMarkDown ? (e: React.PointerEvent) => onMarkDown(p.key, e, { kind: p.place!.kind, pin: Boolean(p.pin) }) : undefined;
         return (
           <g
             key={p.key}
@@ -277,8 +290,9 @@ function Nodes({
             data-waypoint={p.waypoint ? p.place?.kind : undefined}
             data-pin={p.pin || undefined}
             onClick={select}
+            onPointerDown={grab}
             pointerEvents={select ? undefined : "none"}
-            className={select ? "cursor-pointer" : undefined}
+            className={grab ? "cursor-grab" : select ? "cursor-pointer" : undefined}
           >
             {/* A row pointed at or focused in the list rings its mark. */}
             {ringStop === p.key ? <circle data-ring cx={p.cx} cy={p.cy} r={p.r + 3.5} fill="none" stroke="var(--wg-gold)" strokeWidth={1.5} /> : null}

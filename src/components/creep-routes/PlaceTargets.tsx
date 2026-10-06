@@ -6,6 +6,7 @@ import type { CreepMap, Place, PlaceAt } from "@/lib/creep-routes/types";
 import { kindForClick } from "@/lib/creep-routes/place.mjs";
 import { neutralIconFor } from "@/lib/creep-routes/neutral-icons";
 import { nearTarget } from "@/lib/creep-routes/place-targets.mjs";
+import { cn } from "@/lib/utils";
 
 export type PlaceTarget = {
   key: string;
@@ -58,6 +59,7 @@ export function PlaceTargets({
   height,
   onPick,
   onHover,
+  snap,
 }: {
   targets: PlaceTarget[];
   layout: { x: number; y: number }[];
@@ -65,8 +67,12 @@ export function PlaceTargets({
   height: number;
   onPick: (place: Place) => void;
   onHover: (index: number | null) => void;
+  /** A waypoint mark being dragged: the targets show and take no click; the one it snaps to (an index) is ringed and named. */
+  snap?: number | null;
 }) {
-  const [shown, setShown] = useState<number | null>(null);
+  const [hoverShown, setShown] = useState<number | null>(null);
+  const dragging = snap !== undefined;
+  const shown = dragging ? snap : hoverShown;
   const show = (i: number | null) => {
     setShown(i);
     onHover(i);
@@ -75,7 +81,8 @@ export function PlaceTargets({
   return (
     <div
       data-places
-      className="absolute inset-0 cursor-crosshair"
+      aria-hidden={dragging || undefined}
+      className={cn("absolute inset-0", dragging ? "pointer-events-none" : "cursor-crosshair")}
       onClick={(e) => {
         const box = e.currentTarget.getBoundingClientRect();
         const x = e.clientX - box.left, y = e.clientY - box.top;
@@ -94,9 +101,11 @@ export function PlaceTargets({
             key={t.key}
             type="button"
             data-place-target={t.glyph}
+            data-snap={(dragging && snap === i) || undefined}
+            tabIndex={dragging ? -1 : undefined}
             aria-label={`Add a waypoint at ${t.label}`}
             style={{ left: `${(spot.x / width) * 100}%`, top: `${(spot.y / height) * 100}%` }}
-            className="absolute -ml-4 -mt-4 grid size-8 cursor-pointer place-items-center rounded-full border-[1.5px] border-gold bg-bg text-gold hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg"
+            className="absolute -ml-4 -mt-4 grid size-8 cursor-pointer place-items-center rounded-full border-[1.5px] border-gold bg-bg text-gold hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fg data-snap:outline-2 data-snap:outline-offset-2 data-snap:outline-gold"
             onClick={(e) => {
               e.stopPropagation();
               onPick(t.place);

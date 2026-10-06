@@ -439,6 +439,21 @@ describe("RouteSubmitForm: waypoints on the route, pins and no place", () => {
     expect(screen.getByRole("button", { name: /^Undo: move waypoint/ })).toBeInTheDocument();
   });
 
+  it("a move to a free point keeps the text and the kind; a new free point is Other", async () => {
+    const { container } = await load([{ campId: null, action: "Scout", place: { kind: "scout", at: { start: their } } }]);
+    fireEvent.click(container.querySelector("li[data-waypoint] button")!);
+    fireEvent.click(screen.getByRole("button", { name: "Move" }));
+    fireEvent.click(container.querySelector("[data-places]")!);
+    expect(screen.getByRole("textbox", { name: "What happens" })).toHaveValue("Scout");
+    const kind = (name: string) => within(screen.getByRole("group", { name: "What happens here" })).getByRole("button", { name }).getAttribute("aria-pressed");
+    expect(kind("Scout")).toBe("true");
+    expect(screen.getByRole("button", { name: /^Undo: move waypoint/ })).toBeInTheDocument();
+    fireEvent.click(waypoint());
+    fireEvent.click(container.querySelector("[data-places]")!);
+    expect(kind("Other")).toBe("true");
+    expect(screen.getByRole("textbox", { name: "What happens" })).toHaveAttribute("placeholder", "e.g. Wait here until the creeps sleep");
+  });
+
   it("an action row has only its text and the note", async () => {
     await load();
     fireEvent.click(waypoint());
