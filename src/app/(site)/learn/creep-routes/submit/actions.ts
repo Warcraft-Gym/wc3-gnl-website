@@ -5,6 +5,8 @@ import {
   createSubmissionSchema,
   decideSubmission,
   flattenErrors,
+  routeCatalogue,
+  routeFormInput,
   stopsJsonTooLarge,
   type FieldErrors,
   type StopInput,
@@ -13,7 +15,6 @@ import { keepImages } from "@/lib/creep-routes/keep-images.mjs";
 import { sanityClient } from "@/lib/content/sanity";
 import { canAcceptSubmissions, createCreepRouteDraft } from "@/lib/creep-routes/submit";
 import { getCreepMaps } from "@/lib/creep-routes/maps";
-import { placeIds } from "@/lib/creep-routes/place.mjs";
 import { getBuilds } from "@/lib/builds/builds";
 import { GAME_ICON_OPTIONS } from "@/lib/builds/icons";
 
@@ -48,10 +49,8 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
   if (stopsJsonTooLarge(stopsJsonRaw)) {
     return { status: "error", message: "Please fix the highlighted fields.", fields: { stops: "That's too much data for the stops list." } };
   }
-  let stops: unknown = [];
-  try {
-    stops = JSON.parse(stopsJsonRaw);
-  } catch {
+  const input = routeFormInput(formData);
+  if (!input) {
     return { status: "error", message: "The stops could not be read. Please try again." };
   }
 
@@ -63,40 +62,14 @@ export async function submitCreepRoute(_prev: SubmitState, formData: FormData): 
   if (!maps.length) {
     return { status: "error", message: "No maps are configured yet. Please try again later." };
   }
-  const schema = createSubmissionSchema({
-    maps: maps.map((m) => ({
-      slug: m.slug,
-      campIds: m.camps.map((c) => c.id),
-      startsCount: m.starts.length,
-      creepCounts: Object.fromEntries(m.camps.map((c) => [c.id, c.creeps.map((k) => k.count)])),
-      ...placeIds(m),
-    })),
-    iconKeys: GAME_ICON_OPTIONS.map((o) => o.value),
-    buildSlugs: builds.map((b) => b.slug),
-  });
-
-  const parsed = schema.safeParse({
-    map: formData.get("map"),
-    race: formData.get("race"),
-    vsRaces: formData.getAll("vsRaces").filter(Boolean),
-    level: formData.get("level"),
-    start: formData.get("start") ?? undefined,
-    hero: formData.get("hero") ?? undefined,
-    build: formData.get("build") ?? undefined,
-    supersedes: formData.get("supersedes") ?? undefined,
-    title: formData.get("title"),
-    summary: formData.get("summary"),
-    author: formData.get("author"),
-    authorDiscord: formData.get("authorDiscord") ?? undefined,
-    sourceUrl: formData.get("sourceUrl") ?? undefined,
-    videoUrl: formData.get("videoUrl") ?? undefined,
-    patch: formData.get("patch") ?? undefined,
-    tags: formData.get("tags") ?? undefined,
-    description: formData.get("description") ?? undefined,
-    stops,
-    website: formData.get("website") ?? undefined,
-    startedAt: formData.get("startedAt") ?? undefined,
-  });
+  const schema = createSubmissionSchema(
+    routeCatalogue(
+      maps,
+      GAME_ICON_OPTIONS.map((o) => o.value),
+      builds.map((b) => b.slug),
+    ),
+  );
+  const parsed = schema.safeParse(input);
 
   if (!parsed.success) {
     return { status: "error", message: "Please fix the highlighted fields.", fields: flattenErrors(parsed.error) };

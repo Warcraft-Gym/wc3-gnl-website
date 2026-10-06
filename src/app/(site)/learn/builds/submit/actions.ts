@@ -1,7 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
-import { flattenErrors, submissionSchema, type FieldErrors } from "@/lib/builds/submission";
+import { buildFormInput, flattenErrors, submissionSchema, type FieldErrors } from "@/lib/builds/submission";
 import { canAcceptSubmissions, createBuildDraft } from "@/lib/builds/submit";
 
 export type SubmitState =
@@ -28,31 +28,11 @@ function throttled(ip: string): boolean {
 }
 
 export async function submitBuild(_prev: SubmitState, formData: FormData): Promise<SubmitState> {
-  let steps: unknown = [];
-  try {
-    steps = JSON.parse(String(formData.get("stepsJson") ?? "[]"));
-  } catch {
+  const input = buildFormInput(formData);
+  if (!input) {
     return { status: "error", message: "The steps could not be read. Please try again." };
   }
-
-  const parsed = submissionSchema.safeParse({
-    title: formData.get("title"),
-    race: formData.get("race"),
-    vsRaces: formData.getAll("vsRaces").filter(Boolean),
-    difficulty: formData.get("difficulty"),
-    patch: formData.get("patch") ?? undefined,
-    tags: formData.get("tags") ?? undefined,
-    summary: formData.get("summary"),
-    author: formData.get("author"),
-    authorDiscord: formData.get("authorDiscord") ?? undefined,
-    sourceUrl: formData.get("sourceUrl") ?? undefined,
-    videoUrl: formData.get("videoUrl") ?? undefined,
-    supersedes: formData.get("supersedes") ?? undefined,
-    description: formData.get("description") ?? undefined,
-    steps,
-    website: formData.get("website") ?? undefined,
-    startedAt: formData.get("startedAt") ?? undefined,
-  });
+  const parsed = submissionSchema.safeParse(input);
 
   if (!parsed.success) {
     return { status: "error", message: "Please fix the highlighted fields.", fields: flattenErrors(parsed.error) };

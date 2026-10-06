@@ -6,6 +6,7 @@ import { TagInput } from "@/components/builds/TagInput";
 import { SectionTitle } from "./SectionTitle";
 import { cn } from "@/lib/utils";
 import { PATCHES, patchLabel } from "@/lib/patches.mjs";
+import { FormAlert } from "@/components/ui/FormAlert";
 
 const input =
   "h-10 w-full rounded border border-line bg-surface/60 px-3 text-sm text-fg placeholder:text-faint focus:border-gold/60 focus:outline-none";
@@ -63,6 +64,7 @@ export function RouteDetailsFields({
   onTagsChange,
   errors,
   errorMessage,
+  unshownErrors,
   notes = [],
   pending,
   submissionsOpen,
@@ -78,6 +80,8 @@ export function RouteDetailsFields({
   onTagsChange: (tags: string[]) => void;
   errors: Record<string, string>;
   errorMessage?: string;
+  /** Messages no field shows, listed in the alert (`unshownErrors` in `form-errors.mjs`). */
+  unshownErrors?: string[];
   /** The submit check's notes that do not block sending (a split whose paths are the same camps in the same order). */
   notes?: string[];
   pending: boolean;
@@ -154,11 +158,7 @@ export function RouteDetailsFields({
           {n}
         </p>
       ))}
-      {errorMessage ? (
-        <p role="alert" className="rounded border border-loss/50 bg-loss/10 px-4 py-3 text-sm text-fg">
-          {errorMessage}
-        </p>
-      ) : null}
+      <FormAlert message={errorMessage} unshown={unshownErrors} />
 
       <div className="flex flex-col gap-5 border-t border-line/60 pt-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3 text-sm text-muted">

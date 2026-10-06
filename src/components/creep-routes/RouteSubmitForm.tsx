@@ -19,7 +19,11 @@ import type { IconRace } from "@/lib/builds/icons";
 import type { BuildRace } from "@/lib/builds/types";
 import type { CreepMap, CreepRoute, RouteLevel } from "@/lib/creep-routes/types";
 import { IMPORT_HASH_KEY, decodeFromHash, parseExchange, type ExchangeCreepRoute } from "@/lib/creep-routes/exchange";
+import { createSubmissionSchema, flattenErrors, routeCatalogue, routeFormInput } from "@/lib/creep-routes/submission";
+import { GAME_ICON_OPTIONS } from "@/lib/builds/icons";
 import { normalizePatch } from "@/lib/patches.mjs";
+import { FIX_FIELDS_MESSAGE, useFormCheck } from "@/lib/useFormCheck";
+import { ROUTE_SHOWN, routeErrorPlace, unshownErrors } from "@/lib/form-errors.mjs";
 
 const initial: SubmitState = { status: "idle" };
 
@@ -230,10 +234,27 @@ function RouteSubmitFormInner({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const errors = state.status === "error" ? state.fields ?? {} : {};
-  // One array per submit result, so the builder opens the first stop with an error once.
-  const errorKeys = useMemo(() => (state.status === "error" ? Object.keys(state.fields ?? {}) : undefined), [state]);
-  const stopsJson = JSON.stringify(rowsToStops(stops));
+  // The same schema and catalogue as the action, run before sending: an empty form is told here, not after a round trip.
+  const schema = useMemo(
+    () => (maps.length ? createSubmissionSchema(routeCatalogue(maps, GAME_ICON_OPTIONS.map((o) => o.value), builds.map((b) => b.slug))) : null),
+    [maps, builds],
+  );
+  const check = useFormCheck((data) => {
+    const parsed = schema?.safeParse(routeFormInput(data));
+    return !parsed || parsed.success ? null : flattenErrors(parsed.error);
+  });
+  const serverFields = state.status === "error" ? state.fields : undefined;
+  const errors = check.fields ?? serverFields ?? {};
+  const errorMessage = check.fields ? FIX_FIELDS_MESSAGE : state.status === "error" ? state.message : undefined;
+  // One array per check or submit result, so the builder opens the first stop with an error once.
+  const errorKeys = useMemo(() => {
+    const fields = check.fields ?? serverFields;
+    return fields ? Object.keys(fields) : undefined;
+  }, [check.fields, serverFields]);
+  const routeStops = rowsToStops(stops);
+  const stopsJson = JSON.stringify(routeStops);
+  // Stops are named by the list's numbers now; an edit after the check can shift them until the next submit.
+  const unshown = unshownErrors(errors, (key) => ROUTE_SHOWN.test(key), (key) => routeErrorPlace(key, routeStops));
   // The submit check's notes that do not block: a split whose paths are the same camps in the same order.
   const notes = stops.some((r) => sameCampSequence(r.split)) ? [SAME_CAMP_LINE] : [];
   // "Edit | Preview": the preview is the route page's own section (map and list) drawn from the draft.
@@ -274,7 +295,7 @@ function RouteSubmitFormInner({
   }
 
   return (
-    <form ref={formRef} action={formAction} tabIndex={-1}>
+    <form ref={formRef} action={formAction} onSubmit={check.onSubmit} noValidate tabIndex={-1}>
       <div className="hidden" aria-hidden>
         <label>
           Website <input type="text" name="website" tabIndex={-1} autoComplete="off" />
@@ -431,7 +452,8 @@ function RouteSubmitFormInner({
           tags={tags}
           onTagsChange={setTags}
           errors={errors}
-          errorMessage={state.status === "error" ? state.message : undefined}
+          errorMessage={errorMessage}
+          unshownErrors={unshown}
           notes={notes}
           pending={pending}
           submissionsOpen={submissionsOpen}
