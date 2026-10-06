@@ -30,6 +30,8 @@ import {
   setArmLabel,
   targetAfterAdd,
   targetAfterRemovePath,
+  targetExists,
+  firstErrorAt,
   targetPlace,
   type DropZone,
   type ListPlace,
@@ -226,49 +228,62 @@ export function RouteEditor({
     typing.current = field ?? null;
     remember?.(label, { id: selectedId, target });
   };
-  // An undo puts the target back, and the open stop when it is gone (undo of "add stop").
-  // Adjusted during render, like the errors below.
+  // An undo keeps the target while it still exists; else the target saved with the step, else the end
+  // of the route. The open stop goes back when it is gone (undo of "add stop"). Adjusted during render,
+  // like the errors below.
   const [seenUndo, setSeenUndo] = useState(undone);
   if (undone !== seenUndo) {
     setSeenUndo(undone);
-    if (undone?.sel) {
-      const t = undone.sel.target;
-      setTarget(t);
-      if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
-    }
+    const t = targetExists(stops, target) ? target : undone?.sel && targetExists(stops, undone.sel.target) ? undone.sel.target : ROUTE_END;
+    if (t !== target) setTarget(t);
+    if (t.splitId !== undefined) setTabs((tabs) => ({ ...tabs, [t.splitId!]: t.arm ?? 0 }));
     if (selectedId !== null && !locate(stops, selectedId)) setSelectedId(undone?.sel?.id ?? null);
     if (places?.moveId != null && !locate(stops, places.moveId)) setPlaces(null);
   }
 
-  /** Opens a row (the target stays); leaves places mode. */
+  /** Shows path `arm` of block `splitId` (its tab; the map follows it). A target in another path of that
+   *  block moves to the end of this one, so the target is never in a hidden path; a target on the route
+   *  or in another block stays. */
+  const showPath = (splitId: number, arm: number) => {
+    setTabs((t) => ({ ...t, [splitId]: arm }));
+    if (target.splitId === splitId && target.arm !== arm) setTarget({ splitId, arm, pos: null });
+  };
+  /** Opens a row and shows its path (`showPath`); leaves places mode. */
   const select = (id: number | null, scroll = false) => {
     setSelectedId(id);
     setPlaces(null);
     const key = id === null ? null : keyOfRow(stops, id);
     if (key && scroll) setScrollTo({ key });
-    // A stop in a path: the map follows that path.
     if (key?.includes(".")) {
       const { index, arm } = parseKey(key);
       const split = stops[index];
-      if (split && arm !== undefined) setTabs((t) => ({ ...t, [split.id]: arm }));
+      if (split && arm !== undefined) showPath(split.id, arm);
     }
   };
   const selectKey = (key: string) => {
     const row = rowAtKey(stops, key);
     select(row && row.id !== selectedId ? row.id : null);
   };
-  // After a submit check, the first stop with an error opens and scrolls into view: its message
-  // sits in the stop's body, which is hidden while the stop is closed.
-  const firstError = (errorKeys ?? [])
-    .map((k) => /^stops\.(\d+)(?:\.split\.arms\.(\d+)\.stops\.(\d+))?\.(?!split\b)/.exec(k))
-    .find(Boolean);
-  const errorKey = firstError ? (firstError[2] === undefined ? firstError[1] : `${firstError[1]}.${"abc"[Number(firstError[2])]}.${firstError[3]}`) : null;
+  // After a submit check, the first error the list can show opens: a stop's error opens the stop and
+  // scrolls it into view (its message sits in the stop's body); a path's error (its name, or empty)
+  // shows that path and focuses its name field, or its heading row in a "Take all" block.
+  // A path's error: its field or heading row takes focus once it is on screen (a new object per result).
+  const [errorFocus, setErrorFocus] = useState<{ q: string } | null>(null);
+  useEffect(() => {
+    if (errorFocus) rootRef.current?.querySelector<HTMLElement>(errorFocus.q)?.focus();
+  }, [errorFocus]);
   // Adjusted during render (not in an effect): only a new submit result moves the selection.
   const [seenErrors, setSeenErrors] = useState(errorKeys);
   if (errorKeys !== seenErrors) {
     setSeenErrors(errorKeys);
-    const row = errorKey ? rowAtKey(stops, errorKey) : undefined;
+    const err = firstErrorAt(errorKeys ?? []);
+    const row = err?.key ? rowAtKey(stops, err.key) : undefined;
+    const block = err?.arm !== undefined ? stops[err.index] : undefined;
     if (row) select(row.id, true);
+    else if (block?.split && err?.arm !== undefined) {
+      showPath(block.id, err.arm);
+      setErrorFocus({ q: block.split.mode === "and" ? `[data-path-row="${block.id}.${err.arm}"]` : `[data-path-field="${block.id}.${err.arm}"]` });
+    }
   }
 
   // At a cap (`caps.mjs`) the add actions do nothing and the next-stop row says so.
@@ -329,6 +344,7 @@ export function RouteEditor({
       setStops((rows) => patchRow(rows, mv, { place }));
       setSelectedId(mv);
       focusTo.current = `[data-move-way="${mv}"]`;
+      scrollFocus.current = narrow();
       return;
     }
     const attack = picked.kind === "attack";
@@ -339,9 +355,10 @@ export function RouteEditor({
     focusTo.current = "[data-way-text]";
     scrollFocus.current = narrow();
   };
-  /** Leaves places mode; focus goes back to the control that entered it. */
+  /** Leaves places mode; focus goes back to the control that entered it ("Move" scrolls back into view below `lg`). */
   const leavePlaces = () => {
     focusTo.current = places?.moveId != null ? `[data-move-way="${places.moveId}"]` : WAYPOINT;
+    scrollFocus.current = places?.moveId != null && narrow();
     setPlaces(null);
   };
   /** "Waypoint" toggles places mode; nothing is inserted until a click. */
@@ -410,7 +427,7 @@ export function RouteEditor({
   const stopTools = (key: string) => {
     const row = rowAtKey(stops, key);
     if (!row || row.split) return undefined;
-    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir) as ListPlace | null;
+    const target = (dir: -1 | 1) => stepTarget(stops, row.id, dir, tabs) as ListPlace | null;
     return (
       <StopTools
         onRemove={() => {
@@ -424,13 +441,13 @@ export function RouteEditor({
           if (!at) return;
           step(`move ${nameOf(row.id)}`);
           setStops(moveRowTo(stops, row.id, at));
-          if (at.splitId !== undefined && at.arm !== undefined) setTabs((t) => ({ ...t, [at.splitId!]: at.arm! }));
+          if (at.splitId !== undefined && at.arm !== undefined) showPath(at.splitId, at.arm);
           refocus.current = dir;
         }}
         canMoveUp={target(-1) !== null}
         canMoveDown={target(1) !== null}
-        upLabel={stepName(stops, row.id, -1)}
-        downLabel={stepName(stops, row.id, 1)}
+        upLabel={stepName(stops, row.id, -1, tabs)}
+        downLabel={stepName(stops, row.id, 1, tabs)}
       />
     );
   };
@@ -445,6 +462,8 @@ export function RouteEditor({
         if ((next === "and") === (mode === "and")) return;
         step("change kind");
         setSplit(row.id, { mode: next });
+        // Tabs come back: the target's path shows.
+        if (next === "or" && target.splitId === row.id) setTabs((t) => ({ ...t, [row.id]: target.arm ?? 0 }));
       },
       label: (arm: number) => arms[arm]?.label ?? "",
       onLabel: (arm: number, label: string) => {
@@ -467,15 +486,18 @@ export function RouteEditor({
       // Removing one of two paths turns the block into the other path's stops, in its place (`removePath`).
       onRemovePath: (arm: number) => {
         step(`remove path ${mode === "and" ? arm + 1 : "ABC"[arm]}`);
-        setTarget(targetAfterRemovePath(stops, target, row.id, arm));
+        const next = targetAfterRemovePath(stops, target, row.id, arm);
+        setTarget(next);
         setStops((rows) => removePath(rows, row.id, arm));
-        setTabs((t) => ({ ...t, [row.id]: 0 }));
+        setTabs((t) => ({ ...t, [row.id]: next.splitId === row.id ? next.arm! : 0 }));
         focusTo.current = WAYPOINT;
       },
       // A path's tab or its quiet add line: the path shows, the map follows it, and it becomes the target.
-      onAddStops: (arm: number) => {
+      // The quiet add line unmounts, so focus goes to "Waypoint".
+      onAddStops: (arm: number, quiet?: boolean) => {
         setTabs((t) => ({ ...t, [row.id]: arm }));
         setTarget({ splitId: row.id, arm, pos: null });
+        if (quiet) focusTo.current = WAYPOINT;
       },
       onMove: (dir: -1 | 1) => {
         step("move paths");
@@ -542,8 +564,8 @@ export function RouteEditor({
           if (at) {
             step(`move ${nameOf(drag)}`);
             setStops(moveRowTo(stops, drag, at));
-            // A stop dropped into a path: the map follows that path.
-            if (at.splitId !== undefined && at.arm !== undefined) setTabs((t) => ({ ...t, [at.splitId!]: at.arm! }));
+            // A stop dropped into a path: that path shows (`showPath`).
+            if (at.splitId !== undefined && at.arm !== undefined) showPath(at.splitId, at.arm);
           }
           setDrag(null);
           setOver(null);
@@ -620,10 +642,13 @@ export function RouteEditor({
           splitEdit={splitEdit}
           dnd={dnd}
           slot={slot}
-          onContinue={() => setTarget(ROUTE_END)}
+          onContinue={() => {
+            setTarget(ROUTE_END);
+            focusTo.current = WAYPOINT;
+          }}
           tools={
             <span className="flex shrink-0 gap-1.5">
-              <button type="button" onClick={toggleWaypoint} aria-pressed={places !== null && places.moveId === null} aria-disabled={Boolean(addBlocked(stops, "row"))} data-focus="waypoint" className={cn(GOLD_BUTTON, "aria-pressed:bg-gold/15")}>
+              <button type="button" onClick={toggleWaypoint} aria-pressed={places !== null && places.moveId === null} aria-disabled={!places && Boolean(addBlocked(stops, "row"))} data-focus="waypoint" className={cn(GOLD_BUTTON, "aria-pressed:bg-gold/15")}>
                 <MapPin aria-hidden size={14} /> Waypoint
               </button>
               <button type="button" onClick={addPaths} aria-disabled={Boolean(addBlocked(stops, "row"))} data-focus="paths" className={GOLD_BUTTON}>

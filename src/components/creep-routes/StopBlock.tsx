@@ -67,6 +67,9 @@ function StopBody({ stop, d, hero }: { stop: RouteStop; d: DerivedStop; hero?: R
  * (`onChevron`); the camp label is its own button that pins the camp card.
  * `number` is the stop's label from `stop-numbers.mjs` ("3", "3a").
  */
+/** The open or pointed row's tint inside a tab panel: from the panel's inner edge (`PANEL_EDGE`: 50px and 8px, 1px border). */
+const PANEL_TINT = "before:pointer-events-none before:absolute before:inset-y-0 before:left-[51px] before:right-[9px] before:bg-gold/10";
+
 export function StopBlock({
   stop,
   d: derived,
@@ -93,6 +96,7 @@ export function StopBlock({
   chevron = true,
   dnd,
   tools,
+  inPanel = false,
 }: {
   stop: RouteStop;
   d: DerivedStop;
@@ -127,6 +131,8 @@ export function StopBlock({
   dnd?: { handle?: React.ReactNode; props: DropProps };
   /** The builder: move and remove (`StopTools`), on the open stop's summary line before the chevron. */
   tools?: React.ReactNode;
+  /** A row in a "Choose one path" tab panel (`PANEL_EDGE`): its tint and drag grip stay inside the panel. */
+  inPanel?: boolean;
 }) {
   const d = sharedXp ? { ...derived, kills: derived.kills.map((k) => ({ ...k, leveledUp: false })) } : derived;
   const camp = d.camp;
@@ -165,12 +171,13 @@ export function StopBlock({
           ? `relative border-t border-line/40 pl-[60px] pr-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:pr-5`
           : `border-t border-line/40 px-4 ${waypoint ? "py-2" : "py-4"} transition-colors first:border-t-0 sm:px-5`,
         pin && "border-dashed",
-        (isActive || isHover) && "bg-gold/10",
+        inPanel && !indent && "pl-[64px]",
+        (isActive || isHover) && (inPanel ? PANEL_TINT : "bg-gold/10"),
       )}
     >
       {rail}
       {dnd?.handle ? (
-        <span className={cn("absolute left-[44px]", waypoint ? "top-2" : "top-4")} style={indent ? { left: indent - 16 } : undefined}>
+        <span className={cn("absolute", inPanel ? "left-[52px]" : "left-[44px]", waypoint ? "top-2" : "top-4")} style={indent ? { left: indent - 16 } : undefined}>
           {dnd.handle}
         </span>
       ) : null}

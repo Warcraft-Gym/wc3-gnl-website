@@ -77,6 +77,10 @@ export type Target = { splitId?: number; arm?: number; pos: number | null };
 export const ROUTE_END = editorRows.ROUTE_END as Target;
 /** The place a target names; a target whose path is gone is the end of the route. */
 export const targetPlace = editorRows.targetPlace as (rows: StopRowData[], target: Target | null) => ListPlace;
+/** True when the target's list exists: the route, or a path still in its block. */
+export const targetExists = editorRows.targetExists as (rows: StopRowData[], target: Target) => boolean;
+/** The first submit error the builder can open: a stop's key, or a path (block index and arm). */
+export const firstErrorAt = editorRows.firstErrorAt as (keys: string[]) => { key?: string; index: number; arm?: number } | null;
 export const targetAfterAdd = editorRows.targetAfterAdd as (target: Target) => Target;
 export const targetAfterRemovePath = editorRows.targetAfterRemovePath as (rows: StopRowData[], target: Target, splitId: number, arm: number) => Target;
 /** The add line at a place: the label the next stop takes there, and the row before it ("after stop 2"). */
@@ -105,8 +109,8 @@ export const SAME_CAMP_LINE = editorRows.SAME_CAMP_LINE as string;
 export const sameCampSequence = editorRows.sameCampSequence as (split: StopRowData["split"] | undefined) => boolean;
 /** Sets a path label as typed; `commit` trims it (on blur). */
 export const setArmLabel = editorRows.setArmLabel as (rows: StopRowData[], splitId: number, arm: number, label: string, commit?: boolean) => StopRowData[];
-/** The builder's selected row; on a split, `after` puts the next-stop row right after it. */
-/** The open stop and the target when a change is made: undo puts both back. */
+/** The open stop and the target when a change is made: undo puts the open stop back when it is gone, and
+ *  this target when the current one no longer exists. */
 export type Selection = { id: number | null; target: Target };
 /** One undo entry: the stop list before a change, what changed and the selection then. */
 export type UndoEntry = { rows: StopRowData[]; label: string; sel: Selection | null };

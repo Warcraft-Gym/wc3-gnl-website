@@ -162,6 +162,7 @@ export function SplitRow({
             onShow={(a) => onChoose(stopKey, a)}
             tabId={(a) => `${baseId}-tab-${stopKey}-${a}`}
             panelId={`${baseId}-panel-${stopKey}`}
+            name={name}
             after={(a) => (node?.arms[a] ? <span className="tnum shrink-0 text-[0.8rem] text-muted">Lv {node.arms[a].levelAfter}</span> : null)}
             className="-ml-2.5 -mr-2 sm:-mr-3"
           />

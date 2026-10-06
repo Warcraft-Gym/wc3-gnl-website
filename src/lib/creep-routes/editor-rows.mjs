@@ -147,6 +147,24 @@ export function targetPlace(rows, target) {
   return { splitId: t.splitId, arm: t.arm, index: t.pos === null ? list.length : Math.min(t.pos, list.length) };
 }
 
+/** True when the target's list exists: the route, or a path still in its block. */
+export function targetExists(rows, target) {
+  if (target.splitId === undefined) return true;
+  return target.arm < (rows.find((r) => r.id === target.splitId)?.split?.arms.length ?? 0);
+}
+
+/** The first submit error (its key, "stops.2.note") the builder can open, in the keys' order: a stop's
+ *  field as `{ key }` ("2", "2.b.1"), or a path's name or emptiness as `{ index, arm }`; null for none. */
+export function firstErrorAt(keys) {
+  for (const k of keys) {
+    const stop = /^stops\.(\d+)(?:\.split\.arms\.(\d+)\.stops\.(\d+))?\.(?!split\b)/.exec(k);
+    if (stop) return { key: stop[2] === undefined ? stop[1] : `${stop[1]}.${"abc"[Number(stop[2])]}.${stop[3]}` };
+    const path = /^stops\.(\d+)\.split\.arms\.(\d+)\.(?:label|stops)$/.exec(k);
+    if (path) return { index: Number(path[1]), arm: Number(path[2]) };
+  }
+  return null;
+}
+
 /** The target after an add at it: the end stays the end; a place in the middle moves past the new row. */
 export function targetAfterAdd(target) {
   return target.pos === null ? target : { ...target, pos: target.pos + 1 };
@@ -194,12 +212,15 @@ export function moveRowTo(rows, id, at) {
 }
 
 /** Where an arrow moves row `id` (-1 up, 1 down), for `moveRowTo`, so arrows and drag share one rule.
- *  The arrows walk the builder's stacked order: one place in its own list; from a path's first stop up
- *  to the end of the path above (from path A: just above the split); from a path's last stop down to the
- *  start of the path below (from the last path: just below the split); from the main list onto a split,
- *  into its first path from above, its last path from below. A split swaps with its neighbour as one
- *  block. Null at either end of the route. */
-export function stepTarget(rows, id, dir) {
+ *  The arrows walk what is on screen: one place in its own list. In a "Choose one path" block only the
+ *  shown path (`shown`: tab by block id, path A by default) is on screen: from its first stop up to just
+ *  above the block, from its last stop down to just below it, and a stop from the route enters the shown
+ *  path at the near end. A "Take all paths simultaneously" block shows every path stacked: from a path's
+ *  first stop up to the end of the path above (from path 1: just above the block), from its last stop
+ *  down to the start of the path below (from the last path: just below the block); from the route into
+ *  its first path from above, its last path from below. A block swaps with its neighbour as one block.
+ *  Null at either end of the route. */
+export function stepTarget(rows, id, dir, shown = {}) {
   const from = locate(rows, id);
   if (!from) return null;
   const list = listAt(rows, from);
@@ -207,25 +228,26 @@ export function stepTarget(rows, id, dir) {
   if (from.splitId !== undefined) {
     if (j >= 0 && j < list.length) return { ...from, index: dir < 0 ? j : j + 1 };
     const s = rows.findIndex((r) => r.id === from.splitId);
-    const arms = rows[s].split.arms;
+    const { arms, mode } = rows[s].split;
     const k = from.arm + dir;
-    if (k >= 0 && k < arms.length) return { splitId: from.splitId, arm: k, index: dir < 0 ? arms[k].stops.length : 0 };
+    if (mode === "and" && k >= 0 && k < arms.length) return { splitId: from.splitId, arm: k, index: dir < 0 ? arms[k].stops.length : 0 };
     return { index: dir < 0 ? s : s + 1 };
   }
   const next = rows[j];
   if (!next) return null;
   if (next.split && !list[from.index].split) {
-    const arm = dir < 0 ? next.split.arms.length - 1 : 0;
-    return { splitId: next.id, arm, index: dir < 0 ? next.split.arms[arm].stops.length : 0 };
+    const { arms, mode } = next.split;
+    const arm = mode === "and" ? (dir < 0 ? arms.length - 1 : 0) : Math.min(shown[next.id] ?? 0, arms.length - 1);
+    return { splitId: next.id, arm, index: dir < 0 ? arms[arm].stops.length : 0 };
   }
   return { index: dir < 0 ? j : j + 1 };
 }
 
-/** The arrow's accessible name: "Move into path B" when it enters a path ("path 2" in a same-time split),
- *  "Move out of the paths" when it leaves one, else "Move up" or "Move down". */
-export function stepName(rows, id, dir) {
+/** The arrow's accessible name: "Move into path B" when it enters a path ("path 2" in a "Take all paths
+ *  simultaneously" block), "Move out of the paths" when it leaves one, else "Move up" or "Move down". */
+export function stepName(rows, id, dir, shown = {}) {
   const from = locate(rows, id);
-  const to = stepTarget(rows, id, dir);
+  const to = stepTarget(rows, id, dir, shown);
   if (from && to && from.splitId !== undefined && to.splitId === undefined) return "Move out of the paths";
   if (from && to && to.splitId !== undefined && (from.splitId !== to.splitId || from.arm !== to.arm)) {
     const and = rows.find((r) => r.id === to.splitId)?.split?.mode === "and";

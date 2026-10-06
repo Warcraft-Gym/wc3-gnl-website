@@ -209,6 +209,7 @@ export function RouteStepTable({
                 lane={row.lane}
                 dnd={dnd?.({ kind: "row", key: row.key })}
                 sharedXp={row.block !== undefined}
+                inPanel={row.panel !== undefined}
                 chevron={!group}
                 stopBody={editBody && open.has(row.key) ? editBody(row.key) : undefined}
                 tools={stopTools && open.has(row.key) ? stopTools(row.key) : undefined}
@@ -277,7 +278,7 @@ export function RouteStepTable({
           arm={row.arm}
           empty={!row.length}
           lines={row.lines}
-          onAdd={() => edit.onAddStops(row.arm)}
+          onAdd={() => edit.onAddStops(row.arm, true)}
           dnd={dnd?.({ kind: "path", index: row.index, arm: row.arm, at: row.length })}
         />
       );
@@ -325,19 +326,18 @@ export function RouteStepTable({
             if (item.type !== "group") return renderBuilderRow(item);
             // "Choose one path": the shown path's rows hang from its tab in one panel.
             const panel = item.rows.filter((r) => r.panel);
-            const split = item.rows[0];
-            const shown = split.type === "split" ? split.shown : 0;
+            const head = panel.find((r) => r.type === "head");
+            const shown = head?.type === "head" ? head.arm : 0;
             return (
               <li key={`block-${item.key}`} className="relative">
                 <ol>
-                  {item.rows.filter((r) => !r.panel && r.type === "split").map(renderBuilderRow)}
                   {panel.length ? (
                     <li role="tabpanel" id={`${baseId}-panel-${item.key}`} aria-labelledby={`${baseId}-tab-${item.key}-${shown}`} className="relative pb-1.5">
                       <span aria-hidden className={PANEL_EDGE} />
                       <ol>{panel.map(renderBuilderRow)}</ol>
                     </li>
                   ) : null}
-                  {item.rows.filter((r) => !r.panel && r.type !== "split").map(renderBuilderRow)}
+                  {item.rows.filter((r) => !r.panel).map(renderBuilderRow)}
                 </ol>
               </li>
             );

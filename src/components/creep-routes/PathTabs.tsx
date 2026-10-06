@@ -25,6 +25,7 @@ export function PathTabs({
   panelId,
   onAdd,
   after,
+  name = "Paths",
   className,
 }: {
   labels: string[];
@@ -36,6 +37,8 @@ export function PathTabs({
   onAdd?: () => void;
   /** Something after a tab's name (the reader's level). */
   after?: (arm: number) => React.ReactNode;
+  /** The tablist's name: "Paths" in the builder, the block's kind for the reader. */
+  name?: string;
   className?: string;
 }) {
   const tabs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -49,7 +52,7 @@ export function PathTabs({
   };
   return (
     <div className={cn("flex gap-1.5 overflow-x-auto pt-[3px] shadow-[inset_0_-1px_0_color-mix(in_oklab,var(--wg-arcane)_55%,transparent)]", className)}>
-      <div role="tablist" aria-label="Paths" className="flex gap-1.5">
+      <div role="tablist" aria-label={name} className="flex gap-1.5">
         {labels.map((label, a) => {
           const on = a === shown;
           const letter = "ABC"[a];
@@ -95,6 +98,7 @@ export function PathTabs({
         <button
           type="button"
           onClick={onAdd}
+          aria-label="Add path"
           className="inline-flex h-9 flex-none items-center gap-1 rounded-t border border-b-0 border-dashed border-line-strong px-2.5 text-[0.86rem] text-muted hover:text-gold"
         >
           <Plus aria-hidden size={13} /> Path

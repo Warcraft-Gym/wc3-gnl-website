@@ -37,8 +37,8 @@ export type SplitEdit = {
   onAddPath?: () => void;
   /** Every path heading's x; removing one of two paths leaves the other's stops in the split's place. */
   onRemovePath: (arm: number) => void;
-  /** Shows a path and makes its end the target. */
-  onAddStops: (arm: number) => void;
+  /** Shows a path and makes its end the target; `quiet` (its quiet add line, which unmounts) moves focus to "Waypoint". */
+  onAddStops: (arm: number, quiet?: boolean) => void;
   onMove: (dir: -1 | 1) => void;
   canMoveUp: boolean;
   canMoveDown: boolean;
@@ -122,7 +122,6 @@ export function SplitCaption({
           </button>
         </span>
       </div>
-      {and ? <p className="mt-1 text-[0.7rem] text-faint">Paths taken together share one XP total; the order of kills is unknown.</p> : null}
       {edit.sameCamp ? <p className="mt-1 text-[0.7rem] text-faint">{SAME_CAMP_LINE}</p> : null}
       {edit.error ? <p className="mt-1 text-[0.7rem] text-loss">{edit.error}</p> : null}
       {and ? null : (
@@ -154,7 +153,7 @@ export function PathHead({ mode, arm, here, count, waypoints, lines, lane, edit,
   const name = pathName(mode, arm);
   const error = edit.pathError(arm);
   return (
-    <li data-path-head={name} {...dnd?.props} className={cn(ROW, "border-t border-line/40 py-2", DROP)}>
+    <li data-path-head={name} data-path-row={`${edit.blockId}.${arm}`} tabIndex={-1} {...dnd?.props} className={cn(ROW, "border-t border-line/40 py-2", DROP)}>
       <RailCell
         lines={lines}
         lane={lane}

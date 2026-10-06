@@ -215,10 +215,10 @@ describe("RouteSubmitForm: the target and the add line", () => {
     expect(addLine(container)).toBe("3b");
     fireEvent.click(screen.getByRole("tab", { name: "Path A" }));
     expect(addLine(container)).toBe("3a");
-    fireEvent.click(screen.getByRole("button", { name: "Path" }));
+    fireEvent.click(screen.getByRole("button", { name: "Add path" }));
     expect(screen.getByRole("tab", { name: "Path C" })).toHaveAttribute("aria-selected", "true");
     expect(addLine(container)).toBe("3c");
-    expect(screen.queryByRole("button", { name: "Path" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Add path" })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Continue the route" }));
     expect(addLine(container)).toBe("3");
     expect(screen.queryByRole("button", { name: "Continue the route" })).not.toBeInTheDocument();
@@ -268,7 +268,8 @@ describe("RouteSubmitForm: Remove paths and remove path say what stays", () => {
     fireEvent.click(screen.getByRole("tab", { name: "Safe" }));
     fireEvent.click(screen.getByRole("button", { name: "Remove path B" }));
     fireEvent.click(screen.getByRole("button", { name: /^Undo: remove path B/ }));
-    expect(addLine(container)).toBe("3b");
+    // Undo keeps the current target, the end of the route, which still exists.
+    expect(addLine(container)).toBe("3");
     fireEvent.click(screen.getByRole("tab", { name: "Fast" }));
     fireEvent.click(screen.getByRole("button", { name: "Remove path A" }));
     expect(addLine(container)).toBe("3");
