@@ -434,7 +434,8 @@ A camp stop always kills something; everything else is a waypoint.
 
 A stop can happen at a place instead of a camp: `RouteStop.place` is
 `{ kind, at }`. `kind` is the purpose: `attack`, `build`, `expand`, `shop`,
-`scout` or `other`. `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
+`scout` or `other` (the builder and the Studio list them Shop, Expand, Build,
+Scout, Attack, Other). `at` is the spot: `{ start }` (`String(player)` of `map.starts[]`),
 `{ mine }` (the index into `map.mines[]`), `{ shop }` (`map.shops[].id`) or
 `{ x, y }` (an image fraction 0..1, like a camp's). A place stop has
 `campId: null` and an `action` that names it ("Harass their base", "Plant the
@@ -542,8 +543,8 @@ The builder offers two kinds, "Choose one path" and "Take all paths simultaneous
 saves `or` or `xor` from the structure: stops after the split mean `or`,
 nothing after means `xor` (`savedMode` in `editor-rows.mjs`).
 
-In Sanity the split is a `creepSplit` array member (Studio: "At the same
-time" / "Choose a path, then continue" / "Choose a path"), next to the `stop`
+In Sanity the split is a `creepSplit` array member (Studio: "Take all paths
+simultaneously" / "Choose one path, then continue" / "Choose one path"), next to the `stop`
 members (`creepStop`, stored under the name `stop`). A whole-route pair is a
 split at index 0. `condition` stays a single stop's.
 
