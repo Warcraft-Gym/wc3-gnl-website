@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { ChevronDown, Crown, ExternalLink } from "lucide-react";
+import { ChevronDown, ExternalLink } from "lucide-react";
 import { TwitchIcon } from "@/components/ui/TwitchIcon";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
@@ -44,7 +44,6 @@ function Bullets({ items }: { items: readonly string[] }) {
 export default async function KingOfTheHillPage() {
   const [page, results] = await Promise.all([getKothPage(), getKothResults()]);
   const years = groupByYear(results);
-  const crownings = years.reduce((n, y) => n + y.crownings, 0);
   const crowned = mostCrowns(results);
   const leaders = crowned.slice(0, 8);
 
@@ -184,18 +183,13 @@ export default async function KingOfTheHillPage() {
         {years.length ? (
           <Surface className="p-6 sm:p-8">
             <h2 className="font-display text-xl font-bold uppercase">Past winners</h2>
-            <p className="mt-2 text-sm text-muted">
-              {crownings} crowns over {results.length} nights, {shortDate(results[results.length - 1].date)}{" "}
-              {years[years.length - 1].year} to {shortDate(results[0].date)} {years[0].year}. {crowned.length} players have
-              worn one.
-            </p>
 
             {/* Who has worn the most: one bar per player in the brand hue, the
-                figure beside it as text. Counted from the nights listed below. */}
+                figure beside it as text. Counted from the events listed below. */}
             {leaders.length ? (
               <>
-                <h3 className="mt-7 font-display text-base font-bold uppercase tracking-[0.06em]">Most crowns</h3>
-                <p className="mt-1 text-xs text-faint">One a night, however many brackets a player won.</p>
+                <h3 className="mt-5 font-display text-base font-bold uppercase tracking-[0.06em]">Most crowns</h3>
+                <p className="mt-1 text-xs text-faint">At most one crown per event.</p>
                 <ol className="mt-3 space-y-1.5">
                   {leaders.map((p, i) => (
                     <li
@@ -213,7 +207,7 @@ export default async function KingOfTheHillPage() {
                       <Meter
                         value={p.crowns}
                         max={leaders[0].crowns}
-                        label={`${p.player}, crowned on ${p.crowns} ${p.crowns === 1 ? "night" : "nights"}`}
+                        label={`${p.player}, crowned at ${p.crowns} ${p.crowns === 1 ? "event" : "events"}`}
                         hue="bg-gold"
                       />
                       <span className="tnum text-right text-fg">{p.crowns}</span>
@@ -226,7 +220,7 @@ export default async function KingOfTheHillPage() {
               </>
             ) : null}
 
-            <h3 className="mt-7 font-display text-base font-bold uppercase tracking-[0.06em]">Every night</h3>
+            <h3 className="mt-8 font-display text-base font-bold uppercase tracking-[0.06em]">Results</h3>
 
             <div className="mt-3 space-y-2">
               {years.map((y, i) => (
@@ -234,28 +228,35 @@ export default async function KingOfTheHillPage() {
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-2/50 [&::-webkit-details-marker]:hidden">
                     <span className="font-display text-base font-bold uppercase tracking-[0.06em] text-fg">{y.year}</span>
                     <span className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint">
-                      {y.results.length} {y.results.length === 1 ? "night" : "nights"} · {y.crownings} crowned
+                      {y.results.length} {y.results.length === 1 ? "event" : "events"}
                       <ChevronDown size={14} className="ml-2 inline align-[-2px] transition-transform group-open:rotate-180" />
                     </span>
                   </summary>
                   <ul className="border-t border-line/60">
                     {y.results.map((r) => (
+                      // One line per bracket: the names line up for scanning, the bracket follows muted
                       <li
                         key={r.id}
-                        className="flex flex-col gap-1.5 border-b border-line/40 px-4 py-2.5 last:border-0 sm:flex-row sm:items-baseline sm:gap-4"
+                        className="grid gap-x-4 gap-y-1 border-b border-line/40 px-4 py-3 last:border-0 sm:grid-cols-[4.5rem_1fr]"
                       >
-                        <span className="w-16 shrink-0 font-mono text-xs text-faint">{shortDate(r.date)}</span>
+                        <span className="pt-px font-mono text-xs text-faint">{shortDate(r.date)}</span>
                         {r.winners.length ? (
-                          <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
+                          <ul className="min-w-0 space-y-1">
                             {topFirst(r.winners).map((w) => (
-                              <span key={`${w.bracket}-${w.player}`} className="text-sm">
-                                <Crown size={12} className="mr-1.5 inline align-[-1px] text-gold/70" aria-hidden />
-                                <Flag code={w.country ?? undefined} className="mr-1.5" />
-                                <span className="text-fg">{w.player}</span>{" "}
-                                <span className="text-faint">{w.bracket}</span>
-                              </span>
+                              <li
+                                key={`${w.bracket}-${w.player}`}
+                                className="grid grid-cols-[minmax(0,1fr)_auto] items-baseline gap-x-3 text-sm sm:grid-cols-[minmax(0,13rem)_1fr]"
+                              >
+                                <span className="truncate text-fg">
+                                  <span className="mr-1.5 inline-block w-4">
+                                    <Flag code={w.country ?? undefined} />
+                                  </span>
+                                  {w.player}
+                                </span>
+                                <span className="truncate text-right text-xs text-faint sm:text-left">{w.bracket}</span>
+                              </li>
                             ))}
-                          </span>
+                          </ul>
                         ) : (
                           <span className="text-sm text-faint">Winners were not recorded.</span>
                         )}
