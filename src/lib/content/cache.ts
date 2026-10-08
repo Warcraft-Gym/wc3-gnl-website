@@ -20,7 +20,7 @@
  *  obvious rather than silently untagged. */
 export type SanityType =
   | "post" | "guide" | "buildOrder" | "tool"
-  | "creepMap" | "creepRoute" | "gnlRules" | "kothPage" | "kothResult";
+  | "creepMap" | "creepRoute" | "gnlRules" | "kothPage";
 
 export const sanityTag = (type: SanityType) => `sanity:${type}`;
 

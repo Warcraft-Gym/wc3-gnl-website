@@ -14,6 +14,7 @@ import { currentKings } from "@/lib/koth/current-kings";
 import { bracketArt } from "@/lib/koth/bracket-art";
 import { formatNextEvent, isPast } from "@/lib/koth/next-event";
 import { LocalEventTime } from "@/components/koth/LocalEventTime";
+import { NightBoard } from "@/components/koth/NightBoard";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 export const metadata: Metadata = pageMetadata({
@@ -40,6 +41,8 @@ function Bullets({ items }: { items: readonly string[] }) {
 
 export default async function KingOfTheHillPage() {
   const [page, results] = await Promise.all([getKothPage(), getKothResults()]);
+  // The browser reads a night's board from the backend itself, so the page hands it the address
+  const api = process.env.GNL_API_BASE_URL?.replace(/\/$/, "") ?? "";
   const years = groupByYear(results);
   const crownings = years.reduce((n, y) => n + y.crownings, 0);
 
@@ -194,24 +197,30 @@ export default async function KingOfTheHillPage() {
                   </summary>
                   <ul className="border-t border-line/60">
                     {y.results.map((r) => (
-                      <li
-                        key={r.date}
-                        className="flex flex-col gap-1.5 border-b border-line/40 px-4 py-2.5 last:border-0 sm:flex-row sm:items-baseline sm:gap-4"
-                      >
-                        <span className="w-16 shrink-0 font-mono text-xs text-faint">{shortDate(r.date)}</span>
-                        {r.winners.length ? (
-                          <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
-                            {r.winners.map((w) => (
-                              <span key={`${w.bracket}-${w.player}`} className="text-sm">
-                                <Crown size={12} className="mr-1.5 inline align-[-1px] text-gold/70" aria-hidden />
-                                <span className="text-fg">{w.player}</span>{" "}
-                                <span className="text-faint">{w.bracket}</span>
-                              </span>
-                            ))}
-                          </span>
-                        ) : (
-                          <span className="text-sm text-faint">Winners were not recorded.</span>
-                        )}
+                      <li key={r.id} className="border-b border-line/40 last:border-0">
+                        {/* The row is the summary; opening it reads the night's brackets. */}
+                        <NightBoard
+                          api={api}
+                          id={r.id}
+                          summary={
+                            <span className="flex flex-col gap-1.5 sm:flex-row sm:items-baseline sm:gap-4">
+                              <span className="w-16 shrink-0 font-mono text-xs text-faint">{shortDate(r.date)}</span>
+                              {r.winners.length ? (
+                                <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
+                                  {r.winners.map((w) => (
+                                    <span key={`${w.bracket}-${w.player}`} className="text-sm">
+                                      <Crown size={12} className="mr-1.5 inline align-[-1px] text-gold/70" aria-hidden />
+                                      <span className="text-fg">{w.player}</span>{" "}
+                                      <span className="text-faint">{w.bracket}</span>
+                                    </span>
+                                  ))}
+                                </span>
+                              ) : (
+                                <span className="text-sm text-faint">Winners were not recorded.</span>
+                              )}
+                            </span>
+                          }
+                        />
                       </li>
                     ))}
                   </ul>

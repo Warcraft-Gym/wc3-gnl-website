@@ -41,7 +41,6 @@ const FILES = [
   "src/lib/tools-data.ts",
   "src/lib/gnl/rules.ts",
   "src/lib/koth/page.ts",
-  "src/lib/koth/results.ts",
 ];
 
 test("every Sanity read is tagged, none left untagged", () => {
