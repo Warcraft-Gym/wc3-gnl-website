@@ -9,7 +9,7 @@ test("a night's crowns read strongest bracket first whatever the stored order", 
   assert.deepEqual(order(["Gold and below", "Platinum to 1700 MMR"]), ["Platinum to 1700 MMR", "Gold and below"]);
 });
 
-test("the crown count takes a name as stored: Elu and elu are two players, a night with no date does not count", () => {
+test("the crown count takes a name as stored: Elu and elu stay apart until the import joins them; a night with no date does not count", () => {
   const out = mostCrowns([
     { date: "2026-01-10", winners: [{ bracket: "a", player: "Elu" }, { bracket: "b", player: "elu" }, { bracket: "c", player: "Glaive" }] },
     { date: "2024-03-02", winners: [{ bracket: "a", player: "Elu" }, { bracket: "b", player: "Glaive" }] },

@@ -17,9 +17,9 @@ export function topFirst(winners) {
 }
 
 /** Every crowned player, most crowns first, with the years of the first and
- *  last crown. A name counts as the backend stores it: "Elu" and "elu" wore
- *  crowns in two brackets of one night, so a fold on case would be wrong, and
- *  joining spellings is the import's job, not the page's. */
+ *  last crown. A name counts as the backend stores it: the page cannot tell
+ *  whether "Elu" and "elu" are one player on two races or two players, so
+ *  joining spellings is the import's job, with a reviewed list, not the page's. */
 export function mostCrowns(results) {
   const players = new Map();
   for (const night of results ?? []) {
