@@ -106,6 +106,17 @@ The maintainers decided on 20 September 2026 that this site takes the data colou
 - Text never wears a data colour, with two exceptions where the text is the mark: a result score or a signed change, and a count under a W or L column title.
 - Gold is the brand. Gold never means "won" on a page that has a subject.
 
+## King of the Hill results
+
+- The roll of honour comes from the league backend, `GET /koth/winners`, read by `src/lib/koth/results.ts`. The Studio holds the page copy only. The site shows the king of each bracket per night and no series: the series live in the app.
+- A bracket keeps the label the old page wrote ("1600 to the mooon"). A night the app ran names its brackets "Bracket 1, 2, 3", which read as their MMR band in the app's words: "under 1450 MMR", "1450 to 1599 MMR", "1600 MMR and up". `bracketLabel()` in `src/lib/koth/results.mjs` writes both.
+- A night with no king in any bracket reads "Winners were not recorded."
+- A night's crowns read strongest bracket first, from each label as the emblem rule reads it (`topFirst()` in `src/lib/koth/crowns.mjs`), whatever order the backend stores.
+- "Most crowns" is a column of figures with one `Meter` per player in `gold`, the brand hue, on the neutral track: an amount on a page with no subject, so neither `win` nor `loss`. The figure stands beside the bar as text, and counts events: a player who wins two brackets at one event is crowned once there. The caption says "At most one crown per event". A name linked to a player's profile counts as that player and shows the profile's name and flag (`mostCrowns()`). Any other name counts as the backend stores it, with no fold on case: a player may hold two brackets at one event on two races, so the page cannot tell one player from two, and joining spellings is the import's job with its reviewed list. It is counted on the server from the winners list the page already reads, never a second read.
+- The page calls a KOTH run an event, never a night: it does not always run at night. "Past winners" opens on the leaderboard with no summary line: a sentence that restates the figures below it adds nothing.
+- "Results" lists every event by year, the newest year open. An event row is its date, then one line per bracket, strongest first: flag and name in a column that lines up, the bracket label muted after it. No crown icon: every line is a winner.
+- A king's name carries the flag of the linked profile, before the name, as everywhere else on the site. A name with no linked profile has no flag.
+
 ## Charts, bars and tiles
 
 - One plot has one y-axis. Two measures on two scales go in two plots.

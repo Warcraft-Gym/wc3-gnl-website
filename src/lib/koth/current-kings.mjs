@@ -18,7 +18,7 @@
  * recorded a winner is the one that decided who holds the crowns.
  */
 
-/** `{ date, kings: [{ bracket, player }] }` from the newest result that
+/** `{ date, kings: [{ bracket, player, ... }] }` from the newest result that
  *  recorded a winner, or null when none has. Order is the order the winners
  *  were entered — that is the author's, and the Studio can reorder it. */
 export function currentKings(results) {
@@ -33,7 +33,7 @@ export function currentKings(results) {
   for (const result of byNewest) {
     const kings = (result.winners ?? []).filter((w) => w?.bracket && w?.player);
     if (kings.length) {
-      return { date: result.date, kings: kings.map((w) => ({ bracket: w.bracket, player: w.player })) };
+      return { date: result.date, kings };
     }
   }
   return null;
