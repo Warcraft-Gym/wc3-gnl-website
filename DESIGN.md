@@ -111,6 +111,9 @@ The maintainers decided on 20 September 2026 that this site takes the data colou
 - The roll of honour comes from the league backend, `GET /koth/winners`, read by `src/lib/koth/results.ts`. The Studio holds the page copy only. The site shows the king of each bracket per night and no series: the series live in the app.
 - A bracket keeps the label the old page wrote ("1600 to the mooon"). A night the app ran names its brackets "Bracket 1, 2, 3", which read as their MMR band in the app's words: "under 1450 MMR", "1450 to 1599 MMR", "1600 MMR and up". `bracketLabel()` in `src/lib/koth/results.mjs` writes both.
 - A night with no king in any bracket reads "Winners were not recorded."
+- A night's crowns read strongest bracket first, from each label as the emblem rule reads it (`topFirst()` in `src/lib/koth/crowns.mjs`), whatever order the backend stores.
+- "Most crowns" is a column of figures with one `Meter` per player in `gold`, the brand hue, on the neutral track: an amount on a page with no subject, so neither `win` nor `loss`. The figure stands beside the bar as text. The count takes a name as the backend stores it (`mostCrowns()`): "Elu" and "elu" wore crowns in two brackets of one night, so no fold on case; joining spellings is the import's job. It is counted on the server from the winners list the page already reads, never a second read.
+- The page counts nights and crowns: "432 crowns over 169 nights". A KOTH runs nights, not events.
 
 ## Charts, bars and tiles
 

@@ -12,6 +12,8 @@ import { getKothResults } from "@/lib/koth/results";
 import { groupByYear, shortDate } from "@/lib/koth/group-by-year";
 import { currentKings } from "@/lib/koth/current-kings";
 import { bracketArt } from "@/lib/koth/bracket-art";
+import { mostCrowns, topFirst } from "@/lib/koth/crowns";
+import { Meter } from "@/components/ui/Meter";
 import { formatNextEvent, isPast } from "@/lib/koth/next-event";
 import { LocalEventTime } from "@/components/koth/LocalEventTime";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
@@ -42,6 +44,8 @@ export default async function KingOfTheHillPage() {
   const [page, results] = await Promise.all([getKothPage(), getKothResults()]);
   const years = groupByYear(results);
   const crownings = years.reduce((n, y) => n + y.crownings, 0);
+  const crowned = mostCrowns(results);
+  const leaders = crowned.slice(0, 8);
 
   const intro = page?.intro || FALLBACK.intro;
   const streamUrl = page?.streamUrl || FALLBACK.streamUrl;
@@ -177,18 +181,44 @@ export default async function KingOfTheHillPage() {
           <Surface className="p-6 sm:p-8">
             <h2 className="font-display text-xl font-bold uppercase">Past winners</h2>
             <p className="mt-2 text-sm text-muted">
-              {crownings} crowns across {results.length} events, from{" "}
-              {shortDate(results[results.length - 1].date)} {years[years.length - 1].year} to{" "}
-              {shortDate(results[0].date)} {years[0].year}.
+              {crownings} crowns over {results.length} nights, {shortDate(results[results.length - 1].date)}{" "}
+              {years[years.length - 1].year} to {shortDate(results[0].date)} {years[0].year}. {crowned.length} players have
+              worn one.
             </p>
 
-            <div className="mt-6 space-y-2">
+            {/* Who has worn the most: one bar per player in the brand hue, the
+                figure beside it as text. Counted from the nights listed below. */}
+            {leaders.length ? (
+              <>
+                <h3 className="mt-7 font-display text-base font-bold uppercase tracking-[0.06em]">Most crowns</h3>
+                <ol className="mt-3 space-y-1.5">
+                  {leaders.map((p, i) => (
+                    <li
+                      key={p.player}
+                      className="grid grid-cols-[1.25rem_minmax(0,7.5rem)_1fr_2rem] items-center gap-x-3 text-sm sm:grid-cols-[1.25rem_minmax(0,10rem)_1fr_2rem_4.5rem]"
+                    >
+                      <span className="tnum text-right text-xs text-faint">{i + 1}</span>
+                      <span className="truncate text-fg">{p.player}</span>
+                      <Meter value={p.crowns} max={leaders[0].crowns} label={`${p.player}, ${p.crowns} crowns`} hue="bg-gold" />
+                      <span className="tnum text-right text-fg">{p.crowns}</span>
+                      <span className="hidden font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint sm:inline">
+                        {p.first === p.last ? p.first : `${p.first}–${p.last}`}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </>
+            ) : null}
+
+            <h3 className="mt-7 font-display text-base font-bold uppercase tracking-[0.06em]">Every night</h3>
+
+            <div className="mt-3 space-y-2">
               {years.map((y, i) => (
                 <details key={y.year} open={i === 0} className="group border border-line bg-surface/40">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-2/50 [&::-webkit-details-marker]:hidden">
                     <span className="font-display text-base font-bold uppercase tracking-[0.06em] text-fg">{y.year}</span>
                     <span className="font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint">
-                      {y.results.length} {y.results.length === 1 ? "event" : "events"} · {y.crownings} crowned
+                      {y.results.length} {y.results.length === 1 ? "night" : "nights"} · {y.crownings} crowned
                       <ChevronDown size={14} className="ml-2 inline align-[-2px] transition-transform group-open:rotate-180" />
                     </span>
                   </summary>
@@ -201,7 +231,7 @@ export default async function KingOfTheHillPage() {
                         <span className="w-16 shrink-0 font-mono text-xs text-faint">{shortDate(r.date)}</span>
                         {r.winners.length ? (
                           <span className="flex min-w-0 flex-wrap gap-x-4 gap-y-1">
-                            {r.winners.map((w) => (
+                            {topFirst(r.winners).map((w) => (
                               <span key={`${w.bracket}-${w.player}`} className="text-sm">
                                 <Crown size={12} className="mr-1.5 inline align-[-1px] text-gold/70" aria-hidden />
                                 <span className="text-fg">{w.player}</span>{" "}
