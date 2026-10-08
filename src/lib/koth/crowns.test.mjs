@@ -16,8 +16,21 @@ test("the crown count takes a name as stored: Elu and elu stay apart until the i
     { date: null, winners: [{ bracket: "a", player: "Nobody" }] },
   ]);
   assert.deepEqual(out, [
-    { player: "Elu", crowns: 2, first: "2024", last: "2026" },
-    { player: "Glaive", crowns: 2, first: "2024", last: "2026" },
-    { player: "elu", crowns: 1, first: "2026", last: "2026" },
+    { player: "Elu", country: null, crowns: 2, first: "2024", last: "2026" },
+    { player: "Glaive", country: null, crowns: 2, first: "2024", last: "2026" },
+    { player: "elu", country: null, crowns: 1, first: "2026", last: "2026" },
+  ]);
+});
+
+test("a player crowns once a night however many brackets they win, and a linked profile joins its names", () => {
+  const out = mostCrowns([
+    { date: "2026-01-10", winners: [{ bracket: "a", player: "Squid", userId: 5, country: "US" }, { bracket: "b", player: "Squid", userId: 5, country: "US" }] },
+    { date: "2025-06-01", winners: [{ bracket: "a", player: "Squid", userId: 5, country: "US" }, { bracket: "b", player: "Squid", userId: null, country: null }] },
+    { date: "2024-03-02", winners: [{ bracket: "a", player: "Glaive" }, { bracket: "b", player: "Glaive" }] },
+  ]);
+  assert.deepEqual(out, [
+    { player: "Squid", country: "US", crowns: 2, first: "2025", last: "2026" },
+    { player: "Glaive", country: null, crowns: 1, first: "2024", last: "2024" },
+    { player: "Squid", country: null, crowns: 1, first: "2025", last: "2025" },
   ]);
 });

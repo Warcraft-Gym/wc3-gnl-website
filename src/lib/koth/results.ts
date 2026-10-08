@@ -11,10 +11,16 @@ import * as impl from "./results.mjs";
  * (the client's default window), so the backend sees about one read a day.
  */
 
-export type KothCrown = { bracket: string; player: string };
+export type KothCrown = { bracket: string; player: string; userId: number | null; country: string | null };
 export type KothResult = { id: number; date: string; winners: KothCrown[] };
 
-type RawWinner = { bracket: string | null; lower_bound: number | null; name: string | null };
+type RawWinner = {
+  bracket: string | null;
+  lower_bound: number | null;
+  name: string | null;
+  user_id: number | null;
+  country: string | null;
+};
 type RawNight = { event_id: number; date: string | null; date_label: string | null; winners: RawWinner[] };
 
 const toResults = impl.toResults as (nights: RawNight[]) => KothResult[];

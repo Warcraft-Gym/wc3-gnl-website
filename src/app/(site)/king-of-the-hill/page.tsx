@@ -14,6 +14,7 @@ import { currentKings } from "@/lib/koth/current-kings";
 import { bracketArt } from "@/lib/koth/bracket-art";
 import { mostCrowns, topFirst } from "@/lib/koth/crowns";
 import { Meter } from "@/components/ui/Meter";
+import { Flag } from "@/components/ui/Flag";
 import { formatNextEvent, isPast } from "@/lib/koth/next-event";
 import { LocalEventTime } from "@/components/koth/LocalEventTime";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
@@ -135,7 +136,10 @@ export default async function KingOfTheHillPage() {
                     />
                   </span>
                   <span className="min-w-0">
-                    <span className="block truncate font-display text-base font-bold uppercase text-fg">{k.player}</span>
+                    <span className="block truncate font-display text-base font-bold uppercase text-fg">
+                      <Flag code={k.country ?? undefined} className="mr-1.5" />
+                      {k.player}
+                    </span>
                     <span className="block text-xs text-faint">{k.bracket}</span>
                   </span>
                 </li>
@@ -191,15 +195,27 @@ export default async function KingOfTheHillPage() {
             {leaders.length ? (
               <>
                 <h3 className="mt-7 font-display text-base font-bold uppercase tracking-[0.06em]">Most crowns</h3>
+                <p className="mt-1 text-xs text-faint">One a night, however many brackets a player won.</p>
                 <ol className="mt-3 space-y-1.5">
                   {leaders.map((p, i) => (
                     <li
-                      key={p.player}
+                      key={`${i}-${p.player}`}
                       className="grid grid-cols-[1.25rem_minmax(0,7.5rem)_1fr_2rem] items-center gap-x-3 text-sm sm:grid-cols-[1.25rem_minmax(0,10rem)_1fr_2rem_4.5rem]"
                     >
                       <span className="tnum text-right text-xs text-faint">{i + 1}</span>
-                      <span className="truncate text-fg">{p.player}</span>
-                      <Meter value={p.crowns} max={leaders[0].crowns} label={`${p.player}, ${p.crowns} crowns`} hue="bg-gold" />
+                      {/* Every row keeps the flag's slot, so the names line up with or without one */}
+                      <span className="truncate text-fg">
+                        <span className="mr-1.5 inline-block w-4">
+                          <Flag code={p.country ?? undefined} />
+                        </span>
+                        {p.player}
+                      </span>
+                      <Meter
+                        value={p.crowns}
+                        max={leaders[0].crowns}
+                        label={`${p.player}, crowned on ${p.crowns} ${p.crowns === 1 ? "night" : "nights"}`}
+                        hue="bg-gold"
+                      />
                       <span className="tnum text-right text-fg">{p.crowns}</span>
                       <span className="hidden font-mono text-[0.66rem] uppercase tracking-[0.14em] text-faint sm:inline">
                         {p.first === p.last ? p.first : `${p.first}–${p.last}`}
@@ -234,6 +250,7 @@ export default async function KingOfTheHillPage() {
                             {topFirst(r.winners).map((w) => (
                               <span key={`${w.bracket}-${w.player}`} className="text-sm">
                                 <Crown size={12} className="mr-1.5 inline align-[-1px] text-gold/70" aria-hidden />
+                                <Flag code={w.country ?? undefined} className="mr-1.5" />
                                 <span className="text-fg">{w.player}</span>{" "}
                                 <span className="text-faint">{w.bracket}</span>
                               </span>

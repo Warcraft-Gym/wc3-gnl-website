@@ -25,7 +25,8 @@ export function bracketLabel(name, low, bounds) {
   return at ? `${at} to ${next - 1} MMR` : `under ${next} MMR`;
 }
 
-/** `[{ id, date, winners: [{ bracket, player }] }]`, newest first as the backend sends them. */
+/** `[{ id, date, winners: [{ bracket, player, userId, country }] }]`, newest first as the backend sends them.
+ *  A winner has a user id and country once a reviewed link names the player's profile. */
 export function toResults(nights) {
   return (Array.isArray(nights) ? nights : [])
     .filter((n) => typeof n?.date === "string" && Number.isInteger(n.event_id))
@@ -36,7 +37,13 @@ export function toResults(nights) {
         date: n.date,
         winners: (n.winners ?? [])
           .filter((w) => w?.name)
-          .map((w) => ({ bracket: bracketLabel(w.bracket, w.lower_bound, bounds), player: w.name })),
+          .map((w) => ({
+            bracket: bracketLabel(w.bracket, w.lower_bound, bounds),
+            // A profile name may carry its battle tag number: "Screwin#1463" reads "Screwin"
+            player: w.name.trim().replace(/#\d+$/, ""),
+            userId: Number.isInteger(w.user_id) ? w.user_id : null,
+            country: typeof w.country === "string" && w.country ? w.country : null,
+          })),
       };
     });
 }

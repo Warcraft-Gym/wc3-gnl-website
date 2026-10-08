@@ -16,10 +16,13 @@ export function topFirst(winners) {
     .map(({ w }) => w);
 }
 
-/** Every crowned player, most crowns first, with the years of the first and
- *  last crown. A name counts as the backend stores it: the page cannot tell
- *  whether "Elu" and "elu" are one player on two races or two players, so
- *  joining spellings is the import's job, with a reviewed list, not the page's. */
+/** Every crowned player, most nights crowned first, with the years of the
+ *  first and last crown. A night counts once, however many brackets the
+ *  player won in it. A name linked to a player's profile counts as that
+ *  player under the profile's name and flag; any other name counts as the
+ *  backend stores it, with no fold on case: the page cannot tell whether
+ *  "Elu" and "elu" are one player on two races or two players, so joining
+ *  spellings is the import's job, with a reviewed list, not the page's. */
 export function mostCrowns(results) {
   const players = new Map();
   for (const night of results ?? []) {
@@ -27,14 +30,15 @@ export function mostCrowns(results) {
     for (const w of night.winners ?? []) {
       const name = typeof w?.player === "string" ? w.player.trim() : "";
       if (!name) continue;
-      const p = players.get(name) ?? { player: name, crowns: 0, first: night.date, last: night.date };
-      p.crowns += 1;
+      const key = Number.isInteger(w.userId) ? `u${w.userId}` : `n${name}`;
+      const p = players.get(key) ?? { player: name, country: w.country ?? null, nights: new Set(), first: night.date, last: night.date };
+      p.nights.add(night);
       if (night.date < p.first) p.first = night.date;
       if (night.date > p.last) p.last = night.date;
-      players.set(name, p);
+      players.set(key, p);
     }
   }
   return [...players.values()]
-    .map((p) => ({ player: p.player, crowns: p.crowns, first: p.first.slice(0, 4), last: p.last.slice(0, 4) }))
+    .map((p) => ({ player: p.player, country: p.country, crowns: p.nights.size, first: p.first.slice(0, 4), last: p.last.slice(0, 4) }))
     .sort((a, b) => b.crowns - a.crowns || a.player.localeCompare(b.player));
 }
