@@ -108,11 +108,9 @@ The maintainers decided on 20 September 2026 that this site takes the data colou
 
 ## King of the Hill results
 
-- The roll of honour and each night's brackets come from the league backend, `GET /koth/winners` for the list and `GET /koth/nights/{id}/board` for one night, read by `src/lib/koth/results.ts` and `src/components/koth/NightBoard.tsx`. The Studio holds the page copy only.
+- The roll of honour comes from the league backend, `GET /koth/winners`, read by `src/lib/koth/results.ts`. The Studio holds the page copy only. The site shows the king of each bracket per night and no series: the series live in the app.
 - A bracket keeps the label the old page wrote ("1600 to the mooon"). A night the app ran names its brackets "Bracket 1, 2, 3", which read as their MMR band in the app's words: "under 1450 MMR", "1450 to 1599 MMR", "1600 MMR and up". `bracketLabel()` in `src/lib/koth/results.mjs` writes both.
-- A night's series are a neutral result: the winner's name in `gold`, the loser's in a muted text token, "beat" between them. No `win` and no `loss`, because no reader is the subject. Rows read newest first and carry their number in play order, as the app's results table does.
-- A series with no known winner reads "a vs b" in the plain text token, and "Winner withdrew" when neither player played on. A winner who did not play on reads "Withdrew". What a result did to the crown reads in words, "Took the crown" or "Defended the crown", never as an icon alone; a winner the order of play infers keeps the words with a hover that says so. A reading note from the import is an info mark with the note as its hover and screen-reader text.
-- The brackets of a night read weakest first. A bracket with no king reads "No king recorded"; a night with no series reads "No series recorded".
+- A night with no king in any bracket reads "Winners were not recorded."
 
 ## Charts, bars and tiles
 
