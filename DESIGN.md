@@ -83,6 +83,7 @@ A player is not one race. The league data holds four different race facts, and e
 - A season row names its tag, "as MangoIsNice#1230", in muted ink on the grey line under the team, only when the season's `played_as` is set and differs from the active tag (`playedAsNote()`).
 - A person with no tag shows no W3C link, no ladder tiles, no ladder panel and no ladder band, and one header line reads "No ladder account on record".
 - A race is an icon first. Every race mark carries the race icon with its name as `alt` and `title`. A race name in text wears a text token, never the race colour.
+- A guide card (`GuideCard.tsx`) marks a race category with the race icon, left of the title, in place of its name; a topic category (New players, Creep Routes, Game Mechanics) has no icon and keeps its name.
 - A race colour fills a mark with no text on it: a bar segment, a dot, a stripe. Race colours and result colours never encode data in the same mark set, because orc red sits close to `loss`.
 - The Random race uses the neutral `random` token.
 
