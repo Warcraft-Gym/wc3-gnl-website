@@ -20,7 +20,9 @@ tools.
 
 ### Guides
 
-Fields: `title`, `slug`, `category` (one of the fixed categories in
+Fields: `title`, `slug`, the optional byline fields `author`,
+`authorDiscord` and `maintainer` (same as on build orders and creep routes;
+the cards show the author only), `category` (one of the fixed categories in
 `src/lib/learn/data.ts`: `new-players`, `human`, `night-elf`, `orc`, `undead`,
 `creep-routes`, `mechanics`), `level`, `excerpt`, `readingMinutes`,
 `publishedAt`, `coverImage`, `body` (Portable Text with images and YouTube

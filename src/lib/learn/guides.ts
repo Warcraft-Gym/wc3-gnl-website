@@ -14,6 +14,7 @@ import { sanityCache } from "@/lib/content/cache";
 const LIST_PROJECTION = `{
   "slug": slug.current,
   title,
+  author,
   category,
   level,
   excerpt,
@@ -25,6 +26,9 @@ const LIST_PROJECTION = `{
 const DETAIL_PROJECTION = `{
   "slug": slug.current,
   title,
+  author,
+  authorDiscord,
+  maintainer,
   category,
   level,
   excerpt,

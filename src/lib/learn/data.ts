@@ -34,6 +34,11 @@ export type LearnCategory = {
 export type Guide = {
   slug: string;
   title: string;
+  /** Who wrote it (display name); unset for Gym guides with no single author. */
+  author?: string;
+  authorDiscord?: string;
+  /** Who keeps it up to date, if not the author. */
+  maintainer?: string;
   category: LearnCategoryId;
   level: GuideLevel;
   excerpt: string;
