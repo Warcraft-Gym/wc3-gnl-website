@@ -55,6 +55,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     page("/tools", 0.6, "monthly"),
     page("/privacy", 0.3, "yearly"),
     ...(OVERLAY_BETA_LIVE ? [page("/tools/overlay", 0.6, "monthly")] : []),
+    page("/tools/training-grounds", 0.6, "monthly"),
     page("/gnl/about", 0.7, "monthly"),
     page("/gnl/rules", 0.5, "monthly"),
     page("/gnl/schedule", 0.8, "daily"),

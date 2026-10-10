@@ -5,6 +5,7 @@ import {
   FileSearch,
   Gamepad2,
   GitCompare,
+  GraduationCap,
   Keyboard,
   ListOrdered,
   Map,
@@ -28,7 +29,8 @@ export type Tool = {
 
 export type ToolGroup = { title: string; blurb?: string; tools: Tool[] };
 
-/** Apps and services built by the Gym. */
+/** Featured on /tools with a page of their own: the Gym's apps, and
+ *  community projects we host a page for (those carry `by`). */
 export const GYM_TOOLS: Tool[] = [
   {
     href: "/tools/overlay",
@@ -37,6 +39,15 @@ export const GYM_TOOLS: Tool[] = [
     title: "Build order overlay",
     badge: "Beta",
     body: "A desktop app that floats a build order over Warcraft III while you play, with a clock and global shortcuts. Keeps your private builds and turns a replay or a W3Champions match into one.",
+  },
+  {
+    href: "/tools/training-grounds",
+    image: "/tools/training-grounds.webp",
+    Icon: GraduationCap,
+    title: "Jamie's Training Grounds",
+    by: "Solanum",
+    badge: "New",
+    body: "A custom map that teaches the game from zero and drills the hard skills on repeat: body blocking, surrounds, dodging, windwalk pops and more.",
   },
 ];
 
