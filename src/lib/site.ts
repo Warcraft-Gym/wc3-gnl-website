@@ -21,6 +21,10 @@
 // deployments.
 const PRODUCTION_URL = "https://warcraft-gym.com";
 
+/** The bare domain, for places that print it (the share card). Always the
+ *  public one, never localhost or a preview host. */
+export const SITE_DOMAIN = new URL(PRODUCTION_URL).host;
+
 /** Vercel sends a bare host, with no scheme. */
 const vercelProductionUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`

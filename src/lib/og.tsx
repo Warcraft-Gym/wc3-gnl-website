@@ -1,6 +1,6 @@
 import { readFile } from "node:fs/promises";
 import { join } from "node:path";
-import { SITE_NAME } from "./site";
+import { SITE_DOMAIN, SITE_NAME } from "./site";
 
 /**
  * The share card every page-specific `opengraph-image` route draws: black
@@ -119,7 +119,7 @@ export function OgCard({
           ))}
         </div>
         <div style={{ display: "flex", fontSize: 20, letterSpacing: 4, color: FAINT, textTransform: "uppercase" }}>
-          warcraft3.gym
+          {SITE_DOMAIN}
         </div>
       </div>
     </div>
