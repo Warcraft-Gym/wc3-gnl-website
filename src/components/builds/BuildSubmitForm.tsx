@@ -517,7 +517,7 @@ function BuildSubmitFormInner({ autoFocus, onSubmitAnother }: { autoFocus: boole
             <input
               {...bind("supersedes")}
               maxLength={300}
-              placeholder="https://warcraft3.gym/learn/builds/…"
+              placeholder="https://warcraft-gym.com/learn/builds/…"
               className={input}
             />
           </Field>

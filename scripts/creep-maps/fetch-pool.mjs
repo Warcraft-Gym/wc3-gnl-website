@@ -31,7 +31,7 @@ import { join } from "node:path";
 const POOL_URL = "https://website-backend.w3champions.com/api/ladder/active-modes";
 const CONTENTS_URL =
   "https://api.github.com/repos/w3champions/map-updater-scripts/contents/maps/w3c_maps/clean_maps";
-const UA = "warcraft3.gym creep-route catalogue (+https://warcraft3.gym)";
+const UA = "warcraft-gym.com creep-route catalogue (+https://warcraft-gym.com)";
 
 function parseArgs(argv) {
   let out = null;

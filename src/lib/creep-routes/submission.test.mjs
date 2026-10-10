@@ -251,17 +251,17 @@ test("slugFromInput accepts a bare slug, a path, or a full URL", () => {
   const want = "human-archmage-autumn-leaves";
   assert.equal(slugFromInput(want), want);
   assert.equal(slugFromInput(`/learn/creep-routes/${want}`), want);
-  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}`), want);
-  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}/`), want);
-  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}?from=discord`), want);
-  assert.equal(slugFromInput(`https://warcraft3.gym/learn/creep-routes/${want}#stops`), want);
+  assert.equal(slugFromInput(`https://warcraft-gym.com/learn/creep-routes/${want}`), want);
+  assert.equal(slugFromInput(`https://warcraft-gym.com/learn/creep-routes/${want}/`), want);
+  assert.equal(slugFromInput(`https://warcraft-gym.com/learn/creep-routes/${want}?from=discord`), want);
+  assert.equal(slugFromInput(`https://warcraft-gym.com/learn/creep-routes/${want}#stops`), want);
 });
 
 test("slugFromInput returns something rejectable rather than guessing", () => {
   // Not slug-shaped: better to hand the lookup a value it will fail to match
   // (and log) than to silently pick some other route.
   assert.equal(slugFromInput("   "), "");
-  assert.equal(slugFromInput("https://warcraft3.gym/"), "warcraft3.gym");
+  assert.equal(slugFromInput("https://warcraft-gym.com/"), "warcraft-gym.com");
 });
 
 test("a submission naming no predecessor carries no supersedes reference", () => {
@@ -275,7 +275,7 @@ test("a submission naming no predecessor carries no supersedes reference", () =>
 test("a resubmission carries the reference and still arrives pending", () => {
   const result = schema().safeParse({
     ...payload(),
-    supersedes: "https://warcraft3.gym/learn/creep-routes/old-route-1a2b",
+    supersedes: "https://warcraft-gym.com/learn/creep-routes/old-route-1a2b",
   });
   assert.equal(result.success, true, JSON.stringify(result.error?.issues));
   assert.equal(result.data.supersedes, "old-route-1a2b");

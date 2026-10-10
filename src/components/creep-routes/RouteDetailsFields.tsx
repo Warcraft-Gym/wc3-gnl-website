@@ -148,7 +148,7 @@ export function RouteDetailsFields({
         <input
           {...bind("supersedes")}
           maxLength={300}
-          placeholder="https://warcraft3.gym/learn/creep-routes/…"
+          placeholder="https://warcraft-gym.com/learn/creep-routes/…"
           className={input}
         />
       </Field>
