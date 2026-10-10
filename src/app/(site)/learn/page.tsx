@@ -106,6 +106,31 @@ export default async function LearnPage() {
           </div>
         </section>
 
+        {/* Practice map: a drill in play beside the pitch */}
+        <Surface className="mt-16 grid overflow-hidden p-0 md:grid-cols-[minmax(0,5fr)_minmax(0,6fr)]">
+          <Image
+            src="/training-grounds/body-blocking.webp"
+            alt="The body blocking drill in Jamie's Training Grounds: a Mountain King and footmen trap a Grunt between a start and a finish line."
+            width={1920}
+            height={1080}
+            sizes="(max-width: 768px) 100vw, 32rem"
+            className="h-full w-full object-cover max-md:border-b md:border-r border-line/70"
+          />
+          <div className="flex flex-col justify-center p-8">
+            <span className="kicker mb-3">Practice map</span>
+            <h2 className="font-display text-xl font-bold uppercase">
+              Jamie&apos;s Training Grounds
+            </h2>
+            <p className="mt-2 text-muted">
+              A custom map by Solanum to learn the game from zero and drill the hard
+              skills on repeat: body blocking, surrounds, dodging, windwalk pops and more.
+            </p>
+            <ButtonLink href="/tools/training-grounds" size="md" className="mt-6 self-start">
+              Get the map <ArrowRight size={18} />
+            </ButtonLink>
+          </div>
+        </Surface>
+
         {/* Latest guides */}
         <section className="mt-16">
           <SectionHead
