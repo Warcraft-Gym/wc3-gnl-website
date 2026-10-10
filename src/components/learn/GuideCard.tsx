@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Guide, GuideLevel } from "@/lib/learn/data";
 import { getCategory } from "@/lib/learn/data";
 import { Surface } from "@/components/ui/Surface";
+import { RaceIcon } from "@/components/ui/RaceIcon";
 import { urlFor } from "@/sanity/image";
 import { cn } from "@/lib/utils";
 
@@ -55,14 +56,19 @@ export function GuideCard({ guide }: { guide: Guide }) {
         </div>
 
         <div className="flex flex-1 flex-col p-5">
-          {category ? (
+          {/* A race is an icon first (DESIGN.md, Races), beside the title;
+              a topic keeps its name above it. */}
+          {category && !category.race ? (
             <p className="mb-2 font-mono text-[0.64rem] font-bold uppercase tracking-[0.16em] text-faint">
               {category.title}
             </p>
           ) : null}
-          <h3 className="font-display text-lg font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold">
-            {guide.title}
-          </h3>
+          <div className="flex items-start gap-2.5">
+            {category?.race ? <RaceIcon race={category.race} size={28} /> : null}
+            <h3 className="font-display text-lg font-bold uppercase leading-tight text-fg transition-colors group-hover:text-gold">
+              {guide.title}
+            </h3>
+          </div>
           <p className="mt-2 line-clamp-3 text-sm text-muted">{guide.excerpt}</p>
           <div className="mt-auto pt-4 text-xs text-faint">
             {guide.author ? <>by {guide.author} · </> : null}
