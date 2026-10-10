@@ -132,9 +132,6 @@ export default function TrainingGroundsPage() {
             sizes="(max-width: 640px) 100vw, 26rem"
             className="mt-4 h-auto w-full rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:absolute sm:-bottom-16 sm:right-[-3%] sm:mt-0 sm:w-[26rem]"
           />
-          <figcaption className="mt-3 text-sm text-muted sm:absolute sm:-bottom-16 sm:left-0 sm:mt-0 sm:max-w-[45%]">
-            Pick a tutorial or a drill from one menu, then play it out. Here, body blocking: stop the Grunt before it reaches the finish.
-          </figcaption>
         </figure>
 
         <ul className="mt-14 grid gap-4 sm:grid-cols-3">
