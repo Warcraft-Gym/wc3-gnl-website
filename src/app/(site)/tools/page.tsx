@@ -125,8 +125,8 @@ export default async function ToolsPage() {
       <Container className="py-10">
         {OVERLAY_BETA_LIVE ? (
           <section className="mb-14">
-            <p className="kicker mb-5">From the Gym</p>
-            <div className={cn("grid gap-4", GYM_TOOLS.length > 1 && "sm:grid-cols-2 lg:grid-cols-3")}>
+            <p className="kicker mb-5">Featured</p>
+            <div className={cn("grid gap-4", GYM_TOOLS.length > 1 && "sm:grid-cols-2", GYM_TOOLS.length > 2 && "lg:grid-cols-3")}>
               {GYM_TOOLS.map((t) => (
                 <ToolCard key={t.href} tool={fromGymTool(t)} wide={GYM_TOOLS.length === 1} />
               ))}
