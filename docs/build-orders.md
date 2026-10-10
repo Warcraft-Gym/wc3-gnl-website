@@ -18,7 +18,7 @@ Studio. There is no login and no voting in this version.
    while Review is still Pending, so a build cannot go live unreviewed.
    Builds created directly in the Studio default to Approved.
 4. Published builds show up immediately if the Sanity webhook is set up
-   (below), otherwise within five minutes (ISR revalidate 300).
+   (below), otherwise within an hour (`SANITY_REVALIDATE`, 3600 s).
 
 ### Starting from a replay or the overlay app
 
@@ -54,9 +54,9 @@ and presses Submit for review.
 
 In sanity.io/manage → project → API → Webhooks, add a webhook:
 
-- URL: `https://warcraft3.gym/api/revalidate`
+- URL: `https://warcraft-gym.com/api/revalidate`
 - Trigger on: create, update, delete
-- Filter: `_type in ["buildOrder", "post", "guide", "tool"]`
+- Filter: `_type in ["buildOrder", "post", "guide", "tool", "creepRoute", "creepMap", "gnlRules", "kothPage"]`
 - Projection: `{ _type, slug }`
 - Secret: any long random string; put the same value in the Vercel env as
   `SANITY_REVALIDATE_SECRET`

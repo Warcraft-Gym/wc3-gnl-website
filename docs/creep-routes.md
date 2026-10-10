@@ -873,7 +873,7 @@ preview stays backlog (gaps.md #2; see "Backlog" below).
 `src/lib/creep-routes/routes.ts` and `maps.ts` mirror
 `src/lib/builds/builds.ts`: Sanity first when configured
 (`coalesce(reviewStatus, "approved") == "approved"`, `map->{...}`
-dereferenced, 300 s ISR revalidate), the bundled fixtures in development
+dereferenced, cached for an hour via `SANITY_REVALIDATE`), the bundled fixtures in development
 when Sanity is unreachable or empty, and `[]` in production without Sanity.
 A Sanity stop's fields (`campId`, `action`, `units`, `note`, `condition`)
 are already the domain shape — no per-stop time to convert (F007). A route
@@ -1408,7 +1408,7 @@ needs to compare against.
 ```json
 {
   "maps": [
-    { "slug": "autumn-leaves", "name": "Autumn Leaves v2", "mapVersion": "2.0", "w3cMapId": 44, "image": { "width": 256, "height": 256 }, "camps": 20, "minimapUrl": "https://warcraft3.gym/maps/autumn-leaves.png" }
+    { "slug": "autumn-leaves", "name": "Autumn Leaves v2", "mapVersion": "2.0", "w3cMapId": 44, "image": { "width": 256, "height": 256 }, "camps": 20, "minimapUrl": "https://warcraft-gym.com/maps/autumn-leaves.png" }
   ]
 }
 ```
