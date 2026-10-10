@@ -1,7 +1,7 @@
 # Content (Sanity)
 
 Guides, build orders and news live in Sanity. The Studio is embedded in this
-app at `/studio`, so editors sign in at `warcraft3.gym/studio` and never touch
+app at `/studio`, so editors sign in at `warcraft-gym.com/studio` and never touch
 the code. Everything else on the site (the about pages, the tools list, the
 race and topic hubs) is plain code.
 
@@ -57,7 +57,8 @@ Fields: `title`, `slug`, `excerpt`, `category` (`news`, `recap`, `guide`,
 `src/lib/learn/guides.ts`, `src/lib/builds/builds.ts`,
 `src/lib/content/index.ts` and `src/lib/tools-data.ts` are the only modules
 that query Sanity. Each uses
-the published perspective through the CDN, caches for five minutes (ISR) and
+the published perspective through the CDN, caches for an hour
+(`SANITY_REVALIDATE` in `src/lib/content/cache.ts`) and
 falls back to bundled fixtures when the project is unreachable, so the site
 never renders empty. Nothing in the UI imports Sanity directly, which keeps
 the CMS swappable.
@@ -67,12 +68,13 @@ body at once exceeds the Next.js fetch-cache limit.
 
 ### Instant updates
 
-Edits show up within five minutes on their own. For instant updates, add a
+Without the webhook, an edit can take up to an hour to show. For instant
+updates, add a
 webhook in sanity.io/manage (project → API → Webhooks):
 
-- URL: `https://warcraft3.gym/api/revalidate`
+- URL: `https://warcraft-gym.com/api/revalidate`
 - Trigger on: create, update, delete
-- Filter: `_type in ["buildOrder", "post", "guide", "tool"]`
+- Filter: `_type in ["buildOrder", "post", "guide", "tool", "creepRoute", "creepMap", "gnlRules", "kothPage"]`
 - Projection: `{ _type, slug }`
 - Secret: a long random string, also set on Vercel as `SANITY_REVALIDATE_SECRET`
 

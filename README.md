@@ -1,6 +1,6 @@
 # Warcraft 3 Gym
 
-The website of the Warcraft 3 Gym community at **https://warcraft3.gym**:
+The website of the Warcraft 3 Gym community at **https://warcraft-gym.com**:
 free Warcraft III guides and build orders for every race, the community, and
 the **Gym Newbie League (GNL)**. It replaces the WordPress site and deploys
 on **Vercel**.
@@ -70,7 +70,9 @@ Vercel (this app, Next.js)
   [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - **Content:** guides, build orders and posts are read through
   `src/lib/learn`, `src/lib/builds` and `src/lib/content`, each with a fixture
-  fallback. Pages use ISR (5 minutes) plus an on-demand revalidation webhook.
+  fallback. Sanity reads are cached for an hour (`SANITY_REVALIDATE` in
+  `src/lib/content/cache.ts`); the revalidation webhook purges them within
+  seconds of an edit.
   See [`docs/content.md`](docs/content.md).
 - **Build orders:** submission flow, review in the Studio, the icon set, the
   JSON API and the transcription scripts. See
@@ -93,7 +95,7 @@ Vercel (this app, Next.js)
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity read access. Defaults are baked in so the Studio always loads. |
 | `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts (build orders and creep routes both reuse this one token — no separate creep-routes credential). |
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
-| `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Otherwise the origin is the project's production host on Vercel (`VERCEL_PROJECT_PRODUCTION_URL`, the custom domain once one is attached), falling back to `https://warcraft3.gym`. Share cards and canonicals use it, so it must be a host that answers. |
+| `NEXT_PUBLIC_SITE_URL` | Override for the canonical origin (staging). Otherwise the origin is the project's production host on Vercel (`VERCEL_PROJECT_PRODUCTION_URL`, the custom domain once one is attached), falling back to `https://warcraft-gym.com`. Share cards and canonicals use it, so it must be a host that answers. |
 | `NEXT_PUBLIC_GA_ID` | Overrides the GA4 measurement id, for a staging property. The Gym's own id is a publishable default in `src/lib/analytics.ts` — it is in the page source of every page, so it is not a secret. Set it to an empty string to switch Google Analytics off. |
 | `NEXT_PUBLIC_GA_COOKIES` | `true` lets GA use cookies. **Leave unset.** GA runs in Consent Mode with storage denied, so it sets no cookies and needs no consent banner, which is what the privacy page says. Only turn it on together with a consent banner and a privacy-page update. |
 
@@ -155,7 +157,7 @@ public/
 
 Push to the Vercel project (Next.js is auto-detected) and set the env vars
 above. Preview deployments work on fixtures with no secrets configured. In
-Vercel, set `warcraft3.gym` as the production domain with `www` redirecting
+Vercel, set `warcraft-gym.com` as the production domain with `www` redirecting
 to the apex, and add the Sanity webhook described in
 [`docs/build-orders.md`](docs/build-orders.md) so edits appear instantly.
 
