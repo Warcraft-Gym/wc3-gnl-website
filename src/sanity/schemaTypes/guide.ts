@@ -23,6 +23,24 @@ export const guide = defineType({
       validation: (rule) => rule.required(),
     }),
     defineField({
+      name: "author",
+      type: "string",
+      description: "Who wrote the guide (display name). Leave blank for a Gym guide with no single author.",
+      validation: (rule) => rule.max(60),
+    }),
+    defineField({
+      name: "authorDiscord",
+      title: "Author's Discord",
+      type: "string",
+      validation: (rule) => rule.max(60),
+    }),
+    defineField({
+      name: "maintainer",
+      type: "string",
+      description: "Who keeps it up to date, if not the author.",
+      validation: (rule) => rule.max(60),
+    }),
+    defineField({
       name: "category",
       type: "string",
       options: {
@@ -144,6 +162,10 @@ export const guide = defineType({
     }),
   ],
   preview: {
-    select: { title: "title", subtitle: "category" },
+    select: { title: "title", category: "category", author: "author" },
+    prepare: ({ title, category, author }) => ({
+      title,
+      subtitle: author ? `${category ?? "?"} · ${author}` : category,
+    }),
   },
 });

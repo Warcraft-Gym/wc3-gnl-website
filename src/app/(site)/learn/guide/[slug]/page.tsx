@@ -53,7 +53,11 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
     title: category ? `${guide.title} (${category.title} guide)` : guide.title,
     description,
     path: `/learn/guide/${guide.slug}`,
-    article: { publishedTime: guide.publishedAt, section: category?.title },
+    article: {
+      publishedTime: guide.publishedAt,
+      section: category?.title,
+      ...(guide.author ? { authors: [guide.author] } : {}),
+    },
     // The cover image when the guide has one, the site card otherwise.
     images: image ? [{ url: image, width: 1200, height: 630 }] : undefined,
   });
@@ -89,6 +93,7 @@ export default async function GuidePage({ params }: Params) {
           title: guide.title,
           description: metaDescription(guide.excerpt) ?? guide.excerpt,
           publishedAt: guide.publishedAt,
+          author: guide.author,
           image: coverUrl,
           section: category?.title,
         })}
@@ -125,7 +130,23 @@ export default async function GuidePage({ params }: Params) {
             {guide.title}
           </h1>
           <p className="mt-5 text-lg text-muted">{guide.excerpt}</p>
-          <p className="mt-6 text-sm text-faint">{guide.minutes} min read</p>
+          <p className="mt-6 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-faint">
+            {guide.author ? (
+              <span>
+                By <span className="text-muted">{guide.author}</span>
+                {guide.authorDiscord ? <span className="text-faint"> ({guide.authorDiscord})</span> : null}
+              </span>
+            ) : null}
+            {guide.maintainer && guide.maintainer !== guide.author ? (
+              <span>
+                {guide.author ? "· " : null}Maintained by <span className="text-muted">{guide.maintainer}</span>
+              </span>
+            ) : null}
+            <span>
+              {guide.author || guide.maintainer ? "· " : null}
+              {guide.minutes} min read
+            </span>
+          </p>
         </Container>
       </div>
 

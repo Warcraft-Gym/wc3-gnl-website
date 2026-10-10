@@ -65,6 +65,7 @@ export function GuideCard({ guide }: { guide: Guide }) {
           </h3>
           <p className="mt-2 line-clamp-3 text-sm text-muted">{guide.excerpt}</p>
           <div className="mt-auto pt-4 text-xs text-faint">
+            {guide.author ? <>by {guide.author} · </> : null}
             {guide.minutes} min read
           </div>
         </div>
