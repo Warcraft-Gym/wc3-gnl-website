@@ -108,12 +108,8 @@ export default function TrainingGroundsPage() {
       </PageHeader>
 
       <Container className="py-10">
-        <p className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">
-          By Solanum, from an idea by Jamie · Work in progress
-        </p>
-
         {/* The main menu, with a drill in play tucked over its corner */}
-        <figure className="relative mt-4 sm:mb-24">
+        <figure className="relative sm:mb-24">
           <Image
             src="/training-grounds/main-menu.webp"
             alt="The map's main menu: Learn to Play, Advanced Play, Skill Training and Tools & Extras, with Credits and Patch Notes below."
