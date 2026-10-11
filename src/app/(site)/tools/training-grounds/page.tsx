@@ -80,7 +80,7 @@ const INSTALL_STEPS = [
   },
   {
     title: "Put it in your Maps folder",
-    body: "Move the file into the Maps folder of Warcraft III, where the game keeps custom maps. No Maps folder yet? Make one.",
+    body: "Move the file into the Maps folder of Warcraft III, where the game keeps custom maps.",
   },
   {
     title: "Start it in the game",
