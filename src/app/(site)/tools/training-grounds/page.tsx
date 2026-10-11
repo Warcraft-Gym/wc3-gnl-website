@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { Download, GraduationCap, Repeat, Swords } from "lucide-react";
+import { ArrowDown, Download, GraduationCap, Repeat, Swords } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PageHeader } from "@/components/ui/PageHeader";
 import { ButtonLink } from "@/components/ui/Button";
 import { TRAINING_GROUNDS_DOWNLOAD_URL } from "@/lib/training-grounds";
+import { DISCORD_URL } from "@/lib/links";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
 
 export const metadata: Metadata = pageMetadata({
@@ -72,10 +73,19 @@ const MODULES: { title: string; blurb: string; items: Module[] }[] = [
   },
 ];
 
-const STEPS = [
-  "Download the map and put it in your Warcraft III Maps folder.",
-  "Open it from Single Player, then Custom Game.",
-  "Pick a tutorial or a drill, and hit Redo to go again.",
+const INSTALL_STEPS = [
+  {
+    title: "Download the map",
+    body: "One file, Jamies-Training-Grounds.w3x. Free, nothing to install.",
+  },
+  {
+    title: "Put it in your Maps folder",
+    body: "Move the file into the Maps folder of Warcraft III, where the game keeps custom maps.",
+  },
+  {
+    title: "Start it in the game",
+    body: "Open Warcraft III, choose Single Player, then Custom Game. Pick Jamie's Training Grounds from the list and start.",
+  },
 ];
 
 function ModuleList({ items }: { items: Module[] }) {
@@ -105,15 +115,14 @@ export default function TrainingGroundsPage() {
         <ButtonLink href={TRAINING_GROUNDS_DOWNLOAD_URL} size="md">
           <Download size={18} /> Download the map
         </ButtonLink>
+        <ButtonLink href="#install" variant="outline" size="md">
+          How to install <ArrowDown size={18} />
+        </ButtonLink>
       </PageHeader>
 
       <Container className="py-10">
-        <p className="font-mono text-[0.66rem] uppercase tracking-[0.16em] text-faint">
-          By Solanum, from an idea by Jamie · Work in progress
-        </p>
-
         {/* The main menu, with a drill in play tucked over its corner */}
-        <figure className="relative mt-4 sm:mb-24">
+        <figure className="relative sm:mb-24">
           <Image
             src="/training-grounds/main-menu.webp"
             alt="The map's main menu: Learn to Play, Advanced Play, Skill Training and Tools & Extras, with Credits and Patch Notes below."
@@ -132,10 +141,36 @@ export default function TrainingGroundsPage() {
             sizes="(max-width: 640px) 100vw, 26rem"
             className="mt-4 h-auto w-full rounded border border-line shadow-[0_24px_60px_-12px_rgba(0,0,0,.95)] sm:absolute sm:-bottom-16 sm:right-[-3%] sm:mt-0 sm:w-[26rem]"
           />
-          <figcaption className="mt-3 text-sm text-muted sm:absolute sm:-bottom-16 sm:left-0 sm:mt-0 sm:max-w-[45%]">
-            Pick a tutorial or a drill from one menu, then play it out. Here, body blocking: stop the Grunt before it reaches the finish.
-          </figcaption>
         </figure>
+
+        {/* Install first: a custom map is not obvious to set up for a new player */}
+        <section id="install" aria-labelledby="install-heading" className="mt-14 scroll-mt-28">
+          <p className="kicker mb-2">Install in a minute</p>
+          <h2 id="install-heading" className="text-[length:var(--wg-text-title)]">How to install the map</h2>
+          <ol className="mt-6 grid gap-4 md:grid-cols-3">
+            {INSTALL_STEPS.map(({ title, body }, i) => (
+              <li key={title} className="panel flex flex-col p-6">
+                <span className="btn-gold grid size-10 place-items-center rounded font-display text-lg font-bold">
+                  {i + 1}
+                </span>
+                <p className="mt-4 font-display text-[0.95rem] font-bold uppercase tracking-[0.06em] text-fg">{title}</p>
+                <p className="mt-2 flex-1 text-sm leading-6 text-muted">{body}</p>
+                {i === 0 ? (
+                  <ButtonLink href={TRAINING_GROUNDS_DOWNLOAD_URL} size="sm" className="mt-5 self-start">
+                    <Download size={16} /> Download
+                  </ButtonLink>
+                ) : null}
+              </li>
+            ))}
+          </ol>
+          <p className="mt-4 text-sm text-muted">
+            Stuck?{" "}
+            <a href={DISCORD_URL} target="_blank" rel="noreferrer" className="text-gold hover:underline">
+              Ask in the Discord
+            </a>{" "}
+            and someone will help you set it up.
+          </p>
+        </section>
 
         <ul className="mt-14 grid gap-4 sm:grid-cols-3">
           {POINTS.map(({ Icon, title, body }) => (
@@ -189,21 +224,7 @@ export default function TrainingGroundsPage() {
           </figure>
         </section>
 
-        <div className="mt-14 grid gap-10 lg:grid-cols-[1.2fr_1fr]">
-          <section>
-            <p className="kicker mb-4">Get started</p>
-            <ol className="space-y-4">
-              {STEPS.map((s, i) => (
-                <li key={s} className="flex gap-4">
-                  <span className="btn-gold grid size-8 shrink-0 place-items-center rounded font-display text-sm font-bold">
-                    {i + 1}
-                  </span>
-                  <p className="text-sm leading-6 text-muted">{s}</p>
-                </li>
-              ))}
-            </ol>
-          </section>
-
+        <div className="mt-14">
           <section className="panel border-arcane/40 p-6">
             <p className="kicker">Where it is going</p>
             <ul className="mt-3 space-y-2 text-sm text-muted">
