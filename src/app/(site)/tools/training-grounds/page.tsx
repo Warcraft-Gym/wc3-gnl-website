@@ -73,14 +73,15 @@ const MODULES: { title: string; blurb: string; items: Module[] }[] = [
   },
 ];
 
-const INSTALL_STEPS = [
+const INSTALL_STEPS: { title: string; body: string; path?: string }[] = [
   {
     title: "Download the map",
     body: "One file, Jamies-Training-Grounds.w3x. Free, nothing to install.",
   },
   {
     title: "Put it in your Maps folder",
-    body: "Move the file into the Maps folder of Warcraft III, where the game keeps custom maps.",
+    body: "Move the file into the Maps folder of Warcraft III, where the game keeps custom maps. By default that is:",
+    path: "C:\\Users\\USER\\Documents\\Warcraft III\\Maps",
   },
   {
     title: "Start it in the game",
@@ -148,13 +149,30 @@ export default function TrainingGroundsPage() {
           <p className="kicker mb-2">Install in a minute</p>
           <h2 id="install-heading" className="text-[length:var(--wg-text-title)]">How to install the map</h2>
           <ol className="mt-6 grid gap-4 md:grid-cols-3">
-            {INSTALL_STEPS.map(({ title, body }, i) => (
+            {INSTALL_STEPS.map(({ title, body, path }, i) => (
               <li key={title} className="panel flex flex-col p-6">
                 <span className="btn-gold grid size-10 place-items-center rounded font-display text-lg font-bold">
                   {i + 1}
                 </span>
                 <p className="mt-4 font-display text-[0.95rem] font-bold uppercase tracking-[0.06em] text-fg">{title}</p>
-                <p className="mt-2 flex-1 text-sm leading-6 text-muted">{body}</p>
+                <p className="mt-2 text-sm leading-6 text-muted">{body}</p>
+                {path ? (
+                  <p className="mt-3 rounded border border-line/70 bg-bg-deep px-3 py-2 font-mono text-xs text-fg">
+                    {/* Wrap only after a backslash, never inside a folder name */}
+                    {path.split("\\").map((part, j, all) => (
+                      <span key={j} className="whitespace-nowrap">
+                        {part}
+                        {j < all.length - 1 ? (
+                          <>
+                            {"\\"}
+                            <wbr />
+                          </>
+                        ) : null}
+                      </span>
+                    ))}
+                  </p>
+                ) : null}
+                <span aria-hidden className="flex-1" />
                 {i === 0 ? (
                   <ButtonLink href={TRAINING_GROUNDS_DOWNLOAD_URL} size="sm" className="mt-5 self-start">
                     <Download size={16} /> Download
