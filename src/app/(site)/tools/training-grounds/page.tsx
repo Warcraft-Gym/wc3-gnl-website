@@ -73,7 +73,7 @@ const MODULES: { title: string; blurb: string; items: Module[] }[] = [
 ];
 
 const STEPS = [
-  "Download the map and put it in your Warcraft III Maps folder.",
+  "Download the map and put it in the Maps folder inside your Warcraft III folder.",
   "Open it from Single Player, then Custom Game.",
   "Pick a tutorial or a drill, and hit Redo to go again.",
 ];
