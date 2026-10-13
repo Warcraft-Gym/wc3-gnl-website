@@ -18,7 +18,7 @@ Studio. There is no login and no voting in this version.
    while Review is still Pending, so a build cannot go live unreviewed.
    Builds created directly in the Studio default to Approved.
 4. Published builds show up immediately if the Sanity webhook is set up
-   (below), otherwise within an hour (`SANITY_REVALIDATE`, 3600 s).
+   (below), otherwise within five minutes (`SANITY_REVALIDATE_BY_TYPE`, 300 s).
 
 ### Starting from a replay or the overlay app
 

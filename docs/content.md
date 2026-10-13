@@ -58,7 +58,8 @@ Fields: `title`, `slug`, `excerpt`, `category` (`news`, `recap`, `guide`,
 `src/lib/content/index.ts` and `src/lib/tools-data.ts` are the only modules
 that query Sanity. Each uses
 the published perspective through the CDN, caches for an hour
-(`SANITY_REVALIDATE` in `src/lib/content/cache.ts`) and
+(`SANITY_REVALIDATE` in `src/lib/content/cache.ts`; five minutes for build
+orders and creep routes, `SANITY_REVALIDATE_BY_TYPE`) and
 falls back to bundled fixtures when the project is unreachable, so the site
 never renders empty. Nothing in the UI imports Sanity directly, which keeps
 the CMS swappable.
@@ -68,7 +69,8 @@ body at once exceeds the Next.js fetch-cache limit.
 
 ### Instant updates
 
-Without the webhook, an edit can take up to an hour to show. For instant
+Without the webhook, an edit can take up to an hour to show (five minutes
+for build orders and creep routes). For instant
 updates, add a
 webhook in sanity.io/manage (project → API → Webhooks):
 

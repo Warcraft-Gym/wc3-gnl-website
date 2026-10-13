@@ -85,6 +85,15 @@ test("the backstop is long, because the webhook is the mechanism", () => {
   assert.ok(Number(m[1]) >= 1800, `backstop is ${m[1]}s; short windows rewrite caches for nothing`);
 });
 
+test("only submitted types get a shorter backstop, and never below the API's CDN window", () => {
+  const cache = read("src/lib/content/cache.ts");
+  const block = cache.match(/SANITY_REVALIDATE_BY_TYPE[^=]*=\s*\{([^}]*)\}/);
+  assert.ok(block, "SANITY_REVALIDATE_BY_TYPE must be defined");
+  const entries = [...block[1].matchAll(/(\w+):\s*(\d+)/g)].map((m) => [m[1], Number(m[2])]);
+  assert.deepEqual(entries.map(([t]) => t).sort(), ["buildOrder", "creepRoute"]);
+  for (const [t, s] of entries) assert.ok(s >= 300, `${t} backstop is ${s}s; under five minutes rewrites caches for nothing`);
+});
+
 test("every registered document type can be purged", () => {
   // A type the webhook has no path for is skipped entirely, so a new
   // document type needs a PATHS entry or its edits never appear.
