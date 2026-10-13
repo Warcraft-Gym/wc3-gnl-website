@@ -36,7 +36,21 @@ export const sanityTag = (type: SanityType) => `sanity:${type}`;
  */
 export const SANITY_REVALIDATE = 3600;
 
-/** Fetch options for a Sanity read. Pass every type the query touches. */
+/**
+ * Shorter backstops for the types the public submits and editors approve.
+ * An approval is the one edit someone sits and waits to see, so when the
+ * webhook misses it, an hour reads as "approving is broken". Five minutes
+ * matches the CDN cache their JSON APIs already carry (`s-maxage=300`), and
+ * only these lists and pages pay the extra rewrites, not the whole site.
+ */
+export const SANITY_REVALIDATE_BY_TYPE: Partial<Record<SanityType, number>> = {
+  buildOrder: 300,
+  creepRoute: 300,
+};
+
+/** Fetch options for a Sanity read. Pass every type the query touches; the
+ *  read lives as long as the shortest backstop among them. */
 export function sanityCache(...types: SanityType[]) {
-  return { next: { revalidate: SANITY_REVALIDATE, tags: types.map(sanityTag) } } as const;
+  const revalidate = Math.min(SANITY_REVALIDATE, ...types.map((t) => SANITY_REVALIDATE_BY_TYPE[t] ?? SANITY_REVALIDATE));
+  return { next: { revalidate, tags: types.map(sanityTag) } } as const;
 }
