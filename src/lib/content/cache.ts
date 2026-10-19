@@ -39,13 +39,16 @@ export const SANITY_REVALIDATE = 3600;
 /**
  * Shorter backstops for the types the public submits and editors approve.
  * An approval is the one edit someone sits and waits to see, so when the
- * webhook misses it, an hour reads as "approving is broken". Five minutes
- * matches the CDN cache their JSON APIs already carry (`s-maxage=300`), and
- * only these lists and pages pay the extra rewrites, not the whole site.
+ * webhook misses it, an hour reads as "approving is broken". Only these
+ * lists and pages pay the extra rewrites, not the whole site.
+ *
+ * Fifteen minutes, not five: at five minutes ISR writes doubled across the
+ * team (about 32,000 to 72,000 a day, October 2026), and fifteen still keeps a
+ * missed approval to a short wait.
  */
 export const SANITY_REVALIDATE_BY_TYPE: Partial<Record<SanityType, number>> = {
-  buildOrder: 300,
-  creepRoute: 300,
+  buildOrder: 900,
+  creepRoute: 900,
 };
 
 /** Fetch options for a Sanity read. Pass every type the query touches; the
