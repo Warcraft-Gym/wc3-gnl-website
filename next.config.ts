@@ -30,6 +30,11 @@ const SEASONAL_ART = ["maps", "team-logos"];
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
+    // Optimised images were a fifth of all CDN requests (October 2026), many of
+    // them browsers re-checking icons every 4 hours (Next 16's default). The
+    // images here are icons, faction art and Sanity uploads whose URL changes
+    // when the image does, so a month is safe and cuts those repeat requests.
+    minimumCacheTTL: 2_678_400,
   },
   async redirects() {
     return [

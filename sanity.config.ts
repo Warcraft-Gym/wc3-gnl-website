@@ -4,6 +4,7 @@ import { visionTool } from "@sanity/vision";
 import { apiVersion, dataset, projectId } from "./src/sanity/env";
 import { objectTypes, schemaTypes } from "./src/sanity/schemaTypes";
 import { structure } from "./src/sanity/structure";
+import { resolveDocumentActions } from "./src/sanity/publish-revalidate";
 
 /**
  * Embedded Studio config. Mounted at /studio in the Next.js app.
@@ -16,4 +17,6 @@ export default defineConfig({
   basePath: "/studio",
   schema: { types: [...schemaTypes, ...objectTypes] },
   plugins: [structureTool({ structure }), visionTool({ defaultApiVersion: apiVersion })],
+  // Publish also refreshes the site, so edits show without relying on the webhook.
+  document: { actions: resolveDocumentActions },
 });

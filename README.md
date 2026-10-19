@@ -70,8 +70,8 @@ Vercel (this app, Next.js)
   [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - **Content:** guides, build orders and posts are read through
   `src/lib/learn`, `src/lib/builds` and `src/lib/content`, each with a fixture
-  fallback. Sanity reads are cached for an hour, fifteen minutes for build orders
-  and creep routes (`src/lib/content/cache.ts`); the revalidation webhook purges them within
+  fallback. Sanity reads are cached for a day (`src/lib/content/cache.ts`);
+  pressing Publish in the Studio, or the Sanity webhook, purges them within
   seconds of an edit.
   See [`docs/content.md`](docs/content.md).
 - **Build orders:** submission flow, review in the Studio, the icon set, the
@@ -92,6 +92,7 @@ Vercel (this app, Next.js)
 | Variable | Purpose |
 | --- | --- |
 | `GNL_API_BASE_URL` | FastAPI base URL. Empty means fixtures. |
+| `GNL_LIVE_REVALIDATE` | Optional, seconds. League results, rosters and standings are cached for a day; during a tournament set this (for example `300`) and redeploy, then remove it when the tournament ends. |
 | `NEXT_PUBLIC_SANITY_PROJECT_ID`, `NEXT_PUBLIC_SANITY_DATASET` | Sanity read access. Defaults are baked in so the Studio always loads. |
 | `SANITY_API_WRITE_TOKEN` | Editor-scoped token, server-only; lets the submit form create drafts (build orders and creep routes both reuse this one token — no separate creep-routes credential). |
 | `SANITY_REVALIDATE_SECRET` | Shared secret for the Sanity webhook that hits `/api/revalidate`. |
@@ -99,9 +100,7 @@ Vercel (this app, Next.js)
 | `NEXT_PUBLIC_GA_ID` | Overrides the GA4 measurement id, for a staging property. The Gym's own id is a publishable default in `src/lib/analytics.ts` — it is in the page source of every page, so it is not a secret. Set it to an empty string to switch Google Analytics off. |
 | `NEXT_PUBLIC_GA_COOKIES` | `true` lets GA use cookies. **Leave unset.** GA runs in Consent Mode with storage denied, so it sets no cookies and needs no consent banner, which is what the privacy page says. Only turn it on together with a consent banner and a privacy-page update. |
 
-Vercel's own analytics need no variable: `@vercel/analytics` and
-`@vercel/speed-insights` are rendered in `src/app/layout.tsx` and only report
-when the site runs on Vercel. Google Analytics sits alongside them in
+Google Analytics lives in
 `src/components/analytics/GoogleAnalytics.tsx` and only reports from the
 production deployment — a Vercel preview is also a production *build*, so
 `NEXT_PUBLIC_VERCEL_ENV` is what keeps branch pushes out of the property.
@@ -110,11 +109,11 @@ that the consent defaults are pushed before `config`.
 
 ### Analytics
 
-Page views and Core Web Vitals go to Vercel Analytics and Speed Insights.
-Both are cookie-free and collect no personal data (the visitor IP is used to
-derive a coarse location and is not stored), so there is no consent banner.
-The `/privacy` page describes this in plain words; update it if you add any
-other tracking.
+Page views go to Google Analytics, behind the consent banner. Vercel Analytics
+and Speed Insights were removed in October 2026: their event volume alone was
+over Vercel's free-plan limits (50,000 analytics events and 10,000 Speed
+Insights events a month). The `/privacy` page describes the tracking in plain
+words; update it if you add any.
 
 ## Project structure
 

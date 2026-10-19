@@ -70,7 +70,7 @@ test("a query is tagged with every type it dereferences", () => {
 });
 
 test("the webhook purges the edited type, not everything", () => {
-  const route = read("src/app/api/revalidate/route.ts");
+  const route = read("src/lib/content/revalidate.ts");
   assert.match(route, /revalidateTag\(sanityTag\(type as SanityType\), "max"\)/);
   assert.ok(
     !/revalidateTag\(\s*SANITY_TAG/.test(route),
@@ -85,13 +85,13 @@ test("the backstop is long, because the webhook is the mechanism", () => {
   assert.ok(Number(m[1]) >= 1800, `backstop is ${m[1]}s; short windows rewrite caches for nothing`);
 });
 
-test("only submitted types get a shorter backstop, and never below the API's CDN window", () => {
-  const cache = read("src/lib/content/cache.ts");
-  const block = cache.match(/SANITY_REVALIDATE_BY_TYPE[^=]*=\s*\{([^}]*)\}/);
-  assert.ok(block, "SANITY_REVALIDATE_BY_TYPE must be defined");
-  const entries = [...block[1].matchAll(/(\w+):\s*(\d+)/g)].map((m) => [m[1], Number(m[2])]);
-  assert.deepEqual(entries.map(([t]) => t).sort(), ["buildOrder", "creepRoute"]);
-  for (const [t, s] of entries) assert.ok(s >= 300, `${t} backstop is ${s}s; under five minutes rewrites caches for nothing`);
+test("the Studio's Publish button purges the site, so a day-long backstop is safe", () => {
+  const config = read("sanity.config.ts");
+  assert.match(config, /actions:\s*resolveDocumentActions/, "sanity.config.ts must wire the publish action");
+  assert.match(read("src/sanity/publish-revalidate.ts"), /\/api\/revalidate\/studio/);
+  const route = read("src/app/api/revalidate/studio/route.ts");
+  assert.match(route, /purgeType\(/);
+  assert.match(route, /RECENT_MS/, "the open route must only act on a document that was just published");
 });
 
 test("every registered document type can be purged", () => {
@@ -99,7 +99,7 @@ test("every registered document type can be purged", () => {
   // document type needs a PATHS entry or its edits never appear.
   const types = read("src/sanity/schemaTypes/index.ts").match(/schemaTypes = \[([^\]]*)\]/)[1]
     .split(",").map((s) => s.trim()).filter(Boolean);
-  const route = read("src/app/api/revalidate/route.ts");
+  const route = read("src/lib/content/revalidate.ts");
   const missing = types.filter((t) => !new RegExp(`\\b${t}:`).test(route));
   assert.deepEqual(missing, [], "these types are registered but the webhook ignores them");
 });

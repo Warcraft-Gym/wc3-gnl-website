@@ -17,8 +17,9 @@ Studio. There is no login and no voting in this version.
    clicks **Publish**, or deletes it. Publish is blocked (validation error)
    while Review is still Pending, so a build cannot go live unreviewed.
    Builds created directly in the Studio default to Approved.
-4. Published builds show up immediately if the Sanity webhook is set up
-   (below), otherwise within fifteen minutes (`SANITY_REVALIDATE_BY_TYPE`, 900 s).
+4. Published builds show up within seconds: pressing Publish in the Studio
+   refreshes the site, and so does the Sanity webhook (below). Without either,
+   within a day (`SANITY_REVALIDATE`).
 
 ### Starting from a replay or the overlay app
 

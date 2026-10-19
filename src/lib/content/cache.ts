@@ -25,35 +25,22 @@ export type SanityType =
 export const sanityTag = (type: SanityType) => `sanity:${type}`;
 
 /**
- * How long a Sanity read survives without a webhook.
+ * How long a Sanity read survives when nothing purges it: a day.
  *
- * This is a backstop, not the mechanism: edits arrive through
- * `revalidateTag` within seconds. It used to be 5 minutes, which meant every
- * cached page rewrote itself twelve times an hour whether or not anything
- * had changed. An hour is long enough to cut that by an order of magnitude
- * and short enough that a missed webhook is a nuisance rather than a wrong
- * page for a day.
- */
-export const SANITY_REVALIDATE = 3600;
-
-/**
- * Shorter backstops for the types the public submits and editors approve.
- * An approval is the one edit someone sits and waits to see, so when the
- * webhook misses it, an hour reads as "approving is broken". Only these
- * lists and pages pay the extra rewrites, not the whole site.
+ * This is a backstop, not the mechanism. Edits reach the site within seconds
+ * two ways: the Studio's Publish button calls `/api/revalidate/studio`, and
+ * the Sanity webhook calls `/api/revalidate`. Either purges the edited type's
+ * tag.
  *
- * Fifteen minutes, not five: at five minutes ISR writes doubled across the
- * team (about 32,000 to 72,000 a day, October 2026), and fifteen still keeps a
- * missed approval to a short wait.
+ * Every page regenerates once per backstop window while it gets traffic, and
+ * that is what Vercel bills as ISR writes. At an hour the site wrote about
+ * 32,000 entries a day, and at 5 minutes for builds and routes about 72,000
+ * (October 2026); Vercel's free plan allows about 6,600 a day. A day keeps
+ * the whole site to roughly one regeneration per page per day.
  */
-export const SANITY_REVALIDATE_BY_TYPE: Partial<Record<SanityType, number>> = {
-  buildOrder: 900,
-  creepRoute: 900,
-};
+export const SANITY_REVALIDATE = 86400;
 
-/** Fetch options for a Sanity read. Pass every type the query touches; the
- *  read lives as long as the shortest backstop among them. */
+/** Fetch options for a Sanity read. Pass every type the query touches. */
 export function sanityCache(...types: SanityType[]) {
-  const revalidate = Math.min(SANITY_REVALIDATE, ...types.map((t) => SANITY_REVALIDATE_BY_TYPE[t] ?? SANITY_REVALIDATE));
-  return { next: { revalidate, tags: types.map(sanityTag) } } as const;
+  return { next: { revalidate: SANITY_REVALIDATE, tags: types.map(sanityTag) } } as const;
 }

@@ -873,7 +873,7 @@ preview stays backlog (gaps.md #2; see "Backlog" below).
 `src/lib/creep-routes/routes.ts` and `maps.ts` mirror
 `src/lib/builds/builds.ts`: Sanity first when configured
 (`coalesce(reviewStatus, "approved") == "approved"`, `map->{...}`
-dereferenced, cached for fifteen minutes via `SANITY_REVALIDATE_BY_TYPE`), the bundled fixtures in development
+dereferenced, cached for a day via `SANITY_REVALIDATE` and purged on publish), the bundled fixtures in development
 when Sanity is unreachable or empty, and `[]` in production without Sanity.
 A Sanity stop's fields (`campId`, `action`, `units`, `note`, `condition`)
 are already the domain shape — no per-stop time to convert (F007). A route

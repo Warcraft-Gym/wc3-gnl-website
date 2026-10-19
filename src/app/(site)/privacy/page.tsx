@@ -15,10 +15,9 @@ export const metadata: Metadata = pageMetadata({
 
 const SECTIONS = [
   {
-    title: "Anonymous analytics",
+    title: "Analytics",
     points: [
-      "We use Vercel Analytics and Vercel Speed Insights to count page views and measure how fast pages load. Neither sets cookies, and neither asks your permission, because neither stores anything on your device.",
-      "Google Analytics is different, so we ask. On your first visit a banner offers Allow or Decline, and until you choose, Google Analytics stores nothing.",
+      "We use Google Analytics to see which pages get read, and we ask first. On your first visit a banner offers Allow or Decline, and until you choose, Google Analytics stores nothing.",
       "Allow, and it sets a cookie that recognises your browser between visits, so we can tell one reader returning from twenty separate ones. That is the whole of what it buys us: which guides get read, and what people came looking for.",
       "Decline, and nothing is stored. The site works exactly the same, and we will not ask again.",
       "Advertising is refused either way. We run none, and Google is told so explicitly, so your visit is never used to target anything at you.",
