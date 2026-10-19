@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { ArrowLeft } from "lucide-react";
 import { LAST_LIST_URL_KEY } from "./RouteListUrlRecorder";
 

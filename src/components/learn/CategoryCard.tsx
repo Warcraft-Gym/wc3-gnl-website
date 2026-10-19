@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Image from "next/image";
 import { ArrowUpRight } from "lucide-react";
 import type { LearnCategory } from "@/lib/learn/data";

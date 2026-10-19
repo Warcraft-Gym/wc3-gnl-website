@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
 import { getCreepMapBySlug } from "@/lib/creep-routes/maps";
 import { routeHas } from "@/lib/creep-routes/route-has.mjs";

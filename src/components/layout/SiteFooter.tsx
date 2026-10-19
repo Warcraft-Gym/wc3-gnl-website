@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { Code2, Play } from "lucide-react";
 import { DiscordIcon } from "@/components/ui/DiscordIcon";
 import { DISCORD_URL, GITHUB_ISSUES_URL, GITHUB_URL, X_URL, YOUTUBE_URL } from "@/lib/links";

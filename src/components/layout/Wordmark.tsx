@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { cn } from "@/lib/utils";
 
 /** The gold Warcraft 3 Gym wordmark (transparent background), linking home. */

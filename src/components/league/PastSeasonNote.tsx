@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { History } from "lucide-react";
 import type { Season } from "@/lib/api/types";
 

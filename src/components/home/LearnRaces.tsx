@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Image from "next/image";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
