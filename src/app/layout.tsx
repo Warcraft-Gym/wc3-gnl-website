@@ -1,8 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Cinzel, Lato, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import { GoogleAnalytics } from "@/components/analytics/GoogleAnalytics";
 import { ConsentBanner } from "@/components/analytics/ConsentBanner";
 import { GA_ENABLED } from "@/lib/analytics";
@@ -107,8 +105,6 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <JsonLd data={organizationJsonLd()} />
         <JsonLd data={websiteJsonLd()} />
         {children}
-        <Analytics />
-        <SpeedInsights />
         <GoogleAnalytics />
         <ConsentBanner enabled={GA_ENABLED} />
       </body>

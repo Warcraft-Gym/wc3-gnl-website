@@ -1,5 +1,4 @@
-import { revalidatePath, revalidateTag } from "next/cache";
-import { sanityTag, type SanityType } from "@/lib/content/cache";
+import { purgeType } from "@/lib/content/revalidate";
 import { NextResponse, type NextRequest } from "next/server";
 import { createHmac, timingSafeEqual } from "node:crypto";
 
@@ -8,6 +7,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
  * Webhooks) POSTs here on create/update/delete; we verify the signature and
  * purge the pages that render that document type, so publishing a build or
  * a post shows up on the site immediately instead of after the ISR window.
+ * The Studio's Publish button does the same through `./studio/route.ts`.
  *
  * Env: SANITY_REVALIDATE_SECRET (the webhook's secret).
  */
@@ -30,36 +30,6 @@ function isValid(header: string | null, body: string): boolean {
 
 type Payload = { _type?: string; slug?: { current?: string } | string };
 
-const PATHS: Record<string, (slug?: string) => string[]> = {
-  buildOrder: (slug) => [
-    "/learn/builds",
-    ...(slug ? [`/learn/builds/${slug}`] : []),
-    "/learn/human", "/learn/orc", "/learn/night-elf", "/learn/undead",
-    "/",
-    "/api/builds",
-    ...(slug ? [`/api/builds/${slug}`] : []),
-  ],
-  post: (slug) => ["/blog", ...(slug ? [`/blog/${slug}`] : []), "/"],
-  tool: () => ["/tools"],
-  // The two singletons. Neither was listed, so editing the rulebook or the
-  // KotH page left the page it renders stale until the ISR window rolled.
-  gnlRules: () => ["/gnl/rules"],
-  kothPage: () => ["/king-of-the-hill", "/"],
-  guide: (slug) => ["/learn", ...(slug ? [`/learn/guide/${slug}`] : []), "/"],
-  creepRoute: (slug) => [
-    "/learn/creep-routes",
-    ...(slug ? [`/learn/creep-routes/${slug}`] : []),
-    "/",
-    "/api/creep-routes",
-    ...(slug ? [`/api/creep-routes/${slug}`] : []),
-  ],
-  creepMap: (slug) => [
-    "/learn/creep-routes",
-    "/api/creep-maps",
-    ...(slug ? [`/api/creep-maps/${slug}`] : []),
-  ],
-};
-
 export async function POST(req: NextRequest) {
   const body = await req.text();
   if (!isValid(req.headers.get(SIGNATURE_HEADER), body)) {
@@ -75,22 +45,7 @@ export async function POST(req: NextRequest) {
 
   const type = payload._type ?? "";
   const slug = typeof payload.slug === "string" ? payload.slug : payload.slug?.current;
-  const paths = PATHS[type]?.(slug);
+  const paths = purgeType(type, slug);
   if (!paths) return NextResponse.json({ ok: true, skipped: type });
-
-  // The tag first: `revalidatePath` only throws away the rendered page, so
-  // without this Next re-renders and is handed the same cached Sanity
-  // response it had before, rebuilding the page faithfully from stale
-  // content. Purging the data is what makes an edit actually show.
-  //
-  // Only this document's type, not all of Sanity. Every query carries a tag
-  // for each type it reads, dereferences included, so a creep route whose
-  // page shows its map's name is still purged when that map changes, without
-  // rewriting the cache for every guide and post on the site.
-  //
-  // "max" expires the tag whatever cache life the entry was written with;
-  // Next 16 deprecated the single-argument form.
-  revalidateTag(sanityTag(type as SanityType), "max");
-  for (const p of paths) revalidatePath(p);
   return NextResponse.json({ ok: true, type, revalidated: paths });
 }

@@ -34,13 +34,18 @@ const DEFAULT_REVALIDATE = 86_400;
  * Cache window for data that moves during a season: fixtures, results,
  * rosters, the fantasy table.
  *
- * The pages showing these all read `searchParams` for the season, so Next
- * renders them per request and they write no ISR entry at all. The day-long
- * default therefore bought nothing on them and only made a live standings
- * table up to a day stale. Five minutes costs upstream calls to the GNL
- * service, not Vercel writes.
+ * A day by default. League data only changes while a tournament runs, and at
+ * 5 minutes every cached response was rewritten up to 288 times a day: Vercel
+ * bills each rewrite as an ISR write, and each miss is a call into the backend,
+ * whose CPU is the other half of the team's bill. During a tournament, set
+ * `GNL_LIVE_REVALIDATE` (seconds, for example 300) in the Vercel project and
+ * redeploy; remove it again when the tournament ends.
+ *
+ * Env:
+ *   GNL_LIVE_REVALIDATE   optional override, in seconds (minimum 60)
  */
-export const LIVE_REVALIDATE = 300;
+const liveOverride = Number(process.env.GNL_LIVE_REVALIDATE);
+export const LIVE_REVALIDATE = Number.isFinite(liveOverride) && liveOverride >= 60 ? Math.floor(liveOverride) : 86_400;
 
 export function isApiConfigured(): boolean {
   return Boolean(BASE_URL);

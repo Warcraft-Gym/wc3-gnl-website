@@ -57,9 +57,8 @@ Fields: `title`, `slug`, `excerpt`, `category` (`news`, `recap`, `guide`,
 `src/lib/learn/guides.ts`, `src/lib/builds/builds.ts`,
 `src/lib/content/index.ts` and `src/lib/tools-data.ts` are the only modules
 that query Sanity. Each uses
-the published perspective through the CDN, caches for an hour
-(`SANITY_REVALIDATE` in `src/lib/content/cache.ts`; fifteen minutes for build
-orders and creep routes, `SANITY_REVALIDATE_BY_TYPE`) and
+the published perspective through the CDN, caches for a day
+(`SANITY_REVALIDATE` in `src/lib/content/cache.ts`) and
 falls back to bundled fixtures when the project is unreachable, so the site
 never renders empty. Nothing in the UI imports Sanity directly, which keeps
 the CMS swappable.
@@ -69,10 +68,15 @@ body at once exceeds the Next.js fetch-cache limit.
 
 ### Instant updates
 
-Without the webhook, an edit can take up to an hour to show (fifteen minutes
-for build orders and creep routes). For instant
-updates, add a
-webhook in sanity.io/manage (project → API → Webhooks):
+Pressing **Publish** in the Studio refreshes the site: the Studio's publish
+action (`src/sanity/publish-revalidate.ts`) calls `/api/revalidate/studio`,
+which checks with Sanity that the document really was just published and then
+purges its pages. Nothing else is needed for edits made in the Studio.
+
+Unpublishing or deleting a document is not covered by that, and nor are edits
+made outside the Studio. For those, and as a second path, add a webhook in
+sanity.io/manage (project → API → Webhooks). Without either, an edit takes up
+to a day to show:
 
 - URL: `https://warcraft-gym.com/api/revalidate`
 - Trigger on: create, update, delete
