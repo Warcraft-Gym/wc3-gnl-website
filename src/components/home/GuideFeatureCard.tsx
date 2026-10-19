@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Image from "next/image";
 import type { Guide, GuideLevel } from "@/lib/learn/data";
 import { getCategory } from "@/lib/learn/data";

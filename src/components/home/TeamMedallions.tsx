@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import type { Team } from "@/lib/api/types";
 
 /** Circular team crests in a row, like the race medallions on the official

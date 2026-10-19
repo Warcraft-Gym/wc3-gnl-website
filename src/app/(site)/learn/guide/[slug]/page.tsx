@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { metaDescription } from "@/lib/meta-description.mjs";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { ArrowLeft, ListOrdered } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { PRIMARY_NAV, LEARN_NAV, GNL_NAV } from "./nav-items";

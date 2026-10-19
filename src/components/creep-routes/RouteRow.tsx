@@ -1,4 +1,4 @@
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { PlayCircle, Link as LinkIcon } from "lucide-react";
 import { isEmbeddable } from "@/lib/video-embed.mjs";
 import Image from "next/image";

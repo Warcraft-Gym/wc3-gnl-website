@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";

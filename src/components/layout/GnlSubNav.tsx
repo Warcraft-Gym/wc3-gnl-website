@@ -1,7 +1,7 @@
 "use client";
 
 import { Suspense, useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Check, ChevronDown } from "lucide-react";
 import { GNL_NAV } from "./nav-items";

@@ -8,7 +8,7 @@ import { embedUrl } from "@/lib/video-embed.mjs";
 import { displayWidth, imageDimensions, isIconSized } from "@/lib/sanity-image-size.mjs";
 import { groupIconLabelPairs } from "@/lib/icon-grid.mjs";
 import { ZoomableImage } from "@/components/ui/ZoomableImage";
-import Link from "next/link";
+import Link from "@/components/ui/Link";
 import { KillOrderDemo, type KillOrderPreset } from "@/components/learn/KillOrderDemo";
 import { FIXTURE_MAPS } from "@/lib/creep-routes/fixtures";
 import { CreepMapPlayground } from "@/components/creep-routes/CreepMapPlayground";
