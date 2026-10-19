@@ -70,7 +70,7 @@ Vercel (this app, Next.js)
   [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
 - **Content:** guides, build orders and posts are read through
   `src/lib/learn`, `src/lib/builds` and `src/lib/content`, each with a fixture
-  fallback. Sanity reads are cached for an hour, five minutes for build orders
+  fallback. Sanity reads are cached for an hour, fifteen minutes for build orders
   and creep routes (`src/lib/content/cache.ts`); the revalidation webhook purges them within
   seconds of an edit.
   See [`docs/content.md`](docs/content.md).
