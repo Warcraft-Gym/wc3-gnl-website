@@ -13,8 +13,6 @@ import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-para
 import { DASHBOARD_URL } from "@/lib/links";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const dynamic = "force-dynamic";
-
 type Props = { searchParams: Promise<SeasonSearchParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {

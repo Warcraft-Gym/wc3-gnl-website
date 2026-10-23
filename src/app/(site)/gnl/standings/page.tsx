@@ -9,8 +9,6 @@ import { getSeason, getSeasons, getStandings } from "@/lib/api/gnl";
 import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-params";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-export const dynamic = "force-dynamic";
-
 type Props = { searchParams: Promise<SeasonSearchParams> };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {

@@ -12,9 +12,6 @@ import { parseSeasonParam, type SeasonSearchParams } from "@/lib/api/season-para
 import { WeekSummary } from "@/components/league/WeekSummary";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-// Reads ?season=, so it renders per request like the other league pages.
-export const dynamic = "force-dynamic";
-
 type Params = {
   params: Promise<{ week: string }>;
   searchParams: Promise<SeasonSearchParams>;
