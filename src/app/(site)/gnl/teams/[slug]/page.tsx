@@ -20,10 +20,6 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { breadcrumbJsonLd, sportsTeamJsonLd } from "@/lib/seo";
 import { pageMetadata } from "@/lib/share-metadata.mjs";
 
-// Reads ?season= and the live backend, so it renders per request like the
-// other league pages.
-export const dynamic = "force-dynamic";
-
 const RACE_ORDER: Race[] = ["human", "orc", "nightelf", "undead", "random"];
 
 type Params = {
