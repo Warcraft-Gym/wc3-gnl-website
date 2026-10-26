@@ -1,5 +1,5 @@
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import type { Post } from "@/lib/content/types";
 import { Surface } from "@/components/ui/Surface";
 import { cn } from "@/lib/utils";

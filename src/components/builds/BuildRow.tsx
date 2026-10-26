@@ -1,5 +1,5 @@
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { ArrowRight, PlayCircle, Link as LinkIcon } from "lucide-react";
 import { isEmbeddable } from "@/lib/video-embed.mjs";
 import { DifficultyBadge, TagChip, VsRaces } from "./BuildBadges";

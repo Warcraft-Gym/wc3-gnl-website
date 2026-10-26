@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { cn } from "@/lib/utils";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import Link from "@/components/ui/Link";
 import { ArrowRight, ExternalLink } from "lucide-react";
 import { Container } from "@/components/ui/Container";

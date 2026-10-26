@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { ChevronDown, ExternalLink } from "lucide-react";
 import { TwitchIcon } from "@/components/ui/TwitchIcon";
 import { Container } from "@/components/ui/Container";

@@ -5,7 +5,7 @@ import { JsonLd } from "@/components/seo/JsonLd";
 import { articleJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import { notFound } from "next/navigation";
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { ArrowLeft } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { PortableBody } from "@/components/sanity/PortableBody";

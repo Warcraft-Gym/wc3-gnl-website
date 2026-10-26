@@ -1,7 +1,7 @@
 import Link from "@/components/ui/Link";
 import { PlayCircle, Link as LinkIcon } from "lucide-react";
 import { isEmbeddable } from "@/lib/video-embed.mjs";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { TagChip, VsRaces } from "@/components/builds/BuildBadges";
 import { LevelBadge } from "@/components/creep-routes/RouteBadges";
 import { BUILD_RACES } from "@/lib/builds/types";

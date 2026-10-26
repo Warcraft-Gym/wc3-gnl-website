@@ -27,7 +27,22 @@ const STATIC_ART = [
 ];
 const SEASONAL_ART = ["maps", "team-logos"];
 
+/** The site icons and the manifest, which every page links: without this a
+ *  browser re-checks each of them on almost every page view, about 4,300 CDN
+ *  requests a day in October 2026, nearly all answered 304. */
+const SITE_ICONS = [
+  "/favicon.ico", "/icon.png", "/apple-icon.png", "/icon-192.png",
+  "/icon-maskable-512.png", "/manifest.webmanifest",
+];
+
 const nextConfig: NextConfig = {
+  experimental: {
+    // How long the browser's in-memory router cache reuses a page it already
+    // has, so going back to one costs no request. Prefetched and static pages
+    // (most of this site) half an hour, the rest five minutes; content changes
+    // a few times a week, and a reload always fetches fresh.
+    staleTimes: { static: 1800, dynamic: 300 },
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
     // Optimised images were a fifth of all CDN requests (October 2026), many of
@@ -62,6 +77,7 @@ const nextConfig: NextConfig = {
     return [
       ...STATIC_ART.map((dir) => rule(dir, ART_CACHE)),
       ...SEASONAL_ART.map((dir) => rule(dir, SEASONAL_ART_CACHE)),
+      ...SITE_ICONS.map((source) => ({ source, headers: [{ key: "Cache-Control", value: ART_CACHE }] })),
     ];
   },
 };
