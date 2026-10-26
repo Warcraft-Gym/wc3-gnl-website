@@ -143,6 +143,15 @@ export interface RawCareerStat {
   games_lost?: number | null;
   seasons_played?: number | null;
 }
+/** GET /users/{id}/profile: the four player reads in one answer. `series`
+ *  holds the named events the person has a roster seat in; `career` is null
+ *  where /stats/career/{id} has no row. */
+export interface RawPlayerProfile {
+  summary: RawUserSummary;
+  seasons: RawUserSeason[];
+  career: RawCareerStat | null;
+  series: RawUserSeries[];
+}
 interface RawTeamLite {
   id: number;
   league_id?: number;
