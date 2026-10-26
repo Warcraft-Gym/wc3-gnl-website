@@ -1,5 +1,5 @@
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { LEARN_CATEGORIES, type LearnCategory } from "@/lib/learn/data";
 import { learnArt } from "@/lib/learn/art";
 import { ButtonLink } from "@/components/ui/Button";

@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { RaceIcon } from "@/components/ui/RaceIcon";
 import { BUILD_RACES, type BuildRace } from "@/lib/builds/types";
 import { cn } from "@/lib/utils";

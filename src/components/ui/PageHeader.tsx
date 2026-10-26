@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { Container } from "./Container";
 import { Kicker } from "./Surface";
 import { KeyArt } from "./KeyArt";

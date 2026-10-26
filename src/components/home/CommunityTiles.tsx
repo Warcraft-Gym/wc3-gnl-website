@@ -1,5 +1,5 @@
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { ArrowUpRight } from "lucide-react";
 import { DISCORD_URL, YOUTUBE_URL } from "@/lib/links";
 import { cn } from "@/lib/utils";

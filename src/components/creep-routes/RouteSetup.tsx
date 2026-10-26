@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { RaceCrestRow, RaceCrestMultiRow, type CrestOption } from "@/components/builds/RaceCrestPicker";
 import { IconPicker } from "@/components/builds/IconPicker";
 import type { IconRace } from "@/lib/builds/icons";

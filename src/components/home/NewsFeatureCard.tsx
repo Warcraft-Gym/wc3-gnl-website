@@ -1,5 +1,5 @@
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import type { Post } from "@/lib/content/types";
 
 const CATEGORY_LABEL: Record<Post["category"], string> = {

@@ -1,5 +1,5 @@
 import Link from "@/components/ui/Link";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import type { Guide, GuideLevel } from "@/lib/learn/data";
 import { getCategory } from "@/lib/learn/data";
 import { urlFor } from "@/sanity/image";

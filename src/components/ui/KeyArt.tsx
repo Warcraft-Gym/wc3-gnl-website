@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { cn } from "@/lib/utils";
 
 /** Full-bleed painted background for a `.keyart` section. Renders behind the

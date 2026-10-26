@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { cn } from "@/lib/utils";
 
 /** The W3Champions crown, for links that leave for w3champions.com. */

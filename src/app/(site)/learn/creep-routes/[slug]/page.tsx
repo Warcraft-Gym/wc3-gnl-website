@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, redirect } from "next/navigation";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { ExternalLink, PencilLine } from "lucide-react";
 import { Container } from "@/components/ui/Container";
 import { KeyArt } from "@/components/ui/KeyArt";

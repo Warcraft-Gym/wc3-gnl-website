@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { cn, RACES, type Race } from "@/lib/utils";
 
 /** Faction icon for a player's race (human, night elf, orc, undead, random). */

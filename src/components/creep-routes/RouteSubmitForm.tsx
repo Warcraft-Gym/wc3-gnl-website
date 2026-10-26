@@ -1,7 +1,7 @@
 "use client";
 
 import { useActionState, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import Image from "next/image";
+import Image from "@/components/ui/Image";
 import { CheckCircle2, ChevronDown, Undo2 } from "lucide-react";
 import { submitCreepRoute, type SubmitState } from "@/app/(site)/learn/creep-routes/submit/actions";
 import { RouteSetup } from "./RouteSetup";
