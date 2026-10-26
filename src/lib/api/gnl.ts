@@ -31,10 +31,7 @@ import {
   type RawSeriesSummary,
   type RawMatch,
   type RawFantasyTeam,
-  type RawCareerStat,
-  type RawUserSeason,
-  type RawUserSeries,
-  type RawUserSummary,
+  type RawPlayerProfile,
 } from "./mappers";
 import type {
   Season,
@@ -317,24 +314,20 @@ export async function findPlayerBySlug(slug: string): Promise<{ id: number; name
  *  captain seats, career stats, and their series in every published GNL
  *  season they have a roster seat in. Undefined when no published season
  *  holds the id. Every read here is cached for LIVE_REVALIDATE (a day unless
- *  a tournament shortens it): crawlers walk every player page, and at an hour
- *  each one made four backend calls an hour, a third of the backend's traffic. */
+ *  a tournament shortens it): crawlers walk every player page, and each render
+ *  is one backend call, not the four it once took. */
 export async function getPlayerProfile(userId: number): Promise<PlayerProfile | undefined> {
   const { data } = await withFallback(
     async () => {
-      const live = { revalidate: LIVE_REVALIDATE };
-      const [seasons, user, seats, career] = await Promise.all([
-        fetchShownSeasonsRaw(),
-        apiGet<RawUserSummary>(`/users/${userId}/summary`, live).catch(notFound(null)),
-        apiGet<RawUserSeason[]>(`/users/${userId}/seasons`, live),
-        apiGet<RawCareerStat>(`/stats/career/${userId}`, live).catch(notFound(null)),
-      ]);
-      if (!user) return null;
-      const published = new Set(seasons.map((s) => s.id));
-      const eventIds = seats.filter((r) => r.team && !r.captain_only && published.has(r.season_id)).map((r) => r.season_id);
-      const series = eventIds.length
-        ? await apiGetAll<RawUserSeries>(`/users/${userId}/series`, { ...live, query: { event_id: eventIds } })
-        : [];
+      const seasons = await fetchShownSeasonsRaw();
+      // One backend call: the person, their seats, their career row and their
+      // series in the published seasons they hold a roster seat in
+      const profile = await apiGet<RawPlayerProfile>(`/users/${userId}/profile`, {
+        revalidate: LIVE_REVALIDATE,
+        query: { event_id: seasons.map((s) => s.id) },
+      }).catch(notFound(null));
+      if (!profile) return null;
+      const { summary: user, seasons: seats, series, career } = profile;
       return mapPlayerProfile({ seasons, user, seats, series, career }) ?? null;
     },
     () => null,
