@@ -45,11 +45,13 @@ const nextConfig: NextConfig = {
   },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "cdn.sanity.io" }],
-    // Optimised images were a fifth of all CDN requests (October 2026), many of
-    // them browsers re-checking icons every 4 hours (Next 16's default). The
-    // images here are icons, faction art and Sanity uploads whose URL changes
-    // when the image does, so a month is safe and cuts those repeat requests.
-    minimumCacheTTL: 2_678_400,
+    // How long Vercel's edge keeps an optimised image: a week, the same as the
+    // browser cache of the art behind it. The edge answers with an `Age` that
+    // counts from when it made the image, and a browser takes that off
+    // `max-age`. At a month every image older than a week arrived stale and
+    // was re-checked on each page view (October 2026). Sanity pictures and the
+    // faction icons never come through here (see `src/components/ui/Image.tsx`).
+    minimumCacheTTL: 604_800,
   },
   async redirects() {
     return [
